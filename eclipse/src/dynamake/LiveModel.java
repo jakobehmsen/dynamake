@@ -1,14 +1,19 @@
 package dynamake;
 
 import java.awt.AWTEvent;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
+import java.awt.Paint;
+import java.awt.PaintContext;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
@@ -24,6 +29,9 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.ColorModel;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -40,6 +48,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.StrokeBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.plaf.PopupMenuUI;
@@ -647,7 +657,7 @@ public class LiveModel extends Model {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							LivePanel.this.revalidate();
+//							LivePanel.this.revalidate();
 							LivePanel.this.repaint();
 						}
 					});
@@ -831,6 +841,7 @@ public class LiveModel extends Model {
 						break;
 					case LiveModel.STATE_EDIT:
 						editPanel = new JPanel();
+						editPanel.setLayout(null);
 						
 //						JPopupMenu editPopupMenu = new JPopupMenu();
 //						editPopupMenu.add("Test");
@@ -850,13 +861,37 @@ public class LiveModel extends Model {
 								this.selection = view;
 								
 								if(this.selection != null) {
+//									if(selectionFrame != null) {
+//										editPanel.remove(selectionFrame);
+//										selectionFrame = null;
+//									}
+									
 									if(selectionFrame == null) {
 										selectionFrame = new JPanel();
 										selectionFrame.setBackground(new Color(0, 0, 0, 0));
-										selectionFrame.setBorder(BorderFactory.createLineBorder(Color.RED, 3));
+//										selectionFrame.setBorder(BorderFactory.createLineBorder(Color.RED, 3));
+//										selectionFrame.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED, Color.GREEN, Color.BLUE, Color.BLACK, Color.DARK_GRAY));
 										
-										// Somehow, the events sent to selectionFrame should be forwarded to editPanel, if
-										// the clicked target component is different from the current selection
+//										selectionFrame.setBorder(new StrokeBorder(new BasicStroke(BasicStroke.CAP_BUTT), Color.RED));
+										
+//										selectionFrame.setBorder(BorderFactory.createCompoundBorder(
+//											BorderFactory.createLineBorder(Color.BLACK, 1),
+//											BorderFactory.createMatteBorder(1, 3, 1, 3, Color.BLUE)
+//										));
+										
+//										selectionFrame.setBorder(BorderFactory.createCompoundBorder(
+//											BorderFactory.createLineBorder(Color.BLACK, 1),
+//											BorderFactory.createCompoundBorder(
+//												BorderFactory.createMatteBorder(1, 3, 1, 3, Color.BLUE),
+//												BorderFactory.createLineBorder(Color.WHITE, 1)
+//											)
+//										));
+										
+										selectionFrame.setBorder(BorderFactory.createCompoundBorder(
+											BorderFactory.createDashedBorder(Color.BLACK, 1.75f, 2.0f, 1.5f, false),
+											BorderFactory.createDashedBorder(Color.WHITE, 1.75f, 2.0f, 1.5f, false)
+										));
+										
 										MouseAdapter mouseAdapter = new MouseAdapter() {
 											private static final int HORIZONTAL_REGION_WEST = 0;
 											private static final int HORIZONTAL_REGION_CENTER = 1;
@@ -947,12 +982,16 @@ public class LiveModel extends Model {
 												}
 											}
 											
+											public void mouseExited(MouseEvent e) {
+												if(mouseDown == null) {
+													selectionFrame.setCursor(null);
+												}
+											}
+											
 											@Override
 											public void mouseReleased(MouseEvent e) {
 												if(e.getButton() == MouseEvent.BUTTON1 && selection != contentView.getBindingTarget()) {
 													mouseDown = null;
-//													isResizing[0] = false;
-//													FocusViewManager.this.canChangeFocus = true;
 													
 													TransactionFactory transactionFactory = selection.getTransactionFactory();
 													
@@ -973,8 +1012,6 @@ public class LiveModel extends Model {
 												if(e.getButton() == MouseEvent.BUTTON1 && selection != contentView.getBindingTarget()) {
 													mouseDown = e.getPoint();
 													size = selectionFrame.getSize();
-//													FocusViewManager.this.canChangeFocus = false;
-//													isResizing[0] = true;
 												}
 											}
 											
@@ -1028,7 +1065,19 @@ public class LiveModel extends Model {
 													LivePanel.this.repaint();
 												}
 											}
-											
+										};
+										
+//										mouseAdapter = new MouseOrganizeAdapter(LivePanel.this, contentView.getBindingTarget(), new Func0<ModelComponent>() {
+//											@Override
+//											public ModelComponent call() {
+//												return selection;
+//											}
+//										});
+										
+										selectionFrame.addMouseListener(mouseAdapter);
+										selectionFrame.addMouseMotionListener(mouseAdapter);
+										
+										selectionFrame.addMouseListener(new MouseAdapter() {
 											public void mouseClicked(MouseEvent e) {
 												if(e.getButton() == 1) {
 													JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
@@ -1043,13 +1092,12 @@ public class LiveModel extends Model {
 														select(targetModelComponent);
 														Point restoredPoint = SwingUtilities.convertPoint(LivePanel.this, referencePoint, (JComponent)targetModelComponent);
 														e.translatePoint(restoredPoint.x - e.getX(), restoredPoint.y - e.getY());
+														e.setSource(selectionFrame);
 														showPopupForSelection(e);
 													}
 												}
 											}
-										};
-										selectionFrame.addMouseListener(mouseAdapter);
-										selectionFrame.addMouseMotionListener(mouseAdapter);
+										});
 										
 										editPanel.add(selectionFrame);
 									}
@@ -1096,12 +1144,7 @@ public class LiveModel extends Model {
 										transactionsPopupMenu.addSeparator();
 									
 									transactionMapBuilder.appendTo(transactionsPopupMenu);
-									
-//									JComponent targetInvoker = LivePanel.this;
-									
-//									Point targetPoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), LivePanel.this);
-//									
-//									transactionsPopupMenu.show(targetInvoker, targetPoint.x, targetPoint.y);
+
 									transactionsPopupMenu.show((JComponent)e.getSource(), e.getPoint().x, e.getPoint().y);
 									LivePanel.this.repaint();
 									
@@ -1142,59 +1185,6 @@ public class LiveModel extends Model {
 									
 									select(targetModelComponent);
 									showPopupForSelection(e);
-//									if(targetModelComponent != null) {
-//										JPopupMenu transactionsPopupMenu = new JPopupMenu() {
-//											private boolean ignoreNextPaint;
-//											
-//											public void paint(java.awt.Graphics g) {
-//												super.paint(g);
-//												if(!ignoreNextPaint) {
-//													LivePanel.this.repaint();
-//													ignoreNextPaint = true;
-//												} else {
-//													ignoreNextPaint = false;
-//												}
-//											}
-//										};
-//										
-//										ModelComponent parentModelComponent = closestModelComponent(((JComponent)targetModelComponent).getParent()); 
-//										
-//										TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
-//										if(parentModelComponent != null)
-//											parentModelComponent.appendContainerTransactions(containerTransactionMapBuilder, targetModelComponent);
-//										TransactionMapBuilder transactionMapBuilder = new TransactionMapBuilder();
-//										targetModelComponent.appendTransactions(transactionMapBuilder);
-//
-//										containerTransactionMapBuilder.appendTo(transactionsPopupMenu);
-//										if(!containerTransactionMapBuilder.isEmpty() && !transactionMapBuilder.isEmpty())
-//											transactionsPopupMenu.addSeparator();
-//										
-//										transactionMapBuilder.appendTo(transactionsPopupMenu);
-//										
-//										JComponent targetInvoker = LivePanel.this;
-//										
-//										Point targetPoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), LivePanel.this);
-//										
-//										transactionsPopupMenu.show(targetInvoker, targetPoint.x, targetPoint.y);
-//										LivePanel.this.repaint();
-//										
-//										transactionsPopupMenu.addPopupMenuListener(new PopupMenuListener() {
-//											
-//											@Override
-//											public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
-//											}
-//											
-//											@Override
-//											public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
-//												LivePanel.this.repaint();
-//											}
-//											
-//											@Override
-//											public void popupMenuCanceled(PopupMenuEvent arg0) {
-//												LivePanel.this.repaint();
-//											}
-//										});
-//									}
 								}
 							}
 						});
