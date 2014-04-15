@@ -50,10 +50,8 @@ public class Main {
 				frame.setLocationRelativeTo(null);
 			}
 			
-			
 			// Ensure bounds are appropriate for the current screen resolution
 			// If not, then resize and reposition the frame, such that it is fully contained within the screen resolution
-			
 			
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			
