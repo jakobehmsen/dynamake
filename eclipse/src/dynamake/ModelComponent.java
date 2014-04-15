@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Rectangle;
 
 /**
- * Assumed only to be implemented by JComponent classes.
+ * Assumed only to be implemented by JComponent (or Frame) class extensions.
  */
 public interface ModelComponent {
 //	ModelBroker getModel();
