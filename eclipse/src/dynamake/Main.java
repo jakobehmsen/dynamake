@@ -44,7 +44,6 @@ public class Main {
 			frame.setTitle("Dynamake 0.0.1");
 			
 			frame.setSize(1280, 768);
-			
 			frame.setLocationRelativeTo(null);
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			
