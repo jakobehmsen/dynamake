@@ -34,7 +34,6 @@ public class Main {
 	
 	public static void main(String[] args) {
 		try {
-//			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)new LiveModel(new ContainerModel()));
 			Factory[] factories = new Factory[]{new TextModelFactory(), new CanvasModelFactory()};
 			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)new LiveModel(new CanvasModel(), factories));
 			
