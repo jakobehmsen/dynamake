@@ -35,21 +35,31 @@ public class Main {
 	public static void main(String[] args) {
 		try {
 			Factory[] factories = new Factory[]{new TextModelFactory(), new CanvasModelFactory()};
-			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)new LiveModel(new CanvasModel(), factories));
+			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel(), factories));
+			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
 			
 			TransactionFactory rootTransactionFactory = new TransactionFactory(pModel, new RootLocator());
-			JFrame frame = pModel.prevalentSystem().toFrame(null, rootTransactionFactory);
+//			JFrame frame = pModel.prevalentSystem().toFrame(null, rootTransactionFactory);
+			final Binding<ModelComponent> rootView = pModel.prevalentSystem().createView(null, rootTransactionFactory);
+			JFrame frame = (JFrame)rootView.getBindingTarget();
 			
 			frame.setTitle("Dynamake 0.0.1");
 			
-			frame.setSize(1280, 768);
-			frame.setLocationRelativeTo(null);
+			if(frame.getBounds().isEmpty()) {
+				frame.setSize(1280, 768);
+				frame.setLocationRelativeTo(null);
+			}
+			
+			// Ensure bounds are appropriate for the current screen resolution
+			// If not, then resize and reposition the frame, such that it is fully contained within the screen resolution
+			
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			
 			frame.addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosing(WindowEvent e) {
 					try {
+						rootView.releaseBinding();
 						pModel.close();
 					} catch (IOException e1) {
 						e1.printStackTrace();

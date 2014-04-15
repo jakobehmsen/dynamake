@@ -2,6 +2,7 @@ package dynamake;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -169,7 +170,7 @@ public abstract class Model implements Serializable {
 //		});
 	}
 	
-	public static RemovableListener wrapForBoundsChanges(Model model, final JComponent target) {
+	public static RemovableListener wrapForBoundsChanges(Model model, final Component target) {
 		return RemovableListener.addObserver(model, new Observer() {
 			@Override
 			public void changed(Model sender, Object change) {
@@ -193,7 +194,7 @@ public abstract class Model implements Serializable {
 		});
 	}
 	
-	public static RemovableListener wrapForComponentPropertyChanges(Model model, final JComponent target) {
+	public static RemovableListener wrapForComponentPropertyChanges(Model model, final Component target) {
 		return RemovableListener.addObserver(model, new Observer() {
 			@Override
 			public void changed(Model sender, Object change) {
@@ -213,7 +214,7 @@ public abstract class Model implements Serializable {
 		});
 	}
 	
-	public static void loadComponentProperties(Model model, JComponent view) {
+	public static void loadComponentProperties(Model model, Component view) {
 		Object background = model.getProperty("Background");
 		if(background != null)
 			view.setBackground((Color)background);
@@ -221,6 +222,24 @@ public abstract class Model implements Serializable {
 		Object foreground = model.getProperty("Foreground");
 		if(foreground != null)
 			view.setForeground((Color)foreground);
+	}
+	
+	public static void loadComponentBounds(Model model, Component view) {
+		Integer x = (Integer)model.getProperty("X");
+		if(x != null)
+			view.setLocation(x, view.getY());
+		
+		Integer y = (Integer)model.getProperty("Y");
+		if(y != null)
+			view.setLocation(view.getX(), y);
+		
+		Integer width = (Integer)model.getProperty("Width");
+		if(width != null)
+			view.setSize(width, view.getHeight());
+		
+		Integer height = (Integer)model.getProperty("Height");
+		if(height != null)
+			view.setSize(view.getWidth(), height);
 	}
 	
 	public static void appendComponentPropertyChangeTransactions(final TransactionFactory transactionFactory, TransactionMapBuilder transactions) {

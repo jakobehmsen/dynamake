@@ -339,12 +339,15 @@ public class CanvasModel extends Model {
 						
 						factoryPopopMenu.addPopupMenuListener(new PopupMenuListener() {
 							@Override
-							public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
-//								ignorePlotMouseEvent[0] = true;
+							public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+//								JPopupMenu popupMenu = (JPopupMenu)e.getSource();
+//								((JMenuItem)popupMenu.getComponent(0)).setSelected(true);
+								
+//								popupMenu.setLocation(popupMenu.getX() - popupMenu.getWidth(), popupMenu.getY() - popupMenu.getWidth());
 							}
 							
 							@Override
-							public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
+							public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 //								ignorePlotMouseEvent[0] = false;
 								
 								if(mouseDownLocation != null) {
@@ -356,15 +359,17 @@ public class CanvasModel extends Model {
 							}
 							
 							@Override
-							public void popupMenuCanceled(PopupMenuEvent arg0) {
+							public void popupMenuCanceled(PopupMenuEvent e) {
 								// TODO Auto-generated method stub
 								
 							}
 						});
 						
 //						mouseDownLocation.translate(-content.getX(), -content.getY());
-						
-						factoryPopopMenu.show(view, mouseDownLocation.x, mouseDownLocation.y);
+
+//						factoryPopopMenu.show(view, releasePoint.x - 60, releasePoint.y - 10);
+//						factoryPopopMenu.show(view, releasePoint.x, releasePoint.y);
+						factoryPopopMenu.show(view, releasePoint.x + 10, releasePoint.y);
 					}
 				}
 			}
