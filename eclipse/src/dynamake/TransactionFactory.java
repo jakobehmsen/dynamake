@@ -2,15 +2,14 @@ package dynamake;
 
 import java.util.Date;
 
-import org.prevayler.Prevayler;
 import org.prevayler.Transaction;
 
 public class TransactionFactory {
-	private Prevayler<Model> prevayler;
+	private PrevaylerService<Model> prevaylerService;
 	private Locator locator;
 	
-	public TransactionFactory(Prevayler<Model> prevayler, Locator locator) {
-		this.prevayler = prevayler;
+	public TransactionFactory(PrevaylerService<Model> prevaylerService, Locator locator) {
+		this.prevaylerService = prevaylerService;
 		this.locator = locator;
 	}
 	
@@ -38,11 +37,11 @@ public class TransactionFactory {
 	
 	public <T> void execute(final Transaction<T> transaction) {
 		final Location location = locator.locate();
-		prevayler.execute(new LocationTransaction<T>(location, transaction));
+		prevaylerService.execute(new LocationTransaction<T>(location, transaction));
 	}
 	
 	public TransactionFactory extend(final Locator locator) {
-		return new TransactionFactory(prevayler, new Locator() {
+		return new TransactionFactory(prevaylerService, new Locator() {
 			@Override
 			public Location locate() {
 				Location currentLocation = TransactionFactory.this.locator.locate();

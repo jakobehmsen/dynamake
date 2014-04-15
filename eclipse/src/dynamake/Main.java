@@ -38,10 +38,28 @@ public class Main {
 			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel(), factories));
 			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
 			
-			TransactionFactory rootTransactionFactory = new TransactionFactory(pModel, new RootLocator());
+			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(pModel);
+			TransactionFactory rootTransactionFactory = new TransactionFactory(prevaylerService, new RootLocator());
 //			JFrame frame = pModel.prevalentSystem().toFrame(null, rootTransactionFactory);
 			final Binding<ModelComponent> rootView = pModel.prevalentSystem().createView(null, rootTransactionFactory);
 			JFrame frame = (JFrame)rootView.getBindingTarget();
+			
+//			final Thread snapshotService = new Thread(new Runnable() {
+//				@Override
+//				public void run() {
+//					try {
+//						while(true) {
+//							Thread.sleep(1000);
+//							try {
+//								pModel.takeSnapshot();
+//							} catch (Exception e) {
+//								e.printStackTrace();
+//							}
+//						}
+//					} catch (InterruptedException e) {
+//					}
+//				}
+//			});
 			
 			frame.setTitle("Dynamake 0.0.1");
 			
@@ -57,10 +75,18 @@ public class Main {
 			
 			frame.addWindowListener(new WindowAdapter() {
 				@Override
+				public void windowOpened(WindowEvent e) {
+//					snapshotService.start();
+				}
+				
+				@Override
 				public void windowClosing(WindowEvent e) {
+//					snapshotService.interrupt();
+					
 					try {
 						rootView.releaseBinding();
-						pModel.close();
+//						pModel.close();
+						prevaylerService.close();
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}

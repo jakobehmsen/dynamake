@@ -9,6 +9,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -100,9 +102,36 @@ public abstract class Model implements Serializable {
 //	
 	public abstract Binding<ModelComponent> createView(ViewManager viewManager, TransactionFactory transactionFactory);
 	
-	private ArrayList<Model.Observer> observers = new ArrayList<Model.Observer>();
-	private ArrayList<Model.Observer> observersToAdd;
-	private ArrayList<Model.Observer> observersToRemove;
+	private transient ArrayList<Model.Observer> observers;
+	private transient ArrayList<Model.Observer> observersToAdd;
+	private transient ArrayList<Model.Observer> observersToRemove;
+	
+	public Model() {
+		observers = new ArrayList<Model.Observer>();
+	}
+	
+//	private void writeObject(ObjectOutputStream oos)
+//			throws IOException {
+//			    // default serialization 
+//			    oos.defaultWriteObject();
+//			    // write the object
+//			    List loc = new ArrayList();
+//			    loc.add(location.x);
+//			    loc.add(location.y);
+//			    loc.add(location.z);
+//			    loc.add(location.uid);
+//			    oos.writeObject(loc);
+//			}
+	
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+//	    // default deserialization
+//	    ois.defaultReadObject();
+//	    List loc = (List)ois.readObject(); // Replace with real deserialization
+//	    location = new Location(loc.get(0), loc.get(1), loc.get(2), loc.get(3));
+//	    // ... more code
+		observers = new ArrayList<Model.Observer>();
+		properties = (Hashtable<String, Object>)ois.readObject();
+	}
 	
 	protected void sendChanged(Object change) {
 		observersToAdd = new ArrayList<Model.Observer>();
