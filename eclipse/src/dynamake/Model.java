@@ -9,6 +9,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -271,43 +273,59 @@ public abstract class Model implements Serializable {
 			view.setSize(view.getWidth(), height);
 	}
 	
+	public static <T> Model.RemovableListener bindProperty(Model model, final String modelPropertyName, final Action1<T> propertySetter) {
+		Object value = model.getProperty(modelPropertyName);
+		if(value != null)
+			propertySetter.run((T)value);
+		return Model.RemovableListener.addObserver(model, new Observer() {
+			@Override
+			public void changed(Model sender, Object change) {
+				if(change instanceof Model.PropertyChanged) {
+					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
+					if(propertyChanged.name.equals(modelPropertyName))
+						propertySetter.run((T)propertyChanged.value);
+				}
+			}
+		});
+	}
+	
 	public static void appendComponentPropertyChangeTransactions(final Model model, final TransactionFactory transactionFactory, TransactionMapBuilder transactions) {
-		LinkedHashMap<String, Color> colors = new LinkedHashMap<String, Color>();
-		colors.put("Black", Color.BLACK);
-		colors.put("Blue", Color.BLUE);
-		colors.put("Cyan", Color.CYAN);
-		colors.put("Dark Gray", Color.DARK_GRAY);
-		colors.put("Gray", Color.GRAY);
-		colors.put("Green", Color.GREEN);
-		colors.put("Light Gray", Color.LIGHT_GRAY);
-		colors.put("Magenta", Color.MAGENTA);
-		colors.put("Orange", Color.ORANGE);
-		colors.put("Pink", Color.PINK);
-		colors.put("Red", Color.RED);
-		colors.put("White", Color.WHITE);
-		colors.put("Yellow", Color.YELLOW);
-		
-		TransactionMapBuilder backgroundMapBuilder = new TransactionMapBuilder(); 
-		
-		for(final Map.Entry<String, Color> entry: colors.entrySet()) {
-			backgroundMapBuilder.addTransaction(entry.getKey(), new Runnable() {
-				@Override
-				public void run() {
-					transactionFactory.execute(new Model.SetPropertyTransaction("Background", entry.getValue()));
-				}
-			});
-		}
-		
-		TransactionMapBuilder foregroundMapBuilder = new TransactionMapBuilder(); 
-		
-		for(final Map.Entry<String, Color> entry: colors.entrySet()) {
-			foregroundMapBuilder.addTransaction(entry.getKey(), new Runnable() {
-				@Override
-				public void run() {
-					transactionFactory.execute(new Model.SetPropertyTransaction("Foreground", entry.getValue()));
-				}
-			});
-		}
+//		LinkedHashMap<String, Color> colors = new LinkedHashMap<String, Color>();
+//		colors.put("Black", Color.BLACK);
+//		colors.put("Blue", Color.BLUE);
+//		colors.put("Cyan", Color.CYAN);
+//		colors.put("Dark Gray", Color.DARK_GRAY);
+//		colors.put("Gray", Color.GRAY);
+//		colors.put("Green", Color.GREEN);
+//		colors.put("Light Gray", Color.LIGHT_GRAY);
+//		colors.put("Magenta", Color.MAGENTA);
+//		colors.put("Orange", Color.ORANGE);
+//		colors.put("Pink", Color.PINK);
+//		colors.put("Red", Color.RED);
+//		colors.put("White", Color.WHITE);
+//		colors.put("Yellow", Color.YELLOW);
+//		
+//		TransactionMapBuilder backgroundMapBuilder = new TransactionMapBuilder(); 
+//		
+//		for(final Map.Entry<String, Color> entry: colors.entrySet()) {
+//			backgroundMapBuilder.addTransaction(entry.getKey(), new Runnable() {
+//				@Override
+//				public void run() {
+//					transactionFactory.execute(new Model.SetPropertyTransaction("Background", entry.getValue()));
+//				}
+//			});
+//		}
+//		
+//		TransactionMapBuilder foregroundMapBuilder = new TransactionMapBuilder(); 
+//		
+//		for(final Map.Entry<String, Color> entry: colors.entrySet()) {
+//			foregroundMapBuilder.addTransaction(entry.getKey(), new Runnable() {
+//				@Override
+//				public void run() {
+//					transactionFactory.execute(new Model.SetPropertyTransaction("Foreground", entry.getValue()));
+//				}
+//			});
+//		}
 		
 //		transactions.addTransaction("Set Background", backgroundMapBuilder);
 //		transactions.addTransaction("Set Foreground", foregroundMapBuilder);

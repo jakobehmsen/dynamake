@@ -97,11 +97,13 @@ public class TextModel extends Model {
 		private TextModel model;
 		private TransactionFactory transactionFactory;
 		private ViewManager viewManager;
+		private JTextPane view;
 
-		public ModelScrollPane(TextModel model, TransactionFactory transactionFactory, final ViewManager viewManager, Component view) {
+		public ModelScrollPane(TextModel model, TransactionFactory transactionFactory, final ViewManager viewManager, JTextPane view) {
 			super(view);
 			this.model = model;
 			this.transactionFactory = transactionFactory;
+			this.view = view;
 			
 			addMouseListener(new MouseAdapter() {
 				@Override
@@ -170,6 +172,16 @@ public class TextModel extends Model {
 		@Override
 		public void appendTransactions(TransactionMapBuilder transactions) {
 			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
+			
+			Color caretColor = (Color)model.getProperty("CaretColor");
+			if(caretColor == null)
+				caretColor = view.getCaretColor();
+			transactions.addTransaction("Set Caret Color", new ColorTransactionBuilder(caretColor, new Action1<Color>() {
+				@Override
+				public void run(Color color) {
+					transactionFactory.execute(new Model.SetPropertyTransaction("CaretColor", color));
+				}
+			}));
 //			LinkedHashMap<String, Color> colors = new LinkedHashMap<String, Color>();
 //			colors.put("Black", Color.BLACK);
 //			colors.put("Blue", Color.BLUE);
@@ -230,6 +242,13 @@ public class TextModel extends Model {
 		view.setText(text.toString());
 		
 		viewManager.registerView(viewScrollPane);
+		
+		final RemovableListener removeListenerForCaretColor = Model.bindProperty(this, "CaretColor", new Action1<Color>() {
+			@Override
+			public void run(Color value) {
+				view.setCaretColor(value);
+			}
+		});
 		
 		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, viewScrollPane);
 //		final RemovableListener removeListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, view);
@@ -299,6 +318,7 @@ public class TextModel extends Model {
 		return new Binding<ModelComponent>() {
 			@Override
 			public void releaseBinding() {
+				removeListenerForCaretColor.releaseBinding();
 				removeListenerForBoundChanges.releaseBinding();
 //				removableListenerForComponentPropertyChanges.releaseBinding();
 				removeListenerForComponentPropertyChanges.releaseBinding();
