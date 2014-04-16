@@ -169,7 +169,7 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendTransactions(TransactionMapBuilder transactions) {
-			Model.appendComponentPropertyChangeTransactions(transactionFactory, transactions);
+			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
 //			LinkedHashMap<String, Color> colors = new LinkedHashMap<String, Color>();
 //			colors.put("Black", Color.BLACK);
 //			colors.put("Blue", Color.BLUE);
@@ -272,8 +272,6 @@ public class TextModel extends Model {
 				final String str;
 				try {
 					str = e.getDocument().getText(e.getOffset(), e.getLength());
-					text.insert(e.getOffset(), str);
-
 					transactionFactory.execute(new InsertTransaction(offset, str));
 				} catch (BadLocationException e1) {
 					e1.printStackTrace();

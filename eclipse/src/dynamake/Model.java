@@ -271,7 +271,7 @@ public abstract class Model implements Serializable {
 			view.setSize(view.getWidth(), height);
 	}
 	
-	public static void appendComponentPropertyChangeTransactions(final TransactionFactory transactionFactory, TransactionMapBuilder transactions) {
+	public static void appendComponentPropertyChangeTransactions(final Model model, final TransactionFactory transactionFactory, TransactionMapBuilder transactions) {
 		LinkedHashMap<String, Color> colors = new LinkedHashMap<String, Color>();
 		colors.put("Black", Color.BLACK);
 		colors.put("Blue", Color.BLUE);
@@ -309,7 +309,21 @@ public abstract class Model implements Serializable {
 			});
 		}
 		
-		transactions.addTransaction("Set Background", backgroundMapBuilder);
-		transactions.addTransaction("Set Foreground", foregroundMapBuilder);
+//		transactions.addTransaction("Set Background", backgroundMapBuilder);
+//		transactions.addTransaction("Set Foreground", foregroundMapBuilder);
+		
+		transactions.addTransaction("Set Background", new ColorTransactionBuilder((Color)model.getProperty("Background"), new Action1<Color>() {
+			@Override
+			public void run(Color color) {
+				transactionFactory.execute(new Model.SetPropertyTransaction("Background", color));
+			}
+		}));
+		
+		transactions.addTransaction("Set Foreground", new ColorTransactionBuilder((Color)model.getProperty("Foreground"), new Action1<Color>() {
+			@Override
+			public void run(Color color) {
+				transactionFactory.execute(new Model.SetPropertyTransaction("Foreground", color));
+			}
+		}));
 	}
 }

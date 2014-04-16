@@ -7,19 +7,19 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 public abstract class TransactionBuilder {
-	public abstract void appendTo(ArrayList<JMenuItem> menuItems);
+	public abstract void appendTo(TransactionView view, ArrayList<JMenuItem> menuItems, String name);
 	
 	public abstract boolean isEmpty();
 	
-	public JMenuItem toMenuItem() {
+//	public JMenuItem toMenuItem() {
+//		ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
+//		appendTo(view, menuItems);
+//		return menuItems.get(0);
+//	}
+
+	public JMenuItem toMenu(TransactionView view, String name) {
 		ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
-		appendTo(menuItems);
-		return menuItems.get(0);
-	}
-	
-	public JMenuItem toMenu() {
-		ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
-		appendTo(menuItems);
+		appendTo(view, menuItems, name);
 		
 		if(menuItems.size() == 1) {
 			return menuItems.get(0);
@@ -32,22 +32,27 @@ public abstract class TransactionBuilder {
 			return menu;
 		}
 	}
+
+//	public JPopupMenu toPopupMenu() {
+//		JPopupMenu popupMenu = new JPopupMenu();
+//		
+//		ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
+//		appendTo(view, menuItems);
+//		
+//		for(JMenuItem menuItem: menuItems)
+//			popupMenu.add(menuItem);
+//		
+//		return popupMenu;
+//	}
 	
-	public JPopupMenu toPopupMenu() {
-		JPopupMenu popupMenu = new JPopupMenu();
-		
+	public void appendTo(final JPopupMenu popupMenu, String name) {
 		ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
-		appendTo(menuItems);
-		
-		for(JMenuItem menuItem: menuItems)
-			popupMenu.add(menuItem);
-		
-		return popupMenu;
-	}
-	
-	public void appendTo(JPopupMenu popupMenu) {
-		ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
-		appendTo(menuItems);
+		appendTo(new TransactionView() {
+			@Override
+			public void hide() {
+				popupMenu.setVisible(false);
+			}
+		}, menuItems, name);
 		
 		for(JMenuItem menuItem: menuItems)
 			popupMenu.add(menuItem);

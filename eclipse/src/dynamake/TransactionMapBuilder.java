@@ -28,9 +28,9 @@ public class TransactionMapBuilder extends TransactionBuilder {
 	}
 	
 	@Override
-	public void appendTo(ArrayList<JMenuItem> menuItems) {
+	public void appendTo(TransactionView view, ArrayList<JMenuItem> menuItems, String name) {
 		for(final TransactionMapBuilder.TransactionInfo tInfo: transactionInfos) {
-			JMenuItem menuItem = tInfo.transaction.toMenu();
+			JMenuItem menuItem = tInfo.transaction.toMenu(view, tInfo.name);
 			menuItem.setText(tInfo.name);
 			menuItems.add(menuItem);
 		}

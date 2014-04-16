@@ -166,7 +166,7 @@ public class CanvasModel extends Model {
 
 		@Override
 		public void appendTransactions(TransactionMapBuilder transactions) {
-			Model.appendComponentPropertyChangeTransactions(transactionFactory, transactions);
+			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
 		}
 
 		@Override

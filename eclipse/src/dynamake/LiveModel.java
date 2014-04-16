@@ -24,8 +24,10 @@ import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
+import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
@@ -440,11 +442,11 @@ public class LiveModel extends Model {
 				TransactionMapBuilder transactionMapBuilder = new TransactionMapBuilder();
 				((ModelComponent)getFocusedComponent()).appendTransactions(transactionMapBuilder);
 
-				containerTransactionMapBuilder.appendTo(transactionsPopupMenu);
+				containerTransactionMapBuilder.appendTo(transactionsPopupMenu, null);
 				if(!containerTransactionMapBuilder.isEmpty() && !transactionMapBuilder.isEmpty())
 					transactionsPopupMenu.addSeparator();
 				
-				transactionMapBuilder.appendTo(transactionsPopupMenu);
+				transactionMapBuilder.appendTo(transactionsPopupMenu, null);
 				
 //				focusWrapper.setComponentPopupMenu(transactionsPopupMenu);
 				transactionsPopupMenu.addPropertyChangeListener("visible", new PropertyChangeListener() {
@@ -532,11 +534,11 @@ public class LiveModel extends Model {
 			TransactionMapBuilder transactionMapBuilder = new TransactionMapBuilder();
 			view.appendTransactions(transactionMapBuilder);
 
-			containerTransactionMapBuilder.appendTo(transactionsPopupMenu);
+			containerTransactionMapBuilder.appendTo(transactionsPopupMenu, null);
 			if(!containerTransactionMapBuilder.isEmpty() && !transactionMapBuilder.isEmpty())
 				transactionsPopupMenu.addSeparator();
 			
-			transactionMapBuilder.appendTo(transactionsPopupMenu);
+			transactionMapBuilder.appendTo(transactionsPopupMenu, null);
 			
 			transactionsPopupMenu.show((JComponent)view, x, y);
 			
@@ -1067,7 +1069,7 @@ public class LiveModel extends Model {
 											
 											@Override
 											public void mousePressed(MouseEvent e) {
-												System.out.println("mousePressed on selectionFrame");
+//												System.out.println("mousePressed on selectionFrame");
 												if(e.getButton() == MouseEvent.BUTTON1 && selection != contentView.getBindingTarget()) {
 													selectionFrameMouseDown = e.getPoint();
 													selectionFrameSize = selectionFrame.getSize();
@@ -1240,11 +1242,11 @@ public class LiveModel extends Model {
 									TransactionMapBuilder transactionMapBuilder = new TransactionMapBuilder();
 									selection.appendTransactions(transactionMapBuilder);
 
-									containerTransactionMapBuilder.appendTo(transactionsPopupMenu);
+									containerTransactionMapBuilder.appendTo(transactionsPopupMenu, "Container");
 									if(!containerTransactionMapBuilder.isEmpty() && !transactionMapBuilder.isEmpty())
 										transactionsPopupMenu.addSeparator();
 									
-									transactionMapBuilder.appendTo(transactionsPopupMenu);
+									transactionMapBuilder.appendTo(transactionsPopupMenu, "Item");
 
 									transactionsPopupMenu.show((JComponent)e.getSource(), e.getPoint().x, e.getPoint().y);
 									LivePanel.this.repaint();
