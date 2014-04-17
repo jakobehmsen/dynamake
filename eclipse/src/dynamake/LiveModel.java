@@ -44,6 +44,7 @@ public class LiveModel extends Model {
 	public static final int STATE_USE = 0;
 	public static final int STATE_EDIT = 1;
 	public static final int STATE_PLOT = 2;
+	public static final int STATE_DRAG = 3;
 	
 	private Factory[] factories;
 	private int state;
@@ -143,12 +144,6 @@ public class LiveModel extends Model {
 			ViewManager newViewManager = new ViewManager() {
 				
 				@Override
-				public void unregisterView(ModelComponent view) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
 				public void setFocus(JComponent component) {
 					// TODO Auto-generated method stub
 					
@@ -156,12 +151,6 @@ public class LiveModel extends Model {
 				
 				@Override
 				public void selectAndActive(ModelComponent view, int x, int y) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void registerView(ModelComponent view) {
 					// TODO Auto-generated method stub
 					
 				}

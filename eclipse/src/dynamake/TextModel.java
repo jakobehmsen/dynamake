@@ -241,8 +241,6 @@ public class TextModel extends Model {
 		final ModelScrollPane viewScrollPane = new ModelScrollPane(this, transactionFactory, viewManager, view);
 		view.setText(text.toString());
 		
-		viewManager.registerView(viewScrollPane);
-		
 		final RemovableListener removeListenerForCaretColor = Model.bindProperty(this, "CaretColor", new Action1<Color>() {
 			@Override
 			public void run(Color value) {
@@ -322,7 +320,6 @@ public class TextModel extends Model {
 				removeListenerForBoundChanges.releaseBinding();
 //				removableListenerForComponentPropertyChanges.releaseBinding();
 				removeListenerForComponentPropertyChanges.releaseBinding();
-				viewManager.unregisterView(viewScrollPane);
 			}
 			
 			@Override
