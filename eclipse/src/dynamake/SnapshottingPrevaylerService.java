@@ -42,7 +42,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	public void close() {
 		try {
 			snapshotTaker.shutdown();
-			prevayler.takeSnapshot();
+//			prevayler.takeSnapshot();
+			prevayler.clock();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

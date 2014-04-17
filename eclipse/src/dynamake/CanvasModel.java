@@ -299,10 +299,6 @@ public class CanvasModel extends Model {
 				if(viewManager.getState() == LiveModel.STATE_PLOT) {
 					if(mouseDownLocation != null) {
 						final Point releasePoint = e.getPoint();
-	//					mouseDownLocation = null;
-	//					view.remove(plotFrame);
-	//					plotFrame = null;
-	//					view.repaint();
 						
 						JPopupMenu factoryPopopMenu = new JPopupMenu();
 						final Rectangle creationBounds = getPlotBounds(mouseDownLocation, releasePoint);
@@ -314,36 +310,19 @@ public class CanvasModel extends Model {
 							factoryMenuItem.addActionListener(new ActionListener() {
 								@Override
 								public void actionPerformed(ActionEvent e) {
-//									Rectangle creationBounds = getPlotBounds(mouseDownLocation, releasePoint);
-									
-//									JComponent content = (JComponent)((BorderLayout)view.getLayout()).getLayoutComponent(BorderLayout.CENTER);
-////									creationBounds.translate(content.getX(), content.getY());
-//									creationBounds.translate(-content.getX(), -content.getY());
-//									Model model = (Model)factory.create();
-									
-//									contentView.getBindingTarget().create(factory, creationBounds);
 									transactionFactory.execute(new AddModelTransaction(creationBounds, factory));
 								}
 							});
 							
 							factoryPopopMenu.add(factoryMenuItem);
 						}
-	
-//						JComponent content = (JComponent)((BorderLayout)view.getLayout()).getLayoutComponent(BorderLayout.CENTER);
 						
 						factoryPopopMenu.addPopupMenuListener(new PopupMenuListener() {
 							@Override
-							public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-//								JPopupMenu popupMenu = (JPopupMenu)e.getSource();
-//								((JMenuItem)popupMenu.getComponent(0)).setSelected(true);
-								
-//								popupMenu.setLocation(popupMenu.getX() - popupMenu.getWidth(), popupMenu.getY() - popupMenu.getWidth());
-							}
+							public void popupMenuWillBecomeVisible(PopupMenuEvent e) { }
 							
 							@Override
 							public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-//								ignorePlotMouseEvent[0] = false;
-								
 								if(mouseDownLocation != null) {
 									mouseDownLocation = null;
 									view.remove(plotFrame);
@@ -353,16 +332,9 @@ public class CanvasModel extends Model {
 							}
 							
 							@Override
-							public void popupMenuCanceled(PopupMenuEvent e) {
-								// TODO Auto-generated method stub
-								
-							}
+							public void popupMenuCanceled(PopupMenuEvent e) { }
 						});
-						
-//						mouseDownLocation.translate(-content.getX(), -content.getY());
 
-//						factoryPopopMenu.show(view, releasePoint.x - 60, releasePoint.y - 10);
-//						factoryPopopMenu.show(view, releasePoint.x, releasePoint.y);
 						factoryPopopMenu.show(view, releasePoint.x + 10, releasePoint.y);
 					}
 				}

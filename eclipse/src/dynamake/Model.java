@@ -5,20 +5,14 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -125,6 +119,7 @@ public abstract class Model implements Serializable {
 //			    oos.writeObject(loc);
 //			}
 	
+	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		observers = new ArrayList<Model.Observer>();
 		properties = (Hashtable<String, Object>)ois.readObject();
@@ -268,6 +263,7 @@ public abstract class Model implements Serializable {
 			view.setSize(view.getWidth(), height);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static <T> Model.RemovableListener bindProperty(Model model, final String modelPropertyName, final Action1<T> propertySetter) {
 		Object value = model.getProperty(modelPropertyName);
 		if(value != null)

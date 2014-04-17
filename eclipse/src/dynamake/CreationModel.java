@@ -8,8 +8,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import dynamake.Model.RemovableListener;
-
 public class CreationModel extends Model {
 	/**
 	 * 
