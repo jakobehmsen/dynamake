@@ -134,6 +134,7 @@ public class LiveModel extends Model {
 		private JLayeredPane contentPane;
 		private JPanel editPanel;
 		private JPanel selectionFrame;
+		private RemovableListener removableListener;
 		
 		public LivePanel(LiveModel model, TransactionFactory transactionFactory, ViewManager viewManager) {
 			this.setLayout(new BorderLayout());
@@ -237,7 +238,7 @@ public class LiveModel extends Model {
 			this.add(topPanel, BorderLayout.NORTH);
 			this.add(contentPane, BorderLayout.CENTER);
 			
-			final RemovableListener removableListener = Model.RemovableListener.addObserver(model, new Observer() {
+			removableListener = Model.RemovableListener.addObserver(model, new Observer() {
 				int previousState;
 				
 //				JPanel editPanel;
@@ -708,7 +709,10 @@ public class LiveModel extends Model {
 			// TODO Auto-generated method stub
 			return null;
 		}
-		
+
+		public void releaseBinding() {
+			removableListener.releaseBinding();
+		}
 	}
 
 	@Override
@@ -719,7 +723,7 @@ public class LiveModel extends Model {
 			
 			@Override
 			public void releaseBinding() {
-				// TODO: Relase bindings in view
+				view.releaseBinding();
 			}
 			
 			@Override
