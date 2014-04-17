@@ -69,12 +69,6 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public void create(Factory factory, Rectangle creationBounds) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
 		public TransactionFactory getTransactionFactory() {
 			return transactionFactory;
 		}

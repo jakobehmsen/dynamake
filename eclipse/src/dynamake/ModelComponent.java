@@ -12,6 +12,5 @@ public interface ModelComponent {
 	void appendContainerTransactions(TransactionMapBuilder transactions, ModelComponent child);
 	void appendTransactions(TransactionMapBuilder transactions);
 	Color getPrimaryColor();
-	void create(Factory factory, Rectangle creationBounds);
 	TransactionFactory getTransactionFactory();
 }

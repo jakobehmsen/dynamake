@@ -15,7 +15,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -46,13 +50,11 @@ public class LiveModel extends Model {
 	public static final int STATE_PLOT = 2;
 	public static final int STATE_DRAG = 3;
 	
-	private Factory[] factories;
 	private int state;
 	private Model content;
 	
-	public LiveModel(Model content, Factory[] factories) {
+	public LiveModel(Model content) {
 		this.content = content;
-		this.factories = factories;
 	}
 
 	public int getState() {
@@ -137,7 +139,7 @@ public class LiveModel extends Model {
 		private JPanel selectionFrame;
 		private RemovableListener removableListener;
 		
-		public LivePanel(LiveModel model, TransactionFactory transactionFactory, ViewManager viewManager) {
+		public LivePanel(LiveModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
 			this.setLayout(new BorderLayout());
 			this.model = model;
 			
@@ -162,7 +164,8 @@ public class LiveModel extends Model {
 				
 				@Override
 				public Factory[] getFactories() {
-					return LivePanel.this.model.getFactories();
+//					return LivePanel.this.model.getFactories();
+					return viewManager.getFactories();
 				}
 				
 				@Override
@@ -190,6 +193,7 @@ public class LiveModel extends Model {
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_USE, "Use"));
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_EDIT, "Edit"));
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_PLOT, "Plot"));
+			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_DRAG, "Drag"));
 			topPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			
 			contentPane = new JLayeredPane();
@@ -248,13 +252,8 @@ public class LiveModel extends Model {
 						// For a selected frame, it should be possible to scroll upwards to select its immediate parent
 						// - and scroll downwards to select its root parents
 						
-//						JPopupMenu editPopupMenu = new JPopupMenu();
-//						editPopupMenu.add("Test");
-//						editPanel.setComponentPopupMenu(editPopupMenu);
-						
 						MouseAdapter editPanelMouseAdapter = new MouseAdapter() {
 							private ModelComponent selection;
-//							private JPanel selectionFrame;
 							private boolean selectionFrameMoving;
 							private Point selectionFrameMouseDown;
 							private Dimension selectionFrameSize;
@@ -296,9 +295,6 @@ public class LiveModel extends Model {
 							}
 							
 							private void select(final ModelComponent view, final Point initialMouseDown, boolean moving) {
-//								if(this.selection != null) {
-//									
-//								}
 								if(this.selection == view)
 									return;
 								
@@ -635,6 +631,8 @@ public class LiveModel extends Model {
 						break;
 					case LiveModel.STATE_PLOT:
 						break;
+					case LiveModel.STATE_DRAG:
+						break;
 					}
 					
 					previousState = LivePanel.this.model.getState();
@@ -653,6 +651,8 @@ public class LiveModel extends Model {
 							contentPane.repaint();
 							break;
 						case LiveModel.STATE_PLOT:
+							break;
+						case LiveModel.STATE_DRAG:
 							break;
 						}
 						
@@ -688,12 +688,6 @@ public class LiveModel extends Model {
 		}
 
 		@Override
-		public void create(Factory factory, Rectangle creationBounds) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
 		public TransactionFactory getTransactionFactory() {
 			// TODO Auto-generated method stub
 			return null;
@@ -706,7 +700,7 @@ public class LiveModel extends Model {
 
 	@Override
 	public Binding<ModelComponent> createView(ViewManager viewManager, TransactionFactory transactionFactory) {
-		final LivePanel view = new LivePanel(this, transactionFactory, null);
+		final LivePanel view = new LivePanel(this, transactionFactory, viewManager);
 		
 		return new Binding<ModelComponent>() {
 			
@@ -720,10 +714,6 @@ public class LiveModel extends Model {
 				return view;
 			}
 		};
-	}
-
-	protected Factory[] getFactories() {
-		return factories;
 	}
 
 	public Model getContent() {

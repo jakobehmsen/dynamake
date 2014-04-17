@@ -10,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -69,7 +70,7 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void executeOn(CanvasModel prevalentSystem, Date executionTime) {
-			Model model = (Model)factory.create();
+			Model model = (Model)factory.create(new Hashtable<String, Object>());
 
 			model.setProperty("X", creationBounds.x);
 			model.setProperty("Y", creationBounds.y);
@@ -173,13 +174,6 @@ public class CanvasModel extends Model {
 		public Color getPrimaryColor() {
 			// TODO Auto-generated method stub
 			return null;
-		}
-
-		@Override
-		public void create(Factory factory, Rectangle creationBounds) {
-			
-//			int index 
-			transactionFactory.execute(new AddModelTransaction(creationBounds, factory));
 		}
 
 		@Override

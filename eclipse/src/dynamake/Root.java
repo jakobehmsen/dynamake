@@ -48,7 +48,7 @@ public class Root {
 
 		@Override
 		public T executeAndQuery(Root prevalentSystem, Date executionTime) throws Exception {
-			Object obj = factory.create();
+			Object obj = factory.create(new Hashtable<String, Object>());
 			prevalentSystem.add(id, obj);
 			return (T)obj;
 		}

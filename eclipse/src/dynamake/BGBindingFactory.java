@@ -2,7 +2,7 @@ package dynamake;
 
 import java.util.Hashtable;
 
-public class TextModelFactory implements Factory {
+public class BGBindingFactory implements Factory {
 	/**
 	 * 
 	 */
@@ -10,11 +10,12 @@ public class TextModelFactory implements Factory {
 
 	@Override
 	public String getName() {
-		return "Text";
+		return "BG Binding";
 	}
 
 	@Override
 	public Object create(Hashtable<String, Object> arguments) {
-		return new TextModel();
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

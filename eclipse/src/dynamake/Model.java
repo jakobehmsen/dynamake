@@ -126,11 +126,6 @@ public abstract class Model implements Serializable {
 //			}
 	
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-//	    // default deserialization
-//	    ois.defaultReadObject();
-//	    List loc = (List)ois.readObject(); // Replace with real deserialization
-//	    location = new Location(loc.get(0), loc.get(1), loc.get(2), loc.get(3));
-//	    // ... more code
 		observers = new ArrayList<Model.Observer>();
 		properties = (Hashtable<String, Object>)ois.readObject();
 	}

@@ -1,5 +1,7 @@
 package dynamake;
 
+import java.util.Hashtable;
+
 public class CanvasModelFactory implements Factory {
 	/**
 	 * 
@@ -12,7 +14,7 @@ public class CanvasModelFactory implements Factory {
 	}
 
 	@Override
-	public Object create() {
+	public Object create(Hashtable<String, Object> arguments) {
 		return new CanvasModel();
 	}
 }
