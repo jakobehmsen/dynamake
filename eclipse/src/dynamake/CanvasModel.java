@@ -241,6 +241,7 @@ public class CanvasModel extends Model {
 					view.validate();
 					view.repaint();
 					viewManager.clearFocus();
+					viewManager.repaint(view);
 				}
 			}
 		});
