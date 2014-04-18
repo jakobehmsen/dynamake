@@ -1,11 +1,7 @@
 package dynamake;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -15,16 +11,8 @@ import java.util.Hashtable;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
 import org.prevayler.Transaction;
-
-import dynamake.Model.RemovableListener;
-import dynamake.Model.SetPropertyTransaction;
 
 public class CanvasModel extends Model {
 	/**
@@ -58,12 +46,10 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-//		private int index;
 		private Rectangle creationBounds;
 		private Factory factory;
 		
-		public AddModelTransaction(/*int index,*/ Rectangle creationBounds, Factory factory) {
-//			this.index = index;
+		public AddModelTransaction(Rectangle creationBounds, Factory factory) {
 			this.creationBounds = creationBounds;
 			this.factory = factory;
 		}
@@ -157,8 +143,6 @@ public class CanvasModel extends Model {
 			transactions.addTransaction("Remove", new Runnable() {
 				@Override
 				public void run() {
-					
-//					String region = (String)((BorderLayout)ModelPanel.this.getLayout()).getConstraints((JComponent)child);
 					int indexOfModel = model.indexOfModel(child.getModel());
 					transactionFactory.execute(new RemoveModelTransaction(indexOfModel));
 				}
@@ -168,12 +152,6 @@ public class CanvasModel extends Model {
 		@Override
 		public void appendTransactions(TransactionMapBuilder transactions) {
 			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
-		}
-
-		@Override
-		public Color getPrimaryColor() {
-			// TODO Auto-generated method stub
-			return null;
 		}
 
 		@Override
@@ -200,7 +178,6 @@ public class CanvasModel extends Model {
 
 		@Override
 		public void setChild(Object holder, Object child) {
-			// TODO Auto-generated method stub
 			
 		}
 	}
@@ -208,13 +185,6 @@ public class CanvasModel extends Model {
 	@Override
 	public Binding<ModelComponent> createView(final ViewManager viewManager, final TransactionFactory transactionFactory) {
 		final CanvasPanel view = new CanvasPanel(this, transactionFactory, viewManager);
-		Model.wrapForFocus(viewManager, view, view, new Func0<Boolean>() {
-			@Override
-			public Boolean call() {
-				return models.size() == 0;
-//				return true;
-			}
-		});
 		
 		final RemovableListener removableListenerForBoundsChanges = Model.wrapForBoundsChanges(this, view);
 		Model.loadComponentProperties(this, view);
@@ -268,7 +238,6 @@ public class CanvasModel extends Model {
 					view.add((JComponent)modelView.getBindingTarget());
 					view.setLayer((JComponent)modelView.getBindingTarget(), JLayeredPane.DEFAULT_LAYER);
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
-//					final Model model = ((CanvasModel.AddedModelChange)change).model;
 					view.remove(((CanvasModel.RemovedModelChange)change).index);
 					view.validate();
 					view.repaint();
@@ -276,100 +245,6 @@ public class CanvasModel extends Model {
 				}
 			}
 		});
-		
-		MouseAdapter plotMouseAdapter = new MouseAdapter() {
-			private Point mouseDownLocation;
-			private JPanel plotFrame;
-			
-			@Override
-			public void mousePressed(MouseEvent e) {
-				if(viewManager.getState() == LiveModel.STATE_PLOT) {
-					mouseDownLocation = e.getPoint();
-					plotFrame = createPlotFrame();
-					
-					view.add(plotFrame);
-					view.setLayer(plotFrame, JLayeredPane.PALETTE_LAYER);
-					
-//					System.out.println("Created plot frame");
-				}
-			}
-			
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if(viewManager.getState() == LiveModel.STATE_PLOT) {
-					if(mouseDownLocation != null) {
-						final Point releasePoint = e.getPoint();
-						
-						JPopupMenu factoryPopopMenu = new JPopupMenu();
-						final Rectangle creationBounds = getPlotBounds(mouseDownLocation, releasePoint);
-						
-						for(final Factory factory: viewManager.getFactories()) {
-							JMenuItem factoryMenuItem = new JMenuItem();
-							factoryMenuItem.setText("New " + factory.getName());
-							
-							factoryMenuItem.addActionListener(new ActionListener() {
-								@Override
-								public void actionPerformed(ActionEvent e) {
-									transactionFactory.execute(new AddModelTransaction(creationBounds, factory));
-								}
-							});
-							
-							factoryPopopMenu.add(factoryMenuItem);
-						}
-						
-						factoryPopopMenu.addPopupMenuListener(new PopupMenuListener() {
-							@Override
-							public void popupMenuWillBecomeVisible(PopupMenuEvent e) { }
-							
-							@Override
-							public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-								if(mouseDownLocation != null) {
-									mouseDownLocation = null;
-									view.remove(plotFrame);
-									plotFrame = null;
-									view.repaint();
-								}
-							}
-							
-							@Override
-							public void popupMenuCanceled(PopupMenuEvent e) { }
-						});
-
-						factoryPopopMenu.show(view, releasePoint.x + 10, releasePoint.y);
-					}
-				}
-			}
-			
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				if(viewManager.getState() == LiveModel.STATE_PLOT) {
-//					System.out.println(mouseDownLocation);
-					if(mouseDownLocation != null) {
-						Rectangle plotBounds = getPlotBounds(mouseDownLocation, e.getPoint());
-						plotFrame.setBounds(plotBounds);
-//						System.out.println("Modifying plot frame");
-					}
-				}
-			}
-			
-			private JPanel createPlotFrame() {
-				JPanel plotFrame = new JPanel();
-				plotFrame.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-				plotFrame.setBackground(Color.GRAY);
-				return plotFrame;
-			}
-			
-			private Rectangle getPlotBounds(Point firstPoint, Point secondPoint) {
-				int left = Math.min(firstPoint.x, secondPoint.x);
-				int right = Math.max(firstPoint.x, secondPoint.x);
-				int top = Math.min(firstPoint.y, secondPoint.y);
-				int bottom = Math.max(firstPoint.y, secondPoint.y);
-				
-				return new Rectangle(left, top, right - left, bottom - top);
-			}
-		};
-		view.addMouseListener(plotMouseAdapter);
-		view.addMouseMotionListener(plotMouseAdapter);
 
 		return new Binding<ModelComponent>() {
 			

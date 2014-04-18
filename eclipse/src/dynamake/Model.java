@@ -168,28 +168,6 @@ public abstract class Model implements Serializable {
 		
 		return frame;
 	}
-
-	public static void wrapForFocus(final ViewManager viewManager, final JComponent container, JComponent target) {
-		wrapForFocus(viewManager, container, target, new Func0<Boolean>() {
-			@Override
-			public Boolean call() {
-				return true;
-			}
-		});
-	}
-
-	public static void wrapForFocus(final ViewManager viewManager, final JComponent container, JComponent target, final Func0<Boolean> focusCondition) {
-//		target.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseEntered(MouseEvent e) {
-//				if(focusCondition.call())
-//					viewManager.setFocus(container);
-//			}
-//			
-//			@Override
-//			public void mouseExited(MouseEvent e) { }
-//		});
-	}
 	
 	public static RemovableListener wrapForBoundsChanges(Model model, final Component target) {
 		return RemovableListener.addObserver(model, new Observer() {

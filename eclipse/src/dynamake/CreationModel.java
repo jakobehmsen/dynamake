@@ -72,12 +72,6 @@ public class CreationModel extends Model {
 		}
 
 		@Override
-		public Color getPrimaryColor() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
 		public TransactionFactory getTransactionFactory() {
 			return transactionFactory;
 		}

@@ -1039,12 +1039,6 @@ public class LiveModel extends Model {
 		}
 
 		@Override
-		public Color getPrimaryColor() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
 		public TransactionFactory getTransactionFactory() {
 			// TODO Auto-generated method stub
 			return null;

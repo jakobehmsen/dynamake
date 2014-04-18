@@ -1,35 +1,15 @@
 package dynamake;
 
-//import java.util.Date;
-
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
 
-import javax.swing.JComponent;
-import javax.swing.JLayeredPane;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
 import org.prevayler.Transaction;
-
-import dynamake.Model.Observer;
-import dynamake.Model.PropertyChanged;
-import dynamake.Model.RemovableListener;
-
-//import org.prevayler.Transaction;
 
 public class TextModel extends Model {
 	/**
@@ -96,7 +76,6 @@ public class TextModel extends Model {
 		private static final long serialVersionUID = 1L;
 		private TextModel model;
 		private TransactionFactory transactionFactory;
-		private ViewManager viewManager;
 		private JTextPane view;
 
 		public ModelScrollPane(TextModel model, TransactionFactory transactionFactory, final ViewManager viewManager, JTextPane view) {
@@ -104,52 +83,6 @@ public class TextModel extends Model {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
 			this.view = view;
-			
-			addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					if(e.getButton() == 3)
-						viewManager.selectAndActive(ModelScrollPane.this, e.getX(), e.getY());
-				}
-			});
-			
-			final MouseListener[] viewMouseListeners = view.getMouseListeners();
-			for(MouseListener l: viewMouseListeners)
-				view.removeMouseListener(l);
-			
-			view.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					if(e.getButton() == 3)
-						viewManager.selectAndActive(ModelScrollPane.this, e.getX(), e.getY());
-				}
-				
-				public void mousePressed(MouseEvent e) {
-					if(viewManager.getState() == LiveModel.STATE_USE) {
-						for(MouseListener l: viewMouseListeners)
-							l.mousePressed(e);
-					} else if(viewManager.getState() == LiveModel.STATE_EDIT) {
-//						viewManager.select(ModelScrollPane.this, e.getX(), e.getY());
-					}
-				}
-				
-				Cursor cursor;
-				
-				@Override
-				public void mouseEntered(MouseEvent e) {
-					if(viewManager.getState() != LiveModel.STATE_USE) {
-						cursor = ((Component)e.getSource()).getCursor();
-						((Component)e.getSource()).setCursor(Cursor.getDefaultCursor());
-					}
-				}
-				
-				@Override
-				public void mouseExited(MouseEvent e) {
-					if(viewManager.getState() != LiveModel.STATE_USE) {
-						((Component)e.getSource()).setCursor(cursor);
-					}
-				}
-			});
 		}		
 
 		@Override
@@ -160,13 +93,7 @@ public class TextModel extends Model {
 		@Override
 		public void appendContainerTransactions(
 				TransactionMapBuilder transactions, ModelComponent child) {
-			// TODO Auto-generated method stub
 			
-		}
-		
-		@Override
-		public Color getPrimaryColor() {
-			return getViewport().getComponent(0).getBackground();
 		}
 
 		@Override
@@ -182,45 +109,6 @@ public class TextModel extends Model {
 					transactionFactory.execute(new Model.SetPropertyTransaction("CaretColor", color));
 				}
 			}));
-//			LinkedHashMap<String, Color> colors = new LinkedHashMap<String, Color>();
-//			colors.put("Black", Color.BLACK);
-//			colors.put("Blue", Color.BLUE);
-//			colors.put("Cyan", Color.CYAN);
-//			colors.put("Dark Gray", Color.DARK_GRAY);
-//			colors.put("Gray", Color.GRAY);
-//			colors.put("Green", Color.GREEN);
-//			colors.put("Light Gray", Color.LIGHT_GRAY);
-//			colors.put("Magenta", Color.MAGENTA);
-//			colors.put("Orange", Color.ORANGE);
-//			colors.put("Pink", Color.PINK);
-//			colors.put("Red", Color.RED);
-//			colors.put("White", Color.WHITE);
-//			colors.put("Yellow", Color.YELLOW);
-//			
-//			TransactionMapBuilder backgroundMapBuilder = new TransactionMapBuilder(); 
-//			
-//			for(final Map.Entry<String, Color> entry: colors.entrySet()) {
-//				backgroundMapBuilder.addTransaction(entry.getKey(), new Runnable() {
-//					@Override
-//					public void run() {
-//						transactionFactory.execute(new Model.SetPropertyTransaction("Background", entry.getValue()));
-//					}
-//				});
-//			}
-//			
-//			TransactionMapBuilder foregroundMapBuilder = new TransactionMapBuilder(); 
-//			
-//			for(final Map.Entry<String, Color> entry: colors.entrySet()) {
-//				foregroundMapBuilder.addTransaction(entry.getKey(), new Runnable() {
-//					@Override
-//					public void run() {
-//						transactionFactory.execute(new Model.SetPropertyTransaction("Foreground", entry.getValue()));
-//					}
-//				});
-//			}
-//			
-//			transactions.addTransaction("Set Background", backgroundMapBuilder);
-//			transactions.addTransaction("Set Foreground", foregroundMapBuilder);
 		}
 
 		@Override
@@ -243,7 +131,6 @@ public class TextModel extends Model {
 		});
 		
 		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, viewScrollPane);
-//		final RemovableListener removeListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, view);
 		final RemovableListener removeListenerForComponentPropertyChanges = RemovableListener.addObserver(this, new Observer() {
 			@Override
 			public void changed(Model sender, Object change) {
@@ -255,8 +142,6 @@ public class TextModel extends Model {
 						view.repaint();
 					} else if(propertyChanged.name.equals("Foreground")) {
 						view.setForeground((Color)propertyChanged.value);
-//						view.validate();
-//						view.repaint();
 						viewManager.repaint(view);
 					}
 				}
@@ -264,10 +149,6 @@ public class TextModel extends Model {
 		});
 		
 		Model.loadComponentProperties(this, view);
-//		final Model.RemovableListener removableListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, view);
-
-		Model.wrapForFocus(viewManager, viewScrollPane, view);
-		Model.wrapForFocus(viewManager, viewScrollPane, viewScrollPane);
 		
 		view.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
@@ -292,27 +173,12 @@ public class TextModel extends Model {
 			@Override
 			public void changedUpdate(DocumentEvent e) { }
 		});
-		
-//		final Model.RemovableListener removableListener = RemovableListener.addObserver(this, new Observer() {
-//			@Override
-//			public void changed(Model sender, Object change) {
-//				if(change instanceof Model.PropertyChanged) {
-//					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
-//					if(propertyChanged.name.equals("Background")) {
-//						view.setBackground((Color)propertyChanged.value);
-//					} else if(propertyChanged.name.equals("Foreground")) {
-//						view.setForeground((Color)propertyChanged.value);
-//					}
-//				}
-//			}
-//		});
 
 		return new Binding<ModelComponent>() {
 			@Override
 			public void releaseBinding() {
 				removeListenerForCaretColor.releaseBinding();
 				removeListenerForBoundChanges.releaseBinding();
-//				removableListenerForComponentPropertyChanges.releaseBinding();
 				removeListenerForComponentPropertyChanges.releaseBinding();
 			}
 			

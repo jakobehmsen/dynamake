@@ -11,6 +11,5 @@ public interface ModelComponent {
 	Model getModel();
 	void appendContainerTransactions(TransactionMapBuilder transactions, ModelComponent child);
 	void appendTransactions(TransactionMapBuilder transactions);
-	Color getPrimaryColor();
 	TransactionFactory getTransactionFactory();
 }
