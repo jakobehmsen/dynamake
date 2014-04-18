@@ -13,6 +13,10 @@ public class TransactionFactory {
 		this.locator = locator;
 	}
 	
+	public Location getLocation() {
+		return locator.locate();
+	}
+	
 	private static class LocationTransaction<T> implements Transaction<Model> {
 		/**
 		 * 
@@ -35,9 +39,13 @@ public class TransactionFactory {
 		}
 	}
 	
-	public <T> void execute(final Transaction<T> transaction) {
+	public <T extends Model> void execute(final Transaction<T> transaction) {
 		final Location location = locator.locate();
 		prevaylerService.execute(new LocationTransaction<T>(location, transaction));
+	}
+	
+	public void executeOnRoot(final Transaction<Model> transaction) {
+		prevaylerService.execute(transaction);
 	}
 	
 	public TransactionFactory extend(final Locator locator) {

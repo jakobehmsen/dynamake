@@ -406,9 +406,9 @@ public class LiveModel extends Model {
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										
 										Point targetDropPoint = SwingUtilities.convertPoint(ProductionPanel.this, releasePoint, ((JComponent)targetModelComponent));
-										Transaction<?> dropTransaction = targetModelComponent.getDefaultDropTransaction(targetDropPoint);
+										Transaction<Model> dropTransaction = targetModelComponent.getDefaultDropTransaction(selection, targetDropPoint);
 										if(dropTransaction != null) {
-											targetModelComponent.getTransactionFactory().execute(dropTransaction);
+											targetModelComponent.getTransactionFactory().executeOnRoot(dropTransaction);
 										}
 										
 										Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
@@ -1104,8 +1104,8 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public Transaction<? extends Model> getDefaultDropTransaction(
-				Point dropPoint) {
+		public Transaction<Model> getDefaultDropTransaction(
+				ModelComponent dropped, Point dropPoint) {
 			// TODO Auto-generated method stub
 			return null;
 		}

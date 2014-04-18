@@ -161,8 +161,8 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Transaction<? extends Model> getDefaultDropTransaction(
-				Point dropPoint) {
+		public Transaction<Model> getDefaultDropTransaction(
+				ModelComponent dropped, Point dropPoint) {
 			// TODO Auto-generated method stub
 			return null;
 		}
