@@ -188,7 +188,7 @@ public class CanvasModel extends Model {
 		
 		final RemovableListener removableListenerForBoundsChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		Model.loadComponentProperties(this, view);
-		final Model.RemovableListener removableListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, view);
+		final Model.RemovableListener removableListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, view, view, viewManager);
 		
 		for(final Model model: models) {
 			Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new Locator() {
@@ -209,7 +209,6 @@ public class CanvasModel extends Model {
 			((JComponent)modelView.getBindingTarget()).setBounds(bounds);
 			
 			view.add((JComponent)modelView.getBindingTarget());
-			view.setLayer((JComponent)modelView.getBindingTarget(), JLayeredPane.DEFAULT_LAYER);
 		}
 		
 		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new Observer() {
@@ -236,7 +235,7 @@ public class CanvasModel extends Model {
 					((JComponent)modelView.getBindingTarget()).setBounds(bounds);
 					
 					view.add((JComponent)modelView.getBindingTarget());
-					view.setLayer((JComponent)modelView.getBindingTarget(), JLayeredPane.DEFAULT_LAYER);
+					viewManager.refresh(view);
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
 					view.remove(((CanvasModel.RemovedModelChange)change).index);
 					view.validate();

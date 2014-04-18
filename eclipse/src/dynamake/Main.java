@@ -1,11 +1,16 @@
 package dynamake;
 
+import java.awt.BorderLayout;
+import java.awt.Frame;
+import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JTextPane;
 
 import org.prevayler.Prevayler;
@@ -36,9 +41,27 @@ public class Main {
 	
 	public static void main(String[] args) {
 		try {
+//			final JLabel loadIndicator = new JLabel("Loading Dynamake...");
+//			loadIndicator.setBorder(BorderFactory.createEtchedBorder());
+//			final JFrame loadIndicator = new JFrame();
+			final Frame loadIndicator = new Frame();
+//			loadIndicator.getContentPane().setLayout(new BorderLayout());
+//			((JComponent)loadIndicator.getContentPane()).setBorder(BorderFactory.createEtchedBorder());
+//			loadIndicator.getContentPane().add(new JLabel("Loading Dynamake...", JLabel.CENTER), BorderLayout.CENTER);
+			final JLabel loadIndicatorLabel = new JLabel("Loading Dynamake...", JLabel.CENTER);
+			loadIndicatorLabel.setBorder(BorderFactory.createEtchedBorder());
+			loadIndicator.add(loadIndicatorLabel, BorderLayout.CENTER);
+			loadIndicator.setUndecorated(true);
+			loadIndicator.setSize(320, 240);
+			loadIndicator.setLocationRelativeTo(null);
+			loadIndicator.setVisible(true);
+			
 			final Factory[] factories = new Factory[]{new TextModelFactory(), new CanvasModelFactory(), new BGBindingCreationFactory()};
 			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
+//			long loadStart = System.nanoTime();
 			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
+//			long loadEnd = System.nanoTime();
+//			System.out.println("Load time: " + (loadEnd - loadStart) / 1000000.0 + " millis.");veTo(null);
 			
 			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(pModel);
 			TransactionFactory rootTransactionFactory = new TransactionFactory(prevaylerService, new RootLocator());
@@ -57,7 +80,7 @@ public class Main {
 				}
 				
 				@Override
-				public void repaint(JTextPane view) {
+				public void repaint(JComponent view) {
 					// TODO Auto-generated method stub
 					
 				}
@@ -120,6 +143,7 @@ public class Main {
 			frame.addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowOpened(WindowEvent e) {
+					loadIndicator.setVisible(false);
 //					snapshotService.start();
 				}
 				

@@ -130,9 +130,7 @@ public abstract class Model implements Serializable {
 			return new RemovableListener(listener, model);
 		}
 	}
-	
-//	public abstract void appendTransactions(JComponent view, TransactionMapBuilder transactions);
-//	
+
 	public abstract Binding<ModelComponent> createView(ViewManager viewManager, TransactionFactory transactionFactory);
 	
 	private transient ArrayList<Model.Observer> observers;
@@ -142,19 +140,6 @@ public abstract class Model implements Serializable {
 	public Model() {
 		observers = new ArrayList<Model.Observer>();
 	}
-	
-//	private void writeObject(ObjectOutputStream oos)
-//			throws IOException {
-//			    // default serialization 
-//			    oos.defaultWriteObject();
-//			    // write the object
-//			    List loc = new ArrayList();
-//			    loc.add(location.x);
-//			    loc.add(location.y);
-//			    loc.add(location.z);
-//			    loc.add(location.uid);
-//			    oos.writeObject(loc);
-//			}
 	
 	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
@@ -215,7 +200,7 @@ public abstract class Model implements Serializable {
 			public void changed(Model sender, Object change) {
 				if(change instanceof PropertyChanged) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
-					JComponent targetComponent = ((JComponent)target);
+					Component targetComponent = ((Component)target);
 					if(propertyChanged.name.equals("X")) {
 						targetComponent.setLocation(new Point((int)propertyChanged.value, targetComponent.getY()));
 						madeChanges = true;
@@ -251,20 +236,20 @@ public abstract class Model implements Serializable {
 		});
 	}
 	
-	public static RemovableListener wrapForComponentPropertyChanges(Model model, final Component target) {
+	public static RemovableListener wrapForComponentPropertyChanges(Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager) {
 		return RemovableListener.addObserver(model, new Observer() {
 			@Override
 			public void changed(Model sender, Object change) {
 				if(change instanceof PropertyChanged) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
 					if(propertyChanged.name.equals("Background")) {
-						target.setBackground((Color)propertyChanged.value);
-						target.revalidate();
-						target.repaint();
+						targetComponent.setBackground((Color)propertyChanged.value);
+						targetComponent.validate();
+						viewManager.refresh(view);
 					} else if(propertyChanged.name.equals("Foreground")) {
-						target.setForeground((Color)propertyChanged.value);
-						target.invalidate();
-						target.repaint();
+						targetComponent.setForeground((Color)propertyChanged.value);
+						targetComponent.validate();
+						viewManager.repaint(targetComponent);
 					}
 				}
 			}

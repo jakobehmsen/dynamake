@@ -883,7 +883,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void repaint(JTextPane view) {
+				public void repaint(JComponent view) {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {

@@ -127,26 +127,12 @@ public class TextModel extends Model {
 			@Override
 			public void run(Color value) {
 				view.setCaretColor(value);
+				viewManager.repaint(view);
 			}
 		});
 		
 		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, viewScrollPane, viewManager);
-		final RemovableListener removeListenerForComponentPropertyChanges = RemovableListener.addObserver(this, new Observer() {
-			@Override
-			public void changed(Model sender, Object change) {
-				if(change instanceof PropertyChanged) {
-					PropertyChanged propertyChanged = (PropertyChanged)change;
-					if(propertyChanged.name.equals("Background")) {
-						view.setBackground((Color)propertyChanged.value);
-						view.revalidate();
-						view.repaint();
-					} else if(propertyChanged.name.equals("Foreground")) {
-						view.setForeground((Color)propertyChanged.value);
-						viewManager.repaint(view);
-					}
-				}
-			}
-		});
+		final Model.RemovableListener removeListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, viewScrollPane, view, viewManager);
 		
 		Model.loadComponentProperties(this, view);
 		
