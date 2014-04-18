@@ -186,7 +186,7 @@ public class CanvasModel extends Model {
 	public Binding<ModelComponent> createView(final ViewManager viewManager, final TransactionFactory transactionFactory) {
 		final CanvasPanel view = new CanvasPanel(this, transactionFactory, viewManager);
 		
-		final RemovableListener removableListenerForBoundsChanges = Model.wrapForBoundsChanges(this, view);
+		final RemovableListener removableListenerForBoundsChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		Model.loadComponentProperties(this, view);
 		final Model.RemovableListener removableListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, view);
 		

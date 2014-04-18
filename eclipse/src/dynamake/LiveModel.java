@@ -137,6 +137,7 @@ public class LiveModel extends Model {
 			this.setLayout(null);
 			selectionFrame = null;
 			
+			// TODO: Consider the following:
 			// For a selected frame, it should be possible to scroll upwards to select its immediate parent
 			// - and scroll downwards to select its root parents
 			
@@ -268,13 +269,11 @@ public class LiveModel extends Model {
 								}
 
 								private void mouseMovedPlot(MouseEvent e) {
-									// TODO Auto-generated method stub
-									
+
 								}
 								
 								private void mouseMovedDrag(MouseEvent e) {
-									// TODO Auto-generated method stub
-									
+
 								}
 
 								public void mouseExited(MouseEvent e) {
@@ -298,13 +297,11 @@ public class LiveModel extends Model {
 								}
 
 								private void mouseExitedPlot(MouseEvent e) {
-									// TODO Auto-generated method stub
-									
+
 								}
 
 								private void mouseExitedDrag(MouseEvent e) {
-									// TODO Auto-generated method stub
-									
+
 								}
 
 								@Override
@@ -331,12 +328,27 @@ public class LiveModel extends Model {
 										JComponent parent = (JComponent)((JComponent)selection).getParent();
 										Rectangle newBounds = SwingUtilities.convertRectangle(selectionFrame.getParent(), selectionFrame.getBounds(), parent);
 										
-										transactionFactory.execute(new Model.SetPropertyTransaction("X", (int)newBounds.getX()));
-										transactionFactory.execute(new Model.SetPropertyTransaction("Y", (int)newBounds.getY()));
-										transactionFactory.execute(new Model.SetPropertyTransaction("Width", (int)newBounds.getWidth()));
-										transactionFactory.execute(new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight()));
+										transactionFactory.execute(
+											new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
+												new Model.SetPropertyTransaction("X", (int)newBounds.getX()),
+												new Model.SetPropertyTransaction("Y", (int)newBounds.getY()),
+												new Model.SetPropertyTransaction("Width", (int)newBounds.getWidth()),
+												new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight())
+											})
+										);
+//										transactionFactory.execute(new Model.SetPropertyTransaction("X", (int)newBounds.getX()));
+//										transactionFactory.execute(new Model.SetPropertyTransaction("Y", (int)newBounds.getY()));
+//										transactionFactory.execute(new Model.SetPropertyTransaction("Width", (int)newBounds.getWidth()));
+//										transactionFactory.execute(new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight()));
 										
-										livePanel.repaint();
+//										livePanel.validate();
+//										livePanel.repaint();
+										SwingUtilities.invokeLater(new Runnable() {
+											@Override
+											public void run() {
+												livePanel.invalidate();
+											}
+										});
 									}
 								}
 
@@ -359,7 +371,6 @@ public class LiveModel extends Model {
 													if(selection.getModel() instanceof CanvasModel) {
 														selection.getTransactionFactory().execute(new CanvasModel.AddModelTransaction(creationBounds, factory));
 													}
-//													transactionFactory.execute(new AddModelTransaction(creationBounds, factory));
 												}
 											});
 											
@@ -392,8 +403,7 @@ public class LiveModel extends Model {
 								}
 
 								private void mouseReleasedDrag(MouseEvent e) {
-									// TODO Auto-generated method stub
-									
+
 								}
 
 								@Override
@@ -421,11 +431,6 @@ public class LiveModel extends Model {
 
 								private void mousePressedPlot(MouseEvent e) {
 									if(e.getButton() == 1) {
-//										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(e.getPoint());
-//										ModelComponent targetModelComponent = closestModelComponent(target);
-//										Point targetComponentMouseDown = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-//										select(targetModelComponent, targetComponentMouseDown, true);
-										
 										plotMouseDownLocation = e.getPoint();
 										plotFrame = new JPanel();
 										plotFrame.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
@@ -437,8 +442,7 @@ public class LiveModel extends Model {
 								}
 
 								private void mousePressedDrag(MouseEvent e) {
-									// TODO Auto-generated method stub
-									
+
 								}
 
 								@Override
@@ -508,8 +512,6 @@ public class LiveModel extends Model {
 
 								private void mouseDraggedPlot(MouseEvent e) {
 									if(plotMouseDownLocation != null) {
-//										Point p1 = SwingUtilities.convertPoint(plotFrame, plotMouseDownLocation, ProductionPanel.this);
-//										Point p2 = SwingUtilities.convertPoint(plotFrame, e.getPoint(), ProductionPanel.this);
 										Rectangle plotBounds = getPlotBounds(plotMouseDownLocation, e.getPoint());
 										plotBounds = SwingUtilities.convertRectangle(selectionFrame, plotBounds, ProductionPanel.this);
 										plotFrame.setBounds(plotBounds);
@@ -518,8 +520,7 @@ public class LiveModel extends Model {
 								}
 
 								private void mouseDraggedDrag(MouseEvent e) {
-									// TODO Auto-generated method stub
-									
+
 								}
 							};
 							
@@ -572,8 +573,7 @@ public class LiveModel extends Model {
 											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 											select(targetModelComponent, referencePoint, true);
 
-//											Point restoredPoint = SwingUtilities.convertPoint(livePanel, referencePoint, (JComponent)targetModelComponent);
-											plotMouseDownLocation = referencePoint;//SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+											plotMouseDownLocation = referencePoint;
 											plotFrame = new JPanel();
 											plotFrame.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
 											plotFrame.setBackground(Color.GRAY);
@@ -582,22 +582,6 @@ public class LiveModel extends Model {
 											livePanel.repaint();
 										}
 									}
-									
-									
-//									if(e.getButton() == 1) {
-//										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(e.getPoint());
-//										ModelComponent targetModelComponent = closestModelComponent(target);
-//										Point targetComponentMouseDown = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-//										select(targetModelComponent, targetComponentMouseDown, true);
-//										
-//										plotMouseDownLocation = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-//										plotFrame = new JPanel();
-//										plotFrame.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-//										plotFrame.setBackground(Color.GRAY);
-//										
-//										ProductionPanel.this.add(plotFrame);
-//										livePanel.repaint();
-//									}
 								}
 								
 								public void mousePressedDrag(MouseEvent e) {
@@ -771,8 +755,7 @@ public class LiveModel extends Model {
 				}
 
 				private void mousePressedDrag(MouseEvent e) {
-					// TODO Auto-generated method stub
-					
+
 				}
 
 				public void mouseReleased(MouseEvent e) {
@@ -810,8 +793,7 @@ public class LiveModel extends Model {
 				}
 
 				private void mouseReleasedDrag(MouseEvent e) {
-					// TODO Auto-generated method stub
-					
+
 				}
 
 				public void mouseDragged(MouseEvent e) {
@@ -842,17 +824,10 @@ public class LiveModel extends Model {
 					for(MouseMotionListener l: selectionFrame.getMouseMotionListeners()) {
 						l.mouseDragged(e);
 					}
-					
-//					if(plotMouseDownLocation != null) {
-//						Rectangle plotBounds = getPlotBounds(plotMouseDownLocation, e.getPoint());
-//						plotFrame.setBounds(plotBounds);
-//						livePanel.repaint();
-//					}
 				}
 
 				private void mouseDraggedDrag(MouseEvent e) {
-					// TODO Auto-generated method stub
-					
+
 				}
 			};
 			this.addMouseListener(editPanelMouseAdapter);
@@ -876,8 +851,6 @@ public class LiveModel extends Model {
 		private LiveModel model;
 		private JPanel topPanel;
 		private JLayeredPane contentPane;
-//		private JPanel editPanel;
-//		private JPanel selectionFrame;
 		private RemovableListener removableListener;
 		private ProductionPanel productionPanel;
 		private ViewManager viewManager;
@@ -907,8 +880,6 @@ public class LiveModel extends Model {
 				@Override
 				public void clearFocus() {
 					productionPanel.clearFocus();
-//					editPanel.remove(selectionFrame);
-//					selectionFrame = null;
 				}
 				
 				@Override
@@ -916,10 +887,14 @@ public class LiveModel extends Model {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-//							LivePanel.this.revalidate();
 							LivePanel.this.repaint();
 						}
 					});
+				}
+				
+				@Override
+				public void refresh(ModelComponent view) {
+					LivePanel.this.repaint();
 				}
 			};
 			final Binding<ModelComponent> contentView = model.getContent().createView(newViewManager, transactionFactory.extend(new ContentLocator()));
@@ -993,23 +968,6 @@ public class LiveModel extends Model {
 						}
 						
 						previousState = LivePanel.this.model.getState();
-						
-//						switch(previousState) {
-//						case LiveModel.STATE_USE:
-//							break;
-//						case LiveModel.STATE_EDIT:
-//							contentPane.remove(editPanel);
-//							editPanel = null;
-//							contentPane.revalidate();
-//							contentPane.repaint();
-//							break;
-//						case LiveModel.STATE_PLOT:
-//							break;
-//						case LiveModel.STATE_DRAG:
-//							break;
-//						}
-//						
-//						update();
 					}
 				}
 			});

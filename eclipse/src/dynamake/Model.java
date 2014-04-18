@@ -25,6 +25,14 @@ public abstract class Model implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	public static class BeganUpdate {
+		
+	}
+	
+	public static class EndedUpdate {
+		
+	}
+	
 	public static class PropertyChanged {
 		public final String name;
 		public final Object value;
@@ -32,6 +40,35 @@ public abstract class Model implements Serializable {
 		public PropertyChanged(String name, Object value) {
 			this.name = name;
 			this.value = value;
+		}
+	}
+	
+	public void beginUpdate() {
+		sendChanged(new BeganUpdate());
+	}
+	
+	public void endUpdate() {
+		sendChanged(new EndedUpdate());
+	}
+	
+	public static class CompositeTransaction implements Transaction<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private Transaction<Model>[] transactions;
+		
+		public CompositeTransaction(Transaction<Model>[] transactions) {
+			this.transactions = transactions;
+		}
+
+		@Override
+		public void executeOn(Model prevalentSystem, Date executionTime) {
+			prevalentSystem.beginUpdate();
+			for(Transaction<Model> t: transactions)
+				t.executeOn(prevalentSystem, executionTime);
+			prevalentSystem.endUpdate();
 		}
 	}
 	
@@ -169,24 +206,45 @@ public abstract class Model implements Serializable {
 		return frame;
 	}
 	
-	public static RemovableListener wrapForBoundsChanges(Model model, final Component target) {
+	public static RemovableListener wrapForBoundsChanges(Model model, final ModelComponent target, final ViewManager viewManager) {
 		return RemovableListener.addObserver(model, new Observer() {
+			boolean isUpdating;
+			boolean madeChanges;
+			
 			@Override
 			public void changed(Model sender, Object change) {
 				if(change instanceof PropertyChanged) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
+					JComponent targetComponent = ((JComponent)target);
 					if(propertyChanged.name.equals("X")) {
-						target.setLocation(new Point((int)propertyChanged.value, target.getY()));
-						target.validate();
+						targetComponent.setLocation(new Point((int)propertyChanged.value, targetComponent.getY()));
+						madeChanges = true;
 					} else if(propertyChanged.name.equals("Y")) {
-						target.setLocation(new Point(target.getX(), (int)propertyChanged.value));
-						target.validate();
+						targetComponent.setLocation(new Point(targetComponent.getX(), (int)propertyChanged.value));
+						madeChanges = true;
 					} else if(propertyChanged.name.equals("Width")) {
-						target.setSize(new Dimension((int)propertyChanged.value, target.getHeight()));
-						target.validate();
+						targetComponent.setSize(new Dimension((int)propertyChanged.value, targetComponent.getHeight()));
+						madeChanges = true;
 					} else if(propertyChanged.name.equals("Height")) {
-						target.setSize(new Dimension(target.getWidth(), (int)propertyChanged.value));
-						target.validate();
+						targetComponent.setSize(new Dimension(targetComponent.getWidth(), (int)propertyChanged.value));
+						madeChanges = true;
+					}
+				} else if(change instanceof BeganUpdate) {
+					isUpdating = true;
+				} else if(change instanceof EndedUpdate) {
+					isUpdating = false;
+					
+					if(madeChanges) {
+						((JComponent)target).validate();
+						viewManager.refresh(target);
+						madeChanges = false;
+					}
+				}
+				
+				if(!isUpdating) {
+					if(madeChanges) {
+						viewManager.refresh(target);
+						madeChanges = false;
 					}
 				}
 			}

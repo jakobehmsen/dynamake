@@ -10,4 +10,5 @@ public interface ViewManager {
 	Factory[] getFactories();
 	void selectAndActive(ModelComponent view, int x, int y);
 	void repaint(JTextPane view);
+	void refresh(ModelComponent view);
 }

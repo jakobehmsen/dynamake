@@ -78,6 +78,12 @@ public class Main {
 					// TODO Auto-generated method stub
 					
 				}
+				
+				@Override
+				public void refresh(ModelComponent view) {
+					// TODO Auto-generated method stub
+					
+				}
 			};
 			final Binding<ModelComponent> rootView = pModel.prevalentSystem().createView(rootViewManager, rootTransactionFactory);
 			JFrame frame = (JFrame)rootView.getBindingTarget();

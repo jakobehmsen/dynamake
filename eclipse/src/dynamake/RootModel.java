@@ -149,7 +149,7 @@ public class RootModel extends Model {
 		final FrameModel view = new FrameModel(this, transactionFactory);
 		
 		Model.loadComponentBounds(this, view);
-		final RemovableListener removableListenerForBoundsChanges =  Model.wrapForBoundsChanges(this, view);
+		final RemovableListener removableListenerForBoundsChanges =  Model.wrapForBoundsChanges(this, view, viewManager);
 		
 //		view.addMouseListener(new MouseListener() {
 //			

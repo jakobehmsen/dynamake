@@ -8,20 +8,30 @@ import org.prevayler.Transaction;
 
 public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	private Prevayler<T> prevayler;
-	private int transactionCount = 0;
+	private int transactionEnlistingCount = 0;
 	private int snapshotThreshold = 50;
 	private ExecutorService snapshotTaker;
+	private ExecutorService transactionExecutor;
 	
 	public SnapshottingPrevaylerService(Prevayler<T> prevayler) {
 		this.prevayler = prevayler;
 		snapshotTaker = Executors.newSingleThreadExecutor();
+		transactionExecutor = Executors.newSingleThreadExecutor();
 	}
 
 	@Override
-	public void execute(Transaction<T> transaction) {
-		transactionCount++;
-		prevayler.execute(transaction);
-		if(transactionCount >= snapshotThreshold) {
+	public void execute(final Transaction<T> transaction) {
+//		System.out.println("Enlisted transaction on thread " + Thread.currentThread().getId());
+		transactionExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				// TODO: Consider grouping transaction pr. 1 millisecond, such that time-wise close transaction or logically performed as a single transaction.
+				prevayler.execute(transaction);
+//				System.out.println("Executed transaction on thread " + Thread.currentThread().getId());
+			}
+		});
+		transactionEnlistingCount++;
+		if(transactionEnlistingCount >= snapshotThreshold) {
 			System.out.println("Enlisted snapshot on thread " + Thread.currentThread().getId());
 			snapshotTaker.execute(new Runnable() {
 				@Override
@@ -34,7 +44,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					System.out.println("Took snapshot on thread " + Thread.currentThread().getId());
 				}
 			});
-			transactionCount = 0;
+			transactionEnlistingCount = 0;
 		}
 	}
 
@@ -42,6 +52,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	public void close() {
 		try {
 			snapshotTaker.shutdown();
+			transactionExecutor.shutdown();
 //			prevayler.takeSnapshot();
 			prevayler.clock();
 		} catch (Exception e) {

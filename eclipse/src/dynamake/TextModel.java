@@ -130,7 +130,7 @@ public class TextModel extends Model {
 			}
 		});
 		
-		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, viewScrollPane);
+		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, viewScrollPane, viewManager);
 		final RemovableListener removeListenerForComponentPropertyChanges = RemovableListener.addObserver(this, new Observer() {
 			@Override
 			public void changed(Model sender, Object change) {

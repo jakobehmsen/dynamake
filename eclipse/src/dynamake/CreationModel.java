@@ -82,7 +82,7 @@ public class CreationModel extends Model {
 			TransactionFactory transactionFactory) {
 		final PanelModel view = new PanelModel(this, transactionFactory);
 		
-		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, view);
+		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 
 		return new Binding<ModelComponent>() {
 			@Override
