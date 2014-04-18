@@ -1,6 +1,7 @@
 package dynamake;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -157,6 +158,13 @@ public class CanvasModel extends Model {
 		@Override
 		public TransactionFactory getTransactionFactory() {
 			return transactionFactory;
+		}
+		
+		@Override
+		public Transaction<? extends Model> getDefaultDropTransaction(
+				Point dropPoint) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

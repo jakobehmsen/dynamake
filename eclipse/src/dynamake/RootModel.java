@@ -19,6 +19,8 @@ import java.awt.event.WindowStateListener;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+import org.prevayler.Transaction;
+
 public class RootModel extends Model {
 	/**
 	 * 
@@ -65,6 +67,13 @@ public class RootModel extends Model {
 		@Override
 		public TransactionFactory getTransactionFactory() {
 			return transactionFactory;
+		}
+		
+		@Override
+		public Transaction<? extends Model> getDefaultDropTransaction(
+				Point dropPoint) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

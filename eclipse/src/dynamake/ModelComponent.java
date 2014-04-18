@@ -1,15 +1,16 @@
 package dynamake;
 
-import java.awt.Color;
-import java.awt.Rectangle;
+import java.awt.Point;
+
+import org.prevayler.Transaction;
 
 /**
- * Assumed only to be implemented by JComponent (or Frame) class extensions.
+ * Assumed only to be implemented by JComponent (or JFrame) class extensions.
  */
 public interface ModelComponent {
-//	ModelBroker getModel();
 	Model getModel();
 	void appendContainerTransactions(TransactionMapBuilder transactions, ModelComponent child);
 	void appendTransactions(TransactionMapBuilder transactions);
 	TransactionFactory getTransactionFactory();
+	Transaction<? extends Model> getDefaultDropTransaction(Point dropPoint);
 }

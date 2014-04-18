@@ -1,6 +1,7 @@
 package dynamake;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.util.Date;
 
 import javax.swing.JScrollPane;
@@ -114,6 +115,13 @@ public class TextModel extends Model {
 		@Override
 		public TransactionFactory getTransactionFactory() {
 			return transactionFactory;
+		}
+		
+		@Override
+		public Transaction<? extends Model> getDefaultDropTransaction(
+				Point dropPoint) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

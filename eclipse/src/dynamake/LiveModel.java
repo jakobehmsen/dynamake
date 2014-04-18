@@ -328,21 +328,15 @@ public class LiveModel extends Model {
 										JComponent parent = (JComponent)((JComponent)selection).getParent();
 										Rectangle newBounds = SwingUtilities.convertRectangle(selectionFrame.getParent(), selectionFrame.getBounds(), parent);
 										
-										transactionFactory.execute(
-											new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
-												new Model.SetPropertyTransaction("X", (int)newBounds.getX()),
-												new Model.SetPropertyTransaction("Y", (int)newBounds.getY()),
-												new Model.SetPropertyTransaction("Width", (int)newBounds.getWidth()),
-												new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight())
-											})
-										);
-//										transactionFactory.execute(new Model.SetPropertyTransaction("X", (int)newBounds.getX()));
-//										transactionFactory.execute(new Model.SetPropertyTransaction("Y", (int)newBounds.getY()));
-//										transactionFactory.execute(new Model.SetPropertyTransaction("Width", (int)newBounds.getWidth()));
-//										transactionFactory.execute(new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight()));
-										
-//										livePanel.validate();
-//										livePanel.repaint();
+										@SuppressWarnings("unchecked")
+										Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
+											new Model.SetPropertyTransaction("X", (int)newBounds.getX()),
+											new Model.SetPropertyTransaction("Y", (int)newBounds.getY()),
+											new Model.SetPropertyTransaction("Width", (int)newBounds.getWidth()),
+											new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight())
+										});
+										transactionFactory.execute(changeBoundsTransaction);
+
 										SwingUtilities.invokeLater(new Runnable() {
 											@Override
 											public void run() {
@@ -403,7 +397,49 @@ public class LiveModel extends Model {
 								}
 
 								private void mouseReleasedDrag(MouseEvent e) {
-
+									if(e.getButton() == MouseEvent.BUTTON1) {
+//										selectionFrameMouseDown = null;
+//										selection = null;
+										
+										Point releasePoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
+										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(releasePoint);
+										ModelComponent targetModelComponent = closestModelComponent(target);
+										
+										Point targetDropPoint = SwingUtilities.convertPoint(ProductionPanel.this, releasePoint, ((JComponent)targetModelComponent));
+										Transaction<?> dropTransaction = targetModelComponent.getDefaultDropTransaction(targetDropPoint);
+										if(dropTransaction != null) {
+											targetModelComponent.getTransactionFactory().execute(dropTransaction);
+										}
+										
+										Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
+										selectionFrame.setLocation(originSelectionFrameLocation);
+										
+//										clearFocus();
+										livePanel.repaint();
+										
+//										selectionFrameMouseDown = null;
+//										
+//										TransactionFactory transactionFactory = selection.getTransactionFactory();
+//										
+//										JComponent parent = (JComponent)((JComponent)selection).getParent();
+//										Rectangle newBounds = SwingUtilities.convertRectangle(selectionFrame.getParent(), selectionFrame.getBounds(), parent);
+//										
+//										@SuppressWarnings("unchecked")
+//										Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
+//											new Model.SetPropertyTransaction("X", (int)newBounds.getX()),
+//											new Model.SetPropertyTransaction("Y", (int)newBounds.getY()),
+//											new Model.SetPropertyTransaction("Width", (int)newBounds.getWidth()),
+//											new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight())
+//										});
+//										transactionFactory.execute(changeBoundsTransaction);
+//
+//										SwingUtilities.invokeLater(new Runnable() {
+//											@Override
+//											public void run() {
+//												livePanel.invalidate();
+//											}
+//										});
+									}
 								}
 
 								@Override
@@ -442,7 +478,16 @@ public class LiveModel extends Model {
 								}
 
 								private void mousePressedDrag(MouseEvent e) {
-
+									if(e.getButton() == MouseEvent.BUTTON1) {
+										selectionFrameMouseDown = e.getPoint();
+										selectionFrameSize = selectionFrame.getSize();
+										selectionFrameMoving = true;
+									}
+									else if(e.getButton() == MouseEvent.BUTTON3) {
+										selectionFrameMouseDown = e.getPoint();
+										selectionFrameSize = selectionFrame.getSize();
+										selectionFrameMoving = true;
+									}
 								}
 
 								@Override
@@ -520,7 +565,18 @@ public class LiveModel extends Model {
 								}
 
 								private void mouseDraggedDrag(MouseEvent e) {
+									if(selectionFrameMouseDown != null && selectionFrameMoving) {
+										int x = selectionFrame.getX();
+										int y = selectionFrame.getY();
+										int width = selectionFrame.getWidth();
+										int height = selectionFrame.getHeight();
 
+										x += e.getX() - selectionFrameMouseDown.x;
+										y += e.getY() - selectionFrameMouseDown.y;
+
+										selectionFrame.setBounds(new Rectangle(x, y, width, height));
+										livePanel.repaint();
+									}
 								}
 							};
 							
@@ -585,7 +641,26 @@ public class LiveModel extends Model {
 								}
 								
 								public void mousePressedDrag(MouseEvent e) {
-									
+									if(e.getButton() == 1) {
+										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+										ModelComponent targetModelComponent = closestModelComponent(target);
+										if(targetModelComponent != null) {
+											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+											select(targetModelComponent, referencePoint, true);
+											livePanel.repaint();
+										}
+									} else if(e.getButton() == 3) {
+										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+										ModelComponent targetModelComponent = closestModelComponent(target);
+										if(targetModelComponent != null) {
+											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), livePanel);
+											select(targetModelComponent, e.getPoint(), false);
+											Point restoredPoint = SwingUtilities.convertPoint(livePanel, referencePoint, (JComponent)targetModelComponent);
+											e.translatePoint(restoredPoint.x - e.getX(), restoredPoint.y - e.getY());
+											e.setSource(selectionFrame);
+											livePanel.repaint();
+										}
+									}
 								}
 								
 								public void mouseReleased(MouseEvent e) {
@@ -755,7 +830,19 @@ public class LiveModel extends Model {
 				}
 
 				private void mousePressedDrag(MouseEvent e) {
-
+					if(e.getButton() == 1) {
+						JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(e.getPoint());
+						ModelComponent targetModelComponent = closestModelComponent(target);
+						Point targetComponentMouseDown = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+						select(targetModelComponent, targetComponentMouseDown, true);
+						livePanel.repaint();
+					} else if(e.getButton() == 3) {
+						JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(e.getPoint());
+						ModelComponent targetModelComponent = closestModelComponent(target);
+						Point targetComponentMouseDown = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+						select(targetModelComponent, targetComponentMouseDown, false);
+						livePanel.repaint();
+					}
 				}
 
 				public void mouseReleased(MouseEvent e) {
@@ -793,7 +880,13 @@ public class LiveModel extends Model {
 				}
 
 				private void mouseReleasedDrag(MouseEvent e) {
-
+					if(selectionFrame != null) {
+						e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+						e.setSource(selectionFrame);
+						for(MouseListener l: selectionFrame.getMouseListeners()) {
+							l.mouseReleased(e);
+						}
+					}
 				}
 
 				public void mouseDragged(MouseEvent e) {
@@ -827,7 +920,11 @@ public class LiveModel extends Model {
 				}
 
 				private void mouseDraggedDrag(MouseEvent e) {
-
+					e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+					e.setSource(selectionFrame);
+					for(MouseMotionListener l: selectionFrame.getMouseMotionListeners()) {
+						l.mouseDragged(e);
+					}
 				}
 			};
 			this.addMouseListener(editPanelMouseAdapter);
@@ -1004,6 +1101,13 @@ public class LiveModel extends Model {
 
 		public void releaseBinding() {
 			removableListener.releaseBinding();
+		}
+		
+		@Override
+		public Transaction<? extends Model> getDefaultDropTransaction(
+				Point dropPoint) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
