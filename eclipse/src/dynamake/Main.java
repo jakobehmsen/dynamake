@@ -59,9 +59,10 @@ public class Main {
 			final Factory[] factories = new Factory[]{
 				new TextModelFactory(), 
 				new CanvasModelFactory(), 
-				new BGBindingCreationFactory(),
+//				new BGBindingCreationFactory(),
 				new BackgroundGetterFactory(),
-				new BackgroundSetterFactory()
+				new BackgroundSetterFactory(),
+				new ColorDarknerFactory()
 			};
 			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
 //			long loadStart = System.nanoTime();
