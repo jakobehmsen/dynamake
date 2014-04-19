@@ -19,11 +19,19 @@ import javax.swing.JFrame;
 
 import org.prevayler.Transaction;
 
-public abstract class Model implements Serializable {
+public abstract class Model implements Serializable, Observer {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	public static class Atom {
+		public final Object value;
+
+		public Atom(Object value) {
+			this.value = value;
+		}
+	}
 	
 	public static class BeganUpdate {
 		
@@ -31,6 +39,38 @@ public abstract class Model implements Serializable {
 	
 	public static class EndedUpdate {
 		
+	}
+	
+	public static class AddObserver implements Transaction<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location observableLocation;
+		private Location observerLocation;
+		
+		public AddObserver(Location observableLocation, Location observerLocation) {
+			this.observableLocation = observableLocation;
+			this.observerLocation = observerLocation;
+		}
+
+		@Override
+		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
+			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
+			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
+			
+			observable.addObserver(observer);
+		}
+	}
+	
+	public static class SetProperty {
+		public final String name;
+		public final Object value;
+
+		public SetProperty(String name, Object value) {
+			this.name = name;
+			this.value = value;
+		}
 	}
 	
 	public static class PropertyChanged {
@@ -49,6 +89,14 @@ public abstract class Model implements Serializable {
 	
 	public void endUpdate() {
 		sendChanged(new EndedUpdate());
+	}
+	
+	@Override
+	public void changed(Model sender, Object change) {
+		if(change instanceof SetProperty) {
+			SetProperty setProperty = (SetProperty)change;
+			setProperty(setProperty.name, setProperty.value);
+		}
 	}
 	
 	public static class CompositeTransaction implements Transaction<Model> {
@@ -93,10 +141,6 @@ public abstract class Model implements Serializable {
 	
 	private Hashtable<String, Object> properties = new Hashtable<String, Object>();
 
-	public interface Observer {
-		void changed(Model sender, Object change);
-	}
-	
 	public void setProperty(String name, Object value) {
 		properties.put(name, value);
 		sendChanged(new PropertyChanged(name, value));
@@ -133,41 +177,41 @@ public abstract class Model implements Serializable {
 
 	public abstract Binding<ModelComponent> createView(ViewManager viewManager, TransactionFactory transactionFactory);
 	
-	private transient ArrayList<Model.Observer> observers;
-	private transient ArrayList<Model.Observer> observersToAdd;
-	private transient ArrayList<Model.Observer> observersToRemove;
+	private transient ArrayList<Observer> observers;
+	private transient ArrayList<Observer> observersToAdd;
+	private transient ArrayList<Observer> observersToRemove;
 	
 	public Model() {
-		observers = new ArrayList<Model.Observer>();
+		observers = new ArrayList<Observer>();
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-		observers = new ArrayList<Model.Observer>();
+		observers = new ArrayList<Observer>();
 		properties = (Hashtable<String, Object>)ois.readObject();
 	}
 	
 	protected void sendChanged(Object change) {
-		observersToAdd = new ArrayList<Model.Observer>();
-		observersToRemove = new ArrayList<Model.Observer>();
-		for(Model.Observer observer: observers)
+		observersToAdd = new ArrayList<Observer>();
+		observersToRemove = new ArrayList<Observer>();
+		for(Observer observer: observers)
 			observer.changed(this, change);
-		for(Model.Observer observerToAdd: observersToAdd)
+		for(Observer observerToAdd: observersToAdd)
 			observers.add(observerToAdd);
-		for(Model.Observer observerToRemove: observersToRemove)
+		for(Observer observerToRemove: observersToRemove)
 			observers.remove(observerToRemove);
 		observersToAdd = null;
 		observersToRemove = null;
 	}
 	
-	public void addObserver(Model.Observer observer) {
+	public void addObserver(Observer observer) {
 		if(observersToAdd == null)
 			observers.add(observer);
 		else
 			observersToAdd.add(observer);
 	}
 	
-	public void removeObserver(Model.Observer observer) {
+	public void removeObserver(Observer observer) {
 		if(observersToRemove == null)
 			observers.remove(observer);
 		else

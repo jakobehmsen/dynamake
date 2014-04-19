@@ -405,40 +405,49 @@ public class LiveModel extends Model {
 										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(releasePoint);
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										
-										Point targetDropPoint = SwingUtilities.convertPoint(ProductionPanel.this, releasePoint, ((JComponent)targetModelComponent));
-										Transaction<Model> dropTransaction = targetModelComponent.getDefaultDropTransaction(selection, targetDropPoint);
-										if(dropTransaction != null) {
-											targetModelComponent.getTransactionFactory().executeOnRoot(dropTransaction);
+										if(selection != target) {
+											targetModelComponent.getTransactionFactory().executeOnRoot(
+												new Model.AddObserver(targetModelComponent.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation()));
+											
+											targetModelComponent.getModel().addObserver(selection.getModel());
+											
+	//										Point targetDropPoint = SwingUtilities.convertPoint(ProductionPanel.this, releasePoint, ((JComponent)targetModelComponent));
+	//										Transaction<Model> dropTransaction = targetModelComponent.getDefaultDropTransaction(selection, targetDropPoint);
+	//										if(dropTransaction != null) {
+	//											targetModelComponent.getTransactionFactory().executeOnRoot(dropTransaction);
+	//										}
+											
+											
+											
+											Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
+											selectionFrame.setLocation(originSelectionFrameLocation);
+											
+	//										clearFocus();
+											livePanel.repaint();
+											
+	//										selectionFrameMouseDown = null;
+	//										
+	//										TransactionFactory transactionFactory = selection.getTransactionFactory();
+	//										
+	//										JComponent parent = (JComponent)((JComponent)selection).getParent();
+	//										Rectangle newBounds = SwingUtilities.convertRectangle(selectionFrame.getParent(), selectionFrame.getBounds(), parent);
+	//										
+	//										@SuppressWarnings("unchecked")
+	//										Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
+	//											new Model.SetPropertyTransaction("X", (int)newBounds.getX()),
+	//											new Model.SetPropertyTransaction("Y", (int)newBounds.getY()),
+	//											new Model.SetPropertyTransaction("Width", (int)newBounds.getWidth()),
+	//											new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight())
+	//										});
+	//										transactionFactory.execute(changeBoundsTransaction);
+	//
+	//										SwingUtilities.invokeLater(new Runnable() {
+	//											@Override
+	//											public void run() {
+	//												livePanel.invalidate();
+	//											}
+	//										});
 										}
-										
-										Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
-										selectionFrame.setLocation(originSelectionFrameLocation);
-										
-//										clearFocus();
-										livePanel.repaint();
-										
-//										selectionFrameMouseDown = null;
-//										
-//										TransactionFactory transactionFactory = selection.getTransactionFactory();
-//										
-//										JComponent parent = (JComponent)((JComponent)selection).getParent();
-//										Rectangle newBounds = SwingUtilities.convertRectangle(selectionFrame.getParent(), selectionFrame.getBounds(), parent);
-//										
-//										@SuppressWarnings("unchecked")
-//										Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
-//											new Model.SetPropertyTransaction("X", (int)newBounds.getX()),
-//											new Model.SetPropertyTransaction("Y", (int)newBounds.getY()),
-//											new Model.SetPropertyTransaction("Width", (int)newBounds.getWidth()),
-//											new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight())
-//										});
-//										transactionFactory.execute(changeBoundsTransaction);
-//
-//										SwingUtilities.invokeLater(new Runnable() {
-//											@Override
-//											public void run() {
-//												livePanel.invalidate();
-//											}
-//										});
 									}
 								}
 

@@ -56,7 +56,13 @@ public class Main {
 			loadIndicator.setLocationRelativeTo(null);
 			loadIndicator.setVisible(true);
 			
-			final Factory[] factories = new Factory[]{new TextModelFactory(), new CanvasModelFactory(), new BGBindingCreationFactory()};
+			final Factory[] factories = new Factory[]{
+				new TextModelFactory(), 
+				new CanvasModelFactory(), 
+				new BGBindingCreationFactory(),
+				new BackgroundGetterFactory(),
+				new BackgroundSetterFactory()
+			};
 			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
 //			long loadStart = System.nanoTime();
 			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
