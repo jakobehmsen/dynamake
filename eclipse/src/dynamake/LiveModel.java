@@ -562,7 +562,18 @@ public class LiveModel extends Model {
 												Color color = 
 													newTargetOverComponent.getModel().isObservedBy(selection.getModel()) ? Color.RED
 													: Color.GREEN;
-												targetFrame.setBorder(BorderFactory.createLineBorder(color, 3));
+//												targetFrame.setBorder(BorderFactory.createLineBorder(color, 3));
+
+												targetFrame.setBorder(
+													BorderFactory.createCompoundBorder(
+														BorderFactory.createLineBorder(Color.BLACK, 1), 
+														BorderFactory.createCompoundBorder(
+															BorderFactory.createLineBorder(color, 3), 
+															BorderFactory.createLineBorder(Color.BLACK, 1)
+														)
+													)
+												);
+												
 												Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
 													((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), ProductionPanel.this);
 												targetFrame.setBounds(targetFrameBounds);
