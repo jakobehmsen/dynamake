@@ -9,6 +9,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -207,9 +208,20 @@ public abstract class Model implements Serializable, Observer {
 		observers = new ArrayList<Observer>();
 	}
 	
+	private void writeObject(ObjectOutputStream ous) throws IOException {
+		ArrayList<Observer> observersToSerialize = new ArrayList<Observer>();
+		for(Observer o: observers) {
+			if(o instanceof Model)
+				observersToSerialize.add(o);
+		}
+		ous.writeObject(observersToSerialize);
+		ous.writeObject(properties);
+	}
+	
 	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-		observers = new ArrayList<Observer>();
+//		observers = new ArrayList<Observer>();
+		observers = (ArrayList<Observer>)ois.readObject();
 		properties = (Hashtable<String, Object>)ois.readObject();
 	}
 	
