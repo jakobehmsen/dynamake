@@ -47,7 +47,7 @@ public class LiveModel extends Model {
 	public static final int STATE_USE = 0;
 	public static final int STATE_EDIT = 1;
 	public static final int STATE_PLOT = 2;
-	public static final int STATE_DRAG = 3;
+	public static final int STATE_BIND = 3;
 	
 	private int state;
 	private Model content;
@@ -211,7 +211,7 @@ public class LiveModel extends Model {
 									case LiveModel.STATE_PLOT:
 										mouseMovedPlot(e);
 										break;
-									case LiveModel.STATE_DRAG:
+									case LiveModel.STATE_BIND:
 										mouseMovedDrag(e);
 										break;
 									}
@@ -286,7 +286,7 @@ public class LiveModel extends Model {
 									case LiveModel.STATE_PLOT:
 										mouseExitedPlot(e);
 										break;
-									case LiveModel.STATE_DRAG:
+									case LiveModel.STATE_BIND:
 										mouseExitedDrag(e);
 										break;
 									}
@@ -315,7 +315,7 @@ public class LiveModel extends Model {
 									case LiveModel.STATE_PLOT:
 										mouseReleasedPlot(e);
 										break;
-									case LiveModel.STATE_DRAG:
+									case LiveModel.STATE_BIND:
 										mouseReleasedDrag(e);
 										break;
 									}
@@ -435,7 +435,7 @@ public class LiveModel extends Model {
 									case LiveModel.STATE_PLOT:
 										mousePressedPlot(e);
 										break;
-									case LiveModel.STATE_DRAG:
+									case LiveModel.STATE_BIND:
 										mousePressedDrag(e);
 										break;
 									}
@@ -483,7 +483,7 @@ public class LiveModel extends Model {
 									case LiveModel.STATE_PLOT:
 										mouseDraggedPlot(e);
 										break;
-									case LiveModel.STATE_DRAG:
+									case LiveModel.STATE_BIND:
 										mouseDraggedDrag(e);
 										break;
 									}
@@ -608,7 +608,7 @@ public class LiveModel extends Model {
 									case LiveModel.STATE_PLOT:
 										mousePressedPlot(e);
 										break;
-									case LiveModel.STATE_DRAG:
+									case LiveModel.STATE_BIND:
 										mousePressedDrag(e);
 										break;
 									}
@@ -687,7 +687,7 @@ public class LiveModel extends Model {
 									case LiveModel.STATE_PLOT:
 										mouseReleasedPlot(e);
 										break;
-									case LiveModel.STATE_DRAG:
+									case LiveModel.STATE_BIND:
 										mouseReleasedDrag(e);
 										break;
 									}
@@ -794,7 +794,7 @@ public class LiveModel extends Model {
 					case LiveModel.STATE_PLOT:
 						mousePressedPlot(e);
 						break;
-					case LiveModel.STATE_DRAG:
+					case LiveModel.STATE_BIND:
 						mousePressedDrag(e);
 						break;
 					}
@@ -869,7 +869,7 @@ public class LiveModel extends Model {
 					case LiveModel.STATE_PLOT:
 						mouseReleasedPlot(e);
 						break;
-					case LiveModel.STATE_DRAG:
+					case LiveModel.STATE_BIND:
 						mouseReleasedDrag(e);
 						break;
 					}
@@ -913,7 +913,7 @@ public class LiveModel extends Model {
 					case LiveModel.STATE_PLOT:
 						mouseDraggedPlot(e);
 						break;
-					case LiveModel.STATE_DRAG:
+					case LiveModel.STATE_BIND:
 						mouseDraggedDrag(e);
 						break;
 					}
@@ -1020,7 +1020,7 @@ public class LiveModel extends Model {
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_USE, "Use"));
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_EDIT, "Edit"));
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_PLOT, "Plot"));
-			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_DRAG, "Drag"));
+			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_BIND, "Bind"));
 			topPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			
 			contentPane = new JLayeredPane();
