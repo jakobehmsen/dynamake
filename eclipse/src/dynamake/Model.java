@@ -63,6 +63,28 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
+	public static class RemoveObserver implements Transaction<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location observableLocation;
+		private Location observerLocation;
+		
+		public RemoveObserver(Location observableLocation, Location observerLocation) {
+			this.observableLocation = observableLocation;
+			this.observerLocation = observerLocation;
+		}
+
+		@Override
+		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
+			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
+			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
+			
+			observable.removeObserver(observer);
+		}
+	}
+	
 	public static class SetProperty {
 		public final String name;
 		public final Object value;
@@ -216,6 +238,10 @@ public abstract class Model implements Serializable, Observer {
 			observers.remove(observer);
 		else
 			observersToRemove.add(observer);
+	}
+
+	public boolean isObservedBy(Observer observer) {
+		return observers.contains(observer);
 	}
 	
 	public JFrame toFrame(ViewManager viewManager, TransactionFactory transactionFactory) {
