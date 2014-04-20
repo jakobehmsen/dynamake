@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 
 import org.prevayler.Transaction;
 
-public class MarkVisit extends Model {
+public class NotVisited extends Model {
 	/**
 	 * 
 	 */
@@ -18,35 +18,31 @@ public class MarkVisit extends Model {
 	
 	private Model model;
 	
-	public MarkVisit(Model model) {
+	public NotVisited(Model model) {
 		this.model = model;
 	}
 	
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx) {
-		PropogationContext newPropCtx = propCtx.markVisitedBy(model);
-		// calling super.changed should not invoked this way
-		// How to call it instead, such as for changing properties?
-		// Perhaps, a meta observer should be possible to extract?
-//		super.changed(this, change, newPropCtx);
-		sendChanged(change, newPropCtx);
+		if(!propCtx.isMarkedVisitedBy(model))
+			sendChanged(change, propCtx);
 	}
 	
-	private static class MarkVisitedByView extends JPanel implements ModelComponent {
+	private static class NotVisitedView extends JPanel implements ModelComponent {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private MarkVisit model;
+		private NotVisited model;
 		private TransactionFactory transactionFactory;
 
-		public MarkVisitedByView(MarkVisit model, TransactionFactory transactionFactory) {
+		public NotVisitedView(NotVisited model, TransactionFactory transactionFactory) {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
 			
 			setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			setLayout(new BorderLayout());
-			add(new JLabel("Mark Visit", JLabel.CENTER), BorderLayout.CENTER);
+			add(new JLabel("Not Visited", JLabel.CENTER), BorderLayout.CENTER);
 		}
 
 		@Override
@@ -89,7 +85,7 @@ public class MarkVisit extends Model {
 	@Override
 	public Binding<ModelComponent> createView(ViewManager viewManager,
 			TransactionFactory transactionFactory) {
-		final MarkVisitedByView view = new MarkVisitedByView(this, transactionFactory);
+		final NotVisitedView view = new NotVisitedView(this, transactionFactory);
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		

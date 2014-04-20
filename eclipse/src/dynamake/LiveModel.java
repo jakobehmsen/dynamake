@@ -424,7 +424,7 @@ public class LiveModel extends Model {
 										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(releasePoint);
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										
-										if(target != null && selection != target) {
+										if(targetModelComponent != null && selection != targetModelComponent) {
 											if(targetModelComponent.getModel().isObservedBy(selection.getModel())) {
 												targetModelComponent.getTransactionFactory().executeOnRoot(
 													new Model.RemoveObserver(targetModelComponent.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation()));
@@ -904,17 +904,29 @@ public class LiveModel extends Model {
 										// Find the selected model and attempt an add model transaction
 										// HACK: Models can only be added to canvases
 										if(targetOver.getModel() instanceof CanvasModel) {
-											// TODO: Figure out, what the bounds should be???...
-//											Point point = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
 											Dimension size = new Dimension(80, 50);
 											Rectangle bounds = new Rectangle(pointOnTargetOver, size);
 											targetOver.getTransactionFactory().executeOnRoot(
 												new CanvasModel.AddModelTransaction(
 													targetOver.getTransactionFactory().getLocation(), bounds, new MarkVisitFactory(selection.getTransactionFactory().getLocation())));
 										}
-//										targetOver.getTransactionFactory().executeOnRoot(
-//											new Model.AddObserver(targetOver.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
-//										);
+									}
+								}
+							);
+							
+							transactionSelectionGeneralMapBuilder.addTransaction("Not Visited",
+								new Runnable() {
+									@Override
+									public void run() {
+										// Find the selected model and attempt an add model transaction
+										// HACK: Models can only be added to canvases
+										if(targetOver.getModel() instanceof CanvasModel) {
+											Dimension size = new Dimension(80, 50);
+											Rectangle bounds = new Rectangle(pointOnTargetOver, size);
+											targetOver.getTransactionFactory().executeOnRoot(
+												new CanvasModel.AddModelTransaction(
+													targetOver.getTransactionFactory().getLocation(), bounds, new NotVisitedFactory(selection.getTransactionFactory().getLocation())));
+										}
 									}
 								}
 							);
