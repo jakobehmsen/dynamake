@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 
 import org.prevayler.Transaction;
 
-public class ColorDarkner extends Model {
+public class ColorBrightner extends Model {
 	/**
 	 * 
 	 */
@@ -20,28 +20,28 @@ public class ColorDarkner extends Model {
 	public void changed(Model sender, Object change, PropogationContext propCtx) {
 		if(change instanceof Model.Atom) {
 			Model.Atom atom = (Model.Atom)change;
-			Color darkenedColor = ((Color)atom.value).darker();
+			Color darkenedColor = ((Color)atom.value).brighter();
 			sendChanged(new Model.Atom(darkenedColor), propCtx);
 		} else {
 			super.changed(sender, change, propCtx);
 		}
 	}
 	
-	private static class ColorDarknerView extends JPanel implements ModelComponent {
+	private static class ColorBrightnerView extends JPanel implements ModelComponent {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private ColorDarkner model;
+		private ColorBrightner model;
 		private TransactionFactory transactionFactory;
 
-		public ColorDarknerView(ColorDarkner model, TransactionFactory transactionFactory) {
+		public ColorBrightnerView(ColorBrightner model, TransactionFactory transactionFactory) {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
 			
 			setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			setLayout(new BorderLayout());
-			add(new JLabel("Color Darkner", JLabel.CENTER), BorderLayout.CENTER);
+			add(new JLabel("Color Brightner", JLabel.CENTER), BorderLayout.CENTER);
 		}
 
 		@Override
@@ -84,7 +84,7 @@ public class ColorDarkner extends Model {
 	@Override
 	public Binding<ModelComponent> createView(ViewManager viewManager,
 			TransactionFactory transactionFactory) {
-		final ColorDarknerView view = new ColorDarknerView(this, transactionFactory);
+		final ColorBrightnerView view = new ColorBrightnerView(this, transactionFactory);
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		

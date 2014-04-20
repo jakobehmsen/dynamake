@@ -62,7 +62,8 @@ public class Main {
 //				new BGBindingCreationFactory(),
 				new BackgroundGetterFactory(),
 				new BackgroundSetterFactory(),
-				new ColorDarknerFactory()
+				new ColorDarknerFactory(),
+				new ColorBrigthnerFactory()
 			};
 			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
 //			long loadStart = System.nanoTime();
