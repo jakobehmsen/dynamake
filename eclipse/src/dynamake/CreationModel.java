@@ -194,6 +194,12 @@ public class CreationModel extends Model {
 				argumentView.setBackground(Color.DARK_GRAY);
 			}
 		}
+
+		@Override
+		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	@Override

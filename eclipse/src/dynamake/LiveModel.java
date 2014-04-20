@@ -48,6 +48,7 @@ public class LiveModel extends Model {
 	public static final int STATE_EDIT = 1;
 	public static final int STATE_PLOT = 2;
 	public static final int STATE_BIND = 3;
+	public static final int STATE_DRAG = 4;
 	
 	private int state;
 	private Model content;
@@ -212,6 +213,9 @@ public class LiveModel extends Model {
 										mouseMovedPlot(e);
 										break;
 									case LiveModel.STATE_BIND:
+										mouseMovedBind(e);
+										break;
+									case LiveModel.STATE_DRAG:
 										mouseMovedDrag(e);
 										break;
 									}
@@ -274,6 +278,10 @@ public class LiveModel extends Model {
 
 								}
 								
+								private void mouseMovedBind(MouseEvent e) {
+
+								}
+								
 								private void mouseMovedDrag(MouseEvent e) {
 
 								}
@@ -287,6 +295,9 @@ public class LiveModel extends Model {
 										mouseExitedPlot(e);
 										break;
 									case LiveModel.STATE_BIND:
+										mouseExitedBind(e);
+										break;
+									case LiveModel.STATE_DRAG:
 										mouseExitedDrag(e);
 										break;
 									}
@@ -299,6 +310,10 @@ public class LiveModel extends Model {
 								}
 
 								private void mouseExitedPlot(MouseEvent e) {
+
+								}
+
+								private void mouseExitedBind(MouseEvent e) {
 
 								}
 
@@ -316,6 +331,8 @@ public class LiveModel extends Model {
 										mouseReleasedPlot(e);
 										break;
 									case LiveModel.STATE_BIND:
+										mouseReleasedBind(e);
+									case LiveModel.STATE_DRAG:
 										mouseReleasedDrag(e);
 										break;
 									}
@@ -398,7 +415,7 @@ public class LiveModel extends Model {
 									}
 								}
 
-								private void mouseReleasedDrag(MouseEvent e) {
+								private void mouseReleasedBind(MouseEvent e) {
 									if(e.getButton() == MouseEvent.BUTTON1) {
 										Point releasePoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
 										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(releasePoint);
@@ -412,16 +429,38 @@ public class LiveModel extends Model {
 												targetModelComponent.getTransactionFactory().executeOnRoot(
 													new Model.AddObserver(targetModelComponent.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation()));
 											}
-											
-//											targetModelComponent.getModel().addObserver(selection.getModel());
 										}
+										
 										Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
 										selectionFrame.setLocation(originSelectionFrameLocation);
-										
 
 										if(targetFrame != null)
 											ProductionPanel.this.remove(targetFrame);
 										
+										targetOver = null;
+										livePanel.repaint();
+									}
+								}
+
+								private void mouseReleasedDrag(MouseEvent e) {
+									if(e.getButton() == MouseEvent.BUTTON1) {
+										Point releasePoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
+										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(releasePoint);
+										ModelComponent targetModelComponent = closestModelComponent(target);
+										
+										if(targetModelComponent != null && selection != targetModelComponent) {
+											showPopupForSelection(selectionFrame, e.getPoint(), targetModelComponent);
+											
+											Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
+											selectionFrame.setLocation(originSelectionFrameLocation);
+
+											if(targetFrame != null)
+												ProductionPanel.this.remove(targetFrame);
+										} else {
+											showPopupForSelection(selectionFrame, e.getPoint(), null);
+										}
+
+										targetOver = null;
 										livePanel.repaint();
 									}
 								}
@@ -436,6 +475,9 @@ public class LiveModel extends Model {
 										mousePressedPlot(e);
 										break;
 									case LiveModel.STATE_BIND:
+										mousePressedBind(e);
+										break;
+									case LiveModel.STATE_DRAG:
 										mousePressedDrag(e);
 										break;
 									}
@@ -461,13 +503,16 @@ public class LiveModel extends Model {
 									}
 								}
 
-								private void mousePressedDrag(MouseEvent e) {
+								private void mousePressedBind(MouseEvent e) {
 									if(e.getButton() == MouseEvent.BUTTON1) {
 										selectionFrameMouseDown = e.getPoint();
 										selectionFrameSize = selectionFrame.getSize();
 										selectionFrameMoving = true;
 									}
-									else if(e.getButton() == MouseEvent.BUTTON3) {
+								}
+
+								private void mousePressedDrag(MouseEvent e) {
+									if(e.getButton() == MouseEvent.BUTTON1) {
 										selectionFrameMouseDown = e.getPoint();
 										selectionFrameSize = selectionFrame.getSize();
 										selectionFrameMoving = true;
@@ -484,6 +529,9 @@ public class LiveModel extends Model {
 										mouseDraggedPlot(e);
 										break;
 									case LiveModel.STATE_BIND:
+										mouseDraggedBind(e);
+										break;
+									case LiveModel.STATE_DRAG:
 										mouseDraggedDrag(e);
 										break;
 									}
@@ -548,12 +596,13 @@ public class LiveModel extends Model {
 									}
 								}
 
-								private void mouseDraggedDrag(MouseEvent e) {
+								private void mouseDraggedBind(MouseEvent e) {
 									if(selectionFrameMouseDown != null && selectionFrameMoving) {
 										Point mouseOverPoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
 										JComponent newTargetOver = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
 										ModelComponent newTargetOverComponent = closestModelComponent(newTargetOver);
 										if(newTargetOverComponent != targetOver) {
+											targetOver = newTargetOverComponent;
 											if(targetFrame != null)
 												ProductionPanel.this.remove(targetFrame);
 											
@@ -562,7 +611,51 @@ public class LiveModel extends Model {
 												Color color = 
 													newTargetOverComponent.getModel().isObservedBy(selection.getModel()) ? Color.RED
 													: Color.GREEN;
-//												targetFrame.setBorder(BorderFactory.createLineBorder(color, 3));
+
+												targetFrame.setBorder(
+													BorderFactory.createCompoundBorder(
+														BorderFactory.createLineBorder(Color.BLACK, 1), 
+														BorderFactory.createCompoundBorder(
+															BorderFactory.createLineBorder(color, 3), 
+															BorderFactory.createLineBorder(Color.BLACK, 1)
+														)
+													)
+												);
+												
+												Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
+													((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), ProductionPanel.this);
+												targetFrame.setBounds(targetFrameBounds);
+												targetFrame.setBackground(new Color(0, 0, 0, 0));
+												ProductionPanel.this.add(targetFrame);
+											}
+										}
+										
+										int x = selectionFrame.getX();
+										int y = selectionFrame.getY();
+										int width = selectionFrame.getWidth();
+										int height = selectionFrame.getHeight();
+
+										x += e.getX() - selectionFrameMouseDown.x;
+										y += e.getY() - selectionFrameMouseDown.y;
+
+										selectionFrame.setBounds(new Rectangle(x, y, width, height));
+										livePanel.repaint();
+									}
+								}
+								
+								private void mouseDraggedDrag(MouseEvent e) {
+									if(selectionFrameMouseDown != null && selectionFrameMoving) {
+										Point mouseOverPoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
+										JComponent newTargetOver = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
+										ModelComponent newTargetOverComponent = closestModelComponent(newTargetOver);
+										if(newTargetOverComponent != targetOver) {
+											targetOver = newTargetOverComponent;
+											if(targetFrame != null)
+												ProductionPanel.this.remove(targetFrame);
+											
+											if(newTargetOverComponent != null && newTargetOverComponent != selection) {
+												targetFrame = new JPanel();
+												Color color = Color.BLUE;
 
 												targetFrame.setBorder(
 													BorderFactory.createCompoundBorder(
@@ -609,6 +702,9 @@ public class LiveModel extends Model {
 										mousePressedPlot(e);
 										break;
 									case LiveModel.STATE_BIND:
+										mousePressedBind(e);
+										break;
+									case LiveModel.STATE_DRAG:
 										mousePressedDrag(e);
 										break;
 									}
@@ -656,7 +752,7 @@ public class LiveModel extends Model {
 									}
 								}
 								
-								public void mousePressedDrag(MouseEvent e) {
+								public void mousePressedBind(MouseEvent e) {
 									if(e.getButton() == 1) {
 										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
 										ModelComponent targetModelComponent = closestModelComponent(target);
@@ -665,15 +761,16 @@ public class LiveModel extends Model {
 											select(targetModelComponent, referencePoint, true);
 											livePanel.repaint();
 										}
-									} else if(e.getButton() == 3) {
+									}
+								}
+								
+								public void mousePressedDrag(MouseEvent e) {
+									if(e.getButton() == 1) {
 										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										if(targetModelComponent != null) {
-											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), livePanel);
-											select(targetModelComponent, e.getPoint(), false);
-											Point restoredPoint = SwingUtilities.convertPoint(livePanel, referencePoint, (JComponent)targetModelComponent);
-											e.translatePoint(restoredPoint.x - e.getX(), restoredPoint.y - e.getY());
-											e.setSource(selectionFrame);
+											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+											select(targetModelComponent, referencePoint, true);
 											livePanel.repaint();
 										}
 									}
@@ -688,6 +785,9 @@ public class LiveModel extends Model {
 										mouseReleasedPlot(e);
 										break;
 									case LiveModel.STATE_BIND:
+										mouseReleasedBind(e);
+										break;
+									case LiveModel.STATE_DRAG:
 										mouseReleasedDrag(e);
 										break;
 									}
@@ -695,7 +795,7 @@ public class LiveModel extends Model {
 								
 								public void mouseReleasedEdit(MouseEvent e) {
 									if(e.getButton() == 3) {
-										showPopupForSelection(e);
+										showPopupForSelection((JComponent)e.getSource(), e.getPoint(), null);
 										livePanel.repaint();
 									}
 								}
@@ -704,8 +804,15 @@ public class LiveModel extends Model {
 									
 								}
 								
-								public void mouseReleasedDrag(MouseEvent e) {
+								public void mouseReleasedBind(MouseEvent e) {
 									
+								}
+								
+								public void mouseReleasedDrag(MouseEvent e) {
+//									if(e.getButton() == 1) {
+//										showPopupForSelection(selectionFrame, e.getPoint());
+//										livePanel.repaint();
+//									}
 								}
 							});
 							
@@ -725,7 +832,7 @@ public class LiveModel extends Model {
 					}
 				}
 				
-				private void showPopupForSelection(MouseEvent e) {
+				private void showPopupForSelection(JComponent popupMenuInvoker, Point pointOnInvoker, final ModelComponent targetOver) {
 					if(selection != null) {
 						JPopupMenu transactionsPopupMenu = new JPopupMenu() {
 							/**
@@ -745,21 +852,61 @@ public class LiveModel extends Model {
 							}
 						};
 						
-						ModelComponent parentModelComponent = closestModelComponent(((JComponent)selection).getParent()); 
+						if(targetOver == null || targetOver == selection) {
+							ModelComponent parentModelComponent = closestModelComponent(((JComponent)selection).getParent()); 
+							
+							TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
+							if(parentModelComponent != null)
+								parentModelComponent.appendContainerTransactions(containerTransactionMapBuilder, selection);
+							
+							TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
+							selection.appendTransactions(transactionSelectionMapBuilder);
+	
+							containerTransactionMapBuilder.appendTo(transactionsPopupMenu, "Container");
+							if(!containerTransactionMapBuilder.isEmpty() && !transactionSelectionMapBuilder.isEmpty())
+								transactionsPopupMenu.addSeparator();
+							transactionSelectionMapBuilder.appendTo(transactionsPopupMenu, "Selection");
+						} else {
+							TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
+							
+							if(targetOver.getModel().isObservedBy(selection.getModel())) {
+								transactionSelectionGeneralMapBuilder.addTransaction("Unbind", 
+									new Runnable() {
+										@Override
+										public void run() {
+											targetOver.getTransactionFactory().executeOnRoot(
+												new Model.RemoveObserver(targetOver.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
+											);
+										}
+									}
+								);
+							} else {
+								transactionSelectionGeneralMapBuilder.addTransaction("Bind", 
+									new Runnable() {
+										@Override
+										public void run() {
+											targetOver.getTransactionFactory().executeOnRoot(
+												new Model.AddObserver(targetOver.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
+											);
+										}
+									}
+								);
+							}
+							
+							TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
+							selection.appendDroppedTransactions(transactionSelectionMapBuilder);
+							
+							transactionSelectionGeneralMapBuilder.appendTo(transactionsPopupMenu, "General");
+							if(!transactionSelectionGeneralMapBuilder.isEmpty() && !transactionSelectionMapBuilder.isEmpty())
+								transactionsPopupMenu.addSeparator();
+							transactionSelectionMapBuilder.appendTo(transactionsPopupMenu, "Selection");
+						}
 						
-						TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
-						if(parentModelComponent != null)
-							parentModelComponent.appendContainerTransactions(containerTransactionMapBuilder, selection);
-						TransactionMapBuilder transactionMapBuilder = new TransactionMapBuilder();
-						selection.appendTransactions(transactionMapBuilder);
+						Point point = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, ProductionPanel.this);
 
-						containerTransactionMapBuilder.appendTo(transactionsPopupMenu, "Container");
-						if(!containerTransactionMapBuilder.isEmpty() && !transactionMapBuilder.isEmpty())
-							transactionsPopupMenu.addSeparator();
-						
-						transactionMapBuilder.appendTo(transactionsPopupMenu, "Item");
-
-						transactionsPopupMenu.show((JComponent)e.getSource(), e.getPoint().x, e.getPoint().y);
+//						transactionsPopupMenu.show((JComponent)selection, e.getPoint().x, e.getPoint().y);
+//						transactionsPopupMenu.show(ProductionPanel.this, point.x, point.y);
+						transactionsPopupMenu.show(popupMenuInvoker, pointOnInvoker.x, pointOnInvoker.y);
 						livePanel.repaint();
 						
 						transactionsPopupMenu.addPopupMenuListener(new PopupMenuListener() {
@@ -795,6 +942,9 @@ public class LiveModel extends Model {
 						mousePressedPlot(e);
 						break;
 					case LiveModel.STATE_BIND:
+						mousePressedBind(e);
+						break;
+					case LiveModel.STATE_DRAG:
 						mousePressedDrag(e);
 						break;
 					}
@@ -845,18 +995,22 @@ public class LiveModel extends Model {
 					}
 				}
 
-				private void mousePressedDrag(MouseEvent e) {
+				private void mousePressedBind(MouseEvent e) {
 					if(e.getButton() == 1) {
 						JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(e.getPoint());
 						ModelComponent targetModelComponent = closestModelComponent(target);
 						Point targetComponentMouseDown = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 						select(targetModelComponent, targetComponentMouseDown, true);
 						livePanel.repaint();
-					} else if(e.getButton() == 3) {
+					}
+				}
+
+				private void mousePressedDrag(MouseEvent e) {
+					if(e.getButton() == 1) {
 						JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(e.getPoint());
 						ModelComponent targetModelComponent = closestModelComponent(target);
 						Point targetComponentMouseDown = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-						select(targetModelComponent, targetComponentMouseDown, false);
+						select(targetModelComponent, targetComponentMouseDown, true);
 						livePanel.repaint();
 					}
 				}
@@ -870,6 +1024,9 @@ public class LiveModel extends Model {
 						mouseReleasedPlot(e);
 						break;
 					case LiveModel.STATE_BIND:
+						mouseReleasedBind(e);
+						break;
+					case LiveModel.STATE_DRAG:
 						mouseReleasedDrag(e);
 						break;
 					}
@@ -886,6 +1043,16 @@ public class LiveModel extends Model {
 				}
 
 				private void mouseReleasedPlot(MouseEvent e) {
+					if(selectionFrame != null) {
+						e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+						e.setSource(selectionFrame);
+						for(MouseListener l: selectionFrame.getMouseListeners()) {
+							l.mouseReleased(e);
+						}
+					}
+				}
+
+				private void mouseReleasedBind(MouseEvent e) {
 					if(selectionFrame != null) {
 						e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
 						e.setSource(selectionFrame);
@@ -914,6 +1081,9 @@ public class LiveModel extends Model {
 						mouseDraggedPlot(e);
 						break;
 					case LiveModel.STATE_BIND:
+						mouseDraggedBind(e);
+						break;
+					case LiveModel.STATE_DRAG:
 						mouseDraggedDrag(e);
 						break;
 					}
@@ -928,6 +1098,14 @@ public class LiveModel extends Model {
 				}
 
 				private void mouseDraggedPlot(MouseEvent e) {
+					e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+					e.setSource(selectionFrame);
+					for(MouseMotionListener l: selectionFrame.getMouseMotionListeners()) {
+						l.mouseDragged(e);
+					}
+				}
+
+				private void mouseDraggedBind(MouseEvent e) {
 					e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
 					e.setSource(selectionFrame);
 					for(MouseMotionListener l: selectionFrame.getMouseMotionListeners()) {
@@ -1021,6 +1199,7 @@ public class LiveModel extends Model {
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_EDIT, "Edit"));
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_PLOT, "Plot"));
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_BIND, "Bind"));
+			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_DRAG, "Drag"));
 			topPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			
 			contentPane = new JLayeredPane();
@@ -1124,6 +1303,12 @@ public class LiveModel extends Model {
 				ModelComponent dropped, Point dropPoint) {
 			// TODO Auto-generated method stub
 			return null;
+		}
+
+		@Override
+		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 

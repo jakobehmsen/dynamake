@@ -123,6 +123,12 @@ public class TextModel extends Model {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		@Override
+		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	@Override

@@ -13,4 +13,5 @@ public interface ModelComponent {
 	void appendTransactions(TransactionMapBuilder transactions);
 	TransactionFactory getTransactionFactory();
 	Transaction<Model> getDefaultDropTransaction(ModelComponent dropped, Point dropPoint);
+	void appendDroppedTransactions(TransactionMapBuilder transactions);
 }
