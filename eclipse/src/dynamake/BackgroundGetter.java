@@ -17,12 +17,12 @@ public class BackgroundGetter extends Model {
 	private static final long serialVersionUID = 1L;
 	
 	@Override
-	public void changed(Model sender, Object change) {
+	public void changed(Model sender, Object change, PropogationContext propCtx) {
 		if(change instanceof Model.PropertyChanged && ((Model.PropertyChanged)change).name.equals("Background")) {
 			Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
-			sendChanged(new Model.Atom(propertyChanged.value));
+			sendChanged(new Model.Atom(propertyChanged.value), propCtx);
 		} else {
-			super.changed(sender, change);
+			super.changed(sender, change, propCtx);
 		}
 	}
 	

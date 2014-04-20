@@ -106,19 +106,19 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void beginUpdate() {
-		sendChanged(new BeganUpdate());
+	public void beginUpdate(PropogationContext propCtx) {
+		sendChanged(new BeganUpdate(), propCtx);
 	}
 	
-	public void endUpdate() {
-		sendChanged(new EndedUpdate());
+	public void endUpdate(PropogationContext propCtx) {
+		sendChanged(new EndedUpdate(), propCtx);
 	}
 	
 	@Override
-	public void changed(Model sender, Object change) {
+	public void changed(Model sender, Object change, PropogationContext propCtx) {
 		if(change instanceof SetProperty) {
 			SetProperty setProperty = (SetProperty)change;
-			setProperty(setProperty.name, setProperty.value);
+			setProperty(setProperty.name, setProperty.value, propCtx);
 		}
 	}
 	
@@ -136,10 +136,11 @@ public abstract class Model implements Serializable, Observer {
 
 		@Override
 		public void executeOn(Model prevalentSystem, Date executionTime) {
-			prevalentSystem.beginUpdate();
+			PropogationContext propCtx = new PropogationContext();
+			prevalentSystem.beginUpdate(propCtx);
 			for(Transaction<Model> t: transactions)
 				t.executeOn(prevalentSystem, executionTime);
-			prevalentSystem.endUpdate();
+			prevalentSystem.endUpdate(propCtx);
 		}
 	}
 	
@@ -158,15 +159,15 @@ public abstract class Model implements Serializable, Observer {
 		
 		@Override
 		public void executeOn(Model prevalentSystem, Date executionTime) {
-			prevalentSystem.setProperty(name, value);
+			prevalentSystem.setProperty(name, value, new PropogationContext());
 		}
 	}
 	
 	private Hashtable<String, Object> properties = new Hashtable<String, Object>();
 
-	public void setProperty(String name, Object value) {
+	public void setProperty(String name, Object value, PropogationContext propCtx) {
 		properties.put(name, value);
-		sendChanged(new PropertyChanged(name, value));
+		sendChanged(new PropertyChanged(name, value), propCtx);
 	}
 	
 	public Object getProperty(String name) {
@@ -225,11 +226,14 @@ public abstract class Model implements Serializable, Observer {
 		properties = (Hashtable<String, Object>)ois.readObject();
 	}
 	
-	protected void sendChanged(Object change) {
+	protected void sendChanged(Object change, PropogationContext propCtx) {
 		observersToAdd = new ArrayList<Observer>();
 		observersToRemove = new ArrayList<Observer>();
 		for(Observer observer: observers)
-			observer.changed(this, change);
+			observer.changed(this, change, propCtx);
+		if(observersToAdd == null) {
+			new String();
+		}
 		for(Observer observerToAdd: observersToAdd)
 			observers.add(observerToAdd);
 		for(Observer observerToRemove: observersToRemove)
@@ -279,7 +283,7 @@ public abstract class Model implements Serializable, Observer {
 			boolean madeChanges;
 			
 			@Override
-			public void changed(Model sender, Object change) {
+			public void changed(Model sender, Object change, PropogationContext propCtx) {
 				if(change instanceof PropertyChanged) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
 					Component targetComponent = ((Component)target);
@@ -321,7 +325,7 @@ public abstract class Model implements Serializable, Observer {
 	public static RemovableListener wrapForComponentPropertyChanges(Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager) {
 		return RemovableListener.addObserver(model, new Observer() {
 			@Override
-			public void changed(Model sender, Object change) {
+			public void changed(Model sender, Object change, PropogationContext propCtx) {
 				if(change instanceof PropertyChanged) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
 					if(propertyChanged.name.equals("Background")) {
@@ -373,7 +377,7 @@ public abstract class Model implements Serializable, Observer {
 			propertySetter.run((T)value);
 		return Model.RemovableListener.addObserver(model, new Observer() {
 			@Override
-			public void changed(Model sender, Object change) {
+			public void changed(Model sender, Object change, PropogationContext propCtx) {
 				if(change instanceof Model.PropertyChanged) {
 					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 					if(propertyChanged.name.equals(modelPropertyName))

@@ -54,7 +54,7 @@ public class CreationModel extends Model {
 		public void executeOn(Model prevalentSystem, Date executionTime) {
 			CreationModel creation = (CreationModel)creationLocation.getChild(prevalentSystem);
 			Model argument = (Model)argumentLocation.getChild(prevalentSystem);
-			creation.setArgument(parameterName, argument);
+			creation.setArgument(parameterName, argument, new PropogationContext());
 		}
 	}
 	
@@ -63,7 +63,7 @@ public class CreationModel extends Model {
 		this.parameterNames = parameterNames;
 	}
 	
-	public void setArgument(String parameterName, Model argument) {
+	public void setArgument(String parameterName, Model argument, PropogationContext propCtx) {
 		int i;
 		for(i = 0; i < parameterNames.length; i++) {
 			if(parameterNames[i].equals(parameterName))
@@ -74,7 +74,7 @@ public class CreationModel extends Model {
 			return;
 		
 		argumentMap.put(parameterName, argument);
-		sendChanged(new ArgumentChanged(parameterName, argument));
+		sendChanged(new ArgumentChanged(parameterName, argument), propCtx);
 	}
 	
 	public boolean argumentIsSet(String parameterName) {
@@ -211,7 +211,7 @@ public class CreationModel extends Model {
 		
 		final RemovableListener removableListenerForArgumentChanges = Model.RemovableListener.addObserver(this, new Observer() {
 			@Override
-			public void changed(Model sender, Object change) {
+			public void changed(Model sender, Object change, PropogationContext propCtx) {
 				if(change instanceof CreationModel.ArgumentChanged) {
 					ArgumentChanged argumentChanged = (ArgumentChanged)change;
 					

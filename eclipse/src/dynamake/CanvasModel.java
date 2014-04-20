@@ -42,29 +42,34 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class AddModelTransaction implements Transaction<CanvasModel> {
+	public static class AddModelTransaction implements Transaction<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		private Location canvasLocation;
 		private Rectangle creationBounds;
 		private Factory factory;
 		
-		public AddModelTransaction(Rectangle creationBounds, Factory factory) {
+		public AddModelTransaction(Location canvasLocation, Rectangle creationBounds, Factory factory) {
+			this.canvasLocation = canvasLocation;
 			this.creationBounds = creationBounds;
 			this.factory = factory;
 		}
 		
 		@Override
-		public void executeOn(CanvasModel prevalentSystem, Date executionTime) {
-			Model model = (Model)factory.create(new Hashtable<String, Object>());
-
-			model.setProperty("X", creationBounds.x);
-			model.setProperty("Y", creationBounds.y);
-			model.setProperty("Width", creationBounds.width);
-			model.setProperty("Height", creationBounds.height);
+		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
+			PropogationContext propCtx = new PropogationContext();
 			
-			prevalentSystem.addModel(model);
+			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
+			Model model = (Model)factory.create(rootPrevalentSystem, new Hashtable<String, Object>());
+
+			model.setProperty("X", creationBounds.x, propCtx);
+			model.setProperty("Y", creationBounds.y, propCtx);
+			model.setProperty("Width", creationBounds.width, propCtx);
+			model.setProperty("Height", creationBounds.height, propCtx);
+			
+			canvas.addModel(model, new PropogationContext());
 		}
 	}
 	
@@ -81,28 +86,28 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void executeOn(CanvasModel prevalentSystem, Date executionTime) {
-			prevalentSystem.removeModel(index);
+			prevalentSystem.removeModel(index, new PropogationContext());
 		}
 	}
 	
-	public void addModel(Model model) {
-		addModel(models.size(), model);
+	public void addModel(Model model, PropogationContext propCtx) {
+		addModel(models.size(), model, propCtx);
 	}
 	
-	public void addModel(int index, Model model) {
+	public void addModel(int index, Model model, PropogationContext propCtx) {
 		models.add(index, model);
-		sendChanged(new AddedModelChange(index, model));
+		sendChanged(new AddedModelChange(index, model), propCtx);
 	}
 	
-	public void removeModel(Model model) {
+	public void removeModel(Model model, PropogationContext propCtx) {
 		int indexOfModel = indexOfModel(model);
-		removeModel(indexOfModel);
+		removeModel(indexOfModel, propCtx);
 	}
 	
-	public void removeModel(int index) {
+	public void removeModel(int index, PropogationContext propCtx) {
 		Model model = models.get(index);
 		models.remove(index);
-		sendChanged(new RemovedModelChange(index, model));
+		sendChanged(new RemovedModelChange(index, model), propCtx);
 	}
 	
 	public int indexOfModel(Model model) {
@@ -227,7 +232,7 @@ public class CanvasModel extends Model {
 		
 		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new Observer() {
 			@Override
-			public void changed(Model sender, Object change) {
+			public void changed(Model sender, Object change, PropogationContext propCtx) {
 				if(change instanceof CanvasModel.AddedModelChange) {
 					final Model model = ((CanvasModel.AddedModelChange)change).model;
 					

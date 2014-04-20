@@ -10,38 +10,40 @@ import javax.swing.JPanel;
 
 import org.prevayler.Transaction;
 
-public class BackgroundSetter extends Model {
+public class MarkVisit extends Model {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	@Override
-	public void changed(Model sender, Object change, PropogationContext propCtx) {
-		if(change instanceof Model.Atom) {
-			Model.Atom atom = (Model.Atom)change;
-			Model.SetProperty setProperty = new SetProperty("Background", atom.value);
-			sendChanged(setProperty, propCtx);
-		} else {
-			super.changed(sender, change, propCtx);
-		}
+	private Model model;
+	
+	public MarkVisit(Model model) {
+		this.model = model;
 	}
 	
-	private static class BackgroundSetterView extends JPanel implements ModelComponent {
+	@Override
+	public void changed(Model sender, Object change, PropogationContext propCtx) {
+		PropogationContext newPropCtx = propCtx.markVisitedBy(model);
+//		super.changed(this, change, newPropCtx);
+		sendChanged(change, newPropCtx);
+	}
+	
+	private static class MarkVisitedByView extends JPanel implements ModelComponent {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private BackgroundSetter model;
+		private MarkVisit model;
 		private TransactionFactory transactionFactory;
 
-		public BackgroundSetterView(BackgroundSetter model, TransactionFactory transactionFactory) {
+		public MarkVisitedByView(MarkVisit model, TransactionFactory transactionFactory) {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
 			
 			setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			setLayout(new BorderLayout());
-			add(new JLabel("BG Setter", JLabel.CENTER), BorderLayout.CENTER);
+			add(new JLabel("Mark Visit", JLabel.CENTER), BorderLayout.CENTER);
 		}
 
 		@Override
@@ -84,7 +86,7 @@ public class BackgroundSetter extends Model {
 	@Override
 	public Binding<ModelComponent> createView(ViewManager viewManager,
 			TransactionFactory transactionFactory) {
-		final BackgroundSetterView view = new BackgroundSetterView(this, transactionFactory);
+		final MarkVisitedByView view = new MarkVisitedByView(this, transactionFactory);
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		

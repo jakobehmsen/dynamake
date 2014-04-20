@@ -61,9 +61,9 @@ public class LiveModel extends Model {
 		return state;
 	}
 	
-	public void setState(int state) {
+	public void setState(int state, PropogationContext propCtx) {
 		this.state = state;
-		sendChanged(new StateChanged());
+		sendChanged(new StateChanged(), propCtx);
 	}
 	
 	public static class SetState implements Transaction<LiveModel> {
@@ -79,7 +79,7 @@ public class LiveModel extends Model {
 		
 		@Override
 		public void executeOn(LiveModel prevalentSystem, Date executionTime) {
-			prevalentSystem.setState(state);
+			prevalentSystem.setState(state, new PropogationContext());
 		}
 	}
 	
@@ -332,6 +332,7 @@ public class LiveModel extends Model {
 										break;
 									case LiveModel.STATE_BIND:
 										mouseReleasedBind(e);
+										break;
 									case LiveModel.STATE_DRAG:
 										mouseReleasedDrag(e);
 										break;
@@ -382,7 +383,9 @@ public class LiveModel extends Model {
 													// Find the selected model and attempt an add model transaction
 													// HACK: Models can only be added to canvases
 													if(selection.getModel() instanceof CanvasModel) {
-														selection.getTransactionFactory().execute(new CanvasModel.AddModelTransaction(creationBounds, factory));
+														selection.getTransactionFactory().executeOnRoot(
+															new CanvasModel.AddModelTransaction(selection.getTransactionFactory().getLocation(), creationBounds, factory)
+														);
 													}
 												}
 											});
@@ -832,7 +835,7 @@ public class LiveModel extends Model {
 					}
 				}
 				
-				private void showPopupForSelection(JComponent popupMenuInvoker, Point pointOnInvoker, final ModelComponent targetOver) {
+				private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver) {
 					if(selection != null) {
 						JPopupMenu transactionsPopupMenu = new JPopupMenu() {
 							/**
@@ -868,6 +871,7 @@ public class LiveModel extends Model {
 							transactionSelectionMapBuilder.appendTo(transactionsPopupMenu, "Selection");
 						} else {
 							TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
+							final Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
 							
 							if(targetOver.getModel().isObservedBy(selection.getModel())) {
 								transactionSelectionGeneralMapBuilder.addTransaction("Unbind", 
@@ -892,6 +896,28 @@ public class LiveModel extends Model {
 									}
 								);
 							}
+							
+							transactionSelectionGeneralMapBuilder.addTransaction("Mark Visit",
+								new Runnable() {
+									@Override
+									public void run() {
+										// Find the selected model and attempt an add model transaction
+										// HACK: Models can only be added to canvases
+										if(targetOver.getModel() instanceof CanvasModel) {
+											// TODO: Figure out, what the bounds should be???...
+//											Point point = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
+											Dimension size = new Dimension(80, 50);
+											Rectangle bounds = new Rectangle(pointOnTargetOver, size);
+											targetOver.getTransactionFactory().executeOnRoot(
+												new CanvasModel.AddModelTransaction(
+													targetOver.getTransactionFactory().getLocation(), bounds, new MarkVisitFactory(selection.getTransactionFactory().getLocation())));
+										}
+//										targetOver.getTransactionFactory().executeOnRoot(
+//											new Model.AddObserver(targetOver.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
+//										);
+									}
+								}
+							);
 							
 							TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
 							selection.appendDroppedTransactions(transactionSelectionMapBuilder);
@@ -1247,7 +1273,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void changed(Model sender, Object change) {
+				public void changed(Model sender, Object change, PropogationContext propCtx) {
 					if(change instanceof LiveModel.StateChanged) {
 						if(previousState == LiveModel.STATE_USE && LivePanel.this.model.getState() != LiveModel.STATE_USE) {
 							contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);

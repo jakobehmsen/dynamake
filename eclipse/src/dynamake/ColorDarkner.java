@@ -17,13 +17,13 @@ public class ColorDarkner extends Model {
 	private static final long serialVersionUID = 1L;
 	
 	@Override
-	public void changed(Model sender, Object change) {
+	public void changed(Model sender, Object change, PropogationContext propCtx) {
 		if(change instanceof Model.Atom) {
 			Model.Atom atom = (Model.Atom)change;
 			Color darkenedColor = ((Color)atom.value).darker();
-			sendChanged(new Model.Atom(darkenedColor));
+			sendChanged(new Model.Atom(darkenedColor), propCtx);
 		} else {
-			super.changed(sender, change);
+			super.changed(sender, change, propCtx);
 		}
 	}
 	

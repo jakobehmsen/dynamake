@@ -14,7 +14,7 @@ public class BackgroundSetterFactory implements Factory {
 	}
 
 	@Override
-	public Object create(Hashtable<String, Object> arguments) {
+	public Object create(Model rootModel, Hashtable<String, Object> arguments) {
 		return new BackgroundSetter();
 	}
 }

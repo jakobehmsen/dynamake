@@ -10,5 +10,5 @@ public interface Factory extends Serializable {
 	// With such parameters (and constraints, in general), it would be possible to implicitly support creation of an intermediate CreationModel
 	
 	String getName();
-	Object create(Hashtable<String, Object> arguments);
+	Object create(Model rootModel, Hashtable<String, Object> arguments);
 }
