@@ -64,10 +64,10 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, new Hashtable<String, Object>());
 
-			model.setProperty("X", creationBounds.x, propCtx);
-			model.setProperty("Y", creationBounds.y, propCtx);
-			model.setProperty("Width", creationBounds.width, propCtx);
-			model.setProperty("Height", creationBounds.height, propCtx);
+			model.getMetaModel().set("X", creationBounds.x, propCtx);
+			model.getMetaModel().set("Y", creationBounds.y, propCtx);
+			model.getMetaModel().set("Width", creationBounds.width, propCtx);
+			model.getMetaModel().set("Height", creationBounds.height, propCtx);
 			
 			canvas.addModel(model, new PropogationContext());
 		}
@@ -219,10 +219,10 @@ public class CanvasModel extends Model {
 			}));
 			
 			Rectangle bounds = new Rectangle(
-				(int)model.getProperty("X"),
-				(int)model.getProperty("Y"),
-				(int)model.getProperty("Width"),
-				(int)model.getProperty("Height")
+				(int)model.getMetaModel().get("X"),
+				(int)model.getMetaModel().get("Y"),
+				(int)model.getMetaModel().get("Width"),
+				(int)model.getMetaModel().get("Height")
 			);
 			
 			((JComponent)modelView.getBindingTarget()).setBounds(bounds);
@@ -245,10 +245,10 @@ public class CanvasModel extends Model {
 					}));
 					
 					Rectangle bounds = new Rectangle(
-						(int)model.getProperty("X"),
-						(int)model.getProperty("Y"),
-						(int)model.getProperty("Width"),
-						(int)model.getProperty("Height")
+						(int)model.getMetaModel().get("X"),
+						(int)model.getMetaModel().get("Y"),
+						(int)model.getMetaModel().get("Width"),
+						(int)model.getMetaModel().get("Height")
 					);
 					
 					((JComponent)modelView.getBindingTarget()).setBounds(bounds);

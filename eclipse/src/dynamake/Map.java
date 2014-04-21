@@ -3,6 +3,8 @@ package dynamake;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Point;
+import java.util.Date;
+import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -10,35 +12,85 @@ import javax.swing.JPanel;
 
 import org.prevayler.Transaction;
 
-public class BackgroundGetter extends Model {
+public class Map extends Model {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	@Override
-	public void changed(Model sender, Object change, PropogationContext propCtx) {
-		if(change instanceof Map.PropertyChanged && ((Map.PropertyChanged)change).name.equals("Background")) {
-			Map.PropertyChanged propertyChanged = (Map.PropertyChanged)change;
-			sendChanged(new Model.Atom(propertyChanged.value), propCtx);
+
+	public static class SetProperty {
+		public final String name;
+		public final Object value;
+
+		public SetProperty(String name, Object value) {
+			this.name = name;
+			this.value = value;
 		}
 	}
 	
-	private static class BackgroundGetterView extends JPanel implements ModelComponent {
+	public static class PropertyChanged {
+		public final String name;
+		public final Object value;
+
+		public PropertyChanged(String name, Object value) {
+			this.name = name;
+			this.value = value;
+		}
+	}
+	
+	public static class SetPropertyTransaction implements Transaction<Map> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private BackgroundGetter model;
+		private String name;
+		private Object value;
+
+		public SetPropertyTransaction(String name, Object value) {
+			this.name = name;
+			this.value = value;
+		}
+		
+		@Override
+		public void executeOn(Map prevalentSystem, Date executionTime) {
+			prevalentSystem.set(name, value, new PropogationContext());
+		}
+	}
+	
+	private Hashtable<String, Object> map = new Hashtable<String, Object>();
+	
+	public void set(String name, Object value, PropogationContext propCtx) {
+		map.put(name, value);
+		sendChanged(new PropertyChanged(name, value), propCtx);
+	}
+	
+	public Object get(String name) {
+		return map.get(name);
+	}
+	
+	@Override
+	public void changed(Model sender, Object change, PropogationContext propCtx) {
+		if(change instanceof SetProperty) {
+			SetProperty setProperty = (SetProperty)change;
+			set(setProperty.name, setProperty.value, propCtx);
+		}
+	}
+	
+	private static class MapView extends JPanel implements ModelComponent {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Map model;
 		private TransactionFactory transactionFactory;
 
-		public BackgroundGetterView(BackgroundGetter model, TransactionFactory transactionFactory) {
+		public MapView(Map model, TransactionFactory transactionFactory) {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
 			
 			setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			setLayout(new BorderLayout());
-			add(new JLabel("BG Getter", JLabel.CENTER), BorderLayout.CENTER);
+			add(new JLabel("Map", JLabel.CENTER), BorderLayout.CENTER);
 		}
 
 		@Override
@@ -81,7 +133,7 @@ public class BackgroundGetter extends Model {
 	@Override
 	public Binding<ModelComponent> createView(ViewManager viewManager,
 			TransactionFactory transactionFactory) {
-		final BackgroundGetterView view = new BackgroundGetterView(this, transactionFactory);
+		final MapView view = new MapView(this, transactionFactory);
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		

@@ -344,18 +344,19 @@ public class LiveModel extends Model {
 										selectionFrameMouseDown = null;
 										
 										TransactionFactory transactionFactory = selection.getTransactionFactory();
+										TransactionFactory metaTransactionFactory = transactionFactory.extend(new Model.MetaModelLocator());
 										
 										JComponent parent = (JComponent)((JComponent)selection).getParent();
 										Rectangle newBounds = SwingUtilities.convertRectangle(selectionFrame.getParent(), selectionFrame.getBounds(), parent);
 										
 										@SuppressWarnings("unchecked")
 										Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
-											new Model.SetPropertyTransaction("X", (int)newBounds.getX()),
-											new Model.SetPropertyTransaction("Y", (int)newBounds.getY()),
-											new Model.SetPropertyTransaction("Width", (int)newBounds.getWidth()),
-											new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight())
+											new Map.SetPropertyTransaction("X", (int)newBounds.getX()),
+											new Map.SetPropertyTransaction("Y", (int)newBounds.getY()),
+											new Map.SetPropertyTransaction("Width", (int)newBounds.getWidth()),
+											new Map.SetPropertyTransaction("Height", (int)newBounds.getHeight())
 										});
-										transactionFactory.execute(changeBoundsTransaction);
+										metaTransactionFactory.execute(changeBoundsTransaction);
 
 										SwingUtilities.invokeLater(new Runnable() {
 											@Override

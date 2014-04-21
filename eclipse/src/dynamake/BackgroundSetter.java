@@ -20,10 +20,8 @@ public class BackgroundSetter extends Model {
 	public void changed(Model sender, Object change, PropogationContext propCtx) {
 		if(change instanceof Model.Atom) {
 			Model.Atom atom = (Model.Atom)change;
-			Model.SetProperty setProperty = new SetProperty("Background", atom.value);
+			Map.SetProperty setProperty = new Map.SetProperty("Background", atom.value);
 			sendChanged(setProperty, propCtx);
-		} else {
-			super.changed(sender, change, propCtx);
 		}
 	}
 	

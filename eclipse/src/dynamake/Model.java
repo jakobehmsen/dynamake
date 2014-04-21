@@ -34,6 +34,41 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
+	public static class MetaModelLocator implements Locator {
+		@Override
+		public Location locate() {
+			return new MetaModelLocation();
+		}
+	}
+	
+	public static class MetaModelLocation implements Location {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public Object getChild(Object holder) {
+			return ((Model)holder).getMetaModel();
+		}
+		
+		@Override
+		public void setChild(Object holder, Object child) {
+			// TODO Auto-generated method stub
+			
+		}
+	}
+	
+	private Map metaModel;
+	
+	public Map getMetaModel() {
+		if(metaModel == null) {
+			metaModel = new Map();
+			// Default values here?
+		}
+		return metaModel;
+	}
+	
 	public static class BeganUpdate {
 		
 	}
@@ -86,25 +121,25 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class SetProperty {
-		public final String name;
-		public final Object value;
-
-		public SetProperty(String name, Object value) {
-			this.name = name;
-			this.value = value;
-		}
-	}
-	
-	public static class PropertyChanged {
-		public final String name;
-		public final Object value;
-
-		public PropertyChanged(String name, Object value) {
-			this.name = name;
-			this.value = value;
-		}
-	}
+//	public static class SetProperty {
+//		public final String name;
+//		public final Object value;
+//
+//		public SetProperty(String name, Object value) {
+//			this.name = name;
+//			this.value = value;
+//		}
+//	}
+//	
+//	public static class PropertyChanged {
+//		public final String name;
+//		public final Object value;
+//
+//		public PropertyChanged(String name, Object value) {
+//			this.name = name;
+//			this.value = value;
+//		}
+//	}
 	
 	public void beginUpdate(PropogationContext propCtx) {
 		sendChanged(new BeganUpdate(), propCtx);
@@ -116,10 +151,10 @@ public abstract class Model implements Serializable, Observer {
 	
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx) {
-		if(change instanceof SetProperty) {
-			SetProperty setProperty = (SetProperty)change;
-			setProperty(setProperty.name, setProperty.value, propCtx);
-		}
+//		if(change instanceof SetProperty) {
+//			SetProperty setProperty = (SetProperty)change;
+//			set(setProperty.name, setProperty.value, propCtx);
+//		}
 	}
 	
 	public static class CompositeTransaction implements Transaction<Model> {
@@ -144,35 +179,35 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class SetPropertyTransaction implements Transaction<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private String name;
-		private Object value;
-
-		public SetPropertyTransaction(String name, Object value) {
-			this.name = name;
-			this.value = value;
-		}
-		
-		@Override
-		public void executeOn(Model prevalentSystem, Date executionTime) {
-			prevalentSystem.setProperty(name, value, new PropogationContext());
-		}
-	}
-	
-	private Hashtable<String, Object> properties = new Hashtable<String, Object>();
-
-	public void setProperty(String name, Object value, PropogationContext propCtx) {
-		properties.put(name, value);
-		sendChanged(new PropertyChanged(name, value), propCtx);
-	}
-	
-	public Object getProperty(String name) {
-		return properties.get(name);
-	}
+//	public static class SetPropertyTransaction implements Transaction<Model> {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//		private String name;
+//		private Object value;
+//
+//		public SetPropertyTransaction(String name, Object value) {
+//			this.name = name;
+//			this.value = value;
+//		}
+//		
+//		@Override
+//		public void executeOn(Model prevalentSystem, Date executionTime) {
+//			prevalentSystem.set(name, value, new PropogationContext());
+//		}
+//	}
+//	
+//	private Hashtable<String, Object> properties = new Hashtable<String, Object>();
+//
+//	public void set(String name, Object value, PropogationContext propCtx) {
+//		properties.put(name, value);
+//		sendChanged(new PropertyChanged(name, value), propCtx);
+//	}
+//	
+//	public Object get(String name) {
+//		return properties.get(name);
+//	}
 	
 	public static class RemovableListener implements Binding<Model> {
 		private Observer listener;
@@ -216,14 +251,14 @@ public abstract class Model implements Serializable, Observer {
 				observersToSerialize.add(o);
 		}
 		ous.writeObject(observersToSerialize);
-		ous.writeObject(properties);
+		ous.writeObject(metaModel);
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 //		observers = new ArrayList<Observer>();
 		observers = (ArrayList<Observer>)ois.readObject();
-		properties = (Hashtable<String, Object>)ois.readObject();
+		metaModel = (Map)ois.readObject();
 	}
 	
 	protected void sendChanged(Object change, PropogationContext propCtx) {
@@ -278,14 +313,14 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static RemovableListener wrapForBoundsChanges(Model model, final ModelComponent target, final ViewManager viewManager) {
-		return RemovableListener.addObserver(model, new Observer() {
+		return RemovableListener.addObserver(model.getMetaModel(), new Observer() {
 			boolean isUpdating;
 			boolean madeChanges;
 			
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx) {
-				if(change instanceof PropertyChanged) {
-					PropertyChanged propertyChanged = (PropertyChanged)change;
+				if(change instanceof Map.PropertyChanged) {
+					Map.PropertyChanged propertyChanged = (Map.PropertyChanged)change;
 					Component targetComponent = ((Component)target);
 					if(propertyChanged.name.equals("X")) {
 						targetComponent.setLocation(new Point((int)propertyChanged.value, targetComponent.getY()));
@@ -323,11 +358,11 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static RemovableListener wrapForComponentPropertyChanges(Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager) {
-		return RemovableListener.addObserver(model, new Observer() {
+		return RemovableListener.addObserver(model.getMetaModel(), new Observer() {
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx) {
-				if(change instanceof PropertyChanged) {
-					PropertyChanged propertyChanged = (PropertyChanged)change;
+				if(change instanceof Map.PropertyChanged) {
+					Map.PropertyChanged propertyChanged = (Map.PropertyChanged)change;
 					if(propertyChanged.name.equals("Background")) {
 						targetComponent.setBackground((Color)propertyChanged.value);
 						targetComponent.validate();
@@ -343,43 +378,43 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static void loadComponentProperties(Model model, Component view) {
-		Object background = model.getProperty("Background");
+		Object background = model.getMetaModel().get("Background");
 		if(background != null)
 			view.setBackground((Color)background);
 		
-		Object foreground = model.getProperty("Foreground");
+		Object foreground = model.getMetaModel().get("Foreground");
 		if(foreground != null)
 			view.setForeground((Color)foreground);
 	}
 	
 	public static void loadComponentBounds(Model model, Component view) {
-		Integer x = (Integer)model.getProperty("X");
+		Integer x = (Integer)model.getMetaModel().get("X");
 		if(x != null)
 			view.setLocation(x, view.getY());
 		
-		Integer y = (Integer)model.getProperty("Y");
+		Integer y = (Integer)model.getMetaModel().get("Y");
 		if(y != null)
 			view.setLocation(view.getX(), y);
 		
-		Integer width = (Integer)model.getProperty("Width");
+		Integer width = (Integer)model.getMetaModel().get("Width");
 		if(width != null)
 			view.setSize(width, view.getHeight());
 		
-		Integer height = (Integer)model.getProperty("Height");
+		Integer height = (Integer)model.getMetaModel().get("Height");
 		if(height != null)
 			view.setSize(view.getWidth(), height);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public static <T> Model.RemovableListener bindProperty(Model model, final String modelPropertyName, final Action1<T> propertySetter) {
-		Object value = model.getProperty(modelPropertyName);
+		Object value = model.getMetaModel().get(modelPropertyName);
 		if(value != null)
 			propertySetter.run((T)value);
-		return Model.RemovableListener.addObserver(model, new Observer() {
+		return Model.RemovableListener.addObserver(model.getMetaModel(), new Observer() {
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx) {
-				if(change instanceof Model.PropertyChanged) {
-					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
+				if(change instanceof Map.PropertyChanged) {
+					Map.PropertyChanged propertyChanged = (Map.PropertyChanged)change;
 					if(propertyChanged.name.equals(modelPropertyName))
 						propertySetter.run((T)propertyChanged.value);
 				}
@@ -428,17 +463,19 @@ public abstract class Model implements Serializable, Observer {
 //		transactions.addTransaction("Set Background", backgroundMapBuilder);
 //		transactions.addTransaction("Set Foreground", foregroundMapBuilder);
 		
-		transactions.addTransaction("Set Background", new ColorTransactionBuilder((Color)model.getProperty("Background"), new Action1<Color>() {
+		final TransactionFactory metaTransactionFactory = transactionFactory.extend(new MetaModelLocator());
+		
+		transactions.addTransaction("Set Background", new ColorTransactionBuilder((Color)model.getMetaModel().get("Background"), new Action1<Color>() {
 			@Override
 			public void run(Color color) {
-				transactionFactory.execute(new Model.SetPropertyTransaction("Background", color));
+				metaTransactionFactory.execute(new Map.SetPropertyTransaction("Background", color));
 			}
 		}));
 		
-		transactions.addTransaction("Set Foreground", new ColorTransactionBuilder((Color)model.getProperty("Foreground"), new Action1<Color>() {
+		transactions.addTransaction("Set Foreground", new ColorTransactionBuilder((Color)model.getMetaModel().get("Foreground"), new Action1<Color>() {
 			@Override
 			public void run(Color color) {
-				transactionFactory.execute(new Model.SetPropertyTransaction("Foreground", color));
+				metaTransactionFactory.execute(new Map.SetPropertyTransaction("Foreground", color));
 			}
 		}));
 	}
