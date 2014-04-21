@@ -107,8 +107,7 @@ public class Map extends Model {
 
 		@Override
 		public void appendTransactions(TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
 		}
 
 		@Override
@@ -131,9 +130,24 @@ public class Map extends Model {
 	}
 
 	@Override
-	public Binding<ModelComponent> createView(ViewManager viewManager,
+	public Binding<ModelComponent> createView(final ViewManager viewManager,
 			TransactionFactory transactionFactory) {
 		final MapView view = new MapView(this, transactionFactory);
+		
+		final Binding<Model> removableListener = RemovableListener.addAll(this, 
+			bindProperty(this, "Background", new Action1<Color>() {
+				public void run(Color value) {
+					view.setBackground(value);
+					viewManager.refresh(view);
+				}
+			}),
+			bindProperty(this, "Foreground", new Action1<Color>() {
+				public void run(Color value) {
+					view.setForeground(value);
+					viewManager.refresh(view);
+				}
+			})
+		);
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		
@@ -141,6 +155,8 @@ public class Map extends Model {
 			@Override
 			public void releaseBinding() {
 				removableListenerForBoundChanges.releaseBinding();
+				
+				removableListener.releaseBinding();
 			}
 			
 			@Override

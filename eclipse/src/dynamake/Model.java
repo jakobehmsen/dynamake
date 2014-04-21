@@ -178,6 +178,21 @@ public abstract class Model implements Serializable, Observer {
 			model.addObserver(listener);
 			return new RemovableListener(listener, model);
 		}
+		
+		public static Binding<Model> addAll(final Model model, final RemovableListener... removableListeners) {
+			return new Binding<Model>() {
+				@Override
+				public Model getBindingTarget() {
+					return model;
+				}
+				
+				@Override
+				public void releaseBinding() {
+					for(RemovableListener rl: removableListeners)
+						rl.releaseBinding();
+				}
+			};
+		}
 	}
 
 	public abstract Binding<ModelComponent> createView(ViewManager viewManager, TransactionFactory transactionFactory);
@@ -369,46 +384,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static void appendComponentPropertyChangeTransactions(final Model model, final TransactionFactory transactionFactory, TransactionMapBuilder transactions) {
-//		LinkedHashMap<String, Color> colors = new LinkedHashMap<String, Color>();
-//		colors.put("Black", Color.BLACK);
-//		colors.put("Blue", Color.BLUE);
-//		colors.put("Cyan", Color.CYAN);
-//		colors.put("Dark Gray", Color.DARK_GRAY);
-//		colors.put("Gray", Color.GRAY);
-//		colors.put("Green", Color.GREEN);
-//		colors.put("Light Gray", Color.LIGHT_GRAY);
-//		colors.put("Magenta", Color.MAGENTA);
-//		colors.put("Orange", Color.ORANGE);
-//		colors.put("Pink", Color.PINK);
-//		colors.put("Red", Color.RED);
-//		colors.put("White", Color.WHITE);
-//		colors.put("Yellow", Color.YELLOW);
-//		
-//		TransactionMapBuilder backgroundMapBuilder = new TransactionMapBuilder(); 
-//		
-//		for(final Map.Entry<String, Color> entry: colors.entrySet()) {
-//			backgroundMapBuilder.addTransaction(entry.getKey(), new Runnable() {
-//				@Override
-//				public void run() {
-//					transactionFactory.execute(new Model.SetPropertyTransaction("Background", entry.getValue()));
-//				}
-//			});
-//		}
-//		
-//		TransactionMapBuilder foregroundMapBuilder = new TransactionMapBuilder(); 
-//		
-//		for(final Map.Entry<String, Color> entry: colors.entrySet()) {
-//			foregroundMapBuilder.addTransaction(entry.getKey(), new Runnable() {
-//				@Override
-//				public void run() {
-//					transactionFactory.execute(new Model.SetPropertyTransaction("Foreground", entry.getValue()));
-//				}
-//			});
-//		}
-		
-//		transactions.addTransaction("Set Background", backgroundMapBuilder);
-//		transactions.addTransaction("Set Foreground", foregroundMapBuilder);
-		
 		final TransactionFactory metaTransactionFactory = transactionFactory.extend(new MetaModelLocator());
 		
 		transactions.addTransaction("Set Background", new ColorTransactionBuilder((Color)model.getMetaModel().get("Background"), new Action1<Color>() {

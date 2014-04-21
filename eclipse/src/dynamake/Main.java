@@ -6,6 +6,7 @@ import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -56,15 +57,26 @@ public class Main {
 			loadIndicator.setLocationRelativeTo(null);
 			loadIndicator.setVisible(true);
 			
-			final Factory[] factories = new Factory[]{
-				new TextModelFactory(), 
-				new CanvasModelFactory(), 
-//				new BGBindingCreationFactory(),
-				new BackgroundGetterFactory(),
-				new BackgroundSetterFactory(),
-				new ColorDarknerFactory(),
-				new ColorBrigthnerFactory()
-			};
+			ArrayList<Factory> factoryBuilder = new ArrayList<Factory>();
+			
+			factoryBuilder.add(new TextModelFactory());
+			factoryBuilder.add(new CanvasModelFactory());
+			
+			for(Primitive.Implementation implementationSingleton: Primitive.getImplementationSingletons())
+				factoryBuilder.add(new PrimitiveSingletonFactory(implementationSingleton));
+			
+			final Factory[] factories = new Factory[factoryBuilder.size()];
+			factoryBuilder.toArray(factories);
+			
+//			final Factory[] factories = new Factory[]{
+//				new TextModelFactory(), 
+//				new CanvasModelFactory(), 
+////				new BGBindingCreationFactory(),
+//				new BackgroundGetterFactory(),
+//				new BackgroundSetterFactory(),
+//				new ColorDarknerFactory(),
+//				new ColorBrigthnerFactory()
+//			};
 			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
 //			long loadStart = System.nanoTime();
 			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
