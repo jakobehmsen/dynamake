@@ -13,7 +13,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -121,26 +120,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-//	public static class SetProperty {
-//		public final String name;
-//		public final Object value;
-//
-//		public SetProperty(String name, Object value) {
-//			this.name = name;
-//			this.value = value;
-//		}
-//	}
-//	
-//	public static class PropertyChanged {
-//		public final String name;
-//		public final Object value;
-//
-//		public PropertyChanged(String name, Object value) {
-//			this.name = name;
-//			this.value = value;
-//		}
-//	}
-	
 	public void beginUpdate(PropogationContext propCtx) {
 		sendChanged(new BeganUpdate(), propCtx);
 	}
@@ -151,10 +130,7 @@ public abstract class Model implements Serializable, Observer {
 	
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx) {
-//		if(change instanceof SetProperty) {
-//			SetProperty setProperty = (SetProperty)change;
-//			set(setProperty.name, setProperty.value, propCtx);
-//		}
+		// No default behavior; such responsibility is delegated to subclass-instances
 	}
 	
 	public static class CompositeTransaction implements Transaction<Model> {
@@ -178,36 +154,6 @@ public abstract class Model implements Serializable, Observer {
 			prevalentSystem.endUpdate(propCtx);
 		}
 	}
-	
-//	public static class SetPropertyTransaction implements Transaction<Model> {
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//		private String name;
-//		private Object value;
-//
-//		public SetPropertyTransaction(String name, Object value) {
-//			this.name = name;
-//			this.value = value;
-//		}
-//		
-//		@Override
-//		public void executeOn(Model prevalentSystem, Date executionTime) {
-//			prevalentSystem.set(name, value, new PropogationContext());
-//		}
-//	}
-//	
-//	private Hashtable<String, Object> properties = new Hashtable<String, Object>();
-//
-//	public void set(String name, Object value, PropogationContext propCtx) {
-//		properties.put(name, value);
-//		sendChanged(new PropertyChanged(name, value), propCtx);
-//	}
-//	
-//	public Object get(String name) {
-//		return properties.get(name);
-//	}
 	
 	public static class RemovableListener implements Binding<Model> {
 		private Observer listener;

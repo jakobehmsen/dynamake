@@ -932,6 +932,23 @@ public class LiveModel extends Model {
 								}
 							);
 							
+							transactionSelectionGeneralMapBuilder.addTransaction("Meta Model",
+								new Runnable() {
+									@Override
+									public void run() {
+										// Find the selected model and attempt an add model transaction
+										// HACK: Models can only be added to canvases
+										if(targetOver.getModel() instanceof CanvasModel) {
+											Dimension size = new Dimension(80, 50);
+											Rectangle bounds = new Rectangle(pointOnTargetOver, size);
+											targetOver.getTransactionFactory().executeOnRoot(
+												new CanvasModel.AddModelTransaction(
+													targetOver.getTransactionFactory().getLocation(), bounds, new MetaModelFactory(selection.getTransactionFactory().getLocation())));
+										}
+									}
+								}
+							);
+							
 							TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
 							selection.appendDroppedTransactions(transactionSelectionMapBuilder);
 							
