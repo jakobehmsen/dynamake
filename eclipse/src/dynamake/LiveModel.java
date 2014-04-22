@@ -345,6 +345,7 @@ public class LiveModel extends Model {
 										
 										TransactionFactory transactionFactory = selection.getTransactionFactory();
 										TransactionFactory metaTransactionFactory = transactionFactory.extend(new Model.MetaModelLocator());
+//										TransactionFactory metaTransactionFactory = selection.getMetaTransactionFactory();
 										
 										JComponent parent = (JComponent)((JComponent)selection).getParent();
 										Rectangle newBounds = SwingUtilities.convertRectangle(selectionFrame.getParent(), selectionFrame.getBounds(), parent);

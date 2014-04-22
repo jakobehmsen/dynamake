@@ -21,6 +21,8 @@ public class MetaModelFactory implements Factory {
 	@Override
 	public Object create(Model rootModel, Hashtable<String, Object> arguments) {
 		Model model = (Model)modelLocation.getChild(rootModel);
-		return model.getMetaModel();
+//		return model.getMetaModel();
+		Model metaModel = model.getMetaModel();
+		return new ProxyModel(metaModel);
 	}
 }

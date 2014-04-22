@@ -273,13 +273,14 @@ public abstract class Model implements Serializable, Observer {
 		return frame;
 	}
 	
-	public static RemovableListener wrapForBoundsChanges(Model model, final ModelComponent target, final ViewManager viewManager) {
+	public static RemovableListener wrapForBoundsChanges(final Model model, final ModelComponent target, final ViewManager viewManager) {
 		return RemovableListener.addObserver(model.getMetaModel(), new Observer() {
 			boolean isUpdating;
 			boolean madeChanges;
 			
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx) {
+				model.toString();
 				if(change instanceof Map.PropertyChanged) {
 					Map.PropertyChanged propertyChanged = (Map.PropertyChanged)change;
 					Component targetComponent = ((Component)target);
