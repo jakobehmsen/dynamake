@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 
@@ -16,4 +17,13 @@ public interface ModelComponent {
 	Transaction<Model> getDefaultDropTransaction(ModelComponent dropped, Point dropPoint);
 	void appendDroppedTransactions(TransactionMapBuilder transactions);
 	void appendDropTargetTransactions(ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions);
+	
+	public static class Util {
+		public static ModelComponent getParent(ModelComponent view) {
+			Component parent = ((Component)view).getParent();
+			while(parent != null && !(parent instanceof ModelComponent))
+				parent = parent.getParent();
+			return (ModelComponent)parent;
+		}
+	}
 }

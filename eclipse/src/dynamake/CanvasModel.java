@@ -215,7 +215,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void appendDropTargetTransactions(final ModelComponent dropped,
 				final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions) {
-			if(dropped.getTransactionFactory().getParent() != null) {
+			if(dropped.getTransactionFactory().getParent() != null && dropped.getTransactionFactory().getParent() != this.transactionFactory) {
 				transactions.addTransaction("Move", new Runnable() {
 					@Override
 					public void run() {
