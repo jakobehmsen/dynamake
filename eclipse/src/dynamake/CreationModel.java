@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -197,6 +198,13 @@ public class CreationModel extends Model {
 
 		@Override
 		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void appendDropTargetTransactions(ModelComponent dropped,
+				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}

@@ -873,6 +873,11 @@ public class LiveModel extends Model {
 						} else {
 							TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
 							final Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
+//							final Rectangle droppedBounds = selectionFrame.getBounds();
+							
+							// TODO: Keep selection frame visible till popup menu is hidden!!!
+							
+							final Rectangle droppedBounds = SwingUtilities.convertRectangle(ProductionPanel.this, selectionFrame.getBounds(), (JComponent)targetOver);
 							
 							if(targetOver.getModel().isObservedBy(selection.getModel())) {
 								transactionSelectionGeneralMapBuilder.addTransaction("Unbind", 
@@ -949,13 +954,19 @@ public class LiveModel extends Model {
 								}
 							);
 							
-							TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
-							selection.appendDroppedTransactions(transactionSelectionMapBuilder);
+							TransactionMapBuilder transactionTargetMapBuilder = new TransactionMapBuilder();
+							targetOver.appendDropTargetTransactions(selection, droppedBounds, pointOnTargetOver, transactionTargetMapBuilder);
 							
 							transactionSelectionGeneralMapBuilder.appendTo(transactionsPopupMenu, "General");
-							if(!transactionSelectionGeneralMapBuilder.isEmpty() && !transactionSelectionMapBuilder.isEmpty())
+							if(!transactionSelectionGeneralMapBuilder.isEmpty() && !transactionTargetMapBuilder.isEmpty())
 								transactionsPopupMenu.addSeparator();
-							transactionSelectionMapBuilder.appendTo(transactionsPopupMenu, "Selection");
+							transactionTargetMapBuilder.appendTo(transactionsPopupMenu, "Target");
+							
+							TransactionMapBuilder transactionDroppedMapBuilder = new TransactionMapBuilder();
+							selection.appendDroppedTransactions(transactionDroppedMapBuilder);
+							if(!transactionTargetMapBuilder.isEmpty() && !transactionDroppedMapBuilder.isEmpty())
+								transactionsPopupMenu.addSeparator();
+							transactionDroppedMapBuilder.appendTo(transactionsPopupMenu, "Dropped");
 						}
 						
 						Point point = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, ProductionPanel.this);
@@ -1363,6 +1374,13 @@ public class LiveModel extends Model {
 
 		@Override
 		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void appendDropTargetTransactions(ModelComponent dropped,
+				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}

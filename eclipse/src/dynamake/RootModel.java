@@ -83,6 +83,13 @@ public class RootModel extends Model {
 			// TODO Auto-generated method stub
 			
 		}
+
+		@Override
+		public void appendDropTargetTransactions(ModelComponent dropped,
+				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	private static class ContentLocation implements Location {

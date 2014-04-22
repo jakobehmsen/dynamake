@@ -6,6 +6,7 @@ import org.prevayler.Transaction;
 
 public class TransactionFactory {
 	private PrevaylerService<Model> prevaylerService;
+	private TransactionFactory parent;
 	private Locator locator;
 	
 	public TransactionFactory(PrevaylerService<Model> prevaylerService, Locator locator) {
@@ -13,7 +14,19 @@ public class TransactionFactory {
 		this.locator = locator;
 	}
 	
+	public TransactionFactory getParent() {
+		return parent;
+	}
+	
+	public Locator getLocator() {
+		return locator;
+	}
+	
 	public Location getLocation() {
+//		return locator.locate();
+		
+		if(parent != null)
+			return new CompositeLocation(parent.getLocation(), locator.locate());
 		return locator.locate();
 	}
 	
@@ -40,7 +53,7 @@ public class TransactionFactory {
 	}
 	
 	public <T extends Model> void execute(final Transaction<T> transaction) {
-		final Location location = locator.locate();
+		final Location location = getLocation();
 		prevaylerService.execute(new LocationTransaction<T>(location, transaction));
 	}
 	
@@ -49,15 +62,21 @@ public class TransactionFactory {
 	}
 	
 	public TransactionFactory extend(final Locator locator) {
-		return new TransactionFactory(prevaylerService, new Locator() {
-			@Override
-			public Location locate() {
-				Location currentLocation = TransactionFactory.this.locator.locate();
-				Location innerLocation = locator.locate();
-				
-				return new CompositeLocation(currentLocation, innerLocation);
-			}
-		});
+//		TransactionFactory extended = new TransactionFactory(prevaylerService, new Locator() {
+//			@Override
+//			public Location locate() {
+//				Location currentLocation = TransactionFactory.this.locator.locate();
+//				Location innerLocation = locator.locate();
+//				
+//				return new CompositeLocation(currentLocation, innerLocation);
+//			}
+//		});
+		
+		TransactionFactory extended = new TransactionFactory(prevaylerService, locator);
+		
+		extended.parent = this;
+		
+		return extended;
 	}
 	
 	private static class CompositeLocation implements Location {

@@ -1,6 +1,7 @@
 package dynamake;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 
 import org.prevayler.Transaction;
 
@@ -14,4 +15,5 @@ public interface ModelComponent {
 	TransactionFactory getTransactionFactory();
 	Transaction<Model> getDefaultDropTransaction(ModelComponent dropped, Point dropPoint);
 	void appendDroppedTransactions(TransactionMapBuilder transactions);
+	void appendDropTargetTransactions(ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions);
 }

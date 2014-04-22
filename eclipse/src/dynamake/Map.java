@@ -3,6 +3,7 @@ package dynamake;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -124,6 +125,13 @@ public class Map extends Model {
 
 		@Override
 		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void appendDropTargetTransactions(ModelComponent dropped,
+				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}

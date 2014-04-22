@@ -3,6 +3,7 @@ package dynamake;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.Rectangle;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -77,6 +78,13 @@ public class NotVisited extends Model {
 
 		@Override
 		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void appendDropTargetTransactions(ModelComponent dropped,
+				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}

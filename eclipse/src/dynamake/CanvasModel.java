@@ -42,6 +42,40 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+	public static class MoveModelTransaction implements Transaction<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location canvasSourceLocation;
+		private Location canvasTargetLocation;
+		private Location modelLocation;
+		private Point point;
+		
+		public MoveModelTransaction(Location canvasSourceLocation, Location canvasTargetLocation, Location modelLocation, Point point) {
+			this.canvasSourceLocation = canvasSourceLocation;
+			this.canvasTargetLocation = canvasTargetLocation;
+			this.modelLocation = modelLocation;
+			this.point = point;
+		}
+		
+		@Override
+		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
+			PropogationContext propCtx = new PropogationContext();
+			
+			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(rootPrevalentSystem);
+			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(rootPrevalentSystem);
+			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
+
+			canvasSource.removeModel(model, propCtx);
+			model.getMetaModel().beginUpdate(propCtx);
+			model.getMetaModel().set("X", point.x, propCtx);
+			model.getMetaModel().set("Y", point.y, propCtx);
+			model.getMetaModel().endUpdate(propCtx);
+			canvasTarget.addModel(model, propCtx);
+		}
+	}
+	
 	public static class AddModelTransaction implements Transaction<Model> {
 		/**
 		 * 
@@ -177,6 +211,41 @@ public class CanvasModel extends Model {
 			// TODO Auto-generated method stub
 			
 		}
+		
+		@Override
+		public void appendDropTargetTransactions(final ModelComponent dropped,
+				final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions) {
+			if(dropped.getTransactionFactory().getParent() != null) {
+				transactions.addTransaction("Move", new Runnable() {
+					@Override
+					public void run() {
+						Location canvasSourceLocation = dropped.getTransactionFactory().getParent().getLocation();
+						Location canvasTargetLocation = transactionFactory.getLocation();
+						Location modelLocation = dropped.getTransactionFactory().getLocation();
+						
+						transactionFactory.executeOnRoot(new MoveModelTransaction(canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation()));
+//						int indexOfModel = model.indexOfModel(child.getModel());
+//						transactionFactory.execute(new RemoveModelTransaction(indexOfModel));
+					}
+				});
+			}
+		}
+	}
+	
+	private static class IndexLocator implements Locator {
+		private CanvasModel canvasModel;
+		private Model model;
+
+		public IndexLocator(CanvasModel canvasModel, Model model) {
+			this.canvasModel = canvasModel;
+			this.model = model;
+		}
+
+		@Override
+		public Location locate() {
+			int index = canvasModel.indexOfModel(model);
+			return new IndexLocation(index);
+		}
 	}
 	
 	private static class IndexLocation implements Location {
@@ -210,13 +279,7 @@ public class CanvasModel extends Model {
 		final Model.RemovableListener removableListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, view, view, viewManager);
 		
 		for(final Model model: models) {
-			Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new Locator() {
-				@Override
-				public Location locate() {
-					int index = indexOfModel(model);
-					return new IndexLocation(index);
-				}
-			}));
+			Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(this, model)));
 			
 			Rectangle bounds = new Rectangle(
 				(int)model.getMetaModel().get("X"),
@@ -236,13 +299,7 @@ public class CanvasModel extends Model {
 				if(change instanceof CanvasModel.AddedModelChange) {
 					final Model model = ((CanvasModel.AddedModelChange)change).model;
 					
-					Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new Locator() {
-						@Override
-						public Location locate() {
-							int index = indexOfModel(model);
-							return new IndexLocation(index);
-						}
-					}));
+					Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(CanvasModel.this, model)));
 					
 					Rectangle bounds = new Rectangle(
 						(int)model.getMetaModel().get("X"),
