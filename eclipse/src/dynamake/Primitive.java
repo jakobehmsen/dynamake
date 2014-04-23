@@ -68,6 +68,45 @@ public class Primitive extends Model {
 				
 				@Override
 				public String getName() {
+					return "FG Getter";
+				}
+				
+				@Override
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx) {
+					if(change instanceof Map.PropertyChanged && ((Map.PropertyChanged)change).name.equals("Foreground")) {
+						Map.PropertyChanged propertyChanged = (Map.PropertyChanged)change;
+						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx);
+					}
+				}
+			},
+			new Implementation() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+				
+				@Override
+				public String getName() {
+					return "FG Setter";
+				}
+				
+				@Override
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx) {
+					if(change instanceof Model.Atom) {
+						Model.Atom atom = (Model.Atom)change;
+						Map.SetProperty setProperty = new Map.SetProperty("Foreground", atom.value);
+						receiver.sendChanged(setProperty, propCtx);
+					}
+				}
+			},
+			new Implementation() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+				
+				@Override
+				public String getName() {
 					return "Color Darkner";
 				}
 				

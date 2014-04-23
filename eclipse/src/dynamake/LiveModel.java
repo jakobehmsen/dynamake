@@ -16,6 +16,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Date;
+import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -954,6 +955,33 @@ public class LiveModel extends Model {
 									}
 								}
 							);
+							
+							// Only available for canvases:
+							TransactionMapBuilder transactionObserverMapBuilder = new TransactionMapBuilder();
+							TransactionMapBuilder transactionObserverContentMapBuilder = new TransactionMapBuilder();
+							for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
+								final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
+								transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
+									@Override
+									public void run() {
+										targetOver.getTransactionFactory().executeOnRoot(new AddThenBindTransaction(
+											selection.getTransactionFactory().getLocation(), 
+											targetOver.getTransactionFactory().getLocation(), 
+											new PrimitiveSingletonFactory(primImpl), 
+											droppedBounds
+										));
+									}
+								});
+							}
+//							transactionObserverContentMapBuilder.addTransaction("BG Setter", new Runnable() {
+//								@Override
+//								public void run() {
+//									// TODO Auto-generated method stub
+//									
+//								}
+//							});
+							transactionObserverMapBuilder.addTransaction("Then", transactionObserverContentMapBuilder);
+							transactionObserverMapBuilder.appendTo(transactionsPopupMenu, "Observation");
 							
 							TransactionMapBuilder transactionTargetMapBuilder = new TransactionMapBuilder();
 							targetOver.appendDropTargetTransactions(selection, droppedBounds, pointOnTargetOver, transactionTargetMapBuilder);

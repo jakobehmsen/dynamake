@@ -94,7 +94,6 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
 			PropogationContext propCtx = new PropogationContext();
-			
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, new Hashtable<String, Object>());
 

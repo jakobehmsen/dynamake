@@ -18,4 +18,12 @@ public class PropogationContext {
 		newPropCtx.visitedByModel = model;
 		return newPropCtx;
 	}
+
+	public boolean isOrDerivesFrom(PropogationContext propCtx) {
+		if(this == propCtx)
+			return true;
+		if(parent != null)
+			return parent.isOrDerivesFrom(propCtx);
+		return false;
+	}
 }
