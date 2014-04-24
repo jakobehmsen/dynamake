@@ -152,40 +152,41 @@ public class CreationModel extends Model {
 		public Model getModel() {
 			return model;
 		}
-
+		
 		@Override
-		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child) {
-			// TODO Auto-generated method stub
-			
-		}
+		public TransactionPublisher getObjectTransactionPublisher() {
+			return new TransactionPublisher() {
 
-		@Override
-		public void appendTransactions(TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+				@Override
+				public void appendContainerTransactions(
+						TransactionMapBuilder transactions, ModelComponent child) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void appendTransactions(TransactionMapBuilder transactions) {
+					// TODO Auto-generated method stub
+					
+				}
+				@Override
+				public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void appendDropTargetTransactions(ModelComponent dropped,
+						Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
+					// TODO Auto-generated method stub
+					
+				}
+			};
 		}
 
 		@Override
 		public TransactionFactory getTransactionFactory() {
 			return transactionFactory;
-		}
-		
-		@Override
-		public Transaction<Model> getDefaultDropTransaction(
-				ModelComponent dropped, Point dropPoint) {
-			Component target = findComponentAt(dropPoint);
-			
-			if(target instanceof ArgumentView) {
-				final ArgumentView argument = (ArgumentView)target;
-				
-//				argument.setForeground(Color.WHITE);
-//				argument.setBackground(Color.DARK_GRAY);
-				
-				return new SetArgumentTransaction(transactionFactory.getLocation(), argument.parameterName, dropped.getTransactionFactory().getLocation());
-			}
-
-			return null;
 		}
 
 		public void showArgumentAsSet(String parameterName) {
@@ -196,18 +197,6 @@ public class CreationModel extends Model {
 			}
 		}
 
-		@Override
-		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void appendDropTargetTransactions(ModelComponent dropped,
-				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
-		}
 	}
 	
 	@Override

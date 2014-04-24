@@ -50,6 +50,7 @@ public class LiveModel extends Model {
 	public static final int STATE_PLOT = 2;
 	public static final int STATE_BIND = 3;
 	public static final int STATE_DRAG = 4;
+	public static final int STATE_CONS = 5;
 	
 	private int state;
 	private Model content;
@@ -219,6 +220,9 @@ public class LiveModel extends Model {
 									case LiveModel.STATE_DRAG:
 										mouseMovedDrag(e);
 										break;
+									case LiveModel.STATE_CONS:
+										mouseMovedCons(e);
+										break;
 									}
 								}
 
@@ -286,6 +290,10 @@ public class LiveModel extends Model {
 								private void mouseMovedDrag(MouseEvent e) {
 
 								}
+								
+								private void mouseMovedCons(MouseEvent e) {
+
+								}
 
 								public void mouseExited(MouseEvent e) {
 									switch(livePanel.model.state) {
@@ -300,6 +308,9 @@ public class LiveModel extends Model {
 										break;
 									case LiveModel.STATE_DRAG:
 										mouseExitedDrag(e);
+										break;
+									case LiveModel.STATE_CONS:
+										mouseExitedCons(e);
 										break;
 									}
 								}
@@ -322,6 +333,10 @@ public class LiveModel extends Model {
 
 								}
 
+								private void mouseExitedCons(MouseEvent e) {
+
+								}
+
 								@Override
 								public void mouseReleased(MouseEvent e) {
 									switch(livePanel.model.state) {
@@ -336,6 +351,9 @@ public class LiveModel extends Model {
 										break;
 									case LiveModel.STATE_DRAG:
 										mouseReleasedDrag(e);
+										break;
+									case LiveModel.STATE_CONS:
+										mouseReleasedCons(e);
 										break;
 									}
 								}
@@ -463,12 +481,19 @@ public class LiveModel extends Model {
 											if(targetFrame != null)
 												ProductionPanel.this.remove(targetFrame);
 										} else {
+											Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
+											selectionFrame.setLocation(originSelectionFrameLocation);
+											
 											showPopupForSelection(selectionFrame, e.getPoint(), null);
 										}
 
 										targetOver = null;
 										livePanel.repaint();
 									}
+								}
+
+								private void mouseReleasedCons(MouseEvent e) {
+									
 								}
 
 								@Override
@@ -485,6 +510,9 @@ public class LiveModel extends Model {
 										break;
 									case LiveModel.STATE_DRAG:
 										mousePressedDrag(e);
+										break;
+									case LiveModel.STATE_CONS:
+										mousePressedCons(e);
 										break;
 									}
 								}
@@ -525,6 +553,10 @@ public class LiveModel extends Model {
 									}
 								}
 
+								private void mousePressedCons(MouseEvent e) {
+									
+								}
+
 								@Override
 								public void mouseDragged(MouseEvent e) {
 									switch(livePanel.model.state) {
@@ -539,6 +571,9 @@ public class LiveModel extends Model {
 										break;
 									case LiveModel.STATE_DRAG:
 										mouseDraggedDrag(e);
+										break;
+									case LiveModel.STATE_CONS:
+										mouseDraggedCons(e);
 										break;
 									}
 								}
@@ -693,6 +728,10 @@ public class LiveModel extends Model {
 										livePanel.repaint();
 									}
 								}
+								
+								private void mouseDraggedCons(MouseEvent e) {
+									
+								}
 							};
 							
 							selectionFrame.addMouseListener(mouseAdapter);
@@ -712,6 +751,9 @@ public class LiveModel extends Model {
 										break;
 									case LiveModel.STATE_DRAG:
 										mousePressedDrag(e);
+										break;
+									case LiveModel.STATE_CONS:
+										mousePressedCons(e);
 										break;
 									}
 								}
@@ -782,6 +824,10 @@ public class LiveModel extends Model {
 									}
 								}
 								
+								public void mousePressedCons(MouseEvent e) {
+
+								}
+								
 								public void mouseReleased(MouseEvent e) {
 									switch(livePanel.model.state) {
 									case LiveModel.STATE_EDIT:
@@ -795,6 +841,9 @@ public class LiveModel extends Model {
 										break;
 									case LiveModel.STATE_DRAG:
 										mouseReleasedDrag(e);
+										break;
+									case LiveModel.STATE_CONS:
+										mouseReleasedCons(e);
 										break;
 									}
 								}
@@ -819,6 +868,10 @@ public class LiveModel extends Model {
 //										showPopupForSelection(selectionFrame, e.getPoint());
 //										livePanel.repaint();
 //									}
+								}
+								
+								public void mouseReleasedCons(MouseEvent e) {
+
 								}
 							});
 							
@@ -863,10 +916,10 @@ public class LiveModel extends Model {
 							
 							TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
 							if(parentModelComponent != null)
-								parentModelComponent.appendContainerTransactions(containerTransactionMapBuilder, selection);
+								parentModelComponent.getObjectTransactionPublisher().appendContainerTransactions(containerTransactionMapBuilder, selection);
 							
 							TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
-							selection.appendTransactions(transactionSelectionMapBuilder);
+							selection.getObjectTransactionPublisher().appendTransactions(transactionSelectionMapBuilder);
 	
 							containerTransactionMapBuilder.appendTo(transactionsPopupMenu, "Container");
 							if(!containerTransactionMapBuilder.isEmpty() && !transactionSelectionMapBuilder.isEmpty())
@@ -957,34 +1010,29 @@ public class LiveModel extends Model {
 							);
 							
 							// Only available for canvases:
-							TransactionMapBuilder transactionObserverMapBuilder = new TransactionMapBuilder();
-							TransactionMapBuilder transactionObserverContentMapBuilder = new TransactionMapBuilder();
-							for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
-								final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
-								transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
-									@Override
-									public void run() {
-										targetOver.getTransactionFactory().executeOnRoot(new AddThenBindTransaction(
-											selection.getTransactionFactory().getLocation(), 
-											targetOver.getTransactionFactory().getLocation(), 
-											new PrimitiveSingletonFactory(primImpl), 
-											droppedBounds
-										));
-									}
-								});
+							if(targetOver.getModel() instanceof CanvasModel) {
+								TransactionMapBuilder transactionObserverMapBuilder = new TransactionMapBuilder();
+								TransactionMapBuilder transactionObserverContentMapBuilder = new TransactionMapBuilder();
+								for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
+									final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
+									transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
+										@Override
+										public void run() {
+											targetOver.getTransactionFactory().executeOnRoot(new AddThenBindTransaction(
+												selection.getTransactionFactory().getLocation(), 
+												targetOver.getTransactionFactory().getLocation(), 
+												new PrimitiveSingletonFactory(primImpl), 
+												droppedBounds
+											));
+										}
+									});
+								}
+								transactionObserverMapBuilder.addTransaction("Then", transactionObserverContentMapBuilder);
+								transactionObserverMapBuilder.appendTo(transactionsPopupMenu, "Observation");
 							}
-//							transactionObserverContentMapBuilder.addTransaction("BG Setter", new Runnable() {
-//								@Override
-//								public void run() {
-//									// TODO Auto-generated method stub
-//									
-//								}
-//							});
-							transactionObserverMapBuilder.addTransaction("Then", transactionObserverContentMapBuilder);
-							transactionObserverMapBuilder.appendTo(transactionsPopupMenu, "Observation");
 							
 							TransactionMapBuilder transactionTargetMapBuilder = new TransactionMapBuilder();
-							targetOver.appendDropTargetTransactions(selection, droppedBounds, pointOnTargetOver, transactionTargetMapBuilder);
+							targetOver.getObjectTransactionPublisher().appendDropTargetTransactions(selection, droppedBounds, pointOnTargetOver, transactionTargetMapBuilder);
 							
 							transactionSelectionGeneralMapBuilder.appendTo(transactionsPopupMenu, "General");
 							if(!transactionSelectionGeneralMapBuilder.isEmpty() && !transactionTargetMapBuilder.isEmpty())
@@ -992,7 +1040,7 @@ public class LiveModel extends Model {
 							transactionTargetMapBuilder.appendTo(transactionsPopupMenu, "Target");
 							
 							TransactionMapBuilder transactionDroppedMapBuilder = new TransactionMapBuilder();
-							selection.appendDroppedTransactions(transactionDroppedMapBuilder);
+							selection.getObjectTransactionPublisher().appendDroppedTransactions(transactionDroppedMapBuilder);
 							if(!transactionTargetMapBuilder.isEmpty() && !transactionDroppedMapBuilder.isEmpty())
 								transactionsPopupMenu.addSeparator();
 							transactionDroppedMapBuilder.appendTo(transactionsPopupMenu, "Dropped");
@@ -1042,6 +1090,9 @@ public class LiveModel extends Model {
 						break;
 					case LiveModel.STATE_DRAG:
 						mousePressedDrag(e);
+						break;
+					case LiveModel.STATE_CONS:
+						mousePressedCons(e);
 						break;
 					}
 				}
@@ -1111,6 +1162,16 @@ public class LiveModel extends Model {
 					}
 				}
 
+				private void mousePressedCons(MouseEvent e) {
+					if(e.getButton() == 1) {
+						JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(e.getPoint());
+						ModelComponent targetModelComponent = closestModelComponent(target);
+						Point targetComponentMouseDown = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+						select(targetModelComponent, targetComponentMouseDown, true);
+						livePanel.repaint();
+					}
+				}
+
 				public void mouseReleased(MouseEvent e) {
 					switch(livePanel.model.state) {
 					case LiveModel.STATE_EDIT:
@@ -1124,6 +1185,9 @@ public class LiveModel extends Model {
 						break;
 					case LiveModel.STATE_DRAG:
 						mouseReleasedDrag(e);
+						break;
+					case LiveModel.STATE_CONS:
+						mouseReleasedCons(e);
 						break;
 					}
 				}
@@ -1168,6 +1232,16 @@ public class LiveModel extends Model {
 					}
 				}
 
+				private void mouseReleasedCons(MouseEvent e) {
+					if(selectionFrame != null) {
+						e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+						e.setSource(selectionFrame);
+						for(MouseListener l: selectionFrame.getMouseListeners()) {
+							l.mouseReleased(e);
+						}
+					}
+				}
+
 				public void mouseDragged(MouseEvent e) {
 					switch(livePanel.model.state) {
 					case LiveModel.STATE_EDIT:
@@ -1181,6 +1255,9 @@ public class LiveModel extends Model {
 						break;
 					case LiveModel.STATE_DRAG:
 						mouseDraggedDrag(e);
+						break;
+					case LiveModel.STATE_CONS:
+						mouseDraggedCons(e);
 						break;
 					}
 				}
@@ -1210,6 +1287,14 @@ public class LiveModel extends Model {
 				}
 
 				private void mouseDraggedDrag(MouseEvent e) {
+					e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+					e.setSource(selectionFrame);
+					for(MouseMotionListener l: selectionFrame.getMouseMotionListeners()) {
+						l.mouseDragged(e);
+					}
+				}
+
+				private void mouseDraggedCons(MouseEvent e) {
 					e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
 					e.setSource(selectionFrame);
 					for(MouseMotionListener l: selectionFrame.getMouseMotionListeners()) {
@@ -1296,6 +1381,7 @@ public class LiveModel extends Model {
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_PLOT, "Plot"));
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_BIND, "Bind"));
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_DRAG, "Drag"));
+			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_CONS, "Cons"));
 			topPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			
 			contentPane = new JLayeredPane();
@@ -1370,18 +1456,36 @@ public class LiveModel extends Model {
 			// TODO Auto-generated method stub
 			return null;
 		}
-
+		
 		@Override
-		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child) {
-			// TODO Auto-generated method stub
-			
-		}
+		public TransactionPublisher getObjectTransactionPublisher() {
+			return new TransactionPublisher() {
+				@Override
+				public void appendContainerTransactions(
+						TransactionMapBuilder transactions, ModelComponent child) {
+					// TODO Auto-generated method stub
+					
+				}
 
-		@Override
-		public void appendTransactions(TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+				@Override
+				public void appendTransactions(TransactionMapBuilder transactions) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void appendDropTargetTransactions(ModelComponent dropped,
+						Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
+					// TODO Auto-generated method stub
+					
+				}
+			};
 		}
 
 		@Override
@@ -1392,26 +1496,6 @@ public class LiveModel extends Model {
 
 		public void releaseBinding() {
 			removableListener.releaseBinding();
-		}
-		
-		@Override
-		public Transaction<Model> getDefaultDropTransaction(
-				ModelComponent dropped, Point dropPoint) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void appendDropTargetTransactions(ModelComponent dropped,
-				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
 		}
 	}
 

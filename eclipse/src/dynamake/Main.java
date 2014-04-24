@@ -2,7 +2,6 @@ package dynamake;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
-import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -12,7 +11,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JTextPane;
 
 import org.prevayler.Prevayler;
 import org.prevayler.PrevaylerFactory;

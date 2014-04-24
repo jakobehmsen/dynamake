@@ -78,44 +78,37 @@ public class ProxyModel extends Model {
 		}
 
 		@Override
-		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child) {
-//			view.appendContainerTransactions(transactions, child);
-		}
-
-		@Override
-		public void appendTransactions(TransactionMapBuilder transactions) {
-			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
-//			view.appendTransactions(transactions);
-		}
-		
-//		@Override
-//		public TransactionFactory getMetaTransactionFactory() {
-//			return transactionFactory.extend(new Model.MetaModelLocator());
-//		}
-
-		@Override
 		public TransactionFactory getTransactionFactory() {
 //			return view.getTransactionFactory();
 			return transactionFactory;
 		}
-
+		
 		@Override
-		public Transaction<Model> getDefaultDropTransaction(
-				ModelComponent dropped, Point dropPoint) {
-//			return view.getDefaultDropTransaction(dropped, dropPoint);
-			return null;
-		}
+		public TransactionPublisher getObjectTransactionPublisher() {
+			return new TransactionPublisher() {
+				@Override
+				public void appendContainerTransactions(
+						TransactionMapBuilder transactions, ModelComponent child) {
+//					view.appendContainerTransactions(transactions, child);
+				}
 
-		@Override
-		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
-//			view.appendDroppedTransactions(transactions);
-		}
+				@Override
+				public void appendTransactions(TransactionMapBuilder transactions) {
+					Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
+//					view.appendTransactions(transactions);
+				}
 
-		@Override
-		public void appendDropTargetTransactions(ModelComponent dropped,
-				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
-//			view.appendDropTargetTransactions(dropped, droppedBounds, dropPoint, transactions);
+				@Override
+				public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+//					view.appendDroppedTransactions(transactions);
+				}
+
+				@Override
+				public void appendDropTargetTransactions(ModelComponent dropped,
+						Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
+//					view.appendDropTargetTransactions(dropped, droppedBounds, dropPoint, transactions);
+				}
+			};
 		}
 	}
 	

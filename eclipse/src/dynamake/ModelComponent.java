@@ -1,23 +1,20 @@
 package dynamake;
 
 import java.awt.Component;
-import java.awt.Point;
-import java.awt.Rectangle;
-
-import org.prevayler.Transaction;
 
 /**
  * Assumed only to be implemented by JComponent (or JFrame) class extensions.
  */
 public interface ModelComponent {
 	Model getModel();
-	void appendContainerTransactions(TransactionMapBuilder transactions, ModelComponent child);
-	void appendTransactions(TransactionMapBuilder transactions);
-//	TransactionFactory getMetaTransactionFactory();
 	TransactionFactory getTransactionFactory();
-	Transaction<Model> getDefaultDropTransaction(ModelComponent dropped, Point dropPoint);
-	void appendDroppedTransactions(TransactionMapBuilder transactions);
-	void appendDropTargetTransactions(ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions);
+//	void appendContainerTransactions(TransactionMapBuilder transactions, ModelComponent child);
+//	void appendTransactions(TransactionMapBuilder transactions);
+//	void appendDroppedTransactions(TransactionMapBuilder transactions);
+//	void appendDropTargetTransactions(ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions);
+	TransactionPublisher getObjectTransactionPublisher();
+//	TransactionPublisher getMetaTransactionPublisher();
+//	TransactionPublisher getConsTransactionPublisher();
 	
 	public static class Util {
 		public static ModelComponent getParent(ModelComponent view) {

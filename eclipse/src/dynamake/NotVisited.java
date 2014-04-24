@@ -52,41 +52,39 @@ public class NotVisited extends Model {
 		}
 
 		@Override
-		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void appendTransactions(TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
 		public TransactionFactory getTransactionFactory() {
 			return transactionFactory;
 		}
-
+		
 		@Override
-		public Transaction<Model> getDefaultDropTransaction(
-				ModelComponent dropped, Point dropPoint) {
-			// TODO Auto-generated method stub
-			return null;
-		}
+		public TransactionPublisher getObjectTransactionPublisher() {
+			return new TransactionPublisher() {
+				@Override
+				public void appendContainerTransactions(
+						TransactionMapBuilder transactions, ModelComponent child) {
+					// TODO Auto-generated method stub
+					
+				}
 
-		@Override
-		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
-		}
+				@Override
+				public void appendTransactions(TransactionMapBuilder transactions) {
+					// TODO Auto-generated method stub
+					
+				}
 
-		@Override
-		public void appendDropTargetTransactions(ModelComponent dropped,
-				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+				@Override
+				public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+					// TODO Auto-generated method stub
+					
+				}
+
+				@Override
+				public void appendDropTargetTransactions(ModelComponent dropped,
+						Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
+					// TODO Auto-generated method stub
+					
+				}
+			};
 		}
 	}
 
