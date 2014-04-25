@@ -2,6 +2,8 @@ package dynamake;
 
 import java.awt.Component;
 
+import org.prevayler.Transaction;
+
 /**
  * Assumed only to be implemented by JComponent (or JFrame) class extensions.
  */
@@ -23,5 +25,13 @@ public interface ModelComponent {
 				parent = parent.getParent();
 			return (ModelComponent)parent;
 		}
+		
+		public static ModelComponent closestModelComponent(Component component) {
+			while(component != null && !(component instanceof ModelComponent))
+				component = component.getParent();
+			return (ModelComponent)component;
+		}
 	}
+
+	Transaction<Model> getImplicitDropAction(ModelComponent target);
 }

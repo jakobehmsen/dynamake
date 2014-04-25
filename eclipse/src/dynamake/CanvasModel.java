@@ -83,11 +83,20 @@ public class CanvasModel extends Model {
 		private static final long serialVersionUID = 1L;
 		private Location canvasLocation;
 		private Rectangle creationBounds;
+		Hashtable<String, Object> creationArgs;
 		private Factory factory;
 		
 		public AddModelTransaction(Location canvasLocation, Rectangle creationBounds, Factory factory) {
 			this.canvasLocation = canvasLocation;
 			this.creationBounds = creationBounds;
+			this.factory = factory;
+			this.creationArgs = new Hashtable<String, Object>();
+		}
+		
+		public AddModelTransaction(Location canvasLocation, Rectangle creationBounds, Hashtable<String, Object> creationArgs, Factory factory) {
+			this.canvasLocation = canvasLocation;
+			this.creationBounds = creationBounds;
+			this.creationArgs = creationArgs;
 			this.factory = factory;
 		}
 		
@@ -95,7 +104,7 @@ public class CanvasModel extends Model {
 		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
 			PropogationContext propCtx = new PropogationContext();
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, new Hashtable<String, Object>());
+			Model model = (Model)factory.create(rootPrevalentSystem, creationArgs);
 
 			model.getMetaModel().set("X", creationBounds.x, propCtx);
 			model.getMetaModel().set("Y", creationBounds.y, propCtx);
@@ -225,6 +234,12 @@ public class CanvasModel extends Model {
 		@Override
 		public TransactionFactory getTransactionFactory() {
 			return transactionFactory;
+		}
+
+		@Override
+		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

@@ -2,7 +2,6 @@ package dynamake;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -15,8 +14,6 @@ import javax.swing.JPanel;
 
 import org.prevayler.Transaction;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
 public class CreationModel extends Model {
 	/**
 	 * 
@@ -24,13 +21,13 @@ public class CreationModel extends Model {
 	private static final long serialVersionUID = 1L;
 	private Factory factory;
 	private String[] parameterNames;
-	private Hashtable<String, Model> argumentMap = new Hashtable<String, Model>();
+	private Hashtable<String, Object> argumentMap = new Hashtable<String, Object>();
 	
 	public static class ArgumentChanged {
 		public final String parameterName;
-		public final Model argument;
+		public final Object argument;
 		
-		public ArgumentChanged(String parameterName, Model argument) {
+		public ArgumentChanged(String parameterName, Object argument) {
 			this.parameterName = parameterName;
 			this.argument = argument;
 		}
@@ -55,6 +52,8 @@ public class CreationModel extends Model {
 		public void executeOn(Model prevalentSystem, Date executionTime) {
 			CreationModel creation = (CreationModel)creationLocation.getChild(prevalentSystem);
 			Model argument = (Model)argumentLocation.getChild(prevalentSystem);
+//			// HACK: For now, only meta model are used as arguments
+//			argument = argument.getMetaModel();
 			creation.setArgument(parameterName, argument, new PropogationContext());
 		}
 	}
@@ -64,7 +63,7 @@ public class CreationModel extends Model {
 		this.parameterNames = parameterNames;
 	}
 	
-	public void setArgument(String parameterName, Model argument, PropogationContext propCtx) {
+	public void setArgument(String parameterName, Object argument, PropogationContext propCtx) {
 		int i;
 		for(i = 0; i < parameterNames.length; i++) {
 			if(parameterNames[i].equals(parameterName))
@@ -95,17 +94,67 @@ public class CreationModel extends Model {
 		return argumentMap.size() == parameterNames.length;
 	}
 	
-	private static class ArgumentView extends JLabel {
+	private static class ArgumentView extends JLabel implements ModelComponent {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		private PanelModel ownerModel;
 		private String parameterName;
 		
-		public ArgumentView(String parameterName) {
+		public ArgumentView(PanelModel ownerModel, String parameterName) {
 			super(parameterName);
+			this.ownerModel = ownerModel;
 			setOpaque(true);
 			this.parameterName = parameterName;
+		}
+
+		@Override
+		public Model getModel() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public TransactionFactory getTransactionFactory() {
+			return ownerModel.getTransactionFactory();
+		}
+
+		@Override
+		public TransactionPublisher getObjectTransactionPublisher() {
+			return new TransactionPublisher() {
+				@Override
+				public void appendTransactions(TransactionMapBuilder transactions) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void appendDropTargetTransactions(ModelComponent dropped,
+						Rectangle droppedBounds, Point dropPoint,
+						TransactionMapBuilder transactions) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void appendContainerTransactions(TransactionMapBuilder transactions,
+						ModelComponent child) {
+					// TODO Auto-generated method stub
+					
+				}
+			};
+		}
+
+		@Override
+		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+			return new SetArgumentTransaction(ownerModel.getTransactionFactory().getLocation(), parameterName, target.getTransactionFactory().getLocation());
 		}
 	}
 	
@@ -135,7 +184,7 @@ public class CreationModel extends Model {
 			JPanel argumentsPanel = new JPanel();
 			argumentsPanel.setLayout(new GridLayout(model.parameterNames.length, 1));
 			for(String parameterName: model.parameterNames) {
-				ArgumentView argumentView = new ArgumentView(parameterName);
+				ArgumentView argumentView = new ArgumentView(this, parameterName);
 				argumentView.setBorder(BorderFactory.createLoweredBevelBorder());
 				argumentsPanel.add(argumentView);
 				parameterNameToArgumentViewMap.put(parameterName, argumentView);
@@ -156,7 +205,6 @@ public class CreationModel extends Model {
 		@Override
 		public TransactionPublisher getObjectTransactionPublisher() {
 			return new TransactionPublisher() {
-
 				@Override
 				public void appendContainerTransactions(
 						TransactionMapBuilder transactions, ModelComponent child) {
@@ -197,11 +245,55 @@ public class CreationModel extends Model {
 			}
 		}
 
+		@Override
+		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+	}
+	
+	private static class InstantiateCreationTransaction implements Transaction<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location creationLocation;
+		private Location canvasLocation;
+
+		public InstantiateCreationTransaction(Location creationLocation, Location canvasLocation) {
+			this.creationLocation = creationLocation;
+			this.canvasLocation = canvasLocation;
+		}
+
+
+		@Override
+		public void executeOn(Model arg0, Date arg1) {
+			PropogationContext propCtx = new PropogationContext();
+			
+			CreationModel creation = (CreationModel)creationLocation.getChild(arg0);
+			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(arg0);
+			
+			int x = (int)creation.getMetaModel().get("X");
+			int y = (int)creation.getMetaModel().get("Y");
+			int width = (int)creation.getMetaModel().get("Width");
+			int height = (int)creation.getMetaModel().get("Height");
+			
+			Model model = (Model)creation.factory.create(arg0, creation.argumentMap);
+
+			model.getMetaModel().set("X", x, propCtx);
+			model.getMetaModel().set("Y", y, propCtx);
+			model.getMetaModel().set("Width", width, propCtx);
+			model.getMetaModel().set("Height", height, propCtx);
+			
+			canvas.removeModel(creation, propCtx);
+			canvas.addModel(model, propCtx);
+		}
 	}
 	
 	@Override
 	public Binding<ModelComponent> createView(final ViewManager viewManager,
-			TransactionFactory transactionFactory) {
+			final TransactionFactory transactionFactory) {
 		final PanelModel view = new PanelModel(this, transactionFactory);
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
@@ -216,7 +308,10 @@ public class CreationModel extends Model {
 					viewManager.refresh(view);
 					
 					if(((CreationModel)sender).allArgumentsAreSet()) {
-						
+						ModelComponent parent = ModelComponent.Util.getParent(view);
+						if(parent != null && parent.getModel() instanceof CanvasModel) {
+							transactionFactory.executeOnRoot(new InstantiateCreationTransaction(transactionFactory.getLocation(), parent.getTransactionFactory().getLocation()));
+						}
 					}
 				}
 			}

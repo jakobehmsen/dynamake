@@ -88,6 +88,12 @@ public class RootModel extends Model {
 				}
 			};
 		}
+
+		@Override
+		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	private static class ContentLocation implements Location {

@@ -252,6 +252,12 @@ public class Primitive extends Model {
 				}
 			};
 		}
+
+		@Override
+		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	@Override

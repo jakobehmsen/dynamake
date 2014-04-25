@@ -473,7 +473,7 @@ public class LiveModel extends Model {
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										
 										if(targetModelComponent != null && selection != targetModelComponent) {
-											showPopupForSelection(selectionFrame, e.getPoint(), targetModelComponent);
+											showPopupForSelectionObject(selectionFrame, e.getPoint(), targetModelComponent);
 											
 											Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
 											selectionFrame.setLocation(originSelectionFrameLocation);
@@ -484,7 +484,7 @@ public class LiveModel extends Model {
 											Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
 											selectionFrame.setLocation(originSelectionFrameLocation);
 											
-											showPopupForSelection(selectionFrame, e.getPoint(), null);
+											showPopupForSelectionObject(selectionFrame, e.getPoint(), null);
 										}
 
 										targetOver = null;
@@ -493,7 +493,29 @@ public class LiveModel extends Model {
 								}
 
 								private void mouseReleasedCons(MouseEvent e) {
-									
+									if(e.getButton() == MouseEvent.BUTTON1) {
+										Point releasePoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
+										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(releasePoint);
+										ModelComponent targetModelComponent = closestModelComponent(target);
+										
+										if(targetModelComponent != null && selection != targetModelComponent) {
+											showPopupForSelectionCons(selectionFrame, e.getPoint(), targetModelComponent);
+											
+											Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
+											selectionFrame.setLocation(originSelectionFrameLocation);
+
+											if(targetFrame != null)
+												ProductionPanel.this.remove(targetFrame);
+										} else {
+											Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
+											selectionFrame.setLocation(originSelectionFrameLocation);
+											
+											showPopupForSelectionCons(selectionFrame, e.getPoint(), null);
+										}
+
+										targetOver = null;
+										livePanel.repaint();
+									}
 								}
 
 								@Override
@@ -554,7 +576,11 @@ public class LiveModel extends Model {
 								}
 
 								private void mousePressedCons(MouseEvent e) {
-									
+									if(e.getButton() == MouseEvent.BUTTON1) {
+										selectionFrameMouseDown = e.getPoint();
+										selectionFrameSize = selectionFrame.getSize();
+										selectionFrameMoving = true;
+									}
 								}
 
 								@Override
@@ -730,7 +756,48 @@ public class LiveModel extends Model {
 								}
 								
 								private void mouseDraggedCons(MouseEvent e) {
-									
+									if(selectionFrameMouseDown != null && selectionFrameMoving) {
+										Point mouseOverPoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
+										JComponent newTargetOver = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
+										ModelComponent newTargetOverComponent = closestModelComponent(newTargetOver);
+										if(newTargetOverComponent != targetOver) {
+											targetOver = newTargetOverComponent;
+											if(targetFrame != null)
+												ProductionPanel.this.remove(targetFrame);
+											
+											if(newTargetOverComponent != null && newTargetOverComponent != selection) {
+												targetFrame = new JPanel();
+												Color color = Color.BLUE;
+
+												targetFrame.setBorder(
+													BorderFactory.createCompoundBorder(
+														BorderFactory.createLineBorder(Color.BLACK, 1), 
+														BorderFactory.createCompoundBorder(
+															BorderFactory.createLineBorder(color, 3), 
+															BorderFactory.createLineBorder(Color.BLACK, 1)
+														)
+													)
+												);
+												
+												Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
+													((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), ProductionPanel.this);
+												targetFrame.setBounds(targetFrameBounds);
+												targetFrame.setBackground(new Color(0, 0, 0, 0));
+												ProductionPanel.this.add(targetFrame);
+											}
+										}
+										
+										int x = selectionFrame.getX();
+										int y = selectionFrame.getY();
+										int width = selectionFrame.getWidth();
+										int height = selectionFrame.getHeight();
+
+										x += e.getX() - selectionFrameMouseDown.x;
+										y += e.getY() - selectionFrameMouseDown.y;
+
+										selectionFrame.setBounds(new Rectangle(x, y, width, height));
+										livePanel.repaint();
+									}
 								}
 							};
 							
@@ -825,7 +892,15 @@ public class LiveModel extends Model {
 								}
 								
 								public void mousePressedCons(MouseEvent e) {
-
+									if(e.getButton() == 1) {
+										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+										ModelComponent targetModelComponent = closestModelComponent(target);
+										if(targetModelComponent != null) {
+											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+											select(targetModelComponent, referencePoint, true);
+											livePanel.repaint();
+										}
+									}
 								}
 								
 								public void mouseReleased(MouseEvent e) {
@@ -850,7 +925,7 @@ public class LiveModel extends Model {
 								
 								public void mouseReleasedEdit(MouseEvent e) {
 									if(e.getButton() == 3) {
-										showPopupForSelection((JComponent)e.getSource(), e.getPoint(), null);
+										showPopupForSelectionObject((JComponent)e.getSource(), e.getPoint(), null);
 										livePanel.repaint();
 									}
 								}
@@ -864,10 +939,7 @@ public class LiveModel extends Model {
 								}
 								
 								public void mouseReleasedDrag(MouseEvent e) {
-//									if(e.getButton() == 1) {
-//										showPopupForSelection(selectionFrame, e.getPoint());
-//										livePanel.repaint();
-//									}
+									
 								}
 								
 								public void mouseReleasedCons(MouseEvent e) {
@@ -891,7 +963,30 @@ public class LiveModel extends Model {
 					}
 				}
 				
-				private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver) {
+				private void showPopupForSelectionObject(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver) {
+//					showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new Func1<ModelComponent, TransactionPublisher>() {
+//						@Override
+//						public TransactionPublisher call(ModelComponent view) {
+//							return view.getObjectTransactionPublisher();
+//						}
+//					});
+					
+					showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder());
+				}
+				
+				private void showPopupForSelectionCons(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver) {
+//					showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new Func1<ModelComponent, TransactionPublisher>() {
+//						@Override
+//						public TransactionPublisher call(ModelComponent view) {
+////							return view.getConsTransactionPublisher();
+//							return view.getObjectTransactionPublisher();
+//						}
+//					});
+					
+					showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder());
+				}
+				
+				private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, DragDropPopupBuilder popupBuilder) {
 					if(selection != null) {
 						JPopupMenu transactionsPopupMenu = new JPopupMenu() {
 							/**
@@ -911,142 +1006,154 @@ public class LiveModel extends Model {
 							}
 						};
 						
+						// Build popup menu
 						if(targetOver == null || targetOver == selection) {
-							ModelComponent parentModelComponent = closestModelComponent(((JComponent)selection).getParent()); 
+							// Build popup menu for dropping onto selection
+							popupBuilder.buildFromSelectionToSelection(transactionsPopupMenu, selection);
 							
-							TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
-							if(parentModelComponent != null)
-								parentModelComponent.getObjectTransactionPublisher().appendContainerTransactions(containerTransactionMapBuilder, selection);
-							
-							TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
-							selection.getObjectTransactionPublisher().appendTransactions(transactionSelectionMapBuilder);
-	
-							containerTransactionMapBuilder.appendTo(transactionsPopupMenu, "Container");
-							if(!containerTransactionMapBuilder.isEmpty() && !transactionSelectionMapBuilder.isEmpty())
-								transactionsPopupMenu.addSeparator();
-							transactionSelectionMapBuilder.appendTo(transactionsPopupMenu, "Selection");
+//							ModelComponent parentModelComponent = closestModelComponent(((JComponent)selection).getParent()); 
+//							
+//							TransactionPublisher containerTransactionPublisher = parentModelComponent.getObjectTransactionPublisher();
+//							TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
+//							if(parentModelComponent != null)
+//								containerTransactionPublisher.appendContainerTransactions(containerTransactionMapBuilder, selection);
+//
+//							TransactionPublisher selectionTransactionPublisher = selection.getObjectTransactionPublisher();
+//							TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
+//							selectionTransactionPublisher.appendTransactions(transactionSelectionMapBuilder);
+//	
+//							containerTransactionMapBuilder.appendTo(transactionsPopupMenu, "Container");
+//							if(!containerTransactionMapBuilder.isEmpty() && !transactionSelectionMapBuilder.isEmpty())
+//								transactionsPopupMenu.addSeparator();
+//							transactionSelectionMapBuilder.appendTo(transactionsPopupMenu, "Selection");
 						} else {
-							TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
-							final Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
-//							final Rectangle droppedBounds = selectionFrame.getBounds();
-							
 							// TODO: Keep selection frame visible till popup menu is hidden!!!
 							
-							final Rectangle droppedBounds = SwingUtilities.convertRectangle(ProductionPanel.this, selectionFrame.getBounds(), (JComponent)targetOver);
+							// Build popup menu for dropping onto other
+							Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
+							Rectangle droppedBounds = SwingUtilities.convertRectangle(ProductionPanel.this, selectionFrame.getBounds(), (JComponent)targetOver);
+							popupBuilder.buildFromSelectionToOther(transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
 							
-							if(targetOver.getModel().isObservedBy(selection.getModel())) {
-								transactionSelectionGeneralMapBuilder.addTransaction("Unbind", 
-									new Runnable() {
-										@Override
-										public void run() {
-											targetOver.getTransactionFactory().executeOnRoot(
-												new Model.RemoveObserver(targetOver.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
-											);
-										}
-									}
-								);
-							} else {
-								transactionSelectionGeneralMapBuilder.addTransaction("Bind", 
-									new Runnable() {
-										@Override
-										public void run() {
-											targetOver.getTransactionFactory().executeOnRoot(
-												new Model.AddObserver(targetOver.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
-											);
-										}
-									}
-								);
-							}
-							
-							transactionSelectionGeneralMapBuilder.addTransaction("Mark Visit",
-								new Runnable() {
-									@Override
-									public void run() {
-										// Find the selected model and attempt an add model transaction
-										// HACK: Models can only be added to canvases
-										if(targetOver.getModel() instanceof CanvasModel) {
-											Dimension size = new Dimension(80, 50);
-											Rectangle bounds = new Rectangle(pointOnTargetOver, size);
-											targetOver.getTransactionFactory().executeOnRoot(
-												new CanvasModel.AddModelTransaction(
-													targetOver.getTransactionFactory().getLocation(), bounds, new MarkVisitFactory(selection.getTransactionFactory().getLocation())));
-										}
-									}
-								}
-							);
-							
-							transactionSelectionGeneralMapBuilder.addTransaction("Not Visited",
-								new Runnable() {
-									@Override
-									public void run() {
-										// Find the selected model and attempt an add model transaction
-										// HACK: Models can only be added to canvases
-										if(targetOver.getModel() instanceof CanvasModel) {
-											Dimension size = new Dimension(80, 50);
-											Rectangle bounds = new Rectangle(pointOnTargetOver, size);
-											targetOver.getTransactionFactory().executeOnRoot(
-												new CanvasModel.AddModelTransaction(
-													targetOver.getTransactionFactory().getLocation(), bounds, new NotVisitedFactory(selection.getTransactionFactory().getLocation())));
-										}
-									}
-								}
-							);
-							
-							transactionSelectionGeneralMapBuilder.addTransaction("Meta Model",
-								new Runnable() {
-									@Override
-									public void run() {
-										// Find the selected model and attempt an add model transaction
-										// HACK: Models can only be added to canvases
-										if(targetOver.getModel() instanceof CanvasModel) {
-											Dimension size = new Dimension(80, 50);
-											Rectangle bounds = new Rectangle(pointOnTargetOver, size);
-											targetOver.getTransactionFactory().executeOnRoot(
-												new CanvasModel.AddModelTransaction(
-													targetOver.getTransactionFactory().getLocation(), bounds, new MetaModelFactory(selection.getTransactionFactory().getLocation())));
-										}
-									}
-								}
-							);
-							
-							// Only available for canvases:
-							if(targetOver.getModel() instanceof CanvasModel) {
-								TransactionMapBuilder transactionObserverMapBuilder = new TransactionMapBuilder();
-								TransactionMapBuilder transactionObserverContentMapBuilder = new TransactionMapBuilder();
-								for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
-									final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
-									transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
-										@Override
-										public void run() {
-											targetOver.getTransactionFactory().executeOnRoot(new AddThenBindTransaction(
-												selection.getTransactionFactory().getLocation(), 
-												targetOver.getTransactionFactory().getLocation(), 
-												new PrimitiveSingletonFactory(primImpl), 
-												droppedBounds
-											));
-										}
-									});
-								}
-								transactionObserverMapBuilder.addTransaction("Then", transactionObserverContentMapBuilder);
-								transactionObserverMapBuilder.appendTo(transactionsPopupMenu, "Observation");
-							}
-							
-							TransactionMapBuilder transactionTargetMapBuilder = new TransactionMapBuilder();
-							targetOver.getObjectTransactionPublisher().appendDropTargetTransactions(selection, droppedBounds, pointOnTargetOver, transactionTargetMapBuilder);
-							
-							transactionSelectionGeneralMapBuilder.appendTo(transactionsPopupMenu, "General");
-							if(!transactionSelectionGeneralMapBuilder.isEmpty() && !transactionTargetMapBuilder.isEmpty())
-								transactionsPopupMenu.addSeparator();
-							transactionTargetMapBuilder.appendTo(transactionsPopupMenu, "Target");
-							
-							TransactionMapBuilder transactionDroppedMapBuilder = new TransactionMapBuilder();
-							selection.getObjectTransactionPublisher().appendDroppedTransactions(transactionDroppedMapBuilder);
-							if(!transactionTargetMapBuilder.isEmpty() && !transactionDroppedMapBuilder.isEmpty())
-								transactionsPopupMenu.addSeparator();
-							transactionDroppedMapBuilder.appendTo(transactionsPopupMenu, "Dropped");
+//							TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
+//							final Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
+//							
+//							final Rectangle droppedBounds = SwingUtilities.convertRectangle(ProductionPanel.this, selectionFrame.getBounds(), (JComponent)targetOver);
+//							
+//							if(targetOver.getModel().isObservedBy(selection.getModel())) {
+//								transactionSelectionGeneralMapBuilder.addTransaction("Unbind", 
+//									new Runnable() {
+//										@Override
+//										public void run() {
+//											targetOver.getTransactionFactory().executeOnRoot(
+//												new Model.RemoveObserver(targetOver.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
+//											);
+//										}
+//									}
+//								);
+//							} else {
+//								transactionSelectionGeneralMapBuilder.addTransaction("Bind", 
+//									new Runnable() {
+//										@Override
+//										public void run() {
+//											targetOver.getTransactionFactory().executeOnRoot(
+//												new Model.AddObserver(targetOver.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
+//											);
+//										}
+//									}
+//								);
+//							}
+//							
+//							transactionSelectionGeneralMapBuilder.addTransaction("Mark Visit",
+//								new Runnable() {
+//									@Override
+//									public void run() {
+//										// Find the selected model and attempt an add model transaction
+//										// HACK: Models can only be added to canvases
+//										if(targetOver.getModel() instanceof CanvasModel) {
+//											Dimension size = new Dimension(80, 50);
+//											Rectangle bounds = new Rectangle(pointOnTargetOver, size);
+//											targetOver.getTransactionFactory().executeOnRoot(
+//												new CanvasModel.AddModelTransaction(
+//													targetOver.getTransactionFactory().getLocation(), bounds, new MarkVisitFactory(selection.getTransactionFactory().getLocation())));
+//										}
+//									}
+//								}
+//							);
+//							
+//							transactionSelectionGeneralMapBuilder.addTransaction("Not Visited",
+//								new Runnable() {
+//									@Override
+//									public void run() {
+//										// Find the selected model and attempt an add model transaction
+//										// HACK: Models can only be added to canvases
+//										if(targetOver.getModel() instanceof CanvasModel) {
+//											Dimension size = new Dimension(80, 50);
+//											Rectangle bounds = new Rectangle(pointOnTargetOver, size);
+//											targetOver.getTransactionFactory().executeOnRoot(
+//												new CanvasModel.AddModelTransaction(
+//													targetOver.getTransactionFactory().getLocation(), bounds, new NotVisitedFactory(selection.getTransactionFactory().getLocation())));
+//										}
+//									}
+//								}
+//							);
+//							
+//							transactionSelectionGeneralMapBuilder.addTransaction("Meta Model",
+//								new Runnable() {
+//									@Override
+//									public void run() {
+//										// Find the selected model and attempt an add model transaction
+//										// HACK: Models can only be added to canvases
+//										if(targetOver.getModel() instanceof CanvasModel) {
+//											Dimension size = new Dimension(80, 50);
+//											Rectangle bounds = new Rectangle(pointOnTargetOver, size);
+//											targetOver.getTransactionFactory().executeOnRoot(
+//												new CanvasModel.AddModelTransaction(
+//													targetOver.getTransactionFactory().getLocation(), bounds, new MetaModelFactory(selection.getTransactionFactory().getLocation())));
+//										}
+//									}
+//								}
+//							);
+//							
+//							// Only available for canvases:
+//							if(targetOver.getModel() instanceof CanvasModel) {
+//								TransactionMapBuilder transactionObserverMapBuilder = new TransactionMapBuilder();
+//								TransactionMapBuilder transactionObserverContentMapBuilder = new TransactionMapBuilder();
+//								for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
+//									final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
+//									transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
+//										@Override
+//										public void run() {
+//											targetOver.getTransactionFactory().executeOnRoot(new AddThenBindTransaction(
+//												selection.getTransactionFactory().getLocation(), 
+//												targetOver.getTransactionFactory().getLocation(), 
+//												new PrimitiveSingletonFactory(primImpl), 
+//												droppedBounds
+//											));
+//										}
+//									});
+//								}
+//								transactionObserverMapBuilder.addTransaction("Then", transactionObserverContentMapBuilder);
+//								transactionObserverMapBuilder.appendTo(transactionsPopupMenu, "Observation");
+//							}
+//
+//							TransactionPublisher targetTransactionPublisher = targetOver.getObjectTransactionPublisher();
+//							TransactionMapBuilder transactionTargetMapBuilder = new TransactionMapBuilder();
+//							targetTransactionPublisher.appendDropTargetTransactions(selection, droppedBounds, pointOnTargetOver, transactionTargetMapBuilder);
+//							
+//							transactionSelectionGeneralMapBuilder.appendTo(transactionsPopupMenu, "General");
+//							if(!transactionSelectionGeneralMapBuilder.isEmpty() && !transactionTargetMapBuilder.isEmpty())
+//								transactionsPopupMenu.addSeparator();
+//							transactionTargetMapBuilder.appendTo(transactionsPopupMenu, "Target");
+//
+//							TransactionPublisher selectionTransactionPublisher = selection.getObjectTransactionPublisher();
+//							TransactionMapBuilder transactionDroppedMapBuilder = new TransactionMapBuilder();
+//							selectionTransactionPublisher.appendDroppedTransactions(transactionDroppedMapBuilder);
+//							if(!transactionTargetMapBuilder.isEmpty() && !transactionDroppedMapBuilder.isEmpty())
+//								transactionsPopupMenu.addSeparator();
+//							transactionDroppedMapBuilder.appendTo(transactionsPopupMenu, "Dropped");
 						}
 						
-						Point point = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, ProductionPanel.this);
+//						Point point = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, ProductionPanel.this);
 
 //						transactionsPopupMenu.show((JComponent)selection, e.getPoint().x, e.getPoint().y);
 //						transactionsPopupMenu.show(ProductionPanel.this, point.x, point.y);
@@ -1496,6 +1603,12 @@ public class LiveModel extends Model {
 
 		public void releaseBinding() {
 			removableListener.releaseBinding();
+		}
+
+		@Override
+		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 
