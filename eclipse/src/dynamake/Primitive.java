@@ -29,7 +29,7 @@ public class Primitive extends Model {
 				
 				@Override
 				public String getName() {
-					return "BG Getter";
+					return "Take Background";
 				}
 				
 				@Override
@@ -48,7 +48,7 @@ public class Primitive extends Model {
 				
 				@Override
 				public String getName() {
-					return "BG Setter";
+					return "Change Background";
 				}
 				
 				@Override
@@ -68,7 +68,7 @@ public class Primitive extends Model {
 				
 				@Override
 				public String getName() {
-					return "FG Getter";
+					return "Take Foreground";
 				}
 				
 				@Override
@@ -87,7 +87,7 @@ public class Primitive extends Model {
 				
 				@Override
 				public String getName() {
-					return "FG Setter";
+					return "Change Foreground";
 				}
 				
 				@Override
@@ -107,7 +107,7 @@ public class Primitive extends Model {
 				
 				@Override
 				public String getName() {
-					return "Color Darkner";
+					return "Darken";
 				}
 				
 				@Override
@@ -127,7 +127,7 @@ public class Primitive extends Model {
 				
 				@Override
 				public String getName() {
-					return "Color Brightner";
+					return "Brighten";
 				}
 				
 				@Override
