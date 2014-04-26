@@ -54,15 +54,15 @@ public class Map extends Model {
 		
 		@Override
 		public void executeOn(Map prevalentSystem, Date executionTime) {
-			prevalentSystem.set(name, value, new PropogationContext());
+			prevalentSystem.set(name, value, new PropogationContext(), 0);
 		}
 	}
 	
 	private Hashtable<String, Object> map = new Hashtable<String, Object>();
 	
-	public void set(String name, Object value, PropogationContext propCtx) {
+	public void set(String name, Object value, PropogationContext propCtx, int propDistance) {
 		map.put(name, value);
-		sendChanged(new PropertyChanged(name, value), propCtx);
+		sendChanged(new PropertyChanged(name, value), propCtx, propDistance);
 	}
 	
 	public Object get(String name) {
@@ -70,10 +70,10 @@ public class Map extends Model {
 	}
 	
 	@Override
-	public void changed(Model sender, Object change, PropogationContext propCtx) {
+	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
 		if(change instanceof SetProperty) {
 			SetProperty setProperty = (SetProperty)change;
-			set(setProperty.name, setProperty.value, propCtx);
+			set(setProperty.name, setProperty.value, propCtx, propDistance);
 		}
 	}
 	

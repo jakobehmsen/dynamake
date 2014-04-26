@@ -54,7 +54,7 @@ public class CreationModel extends Model {
 			Model argument = (Model)argumentLocation.getChild(prevalentSystem);
 //			// HACK: For now, only meta model are used as arguments
 //			argument = argument.getMetaModel();
-			creation.setArgument(parameterName, argument, new PropogationContext());
+			creation.setArgument(parameterName, argument, new PropogationContext(), 0);
 		}
 	}
 	
@@ -63,7 +63,7 @@ public class CreationModel extends Model {
 		this.parameterNames = parameterNames;
 	}
 	
-	public void setArgument(String parameterName, Object argument, PropogationContext propCtx) {
+	public void setArgument(String parameterName, Object argument, PropogationContext propCtx, int propDistance) {
 		int i;
 		for(i = 0; i < parameterNames.length; i++) {
 			if(parameterNames[i].equals(parameterName))
@@ -74,7 +74,7 @@ public class CreationModel extends Model {
 			return;
 		
 		argumentMap.put(parameterName, argument);
-		sendChanged(new ArgumentChanged(parameterName, argument), propCtx);
+		sendChanged(new ArgumentChanged(parameterName, argument), propCtx, propDistance);
 	}
 	
 	public boolean argumentIsSet(String parameterName) {
@@ -281,13 +281,13 @@ public class CreationModel extends Model {
 			
 			Model model = (Model)creation.factory.create(arg0, creation.argumentMap);
 
-			model.getMetaModel().set("X", x, propCtx);
-			model.getMetaModel().set("Y", y, propCtx);
-			model.getMetaModel().set("Width", width, propCtx);
-			model.getMetaModel().set("Height", height, propCtx);
+			model.getMetaModel().set("X", x, propCtx, 0);
+			model.getMetaModel().set("Y", y, propCtx, 0);
+			model.getMetaModel().set("Width", width, propCtx, 0);
+			model.getMetaModel().set("Height", height, propCtx, 0);
 			
-			canvas.removeModel(creation, propCtx);
-			canvas.addModel(model, propCtx);
+			canvas.removeModel(creation, propCtx, 0);
+			canvas.addModel(model, propCtx, 0);
 		}
 	}
 	
@@ -300,7 +300,7 @@ public class CreationModel extends Model {
 		
 		final RemovableListener removableListenerForArgumentChanges = Model.RemovableListener.addObserver(this, new Observer() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
 				if(change instanceof CreationModel.ArgumentChanged) {
 					ArgumentChanged argumentChanged = (ArgumentChanged)change;
 					

@@ -120,16 +120,16 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void beginUpdate(PropogationContext propCtx) {
-		sendChanged(new BeganUpdate(), propCtx);
+	public void beginUpdate(PropogationContext propCtx, int propDistance) {
+		sendChanged(new BeganUpdate(), propCtx, propDistance);
 	}
 	
-	public void endUpdate(PropogationContext propCtx) {
-		sendChanged(new EndedUpdate(), propCtx);
+	public void endUpdate(PropogationContext propCtx, int propDistance) {
+		sendChanged(new EndedUpdate(), propCtx, propDistance);
 	}
 	
 	@Override
-	public void changed(Model sender, Object change, PropogationContext propCtx) {
+	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
 		// No default behavior; such responsibility is delegated to subclass-instances
 	}
 	
@@ -148,10 +148,10 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public void executeOn(Model prevalentSystem, Date executionTime) {
 			PropogationContext propCtx = new PropogationContext();
-			prevalentSystem.beginUpdate(propCtx);
+			prevalentSystem.beginUpdate(propCtx, 0);
 			for(Transaction<Model> t: transactions)
 				t.executeOn(prevalentSystem, executionTime);
-			prevalentSystem.endUpdate(propCtx);
+			prevalentSystem.endUpdate(propCtx, 0);
 		}
 	}
 	
@@ -222,11 +222,12 @@ public abstract class Model implements Serializable, Observer {
 		metaModel = (Map)ois.readObject();
 	}
 	
-	protected void sendChanged(Object change, PropogationContext propCtx) {
+	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance) {
+		int nextPropDistance = propDistance + 1;
 		observersToAdd = new ArrayList<Observer>();
 		observersToRemove = new ArrayList<Observer>();
 		for(Observer observer: observers)
-			observer.changed(this, change, propCtx);
+			observer.changed(this, change, propCtx, nextPropDistance);
 		if(observersToAdd == null) {
 			new String();
 		}
@@ -279,7 +280,7 @@ public abstract class Model implements Serializable, Observer {
 			boolean madeChanges;
 			
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
 				model.toString();
 				if(change instanceof Map.PropertyChanged) {
 					Map.PropertyChanged propertyChanged = (Map.PropertyChanged)change;
@@ -322,7 +323,7 @@ public abstract class Model implements Serializable, Observer {
 	public static RemovableListener wrapForComponentPropertyChanges(Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager) {
 		return RemovableListener.addObserver(model.getMetaModel(), new Observer() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
 				if(change instanceof Map.PropertyChanged) {
 					Map.PropertyChanged propertyChanged = (Map.PropertyChanged)change;
 					if(propertyChanged.name.equals("Background")) {
@@ -374,7 +375,7 @@ public abstract class Model implements Serializable, Observer {
 			propertySetter.run((T)value);
 		return Model.RemovableListener.addObserver(model.getMetaModel(), new Observer() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
 				if(change instanceof Map.PropertyChanged) {
 					Map.PropertyChanged propertyChanged = (Map.PropertyChanged)change;
 					if(propertyChanged.name.equals(modelPropertyName))

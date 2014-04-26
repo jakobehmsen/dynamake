@@ -63,9 +63,9 @@ public class LiveModel extends Model {
 		return state;
 	}
 	
-	public void setState(int state, PropogationContext propCtx) {
+	public void setState(int state, PropogationContext propCtx, int propDistance) {
 		this.state = state;
-		sendChanged(new StateChanged(), propCtx);
+		sendChanged(new StateChanged(), propCtx, propDistance);
 	}
 	
 	public static class SetState implements Transaction<LiveModel> {
@@ -81,7 +81,7 @@ public class LiveModel extends Model {
 		
 		@Override
 		public void executeOn(LiveModel prevalentSystem, Date executionTime) {
-			prevalentSystem.setState(state, new PropogationContext());
+			prevalentSystem.setState(state, new PropogationContext(), 0);
 		}
 	}
 	
@@ -1536,7 +1536,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void changed(Model sender, Object change, PropogationContext propCtx) {
+				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
 					if(change instanceof LiveModel.StateChanged) {
 						if(previousState == LiveModel.STATE_USE && LivePanel.this.model.getState() != LiveModel.STATE_USE) {
 							contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);

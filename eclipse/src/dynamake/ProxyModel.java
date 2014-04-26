@@ -23,8 +23,8 @@ public class ProxyModel extends Model {
 	}
 	
 	@Override
-	public void changed(Model sender, Object change, PropogationContext propCtx) {
-		model.changed(sender, change, propCtx);
+	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
+		model.changed(sender, change, propCtx, propDistance);
 	}
 	
 	@Override

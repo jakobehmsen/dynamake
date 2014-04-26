@@ -33,11 +33,13 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
 					@Override
 					public void run() {
+						Dimension size = new Dimension(120, 50);
+						Rectangle bounds = new Rectangle(dropPointOnTarget, size);
 						target.getTransactionFactory().executeOnRoot(new AddThenBindTransaction(
 							selection.getTransactionFactory().getLocation(), 
 							target.getTransactionFactory().getLocation(), 
 							new PrimitiveSingletonFactory(primImpl), 
-							dropBoundsOnTarget
+							bounds
 						));
 					}
 				});
@@ -53,7 +55,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						// HACK: Models can only be added to canvases
 						if(target.getModel() instanceof CanvasModel) {
 							Dimension size = new Dimension(120, 50);
-							Rectangle bounds = new Rectangle(dropBoundsOnTarget.getLocation(), size);
+							Rectangle bounds = new Rectangle(dropPointOnTarget, size);
 							Factory itemFactory = new CreationModelFactory(new CreateAndBindFactory(new MarkVisitByFactory(), selection.getTransactionFactory().getLocation()), new String[]{"By"});
 							target.getTransactionFactory().executeOnRoot(
 								new CanvasModel.AddModelTransaction(
@@ -78,7 +80,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							
 
 							Dimension size = new Dimension(120, 50);
-							Rectangle bounds = new Rectangle(dropBoundsOnTarget.getLocation(), size);
+							Rectangle bounds = new Rectangle(dropPointOnTarget, size);
 							Factory itemFactory = new CreationModelFactory(new CreateAndBindFactory(new NotVisitedByFactory(), selection.getTransactionFactory().getLocation()), new String[]{"By"});
 							target.getTransactionFactory().executeOnRoot(
 								new CanvasModel.AddModelTransaction(

@@ -67,12 +67,12 @@ public class CanvasModel extends Model {
 			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 
-			canvasSource.removeModel(model, propCtx);
-			model.getMetaModel().beginUpdate(propCtx);
-			model.getMetaModel().set("X", point.x, propCtx);
-			model.getMetaModel().set("Y", point.y, propCtx);
-			model.getMetaModel().endUpdate(propCtx);
-			canvasTarget.addModel(model, propCtx);
+			canvasSource.removeModel(model, propCtx, 0);
+			model.getMetaModel().beginUpdate(propCtx, 0);
+			model.getMetaModel().set("X", point.x, propCtx, 0);
+			model.getMetaModel().set("Y", point.y, propCtx, 0);
+			model.getMetaModel().endUpdate(propCtx, 0);
+			canvasTarget.addModel(model, propCtx, 0);
 		}
 	}
 	
@@ -106,12 +106,12 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationArgs);
 
-			model.getMetaModel().set("X", creationBounds.x, propCtx);
-			model.getMetaModel().set("Y", creationBounds.y, propCtx);
-			model.getMetaModel().set("Width", creationBounds.width, propCtx);
-			model.getMetaModel().set("Height", creationBounds.height, propCtx);
+			model.getMetaModel().set("X", creationBounds.x, propCtx, 0);
+			model.getMetaModel().set("Y", creationBounds.y, propCtx, 0);
+			model.getMetaModel().set("Width", creationBounds.width, propCtx, 0);
+			model.getMetaModel().set("Height", creationBounds.height, propCtx, 0);
 			
-			canvas.addModel(model, new PropogationContext());
+			canvas.addModel(model, new PropogationContext(), 0);
 		}
 	}
 	
@@ -128,28 +128,28 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void executeOn(CanvasModel prevalentSystem, Date executionTime) {
-			prevalentSystem.removeModel(index, new PropogationContext());
+			prevalentSystem.removeModel(index, new PropogationContext(), 0);
 		}
 	}
 	
-	public void addModel(Model model, PropogationContext propCtx) {
-		addModel(models.size(), model, propCtx);
+	public void addModel(Model model, PropogationContext propCtx, int propDistance) {
+		addModel(models.size(), model, propCtx, propDistance);
 	}
 	
-	public void addModel(int index, Model model, PropogationContext propCtx) {
+	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance) {
 		models.add(index, model);
-		sendChanged(new AddedModelChange(index, model), propCtx);
+		sendChanged(new AddedModelChange(index, model), propCtx, propDistance);
 	}
 	
-	public void removeModel(Model model, PropogationContext propCtx) {
+	public void removeModel(Model model, PropogationContext propCtx, int propDistance) {
 		int indexOfModel = indexOfModel(model);
-		removeModel(indexOfModel, propCtx);
+		removeModel(indexOfModel, propCtx, propDistance);
 	}
 	
-	public void removeModel(int index, PropogationContext propCtx) {
+	public void removeModel(int index, PropogationContext propCtx, int propDistance) {
 		Model model = models.get(index);
 		models.remove(index);
-		sendChanged(new RemovedModelChange(index, model), propCtx);
+		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance);
 	}
 	
 	public int indexOfModel(Model model) {
@@ -306,7 +306,7 @@ public class CanvasModel extends Model {
 		
 		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new Observer() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
 				if(change instanceof CanvasModel.AddedModelChange) {
 					final Model model = ((CanvasModel.AddedModelChange)change).model;
 					
