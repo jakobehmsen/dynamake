@@ -65,7 +65,7 @@ public class LiveModel extends Model {
 	
 	public void setState(int state, PropogationContext propCtx, int propDistance) {
 		this.state = state;
-		sendChanged(new StateChanged(), propCtx, propDistance);
+		sendChanged(new StateChanged(), propCtx, propDistance, 0);
 	}
 	
 	public static class SetState implements Transaction<LiveModel> {
@@ -363,7 +363,7 @@ public class LiveModel extends Model {
 										selectionFrameMouseDown = null;
 										
 										TransactionFactory transactionFactory = selection.getTransactionFactory();
-										TransactionFactory metaTransactionFactory = transactionFactory.extend(new Model.MetaModelLocator());
+//										TransactionFactory metaTransactionFactory = transactionFactory.extend(new Model.MetaModelLocator());
 //										TransactionFactory metaTransactionFactory = selection.getMetaTransactionFactory();
 										
 										JComponent parent = (JComponent)((JComponent)selection).getParent();
@@ -371,12 +371,12 @@ public class LiveModel extends Model {
 										
 										@SuppressWarnings("unchecked")
 										Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
-											new Map.SetPropertyTransaction("X", (int)newBounds.getX()),
-											new Map.SetPropertyTransaction("Y", (int)newBounds.getY()),
-											new Map.SetPropertyTransaction("Width", (int)newBounds.getWidth()),
-											new Map.SetPropertyTransaction("Height", (int)newBounds.getHeight())
+											new Model.SetPropertyTransaction("X", (int)newBounds.getX()),
+											new Model.SetPropertyTransaction("Y", (int)newBounds.getY()),
+											new Model.SetPropertyTransaction("Width", (int)newBounds.getWidth()),
+											new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight())
 										});
-										metaTransactionFactory.execute(changeBoundsTransaction);
+										transactionFactory.execute(changeBoundsTransaction);
 
 										SwingUtilities.invokeLater(new Runnable() {
 											@Override
@@ -1536,7 +1536,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
+				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(change instanceof LiveModel.StateChanged) {
 						if(previousState == LiveModel.STATE_USE && LivePanel.this.model.getState() != LiveModel.STATE_USE) {
 							contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);

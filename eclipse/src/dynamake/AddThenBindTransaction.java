@@ -34,10 +34,10 @@ public class AddThenBindTransaction implements Transaction<Model> {
 		
 		final PropogationContext addAndBindCtx = new PropogationContext();
 		final Model primitive = (Model)factory.create(prevalentSystem, new Hashtable<String, Object>());
-		primitive.getMetaModel().set("X", creationBounds.x, addAndBindCtx, 0);
-		primitive.getMetaModel().set("Y", creationBounds.y, addAndBindCtx, 0);
-		primitive.getMetaModel().set("Width", creationBounds.width, addAndBindCtx, 0);
-		primitive.getMetaModel().set("Height", creationBounds.height, addAndBindCtx, 0);
+		primitive.setProperty("X", creationBounds.x, addAndBindCtx, 0);
+		primitive.setProperty("Y", creationBounds.y, addAndBindCtx, 0);
+		primitive.setProperty("Width", creationBounds.width, addAndBindCtx, 0);
+		primitive.setProperty("Height", creationBounds.height, addAndBindCtx, 0);
 		modelToBindTo.addObserver(primitive);
 
 //		canvasModel.addObserver(new Observer() {

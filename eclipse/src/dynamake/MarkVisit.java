@@ -24,13 +24,13 @@ public class MarkVisit extends Model {
 	}
 	
 	@Override
-	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
+	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 		PropogationContext newPropCtx = propCtx.markVisitedBy(model);
 		// calling super.changed should not invoked this way
 		// How to call it instead, such as for changing properties?
 		// Perhaps, a meta observer should be possible to extract?
 //		super.changed(this, change, newPropCtx);
-		sendChanged(change, newPropCtx, propDistance);
+		sendChanged(change, newPropCtx, propDistance, changeDistance);
 	}
 	
 	private static class MarkVisitedByView extends JPanel implements ModelComponent {

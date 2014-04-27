@@ -16,7 +16,7 @@ import org.prevayler.Transaction;
 public class Primitive extends Model {
 	public interface Implementation extends Serializable {
 		String getName();
-		void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance);
+		void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance);
 	}
 	
 	public static Implementation[] getImplementationSingletons() {
@@ -33,10 +33,10 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance) {
-					if(change instanceof Map.PropertyChanged && ((Map.PropertyChanged)change).name.equals("Background")) {
-						Map.PropertyChanged propertyChanged = (Map.PropertyChanged)change;
-						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance);
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+					if(change instanceof Model.PropertyChanged && ((Model.PropertyChanged)change).name.equals("Background")) {
+						Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
+						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance, 0);
 					}
 				}
 			},
@@ -52,11 +52,11 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
-						Map.SetProperty setProperty = new Map.SetProperty("Background", atom.value);
-						receiver.sendChanged(setProperty, propCtx, propDistance);
+						Model.SetProperty setProperty = new Model.SetProperty("Background", atom.value);
+						receiver.sendChanged(setProperty, propCtx, propDistance, 0);
 					}
 				}
 			},
@@ -72,10 +72,10 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance) {
-					if(change instanceof Map.PropertyChanged && ((Map.PropertyChanged)change).name.equals("Foreground")) {
-						Map.PropertyChanged propertyChanged = (Map.PropertyChanged)change;
-						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance);
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+					if(change instanceof Model.PropertyChanged && ((Model.PropertyChanged)change).name.equals("Foreground")) {
+						Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
+						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance, 0);
 					}
 				}
 			},
@@ -91,11 +91,11 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
-						Map.SetProperty setProperty = new Map.SetProperty("Foreground", atom.value);
-						receiver.sendChanged(setProperty, propCtx, propDistance);
+						Model.SetProperty setProperty = new Model.SetProperty("Foreground", atom.value);
+						receiver.sendChanged(setProperty, propCtx, propDistance, 0);
 					}
 				}
 			},
@@ -111,11 +111,11 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
 						Color darkenedColor = ((Color)atom.value).darker();
-						receiver.sendChanged(new Model.Atom(darkenedColor), propCtx, propDistance);
+						receiver.sendChanged(new Model.Atom(darkenedColor), propCtx, propDistance, 0);
 					}
 				}
 			},
@@ -131,11 +131,11 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
 						Color darkenedColor = ((Color)atom.value).brighter();
-						receiver.sendChanged(new Model.Atom(darkenedColor), propCtx, propDistance);
+						receiver.sendChanged(new Model.Atom(darkenedColor), propCtx, propDistance, 0);
 					}
 				}
 			},
@@ -151,9 +151,26 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(propDistance == 1)
-						receiver.sendChanged(change, propCtx, propDistance);
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance);
+				}
+			},
+			new Implementation() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+				
+				@Override
+				public String getName() {
+					return "From Other";
+				}
+				
+				@Override
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+					if(propDistance > 1)
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance);
 				}
 			},
 			new Implementation() {
@@ -168,9 +185,9 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance) {
-					if(change instanceof Map.PropertyChanged)
-						receiver.sendChanged(change, propCtx, propDistance);
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+					if(change instanceof Model.PropertyChanged)
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance);
 				}
 			}
 		};
@@ -205,9 +222,9 @@ public class Primitive extends Model {
 						}
 						
 						@Override
-						public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance) {
+						public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 							PropogationContext newPropCtx = propCtx.markVisitedBy(model);
-							receiver.sendChanged(change, newPropCtx, propDistance);
+							receiver.sendChanged(change, newPropCtx, propDistance, changeDistance);
 						}
 					};
 				}
@@ -226,8 +243,8 @@ public class Primitive extends Model {
 	}
 	
 	@Override
-	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
-		implementation.execute(this, sender, change, propCtx, propDistance);
+	public void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+		implementation.execute(this, sender, change, propCtx, propDistance, changeDistance);
 	}
 	
 	private static class PrimitiveView extends JPanel implements ModelComponent {

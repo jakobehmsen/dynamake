@@ -21,8 +21,6 @@ import javax.swing.JFrame;
 
 import org.prevayler.Transaction;
 
-import dynamake.Model.MetaModelLocator;
-
 public class RootModel extends Model {
 	/**
 	 * 
@@ -115,34 +113,34 @@ public class RootModel extends Model {
 	}
 	
 	private static class BoundsChangeHandler extends MouseAdapter implements ComponentListener {
-		private TransactionFactory metaTransactionFactory;
+		private TransactionFactory transactionFactory;
 		private boolean mouseIsDown;
 		private Point newLocation;
 		private Dimension newSize;
 		
-		public BoundsChangeHandler(TransactionFactory metaTransactionFactory) {
-			this.metaTransactionFactory = metaTransactionFactory;
+		public BoundsChangeHandler(TransactionFactory transactionFactory) {
+			this.transactionFactory = transactionFactory;
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			System.out.println("mouseReleased on frame");
+//			System.out.println("mouseReleased on frame");
 			mouseIsDown = false;
 			
 			if(newLocation != null) {
-				metaTransactionFactory.execute(new Map.SetPropertyTransaction("X", newLocation.x));
-				metaTransactionFactory.execute(new Map.SetPropertyTransaction("Y", newLocation.y));
+				transactionFactory.execute(new Model.SetPropertyTransaction("X", newLocation.x));
+				transactionFactory.execute(new Model.SetPropertyTransaction("Y", newLocation.y));
 			}
 			
 			if(newSize != null) {
-				metaTransactionFactory.execute(new Map.SetPropertyTransaction("Width", newSize.width));
-				metaTransactionFactory.execute(new Map.SetPropertyTransaction("Height", newSize.height));
+				transactionFactory.execute(new Model.SetPropertyTransaction("Width", newSize.width));
+				transactionFactory.execute(new Model.SetPropertyTransaction("Height", newSize.height));
 			}
 		}
 		
 		@Override
 		public void mousePressed(MouseEvent e) {
-			System.out.println("mousePressed on frame");
+//			System.out.println("mousePressed on frame");
 			mouseIsDown = true;
 			newLocation = null;
 			newSize = null;
@@ -236,7 +234,7 @@ public class RootModel extends Model {
 		view.addMouseListener(boundsChangeHandler);
 		view.addComponentListener(boundsChangeHandler);
 		
-		Integer state = (Integer)getMetaModel().get("State");
+		Integer state = (Integer)getProperty("State");
 		if(state != null)
 			view.setExtendedState(state);
 		
@@ -249,12 +247,12 @@ public class RootModel extends Model {
 		}));
 		view.getContentPane().add((JComponent)contentView.getBindingTarget(), BorderLayout.CENTER);
 		
-		final TransactionFactory metaTransactionFactory = transactionFactory.extend(new Model.MetaModelLocator());
+//		final TransactionFactory metaTransactionFactory = transactionFactory.extend(new Model.MetaModelLocator());
 		view.addWindowStateListener(new WindowStateListener() {
 			@Override
 			public void windowStateChanged(WindowEvent e) {
 //				System.out.println(e.getNewState());
-				metaTransactionFactory.execute(new Map.SetPropertyTransaction("State", e.getNewState()));
+				transactionFactory.execute(new Model.SetPropertyTransaction("State", e.getNewState()));
 			}
 		});
 		

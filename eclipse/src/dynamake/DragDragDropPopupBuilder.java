@@ -93,22 +93,22 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			}
 		);
 		
-		transactionSelectionGeneralMapBuilder.addTransaction("Meta Model",
-			new Runnable() {
-				@Override
-				public void run() {
-					// Find the selected model and attempt an add model transaction
-					// HACK: Models can only be added to canvases
-					if(target.getModel() instanceof CanvasModel) {
-						Dimension size = new Dimension(80, 50);
-						Rectangle bounds = new Rectangle(dropPointOnTarget, size);
-						target.getTransactionFactory().executeOnRoot(
-							new CanvasModel.AddModelTransaction(
-								target.getTransactionFactory().getLocation(), bounds, new MetaModelFactory(selection.getTransactionFactory().getLocation())));
-					}
-				}
-			}
-		);
+//		transactionSelectionGeneralMapBuilder.addTransaction("Meta Model",
+//			new Runnable() {
+//				@Override
+//				public void run() {
+//					// Find the selected model and attempt an add model transaction
+//					// HACK: Models can only be added to canvases
+//					if(target.getModel() instanceof CanvasModel) {
+//						Dimension size = new Dimension(80, 50);
+//						Rectangle bounds = new Rectangle(dropPointOnTarget, size);
+//						target.getTransactionFactory().executeOnRoot(
+//							new CanvasModel.AddModelTransaction(
+//								target.getTransactionFactory().getLocation(), bounds, new MetaModelFactory(selection.getTransactionFactory().getLocation())));
+//					}
+//				}
+//			}
+//		);
 		
 		// Only available for canvases:
 		if(target.getModel() instanceof CanvasModel) {

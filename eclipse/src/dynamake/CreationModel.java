@@ -74,7 +74,7 @@ public class CreationModel extends Model {
 			return;
 		
 		argumentMap.put(parameterName, argument);
-		sendChanged(new ArgumentChanged(parameterName, argument), propCtx, propDistance);
+		sendChanged(new ArgumentChanged(parameterName, argument), propCtx, propDistance, 0);
 	}
 	
 	public boolean argumentIsSet(String parameterName) {
@@ -274,17 +274,17 @@ public class CreationModel extends Model {
 			CreationModel creation = (CreationModel)creationLocation.getChild(arg0);
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(arg0);
 			
-			int x = (int)creation.getMetaModel().get("X");
-			int y = (int)creation.getMetaModel().get("Y");
-			int width = (int)creation.getMetaModel().get("Width");
-			int height = (int)creation.getMetaModel().get("Height");
+			int x = (int)creation.getProperty("X");
+			int y = (int)creation.getProperty("Y");
+			int width = (int)creation.getProperty("Width");
+			int height = (int)creation.getProperty("Height");
 			
 			Model model = (Model)creation.factory.create(arg0, creation.argumentMap);
 
-			model.getMetaModel().set("X", x, propCtx, 0);
-			model.getMetaModel().set("Y", y, propCtx, 0);
-			model.getMetaModel().set("Width", width, propCtx, 0);
-			model.getMetaModel().set("Height", height, propCtx, 0);
+			model.setProperty("X", x, propCtx, 0);
+			model.setProperty("Y", y, propCtx, 0);
+			model.setProperty("Width", width, propCtx, 0);
+			model.setProperty("Height", height, propCtx, 0);
 			
 			canvas.removeModel(creation, propCtx, 0);
 			canvas.addModel(model, propCtx, 0);
@@ -300,7 +300,7 @@ public class CreationModel extends Model {
 		
 		final RemovableListener removableListenerForArgumentChanges = Model.RemovableListener.addObserver(this, new Observer() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 				if(change instanceof CreationModel.ArgumentChanged) {
 					ArgumentChanged argumentChanged = (ArgumentChanged)change;
 					

@@ -68,10 +68,10 @@ public class CanvasModel extends Model {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 
 			canvasSource.removeModel(model, propCtx, 0);
-			model.getMetaModel().beginUpdate(propCtx, 0);
-			model.getMetaModel().set("X", point.x, propCtx, 0);
-			model.getMetaModel().set("Y", point.y, propCtx, 0);
-			model.getMetaModel().endUpdate(propCtx, 0);
+			model.beginUpdate(propCtx, 0);
+			model.setProperty("X", point.x, propCtx, 0);
+			model.setProperty("Y", point.y, propCtx, 0);
+			model.endUpdate(propCtx, 0);
 			canvasTarget.addModel(model, propCtx, 0);
 		}
 	}
@@ -106,10 +106,10 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationArgs);
 
-			model.getMetaModel().set("X", creationBounds.x, propCtx, 0);
-			model.getMetaModel().set("Y", creationBounds.y, propCtx, 0);
-			model.getMetaModel().set("Width", creationBounds.width, propCtx, 0);
-			model.getMetaModel().set("Height", creationBounds.height, propCtx, 0);
+			model.setProperty("X", creationBounds.x, propCtx, 0);
+			model.setProperty("Y", creationBounds.y, propCtx, 0);
+			model.setProperty("Width", creationBounds.width, propCtx, 0);
+			model.setProperty("Height", creationBounds.height, propCtx, 0);
 			
 			canvas.addModel(model, new PropogationContext(), 0);
 		}
@@ -138,7 +138,7 @@ public class CanvasModel extends Model {
 	
 	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance) {
 		models.add(index, model);
-		sendChanged(new AddedModelChange(index, model), propCtx, propDistance);
+		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0);
 	}
 	
 	public void removeModel(Model model, PropogationContext propCtx, int propDistance) {
@@ -149,7 +149,7 @@ public class CanvasModel extends Model {
 	public void removeModel(int index, PropogationContext propCtx, int propDistance) {
 		Model model = models.get(index);
 		models.remove(index);
-		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance);
+		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0);
 	}
 	
 	public int indexOfModel(Model model) {
@@ -293,10 +293,10 @@ public class CanvasModel extends Model {
 			Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(this, model)));
 			
 			Rectangle bounds = new Rectangle(
-				(int)model.getMetaModel().get("X"),
-				(int)model.getMetaModel().get("Y"),
-				(int)model.getMetaModel().get("Width"),
-				(int)model.getMetaModel().get("Height")
+				(int)model.getProperty("X"),
+				(int)model.getProperty("Y"),
+				(int)model.getProperty("Width"),
+				(int)model.getProperty("Height")
 			);
 			
 			((JComponent)modelView.getBindingTarget()).setBounds(bounds);
@@ -306,17 +306,17 @@ public class CanvasModel extends Model {
 		
 		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new Observer() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 				if(change instanceof CanvasModel.AddedModelChange) {
 					final Model model = ((CanvasModel.AddedModelChange)change).model;
 					
 					Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(CanvasModel.this, model)));
 					
 					Rectangle bounds = new Rectangle(
-						(int)model.getMetaModel().get("X"),
-						(int)model.getMetaModel().get("Y"),
-						(int)model.getMetaModel().get("Width"),
-						(int)model.getMetaModel().get("Height")
+						(int)model.getProperty("X"),
+						(int)model.getProperty("Y"),
+						(int)model.getProperty("Width"),
+						(int)model.getProperty("Height")
 					);
 					
 					((JComponent)modelView.getBindingTarget()).setBounds(bounds);

@@ -78,14 +78,14 @@ public class TextModel extends Model {
 		private static final long serialVersionUID = 1L;
 		private TextModel model;
 		private TransactionFactory transactionFactory;
-		private TransactionFactory metaTransactionFactory;
+//		private TransactionFactory metaTransactionFactory;
 		private JTextPane view;
 
 		public ModelScrollPane(TextModel model, TransactionFactory transactionFactory, final ViewManager viewManager, JTextPane view) {
 			super(view);
 			this.model = model;
 			this.transactionFactory = transactionFactory;
-			this.metaTransactionFactory = transactionFactory.extend(new Model.MetaModelLocator());
+//			this.metaTransactionFactory = transactionFactory.extend(new Model.MetaModelLocator());
 			this.view = view;
 		}		
 
@@ -111,13 +111,13 @@ public class TextModel extends Model {
 				public void appendTransactions(TransactionMapBuilder transactions) {
 					Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
 					
-					Color caretColor = (Color)model.getMetaModel().get("CaretColor");
+					Color caretColor = (Color)model.getProperty("CaretColor");
 					if(caretColor == null)
 						caretColor = view.getCaretColor();
 					transactions.addTransaction("Set Caret Color", new ColorTransactionBuilder(caretColor, new Action1<Color>() {
 						@Override
 						public void run(Color color) {
-							metaTransactionFactory.execute(new Map.SetPropertyTransaction("CaretColor", color));
+							transactionFactory.execute(new Model.SetPropertyTransaction("CaretColor", color));
 						}
 					}));
 				}
