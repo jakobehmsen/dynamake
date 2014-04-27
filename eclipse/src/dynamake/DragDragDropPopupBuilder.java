@@ -35,63 +35,83 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 //		
 //		final Rectangle droppedBounds = SwingUtilities.convertRectangle(ProductionPanel.this, selectionFrame.getBounds(), (JComponent)targetOver);
 		
-		if(target.getModel().isObservedBy(selection.getModel())) {
-			transactionSelectionGeneralMapBuilder.addTransaction("Unbind", 
-				new Runnable() {
-					@Override
-					public void run() {
-						target.getTransactionFactory().executeOnRoot(
-							new Model.RemoveObserver(target.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
-						);
-					}
+		if(selection.getModel().isObservedBy(target.getModel())) {
+			transactionSelectionGeneralMapBuilder.addTransaction("Unforward to", new Runnable() {
+				@Override
+				public void run() {
+					selection.getTransactionFactory().executeOnRoot(
+						new Model.RemoveObserver(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
+					);
 				}
-			);
+			});
 		} else {
-			transactionSelectionGeneralMapBuilder.addTransaction("Bind", 
-				new Runnable() {
-					@Override
-					public void run() {
-						target.getTransactionFactory().executeOnRoot(
-							new Model.AddObserver(target.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
-						);
-					}
+			transactionSelectionGeneralMapBuilder.addTransaction("Forward to", new Runnable() {
+				@Override
+				public void run() {
+					selection.getTransactionFactory().executeOnRoot(
+						new Model.AddObserver(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
+					);
 				}
-			);
+			});
 		}
 		
-		transactionSelectionGeneralMapBuilder.addTransaction("Mark Visit",
-			new Runnable() {
-				@Override
-				public void run() {
-					// Find the selected model and attempt an add model transaction
-					// HACK: Models can only be added to canvases
-					if(target.getModel() instanceof CanvasModel) {
-						Dimension size = new Dimension(80, 50);
-						Rectangle bounds = new Rectangle(dropPointOnTarget, size);
-						target.getTransactionFactory().executeOnRoot(
-							new CanvasModel.AddModelTransaction(
-								target.getTransactionFactory().getLocation(), bounds, new MarkVisitFactory(selection.getTransactionFactory().getLocation())));
-					}
-				}
-			}
-		);
+//		if(target.getModel().isObservedBy(selection.getModel())) {
+//			transactionSelectionGeneralMapBuilder.addTransaction("Unbind", 
+//				new Runnable() {
+//					@Override
+//					public void run() {
+//						target.getTransactionFactory().executeOnRoot(
+//							new Model.RemoveObserver(target.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
+//						);
+//					}
+//				}
+//			);
+//		} else {
+//			transactionSelectionGeneralMapBuilder.addTransaction("Bind", 
+//				new Runnable() {
+//					@Override
+//					public void run() {
+//						target.getTransactionFactory().executeOnRoot(
+//							new Model.AddObserver(target.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
+//						);
+//					}
+//				}
+//			);
+//		}
 		
-		transactionSelectionGeneralMapBuilder.addTransaction("Not Visited",
-			new Runnable() {
-				@Override
-				public void run() {
-					// Find the selected model and attempt an add model transaction
-					// HACK: Models can only be added to canvases
-					if(target.getModel() instanceof CanvasModel) {
-						Dimension size = new Dimension(80, 50);
-						Rectangle bounds = new Rectangle(dropPointOnTarget, size);
-						target.getTransactionFactory().executeOnRoot(
-							new CanvasModel.AddModelTransaction(
-								target.getTransactionFactory().getLocation(), bounds, new NotVisitedFactory(selection.getTransactionFactory().getLocation())));
-					}
-				}
-			}
-		);
+//		transactionSelectionGeneralMapBuilder.addTransaction("Mark Visit",
+//			new Runnable() {
+//				@Override
+//				public void run() {
+//					// Find the selected model and attempt an add model transaction
+//					// HACK: Models can only be added to canvases
+//					if(target.getModel() instanceof CanvasModel) {
+//						Dimension size = new Dimension(80, 50);
+//						Rectangle bounds = new Rectangle(dropPointOnTarget, size);
+//						target.getTransactionFactory().executeOnRoot(
+//							new CanvasModel.AddModelTransaction(
+//								target.getTransactionFactory().getLocation(), bounds, new MarkVisitFactory(selection.getTransactionFactory().getLocation())));
+//					}
+//				}
+//			}
+//		);
+//		
+//		transactionSelectionGeneralMapBuilder.addTransaction("Not Visited",
+//			new Runnable() {
+//				@Override
+//				public void run() {
+//					// Find the selected model and attempt an add model transaction
+//					// HACK: Models can only be added to canvases
+//					if(target.getModel() instanceof CanvasModel) {
+//						Dimension size = new Dimension(80, 50);
+//						Rectangle bounds = new Rectangle(dropPointOnTarget, size);
+//						target.getTransactionFactory().executeOnRoot(
+//							new CanvasModel.AddModelTransaction(
+//								target.getTransactionFactory().getLocation(), bounds, new NotVisitedFactory(selection.getTransactionFactory().getLocation())));
+//					}
+//				}
+//			}
+//		);
 		
 //		transactionSelectionGeneralMapBuilder.addTransaction("Meta Model",
 //			new Runnable() {

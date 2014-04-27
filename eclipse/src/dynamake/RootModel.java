@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 
@@ -44,6 +45,19 @@ public class RootModel extends Model {
 		public FrameModel(RootModel model, TransactionFactory transactionFactory) {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
+			
+			this.addWindowFocusListener(new WindowFocusListener() {
+				@Override
+				public void windowLostFocus(WindowEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void windowGainedFocus(WindowEvent arg0) {
+					repaint();
+				}
+			});
 		}
 
 		@Override

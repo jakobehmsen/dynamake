@@ -27,19 +27,43 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 		if(implicitDropAction != null) {
 			selection.getTransactionFactory().executeOnRoot(implicitDropAction);
 		} else {
+			TransactionMapBuilder transactionTargetContentMapBuilder = new TransactionMapBuilder();
+			
+			if(selection.getModel().isObservedBy(target.getModel())) {
+				transactionTargetContentMapBuilder.addTransaction("Unforward to", new Runnable() {
+					@Override
+					public void run() {
+						selection.getTransactionFactory().executeOnRoot(
+							new Model.RemoveObserver(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
+						);
+					}
+				});
+			} else {
+				transactionTargetContentMapBuilder.addTransaction("Forward to", new Runnable() {
+					@Override
+					public void run() {
+						selection.getTransactionFactory().executeOnRoot(
+							new Model.AddObserver(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
+						);
+					}
+				});
+			}
+			transactionTargetContentMapBuilder.appendTo(popup, "Selection to target");
+			popup.addSeparator();
+			
 			TransactionMapBuilder transactionObserverContentMapBuilder = new TransactionMapBuilder();
 			for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
 				final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
 				transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
 					@Override
 					public void run() {
-						Dimension size = new Dimension(120, 50);
-						Rectangle bounds = new Rectangle(dropPointOnTarget, size);
+//						Dimension size = new Dimension(120, 50);
+//						Rectangle bounds = new Rectangle(dropPointOnTarget, size);
 						target.getTransactionFactory().executeOnRoot(new AddThenBindTransaction(
 							selection.getTransactionFactory().getLocation(), 
 							target.getTransactionFactory().getLocation(), 
 							new PrimitiveSingletonFactory(primImpl), 
-							bounds
+							dropBoundsOnTarget
 						));
 					}
 				});
@@ -48,47 +72,47 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	
 			TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
 			
-			transactionSelectionGeneralMapBuilder.addTransaction("Mark Visit",
-				new Runnable() {
-					@Override
-					public void run() {
-						// HACK: Models can only be added to canvases
-						if(target.getModel() instanceof CanvasModel) {
-							Dimension size = new Dimension(120, 50);
-							Rectangle bounds = new Rectangle(dropPointOnTarget, size);
-							Factory itemFactory = new CreationModelFactory(new CreateAndBindFactory(new MarkVisitByFactory(), selection.getTransactionFactory().getLocation()), new String[]{"By"});
-							target.getTransactionFactory().executeOnRoot(
-								new CanvasModel.AddModelTransaction(
-									target.getTransactionFactory().getLocation(), bounds, itemFactory));
-						}
-					}
-				}
-			);
-			
-			transactionSelectionGeneralMapBuilder.addTransaction("Not Visited",
-				new Runnable() {
-					@Override
-					public void run() {
-						// Find the selected model and attempt an add model transaction
-						// HACK: Models can only be added to canvases
-						if(target.getModel() instanceof CanvasModel) {
+//			transactionSelectionGeneralMapBuilder.addTransaction("Mark Visit",
+//				new Runnable() {
+//					@Override
+//					public void run() {
+//						// HACK: Models can only be added to canvases
+//						if(target.getModel() instanceof CanvasModel) {
 //							Dimension size = new Dimension(120, 50);
 //							Rectangle bounds = new Rectangle(dropPointOnTarget, size);
+//							Factory itemFactory = new CreationModelFactory(new CreateAndBindFactory(new MarkVisitByFactory(), selection.getTransactionFactory().getLocation()), new String[]{"By"});
 //							target.getTransactionFactory().executeOnRoot(
 //								new CanvasModel.AddModelTransaction(
-//									target.getTransactionFactory().getLocation(), bounds, new NotVisitedFactory(selection.getTransactionFactory().getLocation())));
-							
-
-							Dimension size = new Dimension(120, 50);
-							Rectangle bounds = new Rectangle(dropPointOnTarget, size);
-							Factory itemFactory = new CreationModelFactory(new CreateAndBindFactory(new NotVisitedByFactory(), selection.getTransactionFactory().getLocation()), new String[]{"By"});
-							target.getTransactionFactory().executeOnRoot(
-								new CanvasModel.AddModelTransaction(
-									target.getTransactionFactory().getLocation(), bounds, itemFactory));
-						}
-					}
-				}
-			);
+//									target.getTransactionFactory().getLocation(), bounds, itemFactory));
+//						}
+//					}
+//				}
+//			);
+//			
+//			transactionSelectionGeneralMapBuilder.addTransaction("Not Visited",
+//				new Runnable() {
+//					@Override
+//					public void run() {
+//						// Find the selected model and attempt an add model transaction
+//						// HACK: Models can only be added to canvases
+//						if(target.getModel() instanceof CanvasModel) {
+////							Dimension size = new Dimension(120, 50);
+////							Rectangle bounds = new Rectangle(dropPointOnTarget, size);
+////							target.getTransactionFactory().executeOnRoot(
+////								new CanvasModel.AddModelTransaction(
+////									target.getTransactionFactory().getLocation(), bounds, new NotVisitedFactory(selection.getTransactionFactory().getLocation())));
+//							
+//
+//							Dimension size = new Dimension(120, 50);
+//							Rectangle bounds = new Rectangle(dropPointOnTarget, size);
+//							Factory itemFactory = new CreationModelFactory(new CreateAndBindFactory(new NotVisitedByFactory(), selection.getTransactionFactory().getLocation()), new String[]{"By"});
+//							target.getTransactionFactory().executeOnRoot(
+//								new CanvasModel.AddModelTransaction(
+//									target.getTransactionFactory().getLocation(), bounds, itemFactory));
+//						}
+//					}
+//				}
+//			);
 			
 			transactionSelectionGeneralMapBuilder.appendTo(popup, "General");
 		}
