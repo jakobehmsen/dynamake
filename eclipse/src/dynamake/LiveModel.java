@@ -163,6 +163,10 @@ public class LiveModel extends Model {
 				private static final int VERTICAL_REGION_NORTH = 0;
 				private static final int VERTICAL_REGION_CENTER = 1;
 				private static final int VERTICAL_REGION_SOUTH = 2;
+
+				private void resetEffectFrame() {
+					effectFrame.setBounds(selectionFrame.getBounds());
+				}
 				
 				private void updateRelativeCursorPosition(Point point, Dimension size) {
 					int resizeWidth = 5;
@@ -496,8 +500,9 @@ public class LiveModel extends Model {
 										
 //										Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
 //										effectFrame.setLocation(originSelectionFrameLocation);
-										ProductionPanel.this.remove(effectFrame);
-										effectFrame = null;
+//										ProductionPanel.this.remove(effectFrame);
+//										effectFrame = null;
+										resetEffectFrame();
 
 										if(targetFrame != null)
 											ProductionPanel.this.remove(targetFrame);
@@ -556,6 +561,10 @@ public class LiveModel extends Model {
 												
 												if(targetFrame != null)
 													ProductionPanel.this.remove(targetFrame);
+												
+												resetEffectFrame(); // TODO: Do this instead of removing the effect frame (expect in clearFocus())
+//												ProductionPanel.this.remove(effectFrame);
+//												effectFrame = null;
 //												clearFocus();
 												livePanel.repaint();
 											}
@@ -567,13 +576,7 @@ public class LiveModel extends Model {
 //												ProductionPanel.this.remove(targetFrame);
 //											clearFocus();
 										} else {
-											ProductionPanel.this.remove(effectFrame);
-											effectFrame = null;
-//											clearFocus();
-//											Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
-//											selectionFrame.setLocation(originSelectionFrameLocation);
-//											
-//											showPopupForSelectionCons(selectionFrame, e.getPoint(), null);
+											resetEffectFrame();
 										}
 
 										targetOver = null;
@@ -614,9 +617,9 @@ public class LiveModel extends Model {
 											selectFromView(targetModelComponent, referencePoint, true);
 											livePanel.repaint();
 											
-											selectionMouseDown = e.getPoint();
-											selectionFrameSize = effectFrame.getSize();
-											effectFrameMoving = true;
+//											selectionMouseDown = e.getPoint();
+//											selectionFrameSize = effectFrame.getSize();
+//											effectFrameMoving = true;
 										}
 									} else if(e.getButton() == 3) {
 //										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
@@ -668,9 +671,9 @@ public class LiveModel extends Model {
 											selectFromView(targetModelComponent, referencePoint, true);
 											livePanel.repaint();
 
-											selectionMouseDown = e.getPoint();
-											selectionFrameSize = effectFrame.getSize();
-											effectFrameMoving = true;
+//											selectionMouseDown = e.getPoint();
+//											selectionFrameSize = effectFrame.getSize();
+//											effectFrameMoving = true;
 										}
 									}
 								}
@@ -684,9 +687,9 @@ public class LiveModel extends Model {
 											selectFromView(targetModelComponent, referencePoint, true);
 											livePanel.repaint();
 											
-											selectionMouseDown = e.getPoint();
-											selectionFrameSize = selectionFrame.getSize();
-											effectFrameMoving = true;
+//											selectionMouseDown = e.getPoint();
+//											selectionFrameSize = selectionFrame.getSize();
+//											effectFrameMoving = true;
 										}
 									}
 								}
@@ -701,9 +704,9 @@ public class LiveModel extends Model {
 											selectFromDefault(targetModelComponent, referencePoint, true);
 											livePanel.repaint();
 											
-											selectionMouseDown = e.getPoint();
-											selectionFrameSize = selectionFrame.getSize();
-											effectFrameMoving = true;
+//											selectionMouseDown = e.getPoint();
+//											selectionFrameSize = selectionFrame.getSize();
+//											effectFrameMoving = true;
 										}
 									}
 								}
@@ -1229,8 +1232,9 @@ public class LiveModel extends Model {
 									targetFrame = null;
 								}
 //								clearFocus();
-								ProductionPanel.this.remove(effectFrame);
-								effectFrame = null;
+//								ProductionPanel.this.remove(effectFrame);
+//								effectFrame = null;
+								resetEffectFrame();
 								livePanel.repaint();
 							}
 							

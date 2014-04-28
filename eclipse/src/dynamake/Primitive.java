@@ -29,7 +29,7 @@ public class Primitive extends Model {
 				
 				@Override
 				public String getName() {
-					return "Take Background";
+					return "New Background";
 				}
 				
 				@Override
@@ -68,7 +68,7 @@ public class Primitive extends Model {
 				
 				@Override
 				public String getName() {
-					return "Take Foreground";
+					return "New Foreground";
 				}
 				
 				@Override
