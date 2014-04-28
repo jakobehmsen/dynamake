@@ -135,6 +135,7 @@ public class LiveModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private JPanel effectFrame;
+		private JPanel selectionFrame;
 		private JPanel targetFrame;
 		
 		public ProductionPanel(final LivePanel livePanel, final Binding<ModelComponent> contentView) {
@@ -147,10 +148,10 @@ public class LiveModel extends Model {
 			
 			MouseAdapter editPanelMouseAdapter = new MouseAdapter() {
 				private ModelComponent selection;
-				private JPanel selectionFrame;
 				private boolean effectFrameMoving;
 				private Point selectionMouseDown;
 				private Point initialEffectLocation;
+				private Rectangle initialEffectBounds;
 				private Dimension selectionFrameSize;
 				private int selectionFrameHorizontalPosition;
 				private int selectionFrameVerticalPosition;
@@ -193,8 +194,8 @@ public class LiveModel extends Model {
 				// ((JComponent)view).getBounds()
 				
 				private void selectFromView(final ModelComponent view, final Point initialMouseDown, boolean moving) {
-					Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), ProductionPanel.this);
-					select(view, initialMouseDown, moving, selectionBounds);
+					Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), ProductionPanel.this);
+					select(view, initialMouseDown, moving, effectBounds);
 				}
 				
 				private void selectFromDefault(final ModelComponent view, final Point initialMouseDown, boolean moving) {
@@ -211,7 +212,7 @@ public class LiveModel extends Model {
 //					selectionFrame = null;
 //				}
 				
-				private void select(final ModelComponent view, final Point initialMouseDown, boolean moving, final Rectangle initialSelectionBounds) {
+				private void select(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
 //					if(this.selection == view)
 //						return;
 					
@@ -223,6 +224,17 @@ public class LiveModel extends Model {
 							effectFrame.setBackground(new Color(0, 0, 0, 0));
 							
 							effectFrame.setBorder(BorderFactory.createCompoundBorder(
+								BorderFactory.createDashedBorder(Color.BLACK, 2.0f, 2.0f, 1.5f, false),
+								BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
+							));
+							ProductionPanel.this.add(effectFrame);
+						}
+						
+						if(selectionFrame == null) {
+							selectionFrame = new JPanel();
+							selectionFrame.setBackground(new Color(0, 0, 0, 0));
+							
+							selectionFrame.setBorder(BorderFactory.createCompoundBorder(
 								BorderFactory.createDashedBorder(Color.BLACK, 2.0f, 2.0f, 1.5f, false),
 								BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
 							));
@@ -298,6 +310,7 @@ public class LiveModel extends Model {
 										
 										if(effectFrame.getCursor() != cursor) {
 											effectFrame.setCursor(cursor);
+//											System.out.println("Updated cursor");
 										}
 									}
 								}
@@ -391,6 +404,9 @@ public class LiveModel extends Model {
 										
 										JComponent parent = (JComponent)((JComponent)selection).getParent();
 										Rectangle newBounds = SwingUtilities.convertRectangle(effectFrame.getParent(), effectFrame.getBounds(), parent);
+//										Rectangle selectionFrameNewBounds = SwingUtilities.convertRectangle(selectionFrame.getParent(), selectionFrame.getBounds(), parent);
+										selectionFrame.setBounds(effectFrame.getBounds());
+										livePanel.repaint();
 										
 										@SuppressWarnings("unchecked")
 										Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
@@ -401,12 +417,12 @@ public class LiveModel extends Model {
 										});
 										transactionFactory.execute(changeBoundsTransaction);
 
-										SwingUtilities.invokeLater(new Runnable() {
-											@Override
-											public void run() {
-												livePanel.invalidate();
-											}
-										});
+//										SwingUtilities.invokeLater(new Runnable() {
+//											@Override
+//											public void run() {
+//												livePanel.invalidate();
+//											}
+//										});
 									}
 								}
 
@@ -464,7 +480,7 @@ public class LiveModel extends Model {
 
 								private void mouseReleasedBind(MouseEvent e) {
 									if(e.getButton() == MouseEvent.BUTTON1) {
-										Point releasePoint = SwingUtilities.convertPoint(effectFrame, e.getPoint(), ProductionPanel.this);
+										Point releasePoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
 										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(releasePoint);
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										
@@ -478,8 +494,10 @@ public class LiveModel extends Model {
 											}
 										}
 										
-										Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
-										effectFrame.setLocation(originSelectionFrameLocation);
+//										Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
+//										effectFrame.setLocation(originSelectionFrameLocation);
+										ProductionPanel.this.remove(effectFrame);
+										effectFrame = null;
 
 										if(targetFrame != null)
 											ProductionPanel.this.remove(targetFrame);
@@ -491,12 +509,12 @@ public class LiveModel extends Model {
 
 								private void mouseReleasedDrag(MouseEvent e) {
 									if(e.getButton() == MouseEvent.BUTTON1) {
-										Point releasePoint = SwingUtilities.convertPoint(effectFrame, e.getPoint(), ProductionPanel.this);
+										Point releasePoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
 										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(releasePoint);
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										
 										if(targetModelComponent != null && selection != targetModelComponent) {
-											showPopupForSelectionObject(effectFrame, e.getPoint(), targetModelComponent);
+											showPopupForSelectionObject(selectionFrame, e.getPoint(), targetModelComponent);
 											
 //											Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
 //											effectFrame.setLocation(originSelectionFrameLocation);
@@ -504,10 +522,13 @@ public class LiveModel extends Model {
 //											if(targetFrame != null)
 //												ProductionPanel.this.remove(targetFrame);
 										} else {
-											Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
-											effectFrame.setLocation(originSelectionFrameLocation);
+//											Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
+//											effectFrame.setLocation(originSelectionFrameLocation);
 											
-											showPopupForSelectionObject(effectFrame, e.getPoint(), null);
+											showPopupForSelectionObject(selectionFrame, e.getPoint(), null);
+											
+//											ProductionPanel.this.remove(effectFrame);
+//											effectFrame = null;
 										}
 
 										targetOver = null;
@@ -517,13 +538,13 @@ public class LiveModel extends Model {
 
 								private void mouseReleasedCons(MouseEvent e) {
 									if(e.getButton() == MouseEvent.BUTTON1) {
-										Point releasePoint = SwingUtilities.convertPoint(effectFrame, e.getPoint(), ProductionPanel.this);
+										Point releasePoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
 										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(releasePoint);
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										
 										if(targetModelComponent != null && selection != targetModelComponent) {
 											if(targetModelComponent.getModel() instanceof CanvasModel) {
-												showPopupForSelectionCons(effectFrame, e.getPoint(), targetModelComponent);
+												showPopupForSelectionCons(selectionFrame, e.getPoint(), targetModelComponent);
 											} else {
 												if(selection.getModel().isObservedBy(targetModelComponent.getModel())) {
 													targetModelComponent.getTransactionFactory().executeOnRoot(
@@ -535,7 +556,7 @@ public class LiveModel extends Model {
 												
 												if(targetFrame != null)
 													ProductionPanel.this.remove(targetFrame);
-												clearFocus();
+//												clearFocus();
 												livePanel.repaint();
 											}
 											
@@ -546,7 +567,9 @@ public class LiveModel extends Model {
 //												ProductionPanel.this.remove(targetFrame);
 //											clearFocus();
 										} else {
-											clearFocus();
+											ProductionPanel.this.remove(effectFrame);
+											effectFrame = null;
+//											clearFocus();
 //											Point originSelectionFrameLocation = SwingUtilities.convertPoint(((JComponent)selection).getParent(), ((JComponent)selection).getLocation(), ProductionPanel.this);
 //											selectionFrame.setLocation(originSelectionFrameLocation);
 //											
@@ -580,46 +603,108 @@ public class LiveModel extends Model {
 								}
 								
 								private void mousePressedEdit(MouseEvent e) {
-									if(e.getButton() == MouseEvent.BUTTON1 && selection != contentView.getBindingTarget()) {
-										selectionMouseDown = e.getPoint();
-										selectionFrameSize = effectFrame.getSize();
-										effectFrameMoving = true;
+									JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+									ModelComponent targetModelComponent = closestModelComponent(target);
+									
+									if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != contentView.getBindingTarget()) {
+//										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+//										ModelComponent targetModelComponent = closestModelComponent(target);
+										if(targetModelComponent != null) {
+											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+											selectFromView(targetModelComponent, referencePoint, true);
+											livePanel.repaint();
+											
+											selectionMouseDown = e.getPoint();
+											selectionFrameSize = effectFrame.getSize();
+											effectFrameMoving = true;
+										}
+									} else if(e.getButton() == 3) {
+//										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+//										ModelComponent targetModelComponent = closestModelComponent(target);
+										if(targetModelComponent != null) {
+											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), livePanel);
+											selectFromView(targetModelComponent, e.getPoint(), false);
+											Point restoredPoint = SwingUtilities.convertPoint(livePanel, referencePoint, (JComponent)targetModelComponent);
+											e.translatePoint(restoredPoint.x - e.getX(), restoredPoint.y - e.getY());
+											e.setSource(effectFrame);
+											livePanel.repaint();
+										}
 									}
 								}
 
 								private void mousePressedPlot(MouseEvent e) {
 									if(e.getButton() == 1) {
-										plotMouseDownLocation = e.getPoint();
-										plotFrame = new JPanel();
-										plotFrame.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-										plotFrame.setBackground(Color.GRAY);
+										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+										ModelComponent targetModelComponent = closestModelComponent(target);
+										if(targetModelComponent != null && targetModelComponent.getModel() instanceof CanvasModel) {
+											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+											selectFromView(targetModelComponent, referencePoint, true);
+
+											plotMouseDownLocation = referencePoint;
+											plotFrame = new JPanel();
+											plotFrame.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+											plotFrame.setBackground(Color.GRAY);
+											
+											ProductionPanel.this.add(plotFrame);
+											livePanel.repaint();
+										}
 										
-										ProductionPanel.this.add(plotFrame);
-										livePanel.repaint();
+//										plotMouseDownLocation = e.getPoint();
+//										plotFrame = new JPanel();
+//										plotFrame.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+//										plotFrame.setBackground(Color.GRAY);
+//										
+//										ProductionPanel.this.add(plotFrame);
+//										livePanel.repaint();
 									}
 								}
 
 								private void mousePressedBind(MouseEvent e) {
 									if(e.getButton() == MouseEvent.BUTTON1) {
-										selectionMouseDown = e.getPoint();
-										selectionFrameSize = effectFrame.getSize();
-										effectFrameMoving = true;
+										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+										ModelComponent targetModelComponent = closestModelComponent(target);
+										if(targetModelComponent != null) {
+											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+											selectFromView(targetModelComponent, referencePoint, true);
+											livePanel.repaint();
+
+											selectionMouseDown = e.getPoint();
+											selectionFrameSize = effectFrame.getSize();
+											effectFrameMoving = true;
+										}
 									}
 								}
 
 								private void mousePressedDrag(MouseEvent e) {
 									if(e.getButton() == MouseEvent.BUTTON1) {
-										selectionMouseDown = e.getPoint();
-										selectionFrameSize = effectFrame.getSize();
-										effectFrameMoving = true;
+										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+										ModelComponent targetModelComponent = closestModelComponent(target);
+										if(targetModelComponent != null) {
+											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+											selectFromView(targetModelComponent, referencePoint, true);
+											livePanel.repaint();
+											
+											selectionMouseDown = e.getPoint();
+											selectionFrameSize = selectionFrame.getSize();
+											effectFrameMoving = true;
+										}
 									}
 								}
 
 								private void mousePressedCons(MouseEvent e) {
 									if(e.getButton() == MouseEvent.BUTTON1) {
-										selectionMouseDown = e.getPoint();
-										selectionFrameSize = effectFrame.getSize();
-										effectFrameMoving = true;
+										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+										ModelComponent targetModelComponent = closestModelComponent(target);
+										if(targetModelComponent != null) {
+											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+//											Point referencePoint = e.getPoint();
+											selectFromDefault(targetModelComponent, referencePoint, true);
+											livePanel.repaint();
+											
+											selectionMouseDown = e.getPoint();
+											selectionFrameSize = selectionFrame.getSize();
+											effectFrameMoving = true;
+										}
 									}
 								}
 
@@ -651,10 +736,13 @@ public class LiveModel extends Model {
 										int width = effectFrame.getWidth();
 										int height = effectFrame.getHeight();
 										
+										Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
+										
 										switch(selectionFrameHorizontalPosition) {
 										case HORIZONTAL_REGION_WEST: {
 											int currentX = x;
-											x = effectFrame.getX() + e.getX() - selectionMouseDown.x;
+//											x = effectFrame.getX() + e.getX() - selectionMouseDown.x;
+											x = cursorLocationInProductionPanel.x - selectionMouseDown.x;
 											width += currentX - x;
 											
 											break;
@@ -667,8 +755,10 @@ public class LiveModel extends Model {
 										case HORIZONTAL_REGION_CENTER:
 											switch(selectionFrameVerticalPosition) {
 											case VERTICAL_REGION_CENTER:
-												x += e.getX() - selectionMouseDown.x;
-												y += e.getY() - selectionMouseDown.y;
+//												x += e.getX() - selectionMouseDown.x;
+//												y += e.getY() - selectionMouseDown.y;
+												x = cursorLocationInProductionPanel.x - selectionMouseDown.x;
+												y = cursorLocationInProductionPanel.y - selectionMouseDown.y;
 												break;
 											}
 											break;
@@ -677,7 +767,8 @@ public class LiveModel extends Model {
 										switch(selectionFrameVerticalPosition) {
 										case VERTICAL_REGION_NORTH: {
 											int currentY = y;
-											y = effectFrame.getY() + e.getY() - selectionMouseDown.y;
+//											y = effectFrame.getY() + e.getY() - selectionMouseDown.y;
+											y = cursorLocationInProductionPanel.y - selectionMouseDown.y;
 											height += currentY - y;
 											
 											break;
@@ -705,7 +796,7 @@ public class LiveModel extends Model {
 
 								private void mouseDraggedBind(MouseEvent e) {
 									if(selectionMouseDown != null && effectFrameMoving) {
-										Point mouseOverPoint = SwingUtilities.convertPoint(effectFrame, e.getPoint(), ProductionPanel.this);
+										Point mouseOverPoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
 										JComponent newTargetOver = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
 										ModelComponent newTargetOverComponent = closestModelComponent(newTargetOver);
 										if(newTargetOverComponent != targetOver) {
@@ -744,8 +835,13 @@ public class LiveModel extends Model {
 										int width = effectFrame.getWidth();
 										int height = effectFrame.getHeight();
 
-										x += e.getX() - selectionMouseDown.x;
-										y += e.getY() - selectionMouseDown.y;
+//										x += e.getX() - selectionMouseDown.x;
+//										y += e.getY() - selectionMouseDown.y;
+
+										Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
+										
+										x = cursorLocationInProductionPanel.x - selectionMouseDown.x;
+										y = cursorLocationInProductionPanel.y - selectionMouseDown.y;
 
 										effectFrame.setBounds(new Rectangle(x, y, width, height));
 										livePanel.repaint();
@@ -754,7 +850,7 @@ public class LiveModel extends Model {
 								
 								private void mouseDraggedDrag(MouseEvent e) {
 									if(selectionMouseDown != null && effectFrameMoving) {
-										Point mouseOverPoint = SwingUtilities.convertPoint(effectFrame, e.getPoint(), ProductionPanel.this);
+										Point mouseOverPoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
 										JComponent newTargetOver = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
 										ModelComponent newTargetOverComponent = closestModelComponent(newTargetOver);
 										if(newTargetOverComponent != targetOver) {
@@ -785,13 +881,27 @@ public class LiveModel extends Model {
 											}
 										}
 										
-										int x = effectFrame.getX();
-										int y = effectFrame.getY();
+//										int x = effectFrame.getX();
+//										int y = effectFrame.getY();
+//										int width = effectFrame.getWidth();
+//										int height = effectFrame.getHeight();
+										
+										int x = effectFrame.getX() - initialEffectLocation.x;
+										int y = effectFrame.getY() - initialEffectLocation.y;
 										int width = effectFrame.getWidth();
 										int height = effectFrame.getHeight();
 
-										x += e.getX() - selectionMouseDown.x;
-										y += e.getY() - selectionMouseDown.y;
+//										x += e.getX() - selectionMouseDown.x;
+//										y += e.getY() - selectionMouseDown.y;
+
+										Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
+//										Point initialCursorLocationInSelection = SwingUtilities.convertPoint(ProductionPanel.this, initialMouseDown, selectionFrame);
+										
+//										x = cursorLocationInProductionPanel.x - initialMouseDown.x;
+//										y = cursorLocationInProductionPanel.y - initialMouseDown.y;
+										
+										x = cursorLocationInProductionPanel.x - selectionMouseDown.x;
+										y = cursorLocationInProductionPanel.y - selectionMouseDown.y;
 
 										effectFrame.setBounds(new Rectangle(x, y, width, height));
 										livePanel.repaint();
@@ -800,7 +910,7 @@ public class LiveModel extends Model {
 								
 								private void mouseDraggedCons(MouseEvent e) {
 									if(selectionMouseDown != null && effectFrameMoving) {
-										Point mouseOverPoint = SwingUtilities.convertPoint(effectFrame, e.getPoint(), ProductionPanel.this);
+										Point mouseOverPoint = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
 										JComponent newTargetOver = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
 										ModelComponent newTargetOverComponent = closestModelComponent(newTargetOver);
 										if(newTargetOverComponent != targetOver) {
@@ -850,11 +960,11 @@ public class LiveModel extends Model {
 //										System.out.println("initialSelectionLocationInSelection=" + initialSelectionLocationInSelection);
 //										System.out.println("e.getX() - selectionFrameMouseDownInSelection.x=" + (e.getX() - selectionFrameMouseDownInSelection.x));
 										
-										Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(effectFrame, e.getPoint(), ProductionPanel.this);
+										Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(selectionFrame, e.getPoint(), ProductionPanel.this);
 //										System.out.println("cursorLocationInProductionPanel=" + cursorLocationInProductionPanel);
 										
-										x = cursorLocationInProductionPanel.x - initialSelectionBounds.width / 2;
-										y = cursorLocationInProductionPanel.y - initialSelectionBounds.height / 2;
+										x = cursorLocationInProductionPanel.x - initialEffectBounds.width / 2;
+										y = cursorLocationInProductionPanel.y - initialEffectBounds.height / 2;
 										
 										
 //										x = initialSelectionLocation.x + (e.getX() - selectionFrameMouseDown.x);
@@ -872,10 +982,10 @@ public class LiveModel extends Model {
 								}
 							};
 							
-							effectFrame.addMouseListener(mouseAdapter);
-							effectFrame.addMouseMotionListener(mouseAdapter);
+							selectionFrame.addMouseListener(mouseAdapter);
+							selectionFrame.addMouseMotionListener(mouseAdapter);
 							
-							effectFrame.addMouseListener(new MouseAdapter() {
+							selectionFrame.addMouseListener(new MouseAdapter() {
 								public void mousePressed(MouseEvent e) {
 									switch(livePanel.model.state) {
 									case LiveModel.STATE_EDIT:
@@ -897,81 +1007,81 @@ public class LiveModel extends Model {
 								}
 								
 								public void mousePressedEdit(MouseEvent e) {
-									if(e.getButton() == 1) {
-										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
-										ModelComponent targetModelComponent = closestModelComponent(target);
-										if(targetModelComponent != null) {
-											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-											selectFromView(targetModelComponent, referencePoint, true);
-											livePanel.repaint();
-										}
-									} else if(e.getButton() == 3) {
-										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
-										ModelComponent targetModelComponent = closestModelComponent(target);
-										if(targetModelComponent != null) {
-											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), livePanel);
-											selectFromView(targetModelComponent, e.getPoint(), false);
-											Point restoredPoint = SwingUtilities.convertPoint(livePanel, referencePoint, (JComponent)targetModelComponent);
-											e.translatePoint(restoredPoint.x - e.getX(), restoredPoint.y - e.getY());
-											e.setSource(effectFrame);
-											livePanel.repaint();
-										}
-									}
+//									if(e.getButton() == 1) {
+//										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+//										ModelComponent targetModelComponent = closestModelComponent(target);
+//										if(targetModelComponent != null) {
+//											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+//											selectFromView(targetModelComponent, referencePoint, true);
+//											livePanel.repaint();
+//										}
+//									} else if(e.getButton() == 3) {
+//										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+//										ModelComponent targetModelComponent = closestModelComponent(target);
+//										if(targetModelComponent != null) {
+//											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), livePanel);
+//											selectFromView(targetModelComponent, e.getPoint(), false);
+//											Point restoredPoint = SwingUtilities.convertPoint(livePanel, referencePoint, (JComponent)targetModelComponent);
+//											e.translatePoint(restoredPoint.x - e.getX(), restoredPoint.y - e.getY());
+//											e.setSource(effectFrame);
+//											livePanel.repaint();
+//										}
+//									}
 								}
 								
 								public void mousePressedPlot(MouseEvent e) {
-									if(e.getButton() == 1) {
-										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
-										ModelComponent targetModelComponent = closestModelComponent(target);
-										if(targetModelComponent != null) {
-											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-											selectFromView(targetModelComponent, referencePoint, true);
-
-											plotMouseDownLocation = referencePoint;
-											plotFrame = new JPanel();
-											plotFrame.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-											plotFrame.setBackground(Color.GRAY);
-											
-											ProductionPanel.this.add(plotFrame);
-											livePanel.repaint();
-										}
-									}
+//									if(e.getButton() == 1) {
+//										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+//										ModelComponent targetModelComponent = closestModelComponent(target);
+//										if(targetModelComponent != null) {
+//											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+//											selectFromView(targetModelComponent, referencePoint, true);
+//
+//											plotMouseDownLocation = referencePoint;
+//											plotFrame = new JPanel();
+//											plotFrame.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+//											plotFrame.setBackground(Color.GRAY);
+//											
+//											ProductionPanel.this.add(plotFrame);
+//											livePanel.repaint();
+//										}
+//									}
 								}
 								
 								public void mousePressedBind(MouseEvent e) {
-									if(e.getButton() == 1) {
-										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
-										ModelComponent targetModelComponent = closestModelComponent(target);
-										if(targetModelComponent != null) {
-											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-											selectFromView(targetModelComponent, referencePoint, true);
-											livePanel.repaint();
-										}
-									}
+//									if(e.getButton() == 1) {
+//										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+//										ModelComponent targetModelComponent = closestModelComponent(target);
+//										if(targetModelComponent != null) {
+//											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+//											selectFromView(targetModelComponent, referencePoint, true);
+//											livePanel.repaint();
+//										}
+//									}
 								}
 								
 								public void mousePressedDrag(MouseEvent e) {
-									if(e.getButton() == 1) {
-										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
-										ModelComponent targetModelComponent = closestModelComponent(target);
-										if(targetModelComponent != null) {
-											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-											selectFromView(targetModelComponent, referencePoint, true);
-											livePanel.repaint();
-										}
-									}
+//									if(e.getButton() == 1) {
+//										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+//										ModelComponent targetModelComponent = closestModelComponent(target);
+//										if(targetModelComponent != null) {
+//											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+//											selectFromView(targetModelComponent, referencePoint, true);
+//											livePanel.repaint();
+//										}
+//									}
 								}
 								
 								public void mousePressedCons(MouseEvent e) {
-									if(e.getButton() == 1) {
-										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
-										ModelComponent targetModelComponent = closestModelComponent(target);
-										if(targetModelComponent != null) {
-											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-											selectFromDefault(targetModelComponent, referencePoint, true);
-											livePanel.repaint();
-										}
-									}
+//									if(e.getButton() == 1) {
+//										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+//										ModelComponent targetModelComponent = closestModelComponent(target);
+//										if(targetModelComponent != null) {
+//											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+//											selectFromDefault(targetModelComponent, referencePoint, true);
+//											livePanel.repaint();
+//										}
+//									}
 								}
 								
 								public void mouseReleased(MouseEvent e) {
@@ -1017,8 +1127,8 @@ public class LiveModel extends Model {
 
 								}
 							});
-							
-							ProductionPanel.this.add(effectFrame);
+
+							ProductionPanel.this.add(selectionFrame);
 						}
 						
 						selectionMouseDown = initialMouseDown;
@@ -1026,9 +1136,13 @@ public class LiveModel extends Model {
 						effectFrameMoving = moving;
 						updateRelativeCursorPosition(initialMouseDown, ((JComponent)view).getSize());
 //						Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), initialSelectionBounds, ProductionPanel.this);
-						Rectangle selectionBounds = initialSelectionBounds;
-						effectFrame.setBounds(selectionBounds);
-						initialEffectLocation = selectionBounds.getLocation();
+//						Rectangle effectBounds = initialEffectBounds;
+						effectFrame.setBounds(effectBounds);
+						initialEffectLocation = effectBounds.getLocation();
+						this.initialEffectBounds = effectBounds;
+						
+						Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), ProductionPanel.this);
+						selectionFrame.setBounds(selectionBounds);
 					} else {
 						if(effectFrame != null) {
 							clearFocus();
@@ -1100,16 +1214,29 @@ public class LiveModel extends Model {
 							public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
 							}
 							
+//							private boolean wasCanceled;
+							
 							@Override
 							public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
-								if(targetFrame != null)
+//								if(!wasCanceled) {
+//									// Indicate a transaction was performed
+//								}
+								
+								// In some cases the focus should be cleared (when a transaction was performed) - THIS SHOULD BE UP TO THE INDIVIDUAL TRANSACTIONS TO DECIDE
+								// Otherwise, only the effect frame should be removed
+								if(targetFrame != null) {
 									ProductionPanel.this.remove(targetFrame);
-								clearFocus();
+									targetFrame = null;
+								}
+//								clearFocus();
+								ProductionPanel.this.remove(effectFrame);
+								effectFrame = null;
 								livePanel.repaint();
 							}
 							
 							@Override
 							public void popupMenuCanceled(PopupMenuEvent arg0) {
+//								wasCanceled = true;
 //								if(targetFrame != null)
 //									ProductionPanel.this.remove(targetFrame);
 //								clearFocus();
@@ -1179,14 +1306,16 @@ public class LiveModel extends Model {
 						ModelComponent targetModelComponent = closestModelComponent(target);
 						Point targetComponentMouseDown = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 						selectFromView(targetModelComponent, targetComponentMouseDown, true);
-						
-						plotMouseDownLocation = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-						plotFrame = new JPanel();
-						plotFrame.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-						plotFrame.setBackground(Color.GRAY);
-						
-						ProductionPanel.this.add(plotFrame);
-						livePanel.repaint();
+
+						if(targetModelComponent.getModel() instanceof CanvasModel) {
+							plotMouseDownLocation = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+							plotFrame = new JPanel(); // Should be effect frame instead? For a more streamlined experience?
+							plotFrame.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+							plotFrame.setBackground(Color.GRAY);
+							
+							ProductionPanel.this.add(plotFrame);
+							livePanel.repaint();
+						}
 					}
 				}
 
@@ -1241,50 +1370,50 @@ public class LiveModel extends Model {
 				}
 				
 				private void mouseReleasedEdit(MouseEvent e) {
-					if(effectFrame != null) {
-						e.translatePoint(-effectFrame.getX(), -effectFrame.getY());
-						e.setSource(effectFrame);
-						for(MouseListener l: effectFrame.getMouseListeners()) {
+					if(selectionFrame != null) {
+						e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+						e.setSource(selectionFrame);
+						for(MouseListener l: selectionFrame.getMouseListeners()) {
 							l.mouseReleased(e);
 						}
 					}
 				}
 
 				private void mouseReleasedPlot(MouseEvent e) {
-					if(effectFrame != null) {
-						e.translatePoint(-effectFrame.getX(), -effectFrame.getY());
-						e.setSource(effectFrame);
-						for(MouseListener l: effectFrame.getMouseListeners()) {
+					if(selectionFrame != null) {
+						e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+						e.setSource(selectionFrame);
+						for(MouseListener l: selectionFrame.getMouseListeners()) {
 							l.mouseReleased(e);
 						}
 					}
 				}
 
 				private void mouseReleasedBind(MouseEvent e) {
-					if(effectFrame != null) {
-						e.translatePoint(-effectFrame.getX(), -effectFrame.getY());
-						e.setSource(effectFrame);
-						for(MouseListener l: effectFrame.getMouseListeners()) {
+					if(selectionFrame != null) {
+						e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+						e.setSource(selectionFrame);
+						for(MouseListener l: selectionFrame.getMouseListeners()) {
 							l.mouseReleased(e);
 						}
 					}
 				}
 
 				private void mouseReleasedDrag(MouseEvent e) {
-					if(effectFrame != null) {
-						e.translatePoint(-effectFrame.getX(), -effectFrame.getY());
-						e.setSource(effectFrame);
-						for(MouseListener l: effectFrame.getMouseListeners()) {
+					if(selectionFrame != null) {
+						e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+						e.setSource(selectionFrame);
+						for(MouseListener l: selectionFrame.getMouseListeners()) {
 							l.mouseReleased(e);
 						}
 					}
 				}
 
 				private void mouseReleasedCons(MouseEvent e) {
-					if(effectFrame != null) {
-						e.translatePoint(-effectFrame.getX(), -effectFrame.getY());
-						e.setSource(effectFrame);
-						for(MouseListener l: effectFrame.getMouseListeners()) {
+					if(selectionFrame != null) {
+						e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+						e.setSource(selectionFrame);
+						for(MouseListener l: selectionFrame.getMouseListeners()) {
 							l.mouseReleased(e);
 						}
 					}
@@ -1311,42 +1440,41 @@ public class LiveModel extends Model {
 				}
 
 				private void mouseDraggedEdit(MouseEvent e) {
-					e.translatePoint(-effectFrame.getX(), -effectFrame.getY());
-					e.setSource(effectFrame);
-					for(MouseMotionListener l: effectFrame.getMouseMotionListeners()) {
+					e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+					e.setSource(selectionFrame);
+					for(MouseMotionListener l: selectionFrame.getMouseMotionListeners()) {
 						l.mouseDragged(e);
 					}
 				}
 
 				private void mouseDraggedPlot(MouseEvent e) {
-					e.translatePoint(-effectFrame.getX(), -effectFrame.getY());
-					e.setSource(effectFrame);
-					for(MouseMotionListener l: effectFrame.getMouseMotionListeners()) {
+					e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+					e.setSource(selectionFrame);
+					for(MouseMotionListener l: selectionFrame.getMouseMotionListeners()) {
 						l.mouseDragged(e);
 					}
 				}
 
 				private void mouseDraggedBind(MouseEvent e) {
-					e.translatePoint(-effectFrame.getX(), -effectFrame.getY());
-					e.setSource(effectFrame);
-					for(MouseMotionListener l: effectFrame.getMouseMotionListeners()) {
+					e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+					e.setSource(selectionFrame);
+					for(MouseMotionListener l: selectionFrame.getMouseMotionListeners()) {
 						l.mouseDragged(e);
 					}
 				}
 
 				private void mouseDraggedDrag(MouseEvent e) {
-					e.translatePoint(-effectFrame.getX(), -effectFrame.getY());
-					e.setSource(effectFrame);
-					for(MouseMotionListener l: effectFrame.getMouseMotionListeners()) {
+					e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+					e.setSource(selectionFrame);
+					for(MouseMotionListener l: selectionFrame.getMouseMotionListeners()) {
 						l.mouseDragged(e);
 					}
 				}
 
 				private void mouseDraggedCons(MouseEvent e) {
-//					e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
-					e.translatePoint(-effectFrame.getX(), -effectFrame.getY());
-					e.setSource(effectFrame);
-					for(MouseMotionListener l: effectFrame.getMouseMotionListeners()) {
+					e.translatePoint(-selectionFrame.getX(), -selectionFrame.getY());
+					e.setSource(selectionFrame);
+					for(MouseMotionListener l: selectionFrame.getMouseMotionListeners()) {
 						l.mouseDragged(e);
 					}
 				}
@@ -1362,7 +1490,13 @@ public class LiveModel extends Model {
 			if(effectFrame != null) {
 				this.remove(effectFrame);
 				effectFrame = null;
-//				System.out.println("Cleared focus");
+				this.remove(selectionFrame);
+				selectionFrame = null;
+			}
+			
+			if(selectionFrame != null) {
+				this.remove(selectionFrame);
+				selectionFrame = null;
 			}
 		}
 	}

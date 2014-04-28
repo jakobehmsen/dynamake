@@ -347,7 +347,7 @@ public abstract class Model implements Serializable, Observer {
 			
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
-				model.toString();
+//				model.toString();
 				if(change instanceof Model.PropertyChanged
 						&& changeDistance == 1 /* And not a forwarded change */) {
 					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
