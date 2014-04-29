@@ -1,6 +1,5 @@
 package dynamake;
 
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 
@@ -8,7 +7,19 @@ import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
-
+	@Override
+	public void buildFromSelectionAndTarget(JPopupMenu popup,
+			ModelComponent selection, ModelComponent target,
+			Point dropPointOnTarget, Rectangle dropBoundsOnTarget) {
+		if(target == null || target == selection) {
+			// Build popup menu for dropping onto selection
+			buildFromSelectionToSelection(popup, selection);
+		} else {
+			// Build popup menu for dropping onto other
+			buildFromSelectionToOther(popup, selection, target, dropPointOnTarget, dropBoundsOnTarget);
+		}
+	}
+	
 	@Override
 	public void buildFromSelectionToSelection(JPopupMenu popup, ModelComponent selection) {
 		ModelComponent parentModelComponent = ModelComponent.Util.closestModelComponent(((JComponent)selection).getParent()); 
@@ -31,9 +42,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
 	public void buildFromSelectionToOther(JPopupMenu popup, final ModelComponent selection, final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
 		TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
-//		final Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
-//		
-//		final Rectangle droppedBounds = SwingUtilities.convertRectangle(ProductionPanel.this, selectionFrame.getBounds(), (JComponent)targetOver);
 		
 		if(selection.getModel().isObservedBy(target.getModel())) {
 			transactionSelectionGeneralMapBuilder.addTransaction("Unforward to", new Runnable() {
@@ -54,81 +62,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				}
 			});
 		}
-		
-//		if(target.getModel().isObservedBy(selection.getModel())) {
-//			transactionSelectionGeneralMapBuilder.addTransaction("Unbind", 
-//				new Runnable() {
-//					@Override
-//					public void run() {
-//						target.getTransactionFactory().executeOnRoot(
-//							new Model.RemoveObserver(target.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
-//						);
-//					}
-//				}
-//			);
-//		} else {
-//			transactionSelectionGeneralMapBuilder.addTransaction("Bind", 
-//				new Runnable() {
-//					@Override
-//					public void run() {
-//						target.getTransactionFactory().executeOnRoot(
-//							new Model.AddObserver(target.getTransactionFactory().getLocation(), selection.getTransactionFactory().getLocation())
-//						);
-//					}
-//				}
-//			);
-//		}
-		
-//		transactionSelectionGeneralMapBuilder.addTransaction("Mark Visit",
-//			new Runnable() {
-//				@Override
-//				public void run() {
-//					// Find the selected model and attempt an add model transaction
-//					// HACK: Models can only be added to canvases
-//					if(target.getModel() instanceof CanvasModel) {
-//						Dimension size = new Dimension(80, 50);
-//						Rectangle bounds = new Rectangle(dropPointOnTarget, size);
-//						target.getTransactionFactory().executeOnRoot(
-//							new CanvasModel.AddModelTransaction(
-//								target.getTransactionFactory().getLocation(), bounds, new MarkVisitFactory(selection.getTransactionFactory().getLocation())));
-//					}
-//				}
-//			}
-//		);
-//		
-//		transactionSelectionGeneralMapBuilder.addTransaction("Not Visited",
-//			new Runnable() {
-//				@Override
-//				public void run() {
-//					// Find the selected model and attempt an add model transaction
-//					// HACK: Models can only be added to canvases
-//					if(target.getModel() instanceof CanvasModel) {
-//						Dimension size = new Dimension(80, 50);
-//						Rectangle bounds = new Rectangle(dropPointOnTarget, size);
-//						target.getTransactionFactory().executeOnRoot(
-//							new CanvasModel.AddModelTransaction(
-//								target.getTransactionFactory().getLocation(), bounds, new NotVisitedFactory(selection.getTransactionFactory().getLocation())));
-//					}
-//				}
-//			}
-//		);
-		
-//		transactionSelectionGeneralMapBuilder.addTransaction("Meta Model",
-//			new Runnable() {
-//				@Override
-//				public void run() {
-//					// Find the selected model and attempt an add model transaction
-//					// HACK: Models can only be added to canvases
-//					if(target.getModel() instanceof CanvasModel) {
-//						Dimension size = new Dimension(80, 50);
-//						Rectangle bounds = new Rectangle(dropPointOnTarget, size);
-//						target.getTransactionFactory().executeOnRoot(
-//							new CanvasModel.AddModelTransaction(
-//								target.getTransactionFactory().getLocation(), bounds, new MetaModelFactory(selection.getTransactionFactory().getLocation())));
-//					}
-//				}
-//			}
-//		);
 		
 		// Only available for canvases:
 		if(target.getModel() instanceof CanvasModel) {

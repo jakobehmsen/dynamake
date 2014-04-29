@@ -439,7 +439,8 @@ public class LiveModel extends Model {
 										
 										for(final Factory factory: livePanel.getFactories()) {
 											JMenuItem factoryMenuItem = new JMenuItem();
-											factoryMenuItem.setText("New " + factory.getName());
+//											factoryMenuItem.setText("New " + factory.getName());
+											factoryMenuItem.setText(factory.getName());
 											
 											factoryMenuItem.addActionListener(new ActionListener() {
 												@Override
@@ -563,9 +564,6 @@ public class LiveModel extends Model {
 													ProductionPanel.this.remove(targetFrame);
 												
 												resetEffectFrame(); // TODO: Do this instead of removing the effect frame (expect in clearFocus())
-//												ProductionPanel.this.remove(effectFrame);
-//												effectFrame = null;
-//												clearFocus();
 												livePanel.repaint();
 											}
 											
@@ -576,7 +574,12 @@ public class LiveModel extends Model {
 //												ProductionPanel.this.remove(targetFrame);
 //											clearFocus();
 										} else {
-											resetEffectFrame();
+//											resetEffectFrame();
+											if(targetModelComponent.getModel() instanceof CanvasModel) {
+												showPopupForSelectionCons(selectionFrame, e.getPoint(), targetModelComponent);
+											} else {
+												resetEffectFrame();
+											}
 										}
 
 										targetOver = null;
@@ -1196,18 +1199,22 @@ public class LiveModel extends Model {
 							}
 						};
 						
-						// Build popup menu
-						if(targetOver == null || targetOver == selection) {
-							// Build popup menu for dropping onto selection
-							popupBuilder.buildFromSelectionToSelection(transactionsPopupMenu, selection);
-						} else {
-							// TODO: Keep selection frame visible till popup menu is hidden!!!
-							
-							// Build popup menu for dropping onto other
-							Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
-							Rectangle droppedBounds = SwingUtilities.convertRectangle(ProductionPanel.this, effectFrame.getBounds(), (JComponent)targetOver);
-							popupBuilder.buildFromSelectionToOther(transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
-						}
+//						// Build popup menu
+//						if(targetOver == null || targetOver == selection) {
+//							// Build popup menu for dropping onto selection
+//							popupBuilder.buildFromSelectionToSelection(transactionsPopupMenu, selection);
+//						} else {
+//							// TODO: Keep selection frame visible till popup menu is hidden!!!
+//							
+//							// Build popup menu for dropping onto other
+//							Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
+//							Rectangle droppedBounds = SwingUtilities.convertRectangle(ProductionPanel.this, effectFrame.getBounds(), (JComponent)targetOver);
+//							popupBuilder.buildFromSelectionToOther(transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
+//						}
+
+						Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
+						Rectangle droppedBounds = SwingUtilities.convertRectangle(ProductionPanel.this, effectFrame.getBounds(), (JComponent)targetOver);
+						popupBuilder.buildFromSelectionAndTarget(transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
 
 						transactionsPopupMenu.show(popupMenuInvoker, pointOnInvoker.x, pointOnInvoker.y);
 						livePanel.repaint();
