@@ -40,13 +40,10 @@ public class Main {
 	
 	public static void main(String[] args) {
 		try {
-//			final JLabel loadIndicator = new JLabel("Loading Dynamake...");
-//			loadIndicator.setBorder(BorderFactory.createEtchedBorder());
-//			final JFrame loadIndicator = new JFrame();
+			// Can be used for intercepting mouse events?
+//			JFrame.setDefaultLookAndFeelDecorated(true);
+			
 			final Frame loadIndicator = new Frame();
-//			loadIndicator.getContentPane().setLayout(new BorderLayout());
-//			((JComponent)loadIndicator.getContentPane()).setBorder(BorderFactory.createEtchedBorder());
-//			loadIndicator.getContentPane().add(new JLabel("Loading Dynamake...", JLabel.CENTER), BorderLayout.CENTER);
 			final JLabel loadIndicatorLabel = new JLabel("Loading Dynamake...", JLabel.CENTER);
 			loadIndicatorLabel.setBorder(BorderFactory.createEtchedBorder());
 			loadIndicator.add(loadIndicatorLabel, BorderLayout.CENTER);
@@ -66,24 +63,11 @@ public class Main {
 			final Factory[] factories = new Factory[factoryBuilder.size()];
 			factoryBuilder.toArray(factories);
 			
-//			final Factory[] factories = new Factory[]{
-//				new TextModelFactory(), 
-//				new CanvasModelFactory(), 
-////				new BGBindingCreationFactory(),
-//				new BackgroundGetterFactory(),
-//				new BackgroundSetterFactory(),
-//				new ColorDarknerFactory(),
-//				new ColorBrigthnerFactory()
-//			};
 			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
-//			long loadStart = System.nanoTime();
 			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
-//			long loadEnd = System.nanoTime();
-//			System.out.println("Load time: " + (loadEnd - loadStart) / 1000000.0 + " millis.");veTo(null);
 			
 			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(pModel);
 			TransactionFactory rootTransactionFactory = new TransactionFactory(prevaylerService, new RootLocator());
-//			JFrame frame = pModel.prevalentSystem().toFrame(null, rootTransactionFactory);
 			ViewManager rootViewManager = new ViewManager() {
 				@Override
 				public void setFocus(JComponent component) {
@@ -129,22 +113,8 @@ public class Main {
 			final Binding<ModelComponent> rootView = pModel.prevalentSystem().createView(rootViewManager, rootTransactionFactory);
 			JFrame frame = (JFrame)rootView.getBindingTarget();
 			
-//			final Thread snapshotService = new Thread(new Runnable() {
-//				@Override
-//				public void run() {
-//					try {
-//						while(true) {
-//							Thread.sleep(1000);
-//							try {
-//								pModel.takeSnapshot();
-//							} catch (Exception e) {
-//								e.printStackTrace();
-//							}
-//						}
-//					} catch (InterruptedException e) {
-//					}
-//				}
-//			});
+			// Can be used for intercepting mouse events?
+//			frame.setUndecorated(true);
 			
 			frame.setTitle("Dynamake 0.0.1");
 			
@@ -162,16 +132,12 @@ public class Main {
 				@Override
 				public void windowOpened(WindowEvent e) {
 					loadIndicator.setVisible(false);
-//					snapshotService.start();
 				}
 				
 				@Override
 				public void windowClosing(WindowEvent e) {
-//					snapshotService.interrupt();
-					
 					try {
 						rootView.releaseBinding();
-//						pModel.close();
 						prevaylerService.close();
 					} catch (IOException e1) {
 						e1.printStackTrace();
