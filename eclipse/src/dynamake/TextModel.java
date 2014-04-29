@@ -100,40 +100,35 @@ public class TextModel extends Model {
 		}
 
 		@Override
-		public TransactionPublisher getObjectTransactionPublisher() {
-			return new TransactionPublisher() {
-				@Override
-				public void appendContainerTransactions(
-					TransactionMapBuilder transactions, ModelComponent child) {
-				}
+		public void appendContainerTransactions(
+			TransactionMapBuilder transactions, ModelComponent child) {
+		}
 
+		@Override
+		public void appendTransactions(TransactionMapBuilder transactions) {
+			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
+			
+			Color caretColor = (Color)model.getProperty("CaretColor");
+			if(caretColor == null)
+				caretColor = view.getCaretColor();
+			transactions.addTransaction("Set Caret Color", new ColorTransactionBuilder(caretColor, new Action1<Color>() {
 				@Override
-				public void appendTransactions(TransactionMapBuilder transactions) {
-					Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
-					
-					Color caretColor = (Color)model.getProperty("CaretColor");
-					if(caretColor == null)
-						caretColor = view.getCaretColor();
-					transactions.addTransaction("Set Caret Color", new ColorTransactionBuilder(caretColor, new Action1<Color>() {
-						@Override
-						public void run(Color color) {
-							transactionFactory.execute(new Model.SetPropertyTransaction("CaretColor", color));
-						}
-					}));
+				public void run(Color color) {
+					transactionFactory.execute(new Model.SetPropertyTransaction("CaretColor", color));
 				}
-				@Override
-				public void appendDroppedTransactions(TransactionMapBuilder transactions) {
-					// TODO Auto-generated method stub
-					
-				}
+			}));
+		}
+		@Override
+		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
 
-				@Override
-				public void appendDropTargetTransactions(ModelComponent dropped,
-						Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
-					// TODO Auto-generated method stub
-					
-				}
-			};
+		@Override
+		public void appendDropTargetTransactions(ModelComponent dropped,
+				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
 		}
 
 		@Override

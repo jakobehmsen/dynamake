@@ -119,37 +119,32 @@ public class CreationModel extends Model {
 		public TransactionFactory getTransactionFactory() {
 			return ownerModel.getTransactionFactory();
 		}
-
+		
 		@Override
-		public TransactionPublisher getObjectTransactionPublisher() {
-			return new TransactionPublisher() {
-				@Override
-				public void appendTransactions(TransactionMapBuilder transactions) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void appendDroppedTransactions(TransactionMapBuilder transactions) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void appendDropTargetTransactions(ModelComponent dropped,
-						Rectangle droppedBounds, Point dropPoint,
-						TransactionMapBuilder transactions) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void appendContainerTransactions(TransactionMapBuilder transactions,
-						ModelComponent child) {
-					// TODO Auto-generated method stub
-					
-				}
-			};
+		public void appendTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void appendDropTargetTransactions(ModelComponent dropped,
+				Rectangle droppedBounds, Point dropPoint,
+				TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void appendContainerTransactions(TransactionMapBuilder transactions,
+				ModelComponent child) {
+			// TODO Auto-generated method stub
+			
 		}
 
 		@Override
@@ -201,35 +196,30 @@ public class CreationModel extends Model {
 		public Model getModel() {
 			return model;
 		}
-		
+
 		@Override
-		public TransactionPublisher getObjectTransactionPublisher() {
-			return new TransactionPublisher() {
-				@Override
-				public void appendContainerTransactions(
-						TransactionMapBuilder transactions, ModelComponent child) {
-					// TODO Auto-generated method stub
-					
-				}
+		public void appendContainerTransactions(
+				TransactionMapBuilder transactions, ModelComponent child) {
+			// TODO Auto-generated method stub
+			
+		}
 
-				@Override
-				public void appendTransactions(TransactionMapBuilder transactions) {
-					// TODO Auto-generated method stub
-					
-				}
-				@Override
-				public void appendDroppedTransactions(TransactionMapBuilder transactions) {
-					// TODO Auto-generated method stub
-					
-				}
+		@Override
+		public void appendTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
 
-				@Override
-				public void appendDropTargetTransactions(ModelComponent dropped,
-						Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
-					// TODO Auto-generated method stub
-					
-				}
-			};
+		@Override
+		public void appendDropTargetTransactions(ModelComponent dropped,
+				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
 		}
 
 		@Override

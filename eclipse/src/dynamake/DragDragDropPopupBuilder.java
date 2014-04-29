@@ -24,14 +24,12 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	public void buildFromSelectionToSelection(JPopupMenu popup, ModelComponent selection) {
 		ModelComponent parentModelComponent = ModelComponent.Util.closestModelComponent(((JComponent)selection).getParent()); 
 		
-		TransactionPublisher containerTransactionPublisher = parentModelComponent.getObjectTransactionPublisher();
 		TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
 		if(parentModelComponent != null)
-			containerTransactionPublisher.appendContainerTransactions(containerTransactionMapBuilder, selection);
+			parentModelComponent.appendContainerTransactions(containerTransactionMapBuilder, selection);
 
-		TransactionPublisher selectionTransactionPublisher = selection.getObjectTransactionPublisher();
 		TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
-		selectionTransactionPublisher.appendTransactions(transactionSelectionMapBuilder);
+		selection.appendTransactions(transactionSelectionMapBuilder);
 
 		containerTransactionMapBuilder.appendTo(popup, "Container");
 		if(!containerTransactionMapBuilder.isEmpty() && !transactionSelectionMapBuilder.isEmpty())
@@ -85,18 +83,16 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionObserverMapBuilder.appendTo(popup, "Observation");
 		}
 
-		TransactionPublisher targetTransactionPublisher = target.getObjectTransactionPublisher();
 		TransactionMapBuilder transactionTargetMapBuilder = new TransactionMapBuilder();
-		targetTransactionPublisher.appendDropTargetTransactions(selection, dropBoundsOnTarget, dropPointOnTarget, transactionTargetMapBuilder);
+		target.appendDropTargetTransactions(selection, dropBoundsOnTarget, dropPointOnTarget, transactionTargetMapBuilder);
 		
 		transactionSelectionGeneralMapBuilder.appendTo(popup, "General");
 		if(!transactionSelectionGeneralMapBuilder.isEmpty() && !transactionTargetMapBuilder.isEmpty())
 			popup.addSeparator();
 		transactionTargetMapBuilder.appendTo(popup, "Target");
 
-		TransactionPublisher selectionTransactionPublisher = selection.getObjectTransactionPublisher();
 		TransactionMapBuilder transactionDroppedMapBuilder = new TransactionMapBuilder();
-		selectionTransactionPublisher.appendDroppedTransactions(transactionDroppedMapBuilder);
+		selection.appendDroppedTransactions(transactionDroppedMapBuilder);
 		if(!transactionTargetMapBuilder.isEmpty() && !transactionDroppedMapBuilder.isEmpty())
 			popup.addSeparator();
 		transactionDroppedMapBuilder.appendTo(popup, "Dropped");

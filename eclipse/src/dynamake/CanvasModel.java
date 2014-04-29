@@ -186,49 +186,44 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public TransactionPublisher getObjectTransactionPublisher() {
-			return new TransactionPublisher() {
+		public void appendContainerTransactions(
+				TransactionMapBuilder transactions, final ModelComponent child) {
+			transactions.addTransaction("Remove", new Runnable() {
 				@Override
-				public void appendContainerTransactions(
-						TransactionMapBuilder transactions, final ModelComponent child) {
-					transactions.addTransaction("Remove", new Runnable() {
-						@Override
-						public void run() {
-							int indexOfModel = model.indexOfModel(child.getModel());
-							transactionFactory.execute(new RemoveModelTransaction(indexOfModel));
-						}
-					});
+				public void run() {
+					int indexOfModel = model.indexOfModel(child.getModel());
+					transactionFactory.execute(new RemoveModelTransaction(indexOfModel));
 				}
+			});
+		}
 
-				@Override
-				public void appendTransactions(TransactionMapBuilder transactions) {
-					Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
-				}
-				@Override
-				public void appendDroppedTransactions(TransactionMapBuilder transactions) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void appendDropTargetTransactions(final ModelComponent dropped,
-						final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions) {
-					if(dropped.getTransactionFactory().getParent() != null && dropped.getTransactionFactory().getParent() != CanvasPanel.this.transactionFactory) {
-						transactions.addTransaction("Move", new Runnable() {
-							@Override
-							public void run() {
-								Location canvasSourceLocation = dropped.getTransactionFactory().getParent().getLocation();
-								Location canvasTargetLocation = transactionFactory.getLocation();
-								Location modelLocation = dropped.getTransactionFactory().getLocation();
-								
-								transactionFactory.executeOnRoot(new MoveModelTransaction(canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation()));
-//								int indexOfModel = model.indexOfModel(child.getModel());
-//								transactionFactory.execute(new RemoveModelTransaction(indexOfModel));
-							}
-						});
+		@Override
+		public void appendTransactions(TransactionMapBuilder transactions) {
+			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
+		}
+		@Override
+		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void appendDropTargetTransactions(final ModelComponent dropped,
+				final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions) {
+			if(dropped.getTransactionFactory().getParent() != null && dropped.getTransactionFactory().getParent() != CanvasPanel.this.transactionFactory) {
+				transactions.addTransaction("Move", new Runnable() {
+					@Override
+					public void run() {
+						Location canvasSourceLocation = dropped.getTransactionFactory().getParent().getLocation();
+						Location canvasTargetLocation = transactionFactory.getLocation();
+						Location modelLocation = dropped.getTransactionFactory().getLocation();
+						
+						transactionFactory.executeOnRoot(new MoveModelTransaction(canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation()));
+//						int indexOfModel = model.indexOfModel(child.getModel());
+//						transactionFactory.execute(new RemoveModelTransaction(indexOfModel));
 					}
-				}
-			};
+				});
+			}
 		}
 
 		@Override

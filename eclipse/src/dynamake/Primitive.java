@@ -273,37 +273,31 @@ public class Primitive extends Model {
 		public TransactionFactory getTransactionFactory() {
 			return transactionFactory;
 		}
-		
+
 		@Override
-		public TransactionPublisher getObjectTransactionPublisher() {
-			return new TransactionPublisher() {
-				@Override
-				public void appendContainerTransactions(
-						TransactionMapBuilder transactions, ModelComponent child) {
-					// TODO Auto-generated method stub
-					
-				}
-
-				@Override
-				public void appendTransactions(TransactionMapBuilder transactions) {
-					Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
-				}
-
-				@Override
-				public void appendDroppedTransactions(TransactionMapBuilder transactions) {
-					// TODO Auto-generated method stub
-					
-				}
-
-				@Override
-				public void appendDropTargetTransactions(ModelComponent dropped,
-						Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
-					// TODO Auto-generated method stub
-					
-				}
-			};
+		public void appendContainerTransactions(
+				TransactionMapBuilder transactions, ModelComponent child) {
+			// TODO Auto-generated method stub
+			
 		}
 
+		@Override
+		public void appendTransactions(TransactionMapBuilder transactions) {
+			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
+		}
+
+		@Override
+		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void appendDropTargetTransactions(ModelComponent dropped,
+				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
+			// TODO Auto-generated method stub
+			
+		}
 		@Override
 		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
 			// TODO Auto-generated method stub
