@@ -165,7 +165,8 @@ public class LiveModel extends Model {
 				private static final int VERTICAL_REGION_SOUTH = 2;
 
 				private void resetEffectFrame() {
-					effectFrame.setBounds(selectionFrame.getBounds());
+//					effectFrame.setBounds(selectionFrame.getBounds());
+					effectFrame.setBounds(new Rectangle(0, 0, 0, 0));
 				}
 				
 				private void updateRelativeCursorPosition(Point point, Dimension size) {
@@ -208,6 +209,10 @@ public class LiveModel extends Model {
 					select(view, initialMouseDown, moving, selectionBounds);
 				}
 				
+				private void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, boolean moving) {
+					select(view, initialMouseDown, moving, new Rectangle(0, 0, 0, 0));
+				}
+				
 				private void select(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
 					// <Don't remove>
 					// Where the following check is necessary or not has not been decided yet, so don't remove the code
@@ -233,10 +238,25 @@ public class LiveModel extends Model {
 							selectionFrame = new JPanel();
 							selectionFrame.setBackground(new Color(0, 0, 0, 0));
 							
-							selectionFrame.setBorder(BorderFactory.createCompoundBorder(
-								BorderFactory.createDashedBorder(Color.BLACK, 2.0f, 2.0f, 1.5f, false),
-								BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
-							));
+//							selectionFrame.setBorder(BorderFactory.createCompoundBorder(
+//								BorderFactory.createDashedBorder(Color.BLACK, 2.0f, 2.0f, 1.5f, false),
+//								BorderFactory.createDashedBorder(Color.BLACK, 2.0f, 2.0f, 1.5f, false)
+//							));
+							
+//							selectionFrame.setBorder(BorderFactory.createDashedBorder(Color.BLACK, 4.0f, 4.0f, 1.5f, false));
+//							selectionFrame.setBorder(BorderFactory.createLineBorder(Color.BLACK, 4));
+							
+							Color color = Color.GRAY;
+
+							selectionFrame.setBorder(
+								BorderFactory.createCompoundBorder(
+									BorderFactory.createLineBorder(Color.BLACK, 1), 
+									BorderFactory.createCompoundBorder(
+										BorderFactory.createLineBorder(color, 3), 
+										BorderFactory.createLineBorder(Color.BLACK, 1)
+									)
+								)
+							);
 							
 							MouseAdapter mouseAdapter = new MouseAdapter() {
 								@Override
@@ -593,8 +613,7 @@ public class LiveModel extends Model {
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										if(targetModelComponent != null && targetModelComponent.getModel() instanceof CanvasModel) {
 											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-											// TODO: Consider: Initial effect bounds should be empty?
-											selectFromView(targetModelComponent, referencePoint, true);
+											selectFromEmpty(targetModelComponent, referencePoint, true);
 											livePanel.repaint();
 										}
 									}
@@ -1056,8 +1075,7 @@ public class LiveModel extends Model {
 						JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(e.getPoint());
 						ModelComponent targetModelComponent = closestModelComponent(target);
 						Point targetComponentMouseDown = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-						// TODO: Consider: Initial effect bounds should be empty?
-						selectFromView(targetModelComponent, targetComponentMouseDown, true);
+						selectFromEmpty(targetModelComponent, targetComponentMouseDown, true);
 						livePanel.repaint();
 					}
 				}
