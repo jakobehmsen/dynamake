@@ -34,33 +34,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-//	public static class MetaModelLocator implements Locator {
-//		@Override
-//		public Location locate() {
-//			return new MetaModelLocation();
-//		}
-//	}
-	
-//	public static class MetaModelLocation implements Location {
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//
-//		@Override
-//		public Object getChild(Object holder) {
-//			return ((Model)holder).getMetaModel();
-//		}
-//		
-//		@Override
-//		public void setChild(Object holder, Object child) {
-//			// TODO Auto-generated method stub
-//			
-//		}
-//	}
-//	
-//	private Map metaModel;
-	
 	public static class PropertyChanged {
 		public final String name;
 		public final Object value;
@@ -115,14 +88,6 @@ public abstract class Model implements Serializable, Observer {
 			return properties.get(name);
 		return null;
 	}
-	
-//	public Map getMetaModel() {
-//		if(metaModel == null) {
-//			metaModel = new Map();
-//			// Default values here?
-//		}
-//		return metaModel;
-//	}
 	
 	public static class BeganUpdate {
 		
@@ -282,7 +247,6 @@ public abstract class Model implements Serializable, Observer {
 	
 	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-//		observers = new ArrayList<Observer>();
 		observers = (ArrayList<Observer>)ois.readObject();
 		properties = (Hashtable<String, Object>)ois.readObject();
 	}
@@ -347,7 +311,6 @@ public abstract class Model implements Serializable, Observer {
 			
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
-//				model.toString();
 				if(change instanceof Model.PropertyChanged
 						&& changeDistance == 1 /* And not a forwarded change */) {
 					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
@@ -454,8 +417,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static void appendComponentPropertyChangeTransactions(final Model model, final TransactionFactory transactionFactory, TransactionMapBuilder transactions) {
-//		final TransactionFactory metaTransactionFactory = transactionFactory.extend(new MetaModelLocator());
-		
 		transactions.addTransaction("Set Background", new ColorTransactionBuilder((Color)model.getProperty("Background"), new Action1<Color>() {
 			@Override
 			public void run(Color color) {

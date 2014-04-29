@@ -21,13 +21,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 
 	@Override
 	public void execute(final Transaction<T> transaction) {
-//		System.out.println("Enlisted transaction on thread " + Thread.currentThread().getId());
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 				// TODO: Consider grouping transaction pr. 1 millisecond, such that time-wise close transaction or logically performed as a single transaction.
+				// Probably not to important (right now, at least), because most transactions are caused by end-user interaction
 				prevayler.execute(transaction);
-//				System.out.println("Executed transaction on thread " + Thread.currentThread().getId());
 			}
 		});
 		transactionEnlistingCount++;
@@ -41,7 +40,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					System.out.println("Took snapshot on thread " + Thread.currentThread().getId());
 				}
 			});
 			transactionEnlistingCount = 0;

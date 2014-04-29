@@ -133,7 +133,6 @@ public class RootModel extends Model {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-//			System.out.println("mouseReleased on frame");
 			mouseIsDown = false;
 			
 			if(newLocation != null) {
@@ -149,7 +148,6 @@ public class RootModel extends Model {
 		
 		@Override
 		public void mousePressed(MouseEvent e) {
-//			System.out.println("mousePressed on frame");
 			mouseIsDown = true;
 			newLocation = null;
 			newSize = null;
@@ -256,11 +254,9 @@ public class RootModel extends Model {
 		}));
 		view.getContentPane().add((JComponent)contentView.getBindingTarget(), BorderLayout.CENTER);
 		
-//		final TransactionFactory metaTransactionFactory = transactionFactory.extend(new Model.MetaModelLocator());
 		view.addWindowStateListener(new WindowStateListener() {
 			@Override
 			public void windowStateChanged(WindowEvent e) {
-//				System.out.println(e.getNewState());
 				transactionFactory.execute(new Model.SetPropertyTransaction("State", e.getNewState()));
 			}
 		});

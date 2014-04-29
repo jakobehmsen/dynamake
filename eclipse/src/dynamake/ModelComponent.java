@@ -16,9 +16,6 @@ public interface ModelComponent {
 	void appendTransactions(TransactionMapBuilder transactions);
 	void appendDroppedTransactions(TransactionMapBuilder transactions);
 	void appendDropTargetTransactions(ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions);
-//	TransactionPublisher getObjectTransactionPublisher();
-//	TransactionPublisher getMetaTransactionPublisher();
-//	TransactionPublisher getConsTransactionPublisher();
 	
 	public static class Util {
 		public static ModelComponent getParent(ModelComponent view) {
