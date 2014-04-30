@@ -210,7 +210,9 @@ public class CanvasModel extends Model {
 		@Override
 		public void appendDropTargetTransactions(final ModelComponent dropped,
 				final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions) {
-			if(dropped.getTransactionFactory().getParent() != null && dropped.getTransactionFactory().getParent() != CanvasPanel.this.transactionFactory) {
+			if(dropped.getTransactionFactory().getParent() != null && 
+				dropped.getTransactionFactory().getParent() != CanvasPanel.this.transactionFactory &&
+				!isContainerOf(dropped.getTransactionFactory(), this.transactionFactory)) {
 				transactions.addTransaction("Move", new Runnable() {
 					@Override
 					public void run() {
@@ -224,6 +226,16 @@ public class CanvasModel extends Model {
 					}
 				});
 			}
+		}
+		
+		private boolean isContainerOf(TransactionFactory container, TransactionFactory item) {
+			TransactionFactory parent = item.getParent();
+			if(parent != null) {
+				if(parent == container)
+					return true;
+				return isContainerOf(container, parent);
+			}
+			return false;
 		}
 
 		@Override
