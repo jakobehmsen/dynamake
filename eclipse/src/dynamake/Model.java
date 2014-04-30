@@ -230,9 +230,11 @@ public abstract class Model implements Serializable, Observer {
 	private transient ArrayList<Observer> observers;
 	private transient ArrayList<Observer> observersToAdd;
 	private transient ArrayList<Observer> observersToRemove;
+	private transient ArrayList<Observer> observees;
 	
 	public Model() {
 		observers = new ArrayList<Observer>();
+		observees = new ArrayList<Observer>();
 	}
 	
 	private void writeObject(ObjectOutputStream ous) throws IOException {
@@ -242,12 +244,19 @@ public abstract class Model implements Serializable, Observer {
 				observersToSerialize.add(o);
 		}
 		ous.writeObject(observersToSerialize);
+		ArrayList<Observer> observeesToSerialize = new ArrayList<Observer>();
+		for(Observer o: observees) {
+			if(o instanceof Model)
+				observeesToSerialize.add(o);
+		}
+		ous.writeObject(observeesToSerialize);
 		ous.writeObject(properties);
 	}
 	
 	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
 		observers = (ArrayList<Observer>)ois.readObject();
+		observees = (ArrayList<Observer>)ois.readObject();
 		properties = (Hashtable<String, Object>)ois.readObject();
 	}
 	
@@ -258,29 +267,40 @@ public abstract class Model implements Serializable, Observer {
 		observersToRemove = new ArrayList<Observer>();
 		for(Observer observer: observers)
 			observer.changed(this, change, propCtx, nextPropDistance, nextChangeDistance);
-		if(observersToAdd == null) {
-			new String();
-		}
-		for(Observer observerToAdd: observersToAdd)
+		for(Observer observerToAdd: observersToAdd) {
 			observers.add(observerToAdd);
-		for(Observer observerToRemove: observersToRemove)
+			observerToAdd.addObservee(this);
+		}
+		for(Observer observerToRemove: observersToRemove) {
 			observers.remove(observerToRemove);
+			observerToRemove.removeObservee(this);
+		}
 		observersToAdd = null;
 		observersToRemove = null;
 	}
 	
 	public void addObserver(Observer observer) {
-		if(observersToAdd == null)
+		if(observersToAdd == null) {
 			observers.add(observer);
-		else
+			observer.addObservee(this);
+		} else
 			observersToAdd.add(observer);
 	}
 	
 	public void removeObserver(Observer observer) {
-		if(observersToRemove == null)
+		if(observersToRemove == null) {
 			observers.remove(observer);
-		else
+			observer.removeObservee(this);
+		} else
 			observersToRemove.add(observer);
+	}
+	
+	public void addObservee(Observer observee) {
+		observees.add(observee);
+	}
+	
+	public void removeObservee(Observer observee) {
+		observees.remove(observee);
 	}
 
 	public boolean isObservedBy(Observer observer) {
@@ -305,7 +325,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static RemovableListener wrapForBoundsChanges(final Model model, final ModelComponent target, final ViewManager viewManager) {
-		return RemovableListener.addObserver(model, new Observer() {
+		return RemovableListener.addObserver(model, new ObserverAdapter() {
 			boolean isUpdating;
 			boolean madeChanges;
 			
@@ -351,7 +371,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static RemovableListener wrapForComponentPropertyChanges(Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager) {
-		return RemovableListener.addObserver(model, new Observer() {
+		return RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 				if(change instanceof Model.PropertyChanged) {
@@ -403,7 +423,7 @@ public abstract class Model implements Serializable, Observer {
 		Object value = model.getProperty(modelPropertyName);
 		if(value != null)
 			propertySetter.run((T)value);
-		return Model.RemovableListener.addObserver(model, new Observer() {
+		return Model.RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 				if(change instanceof Model.PropertyChanged 
@@ -430,5 +450,15 @@ public abstract class Model implements Serializable, Observer {
 				transactionFactory.execute(new Model.SetPropertyTransaction("Foreground", color));
 			}
 		}));
+	}
+
+	public void beRemoved() {
+		for(Observer observer: new ArrayList<Observer>(observers)) {
+			observer.removeObservee(this);
+		}
+		for(Observer observee: new ArrayList<Observer>(observees)) {
+			if(observee instanceof Model)
+				((Model)observee).removeObserver(this);
+		}
 	}
 }

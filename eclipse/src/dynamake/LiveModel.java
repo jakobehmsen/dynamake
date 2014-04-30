@@ -1358,7 +1358,7 @@ public class LiveModel extends Model {
 			this.add(topPanel, BorderLayout.NORTH);
 			this.add(contentPane, BorderLayout.CENTER);
 			
-			removableListener = Model.RemovableListener.addObserver(model, new Observer() {
+			removableListener = Model.RemovableListener.addObserver(model, new ObserverAdapter() {
 				int previousState;
 				
 				{

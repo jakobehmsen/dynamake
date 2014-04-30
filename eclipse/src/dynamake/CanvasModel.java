@@ -150,6 +150,7 @@ public class CanvasModel extends Model {
 		Model model = models.get(index);
 		models.remove(index);
 		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0);
+		model.beRemoved();
 	}
 	
 	public int indexOfModel(Model model) {
@@ -212,7 +213,7 @@ public class CanvasModel extends Model {
 				final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions) {
 			if(dropped.getTransactionFactory().getParent() != null && 
 				dropped.getTransactionFactory().getParent() != CanvasPanel.this.transactionFactory &&
-				!isContainerOf(dropped.getTransactionFactory(), this.transactionFactory)) {
+				!isContainerOf(dropped.getTransactionFactory(), this.transactionFactory) /*Dropee cannot be child of dropped*/) {
 				transactions.addTransaction("Move", new Runnable() {
 					@Override
 					public void run() {
@@ -311,7 +312,7 @@ public class CanvasModel extends Model {
 			view.add((JComponent)modelView.getBindingTarget());
 		}
 		
-		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new Observer() {
+		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new ObserverAdapter() {
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 				if(change instanceof CanvasModel.AddedModelChange) {
