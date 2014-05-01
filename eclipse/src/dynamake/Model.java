@@ -21,6 +21,9 @@ import javax.swing.JFrame;
 import org.prevayler.Transaction;
 
 public abstract class Model implements Serializable, Observer {
+	public static final String PROPERTY_BACKGROUND = "Background";
+	public static final String PROPERTY_FOREGROUND = "Foreground";
+	
 	/**
 	 * 
 	 */
@@ -376,11 +379,11 @@ public abstract class Model implements Serializable, Observer {
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 				if(change instanceof Model.PropertyChanged) {
 					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
-					if(propertyChanged.name.equals("Background")) {
+					if(propertyChanged.name.equals(PROPERTY_BACKGROUND)) {
 						targetComponent.setBackground((Color)propertyChanged.value);
 						targetComponent.validate();
 						viewManager.refresh(view);
-					} else if(propertyChanged.name.equals("Foreground")) {
+					} else if(propertyChanged.name.equals(PROPERTY_FOREGROUND)) {
 						targetComponent.setForeground((Color)propertyChanged.value);
 						targetComponent.validate();
 						viewManager.repaint(targetComponent);
@@ -391,11 +394,11 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static void loadComponentProperties(Model model, Component view) {
-		Object background = model.getProperty("Background");
+		Object background = model.getProperty(PROPERTY_BACKGROUND);
 		if(background != null)
 			view.setBackground((Color)background);
 		
-		Object foreground = model.getProperty("Foreground");
+		Object foreground = model.getProperty(PROPERTY_FOREGROUND);
 		if(foreground != null)
 			view.setForeground((Color)foreground);
 	}
@@ -437,17 +440,17 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static void appendComponentPropertyChangeTransactions(final Model model, final TransactionFactory transactionFactory, TransactionMapBuilder transactions) {
-		transactions.addTransaction("Set Background", new ColorTransactionBuilder((Color)model.getProperty("Background"), new Action1<Color>() {
+		transactions.addTransaction("Set " + PROPERTY_BACKGROUND, new ColorTransactionBuilder((Color)model.getProperty(PROPERTY_BACKGROUND), new Action1<Color>() {
 			@Override
 			public void run(Color color) {
-				transactionFactory.execute(new Model.SetPropertyTransaction("Background", color));
+				transactionFactory.execute(new Model.SetPropertyTransaction(PROPERTY_FOREGROUND, color));
 			}
 		}));
 		
-		transactions.addTransaction("Set Foreground", new ColorTransactionBuilder((Color)model.getProperty("Foreground"), new Action1<Color>() {
+		transactions.addTransaction("Set " + PROPERTY_FOREGROUND, new ColorTransactionBuilder((Color)model.getProperty(PROPERTY_FOREGROUND), new Action1<Color>() {
 			@Override
 			public void run(Color color) {
-				transactionFactory.execute(new Model.SetPropertyTransaction("Foreground", color));
+				transactionFactory.execute(new Model.SetPropertyTransaction(PROPERTY_FOREGROUND, color));
 			}
 		}));
 	}

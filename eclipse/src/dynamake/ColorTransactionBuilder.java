@@ -3,6 +3,7 @@ package dynamake;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JColorChooser;
 import javax.swing.JMenu;
@@ -24,12 +25,18 @@ public class ColorTransactionBuilder extends TransactionBuilder {
 	}
 	
 	private static JColorChooser getColorChooser(String name) {
-		JColorChooser colorChooser = nameToColorChooserMap.get(name);
-		if(colorChooser == null) {
-			colorChooser = new JColorChooser();
-			nameToColorChooserMap.put(name, colorChooser);
+//		JColorChooser colorChooser = nameToColorChooserMap.get(name);
+//		if(colorChooser == null) {
+//			colorChooser = new JColorChooser();
+//			nameToColorChooserMap.put(name, colorChooser);
+//		}
+//		return colorChooser;
+		
+		try {
+			return ResourceManager.INSTANCE.getResource(name, JColorChooser.class);
+		} catch (InterruptedException | ExecutionException e) {
+			return null;
 		}
-		return colorChooser;
 	}
 	
 	@Override

@@ -34,7 +34,7 @@ public class Primitive extends Model {
 				
 				@Override
 				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
-					if(change instanceof Model.PropertyChanged && ((Model.PropertyChanged)change).name.equals("Background")) {
+					if(change instanceof Model.PropertyChanged && ((Model.PropertyChanged)change).name.equals(Model.PROPERTY_BACKGROUND)) {
 						Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance, 0);
 					}
@@ -55,7 +55,7 @@ public class Primitive extends Model {
 				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
-						Model.SetProperty setProperty = new Model.SetProperty("Background", atom.value);
+						Model.SetProperty setProperty = new Model.SetProperty(Model.PROPERTY_BACKGROUND, atom.value);
 						receiver.sendChanged(setProperty, propCtx, propDistance, 0);
 					}
 				}
@@ -73,7 +73,7 @@ public class Primitive extends Model {
 				
 				@Override
 				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
-					if(change instanceof Model.PropertyChanged && ((Model.PropertyChanged)change).name.equals("Foreground")) {
+					if(change instanceof Model.PropertyChanged && ((Model.PropertyChanged)change).name.equals(Model.PROPERTY_FOREGROUND)) {
 						Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance, 0);
 					}
@@ -94,7 +94,7 @@ public class Primitive extends Model {
 				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
-						Model.SetProperty setProperty = new Model.SetProperty("Foreground", atom.value);
+						Model.SetProperty setProperty = new Model.SetProperty(Model.PROPERTY_FOREGROUND, atom.value);
 						receiver.sendChanged(setProperty, propCtx, propDistance, 0);
 					}
 				}

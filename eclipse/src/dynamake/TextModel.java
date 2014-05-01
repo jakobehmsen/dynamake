@@ -14,6 +14,8 @@ import javax.swing.text.BadLocationException;
 import org.prevayler.Transaction;
 
 public class TextModel extends Model {
+	public static final String PROPERTY_CARET_COLOR = "Caret Color";
+	
 	/**
 	 * 
 	 */
@@ -108,13 +110,13 @@ public class TextModel extends Model {
 		public void appendTransactions(TransactionMapBuilder transactions) {
 			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
 			
-			Color caretColor = (Color)model.getProperty("CaretColor");
+			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
 			if(caretColor == null)
 				caretColor = view.getCaretColor();
-			transactions.addTransaction("Set Caret Color", new ColorTransactionBuilder(caretColor, new Action1<Color>() {
+			transactions.addTransaction("Set " + PROPERTY_CARET_COLOR, new ColorTransactionBuilder(caretColor, new Action1<Color>() {
 				@Override
 				public void run(Color color) {
-					transactionFactory.execute(new Model.SetPropertyTransaction("CaretColor", color));
+					transactionFactory.execute(new Model.SetPropertyTransaction(PROPERTY_CARET_COLOR, color));
 				}
 			}));
 		}
@@ -145,7 +147,7 @@ public class TextModel extends Model {
 		view.setText(text.toString());
 		
 		// TODO: Investigate: Is caret color loaded anywhere?
-		final RemovableListener removeListenerForCaretColor = Model.bindProperty(this, "CaretColor", new Action1<Color>() {
+		final RemovableListener removeListenerForCaretColor = Model.bindProperty(this, PROPERTY_CARET_COLOR, new Action1<Color>() {
 			@Override
 			public void run(Color value) {
 				view.setCaretColor(value);

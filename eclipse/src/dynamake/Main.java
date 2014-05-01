@@ -6,8 +6,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 import javax.swing.BorderFactory;
+import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -51,6 +53,25 @@ public class Main {
 			loadIndicator.setSize(320, 240);
 			loadIndicator.setLocationRelativeTo(null);
 			loadIndicator.setVisible(true);
+			
+			ResourceManager.INSTANCE.setResourceAccessor("Set " + Model.PROPERTY_BACKGROUND, new Callable<JColorChooser>() {
+				@Override
+				public JColorChooser call() throws Exception {
+					return new JColorChooser();
+				}
+			});
+			ResourceManager.INSTANCE.setResourceAccessor("Set " + Model.PROPERTY_FOREGROUND, new Callable<JColorChooser>() {
+				@Override
+				public JColorChooser call() throws Exception {
+					return new JColorChooser();
+				}
+			});
+			ResourceManager.INSTANCE.setResourceAccessor("Set " + TextModel.PROPERTY_CARET_COLOR, new Callable<JColorChooser>() {
+				@Override
+				public JColorChooser call() throws Exception {
+					return new JColorChooser();
+				}
+			});
 			
 			ArrayList<Factory> factoryBuilder = new ArrayList<Factory>();
 			
@@ -139,6 +160,7 @@ public class Main {
 					try {
 						rootView.releaseBinding();
 						prevaylerService.close();
+						ResourceManager.INSTANCE.dispose();
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
