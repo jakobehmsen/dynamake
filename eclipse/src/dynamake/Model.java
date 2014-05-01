@@ -443,7 +443,7 @@ public abstract class Model implements Serializable, Observer {
 		transactions.addTransaction("Set " + PROPERTY_BACKGROUND, new ColorTransactionBuilder((Color)model.getProperty(PROPERTY_BACKGROUND), new Action1<Color>() {
 			@Override
 			public void run(Color color) {
-				transactionFactory.execute(new Model.SetPropertyTransaction(PROPERTY_FOREGROUND, color));
+				transactionFactory.execute(new Model.SetPropertyTransaction(PROPERTY_BACKGROUND, color));
 			}
 		}));
 		
