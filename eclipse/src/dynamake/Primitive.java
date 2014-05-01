@@ -134,8 +134,8 @@ public class Primitive extends Model {
 				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
-						Color darkenedColor = ((Color)atom.value).brighter();
-						receiver.sendChanged(new Model.Atom(darkenedColor), propCtx, propDistance, 0);
+						Color brightenedColor = ((Color)atom.value).brighter();
+						receiver.sendChanged(new Model.Atom(brightenedColor), propCtx, propDistance, 0);
 					}
 				}
 			},
