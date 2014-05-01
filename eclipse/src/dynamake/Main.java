@@ -153,6 +153,7 @@ public class Main {
 				@Override
 				public void windowOpened(WindowEvent e) {
 					loadIndicator.setVisible(false);
+					e.getWindow().repaint();
 				}
 				
 				@Override

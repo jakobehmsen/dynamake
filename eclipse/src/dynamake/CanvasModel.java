@@ -128,7 +128,9 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void executeOn(CanvasModel prevalentSystem, Date executionTime) {
+			Model modelToRemove = prevalentSystem.getModel(index);
 			prevalentSystem.removeModel(index, new PropogationContext(), 0);
+			modelToRemove.beRemoved();
 		}
 	}
 	
@@ -136,6 +138,10 @@ public class CanvasModel extends Model {
 		addModel(models.size(), model, propCtx, propDistance);
 	}
 	
+	public Model getModel(int index) {
+		return models.get(index);
+	}
+
 	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance) {
 		models.add(index, model);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0);
@@ -150,7 +156,6 @@ public class CanvasModel extends Model {
 		Model model = models.get(index);
 		models.remove(index);
 		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0);
-		model.beRemoved();
 	}
 	
 	public int indexOfModel(Model model) {
