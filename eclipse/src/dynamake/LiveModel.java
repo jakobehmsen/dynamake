@@ -197,6 +197,7 @@ public class LiveModel extends Model {
 			private void resetEffectFrame() {
 //				effectFrame.setBounds(selectionFrame.getBounds());
 				productionPanel.effectFrame.setBounds(new Rectangle(0, 0, 0, 0));
+				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
 			}
 			
 			private void updateRelativeCursorPosition(Point point, Dimension size) {
@@ -461,6 +462,8 @@ public class LiveModel extends Model {
 										new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight())
 									});
 									transactionFactory.execute(changeBoundsTransaction);
+									
+									productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
 								}
 							}
 
