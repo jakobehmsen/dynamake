@@ -11,4 +11,5 @@ public interface ViewManager {
 	void selectAndActive(ModelComponent view, int x, int y);
 	void repaint(JComponent view);
 	void refresh(ModelComponent view);
+	void wasCreated(ModelComponent view);
 }

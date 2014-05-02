@@ -306,6 +306,8 @@ public class CreationModel extends Model {
 				}
 			}
 		});
+		
+		viewManager.wasCreated(view);
 
 		return new Binding<ModelComponent>() {
 			@Override

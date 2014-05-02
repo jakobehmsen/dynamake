@@ -183,6 +183,8 @@ public class TextModel extends Model {
 			@Override
 			public void changedUpdate(DocumentEvent e) { }
 		});
+		
+		viewManager.wasCreated(viewScrollPane);
 
 		return new Binding<ModelComponent>() {
 			@Override
