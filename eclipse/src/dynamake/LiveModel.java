@@ -122,6 +122,7 @@ public class LiveModel extends Model {
 				transactionFactory.execute(new SetState(state));
 			}
 		});
+		radioButton.setFocusable(false);
 		group.add(radioButton);
 		if(currentState == state) {
 			radioButton.setSelected(true);
