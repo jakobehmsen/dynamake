@@ -609,6 +609,8 @@ public class LiveModel extends Model {
 											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 											selectFromEmpty(targetModelComponent, referencePoint, true);
 											livePanel.repaint();
+										} else {
+											selectionMouseDown = e.getPoint();
 										}
 									}
 								}
