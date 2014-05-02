@@ -15,6 +15,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
@@ -90,8 +91,12 @@ public class LiveModel extends Model {
 		@Override
 		public void executeOn(Model prevalentSystem, Date executionTime) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
-			Model selection = (Model)modelLocation.getChild(prevalentSystem);
-			liveModel.setSelection(selection, new PropogationContext(), 0);
+			if(modelLocation != null) {
+				Model selection = (Model)modelLocation.getChild(prevalentSystem);
+				liveModel.setSelection(selection, new PropogationContext(), 0);
+			} else {
+				liveModel.setSelection(null, new PropogationContext(), 0);
+			}
 		}
 	}
 	
@@ -169,6 +174,10 @@ public class LiveModel extends Model {
 		private JPanel effectFrame;
 		private JPanel selectionFrame;
 		private JPanel targetFrame;
+
+		private static final Color TARGET_OVER_COLOR = new Color(35, 89, 184);
+		private static final Color BIND_COLOR = new Color(25, 209, 89);
+		private static final Color UNBIND_COLOR = new Color(240, 34, 54);
 		
 		private static class EditPanelMouseAdapter extends MouseAdapter {
 			private ProductionPanel productionPanel;
@@ -473,6 +482,46 @@ public class LiveModel extends Model {
 									
 									Point selectionReleasePoint = SwingUtilities.convertPoint(((JComponent)(e.getSource())).getParent(), e.getPoint(), productionPanel);
 									final Rectangle creationBounds = getPlotBounds(selectionMouseDown, selectionReleasePoint);
+									
+									final Rectangle selectionCreationBounds = SwingUtilities.convertRectangle(productionPanel, creationBounds, ((JComponent)(e.getSource())).getParent());
+									
+									// Find target model component
+									Point releasePoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
+									JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(releasePoint);
+									ModelComponent targetModelComponent = closestModelComponent(target);
+									
+									// Find components within the creation bounds
+									final ArrayList<ModelComponent> componentsWithinBounds = new ArrayList<ModelComponent>();
+									for(Component c: ((JComponent)targetModelComponent).getComponents()) {
+										if(selectionCreationBounds.contains(c.getBounds())) {
+											componentsWithinBounds.add((ModelComponent)c);
+										}
+									}
+									
+									if(componentsWithinBounds.size() > 0) {
+										JMenuItem factoryMenuItem = new JMenuItem();
+										factoryMenuItem.setText("Wrap");
+										
+										factoryMenuItem.addActionListener(new ActionListener() {
+											@Override
+											public void actionPerformed(ActionEvent e) {
+												// Find the selected model and attempt an add model transaction
+												// HACK: Models can only be added to canvases
+												if(selection.getModel() instanceof CanvasModel) {
+													Location[] modelLocation = new Location[componentsWithinBounds.size()];
+													for(int i = 0; i < modelLocation.length; i++) {
+														modelLocation[i] = componentsWithinBounds.get(i).getTransactionFactory().getLocation();
+													}
+													
+													selection.getTransactionFactory().executeOnRoot(
+														new WrapTransaction(selection.getTransactionFactory().getLocation(), selectionCreationBounds, modelLocation)
+													);
+												}
+											}
+										});
+										
+										factoryPopopMenu.add(factoryMenuItem);
+									}
 									
 									for(final Factory factory: productionPanel.livePanel.getFactories()) {
 										JMenuItem factoryMenuItem = new JMenuItem();
@@ -784,8 +833,8 @@ public class LiveModel extends Model {
 											Color color = 
 												// Red if selection already forwards to target
 												// Otherwise green
-												selection.getModel().isObservedBy(newTargetOverComponent.getModel()) ? Color.RED
-												: Color.GREEN;
+												selection.getModel().isObservedBy(newTargetOverComponent.getModel()) ? UNBIND_COLOR
+												: BIND_COLOR;
 
 											productionPanel.targetFrame.setBorder(
 												BorderFactory.createCompoundBorder(
@@ -831,7 +880,7 @@ public class LiveModel extends Model {
 										if(newTargetOverComponent != null && newTargetOverComponent != selection) {
 											productionPanel.targetFrame = new JPanel();
 											
-											Color color = Color.BLUE;
+											Color color = TARGET_OVER_COLOR;
 
 											productionPanel.targetFrame.setBorder(
 												BorderFactory.createCompoundBorder(
@@ -879,13 +928,13 @@ public class LiveModel extends Model {
 											Color color;
 											
 											if(newTargetOverComponent.getModel() instanceof CanvasModel) {
-												color = Color.BLUE;
+												color = TARGET_OVER_COLOR;
 											} else {
 												// Red if selection already forwards to target
 												// Otherwise green
 												color = 
-													selection.getModel().isObservedBy(newTargetOverComponent.getModel()) ? Color.RED
-													: Color.GREEN;
+													selection.getModel().isObservedBy(newTargetOverComponent.getModel()) ? UNBIND_COLOR
+													: BIND_COLOR;
 											}
 
 											productionPanel.targetFrame.setBorder(
@@ -946,6 +995,7 @@ public class LiveModel extends Model {
 					if(productionPanel.effectFrame != null) {
 						productionPanel.clearFocus();
 					}
+					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
 				}
 			}
 			
@@ -2380,14 +2430,6 @@ public class LiveModel extends Model {
 
 			productionPanel = new ProductionPanel(this, contentView);
 			
-			if(selectedViewHolder[0] != null) {
-				Point initialMouseDown = (Point)model.getProperty("SelectionInitialMouseDown");
-				boolean moving = (boolean)model.getProperty("SelectionMoving");
-				Rectangle effectBounds = (Rectangle)model.getProperty("SelectionEffectBounds");
-
-				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectedViewHolder[0], initialMouseDown, moving, effectBounds);
-			}
-			
 			topPanel = new JPanel();
 			topPanel.setBackground(TOP_BACKGROUND_COLOR);
 			ButtonGroup group = new ButtonGroup();
@@ -2460,6 +2502,14 @@ public class LiveModel extends Model {
 					}
 				}
 			});
+			
+			if(selectedViewHolder[0] != null) {
+				Point initialMouseDown = (Point)model.getProperty("SelectionInitialMouseDown");
+				boolean moving = (boolean)model.getProperty("SelectionMoving");
+				Rectangle effectBounds = (Rectangle)model.getProperty("SelectionEffectBounds");
+
+				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectedViewHolder[0], initialMouseDown, moving, effectBounds);
+			}
 		}
 		
 		public Factory[] getFactories() {
