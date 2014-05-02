@@ -587,7 +587,8 @@ public class LiveModel extends Model {
 								}
 								
 								private void mousePressedEdit(MouseEvent e) {
-									JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+									Point pointInContentView = SwingUtilities.convertPoint((JComponent)selection, e.getPoint(), (JComponent)contentView.getBindingTarget());
+									JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(pointInContentView);
 									ModelComponent targetModelComponent = closestModelComponent(target);
 									
 									if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != contentView.getBindingTarget()) {
@@ -610,7 +611,8 @@ public class LiveModel extends Model {
 
 								private void mousePressedPlot(MouseEvent e) {
 									if(e.getButton() == 1) {
-										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+										Point pointInContentView = SwingUtilities.convertPoint((JComponent)selection, e.getPoint(), (JComponent)contentView.getBindingTarget());
+										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(pointInContentView);
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										if(targetModelComponent != null && targetModelComponent.getModel() instanceof CanvasModel) {
 											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
@@ -622,7 +624,8 @@ public class LiveModel extends Model {
 
 								private void mousePressedBind(MouseEvent e) {
 									if(e.getButton() == MouseEvent.BUTTON1) {
-										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+										Point pointInContentView = SwingUtilities.convertPoint((JComponent)selection, e.getPoint(), (JComponent)contentView.getBindingTarget());
+										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(pointInContentView);
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										if(targetModelComponent != null) {
 											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
@@ -634,7 +637,8 @@ public class LiveModel extends Model {
 
 								private void mousePressedDrag(MouseEvent e) {
 									if(e.getButton() == MouseEvent.BUTTON1) {
-										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+										Point pointInContentView = SwingUtilities.convertPoint((JComponent)selection, e.getPoint(), (JComponent)contentView.getBindingTarget());
+										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(pointInContentView);
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										if(targetModelComponent != null) {
 											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
@@ -646,7 +650,8 @@ public class LiveModel extends Model {
 
 								private void mousePressedCons(MouseEvent e) {
 									if(e.getButton() == MouseEvent.BUTTON1) {
-										JComponent target = (JComponent)((JComponent)selection).findComponentAt(e.getPoint());
+										Point pointInContentView = SwingUtilities.convertPoint((JComponent)selection, e.getPoint(), (JComponent)contentView.getBindingTarget());
+										JComponent target = (JComponent)((JComponent)contentView.getBindingTarget()).findComponentAt(pointInContentView);
 										ModelComponent targetModelComponent = closestModelComponent(target);
 										if(targetModelComponent != null) {
 											Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
