@@ -335,6 +335,7 @@ public class CanvasModel extends Model {
 					((JComponent)modelView.getBindingTarget()).setBounds(bounds);
 					
 					view.add((JComponent)modelView.getBindingTarget());
+					view.setComponentZOrder((JComponent)modelView.getBindingTarget(), 0);
 					viewManager.refresh(view);
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
 					view.remove(((CanvasModel.RemovedModelChange)change).index);
