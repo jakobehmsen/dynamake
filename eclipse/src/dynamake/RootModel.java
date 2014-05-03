@@ -62,7 +62,7 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public Model getModel() {
+		public Model getModelBehind() {
 			return model;
 		}
 
@@ -85,7 +85,7 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}

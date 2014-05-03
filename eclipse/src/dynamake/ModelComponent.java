@@ -10,11 +10,11 @@ import org.prevayler.Transaction;
  * Assumed only to be implemented by JComponent (or JFrame) class extensions.
  */
 public interface ModelComponent {
-	Model getModel();
+	Model getModelBehind();
 	TransactionFactory getTransactionFactory();
 	void appendContainerTransactions(TransactionMapBuilder transactions, ModelComponent child);
 	void appendTransactions(TransactionMapBuilder transactions);
-	void appendDroppedTransactions(TransactionMapBuilder transactions);
+	void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions);
 	void appendDropTargetTransactions(ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions);
 	
 	public static class Util {

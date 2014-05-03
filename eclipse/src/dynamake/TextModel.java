@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Date;
+import java.util.Hashtable;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
@@ -92,7 +93,7 @@ public class TextModel extends Model {
 		}		
 
 		@Override
-		public Model getModel() {
+		public Model getModelBehind() {
 			return model;
 		}
 
@@ -120,10 +121,22 @@ public class TextModel extends Model {
 				}
 			}));
 		}
+		
 		@Override
-		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+		public void appendDroppedTransactions(final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions) {
+			if(target.getModelBehind() instanceof CanvasModel) {
+				transactions.addTransaction("For new button", new Runnable() {
+					@Override
+					public void run() {
+						Rectangle creationBounds = droppedBounds;
+						Hashtable<String, Object> creationArgs = new Hashtable<String, Object>();
+						creationArgs.put("Text", model.text.toString());
+						getTransactionFactory().executeOnRoot(
+							new CanvasModel.AddModelTransaction(target.getTransactionFactory().getLocation(), creationBounds, creationArgs, new ButtonModelFactory())
+						);
+					}
+				});
+			}
 		}
 
 		@Override

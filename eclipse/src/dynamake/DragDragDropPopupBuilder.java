@@ -41,7 +41,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	public void buildFromSelectionToOther(JPopupMenu popup, final ModelComponent selection, final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
 		TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
 		
-		if(selection.getModel().isObservedBy(target.getModel())) {
+		if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
 			transactionSelectionGeneralMapBuilder.addTransaction("Unforward to", new Runnable() {
 				@Override
 				public void run() {
@@ -62,7 +62,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		}
 		
 		// Only available for canvases:
-		if(target.getModel() instanceof CanvasModel) {
+		if(target.getModelBehind() instanceof CanvasModel) {
 			TransactionMapBuilder transactionObserverMapBuilder = new TransactionMapBuilder();
 			TransactionMapBuilder transactionObserverContentMapBuilder = new TransactionMapBuilder();
 			for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
@@ -92,7 +92,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetMapBuilder.appendTo(popup, "Target");
 
 		TransactionMapBuilder transactionDroppedMapBuilder = new TransactionMapBuilder();
-		selection.appendDroppedTransactions(transactionDroppedMapBuilder);
+		selection.appendDroppedTransactions(target, dropBoundsOnTarget, transactionDroppedMapBuilder);
 		if(!transactionTargetMapBuilder.isEmpty() && !transactionDroppedMapBuilder.isEmpty())
 			popup.addSeparator();
 		transactionDroppedMapBuilder.appendTo(popup, "Dropped");

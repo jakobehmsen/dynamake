@@ -19,7 +19,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 		} else {
 			TransactionMapBuilder transactionTargetContentMapBuilder = new TransactionMapBuilder();
 			
-			if(selection.getModel().isObservedBy(target.getModel())) {
+			if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
 				transactionTargetContentMapBuilder.addTransaction("Unforward to", new Runnable() {
 					@Override
 					public void run() {
@@ -78,7 +78,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 		} else {
 			TransactionMapBuilder transactionTargetContentMapBuilder = new TransactionMapBuilder();
 			
-			if(selection.getModel().isObservedBy(target.getModel())) {
+			if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
 				transactionTargetContentMapBuilder.addTransaction("Unforward to", new Runnable() {
 					@Override
 					public void run() {

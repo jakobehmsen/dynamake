@@ -72,7 +72,7 @@ public class ProxyModel extends Model {
 		}
 
 		@Override
-		public Model getModel() {
+		public Model getModelBehind() {
 //			return view.getModel();
 			return model;
 		}
@@ -96,7 +96,7 @@ public class ProxyModel extends Model {
 		}
 
 		@Override
-		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
 //			view.appendDroppedTransactions(transactions);
 		}
 

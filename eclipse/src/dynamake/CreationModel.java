@@ -110,7 +110,7 @@ public class CreationModel extends Model {
 		}
 
 		@Override
-		public Model getModel() {
+		public Model getModelBehind() {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -127,7 +127,7 @@ public class CreationModel extends Model {
 		}
 		
 		@Override
-		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -193,7 +193,7 @@ public class CreationModel extends Model {
 		}
 
 		@Override
-		public Model getModel() {
+		public Model getModelBehind() {
 			return model;
 		}
 
@@ -210,7 +210,7 @@ public class CreationModel extends Model {
 			
 		}
 		@Override
-		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -299,7 +299,7 @@ public class CreationModel extends Model {
 					
 					if(((CreationModel)sender).allArgumentsAreSet()) {
 						ModelComponent parent = ModelComponent.Util.getParent(view);
-						if(parent != null && parent.getModel() instanceof CanvasModel) {
+						if(parent != null && parent.getModelBehind() instanceof CanvasModel) {
 							transactionFactory.executeOnRoot(new InstantiateCreationTransaction(transactionFactory.getLocation(), parent.getTransactionFactory().getLocation()));
 						}
 					}

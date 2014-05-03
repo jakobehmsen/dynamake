@@ -507,7 +507,7 @@ public class LiveModel extends Model {
 											public void actionPerformed(ActionEvent e) {
 												// Find the selected model and attempt an add model transaction
 												// HACK: Models can only be added to canvases
-												if(selection.getModel() instanceof CanvasModel) {
+												if(selection.getModelBehind() instanceof CanvasModel) {
 													Location[] modelLocation = new Location[componentsWithinBounds.size()];
 													for(int i = 0; i < modelLocation.length; i++) {
 														modelLocation[i] = componentsWithinBounds.get(i).getTransactionFactory().getLocation();
@@ -532,7 +532,7 @@ public class LiveModel extends Model {
 											public void actionPerformed(ActionEvent e) {
 												// Find the selected model and attempt an add model transaction
 												// HACK: Models can only be added to canvases
-												if(selection.getModel() instanceof CanvasModel) {
+												if(selection.getModelBehind() instanceof CanvasModel) {
 													selection.getTransactionFactory().executeOnRoot(
 														new CanvasModel.AddModelTransaction(selection.getTransactionFactory().getLocation(), creationBounds, factory)
 													);
@@ -573,7 +573,7 @@ public class LiveModel extends Model {
 									ModelComponent targetModelComponent = closestModelComponent(target);
 									
 									if(targetModelComponent != null && selection != targetModelComponent) {
-										if(selection.getModel().isObservedBy(targetModelComponent.getModel())) {
+										if(selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 											targetModelComponent.getTransactionFactory().executeOnRoot(
 												new Model.RemoveObserver(selection.getTransactionFactory().getLocation(), targetModelComponent.getTransactionFactory().getLocation()));
 										} else {
@@ -616,10 +616,10 @@ public class LiveModel extends Model {
 									ModelComponent targetModelComponent = closestModelComponent(target);
 									
 									if(targetModelComponent != null && selection != targetModelComponent) {
-										if(targetModelComponent.getModel() instanceof CanvasModel) {
+										if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
 											showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent);
 										} else {
-											if(selection.getModel().isObservedBy(targetModelComponent.getModel())) {
+											if(selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 												targetModelComponent.getTransactionFactory().executeOnRoot(
 													new Model.RemoveObserver(selection.getTransactionFactory().getLocation(), targetModelComponent.getTransactionFactory().getLocation()));
 											} else {
@@ -634,7 +634,7 @@ public class LiveModel extends Model {
 											productionPanel.livePanel.repaint();
 										}
 									} else {
-										if(targetModelComponent.getModel() instanceof CanvasModel) {
+										if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
 											showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent);
 										} else {
 											resetEffectFrame();
@@ -686,7 +686,7 @@ public class LiveModel extends Model {
 									Point pointInContentView = SwingUtilities.convertPoint((JComponent)selection, e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 									JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 									ModelComponent targetModelComponent = closestModelComponent(target);
-									if(targetModelComponent != null && targetModelComponent.getModel() instanceof CanvasModel) {
+									if(targetModelComponent != null && targetModelComponent.getModelBehind() instanceof CanvasModel) {
 										Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 										selectFromEmpty(targetModelComponent, referencePoint, true);
 										productionPanel.livePanel.repaint();
@@ -833,7 +833,7 @@ public class LiveModel extends Model {
 											Color color = 
 												// Red if selection already forwards to target
 												// Otherwise green
-												selection.getModel().isObservedBy(newTargetOverComponent.getModel()) ? UNBIND_COLOR
+												selection.getModelBehind().isObservedBy(newTargetOverComponent.getModelBehind()) ? UNBIND_COLOR
 												: BIND_COLOR;
 
 											productionPanel.targetFrame.setBorder(
@@ -927,13 +927,13 @@ public class LiveModel extends Model {
 											productionPanel.targetFrame = new JPanel();
 											Color color;
 											
-											if(newTargetOverComponent.getModel() instanceof CanvasModel) {
+											if(newTargetOverComponent.getModelBehind() instanceof CanvasModel) {
 												color = TARGET_OVER_COLOR;
 											} else {
 												// Red if selection already forwards to target
 												// Otherwise green
 												color = 
-													selection.getModel().isObservedBy(newTargetOverComponent.getModel()) ? UNBIND_COLOR
+													selection.getModelBehind().isObservedBy(newTargetOverComponent.getModelBehind()) ? UNBIND_COLOR
 													: BIND_COLOR;
 											}
 
@@ -2421,7 +2421,7 @@ public class LiveModel extends Model {
 				
 				@Override
 				public void wasCreated(ModelComponent view) {
-					if(LivePanel.this.model.selection != null && LivePanel.this.model.selection == view.getModel()) {
+					if(LivePanel.this.model.selection != null && LivePanel.this.model.selection == view.getModelBehind()) {
 						selectedViewHolder[0] = view;
 					}
 				}
@@ -2517,7 +2517,7 @@ public class LiveModel extends Model {
 		}
 
 		@Override
-		public Model getModel() {
+		public Model getModelBehind() {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -2536,7 +2536,7 @@ public class LiveModel extends Model {
 		}
 
 		@Override
-		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}

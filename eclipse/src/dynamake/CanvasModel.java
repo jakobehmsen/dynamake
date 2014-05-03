@@ -187,7 +187,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public Model getModel() {
+		public Model getModelBehind() {
 			return model;
 		}
 		
@@ -197,7 +197,7 @@ public class CanvasModel extends Model {
 			transactions.addTransaction("Remove", new Runnable() {
 				@Override
 				public void run() {
-					int indexOfModel = model.indexOfModel(child.getModel());
+					int indexOfModel = model.indexOfModel(child.getModelBehind());
 					transactionFactory.execute(new RemoveModelTransaction(indexOfModel));
 				}
 			});
@@ -208,7 +208,7 @@ public class CanvasModel extends Model {
 			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
 		}
 		@Override
-		public void appendDroppedTransactions(TransactionMapBuilder transactions) {
+		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}
