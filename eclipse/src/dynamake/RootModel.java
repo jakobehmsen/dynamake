@@ -34,6 +34,11 @@ public class RootModel extends Model {
 		this.content = content;
 	}
 	
+	@Override
+	public Model modelCloneIsolated() {
+		return new RootModel(content.cloneIsolated());
+	}
+	
 	private static class FrameModel extends JFrame implements ModelComponent {
 		/**
 		 * 
@@ -86,8 +91,7 @@ public class RootModel extends Model {
 
 		@Override
 		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
 		}
 
 		@Override

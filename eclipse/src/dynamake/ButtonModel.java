@@ -33,6 +33,11 @@ public class ButtonModel extends Model {
 	public ButtonModel(String text) {
 		this.text = text;
 	}
+	
+	@Override
+	public Model modelCloneIsolated() {
+		return new ButtonModel(text);
+	}
 
 	private static class ButtonView extends JButton implements ModelComponent {
 		/**
@@ -73,8 +78,7 @@ public class ButtonModel extends Model {
 
 		@Override
 		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
 		}
 
 		@Override

@@ -23,6 +23,11 @@ public class ProxyModel extends Model {
 	}
 	
 	@Override
+	public Model modelCloneIsolated() {
+		return new ProxyModel(model);
+	}
+	
+	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 		model.changed(sender, change, propCtx, propDistance, changeDistance);
 	}
@@ -97,7 +102,7 @@ public class ProxyModel extends Model {
 
 		@Override
 		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
-//			view.appendDroppedTransactions(transactions);
+			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
 		}
 
 		@Override

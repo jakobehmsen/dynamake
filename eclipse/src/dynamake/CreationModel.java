@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -61,6 +62,15 @@ public class CreationModel extends Model {
 	public CreationModel(Factory factory, String[] parameterNames) {
 		this.factory = factory;
 		this.parameterNames = parameterNames;
+	}
+	
+	@Override
+	public Model modelCloneIsolated() {
+		CreationModel clone = new CreationModel(factory, parameterNames);
+		
+		clone.argumentMap.putAll(this.argumentMap);
+		
+		return clone;
 	}
 	
 	public void setArgument(String parameterName, Object argument, PropogationContext propCtx, int propDistance) {
@@ -211,8 +221,7 @@ public class CreationModel extends Model {
 		}
 		@Override
 		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
 		}
 
 		@Override

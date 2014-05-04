@@ -24,6 +24,11 @@ public class MarkVisit extends Model {
 	}
 	
 	@Override
+	public Model modelCloneIsolated() {
+		return new MarkVisit(model);
+	}
+	
+	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 		PropogationContext newPropCtx = propCtx.markVisitedBy(model);
 		// calling super.changed should not invoked this way
@@ -75,8 +80,7 @@ public class MarkVisit extends Model {
 
 		@Override
 		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
 		}
 
 		@Override

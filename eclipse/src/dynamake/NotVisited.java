@@ -24,6 +24,11 @@ public class NotVisited extends Model {
 	}
 	
 	@Override
+	public Model modelCloneIsolated() {
+		return new NotVisited(model);
+	}
+	
+	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 		if(!propCtx.isMarkedVisitedBy(model))
 			sendChanged(change, propCtx, propDistance, changeDistance);
@@ -71,8 +76,7 @@ public class NotVisited extends Model {
 
 		@Override
 		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
 		}
 
 		@Override

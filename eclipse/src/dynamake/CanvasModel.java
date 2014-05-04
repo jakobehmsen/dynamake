@@ -20,7 +20,15 @@ public class CanvasModel extends Model {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ArrayList<Model> models = new ArrayList<Model>();
+	private ArrayList<Model> models;
+	
+	public CanvasModel() {
+		models = new ArrayList<Model>();
+	}
+	
+	public CanvasModel(ArrayList<Model> models) {
+		this.models = models;
+	}
 	
 	public static class AddedModelChange {
 		public final int index;
@@ -30,6 +38,18 @@ public class CanvasModel extends Model {
 			this.index = index;
 			this.model = model;
 		}
+	}
+	
+	@Override
+	public Model modelCloneIsolated() {
+		ArrayList<Model> clonedModels = new ArrayList<Model>();
+		
+		for(Model model: models) {
+			Model clone = model.cloneIsolated();
+			clonedModels.add(clone);
+		}
+		
+		return new CanvasModel(clonedModels);
 	}
 	
 	public static class RemovedModelChange {
@@ -209,8 +229,7 @@ public class CanvasModel extends Model {
 		}
 		@Override
 		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
 		}
 		
 		@Override

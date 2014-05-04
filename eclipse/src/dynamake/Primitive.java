@@ -243,6 +243,11 @@ public class Primitive extends Model {
 	}
 	
 	@Override
+	public Model modelCloneIsolated() {
+		return new Primitive(implementation);
+	}
+	
+	@Override
 	public void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 		implementation.execute(this, sender, change, propCtx, propDistance, changeDistance);
 	}
@@ -288,8 +293,7 @@ public class Primitive extends Model {
 
 		@Override
 		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
 		}
 
 		@Override

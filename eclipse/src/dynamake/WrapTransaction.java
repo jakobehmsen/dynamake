@@ -36,12 +36,6 @@ public class WrapTransaction implements Transaction<Model> {
 		for(int i = 0; i < modelLocations.length; i++) {
 			Model model = (Model)modelLocations[i].getChild(arg0);
 			
-			int x = (int)model.getProperty("X");
-			int y = (int)model.getProperty("Y");
-			
-			model.setProperty("X", x - creationBounds.x, propCtx, 0);
-			model.setProperty("Y", y - creationBounds.y, propCtx, 0);
-			
 			models[i] = model;
 		}
 		
@@ -51,5 +45,13 @@ public class WrapTransaction implements Transaction<Model> {
 		}
 		
 		target.addModel(wrapper, propCtx, 0);
+		
+		for(Model model: models) {
+			int x = (int)model.getProperty("X");
+			int y = (int)model.getProperty("Y");
+			
+			model.setProperty("X", x - creationBounds.x, propCtx, 0);
+			model.setProperty("Y", y - creationBounds.y, propCtx, 0);
+		}
 	}
 }

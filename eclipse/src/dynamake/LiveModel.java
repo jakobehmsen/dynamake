@@ -61,6 +61,16 @@ public class LiveModel extends Model {
 		this.content = content;
 	}
 	
+	@Override
+	public Model modelCloneIsolated() {
+		LiveModel clone = new LiveModel(content.cloneIsolated());
+		
+		clone.state = state;
+		clone.selection = this.selection.cloneIsolated();
+		
+		return clone;
+	}
+	
 	public void setSelection(Model selection, PropogationContext propCtx, int propDistance) {
 		this.selection = selection;
 		sendChanged(new SelectionChanged(), propCtx, propDistance, 0);
@@ -2537,8 +2547,7 @@ public class LiveModel extends Model {
 
 		@Override
 		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
 		}
 
 		@Override

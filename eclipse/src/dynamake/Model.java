@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -463,5 +464,38 @@ public abstract class Model implements Serializable, Observer {
 			if(observee instanceof Model)
 				((Model)observee).removeObserver(this);
 		}
+	}
+
+	public static void appendGeneralDroppedTransactions(final ModelComponent dropped,
+			final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions) {
+		if(target.getModelBehind() instanceof CanvasModel) {
+			transactions.addTransaction("Clone isolated", new Runnable() {
+				@Override
+				public void run() {
+					Rectangle creationBounds = droppedBounds;
+
+					dropped.getTransactionFactory().executeOnRoot(
+						new CanvasModel.AddModelTransaction(
+							target.getTransactionFactory().getLocation(), 
+							creationBounds, 
+							new CloneIsolatedFactory(dropped.getTransactionFactory().getLocation()))
+					);
+				}
+			});
+		}
+	}
+
+	public abstract Model modelCloneIsolated();
+
+	public Model cloneIsolated() {
+		Model clone = modelCloneIsolated();
+		
+		if(clone.properties == null)
+			clone.properties = new Hashtable<String, Object>();
+		// Assumed that cloning is not necessary for properties
+		// I.e., all property values are immutable
+		clone.properties.putAll(this.properties);
+		
+		return clone;
 	}
 }

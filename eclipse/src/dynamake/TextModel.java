@@ -23,6 +23,13 @@ public class TextModel extends Model {
 	private static final long serialVersionUID = 1L;
 	private StringBuilder text = new StringBuilder();
 	
+	@Override
+	public Model modelCloneIsolated() {
+		TextModel clone = new TextModel();
+		clone.text.append(this.text);
+		return clone;
+	}
+	
 	public void setText(String text) {
 		this.text.setLength(0);
 		this.text.append(text);
@@ -124,6 +131,8 @@ public class TextModel extends Model {
 		
 		@Override
 		public void appendDroppedTransactions(final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions) {
+			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
+			
 			if(target.getModelBehind() instanceof CanvasModel) {
 				transactions.addTransaction("For new button", new Runnable() {
 					@Override
