@@ -321,7 +321,10 @@ public class CanvasModel extends Model {
 		Model.loadComponentProperties(this, view);
 		final Model.RemovableListener removableListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, view, view, viewManager);
 		
-		for(final Model model: models) {
+//		for(final Model model: models) {
+		// Reverse order such that the last added model is put to the front
+		for(int i = models.size() - 1; i >= 0; i--) {
+			Model model = models.get(i);
 			Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(this, model)));
 			
 			Rectangle bounds = new Rectangle(
@@ -352,12 +355,16 @@ public class CanvasModel extends Model {
 					);
 					
 					((JComponent)modelView.getBindingTarget()).setBounds(bounds);
-					
+
 					view.add((JComponent)modelView.getBindingTarget());
+					// Put the last added model to the front
 					view.setComponentZOrder((JComponent)modelView.getBindingTarget(), 0);
 					viewManager.refresh(view);
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
-					view.remove(((CanvasModel.RemovedModelChange)change).index);
+					// Reverse the index starting from the last index at zero, second last as 1, and so forth
+					int componentIndex = (view.getComponentCount() - 1) - ((CanvasModel.RemovedModelChange)change).index;
+					view.remove(componentIndex);
+//					view.remove(((CanvasModel.RemovedModelChange)change).index);
 					view.validate();
 					view.repaint();
 					viewManager.clearFocus();
