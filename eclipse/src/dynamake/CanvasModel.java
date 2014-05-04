@@ -320,6 +320,7 @@ public class CanvasModel extends Model {
 		final RemovableListener removableListenerForBoundsChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		Model.loadComponentProperties(this, view);
 		final Model.RemovableListener removableListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, view, view, viewManager);
+		Model.wrapForComponentGUIEvents(this, view, view, viewManager);
 		
 //		for(final Model model: models) {
 		// Reverse order such that the last added model is put to the front

@@ -190,6 +190,44 @@ public class Primitive extends Model {
 						receiver.sendChanged(change, propCtx, propDistance, changeDistance);
 				}
 			}
+			
+			,
+			new Implementation() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+				
+				@Override
+				public String getName() {
+					return "Mouse Down";
+				}
+				
+				@Override
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+					if(change instanceof Model.MouseDown) {
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance);
+					}
+				}
+			},
+			new Implementation() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+				
+				@Override
+				public String getName() {
+					return "Mouse Up";
+				}
+				
+				@Override
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+					if(change instanceof Model.MouseUp) {
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance);
+					}
+				}
+			}
 		};
 	}
 	

@@ -6,6 +6,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -22,6 +24,14 @@ import javax.swing.JFrame;
 import org.prevayler.Transaction;
 
 public abstract class Model implements Serializable, Observer {
+	public static class MouseDown {
+
+	}
+	
+	public static class MouseUp {
+
+	}
+
 	public static final String PROPERTY_BACKGROUND = "Background";
 	public static final String PROPERTY_FOREGROUND = "Foreground";
 	
@@ -390,6 +400,40 @@ public abstract class Model implements Serializable, Observer {
 						viewManager.repaint(targetComponent);
 					}
 				}
+			}
+		});
+	}
+	
+	public static void wrapForComponentGUIEvents(final Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager) {
+		((JComponent)view).addMouseListener(new MouseListener() {
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				PropogationContext propCtx = new PropogationContext(); 
+				model.sendChanged(new MouseUp(), propCtx, 0, 0);
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				PropogationContext propCtx = new PropogationContext(); 
+				model.sendChanged(new MouseDown(), propCtx, 0, 0);
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 	}
