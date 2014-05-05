@@ -138,6 +138,17 @@ public class Main {
 					// TODO Auto-generated method stub
 					
 				}
+				
+				@Override
+				public Tool[] getTools() {
+					return new Tool[] {
+						new EditTool(),
+						new PlotTool(),
+						new BindTool(),
+						new DragTool(),
+						new ConsTool()
+					};
+				}
 			};
 			final Binding<ModelComponent> rootView = pModel.prevalentSystem().createView(rootViewManager, rootTransactionFactory);
 			JFrame frame = (JFrame)rootView.getBindingTarget();

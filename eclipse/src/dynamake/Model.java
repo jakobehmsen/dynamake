@@ -18,7 +18,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
-import java.util.LinkedList;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -271,10 +270,10 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	private transient ArrayList<Observer> observers;
+	private ArrayList<Observer> observers;
 	private transient ArrayList<Observer> observersToAdd;
 	private transient ArrayList<Observer> observersToRemove;
-	private transient ArrayList<Observer> observees;
+	private ArrayList<Observer> observees;
 	private transient ArrayDeque<ChangeHolder> changeQueue;
 	
 	public Model() {

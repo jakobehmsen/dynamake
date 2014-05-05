@@ -12,4 +12,5 @@ public interface ViewManager {
 	void repaint(JComponent view);
 	void refresh(ModelComponent view);
 	void wasCreated(ModelComponent view);
+	Tool[] getTools();
 }
