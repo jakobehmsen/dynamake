@@ -109,5 +109,4 @@ public class DragTool implements Tool {
 			productionPanel.livePanel.repaint();
 		}
 	}
-
 }

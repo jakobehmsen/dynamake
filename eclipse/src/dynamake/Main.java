@@ -146,7 +146,8 @@ public class Main {
 						new PlotTool(),
 						new BindTool(),
 						new DragTool(),
-						new ConsTool()
+						new ConsTool(),
+						new TellTool()
 					};
 				}
 			};
