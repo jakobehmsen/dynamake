@@ -227,6 +227,22 @@ public class Primitive extends Model {
 						receiver.sendChanged(change, propCtx, propDistance, changeDistance);
 					}
 				}
+			},
+			new Implementation() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+				
+				@Override
+				public String getName() {
+					return "Tell Background";
+				}
+				
+				@Override
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+					receiver.sendChanged(new Model.TellProperty(Model.PROPERTY_BACKGROUND), propCtx, propDistance, 0);
+				}
 			}
 		};
 	}

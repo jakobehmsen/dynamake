@@ -14,9 +14,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.LinkedList;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -24,6 +26,14 @@ import javax.swing.JFrame;
 import org.prevayler.Transaction;
 
 public abstract class Model implements Serializable, Observer {
+	public static class TellProperty {
+		public final String name;
+
+		public TellProperty(String name) {
+			this.name = name;
+		}
+	}
+
 	public static class MouseDown {
 
 	}
@@ -168,6 +178,11 @@ public abstract class Model implements Serializable, Observer {
 		if(change instanceof SetProperty && changeDistance == 1) {
 			SetProperty setProperty = (SetProperty)change;
 			setProperty(setProperty.name, setProperty.value, propCtx, propDistance);
+		} else if(change instanceof TellProperty && changeDistance == 1) {
+			TellProperty tellProperty = (TellProperty)change;
+			Object value = getProperty(tellProperty.name);
+			if(value != null)
+				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0);
 		} else {
 			modelChanged(sender, change, propCtx, propDistance, changeDistance);
 		}
@@ -241,10 +256,26 @@ public abstract class Model implements Serializable, Observer {
 
 	public abstract Binding<ModelComponent> createView(ViewManager viewManager, TransactionFactory transactionFactory);
 	
+	private static class ChangeHolder {
+		public final Object change;
+		public final PropogationContext propCtx;
+		public final int propDistance;
+		public final int changeDistance;
+
+		public ChangeHolder(Object change, PropogationContext propCtx,
+				int propDistance, int changeDistance) {
+			this.change = change;
+			this.propCtx = propCtx;
+			this.propDistance = propDistance;
+			this.changeDistance = changeDistance;
+		}
+	}
+	
 	private transient ArrayList<Observer> observers;
 	private transient ArrayList<Observer> observersToAdd;
 	private transient ArrayList<Observer> observersToRemove;
 	private transient ArrayList<Observer> observees;
+	private transient ArrayDeque<ChangeHolder> changeQueue;
 	
 	public Model() {
 		observers = new ArrayList<Observer>();
@@ -275,6 +306,40 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+		if(changeQueue != null) {
+			changeQueue.add(new ChangeHolder(change, propCtx, propDistance, changeDistance));
+			return;
+		}
+		
+		changeQueue = new ArrayDeque<Model.ChangeHolder>();
+		sendSingleChanged(change, propCtx, propDistance, changeDistance);
+		while(true) {
+			ChangeHolder changeHolder = changeQueue.poll();
+			if(changeHolder == null)
+				break;
+			sendSingleChanged(changeHolder.change, changeHolder.propCtx, changeHolder.propDistance, changeHolder.changeDistance);
+		}
+		changeQueue = null;
+		
+//		int nextChangeDistance = changeDistance + 1;
+//		int nextPropDistance = propDistance + 1;
+//		observersToAdd = new ArrayList<Observer>();
+//		observersToRemove = new ArrayList<Observer>();
+//		for(Observer observer: observers)
+//			observer.changed(this, change, propCtx, nextPropDistance, nextChangeDistance);
+//		for(Observer observerToAdd: observersToAdd) {
+//			observers.add(observerToAdd);
+//			observerToAdd.addObservee(this);
+//		}
+//		for(Observer observerToRemove: observersToRemove) {
+//			observers.remove(observerToRemove);
+//			observerToRemove.removeObservee(this);
+//		}
+//		observersToAdd = null;
+//		observersToRemove = null;
+	}
+	
+	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 		int nextChangeDistance = changeDistance + 1;
 		int nextPropDistance = propDistance + 1;
 		observersToAdd = new ArrayList<Observer>();
