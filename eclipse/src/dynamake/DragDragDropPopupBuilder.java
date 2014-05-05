@@ -79,7 +79,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 					}
 				});
 			}
-			transactionObserverMapBuilder.addTransaction("Then", transactionObserverContentMapBuilder);
+			transactionObserverMapBuilder.addTransaction("Cons", transactionObserverContentMapBuilder);
 			transactionObserverMapBuilder.appendTo(popup, "Observation");
 		}
 
