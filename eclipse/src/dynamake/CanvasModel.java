@@ -54,18 +54,24 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
-	protected Model modelCloneDeep(Hashtable<Model, Model> visited) {
+	protected Model modelCloneDeep(Hashtable<Model, Model> visited, HashSet<Model> contained) {
 		ArrayList<Model> clonedModels = new ArrayList<Model>();
 		
 		for(Model model: models) {
 			Model clone = visited.get(model);
 			if(clone == null) {
-				clone = model.cloneDeep(visited);
+				clone = model.cloneDeep(visited, contained);
 			}
 			clonedModels.add(clone);
 		}
 		
 		return new CanvasModel(clonedModels);
+	}
+	
+	@Override
+	protected void addContent(HashSet<Model> contained) {
+		for(Model model: models)
+			contained.add(model);
 	}
 	
 	public static class RemovedModelChange {

@@ -609,7 +609,7 @@ public abstract class Model implements Serializable, Observer {
 
 	public abstract Model modelCloneIsolated();
 
-	protected Model modelCloneDeep(Hashtable<Model, Model> visited) {
+	protected Model modelCloneDeep(Hashtable<Model, Model> visited, HashSet<Model> contained) {
 		return modelCloneIsolated();
 	}
 
@@ -626,17 +626,24 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public Model cloneDeep() {
-		return cloneDeep(new Hashtable<Model, Model>());
+		HashSet<Model> contained = new HashSet<Model>();
+		addContent(contained);
+		return cloneDeep(new Hashtable<Model, Model>(), contained);
 	}
 	
-	protected Model cloneDeep(Hashtable<Model, Model> visited) {
+	protected void addContent(HashSet<Model> contained) {
+		
+	}
+	
+	protected Model cloneDeep(Hashtable<Model, Model> visited, HashSet<Model> contained) {
 		/*
 		TODO: Fix the below issue:
 		There is an issue with the current implementation, because the obervers and obervees, which aren't contained by other models, 
 		are cloned, and thus will not be visually represented. This must not occur: a model alive must be visually represented in some 
 		manner - or explicitly hidden (not implemented yet).
 		*/
-		Model clone = modelCloneDeep(visited);
+		
+		Model clone = modelCloneDeep(visited, contained);
 		
 		if(clone.properties == null)
 			clone.properties = new Hashtable<String, Object>();
@@ -648,23 +655,27 @@ public abstract class Model implements Serializable, Observer {
 		
 		for(Observer observer: this.observers) {
 			if(observer instanceof Model) {
-				Model observerClone = visited.get(observer);
-				if(observerClone == null) {
-					observerClone = ((Model)observer).cloneDeep(visited);
+				if(contained.contains(observer)) {
+					Model observerClone = visited.get(observer);
+					if(observerClone == null) {
+						observerClone = ((Model)observer).cloneDeep(visited, contained);
+					}
+					clone.observers.add(observerClone);
+					observerClone.observees.add(clone);
 				}
-				clone.observers.add(observerClone);
-				observerClone.observees.add(clone);
 			}
 		}
 		
 		for(Observer observee: this.observees) {
 			if(observee instanceof Model) {
-				Model observeeClone = visited.get(observee);
-				if(observeeClone == null) {
-					observeeClone = ((Model)observee).cloneDeep(visited);
+				if(contained.contains(observee)) {
+					Model observeeClone = visited.get(observee);
+					if(observeeClone == null) {
+						observeeClone = ((Model)observee).cloneDeep(visited, contained);
+					}
+					observeeClone.observers.add(clone);
+					clone.observees.add(observeeClone);
 				}
-				observeeClone.observers.add(clone);
-				clone.observees.add(observeeClone);
 			}
 		}
 		
