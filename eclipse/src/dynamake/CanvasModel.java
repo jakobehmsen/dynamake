@@ -7,6 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
@@ -46,6 +47,21 @@ public class CanvasModel extends Model {
 		
 		for(Model model: models) {
 			Model clone = model.cloneIsolated();
+			clonedModels.add(clone);
+		}
+		
+		return new CanvasModel(clonedModels);
+	}
+	
+	@Override
+	protected Model modelCloneDeep(Hashtable<Model, Model> visited) {
+		ArrayList<Model> clonedModels = new ArrayList<Model>();
+		
+		for(Model model: models) {
+			Model clone = visited.get(model);
+			if(clone == null) {
+				clone = model.cloneDeep(visited);
+			}
 			clonedModels.add(clone);
 		}
 		

@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Hashtable;
 
 import javax.swing.JComponent;
@@ -577,7 +578,7 @@ public abstract class Model implements Serializable, Observer {
 	public static void appendGeneralDroppedTransactions(final ModelComponent dropped,
 			final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions) {
 		if(target.getModelBehind() instanceof CanvasModel) {
-			transactions.addTransaction("Clone isolated", new Runnable() {
+			transactions.addTransaction("Clone Isolated", new Runnable() {
 				@Override
 				public void run() {
 					Rectangle creationBounds = droppedBounds;
@@ -590,10 +591,27 @@ public abstract class Model implements Serializable, Observer {
 					);
 				}
 			});
+			transactions.addTransaction("Clone Deep", new Runnable() {
+				@Override
+				public void run() {
+					Rectangle creationBounds = droppedBounds;
+
+					dropped.getTransactionFactory().executeOnRoot(
+						new CanvasModel.AddModelTransaction(
+							target.getTransactionFactory().getLocation(), 
+							creationBounds, 
+							new CloneDeepFactory(dropped.getTransactionFactory().getLocation()))
+					);
+				}
+			});
 		}
 	}
 
 	public abstract Model modelCloneIsolated();
+
+	protected Model modelCloneDeep(Hashtable<Model, Model> visited) {
+		return modelCloneIsolated();
+	}
 
 	public Model cloneIsolated() {
 		Model clone = modelCloneIsolated();
@@ -606,17 +624,57 @@ public abstract class Model implements Serializable, Observer {
 		
 		return clone;
 	}
+	
+	public Model cloneDeep() {
+		return cloneDeep(new Hashtable<Model, Model>());
+	}
+	
+	protected Model cloneDeep(Hashtable<Model, Model> visited) {
+		Model clone = modelCloneDeep(visited);
+		
+		if(clone.properties == null)
+			clone.properties = new Hashtable<String, Object>();
+		// Assumed that cloning is not necessary for properties
+		// I.e., all property values are immutable
+		clone.properties.putAll(this.properties);
+		
+		visited.put(this, clone);
+		
+		for(Observer observer: this.observers) {
+			if(observer instanceof Model) {
+				Model observerClone = visited.get(observer);
+				if(observerClone == null) {
+					observerClone = ((Model)observer).cloneDeep(visited);
+				}
+				clone.observers.add(observerClone);
+				observerClone.observees.add(clone);
+			}
+		}
+		
+		for(Observer observee: this.observees) {
+			if(observee instanceof Model) {
+				Model observeeClone = visited.get(observee);
+				if(observeeClone == null) {
+					observeeClone = ((Model)observee).cloneDeep(visited);
+				}
+				observeeClone.observers.add(clone);
+				clone.observees.add(observeeClone);
+			}
+		}
+		
+		return clone;
+	}
 
 	public void inject(Model model) {
 		for(Observer observer: this.observers) {
 			if(observer instanceof Model) {
 				model.observers.add(observer);
-				((Model) observer).observees.add(model);
+				((Model)observer).observees.add(model);
 			}
 		}
 		for(Observer observee: this.observees) {
 			if(observee instanceof Model) {
-				((Model) observee).addObserver(model);
+				((Model)observee).addObserver(model);
 				model.observees.add(observee);
 			}
 		}
