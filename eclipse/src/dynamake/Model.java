@@ -630,6 +630,12 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	protected Model cloneDeep(Hashtable<Model, Model> visited) {
+		/*
+		TODO: Fix the below issue:
+		There is an issue with the current implementation, because the obervers and obervees, which aren't contained by other models, 
+		are cloned, and thus will not be visually represented. This must not occur: a model alive must be visually represented in some 
+		manner - or explicitly hidden (not implemented yet).
+		*/
 		Model clone = modelCloneDeep(visited);
 		
 		if(clone.properties == null)
