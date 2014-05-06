@@ -82,6 +82,15 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionObserverMapBuilder.addTransaction("Cons", transactionObserverContentMapBuilder);
 			transactionObserverMapBuilder.appendTo(popup, "Observation");
 		}
+		
+		transactionSelectionGeneralMapBuilder.addTransaction("Inject", new Runnable() {
+			@Override
+			public void run() {
+				selection.getTransactionFactory().executeOnRoot(
+					new InjectTransaction(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
+				);
+			}
+		});
 
 		TransactionMapBuilder transactionTargetMapBuilder = new TransactionMapBuilder();
 		target.appendDropTargetTransactions(selection, dropBoundsOnTarget, dropPointOnTarget, transactionTargetMapBuilder);

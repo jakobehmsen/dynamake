@@ -606,4 +606,19 @@ public abstract class Model implements Serializable, Observer {
 		
 		return clone;
 	}
+
+	public void inject(Model model) {
+		for(Observer observer: this.observers) {
+			if(observer instanceof Model) {
+				model.observers.add(observer);
+				((Model) observer).observees.add(model);
+			}
+		}
+		for(Observer observee: this.observees) {
+			if(observee instanceof Model) {
+				((Model) observee).addObserver(model);
+				model.observees.add(observee);
+			}
+		}
+	}
 }
