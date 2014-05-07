@@ -70,8 +70,10 @@ public class CanvasModel extends Model {
 	
 	@Override
 	protected void addContent(HashSet<Model> contained) {
-		for(Model model: models)
+		for(Model model: models) {
+			model.addContent(contained);
 			contained.add(model);
+		}
 	}
 	
 	public static class RemovedModelChange {
