@@ -628,10 +628,25 @@ public abstract class Model implements Serializable, Observer {
 	public Model cloneDeep() {
 		HashSet<Model> contained = new HashSet<Model>();
 		addContent(contained);
+		int observersCount = 0;
+		int observeesCount = 0;
+		for(Model m: contained) {
+			observersCount += m.observers.size();
+			observeesCount += m.observees.size();
+		}
+//		System.out.println("contained count="+contained.size());
+//		System.out.println("observersCount="+observersCount);
+//		System.out.println("observeesCount="+observeesCount);
+//		System.out.println();
 		return cloneDeep(new Hashtable<Model, Model>(), contained);
 	}
 	
 	protected void addContent(HashSet<Model> contained) {
+		contained.add(this);
+		modelAddContent(contained);
+	}
+	
+	protected void modelAddContent(HashSet<Model> contained) {
 		
 	}
 	
@@ -641,6 +656,12 @@ public abstract class Model implements Serializable, Observer {
 		There is an issue with the current implementation, because the obervers and obervees, which aren't contained by other models, 
 		are cloned, and thus will not be visually represented. This must not occur: a model alive must be visually represented in some 
 		manner - or explicitly hidden (not implemented yet).
+		*/
+		
+		/*
+		Model clone = cloneIsolated();
+		visited.put(this, clone);
+		clone.cloneContentsFrom(this);
 		*/
 		
 		Model clone = modelCloneDeep(visited, contained);
@@ -660,21 +681,10 @@ public abstract class Model implements Serializable, Observer {
 					if(observerClone == null) {
 						observerClone = ((Model)observer).cloneDeep(visited, contained);
 					}
-					clone.observers.add(observerClone);
 					observerClone.observees.add(clone);
-				}
-			}
-		}
-		
-		for(Observer observee: this.observees) {
-			if(observee instanceof Model) {
-				if(contained.contains(observee)) {
-					Model observeeClone = visited.get(observee);
-					if(observeeClone == null) {
-						observeeClone = ((Model)observee).cloneDeep(visited, contained);
-					}
-					observeeClone.observers.add(clone);
-					clone.observees.add(observeeClone);
+					clone.observers.add(observerClone);
+				} else {
+					System.out.println("Not contained observer:"+observer);
 				}
 			}
 		}

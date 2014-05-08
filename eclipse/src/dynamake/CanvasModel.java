@@ -69,10 +69,9 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
-	protected void addContent(HashSet<Model> contained) {
+	protected void modelAddContent(HashSet<Model> contained) {
 		for(Model model: models) {
 			model.addContent(contained);
-			contained.add(model);
 		}
 	}
 	
