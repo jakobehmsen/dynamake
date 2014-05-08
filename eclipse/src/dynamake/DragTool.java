@@ -20,14 +20,12 @@ public class DragTool implements Tool {
 
 	@Override
 	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(ProductionPanel productionPanel, MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -51,7 +49,6 @@ public class DragTool implements Tool {
 	@Override
 	public void mousePressed(ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-//			Point pointInContentView = SwingUtilities.convertPoint((JComponent) productionPanel.editPanelMouseAdapter.selection, e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 			Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);

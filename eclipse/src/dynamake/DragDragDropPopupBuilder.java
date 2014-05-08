@@ -20,8 +20,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		}
 	}
 	
-	@Override
-	public void buildFromSelectionToSelection(JPopupMenu popup, ModelComponent selection) {
+	private void buildFromSelectionToSelection(JPopupMenu popup, ModelComponent selection) {
 		ModelComponent parentModelComponent = ModelComponent.Util.closestModelComponent(((JComponent)selection).getParent()); 
 		
 		TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
@@ -37,8 +36,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionSelectionMapBuilder.appendTo(popup, "Selection");
 	}
 
-	@Override
-	public void buildFromSelectionToOther(JPopupMenu popup, final ModelComponent selection, final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
+	private void buildFromSelectionToOther(JPopupMenu popup, final ModelComponent selection, final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
 		TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
 		
 		if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {

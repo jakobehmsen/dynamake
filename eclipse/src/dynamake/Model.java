@@ -637,8 +637,11 @@ public abstract class Model implements Serializable, Observer {
 			for(Observer observer: source.observers) {
 				if(observer instanceof Model) {
 					Model observerClone = sourceToCloneMap.get(observer);
-					clone.observers.add(observerClone);
-					observerClone.observees.add(clone);
+					if(observerClone != null) {
+						// Only if observer is contained
+						clone.observers.add(observerClone);
+						observerClone.observees.add(clone);
+					}
 				}
 			}
 		}

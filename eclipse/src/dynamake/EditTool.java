@@ -106,15 +106,6 @@ public class EditTool implements Tool {
 
 	@Override
 	public void mousePressed(ProductionPanel productionPanel, MouseEvent e) {
-//		if(e.getButton() == 1) {
-//			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(e.getPoint());
-//			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
-//			Point targetComponentMouseDown = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-//			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, targetComponentMouseDown, true);
-//			productionPanel.livePanel.repaint();
-//		}
-		
-//		Point pointInContentView = SwingUtilities.convertPoint((JComponent) productionPanel.editPanelMouseAdapter.selection, e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 		ModelComponent targetModelComponent =  productionPanel.editPanelMouseAdapter.closestModelComponent(target);
