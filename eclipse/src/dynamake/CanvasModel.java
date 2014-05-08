@@ -54,24 +54,25 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
-	protected Model modelCloneDeep(Hashtable<Model, Model> visited, HashSet<Model> contained) {
-		ArrayList<Model> clonedModels = new ArrayList<Model>();
-		
-		for(Model model: models) {
-			Model clone = visited.get(model);
-			if(clone == null) {
-				clone = model.cloneDeep(visited, contained);
-			}
-			clonedModels.add(clone);
-		}
-		
-		return new CanvasModel(clonedModels);
-	}
-	
-	@Override
 	protected void modelAddContent(HashSet<Model> contained) {
 		for(Model model: models) {
 			model.addContent(contained);
+		}
+	}
+
+	@Override
+	protected void cloneAndMap(Hashtable<Model, Model> sourceToCloneMap) {
+		CanvasModel clone = new CanvasModel();
+		clone.properties = new Hashtable<String, Object>();
+		// Assumed that cloning is not necessary for properties
+		// I.e., all property values are immutable
+		clone.properties.putAll(this.properties);
+		sourceToCloneMap.put(this, clone);
+		
+		for(Model model: models) {
+			model.cloneAndMap(sourceToCloneMap);
+			Model modelClone = sourceToCloneMap.get(model);
+			clone.models.add(modelClone);
 		}
 	}
 	

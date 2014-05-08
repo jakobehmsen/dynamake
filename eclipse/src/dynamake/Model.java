@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -98,7 +99,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	private Hashtable<String, Object> properties;
+	protected Hashtable<String, Object> properties;
 	
 	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance) {
 		if(properties == null)
@@ -626,19 +627,23 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public Model cloneDeep() {
-		HashSet<Model> contained = new HashSet<Model>();
-		addContent(contained);
-		int observersCount = 0;
-		int observeesCount = 0;
-		for(Model m: contained) {
-			observersCount += m.observers.size();
-			observeesCount += m.observees.size();
+		Hashtable<Model, Model> sourceToCloneMap = new Hashtable<Model, Model>();
+		cloneAndMap(sourceToCloneMap);
+		
+		for(Map.Entry<Model, Model> sourceToCloneEntry: sourceToCloneMap.entrySet()) {
+			Model source = sourceToCloneEntry.getKey();
+			Model clone = sourceToCloneEntry.getValue();
+			
+			for(Observer observer: source.observers) {
+				if(observer instanceof Model) {
+					Model observerClone = sourceToCloneMap.get(observer);
+					clone.observers.add(observerClone);
+					observerClone.observees.add(clone);
+				}
+			}
 		}
-//		System.out.println("contained count="+contained.size());
-//		System.out.println("observersCount="+observersCount);
-//		System.out.println("observeesCount="+observeesCount);
-//		System.out.println();
-		return cloneDeep(new Hashtable<Model, Model>(), contained);
+		
+		return sourceToCloneMap.get(this);
 	}
 	
 	protected void addContent(HashSet<Model> contained) {
@@ -650,46 +655,9 @@ public abstract class Model implements Serializable, Observer {
 		
 	}
 	
-	protected Model cloneDeep(Hashtable<Model, Model> visited, HashSet<Model> contained) {
-		/*
-		TODO: Fix the below issue:
-		There is an issue with the current implementation, because the obervers and obervees, which aren't contained by other models, 
-		are cloned, and thus will not be visually represented. This must not occur: a model alive must be visually represented in some 
-		manner - or explicitly hidden (not implemented yet).
-		*/
-		
-		/*
+	protected void cloneAndMap(Hashtable<Model, Model> sourceToCloneMap) {
 		Model clone = cloneIsolated();
-		visited.put(this, clone);
-		clone.cloneContentsFrom(this);
-		*/
-		
-		Model clone = modelCloneDeep(visited, contained);
-		
-		if(clone.properties == null)
-			clone.properties = new Hashtable<String, Object>();
-		// Assumed that cloning is not necessary for properties
-		// I.e., all property values are immutable
-		clone.properties.putAll(this.properties);
-		
-		visited.put(this, clone);
-		
-		for(Observer observer: this.observers) {
-			if(observer instanceof Model) {
-				if(contained.contains(observer)) {
-					Model observerClone = visited.get(observer);
-					if(observerClone == null) {
-						observerClone = ((Model)observer).cloneDeep(visited, contained);
-					}
-					observerClone.observees.add(clone);
-					clone.observers.add(observerClone);
-				} else {
-					System.out.println("Not contained observer:"+observer);
-				}
-			}
-		}
-		
-		return clone;
+		sourceToCloneMap.put(this, clone);
 	}
 
 	public void inject(Model model) {
