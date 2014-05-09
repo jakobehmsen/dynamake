@@ -8,10 +8,10 @@ import javax.swing.SwingUtilities;
 
 import dynamake.LiveModel.ProductionPanel;
 
-public class TellTool implements Tool {
+public class ViewTool implements Tool {
 	@Override
 	public String getName() {
-		return "Tell";
+		return "View";
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public class TellTool implements Tool {
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-			productionPanel.editPanelMouseAdapter.showPopupForSelectionTell(productionPanel.selectionFrame, e.getPoint(), null);
+			productionPanel.editPanelMouseAdapter.showPopupForSelectionView(productionPanel.selectionFrame, e.getPoint(), null);
 
 			productionPanel.editPanelMouseAdapter.targetOver = null;
 			productionPanel.livePanel.repaint();

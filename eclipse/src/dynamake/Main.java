@@ -175,7 +175,8 @@ public class Main {
 						new BindTool(),
 						new DragTool(),
 						new ConsTool(),
-						new TellTool()
+						new TellTool(),
+						new ViewTool()
 					};
 				}
 			};
