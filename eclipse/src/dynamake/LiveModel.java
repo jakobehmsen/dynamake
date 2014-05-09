@@ -496,6 +496,8 @@ public class LiveModel extends Model {
 				this.remove(selectionFrame);
 				selectionFrame = null;
 			}
+			
+			this.livePanel.transactionFactory.executeOnRoot(new SetSelection(this.livePanel.transactionFactory.getLocation(), null));
 		}
 	}
 	
@@ -523,6 +525,12 @@ public class LiveModel extends Model {
 			ViewManager newViewManager = new ViewManager() {
 				@Override
 				public void setFocus(JComponent component) { }
+				
+				@Override
+				public void unFocus(ModelComponent view) {
+					if(productionPanel.editPanelMouseAdapter.selection == view)
+						productionPanel.clearFocus();
+				}
 				
 				@Override
 				public void selectAndActive(ModelComponent view, int x, int y) { }

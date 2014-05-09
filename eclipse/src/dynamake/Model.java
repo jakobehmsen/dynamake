@@ -45,11 +45,14 @@ public abstract class Model implements Serializable, Observer {
 
 	public static final String PROPERTY_BACKGROUND = "Background";
 	public static final String PROPERTY_FOREGROUND = "Foreground";
+	public static final String PROPERTY_VIEW = "View";
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	protected static final int VIEW_APPLIANCE = 1;
+	protected static final int VIEW_ENGINEERING = 0;
 	
 	public static class Atom {
 		public final Object value;
@@ -304,6 +307,10 @@ public abstract class Model implements Serializable, Observer {
 		observers = (ArrayList<Observer>)ois.readObject();
 		observees = (ArrayList<Observer>)ois.readObject();
 		properties = (Hashtable<String, Object>)ois.readObject();
+	}
+
+	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance) {
+		setProperty(Model.PROPERTY_VIEW, view, propCtx, propDistance);
 	}
 	
 	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
@@ -676,5 +683,21 @@ public abstract class Model implements Serializable, Observer {
 				model.observees.add(observee);
 			}
 		}
+	}
+
+	public boolean conformsToView(int value) {
+		Integer view = (Integer)getProperty(Model.PROPERTY_VIEW);
+		if(view == null)
+			view = 1;
+		
+		return view <= value;
+	}
+
+	public boolean viewConformsTo(int value) {
+		Integer view = (Integer)getProperty(Model.PROPERTY_VIEW);
+		if(view == null)
+			view = 1;
+
+		return view >= value;
 	}
 }

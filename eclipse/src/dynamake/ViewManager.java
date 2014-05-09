@@ -13,4 +13,5 @@ public interface ViewManager {
 	void refresh(ModelComponent view);
 	void wasCreated(ModelComponent view);
 	Tool[] getTools();
+	void unFocus(ModelComponent view);
 }
