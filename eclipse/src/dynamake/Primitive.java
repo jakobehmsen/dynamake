@@ -2,10 +2,12 @@ package dynamake;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.Hashtable;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -322,7 +324,7 @@ public class Primitive extends Model {
 		implementation.execute(this, sender, change, propCtx, propDistance, changeDistance);
 	}
 	
-	private static class PrimitiveView extends JPanel implements ModelComponent {
+	private static class PrimitiveView extends JLabel implements ModelComponent {
 		/**
 		 * 
 		 */
@@ -331,12 +333,21 @@ public class Primitive extends Model {
 		private TransactionFactory transactionFactory;
 
 		public PrimitiveView(Primitive model, TransactionFactory transactionFactory) {
+			super(model.implementation.getName(), JLabel.CENTER);
 			this.model = model;
 			this.transactionFactory = transactionFactory;
 			
-			setBorder(BorderFactory.createLineBorder(Color.BLACK));
-			setLayout(new BorderLayout());
-			add(new JLabel(model.implementation.getName(), JLabel.CENTER), BorderLayout.CENTER);
+//			setFont(new Font());
+			try {
+				Font font = ResourceManager.INSTANCE.getResource("Primitive Font", Font.class);
+				setFont(font);
+			} catch (InterruptedException | ExecutionException e) {
+				e.printStackTrace();
+			}
+			
+//			setBorder(BorderFactory.createLineBorder(Color.BLACK));
+//			setLayout(new BorderLayout());
+//			add(new JLabel(model.implementation.getName(), JLabel.CENTER), BorderLayout.CENTER);
 		}
 
 		@Override

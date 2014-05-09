@@ -1,9 +1,11 @@
 package dynamake;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -52,26 +54,52 @@ public class Main {
 			loadIndicator.setUndecorated(true);
 			loadIndicator.setSize(320, 240);
 			loadIndicator.setLocationRelativeTo(null);
+			loadIndicator.addWindowListener(new WindowListener() {
+				@Override
+				public void windowOpened(WindowEvent arg0) {
+					loadIndicatorLabel.repaint();
+					loadResources();
+				}
+				
+				@Override
+				public void windowIconified(WindowEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void windowDeiconified(WindowEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void windowDeactivated(WindowEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void windowClosing(WindowEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void windowClosed(WindowEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void windowActivated(WindowEvent arg0) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
 			loadIndicator.setVisible(true);
 			
-			ResourceManager.INSTANCE.setResourceAccessor("Set " + Model.PROPERTY_BACKGROUND, new Callable<JColorChooser>() {
-				@Override
-				public JColorChooser call() throws Exception {
-					return new JColorChooser();
-				}
-			});
-			ResourceManager.INSTANCE.setResourceAccessor("Set " + Model.PROPERTY_FOREGROUND, new Callable<JColorChooser>() {
-				@Override
-				public JColorChooser call() throws Exception {
-					return new JColorChooser();
-				}
-			});
-			ResourceManager.INSTANCE.setResourceAccessor("Set " + TextModel.PROPERTY_CARET_COLOR, new Callable<JColorChooser>() {
-				@Override
-				public JColorChooser call() throws Exception {
-					return new JColorChooser();
-				}
-			});
+//			loadResources();
 			
 			ArrayList<Factory> factoryBuilder = new ArrayList<Factory>();
 			
@@ -192,5 +220,36 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static void loadResources() {
+		ResourceManager.INSTANCE.setResourceAccessor("Set " + Model.PROPERTY_BACKGROUND, new Callable<JColorChooser>() {
+			@Override
+			public JColorChooser call() throws Exception {
+				return new JColorChooser();
+			}
+		});
+		ResourceManager.INSTANCE.setResourceAccessor("Set " + Model.PROPERTY_FOREGROUND, new Callable<JColorChooser>() {
+			@Override
+			public JColorChooser call() throws Exception {
+				return new JColorChooser();
+			}
+		});
+		ResourceManager.INSTANCE.setResourceAccessor("Set " + TextModel.PROPERTY_CARET_COLOR, new Callable<JColorChooser>() {
+			@Override
+			public JColorChooser call() throws Exception {
+				return new JColorChooser();
+			}
+		});
+		final String fontFamily = Font.MONOSPACED;
+//		final String fontFamily = "Consolas";
+		ResourceManager.INSTANCE.setResourceAccessor("Primitive Font", new Callable<Font>() {
+			@Override
+			public Font call() throws Exception {
+				Font font = new Font(fontFamily, Font.BOLD | Font.ITALIC, 12);
+				font.toString();
+				return font;
+			}
+		});
 	}
 }
