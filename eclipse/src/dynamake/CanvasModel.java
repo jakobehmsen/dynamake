@@ -338,6 +338,73 @@ public class CanvasModel extends Model {
 			
 		}
 	}
+	
+	private void addModelComponent(
+			final CanvasPanel view, 
+			TransactionFactory transactionFactory, final ViewManager viewManager, 
+			final HashSet<Model> shownModels, final Hashtable<Model, ModelComponent> modelToModelComponentMap, Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap,
+			final Model model) {
+		final Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(this, model)));
+		
+		Rectangle bounds = new Rectangle(
+			(int)model.getProperty("X"),
+			(int)model.getProperty("Y"),
+			(int)model.getProperty("Width"),
+			(int)model.getProperty("Height")
+		);
+		
+		((JComponent)modelView.getBindingTarget()).setBounds(bounds);
+
+		Integer viewModel2 = (Integer)modelView.getBindingTarget().getModelBehind().getProperty(Model.PROPERTY_VIEW);
+		if(viewModel2 == null)
+			viewModel2 = 1;
+
+		if(view.model.conformsToView(viewModel2)) {
+			shownModels.add(model);
+			view.add((JComponent)modelView.getBindingTarget());
+			
+			// It could be possible to have map mapping from model to model component as follows:
+			modelToModelComponentMap.put(model, modelView.getBindingTarget());
+		}
+		
+		Model.RemovableListener removableListener = Model.RemovableListener.addObserver(model, new Observer() {
+			@Override
+			public void removeObservee(Observer observee) { }
+			
+			@Override
+			public void changed(Model sender, Object change,
+					PropogationContext propCtx, int propDistance, int changeDistance) {
+				if(change instanceof PropertyChanged) {
+					PropertyChanged propertyChanged = (PropertyChanged)change;
+					if(propertyChanged.name.equals(Model.PROPERTY_VIEW)) {
+						int modelView2 = (int)propertyChanged.value;
+						if(view.model.conformsToView(modelView2)) {
+							// Should be shown
+							if(!shownModels.contains(sender)) {
+								shownModels.add(sender);
+								view.add((JComponent)modelView.getBindingTarget());
+								modelToModelComponentMap.put(model, modelView.getBindingTarget());
+								viewManager.refresh(view);
+							}
+						} else {
+							// Should be hidden
+							if(shownModels.contains(sender)) {
+								shownModels.remove(sender);
+								view.remove((JComponent)modelView.getBindingTarget());
+								viewManager.unFocus(modelView.getBindingTarget());
+								viewManager.refresh(view);
+							}
+						}
+					}
+				}
+			}
+			
+			@Override
+			public void addObservee(Observer observee) { }
+		});
+		
+		modelToRemovableListenerMap.put(model, removableListener);
+	}
 
 	@Override
 	public Binding<ModelComponent> createView(final ViewManager viewManager, final TransactionFactory transactionFactory) {
@@ -354,67 +421,9 @@ public class CanvasModel extends Model {
 		for(final Model model: models) {
 //		// Reverse order such that the last added model is put to the front
 //		for(int i = models.size() - 1; i >= 0; i--) {
-//			Model model = models.get(i);
-			final Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(this, model)));
-			
-			Rectangle bounds = new Rectangle(
-				(int)model.getProperty("X"),
-				(int)model.getProperty("Y"),
-				(int)model.getProperty("Width"),
-				(int)model.getProperty("Height")
+			addModelComponent(
+				view, transactionFactory, viewManager, shownModels, modelToModelComponentMap, modelToRemovableListenerMap, model
 			);
-			
-			((JComponent)modelView.getBindingTarget()).setBounds(bounds);
-
-			Integer viewModel2 = (Integer)modelView.getBindingTarget().getModelBehind().getProperty(Model.PROPERTY_VIEW);
-			if(viewModel2 == null)
-				viewModel2 = 1;
-
-			if(view.model.conformsToView(viewModel2)) {
-				shownModels.add(model);
-				view.add((JComponent)modelView.getBindingTarget());
-				
-				// It could be possible to have map mapping from model to model component as follows:
-				modelToModelComponentMap.put(model, modelView.getBindingTarget());
-			}
-			
-			Model.RemovableListener removableListener = Model.RemovableListener.addObserver(model, new Observer() {
-				@Override
-				public void removeObservee(Observer observee) { }
-				
-				@Override
-				public void changed(Model sender, Object change,
-						PropogationContext propCtx, int propDistance, int changeDistance) {
-					if(change instanceof PropertyChanged) {
-						PropertyChanged propertyChanged = (PropertyChanged)change;
-						if(propertyChanged.name.equals(Model.PROPERTY_VIEW)) {
-							int modelView2 = (int)propertyChanged.value;
-							if(view.model.conformsToView(modelView2)) {
-								// Should be shown
-								if(!shownModels.contains(sender)) {
-									shownModels.add(sender);
-									view.add((JComponent)modelView.getBindingTarget());
-									modelToModelComponentMap.put(model, modelView.getBindingTarget());
-									viewManager.refresh(view);
-								}
-							} else {
-								// Should be hidden
-								if(shownModels.contains(sender)) {
-									shownModels.remove(sender);
-									view.remove((JComponent)modelView.getBindingTarget());
-									viewManager.unFocus(modelView.getBindingTarget());
-									viewManager.refresh(view);
-								}
-							}
-						}
-					}
-				}
-				
-				@Override
-				public void addObservee(Observer observee) { }
-			});
-			
-			modelToRemovableListenerMap.put(model, removableListener);
 		}
 		
 		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new ObserverAdapter() {
@@ -423,72 +432,10 @@ public class CanvasModel extends Model {
 				if(change instanceof CanvasModel.AddedModelChange) {
 					final Model model = ((CanvasModel.AddedModelChange)change).model;
 					
-					final Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(CanvasModel.this, model)));
-					
-					Rectangle bounds = new Rectangle(
-						(int)model.getProperty("X"),
-						(int)model.getProperty("Y"),
-						(int)model.getProperty("Width"),
-						(int)model.getProperty("Height")
+					addModelComponent(
+						view, transactionFactory, viewManager, shownModels, modelToModelComponentMap, modelToRemovableListenerMap, model
 					);
-					
-					((JComponent)modelView.getBindingTarget()).setBounds(bounds);
-
-					Integer viewModel2 = (Integer)modelView.getBindingTarget().getModelBehind().getProperty(Model.PROPERTY_VIEW);
-					if(viewModel2 == null)
-						viewModel2 = 1;
-
-					if(view.model.conformsToView(viewModel2)) {
-						shownModels.add(model);
-						view.add((JComponent)modelView.getBindingTarget());
-	
-						// It could be possible to have map mapping from model to model component as follows:
-						modelToModelComponentMap.put(model, modelView.getBindingTarget());
-						
-//						// Reverse the index starting from the last index at zero, second last as 1, and so forth
-//						// Put the last added model to the front
-//						int zOrder = (view.getComponentCount() - 1) - ((CanvasModel.AddedModelChange)change).index;
-//						view.setComponentZOrder((JComponent)modelView.getBindingTarget(), zOrder);
-						viewManager.refresh(view);
-					}
-					
-					Model.RemovableListener removableListener = Model.RemovableListener.addObserver(model, new Observer() {
-						@Override
-						public void removeObservee(Observer observee) { }
-						
-						@Override
-						public void changed(Model sender, Object change,
-								PropogationContext propCtx, int propDistance, int changeDistance) {
-							if(change instanceof PropertyChanged) {
-								PropertyChanged propertyChanged = (PropertyChanged)change;
-								if(propertyChanged.name.equals(Model.PROPERTY_VIEW)) {
-									int modelView2 = (int)propertyChanged.value;
-									if(view.model.conformsToView(modelView2)) {
-										// Should be shown
-										if(!shownModels.contains(sender)) {
-											shownModels.add(sender);
-											view.add((JComponent)modelView.getBindingTarget());
-											modelToModelComponentMap.put(model, modelView.getBindingTarget());
-											viewManager.refresh(view);
-										}
-									} else {
-										// Should be hidden
-										if(shownModels.contains(sender)) {
-											shownModels.remove(sender);
-											view.remove((JComponent)modelView.getBindingTarget());
-											viewManager.unFocus(modelView.getBindingTarget());
-											viewManager.refresh(view);
-										}
-									}
-								}
-							}
-						}
-						
-						@Override
-						public void addObservee(Observer observee) { }
-					});
-					
-					modelToRemovableListenerMap.put(model, removableListener);
+					viewManager.refresh(view);
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
 					// It could be possible to have map mapping from model to model component as follows:
 					Model removedModel = ((CanvasModel.RemovedModelChange)change).model;
