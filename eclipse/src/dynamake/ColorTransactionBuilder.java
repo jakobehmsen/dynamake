@@ -13,9 +13,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class ColorTransactionBuilder extends TransactionBuilder {
-	private static Hashtable<String, JColorChooser> nameToColorChooserMap = new Hashtable<String, JColorChooser>();
-//	private static JColorChooser colorChooser;
-//	private static AbstractColorChooserPanel colorChooserPanel;
 	private Color initialColor;
 	private Action1<Color> action;
 
@@ -25,13 +22,6 @@ public class ColorTransactionBuilder extends TransactionBuilder {
 	}
 	
 	private static JColorChooser getColorChooser(String name) {
-//		JColorChooser colorChooser = nameToColorChooserMap.get(name);
-//		if(colorChooser == null) {
-//			colorChooser = new JColorChooser();
-//			nameToColorChooserMap.put(name, colorChooser);
-//		}
-//		return colorChooser;
-		
 		try {
 			return ResourceManager.INSTANCE.getResource(name, JColorChooser.class);
 		} catch (InterruptedException | ExecutionException e) {
@@ -42,11 +32,10 @@ public class ColorTransactionBuilder extends TransactionBuilder {
 	@Override
 	public void appendTo(final TransactionView view, ArrayList<JMenuItem> menuItems, String name) {
 		JMenu menuItem = new JMenu();
-//		final JColorChooser colorChooser = new JColorChooser();
 		JColorChooser colorChooser = getColorChooser(name);
 		colorChooser.setSelectionModel(new javax.swing.colorchooser.DefaultColorSelectionModel());
 		final AbstractColorChooserPanel colorChooserPanel = colorChooser.getChooserPanels()[0];
-//		JComponent colorChooserPanelC = (JComponent)colorChooserPanel.getComponent(0);
+
 		if(initialColor != null)
 			colorChooserPanel.getColorSelectionModel().setSelectedColor(initialColor);
 
@@ -60,9 +49,7 @@ public class ColorTransactionBuilder extends TransactionBuilder {
 			}
 		});
 
-//		menuItem.add(colorChooser);
 		menuItem.add(colorChooserPanel);
-		
 		menuItems.add(menuItem);
 	}
 

@@ -20,14 +20,12 @@ public class ConsTool implements Tool {
 
 	@Override
 	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(ProductionPanel productionPanel, MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -71,7 +69,6 @@ public class ConsTool implements Tool {
 	@Override
 	public void mousePressed(ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-//			Point pointInContentView = SwingUtilities.convertPoint((JComponent) productionPanel.editPanelMouseAdapter.selection, e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 			Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
@@ -101,8 +98,6 @@ public class ConsTool implements Tool {
 					if(newTargetOverComponent.getModelBehind() instanceof CanvasModel) {
 						color = ProductionPanel.TARGET_OVER_COLOR;
 					} else {
-						// Red if selection already forwards to target
-						// Otherwise green
 						color = 
 							productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(newTargetOverComponent.getModelBehind()) ? ProductionPanel.UNBIND_COLOR
 							: ProductionPanel.BIND_COLOR;

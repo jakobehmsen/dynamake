@@ -1,6 +1,5 @@
 package dynamake;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
@@ -9,9 +8,7 @@ import java.io.Serializable;
 import java.util.Hashtable;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.prevayler.Transaction;
 
@@ -337,17 +334,12 @@ public class Primitive extends Model {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
 			
-//			setFont(new Font());
 			try {
 				Font font = ResourceManager.INSTANCE.getResource("Primitive Font", Font.class);
 				setFont(font);
 			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
-			
-//			setBorder(BorderFactory.createLineBorder(Color.BLACK));
-//			setLayout(new BorderLayout());
-//			add(new JLabel(model.implementation.getName(), JLabel.CENTER), BorderLayout.CENTER);
 		}
 
 		@Override
@@ -363,8 +355,7 @@ public class Primitive extends Model {
 		@Override
 		public void appendContainerTransactions(
 				TransactionMapBuilder transactions, ModelComponent child) {
-			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -380,12 +371,11 @@ public class Primitive extends Model {
 		@Override
 		public void appendDropTargetTransactions(ModelComponent dropped,
 				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+
 		}
+		
 		@Override
 		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 	}

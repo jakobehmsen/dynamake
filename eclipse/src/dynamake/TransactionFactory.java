@@ -23,8 +23,6 @@ public class TransactionFactory {
 	}
 	
 	public Location getLocation() {
-//		return locator.locate();
-		
 		if(parent != null)
 			return new CompositeLocation(parent.getLocation(), locator.locate());
 		return locator.locate();
@@ -62,16 +60,6 @@ public class TransactionFactory {
 	}
 	
 	public TransactionFactory extend(final Locator locator) {
-//		TransactionFactory extended = new TransactionFactory(prevaylerService, new Locator() {
-//			@Override
-//			public Location locate() {
-//				Location currentLocation = TransactionFactory.this.locator.locate();
-//				Location innerLocation = locator.locate();
-//				
-//				return new CompositeLocation(currentLocation, innerLocation);
-//			}
-//		});
-		
 		TransactionFactory extended = new TransactionFactory(prevaylerService, locator);
 		
 		extended.parent = this;

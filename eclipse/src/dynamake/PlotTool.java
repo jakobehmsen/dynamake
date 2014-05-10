@@ -25,14 +25,12 @@ public class PlotTool implements Tool {
 
 	@Override
 	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(ProductionPanel productionPanel, MouseEvent e) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override

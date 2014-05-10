@@ -1,21 +1,15 @@
 package dynamake;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
-import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 
 import javax.swing.JComponent;
@@ -55,8 +49,7 @@ public class RootModel extends Model {
 			this.addWindowFocusListener(new WindowFocusListener() {
 				@Override
 				public void windowLostFocus(WindowEvent arg0) {
-					// TODO Auto-generated method stub
-					
+
 				}
 				
 				@Override
@@ -79,14 +72,12 @@ public class RootModel extends Model {
 		@Override
 		public void appendContainerTransactions(
 				TransactionMapBuilder transactions, ModelComponent child) {
-			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void appendTransactions(TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -97,13 +88,11 @@ public class RootModel extends Model {
 		@Override
 		public void appendDropTargetTransactions(ModelComponent dropped,
 				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
-			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 	}
@@ -121,8 +110,7 @@ public class RootModel extends Model {
 
 		@Override
 		public void setChild(Object holder, Object child) {
-			// TODO Auto-generated method stub
-			
+
 		}
 	}
 	

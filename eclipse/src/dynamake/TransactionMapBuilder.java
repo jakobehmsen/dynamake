@@ -2,9 +2,7 @@ package dynamake;
 
 import java.util.ArrayList;
 
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 
 public class TransactionMapBuilder extends TransactionBuilder {
 	private static class TransactionInfo {
@@ -40,31 +38,4 @@ public class TransactionMapBuilder extends TransactionBuilder {
 	public boolean isEmpty() {
 		return transactionInfos.isEmpty();
 	}
-	
-//	public JPopupMenu toPopupMenu() {
-//		JPopupMenu popupMenu = new JPopupMenu();
-//		
-//		for(final TransactionMapBuilder.TransactionInfo tInfo: transactionInfos) {
-//			JMenuItem menuItem = tInfo.transaction.toMenuItem();
-//			menuItem.setText(tInfo.name);
-//			
-//			popupMenu.add(menuItem);
-//		}
-//		
-//		return popupMenu;
-//	}
-
-//	@Override
-//	public JMenuItem toMenuItem() {
-//		JMenu containerMenuItem = new JMenu();
-//		
-//		for(final TransactionMapBuilder.TransactionInfo tInfo: transactionInfos) {
-//			JMenuItem menuItem = tInfo.transaction.toMenuItem();
-//			menuItem.setText(tInfo.name);
-//			
-//			containerMenuItem.add(menuItem);
-//		}
-//		
-//		return containerMenuItem;
-//	}
 }

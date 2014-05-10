@@ -338,11 +338,7 @@ public class CanvasModel extends Model {
 			
 		}
 	}
-	
-//	private Binding<ModelComponent> getModelView(Hashtable<Model, Binding<ModelComponent>> modelToModelComponentMap) {
-//		Binding<ModelComponent> modelView = modelToModelComponentMap.get(key);
-//	}
-	
+
 	private void addModelComponent(
 			final CanvasPanel view, 
 			final TransactionFactory transactionFactory, final ViewManager viewManager, 
