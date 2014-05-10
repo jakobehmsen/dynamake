@@ -7,7 +7,6 @@ import java.util.Hashtable;
 import org.prevayler.Transaction;
 
 public class AddThenBindTransaction implements Transaction<Model> {
-
 	/**
 	 * 
 	 */

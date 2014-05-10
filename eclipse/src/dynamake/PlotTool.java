@@ -92,7 +92,8 @@ public class PlotTool implements Tool {
 						// HACK: Models can only be added to canvases
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
-								new CanvasModel.AddModelTransaction(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), creationBounds, factory)
+//								new CanvasModel.AddModelTransaction(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), creationBounds, factory)
+								new AddThenSelectTransaction(productionPanel.livePanel.getTransactionFactory().getLocation(), productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), creationBounds, factory)
 							);
 						}
 					}

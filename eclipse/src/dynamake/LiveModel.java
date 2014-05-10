@@ -206,8 +206,28 @@ public class LiveModel extends Model {
 			public static final int VERTICAL_REGION_CENTER = 1;
 			public static final int VERTICAL_REGION_SOUTH = 2;
 			
+//			private Model.RemovableListener removableListener;
+			
 			public EditPanelMouseAdapter(ProductionPanel productionPanel) {
 				this.productionPanel = productionPanel;
+				
+//				removableListener = Model.RemovableListener.addObserver(productionPanel.livePanel.model, new Observer() {
+//					@Override
+//					public void changed(Model sender, Object change,
+//							PropogationContext propCtx, int propDistance,
+//							int changeDistance) {
+//						if(change instanceof SetSelection) {
+//							ModelComponent view = productionPanel.livePanel.model.getProperty("Selected");
+//							select2();
+//						}
+//					}
+//
+//					@Override
+//					public void addObservee(Observer observee) { }
+//
+//					@Override
+//					public void removeObservee(Observer observee) { }
+//				});
 			}
 			
 			private Tool getTool() {
@@ -262,6 +282,13 @@ public class LiveModel extends Model {
 			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, boolean moving) {
 				select(view, initialMouseDown, moving, new Rectangle(0, 0, 0, 0));
 			}
+			
+//			private void requestSelect(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
+//				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionInitialMouseDown", initialMouseDown));
+//				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionMoving", moving));
+//				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", effectBounds));
+//				productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), view.getTransactionFactory().getLocation()));
+//			}
 			
 			private void select(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
 				// <Don't remove>
@@ -567,6 +594,13 @@ public class LiveModel extends Model {
 				
 				@Override
 				public void wasCreated(ModelComponent view) {
+					PropogationContext propCtx = new PropogationContext(); // As arg
+					PropogationContext addedPropCtx = new PropogationContext(); // As local
+					
+					if(propCtx.isOrDerivesFrom(addedPropCtx)) {
+						// Select the view 
+					}
+					
 					if(LivePanel.this.model.selection != null && LivePanel.this.model.selection == view.getModelBehind()) {
 						selectedViewHolder[0] = view;
 					}
