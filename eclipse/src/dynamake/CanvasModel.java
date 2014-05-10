@@ -339,32 +339,27 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+//	private Binding<ModelComponent> getModelView(Hashtable<Model, Binding<ModelComponent>> modelToModelComponentMap) {
+//		Binding<ModelComponent> modelView = modelToModelComponentMap.get(key);
+//	}
+	
 	private void addModelComponent(
 			final CanvasPanel view, 
-			TransactionFactory transactionFactory, final ViewManager viewManager, 
-			final HashSet<Model> shownModels, final Hashtable<Model, ModelComponent> modelToModelComponentMap, Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap,
+			final TransactionFactory transactionFactory, final ViewManager viewManager, 
+			final HashSet<Model> shownModels, 
+			final Memoizer1<Model, Binding<ModelComponent>> modelToModelComponentMap,
+			Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap,
 			final Model model) {
-		final Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(this, model)));
-		
-		Rectangle bounds = new Rectangle(
-			(int)model.getProperty("X"),
-			(int)model.getProperty("Y"),
-			(int)model.getProperty("Width"),
-			(int)model.getProperty("Height")
-		);
-		
-		((JComponent)modelView.getBindingTarget()).setBounds(bounds);
-
-		Integer viewModel2 = (Integer)modelView.getBindingTarget().getModelBehind().getProperty(Model.PROPERTY_VIEW);
+		Integer viewModel2 = (Integer)model.getProperty(Model.PROPERTY_VIEW);
 		if(viewModel2 == null)
 			viewModel2 = 1;
 
 		if(view.model.conformsToView(viewModel2)) {
 			shownModels.add(model);
-			view.add((JComponent)modelView.getBindingTarget());
 			
-			// It could be possible to have map mapping from model to model component as follows:
-			modelToModelComponentMap.put(model, modelView.getBindingTarget());
+			Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
+
+			view.add((JComponent)modelView.getBindingTarget());
 		}
 		
 		Model.RemovableListener removableListener = Model.RemovableListener.addObserver(model, new Observer() {
@@ -381,14 +376,17 @@ public class CanvasModel extends Model {
 						if(view.model.conformsToView(modelView2)) {
 							// Should be shown
 							if(!shownModels.contains(sender)) {
+								Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
+								
 								shownModels.add(sender);
 								view.add((JComponent)modelView.getBindingTarget());
-								modelToModelComponentMap.put(model, modelView.getBindingTarget());
 								viewManager.refresh(view);
 							}
 						} else {
 							// Should be hidden
 							if(shownModels.contains(sender)) {
+								Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
+								
 								shownModels.remove(sender);
 								view.remove((JComponent)modelView.getBindingTarget());
 								viewManager.unFocus(modelView.getBindingTarget());
@@ -416,7 +414,26 @@ public class CanvasModel extends Model {
 		Model.wrapForComponentGUIEvents(this, view, view, viewManager);
 		
 		final HashSet<Model> shownModels = new HashSet<Model>();
-		final Hashtable<Model, ModelComponent> modelToModelComponentMap = new Hashtable<Model, ModelComponent>();
+		final Memoizer1<Model, Binding<ModelComponent>> modelToModelComponentMap = new Memoizer1<Model, Binding<ModelComponent>>(new Func1<Model, Binding<ModelComponent>>() {
+			@Override
+			public Binding<ModelComponent> call(Model model) {
+				final Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(CanvasModel.this, model)));
+				
+				Rectangle bounds = new Rectangle(
+					(int)model.getProperty("X"),
+					(int)model.getProperty("Y"),
+					(int)model.getProperty("Width"),
+					(int)model.getProperty("Height")
+				);
+				
+				((JComponent)modelView.getBindingTarget()).setBounds(bounds);
+				
+//				System.out.println("Created view");
+				
+				return modelView;
+			}
+		});
+		
 		final Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap = new Hashtable<Model, Model.RemovableListener>();
 		for(final Model model: models) {
 //		// Reverse order such that the last added model is put to the front
@@ -439,8 +456,10 @@ public class CanvasModel extends Model {
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
 					// It could be possible to have map mapping from model to model component as follows:
 					Model removedModel = ((CanvasModel.RemovedModelChange)change).model;
-					ModelComponent removedMC = modelToModelComponentMap.get(removedModel);
-					modelToModelComponentMap.remove(removedModel);
+					
+					Binding<ModelComponent> removedMCBinding = modelToModelComponentMap.get(removedModel);
+					modelToModelComponentMap.clear(removedModel);
+					ModelComponent removedMC = removedMCBinding.getBindingTarget();
 					view.remove((JComponent)removedMC);
 					
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
@@ -488,7 +507,6 @@ public class CanvasModel extends Model {
 						for(Component newInvisible: newInvisibles) {
 							shownModels.remove(((ModelComponent)newInvisible).getModelBehind());
 							view.remove(newInvisible);
-							modelToModelComponentMap.remove(((ModelComponent)newInvisible).getModelBehind());
 						}
 						
 						Object[] visibles = new Object[view.model.models.size()];
@@ -510,21 +528,9 @@ public class CanvasModel extends Model {
 									// Model to add
 									Model model = (Model)visible;
 									shownModels.add(model);
-									Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(CanvasModel.this, model)));
-									
-									Rectangle bounds = new Rectangle(
-										(int)model.getProperty("X"),
-										(int)model.getProperty("Y"),
-										(int)model.getProperty("Width"),
-										(int)model.getProperty("Height")
-									);
-									
-									((JComponent)modelView.getBindingTarget()).setBounds(bounds);
+									Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
 
 									view.add((JComponent)modelView.getBindingTarget());
-
-									// It could be possible to have map mapping from model to model component as follows:
-									modelToModelComponentMap.put(model, modelView.getBindingTarget());
 									
 //									// Reverse the index starting from the last index at zero, second last as 1, and so forth
 //									// Put the last added model to the front
