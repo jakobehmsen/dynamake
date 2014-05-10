@@ -488,7 +488,7 @@ public class CanvasModel extends Model {
 
 						for(int i = 0; i < invisibles.size(); i++) {
 							Model invisible = invisibles.get(i);
-							if(invisible.conformsToView((int)propertyChanged.value)) {
+							if(invisible.viewConformsTo((int)propertyChanged.value)) {
 								newVisibles.put(i, invisible);
 							}
 						}
