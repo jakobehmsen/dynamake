@@ -543,8 +543,11 @@ public class LiveModel extends Model {
 		
 						productionPanel.outputFrame.setBorder(
 							BorderFactory.createCompoundBorder(
-								BorderFactory.createLineBorder(Color.GREEN, 1), 
-								BorderFactory.createLineBorder(Color.WHITE, 1)
+								BorderFactory.createLineBorder(Color.BLACK, 2), 
+								BorderFactory.createCompoundBorder(
+									BorderFactory.createLineBorder(new Color(176, 223, 232), 2), 
+									BorderFactory.createLineBorder(Color.BLACK, 2)
+								)
 							)
 						);
 						
