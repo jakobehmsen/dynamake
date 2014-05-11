@@ -9,9 +9,9 @@ import org.prevayler.Transaction;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
-	public void buildFromSelectionAndTarget(JPopupMenu popup,
-			final ModelComponent selection, final ModelComponent target,
-			Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
+	public void buildFromSelectionAndTarget(ModelComponent livePanel,
+			JPopupMenu popup, final ModelComponent selection,
+			final ModelComponent target, Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
 		Transaction<Model> implicitDropAction = selection.getImplicitDropAction(target);
 		
 		if(implicitDropAction != null) {

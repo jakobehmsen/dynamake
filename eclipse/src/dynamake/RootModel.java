@@ -81,8 +81,8 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
-			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions);
 		}
 
 		@Override

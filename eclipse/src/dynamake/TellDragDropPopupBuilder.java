@@ -7,9 +7,9 @@ import javax.swing.JPopupMenu;
 
 public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
-	public void buildFromSelectionAndTarget(JPopupMenu popup,
-			final ModelComponent selection, final ModelComponent target,
-			final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
+	public void buildFromSelectionAndTarget(ModelComponent livePanel,
+			JPopupMenu popup, final ModelComponent selection,
+			final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
 		TransactionMapBuilder transactionTargetContentMapBuilder = new TransactionMapBuilder();
 		
 		transactionTargetContentMapBuilder.addTransaction("Tell Background", new Runnable() {

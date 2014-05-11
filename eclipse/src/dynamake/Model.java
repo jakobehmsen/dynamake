@@ -583,8 +583,8 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 
-	public static void appendGeneralDroppedTransactions(final ModelComponent dropped,
-			final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions) {
+	public static void appendGeneralDroppedTransactions(final ModelComponent livePanel,
+			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions) {
 		if(target.getModelBehind() instanceof CanvasModel) {
 			transactions.addTransaction("Clone Isolated", new Runnable() {
 				@Override
@@ -592,7 +592,12 @@ public abstract class Model implements Serializable, Observer {
 					Rectangle creationBounds = droppedBounds;
 
 					dropped.getTransactionFactory().executeOnRoot(
-						new CanvasModel.AddModelTransaction(
+//						new CanvasModel.AddModelTransaction(
+//							target.getTransactionFactory().getLocation(), 
+//							creationBounds, 
+//							new CloneIsolatedFactory(dropped.getTransactionFactory().getLocation()))
+						new AddThenOutputTransaction(
+							livePanel.getTransactionFactory().getLocation(), 
 							target.getTransactionFactory().getLocation(), 
 							creationBounds, 
 							new CloneIsolatedFactory(dropped.getTransactionFactory().getLocation()))
@@ -605,10 +610,15 @@ public abstract class Model implements Serializable, Observer {
 					Rectangle creationBounds = droppedBounds;
 
 					dropped.getTransactionFactory().executeOnRoot(
-						new CanvasModel.AddModelTransaction(
-							target.getTransactionFactory().getLocation(), 
-							creationBounds, 
-							new CloneDeepFactory(dropped.getTransactionFactory().getLocation()))
+//						new CanvasModel.AddModelTransaction(
+//							target.getTransactionFactory().getLocation(), 
+//							creationBounds, 
+//							new CloneDeepFactory(dropped.getTransactionFactory().getLocation()))
+							new AddThenOutputTransaction(
+								livePanel.getTransactionFactory().getLocation(), 
+								target.getTransactionFactory().getLocation(), 
+								creationBounds, 
+								new CloneDeepFactory(dropped.getTransactionFactory().getLocation()))
 					);
 				}
 			});

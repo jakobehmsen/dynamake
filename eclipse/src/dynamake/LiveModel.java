@@ -465,7 +465,7 @@ public class LiveModel extends Model {
 
 					Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
 					Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)targetOver);
-					popupBuilder.buildFromSelectionAndTarget(transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
+					popupBuilder.buildFromSelectionAndTarget(productionPanel.livePanel, transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
 
 					transactionsPopupMenu.show(popupMenuInvoker, pointOnInvoker.x, pointOnInvoker.y);
 					productionPanel.livePanel.repaint();
@@ -825,8 +825,8 @@ public class LiveModel extends Model {
 		}
 
 		@Override
-		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
-			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions);
 		}
 
 		@Override

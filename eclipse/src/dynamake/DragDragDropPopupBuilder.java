@@ -8,15 +8,15 @@ import javax.swing.JPopupMenu;
 
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
-	public void buildFromSelectionAndTarget(JPopupMenu popup,
-			ModelComponent selection, ModelComponent target,
-			Point dropPointOnTarget, Rectangle dropBoundsOnTarget) {
+	public void buildFromSelectionAndTarget(ModelComponent livePanel,
+			JPopupMenu popup, ModelComponent selection,
+			ModelComponent target, Point dropPointOnTarget, Rectangle dropBoundsOnTarget) {
 		if(target == null || target == selection) {
 			// Build popup menu for dropping onto selection
 			buildFromSelectionToSelection(popup, selection);
 		} else {
 			// Build popup menu for dropping onto other
-			buildFromSelectionToOther(popup, selection, target, dropPointOnTarget, dropBoundsOnTarget);
+			buildFromSelectionToOther(livePanel, popup, selection, target, dropPointOnTarget, dropBoundsOnTarget);
 		}
 	}
 	
@@ -36,7 +36,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionSelectionMapBuilder.appendTo(popup, "Selection");
 	}
 
-	private void buildFromSelectionToOther(JPopupMenu popup, final ModelComponent selection, final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
+	private void buildFromSelectionToOther(ModelComponent livePanel, JPopupMenu popup, final ModelComponent selection, final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
 		TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
 		
 		if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
@@ -99,7 +99,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetMapBuilder.appendTo(popup, "Target");
 
 		TransactionMapBuilder transactionDroppedMapBuilder = new TransactionMapBuilder();
-		selection.appendDroppedTransactions(target, dropBoundsOnTarget, transactionDroppedMapBuilder);
+		selection.appendDroppedTransactions(livePanel, target, dropBoundsOnTarget, transactionDroppedMapBuilder);
 		if(!transactionTargetMapBuilder.isEmpty() && !transactionDroppedMapBuilder.isEmpty())
 			popup.addSeparator();
 		transactionDroppedMapBuilder.appendTo(popup, "Dropped");

@@ -137,7 +137,7 @@ public class CreationModel extends Model {
 		}
 		
 		@Override
-		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -220,8 +220,8 @@ public class CreationModel extends Model {
 			
 		}
 		@Override
-		public void appendDroppedTransactions(ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
-			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions);
 		}
 
 		@Override

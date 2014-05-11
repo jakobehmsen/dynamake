@@ -130,8 +130,8 @@ public class TextModel extends Model {
 		}
 		
 		@Override
-		public void appendDroppedTransactions(final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions) {
-			Model.appendGeneralDroppedTransactions(this, target, droppedBounds, transactions);
+		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions);
 			
 			if(target.getModelBehind() instanceof CanvasModel) {
 				transactions.addTransaction("For new button", new Runnable() {
