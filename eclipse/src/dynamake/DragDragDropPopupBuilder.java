@@ -36,7 +36,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionSelectionMapBuilder.appendTo(popup, "Selection");
 	}
 
-	private void buildFromSelectionToOther(ModelComponent livePanel, JPopupMenu popup, final ModelComponent selection, final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
+	private void buildFromSelectionToOther(final ModelComponent livePanel, JPopupMenu popup, final ModelComponent selection, final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
 		TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
 		
 		if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
@@ -68,7 +68,8 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
 					@Override
 					public void run() {
-						target.getTransactionFactory().executeOnRoot(new AddThenBindTransaction(
+						target.getTransactionFactory().executeOnRoot(new AddThenBindAndOutputTransaction(
+							livePanel.getTransactionFactory().getLocation(),
 							selection.getTransactionFactory().getLocation(), 
 							target.getTransactionFactory().getLocation(), 
 							new PrimitiveSingletonFactory(primImpl), 

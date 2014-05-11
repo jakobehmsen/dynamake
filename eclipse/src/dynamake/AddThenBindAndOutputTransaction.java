@@ -6,20 +6,22 @@ import java.util.Hashtable;
 
 import org.prevayler.Transaction;
 
-public class AddThenBindTransaction implements Transaction<Model> {
+public class AddThenBindAndOutputTransaction implements Transaction<Model> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
+	private Location liveModelLocation;
 	private Location modelToBindToLocation;
 	private Location canvasModelLocation;
 	private Factory factory;
 	private Rectangle creationBounds;
 
-	public AddThenBindTransaction(Location modelToBindToLocation,
+	public AddThenBindAndOutputTransaction(Location liveModelLocation, Location modelToBindToLocation,
 			Location canvasModelLocation, Factory factory,
 			Rectangle creationBounds) {
+		this.liveModelLocation = liveModelLocation;
 		this.modelToBindToLocation = modelToBindToLocation;
 		this.canvasModelLocation = canvasModelLocation;
 		this.factory = factory;
@@ -28,6 +30,7 @@ public class AddThenBindTransaction implements Transaction<Model> {
 
 	@Override
 	public void executeOn(Model prevalentSystem, Date executionTime) {
+		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 		final Model modelToBindTo = (Model)modelToBindToLocation.getChild(prevalentSystem);
 		CanvasModel canvasModel = (CanvasModel)canvasModelLocation.getChild(prevalentSystem);
 		
@@ -49,7 +52,8 @@ public class AddThenBindTransaction implements Transaction<Model> {
 //				}
 //			}
 //		});
-		
+
+		liveModel.setOutput(primitive, addAndBindCtx, 0);
 		canvasModel.addModel(primitive, addAndBindCtx, 0);
 	}
 }

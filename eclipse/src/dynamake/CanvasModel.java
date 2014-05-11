@@ -529,7 +529,7 @@ public class CanvasModel extends Model {
 									Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
 
 									view.add((JComponent)modelView.getBindingTarget());
-									viewManager.becameVisible((ModelComponent)visible);
+									viewManager.becameVisible(modelView.getBindingTarget());
 									
 //									// Reverse the index starting from the last index at zero, second last as 1, and so forth
 //									// Put the last added model to the front

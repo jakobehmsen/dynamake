@@ -9,7 +9,7 @@ import org.prevayler.Transaction;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
-	public void buildFromSelectionAndTarget(ModelComponent livePanel,
+	public void buildFromSelectionAndTarget(final ModelComponent livePanel,
 			JPopupMenu popup, final ModelComponent selection,
 			final ModelComponent target, Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
 		Transaction<Model> implicitDropAction = selection.getImplicitDropAction(target);
@@ -47,7 +47,8 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
 					@Override
 					public void run() {
-						target.getTransactionFactory().executeOnRoot(new AddThenBindTransaction(
+						target.getTransactionFactory().executeOnRoot(new AddThenBindAndOutputTransaction(
+							livePanel.getTransactionFactory().getLocation(),
 							selection.getTransactionFactory().getLocation(), 
 							target.getTransactionFactory().getLocation(), 
 							new PrimitiveSingletonFactory(primImpl), 
