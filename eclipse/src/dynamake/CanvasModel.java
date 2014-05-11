@@ -356,6 +356,7 @@ public class CanvasModel extends Model {
 			Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
 
 			view.add((JComponent)modelView.getBindingTarget());
+			viewManager.becameVisible(modelView.getBindingTarget());
 		}
 		
 		Model.RemovableListener removableListener = Model.RemovableListener.addObserver(model, new Observer() {
@@ -376,6 +377,7 @@ public class CanvasModel extends Model {
 								
 								shownModels.add(sender);
 								view.add((JComponent)modelView.getBindingTarget());
+								viewManager.becameVisible(modelView.getBindingTarget());
 								viewManager.refresh(view);
 							}
 						} else {
@@ -386,6 +388,7 @@ public class CanvasModel extends Model {
 								shownModels.remove(sender);
 								view.remove((JComponent)modelView.getBindingTarget());
 								viewManager.unFocus(modelView.getBindingTarget());
+								viewManager.becameInvisible(modelView.getBindingTarget());
 								viewManager.refresh(view);
 							}
 						}
@@ -423,8 +426,6 @@ public class CanvasModel extends Model {
 				);
 				
 				((JComponent)modelView.getBindingTarget()).setBounds(bounds);
-				
-//				System.out.println("Created view");
 				
 				return modelView;
 			}
@@ -503,6 +504,7 @@ public class CanvasModel extends Model {
 						for(Component newInvisible: newInvisibles) {
 							shownModels.remove(((ModelComponent)newInvisible).getModelBehind());
 							view.remove(newInvisible);
+							viewManager.becameInvisible((ModelComponent)newInvisible);
 						}
 						
 						Object[] visibles = new Object[view.model.models.size()];
@@ -527,6 +529,7 @@ public class CanvasModel extends Model {
 									Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
 
 									view.add((JComponent)modelView.getBindingTarget());
+									viewManager.becameVisible((ModelComponent)visible);
 									
 //									// Reverse the index starting from the last index at zero, second last as 1, and so forth
 //									// Put the last added model to the front

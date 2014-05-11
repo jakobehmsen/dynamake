@@ -118,7 +118,6 @@ public class Main {
 			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
 			
 			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(pModel);
-			TransactionFactory rootTransactionFactory = new TransactionFactory(prevaylerService, new RootLocator());
 			ViewManager rootViewManager = new ViewManager() {
 				@Override
 				public void setFocus(JComponent component) {
@@ -185,7 +184,20 @@ public class Main {
 					// TODO Auto-generated method stub
 					
 				}
+				
+				@Override
+				public void becameVisible(ModelComponent view) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void becameInvisible(ModelComponent view) {
+					// TODO Auto-generated method stub
+					
+				}
 			};
+			TransactionFactory rootTransactionFactory = new TransactionFactory(prevaylerService, new RootLocator());
 			final Binding<ModelComponent> rootView = pModel.prevalentSystem().createView(rootViewManager, rootTransactionFactory);
 			JFrame frame = (JFrame)rootView.getBindingTarget();
 			

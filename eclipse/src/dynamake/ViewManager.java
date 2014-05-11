@@ -1,7 +1,6 @@
 package dynamake;
 
 import javax.swing.JComponent;
-import javax.swing.JTextPane;
 
 public interface ViewManager {
 	void setFocus(JComponent component);
@@ -14,4 +13,6 @@ public interface ViewManager {
 	void wasCreated(ModelComponent view);
 	Tool[] getTools();
 	void unFocus(ModelComponent view);
+	void becameVisible(ModelComponent view);
+	void becameInvisible(ModelComponent view);
 }

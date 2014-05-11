@@ -6,7 +6,7 @@ import java.util.Hashtable;
 
 import org.prevayler.Transaction;
 
-public class AddThenSelectTransaction implements Transaction<Model> {
+public class AddThenOutputTransaction implements Transaction<Model> {
 	/**
 	 * 
 	 */
@@ -17,7 +17,7 @@ public class AddThenSelectTransaction implements Transaction<Model> {
 	private Factory factory;
 	private Rectangle creationBounds;
 
-	public AddThenSelectTransaction(Location liveModelLocation, Location canvasLocation, Rectangle creationBounds, Factory factory) {
+	public AddThenOutputTransaction(Location liveModelLocation, Location canvasLocation, Rectangle creationBounds, Factory factory) {
 		this.liveModelLocation = liveModelLocation;
 		this.canvasLocation = canvasLocation;
 		this.creationBounds = creationBounds;
@@ -36,8 +36,7 @@ public class AddThenSelectTransaction implements Transaction<Model> {
 		model.setProperty("Width", creationBounds.width, propCtx, 0);
 		model.setProperty("Height", creationBounds.height, propCtx, 0);
 		
-		canvas.addModel(model, new PropogationContext(), 0);
-		
-		liveModel.setSelection(model, propCtx, 0);
+		liveModel.setOutput(model, propCtx, 0);
+		canvas.addModel(model, propCtx, 0);
 	}
 }

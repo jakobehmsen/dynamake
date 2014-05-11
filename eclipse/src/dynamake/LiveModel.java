@@ -39,6 +39,10 @@ public class LiveModel extends Model {
 		
 	}
 
+	public static class OutputChanged {
+		
+	}
+
 	public static class StateChanged {
 		
 	}
@@ -53,6 +57,7 @@ public class LiveModel extends Model {
 	private int state;
 	private Model content;
 	private Model selection;
+	private Model output;
 	
 	public LiveModel(Model content) {
 		this.content = content;
@@ -70,6 +75,12 @@ public class LiveModel extends Model {
 	
 	public void setSelection(Model selection, PropogationContext propCtx, int propDistance) {
 		this.selection = selection;
+		sendChanged(new SelectionChanged(), propCtx, propDistance, 0);
+	}
+
+	public void setOutput(Model output, PropogationContext propCtx, int propDistance) {
+		this.output = output;
+		
 		sendChanged(new SelectionChanged(), propCtx, propDistance, 0);
 	}
 
@@ -103,6 +114,31 @@ public class LiveModel extends Model {
 				liveModel.setSelection(selection, new PropogationContext(), 0);
 			} else {
 				liveModel.setSelection(null, new PropogationContext(), 0);
+			}
+		}
+	}
+	
+	public static class SetOutput implements Transaction<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location liveModelLocation;
+		private Location modelLocation;
+
+		public SetOutput(Location liveModelLocation, Location modelLocation) {
+			this.liveModelLocation = liveModelLocation;
+			this.modelLocation = modelLocation;
+		}
+		
+		@Override
+		public void executeOn(Model prevalentSystem, Date executionTime) {
+			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
+			if(modelLocation != null) {
+				Model selection = (Model)modelLocation.getChild(prevalentSystem);
+				liveModel.setOutput(selection, new PropogationContext(), 0);
+			} else {
+				liveModel.setOutput(null, new PropogationContext(), 0);
 			}
 		}
 	}
@@ -181,6 +217,7 @@ public class LiveModel extends Model {
 		public JPanel effectFrame;
 		public JPanel selectionFrame;
 		public JPanel targetFrame;
+		public JPanel outputFrame;
 
 		public static final Color TARGET_OVER_COLOR = new Color(35, 89, 184);
 		public static final Color BIND_COLOR = new Color(25, 209, 89);
@@ -198,6 +235,8 @@ public class LiveModel extends Model {
 			public int selectionFrameHorizontalPosition;
 			public int selectionFrameVerticalPosition;
 			public ModelComponent targetOver;
+			
+			public ModelComponent output;
 			
 			public static final int HORIZONTAL_REGION_WEST = 0;
 			public static final int HORIZONTAL_REGION_CENTER = 1;
@@ -300,6 +339,11 @@ public class LiveModel extends Model {
 				this.selection = view;
 				
 				if(this.selection != null) {
+					if(this.output == this.selection) {
+						setOutput(null);
+						productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
+					}
+					
 					if(productionPanel.effectFrame == null) {
 						productionPanel.effectFrame = new JPanel();
 						productionPanel.effectFrame.setBackground(new Color(0, 0, 0, 0));
@@ -487,6 +531,33 @@ public class LiveModel extends Model {
 					l.mouseDragged(e);
 				}
 			}
+
+			public void setOutput(ModelComponent view) {
+				this.output = view;
+				if(view != null) {
+					if(productionPanel.outputFrame == null) {
+						productionPanel.outputFrame = new JPanel();
+						productionPanel.outputFrame.setBackground(new Color(0, 0, 0, 0));
+						
+//						Color color = Color.GRAY;
+		
+						productionPanel.outputFrame.setBorder(
+							BorderFactory.createCompoundBorder(
+								BorderFactory.createLineBorder(Color.GREEN, 1), 
+								BorderFactory.createLineBorder(Color.WHITE, 1)
+							)
+						);
+						
+						productionPanel.add(productionPanel.outputFrame);
+					}
+					
+					Rectangle outputBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+					productionPanel.outputFrame.setBounds(outputBounds);
+				} else {
+					productionPanel.remove(productionPanel.outputFrame);
+					productionPanel.outputFrame = null;
+				}
+			}
 		}
 		
 		public LivePanel livePanel;
@@ -538,7 +609,7 @@ public class LiveModel extends Model {
 		private JLayeredPane contentPane;
 		private RemovableListener removableListener;
 		private ProductionPanel productionPanel;
-		private ViewManager viewManager;
+		public ViewManager viewManager;
 		private TransactionFactory transactionFactory;
 		
 		public LivePanel(LiveModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
@@ -546,8 +617,9 @@ public class LiveModel extends Model {
 			this.model = model;
 			this.viewManager = viewManager;
 			this.transactionFactory = transactionFactory;
-			
+
 			final ModelComponent[] selectedViewHolder = new ModelComponent[1];
+			final ModelComponent[] outputViewHolder = new ModelComponent[1];
 			
 			ViewManager newViewManager = new ViewManager() {
 				@Override
@@ -594,16 +666,41 @@ public class LiveModel extends Model {
 				
 				@Override
 				public void wasCreated(ModelComponent view) {
-					PropogationContext propCtx = new PropogationContext(); // As arg
-					PropogationContext addedPropCtx = new PropogationContext(); // As local
+//					PropogationContext propCtx = new PropogationContext(); // As arg
+//					PropogationContext addedPropCtx = new PropogationContext(); // As local
+//					
+//					if(propCtx.isOrDerivesFrom(addedPropCtx)) {
+//						// Select the view 
+//					}
 					
-					if(propCtx.isOrDerivesFrom(addedPropCtx)) {
-						// Select the view 
-					}
+//					if(productionPanel != null && LivePanel.this.model.output == view.getModelBehind()) {
+//						// Output was created as a view
+////						new String();
+//						productionPanel.editPanelMouseAdapter.setOutput(view);
+//					}
 					
 					if(LivePanel.this.model.selection != null && LivePanel.this.model.selection == view.getModelBehind()) {
 						selectedViewHolder[0] = view;
 					}
+					
+					if(LivePanel.this.model.output != null && LivePanel.this.model.output == view.getModelBehind()) {
+						outputViewHolder[0] = view;
+					}
+				}
+				
+				@Override
+				public void becameVisible(ModelComponent view) {
+					if(productionPanel != null && LivePanel.this.model.output == view.getModelBehind()) {
+						// Output was created as a view
+//						new String();
+						productionPanel.editPanelMouseAdapter.setOutput(view);
+					}
+				}
+				
+				@Override
+				public void becameInvisible(ModelComponent view) {
+					// TODO Auto-generated method stub
+					
 				}
 				
 				@Override
@@ -612,6 +709,7 @@ public class LiveModel extends Model {
 					return null;
 				}
 			};
+//			this.viewManager = newViewManager;
 			final Binding<ModelComponent> contentView = model.getContent().createView(newViewManager, transactionFactory.extend(new ContentLocator()));
 
 			productionPanel = new ProductionPanel(this, contentView);
@@ -696,6 +794,10 @@ public class LiveModel extends Model {
 				Rectangle effectBounds = (Rectangle)model.getProperty("SelectionEffectBounds");
 
 				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectedViewHolder[0], initialMouseDown, moving, effectBounds);
+			}
+			
+			if(outputViewHolder[0] != null) {
+				LivePanel.this.productionPanel.editPanelMouseAdapter.setOutput(outputViewHolder[0]);
 			}
 		}
 		
