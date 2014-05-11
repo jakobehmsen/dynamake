@@ -80,8 +80,8 @@ public class NotVisited extends Model {
 		}
 
 		@Override
-		public void appendDropTargetTransactions(ModelComponent dropped,
-				Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
+		public void appendDropTargetTransactions(ModelComponent livePanel,
+				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}

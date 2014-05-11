@@ -93,12 +93,14 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		private Location liveModelLocation;
 		private Location canvasSourceLocation;
 		private Location canvasTargetLocation;
 		private Location modelLocation;
 		private Point point;
 		
-		public MoveModelTransaction(Location canvasSourceLocation, Location canvasTargetLocation, Location modelLocation, Point point) {
+		public MoveModelTransaction(Location liveModelLocation, Location canvasSourceLocation, Location canvasTargetLocation, Location modelLocation, Point point) {
+			this.liveModelLocation = liveModelLocation;
 			this.canvasSourceLocation = canvasSourceLocation;
 			this.canvasTargetLocation = canvasTargetLocation;
 			this.modelLocation = modelLocation;
@@ -108,6 +110,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
 			PropogationContext propCtx = new PropogationContext();
+			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
 			
 			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(rootPrevalentSystem);
 			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(rootPrevalentSystem);
@@ -118,6 +121,7 @@ public class CanvasModel extends Model {
 			model.setProperty("X", point.x, propCtx, 0);
 			model.setProperty("Y", point.y, propCtx, 0);
 			model.endUpdate(propCtx, 0);
+			liveModel.setOutput(model, propCtx, 0);
 			canvasTarget.addModel(model, propCtx, 0);
 		}
 	}
@@ -259,8 +263,8 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void appendDropTargetTransactions(final ModelComponent dropped,
-				final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions) {
+		public void appendDropTargetTransactions(final ModelComponent livePanel,
+				final ModelComponent dropped, final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions) {
 			if(dropped.getTransactionFactory().getParent() != null && 
 				dropped.getTransactionFactory().getParent() != CanvasPanel.this.transactionFactory &&
 				!isContainerOf(dropped.getTransactionFactory(), this.transactionFactory) /*Dropee cannot be child of dropped*/) {
@@ -271,7 +275,9 @@ public class CanvasModel extends Model {
 						Location canvasTargetLocation = transactionFactory.getLocation();
 						Location modelLocation = dropped.getTransactionFactory().getLocation();
 						
-						transactionFactory.executeOnRoot(new MoveModelTransaction(canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation()));
+						transactionFactory.executeOnRoot(new MoveModelTransaction(
+							livePanel.getTransactionFactory().getLocation(), canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation()
+						));
 //						int indexOfModel = model.indexOfModel(child.getModel());
 //						transactionFactory.execute(new RemoveModelTransaction(indexOfModel));
 					}

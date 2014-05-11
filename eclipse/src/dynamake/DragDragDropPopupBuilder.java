@@ -92,7 +92,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		});
 
 		TransactionMapBuilder transactionTargetMapBuilder = new TransactionMapBuilder();
-		target.appendDropTargetTransactions(selection, dropBoundsOnTarget, dropPointOnTarget, transactionTargetMapBuilder);
+		target.appendDropTargetTransactions(livePanel, selection, dropBoundsOnTarget, dropPointOnTarget, transactionTargetMapBuilder);
 		
 		transactionSelectionGeneralMapBuilder.appendTo(popup, "General");
 		if(!transactionSelectionGeneralMapBuilder.isEmpty() && !transactionTargetMapBuilder.isEmpty())
