@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -544,6 +545,18 @@ public class LiveModel extends Model {
 						productionPanel.outputFrame.setBackground(new Color(0, 0, 0, 0));
 						
 //						Color color = Color.GRAY;
+						
+						productionPanel.outputFrame.setBorder(
+							BorderFactory.createBevelBorder(
+								BevelBorder.RAISED, OUTPUT_COLOR.darker().darker(), OUTPUT_COLOR.darker(), OUTPUT_COLOR.darker().darker().darker(), OUTPUT_COLOR.darker().darker())
+						);
+						
+//						productionPanel.outputFrame.setBorder(
+//							BorderFactory.createCompoundBorder(
+//								BorderFactory.createBevelBorder(BevelBorder.RAISED, OUTPUT_COLOR.darker().darker(), OUTPUT_COLOR.darker(), OUTPUT_COLOR.darker().darker(), OUTPUT_COLOR.darker()),
+//								BorderFactory.createBevelBorder(BevelBorder.RAISED, OUTPUT_COLOR.darker(), OUTPUT_COLOR, OUTPUT_COLOR.darker().darker(), OUTPUT_COLOR.darker())
+//							)
+//						);
 		
 //						productionPanel.outputFrame.setBorder(
 //							BorderFactory.createCompoundBorder(
@@ -555,22 +568,22 @@ public class LiveModel extends Model {
 //							)
 //						);
 						
-						Color outputColorDarkened = OUTPUT_COLOR.darker().darker();
-						productionPanel.outputFrame.setBorder(
-							BorderFactory.createCompoundBorder(
-								BorderFactory.createLineBorder(Color.BLACK, 1), 
-								BorderFactory.createCompoundBorder(
-									BorderFactory.createLineBorder(OUTPUT_COLOR, 2), 
-									BorderFactory.createCompoundBorder(
-										BorderFactory.createLineBorder(outputColorDarkened, 2), 
-										BorderFactory.createCompoundBorder(
-											BorderFactory.createLineBorder(OUTPUT_COLOR, 2), 
-											BorderFactory.createLineBorder(Color.BLACK, 1)
-										)
-									)
-								)
-							)
-						);
+//						Color outputColorDarkened = OUTPUT_COLOR.darker().darker();
+//						productionPanel.outputFrame.setBorder(
+//							BorderFactory.createCompoundBorder(
+//								BorderFactory.createLineBorder(Color.BLACK, 1), 
+//								BorderFactory.createCompoundBorder(
+//									BorderFactory.createLineBorder(OUTPUT_COLOR, 2), 
+//									BorderFactory.createCompoundBorder(
+//										BorderFactory.createLineBorder(outputColorDarkened, 2), 
+//										BorderFactory.createCompoundBorder(
+//											BorderFactory.createLineBorder(OUTPUT_COLOR, 2), 
+//											BorderFactory.createLineBorder(Color.BLACK, 1)
+//										)
+//									)
+//								)
+//							)
+//						);
 						
 //						productionPanel.outputFrame.setBorder(
 //							BorderFactory.createCompoundBorder(
@@ -591,12 +604,12 @@ public class LiveModel extends Model {
 						
 //						productionPanel.outputFrame.setBorder(
 //							BorderFactory.createCompoundBorder(
-//								BorderFactory.createMatteBorder(2, 0, 0, 0, Color.BLUE), 
+//								BorderFactory.createMatteBorder(2, 0, 0, 0, OUTPUT_COLOR.darker().darker()), 
 //								BorderFactory.createCompoundBorder(
-//									BorderFactory.createMatteBorder(0, 2, 0, 0, Color.RED), 
+//									BorderFactory.createMatteBorder(0, 2, 0, 0, OUTPUT_COLOR.darker().darker()), 
 //									BorderFactory.createCompoundBorder(
-//										BorderFactory.createMatteBorder(0, 0, 2, 0, Color.GREEN), 
-//										BorderFactory.createMatteBorder(0, 0, 0, 2, Color.YELLOW)
+//										BorderFactory.createMatteBorder(0, 0, 2, 0, OUTPUT_COLOR.darker()), 
+//										BorderFactory.createMatteBorder(0, 0, 0, 2, OUTPUT_COLOR.darker())
 //									)
 //								)
 //							)
