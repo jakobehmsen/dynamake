@@ -222,6 +222,12 @@ public class LiveModel extends Model {
 		public static final Color TARGET_OVER_COLOR = new Color(35, 89, 184);
 		public static final Color BIND_COLOR = new Color(25, 209, 89);
 		public static final Color UNBIND_COLOR = new Color(240, 34, 54);
+		public static final Color SELECTION_COLOR = Color.GRAY;
+//		public static final Color OUTPUT_COLOR = new Color(155, 235, 235);
+//		public static final Color OUTPUT_COLOR = Color.GREEN;
+//		public static final Color OUTPUT_COLOR = new Color(180, 232, 111);
+//		public static final Color OUTPUT_COLOR = new Color(217, 240, 173);
+		public static final Color OUTPUT_COLOR = new Color(54, 240, 17);
 		
 		public static class EditPanelMouseAdapter extends MouseAdapter {
 			public ProductionPanel productionPanel;
@@ -358,14 +364,12 @@ public class LiveModel extends Model {
 					if(productionPanel.selectionFrame == null) {
 						productionPanel.selectionFrame = new JPanel();
 						productionPanel.selectionFrame.setBackground(new Color(0, 0, 0, 0));
-						
-						Color color = Color.GRAY;
 
 						productionPanel.selectionFrame.setBorder(
 							BorderFactory.createCompoundBorder(
 								BorderFactory.createLineBorder(Color.BLACK, 1), 
 								BorderFactory.createCompoundBorder(
-									BorderFactory.createLineBorder(color, 3), 
+									BorderFactory.createLineBorder(SELECTION_COLOR, 3), 
 									BorderFactory.createLineBorder(Color.BLACK, 1)
 								)
 							)
@@ -541,15 +545,72 @@ public class LiveModel extends Model {
 						
 //						Color color = Color.GRAY;
 		
+//						productionPanel.outputFrame.setBorder(
+//							BorderFactory.createCompoundBorder(
+//								BorderFactory.createLineBorder(Color.BLACK, 2), 
+//								BorderFactory.createCompoundBorder(
+//									BorderFactory.createLineBorder(new Color(155, 235, 235), 2), 
+//									BorderFactory.createLineBorder(Color.BLACK, 2)
+//								)
+//							)
+//						);
+						
+						Color outputColorDarkened = OUTPUT_COLOR.darker().darker();
 						productionPanel.outputFrame.setBorder(
 							BorderFactory.createCompoundBorder(
-								BorderFactory.createLineBorder(Color.BLACK, 2), 
+								BorderFactory.createLineBorder(Color.BLACK, 1), 
 								BorderFactory.createCompoundBorder(
-									BorderFactory.createLineBorder(new Color(176, 223, 232), 2), 
-									BorderFactory.createLineBorder(Color.BLACK, 2)
+									BorderFactory.createLineBorder(OUTPUT_COLOR, 2), 
+									BorderFactory.createCompoundBorder(
+										BorderFactory.createLineBorder(outputColorDarkened, 2), 
+										BorderFactory.createCompoundBorder(
+											BorderFactory.createLineBorder(OUTPUT_COLOR, 2), 
+											BorderFactory.createLineBorder(Color.BLACK, 1)
+										)
+									)
 								)
 							)
 						);
+						
+//						productionPanel.outputFrame.setBorder(
+//							BorderFactory.createCompoundBorder(
+//								BorderFactory.createLineBorder(Color.BLACK, 1), 
+//								BorderFactory.createCompoundBorder(
+//									BorderFactory.createLineBorder(new Color(155, 235, 235), 2), 
+//									BorderFactory.createCompoundBorder(
+////										BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2),
+//										BorderFactory.createLineBorder(new Color(71, 92, 92), 2), 
+//										BorderFactory.createCompoundBorder(
+//											BorderFactory.createLineBorder(new Color(155, 235, 235), 2), 
+//											BorderFactory.createLineBorder(Color.BLACK, 1)
+//										)
+//									)
+//								)
+//							)
+//						);
+						
+//						productionPanel.outputFrame.setBorder(
+//							BorderFactory.createCompoundBorder(
+//								BorderFactory.createMatteBorder(2, 0, 0, 0, Color.BLUE), 
+//								BorderFactory.createCompoundBorder(
+//									BorderFactory.createMatteBorder(0, 2, 0, 0, Color.RED), 
+//									BorderFactory.createCompoundBorder(
+//										BorderFactory.createMatteBorder(0, 0, 2, 0, Color.GREEN), 
+//										BorderFactory.createMatteBorder(0, 0, 0, 2, Color.YELLOW)
+//									)
+//								)
+//							)
+//						);
+						
+//						productionPanel.outputFrame.setBorder(
+//							BorderFactory.createCompoundBorder(
+//								BorderFactory.createLineBorder(Color.BLACK, 2),
+//								BorderFactory.createCompoundBorder(
+//									BorderFactory.createMatteBorder(2, 2, 12, 2, Color.WHITE),
+//									BorderFactory.createLineBorder(Color.BLACK, 2)
+//								)
+//							)
+//						);
 						
 						productionPanel.add(productionPanel.outputFrame);
 					}
