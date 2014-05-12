@@ -175,7 +175,8 @@ public class Main {
 						new DragTool(),
 						new ConsTool(),
 						new TellTool(),
-						new ViewTool()
+						new ViewTool(),
+						new ScaleTool()
 					};
 				}
 

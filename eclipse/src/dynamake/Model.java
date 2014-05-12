@@ -710,4 +710,21 @@ public abstract class Model implements Serializable, Observer {
 
 		return view >= value;
 	}
+
+	public void scale(float widthChange, float heightChange, PropogationContext propCtx, int propDistance) {
+		int currentWidth = (int)getProperty("Width");
+		int currentHeight = (int)getProperty("Height");
+		
+		int newWidth = (int)(currentWidth * widthChange);
+		int newHeight = (int)(currentHeight * heightChange);
+		
+		setProperty("Width", newWidth, propCtx, propDistance);
+		setProperty("Height", newHeight, propCtx, propDistance);
+		
+		modelScale(widthChange, heightChange, propCtx, propDistance);
+	}
+	
+	protected void modelScale(float widthChange, float heightChange, PropogationContext propCtx, int propDistance) {
+		
+	}
 }
