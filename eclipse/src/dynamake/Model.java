@@ -710,21 +710,42 @@ public abstract class Model implements Serializable, Observer {
 
 		return view >= value;
 	}
-
-	public void scale(float widthChange, float heightChange, PropogationContext propCtx, int propDistance) {
+	
+	public void scale(Rectangle newBounds, PropogationContext propCtx, int propDistance) {
 		int currentWidth = (int)getProperty("Width");
 		int currentHeight = (int)getProperty("Height");
 		
-		int newWidth = (int)(currentWidth * widthChange);
-		int newHeight = (int)(currentHeight * heightChange);
+		setProperty("X", newBounds.x, propCtx, propDistance);
+		setProperty("Y", newBounds.y, propCtx, propDistance);
+		setProperty("Width", newBounds.width, propCtx, propDistance);
+		setProperty("Height", newBounds.height, propCtx, propDistance);
 		
+		float hChange = (float)newBounds.width / currentWidth;
+		float vChange = (float)newBounds.height / currentHeight;
+
+		modelScale(hChange, vChange, propCtx, propDistance);
+	}
+
+	public void scale(float hChange, float vChange, PropogationContext propCtx, int propDistance) {
+		int currentX = (int)getProperty("X");
+		int currentY = (int)getProperty("Y");
+		int currentWidth = (int)getProperty("Width");
+		int currentHeight = (int)getProperty("Height");
+
+		int newX = (int)(currentX * hChange);
+		int newY = (int)(currentY * vChange);
+		int newWidth = (int)(currentWidth * hChange);
+		int newHeight = (int)(currentHeight * vChange);
+
+		setProperty("X", newX, propCtx, propDistance);
+		setProperty("Y", newY, propCtx, propDistance);
 		setProperty("Width", newWidth, propCtx, propDistance);
 		setProperty("Height", newHeight, propCtx, propDistance);
 		
-		modelScale(widthChange, heightChange, propCtx, propDistance);
+		modelScale(hChange, vChange, propCtx, propDistance);
 	}
 	
-	protected void modelScale(float widthChange, float heightChange, PropogationContext propCtx, int propDistance) {
+	protected void modelScale(float hChange, float vChange, PropogationContext propCtx, int propDistance) {
 		
 	}
 }

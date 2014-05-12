@@ -44,6 +44,13 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
+	protected void modelScale(float hChange, float vChange, PropogationContext propCtx, int propDistance) {
+		for(Model model: models) {
+			model.scale(hChange, vChange, propCtx, propDistance);
+		}
+	}
+	
+	@Override
 	public Model modelCloneIsolated() {
 		ArrayList<Model> clonedModels = new ArrayList<Model>();
 		
