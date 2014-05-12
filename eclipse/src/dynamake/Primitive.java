@@ -312,6 +312,15 @@ public class Primitive extends Model {
 	}
 	
 	@Override
+	protected void modelScale(float hChange, float vChange, PropogationContext propCtx, int propDistance) {
+		Float fontSize = (Float)getProperty("FontSize");
+		if(fontSize == null)
+			fontSize = 12.0f;
+		fontSize = fontSize * hChange;
+		setProperty("FontSize", fontSize, propCtx, propDistance);
+	}
+	
+	@Override
 	public Model modelCloneIsolated() {
 		return new Primitive(implementation);
 	}
@@ -395,6 +404,13 @@ public class Primitive extends Model {
 			bindProperty(this, "Foreground", new Action1<Color>() {
 				public void run(Color value) {
 					view.setForeground(value);
+					viewManager.refresh(view);
+				}
+			}),
+			bindProperty(this, "FontSize", new Action1<Float>() {
+				public void run(Float value) {
+					Font font = view.getFont();
+					view.setFont(new Font(font.getFamily(), font.getStyle(), (int)(float)value));
 					viewManager.refresh(view);
 				}
 			})
