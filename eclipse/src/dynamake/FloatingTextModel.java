@@ -1,6 +1,7 @@
 package dynamake;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Date;
@@ -14,6 +15,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 
 import org.prevayler.Transaction;
+
+import dynamake.Model.RemovableListener;
 
 public class FloatingTextModel extends Model {
 	public static final String PROPERTY_CARET_COLOR = "Caret Color";
@@ -29,6 +32,15 @@ public class FloatingTextModel extends Model {
 		FloatingTextModel clone = new FloatingTextModel();
 		clone.text.append(this.text);
 		return clone;
+	}
+	
+	@Override
+	protected void modelScale(float hChange, float vChange, PropogationContext propCtx, int propDistance) {
+		Float fontSize = (Float)getProperty("FontSize");
+		if(fontSize == null)
+			fontSize = 12.0f;
+		fontSize = fontSize * hChange;
+		setProperty("FontSize", fontSize, propCtx, propDistance);
 	}
 	
 	public void setText(String text) {
@@ -182,6 +194,15 @@ public class FloatingTextModel extends Model {
 		
 		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		final Model.RemovableListener removeListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, view, view, viewManager);
+		final Binding<Model> removableListener = RemovableListener.addAll(this, 
+				bindProperty(this, "FontSize", new Action1<Float>() {
+					public void run(Float value) {
+						Font font = view.getFont();
+						view.setFont(new Font(font.getFamily(), font.getStyle(), (int)(float)value));
+						viewManager.refresh(view);
+					}
+				})
+			);
 		
 		Model.loadComponentProperties(this, view);
 		
@@ -217,6 +238,7 @@ public class FloatingTextModel extends Model {
 				removeListenerForCaretColor.releaseBinding();
 				removeListenerForBoundChanges.releaseBinding();
 				removeListenerForComponentPropertyChanges.releaseBinding();
+				removableListener.releaseBinding();
 			}
 			
 			@Override
