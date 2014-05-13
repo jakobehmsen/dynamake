@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.Rectangle;
 import java.util.Hashtable;
 
 import dynamake.Primitive.Implementation;
@@ -21,7 +22,7 @@ public class PrimitiveSingletonFactory implements Factory {
 	}
 	
 	@Override
-	public Object create(Model rootModel, Hashtable<String, Object> arguments) {
+	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance) {
 		return new Primitive(implementationSingleton);
 	}
 }

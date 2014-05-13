@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.Rectangle;
 import java.util.Hashtable;
 
 public class CreationModelFactory implements Factory {
@@ -22,7 +23,7 @@ public class CreationModelFactory implements Factory {
 	}
 
 	@Override
-	public Object create(Model rootModel, Hashtable<String, Object> arguments) {
+	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance) {
 		return new CreationModel(factory, parameterNames);
 	}
 }

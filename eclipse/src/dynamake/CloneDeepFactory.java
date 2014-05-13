@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.Rectangle;
 import java.util.Hashtable;
 
 public class CloneDeepFactory implements Factory {
@@ -19,8 +20,8 @@ public class CloneDeepFactory implements Factory {
 	}
 
 	@Override
-	public Object create(Model rootModel, Hashtable<String, Object> arguments) {
-		PropogationContext propCtx = new PropogationContext();
+	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance) {
+//		PropogationContext propCtx = new PropogationContext();
 		
 		Model model = (Model)modelLocation.getChild(rootModel);
 		Model clone = model.cloneDeep();

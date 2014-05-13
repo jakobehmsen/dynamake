@@ -276,7 +276,7 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public Object create(Model rootModel, Hashtable<String, Object> arguments) {
+				public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance) {
 					final Model model = (Model)modelLocation.getChild(rootModel);
 					
 					return new Implementation() {

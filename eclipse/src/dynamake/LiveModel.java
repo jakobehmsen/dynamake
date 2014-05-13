@@ -387,11 +387,6 @@ public class LiveModel extends Model {
 							}
 
 							@Override
-							public void mouseReleased(MouseEvent e) {
-								getTool().mouseReleased(productionPanel, e);
-							}
-
-							@Override
 							public void mousePressed(MouseEvent e) {
 								if(EditPanelMouseAdapter.this.output != null) {
 									setOutput(null);
@@ -404,6 +399,11 @@ public class LiveModel extends Model {
 							@Override
 							public void mouseDragged(MouseEvent e) {
 								getTool().mouseDragged(productionPanel, e);
+							}
+
+							@Override
+							public void mouseReleased(MouseEvent e) {
+								getTool().mouseReleased(productionPanel, e);
 							}
 						};
 						
@@ -511,14 +511,6 @@ public class LiveModel extends Model {
 				return (ModelComponent)component;
 			}
 			
-			public void mousePressed(MouseEvent e) {
-				if(this.output != null) {
-					setOutput(null);
-					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
-				}
-				getTool().mousePressed(productionPanel, e);
-			}
-			
 			public Rectangle getPlotBounds(Point firstPoint, Point secondPoint) {
 				int left = Math.min(firstPoint.x, secondPoint.x);
 				int right = Math.max(firstPoint.x, secondPoint.x);
@@ -526,6 +518,22 @@ public class LiveModel extends Model {
 				int bottom = Math.max(firstPoint.y, secondPoint.y);
 				
 				return new Rectangle(left, top, right - left, bottom - top);
+			}
+			
+			public void mousePressed(MouseEvent e) {
+				if(this.output != null) {
+					setOutput(null);
+					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
+				}
+				getTool().mousePressed(productionPanel, e);
+			}
+
+			public void mouseDragged(MouseEvent e) {
+				e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
+				e.setSource(productionPanel.selectionFrame);
+				for(MouseMotionListener l: productionPanel.selectionFrame.getMouseMotionListeners()) {
+					l.mouseDragged(e);
+				}
 			}
 
 			public void mouseReleased(MouseEvent e) {
@@ -535,14 +543,6 @@ public class LiveModel extends Model {
 					for(MouseListener l: productionPanel.selectionFrame.getMouseListeners()) {
 						l.mouseReleased(e);
 					}
-				}
-			}
-
-			public void mouseDragged(MouseEvent e) {
-				e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
-				e.setSource(productionPanel.selectionFrame);
-				for(MouseMotionListener l: productionPanel.selectionFrame.getMouseMotionListeners()) {
-					l.mouseDragged(e);
 				}
 			}
 

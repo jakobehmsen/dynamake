@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.Rectangle;
 import java.util.Hashtable;
 
 public class NotVisitedFactory implements Factory {
@@ -19,7 +20,7 @@ public class NotVisitedFactory implements Factory {
 	}
 
 	@Override
-	public Object create(Model rootModel, Hashtable<String, Object> arguments) {
+	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance) {
 		Model model = (Model)modelLocation.getChild(rootModel);
 		
 		return new NotVisited(model);

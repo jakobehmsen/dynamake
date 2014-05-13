@@ -161,7 +161,7 @@ public class CanvasModel extends Model {
 		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
 			PropogationContext propCtx = new PropogationContext();
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationArgs);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0);
 
 			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0);
 			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0);

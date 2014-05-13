@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.Rectangle;
 import java.util.Hashtable;
 
 public class CreateAndBindFactory implements Factory {
@@ -22,8 +23,8 @@ public class CreateAndBindFactory implements Factory {
 	}
 	
 	@Override
-	public Object create(Model rootModel, Hashtable<String, Object> arguments) {
-		Model createdModel = (Model)factory.create(rootModel, arguments);
+	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance) {
+		Model createdModel = (Model)factory.create(rootModel, creationBounds, arguments, propCtx, propDistance);
 		Model modelToBindTo = (Model)locationOfModelToBindTo.getChild(rootModel);
 		modelToBindTo.addObserver(createdModel);
 		return createdModel;
