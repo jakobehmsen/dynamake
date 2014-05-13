@@ -318,7 +318,7 @@ public class LiveModel extends Model {
 			}
 			
 			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, boolean moving) {
-				Dimension sourceBoundsSize = new Dimension(130, 40);
+				Dimension sourceBoundsSize = new Dimension(125, 33);
 				Point sourceBoundsLocation = new Point(initialMouseDown.x - sourceBoundsSize.width / 2, initialMouseDown.y - sourceBoundsSize.height / 2);
 				Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
 				Rectangle selectionBounds = SwingUtilities.convertRectangle((JComponent)view, sourceBounds, productionPanel);

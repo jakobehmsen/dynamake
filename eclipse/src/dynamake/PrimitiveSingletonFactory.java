@@ -23,6 +23,13 @@ public class PrimitiveSingletonFactory implements Factory {
 	
 	@Override
 	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance) {
-		return new Primitive(implementationSingleton);
+		Primitive model = new Primitive(implementationSingleton);
+		Fraction fontSize = new Fraction(12);
+		fontSize = fontSize.multiply(new Fraction(creationBounds.height, 35));
+//		Fraction fontSize = 12 * 40 creationBounds.height;
+		model.setProperty("FontSize", fontSize, propCtx, propDistance);
+		return model;
+		
+//		return new Primitive(implementationSingleton);
 	}
 }
