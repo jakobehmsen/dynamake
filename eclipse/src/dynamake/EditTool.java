@@ -93,10 +93,10 @@ public class EditTool implements Tool {
 			
 			@SuppressWarnings("unchecked")
 			Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
-				new Model.SetPropertyTransaction("X", (int)newBounds.getX()),
-				new Model.SetPropertyTransaction("Y", (int)newBounds.getY()),
-				new Model.SetPropertyTransaction("Width", (int)newBounds.getWidth()),
-				new Model.SetPropertyTransaction("Height", (int)newBounds.getHeight())
+				new Model.SetPropertyTransaction("X", new Fraction(newBounds.x)),
+				new Model.SetPropertyTransaction("Y", new Fraction(newBounds.y)),
+				new Model.SetPropertyTransaction("Width", new Fraction(newBounds.width)),
+				new Model.SetPropertyTransaction("Height", new Fraction(newBounds.height))
 			});
 			transactionFactory.execute(changeBoundsTransaction);
 			

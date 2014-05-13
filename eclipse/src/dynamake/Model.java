@@ -92,6 +92,9 @@ public abstract class Model implements Serializable, Observer {
 		private Object value;
 		
 		public SetPropertyTransaction(String name, Object value) {
+			if(name.equals("X") && value instanceof Integer)
+				new String();
+			
 			this.name = name;
 			this.value = value;
 		}
@@ -423,16 +426,16 @@ public abstract class Model implements Serializable, Observer {
 					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 					Component targetComponent = ((Component)target);
 					if(propertyChanged.name.equals("X")) {
-						targetComponent.setLocation(new Point((int)propertyChanged.value, targetComponent.getY()));
+						targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
 						madeChanges = true;
 					} else if(propertyChanged.name.equals("Y")) {
-						targetComponent.setLocation(new Point(targetComponent.getX(), (int)propertyChanged.value));
+						targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
 						madeChanges = true;
 					} else if(propertyChanged.name.equals("Width")) {
-						targetComponent.setSize(new Dimension((int)propertyChanged.value, targetComponent.getHeight()));
+						targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
 						madeChanges = true;
 					} else if(propertyChanged.name.equals("Height")) {
-						targetComponent.setSize(new Dimension(targetComponent.getWidth(), (int)propertyChanged.value));
+						targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
 						madeChanges = true;
 					}
 				} else if(change instanceof BeganUpdate) {
@@ -522,21 +525,21 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static void loadComponentBounds(Model model, Component view) {
-		Integer x = (Integer)model.getProperty("X");
+		Number x = (Number)model.getProperty("X");
 		if(x != null)
-			view.setLocation(x, view.getY());
+			view.setLocation(x.intValue(), view.getY());
 		
-		Integer y = (Integer)model.getProperty("Y");
+		Number y = (Number)model.getProperty("Y");
 		if(y != null)
-			view.setLocation(view.getX(), y);
+			view.setLocation(view.getX(), y.intValue());
 		
 		Integer width = (Integer)model.getProperty("Width");
 		if(width != null)
-			view.setSize(width, view.getHeight());
+			view.setSize(width.intValue(), view.getHeight());
 		
 		Integer height = (Integer)model.getProperty("Height");
 		if(height != null)
-			view.setSize(view.getWidth(), height);
+			view.setSize(view.getWidth(), height.intValue());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -712,30 +715,38 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public void scale(Rectangle newBounds, PropogationContext propCtx, int propDistance) {
-		int currentWidth = (int)getProperty("Width");
-		int currentHeight = (int)getProperty("Height");
+		Fraction currentWidth = (Fraction)getProperty("Width");
+		Fraction currentHeight = (Fraction)getProperty("Height");
 		
-		setProperty("X", newBounds.x, propCtx, propDistance);
-		setProperty("Y", newBounds.y, propCtx, propDistance);
-		setProperty("Width", newBounds.width, propCtx, propDistance);
-		setProperty("Height", newBounds.height, propCtx, propDistance);
+		setProperty("X", new Fraction(newBounds.x), propCtx, propDistance);
+		setProperty("Y", new Fraction(newBounds.y), propCtx, propDistance);
+		setProperty("Width", new Fraction(newBounds.width), propCtx, propDistance);
+		setProperty("Height", new Fraction(newBounds.height), propCtx, propDistance);
 		
-		float hChange = (float)newBounds.width / currentWidth;
-		float vChange = (float)newBounds.height / currentHeight;
+//		float hChange = (float)newBounds.width / currentWidth.intValue();
+//		float vChange = (float)newBounds.height / currentHeight.intValue();
+		
+		Fraction hChange = new Fraction(newBounds.width).divide(currentWidth);
+		Fraction vChange = new Fraction(newBounds.height).divide(currentHeight);
 
 		modelScale(hChange, vChange, propCtx, propDistance);
 	}
 
-	public void scale(float hChange, float vChange, PropogationContext propCtx, int propDistance) {
-		int currentX = (int)getProperty("X");
-		int currentY = (int)getProperty("Y");
-		int currentWidth = (int)getProperty("Width");
-		int currentHeight = (int)getProperty("Height");
+	public void scale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance) {
+		Fraction currentX = (Fraction)getProperty("X");
+		Fraction currentY = (Fraction)getProperty("Y");
+		Fraction currentWidth = (Fraction)getProperty("Width");
+		Fraction currentHeight = (Fraction)getProperty("Height");
 
-		int newX = (int)(currentX * hChange);
-		int newY = (int)(currentY * vChange);
-		int newWidth = (int)(currentWidth * hChange);
-		int newHeight = (int)(currentHeight * vChange);
+//		int newX = (int)(currentX.intValue() * hChange);
+//		int newY = (int)(currentY.intValue() * vChange);
+//		int newWidth = (int)(currentWidth.intValue() * hChange);
+//		int newHeight = (int)(currentHeight.intValue() * vChange);
+		
+		Fraction newX = currentX.multiply(hChange);// (int)(currentX.intValue() * hChange);
+		Fraction newY = currentY.multiply(vChange);// (int)(currentY.intValue() * vChange);
+		Fraction newWidth = currentWidth.multiply(hChange);// (int)(currentWidth.intValue() * hChange);
+		Fraction newHeight = currentHeight.multiply(vChange);// (int)(currentHeight.intValue() * vChange);
 
 		setProperty("X", newX, propCtx, propDistance);
 		setProperty("Y", newY, propCtx, propDistance);
@@ -745,7 +756,7 @@ public abstract class Model implements Serializable, Observer {
 		modelScale(hChange, vChange, propCtx, propDistance);
 	}
 	
-	protected void modelScale(float hChange, float vChange, PropogationContext propCtx, int propDistance) {
+	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance) {
 		
 	}
 }

@@ -44,6 +44,15 @@ public class Main {
 	
 	public static void main(String[] args) {
 		try {
+//			Fraction f = new Fraction(1, 9);
+//			Fraction f2 = new Fraction(6, 1);
+//			
+//			System.out.println(f.add(f2));
+//			
+//			if(1 != 2) {
+//				return;
+//			}
+			
 			// Can be used for intercepting mouse events?
 //			JFrame.setDefaultLookAndFeelDecorated(true);
 			

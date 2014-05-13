@@ -31,10 +31,10 @@ public class AddThenOutputTransaction implements Transaction<Model> {
 		CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 		Model model = (Model)factory.create(rootPrevalentSystem, new Hashtable<String, Object>());
 
-		model.setProperty("X", creationBounds.x, propCtx, 0);
-		model.setProperty("Y", creationBounds.y, propCtx, 0);
-		model.setProperty("Width", creationBounds.width, propCtx, 0);
-		model.setProperty("Height", creationBounds.height, propCtx, 0);
+		model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0);
+		model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0);
+		model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0);
+		model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0);
 		
 		liveModel.setOutput(model, propCtx, 0);
 		canvas.addModel(model, propCtx, 0);

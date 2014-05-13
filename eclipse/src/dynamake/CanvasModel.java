@@ -44,7 +44,7 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
-	protected void modelScale(float hChange, float vChange, PropogationContext propCtx, int propDistance) {
+	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance) {
 		for(Model model: models) {
 			model.scale(hChange, vChange, propCtx, propDistance);
 		}
@@ -125,8 +125,8 @@ public class CanvasModel extends Model {
 
 			canvasSource.removeModel(model, propCtx, 0);
 			model.beginUpdate(propCtx, 0);
-			model.setProperty("X", point.x, propCtx, 0);
-			model.setProperty("Y", point.y, propCtx, 0);
+			model.setProperty("X", new Fraction(point.x), propCtx, 0);
+			model.setProperty("Y", new Fraction(point.y), propCtx, 0);
 			model.endUpdate(propCtx, 0);
 			liveModel.setOutput(model, propCtx, 0);
 			canvasTarget.addModel(model, propCtx, 0);
@@ -163,10 +163,10 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationArgs);
 
-			model.setProperty("X", creationBounds.x, propCtx, 0);
-			model.setProperty("Y", creationBounds.y, propCtx, 0);
-			model.setProperty("Width", creationBounds.width, propCtx, 0);
-			model.setProperty("Height", creationBounds.height, propCtx, 0);
+			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0);
+			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0);
+			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0);
+			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0);
 			
 			canvas.addModel(model, new PropogationContext(), 0);
 		}
@@ -432,10 +432,10 @@ public class CanvasModel extends Model {
 				final Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(CanvasModel.this, model)));
 				
 				Rectangle bounds = new Rectangle(
-					(int)model.getProperty("X"),
-					(int)model.getProperty("Y"),
-					(int)model.getProperty("Width"),
-					(int)model.getProperty("Height")
+					((Fraction)model.getProperty("X")).intValue(),
+					((Fraction)model.getProperty("Y")).intValue(),
+					((Fraction)model.getProperty("Width")).intValue(),
+					((Fraction)model.getProperty("Height")).intValue()
 				);
 				
 				((JComponent)modelView.getBindingTarget()).setBounds(bounds);

@@ -273,10 +273,10 @@ public class CreationModel extends Model {
 			CreationModel creation = (CreationModel)creationLocation.getChild(arg0);
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(arg0);
 			
-			int x = (int)creation.getProperty("X");
-			int y = (int)creation.getProperty("Y");
-			int width = (int)creation.getProperty("Width");
-			int height = (int)creation.getProperty("Height");
+			Fraction x = (Fraction)creation.getProperty("X");
+			Fraction y = (Fraction)creation.getProperty("Y");
+			Fraction width = (Fraction)creation.getProperty("Width");
+			Fraction height = (Fraction)creation.getProperty("Height");
 			
 			Model model = (Model)creation.factory.create(arg0, creation.argumentMap);
 
