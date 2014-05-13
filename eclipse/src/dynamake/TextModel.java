@@ -133,19 +133,19 @@ public class TextModel extends Model {
 		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions);
 			
-			if(target.getModelBehind() instanceof CanvasModel) {
-				transactions.addTransaction("For new button", new Runnable() {
-					@Override
-					public void run() {
-						Rectangle creationBounds = droppedBounds;
-						Hashtable<String, Object> creationArgs = new Hashtable<String, Object>();
-						creationArgs.put("Text", model.text.toString());
-						getTransactionFactory().executeOnRoot(
-							new CanvasModel.AddModelTransaction(target.getTransactionFactory().getLocation(), creationBounds, creationArgs, new ButtonModelFactory())
-						);
-					}
-				});
-			}
+//			if(target.getModelBehind() instanceof CanvasModel) {
+//				transactions.addTransaction("For new button", new Runnable() {
+//					@Override
+//					public void run() {
+//						Rectangle creationBounds = droppedBounds;
+//						Hashtable<String, Object> creationArgs = new Hashtable<String, Object>();
+//						creationArgs.put("Text", model.text.toString());
+//						getTransactionFactory().executeOnRoot(
+//							new CanvasModel.AddModelTransaction(target.getTransactionFactory().getLocation(), creationBounds, creationArgs, new ButtonModelFactory())
+//						);
+//					}
+//				});
+//			}
 		}
 
 		@Override

@@ -338,7 +338,7 @@ public class LiveModel extends Model {
 			
 			private void select(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
 				// <Don't remove>
-				// Where the following check is necessary or not has not been decided yet, so don't remove the code
+				// Whether the following check is necessary or not has not been decided yet, so don't remove the code
 //				if(this.selection == view)
 //					return;
 				// </Don't remove>
@@ -346,11 +346,6 @@ public class LiveModel extends Model {
 				this.selection = view;
 				
 				if(this.selection != null) {
-//					if(this.output == this.selection) {
-//						setOutput(null);
-//						productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
-//					}
-					
 					if(productionPanel.effectFrame == null) {
 						productionPanel.effectFrame = new JPanel();
 						productionPanel.effectFrame.setBackground(new Color(0, 0, 0, 0));

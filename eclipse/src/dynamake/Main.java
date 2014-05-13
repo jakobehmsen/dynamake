@@ -114,7 +114,7 @@ public class Main {
 			
 			factoryBuilder.add(new TextModelFactory());
 			factoryBuilder.add(new CanvasModelFactory());
-			factoryBuilder.add(new ButtonModelFactory());
+//			factoryBuilder.add(new ButtonModelFactory());
 			factoryBuilder.add(new FloatingTextModelFactory());
 			
 			for(Primitive.Implementation implementationSingleton: Primitive.getImplementationSingletons())

@@ -39,7 +39,6 @@ public class FloatingTextModel extends Model {
 		Fraction fontSize = (Fraction)getProperty("FontSize");
 		if(fontSize == null)
 			fontSize = new Fraction(12);
-//		fontSize = fontSize * hChange.floatValue();
 		fontSize = fontSize.multiply(hChange);
 		setProperty("FontSize", fontSize, propCtx, propDistance);
 	}
@@ -102,14 +101,11 @@ public class FloatingTextModel extends Model {
 		private static final long serialVersionUID = 1L;
 		private FloatingTextModel model;
 		private TransactionFactory transactionFactory;
-//		private TransactionFactory metaTransactionFactory;
 		private JTextPane view;
 
 		public FloatingTextModelView(FloatingTextModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
-//			this.metaTransactionFactory = transactionFactory.extend(new Model.MetaModelLocator());
-//			this.view = view;
 			
 			this.setOpaque(false);
 			this.setBorder(null);
@@ -149,19 +145,19 @@ public class FloatingTextModel extends Model {
 		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions);
 			
-			if(target.getModelBehind() instanceof CanvasModel) {
-				transactions.addTransaction("For new button", new Runnable() {
-					@Override
-					public void run() {
-						Rectangle creationBounds = droppedBounds;
-						Hashtable<String, Object> creationArgs = new Hashtable<String, Object>();
-						creationArgs.put("Text", model.text.toString());
-						getTransactionFactory().executeOnRoot(
-							new CanvasModel.AddModelTransaction(target.getTransactionFactory().getLocation(), creationBounds, creationArgs, new ButtonModelFactory())
-						);
-					}
-				});
-			}
+//			if(target.getModelBehind() instanceof CanvasModel) {
+//				transactions.addTransaction("For new button", new Runnable() {
+//					@Override
+//					public void run() {
+//						Rectangle creationBounds = droppedBounds;
+//						Hashtable<String, Object> creationArgs = new Hashtable<String, Object>();
+//						creationArgs.put("Text", model.text.toString());
+//						getTransactionFactory().executeOnRoot(
+//							new CanvasModel.AddModelTransaction(target.getTransactionFactory().getLocation(), creationBounds, creationArgs, new ButtonModelFactory())
+//						);
+//					}
+//				});
+//			}
 		}
 
 		@Override
@@ -180,7 +176,6 @@ public class FloatingTextModel extends Model {
 	
 	@Override
 	public Binding<ModelComponent> createView(final ViewManager viewManager, final TransactionFactory transactionFactory) {
-//		final JTextPane view = new JTextPane();
 		final FloatingTextModelView view = new FloatingTextModelView(this, transactionFactory, viewManager);
 		view.setText(text.toString());
 		
