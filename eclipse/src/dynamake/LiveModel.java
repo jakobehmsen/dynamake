@@ -346,10 +346,10 @@ public class LiveModel extends Model {
 				this.selection = view;
 				
 				if(this.selection != null) {
-					if(this.output == this.selection) {
-						setOutput(null);
-						productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
-					}
+//					if(this.output == this.selection) {
+//						setOutput(null);
+//						productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
+//					}
 					
 					if(productionPanel.effectFrame == null) {
 						productionPanel.effectFrame = new JPanel();
@@ -393,6 +393,11 @@ public class LiveModel extends Model {
 
 							@Override
 							public void mousePressed(MouseEvent e) {
+								if(EditPanelMouseAdapter.this.output != null) {
+									setOutput(null);
+									productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
+								}
+								
 								getTool().mousePressed(productionPanel, e);
 							}
 
@@ -507,6 +512,10 @@ public class LiveModel extends Model {
 			}
 			
 			public void mousePressed(MouseEvent e) {
+				if(this.output != null) {
+					setOutput(null);
+					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
+				}
 				getTool().mousePressed(productionPanel, e);
 			}
 			
