@@ -84,22 +84,24 @@ public class ScaleTool implements Tool {
 		if(e.getButton() == MouseEvent.BUTTON1 && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			productionPanel.editPanelMouseAdapter.selectionMouseDown = null;
 			
-			TransactionFactory transactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
-			
-			JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
-			Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
-			productionPanel.selectionFrame.setBounds(productionPanel.effectFrame.getBounds());
-			productionPanel.livePanel.repaint();
-			
-//			@SuppressWarnings("unchecked")
-//			Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
-//				new Model.SetPropertyTransaction("X", (int)newBounds.getX()),
-//				new Model.SetPropertyTransaction("Y", (int)newBounds.getY()),
-//				new ScaleTransaction(transactionFactory.getLocation(), newBounds)
-//			});
-			transactionFactory.executeOnRoot(new ScaleTransaction(transactionFactory.getLocation(), newBounds));
-			
-			productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.effectFrame.getBounds())) {
+				TransactionFactory transactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
+				
+				JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
+				Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
+				productionPanel.selectionFrame.setBounds(productionPanel.effectFrame.getBounds());
+				productionPanel.livePanel.repaint();
+				
+	//			@SuppressWarnings("unchecked")
+	//			Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
+	//				new Model.SetPropertyTransaction("X", (int)newBounds.getX()),
+	//				new Model.SetPropertyTransaction("Y", (int)newBounds.getY()),
+	//				new ScaleTransaction(transactionFactory.getLocation(), newBounds)
+	//			});
+				transactionFactory.executeOnRoot(new ScaleTransaction(transactionFactory.getLocation(), newBounds));
+				
+				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+			}
 		}
 	}
 
