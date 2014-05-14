@@ -5,6 +5,7 @@ public class Fraction extends Number {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	// Must be replaced by BigInteger to avoid over- and underflow of integers for which cases has already started to occur
 	private int numerator;
 	private int denominator;
 
@@ -13,7 +14,6 @@ public class Fraction extends Number {
 	}
 
 	public Fraction(int numerator, int denominator) {
-		super();
 		this.numerator = numerator;
 		this.denominator = denominator;
 	}
