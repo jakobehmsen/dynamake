@@ -68,6 +68,13 @@ public class CanvasModel extends Model {
 			model.addContent(contained);
 		}
 	}
+	
+	@Override
+	protected void modelBeRemoved() {
+		for(Model model: models) {
+			model.beRemoved();
+		}
+	}
 
 	@Override
 	protected void cloneAndMap(Hashtable<Model, Model> sourceToCloneMap) {

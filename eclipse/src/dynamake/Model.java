@@ -577,6 +577,8 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public void beRemoved() {
+		modelBeRemoved();
+		
 		for(Observer observer: new ArrayList<Observer>(observers)) {
 			observer.removeObservee(this);
 		}
@@ -584,6 +586,10 @@ public abstract class Model implements Serializable, Observer {
 			if(observee instanceof Model)
 				((Model)observee).removeObserver(this);
 		}
+	}
+	
+	protected void modelBeRemoved() {
+		
 	}
 
 	public static void appendGeneralDroppedTransactions(final ModelComponent livePanel,
