@@ -376,6 +376,7 @@ public class CanvasModel extends Model {
 			Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
 
 			view.add((JComponent)modelView.getBindingTarget());
+			view.setComponentZOrder((JComponent)modelView.getBindingTarget(), 0);
 			viewManager.becameVisible(modelView.getBindingTarget());
 		}
 		
