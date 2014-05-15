@@ -1,15 +1,17 @@
 package dynamake;
 
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.prevayler.Transaction;
-
+import dynamake.CanvasModel.MoveModelTransaction;
 import dynamake.LiveModel.ProductionPanel;
 
 public class ScaleTool implements Tool {
@@ -86,15 +88,36 @@ public class ScaleTool implements Tool {
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.effectFrame.getBounds())) {
 				TransactionFactory transactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
+				if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
+				   productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
+				   productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory() != productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent()) {
+					// Moving to other canvas
+					
+					Location canvasSourceLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent().getLocation();
+					Location canvasTargetLocation = productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory().getLocation();
+					Location modelLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation();
+
+					Rectangle droppedBounds = SwingUtilities.convertRectangle(
+						productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)productionPanel.editPanelMouseAdapter.targetOver);
+					
+					transactionFactory.executeOnRoot(new MoveModelTransaction(
+						productionPanel.livePanel.getTransactionFactory().getLocation(), 
+						canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(),
+						false
+					));
+				} else {
+					// Changing bounds within the same canvas
+					
+					JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
+					Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
+					
+					transactionFactory.executeOnRoot(new ScaleTransaction(transactionFactory.getLocation(), newBounds));
+					
+					productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+				}
 				
-				JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
-				Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
-//				productionPanel.selectionFrame.setBounds(productionPanel.effectFrame.getBounds());
-//				productionPanel.livePanel.repaint();
-				
-				transactionFactory.executeOnRoot(new ScaleTransaction(transactionFactory.getLocation(), newBounds));
-				
-				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+				productionPanel.editPanelMouseAdapter.targetOver = null;
+				productionPanel.editPanelMouseAdapter.clearTarget();
 			}
 		}
 	}
@@ -117,6 +140,56 @@ public class ScaleTool implements Tool {
 	@Override
 	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e) {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null && productionPanel.editPanelMouseAdapter.effectFrameMoving && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
+			
+			ModelComponent newTargetOverComponent;
+			
+			if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
+			   productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER) {
+				// Moving
+				Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
+				JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
+				newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(newTargetOver);
+				
+				if(((JComponent)productionPanel.editPanelMouseAdapter.selection).isAncestorOf((JComponent)newTargetOverComponent))
+					newTargetOverComponent = productionPanel.editPanelMouseAdapter.selection;
+				
+				if(newTargetOverComponent == productionPanel.editPanelMouseAdapter.selection) {
+					newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)newTargetOverComponent).getParent());
+				}
+			} else {
+				// Scaling
+				newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent());
+			}
+			
+			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
+				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
+				if(productionPanel.targetFrame != null)
+					productionPanel.remove(productionPanel.targetFrame);
+				
+				if(newTargetOverComponent != null && newTargetOverComponent != productionPanel.editPanelMouseAdapter.selection) {
+					productionPanel.targetFrame = new JPanel();
+					
+					Color color = ProductionPanel.TARGET_OVER_COLOR;
+
+					productionPanel.targetFrame.setBorder(
+						BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(Color.BLACK, 1), 
+							BorderFactory.createCompoundBorder(
+								BorderFactory.createLineBorder(color, 3), 
+								BorderFactory.createLineBorder(Color.BLACK, 1)
+							)
+						)
+					);
+					
+					Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
+						((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), productionPanel);
+					productionPanel.targetFrame.setBounds(targetFrameBounds);
+					productionPanel.targetFrame.setBackground(new Color(0, 0, 0, 0));
+					productionPanel.add(productionPanel.targetFrame);
+				}
+			}
+			
+			
 			int x = productionPanel.effectFrame.getX();
 			int y = productionPanel.effectFrame.getY();
 			int width = productionPanel.effectFrame.getWidth();
