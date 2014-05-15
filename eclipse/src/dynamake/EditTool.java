@@ -89,8 +89,8 @@ public class EditTool implements Tool {
 				
 				JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
 				Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
-				productionPanel.selectionFrame.setBounds(productionPanel.effectFrame.getBounds());
-				productionPanel.livePanel.repaint();
+//				productionPanel.selectionFrame.setBounds(productionPanel.effectFrame.getBounds());
+//				productionPanel.livePanel.repaint();
 				
 				@SuppressWarnings("unchecked")
 				Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
