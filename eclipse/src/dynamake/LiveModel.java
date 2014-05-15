@@ -30,6 +30,8 @@ import javax.swing.event.PopupMenuListener;
 
 import org.prevayler.Transaction;
 
+import dynamake.Model.RemovableListener;
+
 public class LiveModel extends Model {
 	/**
 	 * 
@@ -219,6 +221,7 @@ public class LiveModel extends Model {
 		public JPanel selectionFrame;
 		public JPanel targetFrame;
 		public JPanel outputFrame;
+		public Binding<Component> selectionBoundsBinding;
 
 		public static final Color TARGET_OVER_COLOR = new Color(35, 89, 184);
 		public static final Color BIND_COLOR = new Color(25, 209, 89);
@@ -345,6 +348,9 @@ public class LiveModel extends Model {
 				
 				this.selection = view;
 				
+				if(productionPanel.selectionBoundsBinding != null)
+					productionPanel.selectionBoundsBinding.releaseBinding();
+				
 				if(this.selection != null) {
 					if(productionPanel.effectFrame == null) {
 						productionPanel.effectFrame = new JPanel();
@@ -424,11 +430,76 @@ public class LiveModel extends Model {
 					productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionInitialMouseDown", initialMouseDown));
 					productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionMoving", moving));
 					productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", effectBounds));
+					
+					productionPanel.selectionBoundsBinding = new Binding<Component>() {
+						private Component component;
+						private ComponentListener listener;
+						
+						{
+							component = (JComponent)selection;
+							listener = new ComponentListener() {
+								@Override
+								public void componentShown(ComponentEvent arg0) { }
+								
+								@Override
+								public void componentResized(ComponentEvent arg0) {
+									Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+									productionPanel.selectionFrame.setBounds(selectionBounds);
+									productionPanel.livePanel.repaint();
+								}
+								
+								@Override
+								public void componentMoved(ComponentEvent arg0) {
+									Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+									productionPanel.selectionFrame.setBounds(selectionBounds);
+									productionPanel.livePanel.repaint();
+								}
+								
+								@Override
+								public void componentHidden(ComponentEvent arg0) { }
+							};
+							((JComponent)selection).addComponentListener(listener);
+						}
+						
+						@Override
+						public void releaseBinding() {
+							component.removeComponentListener(listener);
+						}
+						
+						@Override
+						public Component getBindingTarget() {
+							// TODO Auto-generated method stub
+							return null;
+						}
+					};
+					
+//					((JComponent)selection).addComponentListener(new ComponentListener() {
+//						@Override
+//						public void componentShown(ComponentEvent arg0) { }
+//						
+//						@Override
+//						public void componentResized(ComponentEvent arg0) {
+//							Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+//							productionPanel.selectionFrame.setBounds(selectionBounds);
+//							productionPanel.livePanel.repaint();
+//						}
+//						
+//						@Override
+//						public void componentMoved(ComponentEvent arg0) {
+//							Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+//							productionPanel.selectionFrame.setBounds(selectionBounds);
+//							productionPanel.livePanel.repaint();
+//						}
+//						
+//						@Override
+//						public void componentHidden(ComponentEvent arg0) { }
+//					});
 				} else {
 					if(productionPanel.effectFrame != null) {
 						productionPanel.clearFocus();
+					} else {
+						productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
 					}
-					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
 				}
 			}
 			
