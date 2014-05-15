@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.JColorChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.UIManager;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -35,9 +36,10 @@ public class ColorTransactionBuilder extends TransactionBuilder {
 		JColorChooser colorChooser = getColorChooser(name);
 		colorChooser.setSelectionModel(new javax.swing.colorchooser.DefaultColorSelectionModel());
 		final AbstractColorChooserPanel colorChooserPanel = colorChooser.getChooserPanels()[0];
-
-		if(initialColor != null)
-			colorChooserPanel.getColorSelectionModel().setSelectedColor(initialColor);
+		
+		if(initialColor == null)
+			initialColor = UIManager.getColor ( "Panel.background" );
+		colorChooserPanel.getColorSelectionModel().setSelectedColor(initialColor);
 
 		colorChooserPanel.getColorSelectionModel().addChangeListener(new ChangeListener() {
 			@Override
