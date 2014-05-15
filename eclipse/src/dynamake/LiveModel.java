@@ -719,11 +719,18 @@ public class LiveModel extends Model {
 			if(effectFrame != null) {
 				this.remove(effectFrame);
 				effectFrame = null;
+				
+				if(selectionBoundsBinding != null)
+					selectionBoundsBinding.releaseBinding();
+				
 				this.remove(selectionFrame);
 				selectionFrame = null;
 			}
 			
 			if(selectionFrame != null) {
+				if(selectionBoundsBinding != null)
+					selectionBoundsBinding.releaseBinding();
+				
 				this.remove(selectionFrame);
 				selectionFrame = null;
 			}

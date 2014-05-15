@@ -112,13 +112,15 @@ public class CanvasModel extends Model {
 		private Location canvasTargetLocation;
 		private Location modelLocation;
 		private Point point;
+		private boolean setMovedAsOutput;
 		
-		public MoveModelTransaction(Location liveModelLocation, Location canvasSourceLocation, Location canvasTargetLocation, Location modelLocation, Point point) {
+		public MoveModelTransaction(Location liveModelLocation, Location canvasSourceLocation, Location canvasTargetLocation, Location modelLocation, Point point, boolean setMovedAsOutput) {
 			this.liveModelLocation = liveModelLocation;
 			this.canvasSourceLocation = canvasSourceLocation;
 			this.canvasTargetLocation = canvasTargetLocation;
 			this.modelLocation = modelLocation;
 			this.point = point;
+			this.setMovedAsOutput = setMovedAsOutput;
 		}
 		
 		@Override
@@ -135,7 +137,8 @@ public class CanvasModel extends Model {
 			model.setProperty("X", new Fraction(point.x), propCtx, 0);
 			model.setProperty("Y", new Fraction(point.y), propCtx, 0);
 			model.endUpdate(propCtx, 0);
-			liveModel.setOutput(model, propCtx, 0);
+			if(setMovedAsOutput)
+				liveModel.setOutput(model, propCtx, 0);
 			canvasTarget.addModel(model, propCtx, 0);
 		}
 	}
@@ -290,7 +293,7 @@ public class CanvasModel extends Model {
 						Location modelLocation = dropped.getTransactionFactory().getLocation();
 						
 						transactionFactory.executeOnRoot(new MoveModelTransaction(
-							livePanel.getTransactionFactory().getLocation(), canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation()
+							livePanel.getTransactionFactory().getLocation(), canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true
 						));
 //						int indexOfModel = model.indexOfModel(child.getModel());
 //						transactionFactory.execute(new RemoveModelTransaction(indexOfModel));

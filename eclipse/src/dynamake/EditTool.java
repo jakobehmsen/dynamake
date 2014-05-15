@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 
 import org.prevayler.Transaction;
 
+import dynamake.CanvasModel.MoveModelTransaction;
 import dynamake.LiveModel.ProductionPanel;
 
 public class EditTool implements Tool {
@@ -89,22 +90,40 @@ public class EditTool implements Tool {
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.effectFrame.getBounds())) {
 				TransactionFactory transactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
-				
-				JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
-				Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
-//				productionPanel.selectionFrame.setBounds(productionPanel.effectFrame.getBounds());
-//				productionPanel.livePanel.repaint();
-				
-				@SuppressWarnings("unchecked")
-				Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
-					new Model.SetPropertyTransaction("X", new Fraction(newBounds.x)),
-					new Model.SetPropertyTransaction("Y", new Fraction(newBounds.y)),
-					new Model.SetPropertyTransaction("Width", new Fraction(newBounds.width)),
-					new Model.SetPropertyTransaction("Height", new Fraction(newBounds.height))
-				});
-				transactionFactory.execute(changeBoundsTransaction);
-				
-				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+				if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
+				   productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
+				   productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory() != productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent()) {
+					// Moving to other canvas
+					
+					Location canvasSourceLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent().getLocation();
+					Location canvasTargetLocation = productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory().getLocation();
+					Location modelLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation();
+
+					Rectangle droppedBounds = SwingUtilities.convertRectangle(
+						productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)productionPanel.editPanelMouseAdapter.targetOver);
+					
+					transactionFactory.executeOnRoot(new MoveModelTransaction(
+						productionPanel.livePanel.getTransactionFactory().getLocation(), 
+						canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(),
+						false
+					));
+				} else {
+					// Changing bounds within the same canvas
+					
+					JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
+					Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
+					
+					@SuppressWarnings("unchecked")
+					Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
+						new Model.SetPropertyTransaction("X", new Fraction(newBounds.x)),
+						new Model.SetPropertyTransaction("Y", new Fraction(newBounds.y)),
+						new Model.SetPropertyTransaction("Width", new Fraction(newBounds.width)),
+						new Model.SetPropertyTransaction("Height", new Fraction(newBounds.height))
+					});
+					transactionFactory.execute(changeBoundsTransaction);
+					
+					productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+				}
 				
 				productionPanel.editPanelMouseAdapter.targetOver = null;
 				productionPanel.editPanelMouseAdapter.clearTarget();
@@ -136,7 +155,6 @@ public class EditTool implements Tool {
 			if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
 			   productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER) {
 				// Moving
-
 				Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 				JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
 				newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(newTargetOver);
