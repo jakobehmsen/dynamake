@@ -531,10 +531,7 @@ public class LiveModel extends Model {
 						
 						@Override
 						public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
-							if(productionPanel.targetFrame != null) {
-								productionPanel.remove(productionPanel.targetFrame);
-								productionPanel.targetFrame = null;
-							}
+							clearTarget();
 
 							resetEffectFrame();
 							productionPanel.livePanel.repaint();
@@ -545,6 +542,13 @@ public class LiveModel extends Model {
 
 						}
 					});
+				}
+			}
+
+			public void clearTarget() {
+				if(productionPanel.targetFrame != null) {
+					productionPanel.remove(productionPanel.targetFrame);
+					productionPanel.targetFrame = null;
 				}
 			}
 			

@@ -1,11 +1,14 @@
 package dynamake;
 
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.prevayler.Transaction;
@@ -102,6 +105,9 @@ public class EditTool implements Tool {
 				transactionFactory.execute(changeBoundsTransaction);
 				
 				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+				
+				productionPanel.editPanelMouseAdapter.targetOver = null;
+				productionPanel.editPanelMouseAdapter.clearTarget();
 			}
 		}
 	}
@@ -124,6 +130,57 @@ public class EditTool implements Tool {
 	@Override
 	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e) {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null && productionPanel.editPanelMouseAdapter.effectFrameMoving && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
+			
+			ModelComponent newTargetOverComponent;
+			
+			if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
+			   productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER) {
+				// Moving
+
+				Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
+				JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
+				newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(newTargetOver);
+				
+				if(((JComponent)productionPanel.editPanelMouseAdapter.selection).isAncestorOf((JComponent)newTargetOverComponent))
+					newTargetOverComponent = productionPanel.editPanelMouseAdapter.selection;
+				
+				if(newTargetOverComponent == productionPanel.editPanelMouseAdapter.selection) {
+					newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)newTargetOverComponent).getParent());
+				}
+			} else {
+				// Resizing
+				newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent());
+			}
+			
+			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
+				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
+				if(productionPanel.targetFrame != null)
+					productionPanel.remove(productionPanel.targetFrame);
+				
+				if(newTargetOverComponent != null && newTargetOverComponent != productionPanel.editPanelMouseAdapter.selection) {
+					productionPanel.targetFrame = new JPanel();
+					
+					Color color = ProductionPanel.TARGET_OVER_COLOR;
+
+					productionPanel.targetFrame.setBorder(
+						BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(Color.BLACK, 1), 
+							BorderFactory.createCompoundBorder(
+								BorderFactory.createLineBorder(color, 3), 
+								BorderFactory.createLineBorder(Color.BLACK, 1)
+							)
+						)
+					);
+					
+					Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
+						((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), productionPanel);
+					productionPanel.targetFrame.setBounds(targetFrameBounds);
+					productionPanel.targetFrame.setBackground(new Color(0, 0, 0, 0));
+					productionPanel.add(productionPanel.targetFrame);
+				}
+			}
+			
+			
 			int x = productionPanel.effectFrame.getX();
 			int y = productionPanel.effectFrame.getY();
 			int width = productionPanel.effectFrame.getWidth();
