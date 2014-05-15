@@ -295,8 +295,6 @@ public class CanvasModel extends Model {
 						transactionFactory.executeOnRoot(new MoveModelTransaction(
 							livePanel.getTransactionFactory().getLocation(), canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true
 						));
-//						int indexOfModel = model.indexOfModel(child.getModel());
-//						transactionFactory.execute(new RemoveModelTransaction(indexOfModel));
 					}
 				});
 			}
@@ -442,8 +440,8 @@ public class CanvasModel extends Model {
 		final CanvasPanel view = new CanvasPanel(this, transactionFactory, viewManager);
 		
 		final RemovableListener removableListenerForBoundsChanges = Model.wrapForBoundsChanges(this, view, viewManager);
-		Model.loadComponentProperties(this, view);
-		final Model.RemovableListener removableListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, view, view, viewManager);
+		Model.loadComponentProperties(this, view, Model.COMPONENT_COLOR_BACKGROUND);
+		final Model.RemovableListener removableListenerForComponentPropertyChanges = Model.wrapForComponentColorChanges(this, view, view, viewManager, Model.COMPONENT_COLOR_BACKGROUND);
 		Model.wrapForComponentGUIEvents(this, view, view, viewManager);
 		
 		final HashSet<Model> shownModels = new HashSet<Model>();

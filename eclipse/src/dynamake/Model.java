@@ -43,8 +43,7 @@ public abstract class Model implements Serializable, Observer {
 
 	}
 
-	public static final String PROPERTY_BACKGROUND = "Background";
-	public static final String PROPERTY_FOREGROUND = "Foreground";
+	public static final String PROPERTY_COLOR = "Color";
 	public static final String PROPERTY_VIEW = "View";
 	
 	/**
@@ -460,20 +459,29 @@ public abstract class Model implements Serializable, Observer {
 		});
 	}
 	
-	public static RemovableListener wrapForComponentPropertyChanges(Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager) {
+	public static final int COMPONENT_COLOR_BACKGROUND = 0;
+	public static final int COMPONENT_COLOR_FOREGROUND = 1;
+	
+	public static RemovableListener wrapForComponentColorChanges(Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager, final int componentColor) {
 		return RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 				if(change instanceof Model.PropertyChanged) {
 					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
-					if(propertyChanged.name.equals(PROPERTY_BACKGROUND)) {
-						targetComponent.setBackground((Color)propertyChanged.value);
-						targetComponent.validate();
-						viewManager.refresh(view);
-					} else if(propertyChanged.name.equals(PROPERTY_FOREGROUND)) {
-						targetComponent.setForeground((Color)propertyChanged.value);
-						targetComponent.validate();
-						viewManager.repaint(targetComponent);
+
+					if(propertyChanged.name.equals(PROPERTY_COLOR)) {
+						switch(componentColor) {
+						case COMPONENT_COLOR_BACKGROUND: {
+							targetComponent.setBackground((Color)propertyChanged.value);
+							targetComponent.validate();
+							viewManager.refresh(view);
+						}
+						case COMPONENT_COLOR_FOREGROUND: {
+							targetComponent.setForeground((Color)propertyChanged.value);
+							targetComponent.validate();
+							viewManager.repaint(targetComponent);
+						}
+						}
 					}
 				}
 			}
@@ -514,14 +522,19 @@ public abstract class Model implements Serializable, Observer {
 		});
 	}
 	
-	public static void loadComponentProperties(Model model, Component view) {
-		Object background = model.getProperty(PROPERTY_BACKGROUND);
-		if(background != null)
-			view.setBackground((Color)background);
+	public static void loadComponentProperties(Model model, Component view, final int componentColor) {
+		Object color = model.getProperty(Model.PROPERTY_COLOR);
 		
-		Object foreground = model.getProperty(PROPERTY_FOREGROUND);
-		if(foreground != null)
-			view.setForeground((Color)foreground);
+		if(color != null) {
+			switch(componentColor) {
+			case COMPONENT_COLOR_BACKGROUND: {
+				view.setBackground((Color)color);
+			}
+			case COMPONENT_COLOR_FOREGROUND: {
+				view.setForeground((Color)color);
+			}
+			}
+		}
 	}
 	
 	public static void loadComponentBounds(Model model, Component view) {
@@ -561,17 +574,10 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static void appendComponentPropertyChangeTransactions(final Model model, final TransactionFactory transactionFactory, TransactionMapBuilder transactions) {
-		transactions.addTransaction("Set " + PROPERTY_BACKGROUND, new ColorTransactionBuilder((Color)model.getProperty(PROPERTY_BACKGROUND), new Action1<Color>() {
+		transactions.addTransaction("Set " + PROPERTY_COLOR, new ColorTransactionBuilder((Color)model.getProperty(PROPERTY_COLOR), new Action1<Color>() {
 			@Override
 			public void run(Color color) {
-				transactionFactory.execute(new Model.SetPropertyTransaction(PROPERTY_BACKGROUND, color));
-			}
-		}));
-		
-		transactions.addTransaction("Set " + PROPERTY_FOREGROUND, new ColorTransactionBuilder((Color)model.getProperty(PROPERTY_FOREGROUND), new Action1<Color>() {
-			@Override
-			public void run(Color color) {
-				transactionFactory.execute(new Model.SetPropertyTransaction(PROPERTY_FOREGROUND, color));
+				transactionFactory.execute(new Model.SetPropertyTransaction(PROPERTY_COLOR, color));
 			}
 		}));
 	}
@@ -601,10 +607,6 @@ public abstract class Model implements Serializable, Observer {
 					Rectangle creationBounds = droppedBounds;
 
 					dropped.getTransactionFactory().executeOnRoot(
-//						new CanvasModel.AddModelTransaction(
-//							target.getTransactionFactory().getLocation(), 
-//							creationBounds, 
-//							new CloneIsolatedFactory(dropped.getTransactionFactory().getLocation()))
 						new AddThenOutputTransaction(
 							livePanel.getTransactionFactory().getLocation(), 
 							target.getTransactionFactory().getLocation(), 
@@ -619,15 +621,11 @@ public abstract class Model implements Serializable, Observer {
 					Rectangle creationBounds = droppedBounds;
 
 					dropped.getTransactionFactory().executeOnRoot(
-//						new CanvasModel.AddModelTransaction(
-//							target.getTransactionFactory().getLocation(), 
-//							creationBounds, 
-//							new CloneDeepFactory(dropped.getTransactionFactory().getLocation()))
-							new AddThenOutputTransaction(
-								livePanel.getTransactionFactory().getLocation(), 
-								target.getTransactionFactory().getLocation(), 
-								creationBounds, 
-								new CloneDeepFactory(dropped.getTransactionFactory().getLocation()))
+						new AddThenOutputTransaction(
+							livePanel.getTransactionFactory().getLocation(), 
+							target.getTransactionFactory().getLocation(), 
+							creationBounds, 
+							new CloneDeepFactory(dropped.getTransactionFactory().getLocation()))
 					);
 				}
 			});
@@ -729,9 +727,6 @@ public abstract class Model implements Serializable, Observer {
 		setProperty("Width", new Fraction(newBounds.width), propCtx, propDistance);
 		setProperty("Height", new Fraction(newBounds.height), propCtx, propDistance);
 		
-//		float hChange = (float)newBounds.width / currentWidth.intValue();
-//		float vChange = (float)newBounds.height / currentHeight.intValue();
-		
 		Fraction hChange = new Fraction(newBounds.width).divide(currentWidth);
 		Fraction vChange = new Fraction(newBounds.height).divide(currentHeight);
 
@@ -743,16 +738,11 @@ public abstract class Model implements Serializable, Observer {
 		Fraction currentY = (Fraction)getProperty("Y");
 		Fraction currentWidth = (Fraction)getProperty("Width");
 		Fraction currentHeight = (Fraction)getProperty("Height");
-
-//		int newX = (int)(currentX.intValue() * hChange);
-//		int newY = (int)(currentY.intValue() * vChange);
-//		int newWidth = (int)(currentWidth.intValue() * hChange);
-//		int newHeight = (int)(currentHeight.intValue() * vChange);
 		
-		Fraction newX = currentX.multiply(hChange);// (int)(currentX.intValue() * hChange);
-		Fraction newY = currentY.multiply(vChange);// (int)(currentY.intValue() * vChange);
-		Fraction newWidth = currentWidth.multiply(hChange);// (int)(currentWidth.intValue() * hChange);
-		Fraction newHeight = currentHeight.multiply(vChange);// (int)(currentHeight.intValue() * vChange);
+		Fraction newX = currentX.multiply(hChange);
+		Fraction newY = currentY.multiply(vChange);
+		Fraction newWidth = currentWidth.multiply(hChange);
+		Fraction newHeight = currentHeight.multiply(vChange);
 
 		setProperty("X", newX, propCtx, propDistance);
 		setProperty("Y", newY, propCtx, propDistance);

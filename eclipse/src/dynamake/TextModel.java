@@ -178,9 +178,9 @@ public class TextModel extends Model {
 		});
 		
 		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, viewScrollPane, viewManager);
-		final Model.RemovableListener removeListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, viewScrollPane, view, viewManager);
+		final Model.RemovableListener removeListenerForComponentPropertyChanges = Model.wrapForComponentColorChanges(this, viewScrollPane, view, viewManager, Model.COMPONENT_COLOR_FOREGROUND);
 		
-		Model.loadComponentProperties(this, view);
+		Model.loadComponentProperties(this, view, Model.COMPONENT_COLOR_FOREGROUND);
 		
 		view.getDocument().addDocumentListener(new DocumentListener() {
 			@Override

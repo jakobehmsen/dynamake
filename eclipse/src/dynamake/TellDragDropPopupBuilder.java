@@ -12,19 +12,11 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 			final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
 		TransactionMapBuilder transactionTargetContentMapBuilder = new TransactionMapBuilder();
 		
-		transactionTargetContentMapBuilder.addTransaction("Tell Background", new Runnable() {
+		transactionTargetContentMapBuilder.addTransaction("Tell Color", new Runnable() {
 			@Override
 			public void run() {
 				selection.getTransactionFactory().executeOnRoot(
-					new TellPropertyTransaction(selection.getTransactionFactory().getLocation(), Model.PROPERTY_BACKGROUND)
-				);
-			}
-		});
-		transactionTargetContentMapBuilder.addTransaction("Tell Foreground", new Runnable() {
-			@Override
-			public void run() {
-				selection.getTransactionFactory().executeOnRoot(
-					new TellPropertyTransaction(selection.getTransactionFactory().getLocation(), Model.PROPERTY_FOREGROUND)
+					new TellPropertyTransaction(selection.getTransactionFactory().getLocation(), Model.PROPERTY_COLOR)
 				);
 			}
 		});

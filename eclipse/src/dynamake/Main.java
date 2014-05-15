@@ -252,13 +252,7 @@ public class Main {
 	}
 
 	private static void loadResources() {
-		ResourceManager.INSTANCE.setResourceAccessor("Set " + Model.PROPERTY_BACKGROUND, new Callable<JColorChooser>() {
-			@Override
-			public JColorChooser call() throws Exception {
-				return new JColorChooser();
-			}
-		});
-		ResourceManager.INSTANCE.setResourceAccessor("Set " + Model.PROPERTY_FOREGROUND, new Callable<JColorChooser>() {
+		ResourceManager.INSTANCE.setResourceAccessor("Set " + Model.PROPERTY_COLOR, new Callable<JColorChooser>() {
 			@Override
 			public JColorChooser call() throws Exception {
 				return new JColorChooser();

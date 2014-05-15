@@ -28,12 +28,12 @@ public class Primitive extends Model {
 				
 				@Override
 				public String getName() {
-					return "New Background";
+					return "New Color";
 				}
 				
 				@Override
 				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
-					if(change instanceof Model.PropertyChanged && ((Model.PropertyChanged)change).name.equals(Model.PROPERTY_BACKGROUND)) {
+					if(change instanceof Model.PropertyChanged && ((Model.PropertyChanged)change).name.equals(Model.PROPERTY_COLOR)) {
 						Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance, 0);
 					}
@@ -47,53 +47,14 @@ public class Primitive extends Model {
 				
 				@Override
 				public String getName() {
-					return "Change Background";
+					return "Change Color";
 				}
 				
 				@Override
 				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
-						Model.SetProperty setProperty = new Model.SetProperty(Model.PROPERTY_BACKGROUND, atom.value);
-						receiver.sendChanged(setProperty, propCtx, propDistance, 0);
-					}
-				}
-			},
-			new Implementation() {
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-				
-				@Override
-				public String getName() {
-					return "New Foreground";
-				}
-				
-				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
-					if(change instanceof Model.PropertyChanged && ((Model.PropertyChanged)change).name.equals(Model.PROPERTY_FOREGROUND)) {
-						Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
-						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance, 0);
-					}
-				}
-			},
-			new Implementation() {
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-				
-				@Override
-				public String getName() {
-					return "Change Foreground";
-				}
-				
-				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
-					if(change instanceof Model.Atom) {
-						Model.Atom atom = (Model.Atom)change;
-						Model.SetProperty setProperty = new Model.SetProperty(Model.PROPERTY_FOREGROUND, atom.value);
+						Model.SetProperty setProperty = new Model.SetProperty(Model.PROPERTY_COLOR, atom.value);
 						receiver.sendChanged(setProperty, propCtx, propDistance, 0);
 					}
 				}
@@ -235,30 +196,14 @@ public class Primitive extends Model {
 				
 				@Override
 				public String getName() {
-					return "Tell Background";
+					return "Tell Color";
 				}
 				
 				@Override
 				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
-					receiver.sendChanged(new Model.TellProperty(Model.PROPERTY_BACKGROUND), propCtx, propDistance, 0);
+					receiver.sendChanged(new Model.TellProperty(Model.PROPERTY_COLOR), propCtx, propDistance, 0);
 				}
 			},
-			new Implementation() {
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-				
-				@Override
-				public String getName() {
-					return "Tell Foreground";
-				}
-				
-				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
-					receiver.sendChanged(new Model.TellProperty(Model.PROPERTY_FOREGROUND), propCtx, propDistance, 0);
-				}
-			}
 		};
 	}
 	

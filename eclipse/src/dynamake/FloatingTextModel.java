@@ -189,7 +189,7 @@ public class FloatingTextModel extends Model {
 		});
 		
 		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
-		final Model.RemovableListener removeListenerForComponentPropertyChanges = Model.wrapForComponentPropertyChanges(this, view, view, viewManager);
+		final Model.RemovableListener removeListenerForComponentPropertyChanges = Model.wrapForComponentColorChanges(this, view, view, viewManager, Model.COMPONENT_COLOR_FOREGROUND);
 		final Binding<Model> removableListener = RemovableListener.addAll(this, 
 			bindProperty(this, "FontSize", new Action1<Fraction>() {
 				public void run(Fraction value) {
@@ -200,7 +200,7 @@ public class FloatingTextModel extends Model {
 			})
 		);
 		
-		Model.loadComponentProperties(this, view);
+		Model.loadComponentProperties(this, view, Model.COMPONENT_COLOR_FOREGROUND);
 		
 		view.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
