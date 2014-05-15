@@ -488,18 +488,60 @@ public abstract class Model implements Serializable, Observer {
 		});
 	}
 	
+	private static class MouseUpTransaction implements Transaction<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private Location modelLocation;
+		
+		public MouseUpTransaction(Location modelLocation) {
+			this.modelLocation = modelLocation;
+		}
+
+		@Override
+		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
+			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
+			PropogationContext propCtx = new PropogationContext(); 
+			model.sendChanged(new MouseUp(), propCtx, 0, 0);
+		}
+	}
+	
+	private static class MouseDownTransaction implements Transaction<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private Location modelLocation;
+		
+		public MouseDownTransaction(Location modelLocation) {
+			this.modelLocation = modelLocation;
+		}
+
+		@Override
+		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
+			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
+			PropogationContext propCtx = new PropogationContext(); 
+			model.sendChanged(new MouseDown(), propCtx, 0, 0);
+		}
+	}
+	
 	public static void wrapForComponentGUIEvents(final Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager) {
 		((JComponent)view).addMouseListener(new MouseListener() {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
-				PropogationContext propCtx = new PropogationContext(); 
-				model.sendChanged(new MouseUp(), propCtx, 0, 0);
+//				PropogationContext propCtx = new PropogationContext(); 
+//				model.sendChanged(new MouseUp(), propCtx, 0, 0);
+				view.getTransactionFactory().executeOnRoot(new MouseUpTransaction(view.getTransactionFactory().getLocation()));
 			}
 			
 			@Override
 			public void mousePressed(MouseEvent arg0) {
-				PropogationContext propCtx = new PropogationContext(); 
-				model.sendChanged(new MouseDown(), propCtx, 0, 0);
+//				PropogationContext propCtx = new PropogationContext(); 
+//				model.sendChanged(new MouseDown(), propCtx, 0, 0);
+				view.getTransactionFactory().executeOnRoot(new MouseDownTransaction(view.getTransactionFactory().getLocation()));
 			}
 			
 			@Override

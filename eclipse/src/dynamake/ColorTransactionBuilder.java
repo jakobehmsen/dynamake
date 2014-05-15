@@ -2,7 +2,6 @@ package dynamake;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JColorChooser;
@@ -38,7 +37,7 @@ public class ColorTransactionBuilder extends TransactionBuilder {
 		final AbstractColorChooserPanel colorChooserPanel = colorChooser.getChooserPanels()[0];
 		
 		if(initialColor == null)
-			initialColor = UIManager.getColor ( "Panel.background" );
+			initialColor = UIManager.getColor("Panel.background");
 		colorChooserPanel.getColorSelectionModel().setSelectedColor(initialColor);
 
 		colorChooserPanel.getColorSelectionModel().addChangeListener(new ChangeListener() {
