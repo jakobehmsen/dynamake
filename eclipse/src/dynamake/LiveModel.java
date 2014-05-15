@@ -468,32 +468,9 @@ public class LiveModel extends Model {
 						
 						@Override
 						public Component getBindingTarget() {
-							// TODO Auto-generated method stub
-							return null;
+							return component;
 						}
 					};
-					
-//					((JComponent)selection).addComponentListener(new ComponentListener() {
-//						@Override
-//						public void componentShown(ComponentEvent arg0) { }
-//						
-//						@Override
-//						public void componentResized(ComponentEvent arg0) {
-//							Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-//							productionPanel.selectionFrame.setBounds(selectionBounds);
-//							productionPanel.livePanel.repaint();
-//						}
-//						
-//						@Override
-//						public void componentMoved(ComponentEvent arg0) {
-//							Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-//							productionPanel.selectionFrame.setBounds(selectionBounds);
-//							productionPanel.livePanel.repaint();
-//						}
-//						
-//						@Override
-//						public void componentHidden(ComponentEvent arg0) { }
-//					});
 				} else {
 					if(productionPanel.effectFrame != null) {
 						productionPanel.clearFocus();

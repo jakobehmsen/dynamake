@@ -464,9 +464,6 @@ public class CanvasModel extends Model {
 		
 		final Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap = new Hashtable<Model, Model.RemovableListener>();
 		for(final Model model: models) {
-//		// Reverse order such that the last added model is put to the front
-//		for(int i = models.size() - 1; i >= 0; i--) {
-//			Model model = models.get(i);
 			addModelComponent(
 				view, transactionFactory, viewManager, shownModels, modelToModelComponentMap, modelToRemovableListenerMap, model
 			);
@@ -494,9 +491,6 @@ public class CanvasModel extends Model {
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
 					removableListener.releaseBinding();
 					
-//					int componentIndex = (view.getComponentCount() - 1) - ((CanvasModel.RemovedModelChange)change).index;
-//					view.remove(componentIndex);
-//					view.remove(((CanvasModel.RemovedModelChange)change).index);
 					view.validate();
 					view.repaint();
 					viewManager.clearFocus();
@@ -505,8 +499,7 @@ public class CanvasModel extends Model {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
 					if(propertyChanged.name.equals(Model.PROPERTY_VIEW)) {
 						Hashtable<Integer, Model> invisibles = new Hashtable<Integer, Model>();
-//						ArrayList<Model> invisibles = new ArrayList<Model>();
-//						for(Model m: view.model.models) {
+
 						for(int i = 0; i < view.model.models.size(); i++) {
 							Model m = view.model.models.get(i);
 							boolean wasFound = false;
@@ -517,15 +510,13 @@ public class CanvasModel extends Model {
 								}
 							}
 							if(!wasFound)
-//								invisibles.add(m);
 								invisibles.put(i, m);
 						}
 						
 						Hashtable<Integer, Model> newVisibles = new Hashtable<Integer, Model>();
 
-//						for(int i = 0; i < invisibles.size(); i++) {
 						for(Map.Entry<Integer, Model> entry: invisibles.entrySet()) {
-							Model invisible = entry.getValue(); //invisibles.get(i);
+							Model invisible = entry.getValue();
 							if(invisible.viewConformsTo((int)propertyChanged.value)) {
 								newVisibles.put(entry.getKey(), invisible);
 							}
@@ -554,45 +545,23 @@ public class CanvasModel extends Model {
 						for(Map.Entry<Integer, Model> entry: newVisibles.entrySet()) {
 							visibles[entry.getKey()] = entry.getValue();
 						}
-//						// Add the existing visibles to each their respective index at model into visibles
-//						for(int i = 0; i < models.size(); i++) {
-//							Model m = models.get(i);
-//							if(shownModels.contains(m))
-//								visibles[i] = m;
-//						}
 						
-//						int zOrder = view.getComponentCount() + newVisibles.size();
 						for(int i = 0; i < visibles.length; i++) {
 							Object visible = visibles[i];
 							if(visible != null) {
-//								zOrder--;
 								if(visible instanceof Model) {
 									// Model to add
 									Model model = (Model)visible;
 									shownModels.add(model);
 									Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
-									
-//									for(int j = 0; j < models.size(); j++) {
-//										Model m = models.get(i);
-//										if(m == sender)
-//											break;
-//										
-//										if(shownModels.contains(m))
-//											zOrder--;
-//									}
 
 									view.add((JComponent)modelView.getBindingTarget());
 									viewManager.becameVisible(modelView.getBindingTarget());
-									
-////									// Reverse the index starting from the last index at zero, second last as 1, and so forth
-////									// Put the last added model to the front
-//									view.setComponentZOrder((JComponent)modelView.getBindingTarget(), zOrder);
 								}
-//								zOrder--;
 							}
 						}
 						
-						int zOrder = view.getComponentCount();// + newVisibles.size();
+						int zOrder = view.getComponentCount();
 						for(int i = 0; i < visibles.length; i++) {
 							Object visible = visibles[i];
 							if(visible != null) {
@@ -600,29 +569,13 @@ public class CanvasModel extends Model {
 								if(visible instanceof Model) {
 									// Model to add
 									Model model = (Model)visible;
-//									shownModels.add(model);
 									Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
 									
-//									for(int j = 0; j < models.size(); j++) {
-//										Model m = models.get(i);
-//										if(m == sender)
-//											break;
-//										
-//										if(shownModels.contains(m))
-//											zOrder--;
-//									}
-
-//									view.add((JComponent)modelView.getBindingTarget());
-//									viewManager.becameVisible(modelView.getBindingTarget());
-									
-//									// Reverse the index starting from the last index at zero, second last as 1, and so forth
-//									// Put the last added model to the front
 									view.setComponentZOrder((JComponent)modelView.getBindingTarget(), zOrder);
 								} else {
 									JComponent component = (JComponent)visibles[i];
 									view.setComponentZOrder(component, zOrder);
 								}
-//								zOrder--;
 							}
 						}
 						
