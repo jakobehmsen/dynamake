@@ -124,9 +124,10 @@ public class Main {
 			factoryBuilder.toArray(factories);
 			
 			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
-			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
-			
-			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(pModel);
+//			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
+//			
+//			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(pModel);
+			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(rootModel);
 			ViewManager rootViewManager = new ViewManager() {
 				@Override
 				public void setFocus(JComponent component) {
@@ -208,7 +209,7 @@ public class Main {
 				}
 			};
 			TransactionFactory rootTransactionFactory = new TransactionFactory(prevaylerService, new RootLocator());
-			final Binding<ModelComponent> rootView = pModel.prevalentSystem().createView(rootViewManager, rootTransactionFactory);
+			final Binding<ModelComponent> rootView = prevaylerService.prevalentSystem().createView(rootViewManager, rootTransactionFactory);
 			JFrame frame = (JFrame)rootView.getBindingTarget();
 			
 			// Can be used for intercepting mouse events?
