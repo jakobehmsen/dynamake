@@ -123,11 +123,17 @@ public class Main {
 			final Factory[] factories = new Factory[factoryBuilder.size()];
 			factoryBuilder.toArray(factories);
 			
-			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
+//			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
 //			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
 //			
 //			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(pModel);
-			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(rootModel);
+			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(new Func0<Model>() {
+				@Override
+				public Model call() {
+					// TODO Auto-generated method stub
+					return new RootModel(new LiveModel(new CanvasModel()));
+				}
+			});
 			ViewManager rootViewManager = new ViewManager() {
 				@Override
 				public void setFocus(JComponent component) {
