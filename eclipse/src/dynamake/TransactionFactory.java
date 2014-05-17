@@ -57,6 +57,12 @@ public class TransactionFactory {
 			T obj = (T)location.getChild(prevalentSystem);
 			transaction.executeOn(obj, executionTime);
 		}
+
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 //	public <T extends Model> void execute(final Transaction<T> transaction) {

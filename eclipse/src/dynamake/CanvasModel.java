@@ -141,6 +141,12 @@ public class CanvasModel extends Model {
 				liveModel.setOutput(model, propCtx, 0);
 			canvasTarget.addModel(model, propCtx, 0);
 		}
+
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	public static class AddModelTransaction implements Command<Model> {
@@ -180,6 +186,12 @@ public class CanvasModel extends Model {
 			
 			canvas.addModel(model, new PropogationContext(), 0);
 		}
+
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	public static class RemoveModelTransaction implements Command<CanvasModel> {
@@ -198,6 +210,12 @@ public class CanvasModel extends Model {
 			Model modelToRemove = prevalentSystem.getModel(index);
 			prevalentSystem.removeModel(index, new PropogationContext(), 0);
 			modelToRemove.beRemoved();
+		}
+
+		@Override
+		public Command<CanvasModel> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

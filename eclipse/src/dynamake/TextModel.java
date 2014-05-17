@@ -60,6 +60,12 @@ public class TextModel extends Model {
 		public void executeOn(TextModel prevalentSystem, Date executionTime) {
 			prevalentSystem.text.insert(offset, text);
 		}
+
+		@Override
+		public Command<TextModel> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	private static class RemoveTransaction implements Command<TextModel> {
@@ -78,6 +84,12 @@ public class TextModel extends Model {
 
 		public void executeOn(TextModel prevalentSystem, Date executionTime) {
 			prevalentSystem.text.delete(start, end);
+		}
+
+		@Override
+		public Command<TextModel> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

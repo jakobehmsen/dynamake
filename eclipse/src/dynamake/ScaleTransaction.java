@@ -34,4 +34,10 @@ public class ScaleTransaction implements Command<Model> {
 //		
 //		model.scale(widthChange, heightChange, propCtx, 0);
 	}
+
+	@Override
+	public Command<Model> antagonist() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

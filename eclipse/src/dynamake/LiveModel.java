@@ -119,6 +119,12 @@ public class LiveModel extends Model {
 				liveModel.setSelection(null, new PropogationContext(), 0);
 			}
 		}
+
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	public static class SetOutput implements Command<Model> {
@@ -144,6 +150,12 @@ public class LiveModel extends Model {
 				liveModel.setOutput(null, new PropogationContext(), 0);
 			}
 		}
+
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	// TODO: Consider: Should be renamed to SetMode instead?
@@ -164,6 +176,12 @@ public class LiveModel extends Model {
 		@Override
 		public void executeOn(LiveModel prevalentSystem, Date executionTime) {
 			prevalentSystem.setState(state, new PropogationContext(), 0);
+		}
+
+		@Override
+		public Command<LiveModel> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

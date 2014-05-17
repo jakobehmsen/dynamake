@@ -73,6 +73,12 @@ public class FloatingTextModel extends Model {
 		public void executeOn(FloatingTextModel prevalentSystem, Date executionTime) {
 			prevalentSystem.text.insert(offset, text);
 		}
+
+		@Override
+		public Command<FloatingTextModel> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	private static class RemoveTransaction implements Command<FloatingTextModel> {
@@ -91,6 +97,12 @@ public class FloatingTextModel extends Model {
 
 		public void executeOn(FloatingTextModel prevalentSystem, Date executionTime) {
 			prevalentSystem.text.delete(start, end);
+		}
+
+		@Override
+		public Command<FloatingTextModel> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

@@ -59,4 +59,10 @@ public class WrapTransaction implements Command<Model> {
 		liveModel.setOutput(wrapper, propCtx, 0);
 		target.addModel(wrapper, propCtx, 0);
 	}
+
+	@Override
+	public Command<Model> antagonist() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

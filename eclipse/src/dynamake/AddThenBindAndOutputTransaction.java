@@ -56,4 +56,10 @@ public class AddThenBindAndOutputTransaction implements Command<Model> {
 		liveModel.setOutput(primitive, addAndBindCtx, 0);
 		canvasModel.addModel(primitive, addAndBindCtx, 0);
 	}
+
+	@Override
+	public Command<Model> antagonist() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

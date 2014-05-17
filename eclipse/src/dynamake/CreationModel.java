@@ -57,6 +57,12 @@ public class CreationModel extends Model {
 //			argument = argument.getMetaModel();
 			creation.setArgument(parameterName, argument, new PropogationContext(), 0);
 		}
+
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	public CreationModel(Factory factory, String[] parameterNames) {
@@ -286,6 +292,13 @@ public class CreationModel extends Model {
 			
 			canvas.removeModel(creation, propCtx, 0);
 			canvas.addModel(model, propCtx, 0);
+		}
+
+
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

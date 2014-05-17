@@ -102,6 +102,11 @@ public abstract class Model implements Serializable, Observer {
 			PropogationContext propCtx = new PropogationContext();
 			prevalentSystem.setProperty(name, value, propCtx, 0);
 		}
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	protected Hashtable<String, Object> properties;
@@ -147,6 +152,12 @@ public abstract class Model implements Serializable, Observer {
 			
 			observable.addObserver(observer);
 		}
+
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	public static class RemoveObserver implements Command<Model> {
@@ -168,6 +179,12 @@ public abstract class Model implements Serializable, Observer {
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
 			observable.removeObserver(observer);
+		}
+
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	
@@ -217,6 +234,12 @@ public abstract class Model implements Serializable, Observer {
 			for(Command<Model> t: transactions)
 				t.executeOn(prevalentSystem, executionTime);
 			prevalentSystem.endUpdate(propCtx, 0);
+		}
+
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	
@@ -506,6 +529,12 @@ public abstract class Model implements Serializable, Observer {
 			PropogationContext propCtx = new PropogationContext(); 
 			model.sendChanged(new MouseUp(), propCtx, 0, 0);
 		}
+
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	private static class MouseDownTransaction implements Command<Model> {
@@ -525,6 +554,12 @@ public abstract class Model implements Serializable, Observer {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 			PropogationContext propCtx = new PropogationContext(); 
 			model.sendChanged(new MouseDown(), propCtx, 0, 0);
+		}
+
+		@Override
+		public Command<Model> antagonist() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	
