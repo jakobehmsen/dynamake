@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.prevayler.Transaction;
 
-public class TellPropertyTransaction implements Transaction<Model> {
+public class TellPropertyTransaction implements Command<Model> {
 	/**
 	 * 
 	 */

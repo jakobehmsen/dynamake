@@ -92,7 +92,7 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+		public Command<Model> getImplicitDropAction(ModelComponent target) {
 			return null;
 		}
 	}

@@ -32,5 +32,5 @@ public interface ModelComponent {
 		}
 	}
 
-	Transaction<Model> getImplicitDropAction(ModelComponent target);
+	Command<Model> getImplicitDropAction(ModelComponent target);
 }

@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.prevayler.Transaction;
 
-public class SetViewTransaction implements Transaction<Model> {
+public class SetViewTransaction implements Command<Model> {
 
 	/**
 	 * 

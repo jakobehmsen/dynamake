@@ -6,7 +6,7 @@ import java.util.Date;
 
 import org.prevayler.Transaction;
 
-public class ScaleTransaction implements Transaction<Model> {
+public class ScaleTransaction implements Command<Model> {
 	/**
 	 * 
 	 */

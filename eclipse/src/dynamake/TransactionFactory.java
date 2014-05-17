@@ -28,16 +28,25 @@ public class TransactionFactory {
 		return locator.locate();
 	}
 	
-	private static class LocationTransaction<T> implements Transaction<Model> {
+//	private static class LocationTransaction<T> implements Transaction<Model> {
+	private static class LocationTransaction<T> implements Command<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		
+//		private Location location;
+//		private Transaction<T> transaction;
+//
+//		public LocationTransaction(Location location, Transaction<T> transaction) {
+//			this.location = location;
+//			this.transaction = transaction;
+//		}
+		
 		private Location location;
-		private Transaction<T> transaction;
+		private Command<T> transaction;
 
-		public LocationTransaction(Location location, Transaction<T> transaction) {
+		public LocationTransaction(Location location, Command<T> transaction) {
 			this.location = location;
 			this.transaction = transaction;
 		}
@@ -50,12 +59,21 @@ public class TransactionFactory {
 		}
 	}
 	
-	public <T extends Model> void execute(final Transaction<T> transaction) {
+//	public <T extends Model> void execute(final Transaction<T> transaction) {
+//		final Location location = getLocation();
+//		prevaylerService.execute(new LocationTransaction<T>(location, transaction));
+//	}
+//	
+//	public void executeOnRoot(final Transaction<Model> transaction) {
+//		prevaylerService.execute(transaction);
+//	}
+	
+	public <T extends Model> void execute(final Command<T> transaction) {
 		final Location location = getLocation();
 		prevaylerService.execute(new LocationTransaction<T>(location, transaction));
 	}
 	
-	public void executeOnRoot(final Transaction<Model> transaction) {
+	public void executeOnRoot(final Command<Model> transaction) {
 		prevaylerService.execute(transaction);
 	}
 	

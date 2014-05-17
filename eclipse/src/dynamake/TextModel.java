@@ -43,7 +43,7 @@ public class TextModel extends Model {
 		
 	}
 	
-	private static class InsertTransaction implements Transaction<TextModel> {
+	private static class InsertTransaction implements Command<TextModel> {
 		/**
 		 * 
 		 */
@@ -62,7 +62,7 @@ public class TextModel extends Model {
 		}
 	}
 	
-	private static class RemoveTransaction implements Transaction<TextModel> {
+	private static class RemoveTransaction implements Command<TextModel> {
 		/**
 		 * 
 		 */
@@ -156,7 +156,7 @@ public class TextModel extends Model {
 		}
 
 		@Override
-		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+		public Command<Model> getImplicitDropAction(ModelComponent target) {
 			// TODO Auto-generated method stub
 			return null;
 		}

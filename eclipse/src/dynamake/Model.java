@@ -81,7 +81,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class SetPropertyTransaction implements Transaction<Model> {
+	public static class SetPropertyTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -91,8 +91,8 @@ public abstract class Model implements Serializable, Observer {
 		private Object value;
 		
 		public SetPropertyTransaction(String name, Object value) {
-			if(name.equals("X") && value instanceof Integer)
-				new String();
+//			if(name.equals("X") && value instanceof Integer)
+//				new String();
 			
 			this.name = name;
 			this.value = value;
@@ -127,7 +127,7 @@ public abstract class Model implements Serializable, Observer {
 		
 	}
 	
-	public static class AddObserver implements Transaction<Model> {
+	public static class AddObserver implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -149,7 +149,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class RemoveObserver implements Transaction<Model> {
+	public static class RemoveObserver implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -198,15 +198,15 @@ public abstract class Model implements Serializable, Observer {
 		
 	}
 	
-	public static class CompositeTransaction implements Transaction<Model> {
+	public static class CompositeTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private Transaction<Model>[] transactions;
+		private Command<Model>[] transactions;
 		
-		public CompositeTransaction(Transaction<Model>[] transactions) {
+		public CompositeTransaction(Command<Model>[] transactions) {
 			this.transactions = transactions;
 		}
 
@@ -214,7 +214,7 @@ public abstract class Model implements Serializable, Observer {
 		public void executeOn(Model prevalentSystem, Date executionTime) {
 			PropogationContext propCtx = new PropogationContext();
 			prevalentSystem.beginUpdate(propCtx, 0);
-			for(Transaction<Model> t: transactions)
+			for(Command<Model> t: transactions)
 				t.executeOn(prevalentSystem, executionTime);
 			prevalentSystem.endUpdate(propCtx, 0);
 		}
@@ -488,7 +488,7 @@ public abstract class Model implements Serializable, Observer {
 		});
 	}
 	
-	private static class MouseUpTransaction implements Transaction<Model> {
+	private static class MouseUpTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -508,7 +508,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	private static class MouseDownTransaction implements Transaction<Model> {
+	private static class MouseDownTransaction implements Command<Model> {
 		/**
 		 * 
 		 */

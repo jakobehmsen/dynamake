@@ -102,7 +102,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class MoveModelTransaction implements Transaction<Model> {
+	public static class MoveModelTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -143,7 +143,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class AddModelTransaction implements Transaction<Model> {
+	public static class AddModelTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -182,7 +182,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class RemoveModelTransaction implements Transaction<CanvasModel> {
+	public static class RemoveModelTransaction implements Command<CanvasModel> {
 		/**
 		 * 
 		 */
@@ -316,7 +316,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+		public Command<Model> getImplicitDropAction(ModelComponent target) {
 			// TODO Auto-generated method stub
 			return null;
 		}

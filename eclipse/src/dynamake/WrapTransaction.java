@@ -5,7 +5,7 @@ import java.util.Date;
 
 import org.prevayler.Transaction;
 
-public class WrapTransaction implements Transaction<Model> {
+public class WrapTransaction implements Command<Model> {
 	/**
 	 * 
 	 */

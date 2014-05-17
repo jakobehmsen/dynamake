@@ -91,7 +91,7 @@ public class MarkVisit extends Model {
 		}
 
 		@Override
-		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+		public Command<Model> getImplicitDropAction(ModelComponent target) {
 			// TODO Auto-generated method stub
 			return null;
 		}

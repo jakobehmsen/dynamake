@@ -96,7 +96,7 @@ public class LiveModel extends Model {
 		sendChanged(new StateChanged(), propCtx, propDistance, 0);
 	}
 	
-	public static class SetSelection implements Transaction<Model> {
+	public static class SetSelection implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -121,7 +121,7 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	public static class SetOutput implements Transaction<Model> {
+	public static class SetOutput implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -150,7 +150,7 @@ public class LiveModel extends Model {
 	// Or to SetTool
 	// Or to SetRole
 	// - and reflect this naming a appropriate locations
-	public static class SetState implements Transaction<LiveModel> {
+	public static class SetState implements Command<LiveModel> {
 		/**
 		 * 
 		 */
@@ -986,7 +986,7 @@ public class LiveModel extends Model {
 		}
 
 		@Override
-		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+		public Command<Model> getImplicitDropAction(ModelComponent target) {
 			// TODO Auto-generated method stub
 			return null;
 		}

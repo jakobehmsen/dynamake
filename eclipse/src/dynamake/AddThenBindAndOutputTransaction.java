@@ -6,7 +6,7 @@ import java.util.Hashtable;
 
 import org.prevayler.Transaction;
 
-public class AddThenBindAndOutputTransaction implements Transaction<Model> {
+public class AddThenBindAndOutputTransaction implements Command<Model> {
 	/**
 	 * 
 	 */

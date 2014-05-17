@@ -56,7 +56,7 @@ public class FloatingTextModel extends Model {
 		
 	}
 	
-	private static class InsertTransaction implements Transaction<FloatingTextModel> {
+	private static class InsertTransaction implements Command<FloatingTextModel> {
 		/**
 		 * 
 		 */
@@ -75,7 +75,7 @@ public class FloatingTextModel extends Model {
 		}
 	}
 	
-	private static class RemoveTransaction implements Transaction<FloatingTextModel> {
+	private static class RemoveTransaction implements Command<FloatingTextModel> {
 		/**
 		 * 
 		 */
@@ -168,7 +168,7 @@ public class FloatingTextModel extends Model {
 		}
 
 		@Override
-		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+		public Command<Model> getImplicitDropAction(ModelComponent target) {
 			// TODO Auto-generated method stub
 			return null;
 		}

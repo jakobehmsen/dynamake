@@ -34,7 +34,7 @@ public class CreationModel extends Model {
 		}
 	}
 	
-	public static class SetArgumentTransaction implements Transaction<Model> {
+	public static class SetArgumentTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -158,7 +158,7 @@ public class CreationModel extends Model {
 		}
 
 		@Override
-		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+		public Command<Model> getImplicitDropAction(ModelComponent target) {
 			return new SetArgumentTransaction(ownerModel.getTransactionFactory().getLocation(), parameterName, target.getTransactionFactory().getLocation());
 		}
 	}
@@ -245,14 +245,13 @@ public class CreationModel extends Model {
 		}
 
 		@Override
-		public Transaction<Model> getImplicitDropAction(ModelComponent target) {
+		public Command<Model> getImplicitDropAction(ModelComponent target) {
 			// TODO Auto-generated method stub
 			return null;
 		}
-
 	}
 	
-	private static class InstantiateCreationTransaction implements Transaction<Model> {
+	private static class InstantiateCreationTransaction implements Command<Model> {
 		/**
 		 * 
 		 */

@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.prevayler.Transaction;
 
-public class InjectTransaction implements Transaction<Model> {
+public class InjectTransaction implements Command<Model> {
 	/**
 	 * 
 	 */

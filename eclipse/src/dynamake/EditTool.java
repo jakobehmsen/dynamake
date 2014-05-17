@@ -114,7 +114,7 @@ public class EditTool implements Tool {
 					Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
 					
 					@SuppressWarnings("unchecked")
-					Transaction<Model> changeBoundsTransaction = new Model.CompositeTransaction((Transaction<Model>[])new Transaction<?>[] {
+					Command<Model> changeBoundsTransaction = new Model.CompositeTransaction((Command<Model>[])new Command<?>[] {
 						new Model.SetPropertyTransaction("X", new Fraction(newBounds.x)),
 						new Model.SetPropertyTransaction("Y", new Fraction(newBounds.y)),
 						new Model.SetPropertyTransaction("Width", new Fraction(newBounds.width)),

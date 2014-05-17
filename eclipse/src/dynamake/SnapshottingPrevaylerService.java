@@ -123,7 +123,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		while(bufferedOutput.available() != 0) {
 			// Should be read in chunks
 			ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
-			Transaction<T> transaction = (Transaction<T>)objectOutput.readObject();
+			Command<T> transaction = (Command<T>)objectOutput.readObject();
 			transaction.executeOn(prevalentSystem, null);
 		}
 		
@@ -196,7 +196,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 //	}
 
 	@Override
-	public void execute(final Transaction<T> transaction) {
+//	public void execute(final Transaction<T> transaction) {
+	public void execute(final Command<T> transaction) {
 //		transactionExecutor.execute(new Runnable() {
 //			@Override
 //			public void run() {
