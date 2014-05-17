@@ -72,7 +72,11 @@ public class PlotTool implements Tool {
 							}
 							
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
-								new WrapTransaction(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), selectionCreationBounds, modelLocation)
+								new WrapTransaction(
+									productionPanel.livePanel.getTransactionFactory().getLocation(),
+									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), 
+									selectionCreationBounds, 
+									modelLocation)
 							);
 						}
 					}

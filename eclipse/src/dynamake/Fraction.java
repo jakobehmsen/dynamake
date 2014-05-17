@@ -95,7 +95,7 @@ public class Fraction extends Number {
 	
 	public Fraction divide(Fraction other) {
 //		Fraction f = new Fraction(
-//			numerator * other.denominator,
+//			numerator * other.denominatopropCtxr,
 //			denominator * other.numerator
 //		);
 		Fraction f = new Fraction(

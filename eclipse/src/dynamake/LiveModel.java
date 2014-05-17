@@ -84,7 +84,7 @@ public class LiveModel extends Model {
 	public void setOutput(Model output, PropogationContext propCtx, int propDistance) {
 		this.output = output;
 		
-		sendChanged(new SelectionChanged(), propCtx, propDistance, 0);
+		sendChanged(new OutputChanged(), propCtx, propDistance, 0);
 	}
 
 	public int getState() {
