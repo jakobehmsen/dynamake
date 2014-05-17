@@ -124,8 +124,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		while(bufferedOutput.available() != 0) {
 			// Should be read in chunks
 			ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
-			Command<T> transaction = (Command<T>)objectOutput.readObject();
-			transaction.executeOn(propCtx, prevalentSystem, null);
+			DualCommand<T> transaction = (DualCommand<T>)objectOutput.readObject();
+			transaction.executeForwardOn(propCtx, prevalentSystem, null);
 		}
 		
 		bufferedOutput.close();
@@ -183,7 +183,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	}
 	
 	private int transactionIndex;
-	private ArrayList<Command<T>> transactions = new ArrayList<Command<T>>();
+	private ArrayList<DualCommand<T>> transactions = new ArrayList<DualCommand<T>>();
 	
 	@Override
 	public void undo(final PropogationContext propCtx) {
@@ -192,9 +192,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			public void run() {
 				if(transactionIndex > 0) {
 					transactionIndex--;
-					Command<T> transaction = transactions.get(transactionIndex);
-					Command<T> antagonist = transaction.antagonist();
-					antagonist.executeOn(propCtx, prevalentSystem, null);
+					DualCommand<T> transaction = transactions.get(transactionIndex);
+//					DualCommand<T> antagonist = transaction.antagonist();
+//					antagonist.executeOn(propCtx, prevalentSystem, null);
+					
+					transaction.executeBackwardOn(propCtx, prevalentSystem, null);
 				}
 			}
 		});
@@ -206,8 +208,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			@Override
 			public void run() {
 				if(transactionIndex < transactions.size()) {
-					Command<T> transaction = transactions.get(transactionIndex);
-					transaction.executeOn(propCtx, prevalentSystem, null);
+					DualCommand<T> transaction = transactions.get(transactionIndex);
+					transaction.executeForwardOn(propCtx, prevalentSystem, null);
 					transactionIndex++;
 				}
 			}
@@ -230,7 +232,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 
 	@Override
 //	public void execute(final Transaction<T> transaction) {
-	public void execute(final PropogationContext propCtx, final Command<T> transaction) {
+	public void execute(final PropogationContext propCtx, final DualCommand<T> transaction) {
 //		transactionExecutor.execute(new Runnable() {
 //			@Override
 //			public void run() {
@@ -246,7 +248,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				transaction.executeOn(propCtx, prevalentSystem(), null);
+				transaction.executeForwardOn(propCtx, prevalentSystem(), null);
 				
 				if(transactionIndex == transactions.size())
 					transactions.add(transaction);

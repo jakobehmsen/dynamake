@@ -29,7 +29,7 @@ public class TransactionFactory {
 	}
 	
 //	private static class LocationTransaction<T> implements Transaction<Model> {
-	private static class LocationTransaction<T> implements Command<Model> {
+	private static class LocationTransaction<T> implements DualCommand<Model> {
 		/**
 		 * 
 		 */
@@ -44,24 +44,38 @@ public class TransactionFactory {
 //		}
 		
 		private Location location;
-		private Command<T> transaction;
+		private DualCommand<T> transaction;
 
-		public LocationTransaction(Location location, Command<T> transaction) {
+		public LocationTransaction(Location location, DualCommand<T> transaction) {
 			this.location = location;
 			this.transaction = transaction;
 		}
 
-		@SuppressWarnings("unchecked")
+//		@SuppressWarnings("unchecked")
+//		@Override
+//		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+//			T obj = (T)location.getChild(prevalentSystem);
+//			transaction.executeOn(propCtx, obj, executionTime);
+//		}
+//
+//		@Override
+//		public Command<Model> antagonist() {
+//			Command<T> transactionAntagonist = transaction.antagonist();
+//			return new LocationTransaction<T>(location, transactionAntagonist);
+//		}
+		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+		public void executeForwardOn(PropogationContext propCtx,
+				Model prevalentSystem, Date executionTime) {
 			T obj = (T)location.getChild(prevalentSystem);
-			transaction.executeOn(propCtx, obj, executionTime);
+			transaction.executeForwardOn(propCtx, obj, executionTime);
 		}
-
+		
 		@Override
-		public Command<Model> antagonist() {
-			Command<T> transactionAntagonist = transaction.antagonist();
-			return new LocationTransaction<T>(location, transactionAntagonist);
+		public void executeBackwardOn(PropogationContext propCtx,
+				Model prevalentSystem, Date executionTime) {
+			T obj = (T)location.getChild(prevalentSystem);
+			transaction.executeBackwardOn(propCtx, obj, executionTime);
 		}
 	}
 	
@@ -75,11 +89,19 @@ public class TransactionFactory {
 //	}
 	
 	public <T extends Model> void execute(PropogationContext propCtx, final Command<T> transaction) {
+		execute(propCtx, new DualCommandPair<T>(transaction, null));
+	}
+	
+	public <T extends Model> void execute(PropogationContext propCtx, final DualCommand<T> transaction) {
 		final Location location = getLocation();
 		prevaylerService.execute(propCtx, new LocationTransaction<T>(location, transaction));
 	}
 	
-	public void executeOnRoot(PropogationContext propCtx, final Command<Model> transaction) {
+	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final Command<Model> transaction) {
+		executeOnRoot(propCtx, new DualCommandPair<Model>(transaction, null));
+	}
+	
+	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final DualCommand<Model> transaction) {
 		prevaylerService.execute(propCtx, transaction);
 	}
 	

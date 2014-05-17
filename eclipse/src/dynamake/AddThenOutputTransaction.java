@@ -50,9 +50,9 @@ public class AddThenOutputTransaction implements Command<Model> {
 		canvas.addModel(model, propCtx, 0);
 	}
 
-	@Override
-	public Command<Model> antagonist() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public Command<Model> antagonist() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 }

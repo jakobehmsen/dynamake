@@ -61,11 +61,11 @@ public class TextModel extends Model {
 			prevalentSystem.text.insert(offset, text);
 		}
 
-		@Override
-		public Command<TextModel> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<TextModel> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	private static class RemoveTransaction implements Command<TextModel> {
@@ -86,11 +86,11 @@ public class TextModel extends Model {
 			prevalentSystem.text.delete(start, end);
 		}
 
-		@Override
-		public Command<TextModel> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<TextModel> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	private static class ModelScrollPane extends JScrollPane implements ModelComponent {

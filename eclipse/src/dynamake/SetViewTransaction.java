@@ -26,9 +26,9 @@ public class SetViewTransaction implements Command<Model> {
 		model.setView(view, propCtx, 0, 0);
 	}
 
-	@Override
-	public Command<Model> antagonist() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public Command<Model> antagonist() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 }

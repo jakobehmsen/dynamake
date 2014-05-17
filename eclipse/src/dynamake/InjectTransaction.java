@@ -26,9 +26,9 @@ public class InjectTransaction implements Command<Model> {
 		source.inject(target);
 	}
 
-	@Override
-	public Command<Model> antagonist() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public Command<Model> antagonist() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 }

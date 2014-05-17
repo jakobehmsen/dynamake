@@ -60,9 +60,9 @@ public class WrapTransaction implements Command<Model> {
 		target.addModel(wrapper, propCtx, 0);
 	}
 
-	@Override
-	public Command<Model> antagonist() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public Command<Model> antagonist() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 }

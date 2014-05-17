@@ -57,9 +57,9 @@ public class AddThenBindAndOutputTransaction implements Command<Model> {
 		canvasModel.addModel(primitive, propCtx, 0);
 	}
 
-	@Override
-	public Command<Model> antagonist() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public Command<Model> antagonist() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 }

@@ -26,9 +26,9 @@ public class TellPropertyTransaction implements Command<Model> {
 		receiver.changed(null, new Model.TellProperty(propertyName), propCtx, 0, 1);
 	}
 
-	@Override
-	public Command<Model> antagonist() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public Command<Model> antagonist() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 }

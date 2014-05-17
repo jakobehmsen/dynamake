@@ -142,11 +142,11 @@ public class CanvasModel extends Model {
 			canvasTarget.addModel(model, propCtx, 0);
 		}
 
-		@Override
-		public Command<Model> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<Model> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	public static class AddModelTransaction implements Command<Model> {
@@ -187,11 +187,11 @@ public class CanvasModel extends Model {
 			canvas.addModel(model, new PropogationContext(), 0);
 		}
 
-		@Override
-		public Command<Model> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<Model> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	public static class RemoveModelTransaction implements Command<CanvasModel> {
@@ -212,11 +212,11 @@ public class CanvasModel extends Model {
 			modelToRemove.beRemoved();
 		}
 
-		@Override
-		public Command<CanvasModel> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<CanvasModel> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	public void addModel(Model model, PropogationContext propCtx, int propDistance) {

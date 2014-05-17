@@ -74,11 +74,11 @@ public class FloatingTextModel extends Model {
 			prevalentSystem.text.insert(offset, text);
 		}
 
-		@Override
-		public Command<FloatingTextModel> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<FloatingTextModel> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	private static class RemoveTransaction implements Command<FloatingTextModel> {
@@ -99,11 +99,11 @@ public class FloatingTextModel extends Model {
 			prevalentSystem.text.delete(start, end);
 		}
 
-		@Override
-		public Command<FloatingTextModel> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<FloatingTextModel> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	private static class FloatingTextModelView extends JTextField implements ModelComponent {

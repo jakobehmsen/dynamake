@@ -123,11 +123,11 @@ public class LiveModel extends Model {
 			}
 		}
 
-		@Override
-		public Command<Model> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<Model> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	public static class SetOutput implements Command<Model> {
@@ -154,11 +154,11 @@ public class LiveModel extends Model {
 			}
 		}
 
-		@Override
-		public Command<Model> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<Model> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	// TODO: Consider: Should be renamed to SetMode instead?
@@ -171,11 +171,11 @@ public class LiveModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private int state;
-		private int antagonistState;
+//		private int antagonistState;
 
-		public SetState(int state, int antagonistState) {
+		public SetState(int state/*, int antagonistState*/) {
 			this.state = state;
-			this.antagonistState = antagonistState;
+//			this.antagonistState = antagonistState;
 		}
 		
 		@Override
@@ -183,10 +183,10 @@ public class LiveModel extends Model {
 			prevalentSystem.setState(state, propCtx, 0);
 		}
 
-		@Override
-		public Command<LiveModel> antagonist() {
-			return new SetState(antagonistState, state);
-		}
+//		@Override
+//		public Command<LiveModel> antagonist() {
+//			return new SetState(antagonistState, state);
+//		}
 	}
 	
 	public static class ContentLocator implements dynamake.Locator {
@@ -246,10 +246,10 @@ public class LiveModel extends Model {
 		radioButton.addActionListener(new FilterableActionListener() {
 			@Override
 			protected void actionPerformedUnfiltered(ActionEvent e) {
-				int antagonistState = model.getState();
+				int previousState = model.getState();
 				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
 				// Indicate this is an radio button toggle context
-				transactionFactory.execute(propCtx, new SetState(state, antagonistState));
+				transactionFactory.execute(propCtx, new DualCommandPair<LiveModel>(new SetState(state), new SetState(previousState)));
 			}
 		});
 		radioButton.setFocusable(false);

@@ -89,24 +89,26 @@ public abstract class Model implements Serializable, Observer {
 		
 		private String name;
 		private Object value;
+//		private Object antagonistValue;
 		
-		public SetPropertyTransaction(String name, Object value) {
+		public SetPropertyTransaction(String name, Object value/*, Object antagonistValue*/) {
 //			if(name.equals("X") && value instanceof Integer)
 //				new String();
 			
 			this.name = name;
 			this.value = value;
+//			this.antagonistValue = antagonistValue;
 		}
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 //			PropogationContext propCtx = new PropogationContext();
 			prevalentSystem.setProperty(name, value, propCtx, 0);
 		}
-		@Override
-		public Command<Model> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<Model> antagonist() {
+////			return new SetPropertyTransaction(name, antagonistValue, value);
+//			return null;
+//		}
 	}
 	
 	protected Hashtable<String, Object> properties;
@@ -153,11 +155,11 @@ public abstract class Model implements Serializable, Observer {
 			observable.addObserver(observer);
 		}
 
-		@Override
-		public Command<Model> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<Model> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	public static class RemoveObserver implements Command<Model> {
@@ -181,11 +183,11 @@ public abstract class Model implements Serializable, Observer {
 			observable.removeObserver(observer);
 		}
 
-		@Override
-		public Command<Model> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<Model> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	public void beginUpdate(PropogationContext propCtx, int propDistance) {
@@ -236,11 +238,11 @@ public abstract class Model implements Serializable, Observer {
 			prevalentSystem.endUpdate(propCtx, 0);
 		}
 
-		@Override
-		public Command<Model> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<Model> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	public static class RemovableListener implements Binding<Model> {
@@ -530,11 +532,11 @@ public abstract class Model implements Serializable, Observer {
 			model.sendChanged(new MouseUp(), propCtx, 0, 0);
 		}
 
-		@Override
-		public Command<Model> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<Model> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	private static class MouseDownTransaction implements Command<Model> {
@@ -556,11 +558,11 @@ public abstract class Model implements Serializable, Observer {
 			model.sendChanged(new MouseDown(), propCtx, 0, 0);
 		}
 
-		@Override
-		public Command<Model> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
-		}
+//		@Override
+//		public Command<Model> antagonist() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	public static void wrapForComponentGUIEvents(final Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager) {
