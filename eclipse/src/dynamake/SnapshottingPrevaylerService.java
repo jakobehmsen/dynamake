@@ -186,22 +186,32 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	private ArrayList<Command<T>> transactions = new ArrayList<Command<T>>();
 	
 	@Override
-	public void undo(PropogationContext propCtx) {
-		if(transactionIndex > 0) {
-			transactionIndex--;
-			Command<T> transaction = transactions.get(transactionIndex);
-			Command<T> antagonist = transaction.antagonist();
-			antagonist.executeOn(propCtx, prevalentSystem, null);
-		}
+	public void undo(final PropogationContext propCtx) {
+		transactionExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				if(transactionIndex > 0) {
+					transactionIndex--;
+					Command<T> transaction = transactions.get(transactionIndex);
+					Command<T> antagonist = transaction.antagonist();
+					antagonist.executeOn(propCtx, prevalentSystem, null);
+				}
+			}
+		});
 	}
 
 	@Override
-	public void redo(PropogationContext propCtx) {
-		if(transactionIndex < transactions.size()) {
-			Command<T> transaction = transactions.get(transactionIndex);
-			transaction.executeOn(propCtx, prevalentSystem, null);
-			transactionIndex++;
-		}
+	public void redo(final PropogationContext propCtx) {
+		transactionExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				if(transactionIndex < transactions.size()) {
+					Command<T> transaction = transactions.get(transactionIndex);
+					transaction.executeOn(propCtx, prevalentSystem, null);
+					transactionIndex++;
+				}
+			}
+		});
 	}
 
 //	private static void startJournal(String journalPath) throws IOException {
