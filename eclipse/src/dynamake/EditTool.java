@@ -102,7 +102,7 @@ public class EditTool implements Tool {
 					Rectangle droppedBounds = SwingUtilities.convertRectangle(
 						productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)productionPanel.editPanelMouseAdapter.targetOver);
 					
-					transactionFactory.executeOnRoot(new MoveModelTransaction(
+					transactionFactory.executeOnRoot(new PropogationContext(), new MoveModelTransaction(
 						productionPanel.livePanel.getTransactionFactory().getLocation(), 
 						canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(),
 						false
@@ -120,9 +120,9 @@ public class EditTool implements Tool {
 						new Model.SetPropertyTransaction("Width", new Fraction(newBounds.width)),
 						new Model.SetPropertyTransaction("Height", new Fraction(newBounds.height))
 					});
-					transactionFactory.execute(changeBoundsTransaction);
+					transactionFactory.execute(new PropogationContext(), changeBoundsTransaction);
 					
-					productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+					productionPanel.livePanel.getTransactionFactory().execute(new PropogationContext(), new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
 				}
 				
 				productionPanel.editPanelMouseAdapter.targetOver = null;

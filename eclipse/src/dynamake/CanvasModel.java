@@ -124,8 +124,8 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
-			PropogationContext propCtx = new PropogationContext();
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+//			PropogationContext propCtx = new PropogationContext();
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
 			
 			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(rootPrevalentSystem);
@@ -174,8 +174,8 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
-			PropogationContext propCtx = new PropogationContext();
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+//			PropogationContext propCtx = new PropogationContext();
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0);
 
@@ -206,7 +206,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(CanvasModel prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, CanvasModel prevalentSystem, Date executionTime) {
 			Model modelToRemove = prevalentSystem.getModel(index);
 			prevalentSystem.removeModel(index, new PropogationContext(), 0);
 			modelToRemove.beRemoved();
@@ -283,7 +283,7 @@ public class CanvasModel extends Model {
 				@Override
 				public void run() {
 					int indexOfModel = model.indexOfModel(child.getModelBehind());
-					transactionFactory.execute(new RemoveModelTransaction(indexOfModel));
+					transactionFactory.execute(new PropogationContext(), new RemoveModelTransaction(indexOfModel));
 				}
 			});
 		}
@@ -310,7 +310,7 @@ public class CanvasModel extends Model {
 						Location canvasTargetLocation = transactionFactory.getLocation();
 						Location modelLocation = dropped.getTransactionFactory().getLocation();
 						
-						transactionFactory.executeOnRoot(new MoveModelTransaction(
+						transactionFactory.executeOnRoot(new PropogationContext(), new MoveModelTransaction(
 							livePanel.getTransactionFactory().getLocation(), canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true
 						));
 					}

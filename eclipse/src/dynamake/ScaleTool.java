@@ -100,7 +100,8 @@ public class ScaleTool implements Tool {
 					Rectangle droppedBounds = SwingUtilities.convertRectangle(
 						productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)productionPanel.editPanelMouseAdapter.targetOver);
 					
-					transactionFactory.executeOnRoot(new MoveModelTransaction(
+					PropogationContext propCtx = new PropogationContext();
+					transactionFactory.executeOnRoot(propCtx, new MoveModelTransaction(
 						productionPanel.livePanel.getTransactionFactory().getLocation(), 
 						canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(),
 						false
@@ -111,9 +112,10 @@ public class ScaleTool implements Tool {
 					JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
 					Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
 					
-					transactionFactory.executeOnRoot(new ScaleTransaction(transactionFactory.getLocation(), newBounds));
+					PropogationContext propCtx = new PropogationContext();
+					transactionFactory.executeOnRoot(propCtx, new ScaleTransaction(transactionFactory.getLocation(), newBounds));
 					
-					productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
 				}
 				
 				productionPanel.editPanelMouseAdapter.targetOver = null;

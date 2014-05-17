@@ -19,7 +19,7 @@ public class InjectTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(Model prevalentSystem, Date executionTime) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 		Model source = (Model)sourceLocation.getChild(prevalentSystem);
 		Model target = (Model)targetLocation.getChild(prevalentSystem);
 		

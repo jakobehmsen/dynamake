@@ -20,8 +20,8 @@ public class ScaleTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(Model prevalentSystem, Date executionTime) {
-		PropogationContext propCtx = new PropogationContext();
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+//		PropogationContext propCtx = new PropogationContext();
 		Model model = (Model)modelLocation.getChild(prevalentSystem);
 //		Model model = prevalentSystem;
 		model.scale(newBounds, propCtx, 0);

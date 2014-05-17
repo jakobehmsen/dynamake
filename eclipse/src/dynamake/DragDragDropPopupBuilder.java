@@ -44,7 +44,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				@Override
 				public void run() {
 					selection.getTransactionFactory().executeOnRoot(
-						new Model.RemoveObserver(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
+						new PropogationContext(), new Model.RemoveObserver(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
 					);
 				}
 			});
@@ -53,7 +53,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				@Override
 				public void run() {
 					selection.getTransactionFactory().executeOnRoot(
-						new Model.AddObserver(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
+						new PropogationContext(), new Model.AddObserver(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
 					);
 				}
 			});
@@ -68,7 +68,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
 					@Override
 					public void run() {
-						target.getTransactionFactory().executeOnRoot(new AddThenBindAndOutputTransaction(
+						target.getTransactionFactory().executeOnRoot(new PropogationContext(), new AddThenBindAndOutputTransaction(
 							livePanel.getTransactionFactory().getLocation(),
 							selection.getTransactionFactory().getLocation(), 
 							target.getTransactionFactory().getLocation(), 
@@ -86,7 +86,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			@Override
 			public void run() {
 				selection.getTransactionFactory().executeOnRoot(
-					new InjectTransaction(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
+					new PropogationContext(), new InjectTransaction(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
 				);
 			}
 		});

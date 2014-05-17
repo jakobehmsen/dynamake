@@ -128,14 +128,15 @@ public class RootModel extends Model {
 		public void mouseReleased(MouseEvent e) {
 			mouseIsDown = false;
 			
+			PropogationContext propCtx = new PropogationContext();
 			if(newLocation != null) {
-				transactionFactory.execute(new Model.SetPropertyTransaction("X", newLocation.x));
-				transactionFactory.execute(new Model.SetPropertyTransaction("Y", newLocation.y));
+				transactionFactory.execute(propCtx, new Model.SetPropertyTransaction("X", newLocation.x));
+				transactionFactory.execute(propCtx, new Model.SetPropertyTransaction("Y", newLocation.y));
 			}
 			
 			if(newSize != null) {
-				transactionFactory.execute(new Model.SetPropertyTransaction("Width", newSize.width));
-				transactionFactory.execute(new Model.SetPropertyTransaction("Height", newSize.height));
+				transactionFactory.execute(propCtx, new Model.SetPropertyTransaction("Width", newSize.width));
+				transactionFactory.execute(propCtx, new Model.SetPropertyTransaction("Height", newSize.height));
 			}
 		}
 		
@@ -250,7 +251,8 @@ public class RootModel extends Model {
 		view.addWindowStateListener(new WindowStateListener() {
 			@Override
 			public void windowStateChanged(WindowEvent e) {
-				transactionFactory.execute(new Model.SetPropertyTransaction("State", e.getNewState()));
+				PropogationContext propCtx = new PropogationContext();
+				transactionFactory.execute(propCtx, new Model.SetPropertyTransaction("State", e.getNewState()));
 			}
 		});
 		

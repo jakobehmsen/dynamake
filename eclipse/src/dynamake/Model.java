@@ -98,8 +98,8 @@ public abstract class Model implements Serializable, Observer {
 			this.value = value;
 		}
 		@Override
-		public void executeOn(Model prevalentSystem, Date executionTime) {
-			PropogationContext propCtx = new PropogationContext();
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+//			PropogationContext propCtx = new PropogationContext();
 			prevalentSystem.setProperty(name, value, propCtx, 0);
 		}
 		@Override
@@ -146,7 +146,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
@@ -174,7 +174,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
@@ -228,11 +228,11 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(Model prevalentSystem, Date executionTime) {
-			PropogationContext propCtx = new PropogationContext();
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+//			PropogationContext propCtx = new PropogationContext();
 			prevalentSystem.beginUpdate(propCtx, 0);
 			for(Command<Model> t: transactions)
-				t.executeOn(prevalentSystem, executionTime);
+				t.executeOn(propCtx, prevalentSystem, executionTime);
 			prevalentSystem.endUpdate(propCtx, 0);
 		}
 
@@ -524,9 +524,9 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
-			PropogationContext propCtx = new PropogationContext(); 
+//			PropogationContext propCtx = new PropogationContext(); 
 			model.sendChanged(new MouseUp(), propCtx, 0, 0);
 		}
 
@@ -550,9 +550,9 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(Model rootPrevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
-			PropogationContext propCtx = new PropogationContext(); 
+//			PropogationContext propCtx = new PropogationContext(); 
 			model.sendChanged(new MouseDown(), propCtx, 0, 0);
 		}
 
@@ -569,14 +569,14 @@ public abstract class Model implements Serializable, Observer {
 			public void mouseReleased(MouseEvent arg0) {
 //				PropogationContext propCtx = new PropogationContext(); 
 //				model.sendChanged(new MouseUp(), propCtx, 0, 0);
-				view.getTransactionFactory().executeOnRoot(new MouseUpTransaction(view.getTransactionFactory().getLocation()));
+				view.getTransactionFactory().executeOnRoot(new PropogationContext(), new MouseUpTransaction(view.getTransactionFactory().getLocation()));
 			}
 			
 			@Override
 			public void mousePressed(MouseEvent arg0) {
 //				PropogationContext propCtx = new PropogationContext(); 
 //				model.sendChanged(new MouseDown(), propCtx, 0, 0);
-				view.getTransactionFactory().executeOnRoot(new MouseDownTransaction(view.getTransactionFactory().getLocation()));
+				view.getTransactionFactory().executeOnRoot(new PropogationContext(), new MouseDownTransaction(view.getTransactionFactory().getLocation()));
 			}
 			
 			@Override
@@ -654,7 +654,7 @@ public abstract class Model implements Serializable, Observer {
 		transactions.addTransaction("Set " + PROPERTY_COLOR, new ColorTransactionBuilder((Color)model.getProperty(PROPERTY_COLOR), new Action1<Color>() {
 			@Override
 			public void run(Color color) {
-				transactionFactory.execute(new Model.SetPropertyTransaction(PROPERTY_COLOR, color));
+				transactionFactory.execute(new PropogationContext(), new Model.SetPropertyTransaction(PROPERTY_COLOR, color));
 			}
 		}));
 	}
@@ -684,7 +684,7 @@ public abstract class Model implements Serializable, Observer {
 					Rectangle creationBounds = droppedBounds;
 
 					dropped.getTransactionFactory().executeOnRoot(
-						new AddThenOutputTransaction(
+							new PropogationContext(), new AddThenOutputTransaction(
 							livePanel.getTransactionFactory().getLocation(), 
 							target.getTransactionFactory().getLocation(), 
 							creationBounds, 
@@ -698,7 +698,7 @@ public abstract class Model implements Serializable, Observer {
 					Rectangle creationBounds = droppedBounds;
 
 					dropped.getTransactionFactory().executeOnRoot(
-						new AddThenOutputTransaction(
+							new PropogationContext(), new AddThenOutputTransaction(
 							livePanel.getTransactionFactory().getLocation(), 
 							target.getTransactionFactory().getLocation(), 
 							creationBounds, 

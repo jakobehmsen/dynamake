@@ -35,8 +35,8 @@ public class AddThenOutputTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(Model rootPrevalentSystem, Date executionTime) {
-		PropogationContext propCtx = new PropogationContext();
+	public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+//		PropogationContext propCtx = new PropogationContext();
 		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
 		CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 		Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, arguments, propCtx, 0);

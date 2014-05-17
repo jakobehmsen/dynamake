@@ -111,7 +111,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
@@ -142,7 +142,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
@@ -169,20 +169,20 @@ public class LiveModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private int state;
+		private int antagonistState;
 
-		public SetState(int state) {
+		public SetState(int state, int antagonistState) {
 			this.state = state;
 		}
 		
 		@Override
-		public void executeOn(LiveModel prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, LiveModel prevalentSystem, Date executionTime) {
 			prevalentSystem.setState(state, new PropogationContext(), 0);
 		}
 
 		@Override
 		public Command<LiveModel> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
+			return new SetState(antagonistState, state);
 		}
 	}
 	
@@ -213,14 +213,16 @@ public class LiveModel extends Model {
 	private static final Color TOP_BACKGROUND_COLOR = Color.GRAY;
 	private static final Color TOP_FOREGROUND_COLOR = Color.WHITE;
 	
-	private static JRadioButton createStateRadioButton(final TransactionFactory transactionFactory, ButtonGroup group, int currentState, final int state, String text) {
+	private static JRadioButton createStateRadioButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int currentState, final int state, String text) {
 		JRadioButton radioButton = new JRadioButton(text);
 		radioButton.setBackground(TOP_BACKGROUND_COLOR);
 		radioButton.setForeground(TOP_FOREGROUND_COLOR);
 		radioButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				transactionFactory.execute(new SetState(state));
+				int antagonistState = model.getState();
+				PropogationContext propCtx = new PropogationContext();
+				transactionFactory.execute(propCtx, new SetState(state, antagonistState));
 			}
 		});
 		radioButton.setFocusable(false);
@@ -304,7 +306,7 @@ public class LiveModel extends Model {
 
 			public void resetEffectFrame() {
 				productionPanel.effectFrame.setBounds(new Rectangle(0, 0, 0, 0));
-				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+				productionPanel.livePanel.getTransactionFactory().execute(new PropogationContext(), new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
 			}
 			
 			public void updateRelativeCursorPosition(Point point, Dimension size) {
@@ -410,7 +412,7 @@ public class LiveModel extends Model {
 							public void mousePressed(MouseEvent e) {
 								if(EditPanelMouseAdapter.this.output != null) {
 									setOutput(null);
-									productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
+									productionPanel.livePanel.getTransactionFactory().executeOnRoot(new PropogationContext(), new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
 								}
 								
 								getTool().mousePressed(productionPanel, e);
@@ -445,10 +447,11 @@ public class LiveModel extends Model {
 					productionPanel.selectionFrame.setBounds(selectionBounds);
 					
 					// final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds
-					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), view.getTransactionFactory().getLocation()));
-					productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionInitialMouseDown", initialMouseDown));
-					productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionMoving", moving));
-					productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", effectBounds));
+					PropogationContext propCtx = new PropogationContext();
+					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), view.getTransactionFactory().getLocation()));
+					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionInitialMouseDown", initialMouseDown));
+					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionMoving", moving));
+					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionEffectBounds", effectBounds));
 					
 					productionPanel.selectionBoundsBinding = new Binding<Component>() {
 						private Component component;
@@ -494,7 +497,8 @@ public class LiveModel extends Model {
 					if(productionPanel.effectFrame != null) {
 						productionPanel.clearFocus();
 					} else {
-						productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
+						PropogationContext propCtx = new PropogationContext();
+						productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
 					}
 				}
 			}
@@ -589,7 +593,8 @@ public class LiveModel extends Model {
 			public void mousePressed(MouseEvent e) {
 				if(this.output != null) {
 					setOutput(null);
-					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
+					PropogationContext propCtx = new PropogationContext();
+					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
 				}
 				getTool().mousePressed(productionPanel, e);
 			}
@@ -754,7 +759,8 @@ public class LiveModel extends Model {
 				selectionFrame = null;
 			}
 			
-			this.livePanel.transactionFactory.executeOnRoot(new SetSelection(this.livePanel.transactionFactory.getLocation(), null));
+			PropogationContext propCtx = new PropogationContext();
+			this.livePanel.transactionFactory.executeOnRoot(propCtx, new SetSelection(this.livePanel.transactionFactory.getLocation(), null));
 		}
 	}
 	
@@ -880,7 +886,8 @@ public class LiveModel extends Model {
 			undo.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					getTransactionFactory().undo();
+					PropogationContext propCtx = new PropogationContext();
+					getTransactionFactory().undo(propCtx);
 				}
 			});
 			topPanel.add(undo);
@@ -889,19 +896,20 @@ public class LiveModel extends Model {
 			undo.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					getTransactionFactory().redo();
+					PropogationContext propCtx = new PropogationContext();
+					getTransactionFactory().redo(propCtx);
 				}
 			});
 			topPanel.add(redo);
 			topPanel.setFocusable(false);
 			
 			ButtonGroup group = new ButtonGroup();
-			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_USE, "Use"));
+			topPanel.add(createStateRadioButton(model, transactionFactory, group, this.model.getState(), STATE_USE, "Use"));
 			
 			Tool[] tools = viewManager.getTools();
 			for(int i = 0; i < tools.length; i++) {
 				Tool tool = tools[i];
-				topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), i + 1, tool.getName()));
+				topPanel.add(createStateRadioButton(model, transactionFactory, group, this.model.getState(), i + 1, tool.getName()));
 			}
 			topPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			

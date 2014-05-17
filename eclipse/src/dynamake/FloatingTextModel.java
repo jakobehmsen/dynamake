@@ -70,7 +70,7 @@ public class FloatingTextModel extends Model {
 			this.text = text;
 		}
 
-		public void executeOn(FloatingTextModel prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, FloatingTextModel prevalentSystem, Date executionTime) {
 			prevalentSystem.text.insert(offset, text);
 		}
 
@@ -95,7 +95,7 @@ public class FloatingTextModel extends Model {
 			this.end = end;
 		}
 
-		public void executeOn(FloatingTextModel prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, FloatingTextModel prevalentSystem, Date executionTime) {
 			prevalentSystem.text.delete(start, end);
 		}
 
@@ -148,7 +148,7 @@ public class FloatingTextModel extends Model {
 			transactions.addTransaction("Set " + PROPERTY_CARET_COLOR, new ColorTransactionBuilder(caretColor, new Action1<Color>() {
 				@Override
 				public void run(Color color) {
-					transactionFactory.execute(new Model.SetPropertyTransaction(PROPERTY_CARET_COLOR, color));
+					transactionFactory.execute(new PropogationContext(), new Model.SetPropertyTransaction(PROPERTY_CARET_COLOR, color));
 				}
 			}));
 		}
@@ -219,7 +219,7 @@ public class FloatingTextModel extends Model {
 			public void removeUpdate(DocumentEvent e) {
 				final int start = e.getOffset();
 				final int end = e.getOffset() + e.getLength();
-				transactionFactory.execute(new RemoveTransaction(start, end));
+				transactionFactory.execute(new PropogationContext(), new RemoveTransaction(start, end));
 			}
 			
 			@Override
@@ -228,7 +228,7 @@ public class FloatingTextModel extends Model {
 				final String str;
 				try {
 					str = e.getDocument().getText(e.getOffset(), e.getLength());
-					transactionFactory.execute(new InsertTransaction(offset, str));
+					transactionFactory.execute(new PropogationContext(), new InsertTransaction(offset, str));
 				} catch (BadLocationException e1) {
 					e1.printStackTrace();
 				}

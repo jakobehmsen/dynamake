@@ -71,8 +71,9 @@ public class PlotTool implements Tool {
 								modelLocation[i] = componentsWithinBounds.get(i).getTransactionFactory().getLocation();
 							}
 							
+							PropogationContext propCtx = new PropogationContext();
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
-								new WrapTransaction(
+								propCtx, new WrapTransaction(
 									productionPanel.livePanel.getTransactionFactory().getLocation(),
 									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), 
 									selectionCreationBounds, 
@@ -95,8 +96,9 @@ public class PlotTool implements Tool {
 						// Find the selected model and attempt an add model transaction
 						// HACK: Models can only be added to canvases
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
+							PropogationContext propCtx = new PropogationContext();
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
-								new AddThenOutputTransaction(
+								propCtx, new AddThenOutputTransaction(
 									productionPanel.livePanel.getTransactionFactory().getLocation(), 
 									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), 
 									creationBounds, 

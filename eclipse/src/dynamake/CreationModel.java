@@ -50,7 +50,7 @@ public class CreationModel extends Model {
 		}
 
 		@Override
-		public void executeOn(Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 			CreationModel creation = (CreationModel)creationLocation.getChild(prevalentSystem);
 			Model argument = (Model)argumentLocation.getChild(prevalentSystem);
 //			// HACK: For now, only meta model are used as arguments
@@ -272,8 +272,8 @@ public class CreationModel extends Model {
 
 
 		@Override
-		public void executeOn(Model arg0, Date arg1) {
-			PropogationContext propCtx = new PropogationContext();
+		public void executeOn(PropogationContext propCtx, Model arg0, Date arg1) {
+//			PropogationContext propCtx = new PropogationContext();
 			
 			CreationModel creation = (CreationModel)creationLocation.getChild(arg0);
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(arg0);
@@ -321,7 +321,7 @@ public class CreationModel extends Model {
 					if(((CreationModel)sender).allArgumentsAreSet()) {
 						ModelComponent parent = ModelComponent.Util.getParent(view);
 						if(parent != null && parent.getModelBehind() instanceof CanvasModel) {
-							transactionFactory.executeOnRoot(new InstantiateCreationTransaction(transactionFactory.getLocation(), parent.getTransactionFactory().getLocation()));
+							transactionFactory.executeOnRoot(propCtx, new InstantiateCreationTransaction(transactionFactory.getLocation(), parent.getTransactionFactory().getLocation()));
 						}
 					}
 				}

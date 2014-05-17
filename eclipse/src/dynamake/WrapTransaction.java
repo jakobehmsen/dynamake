@@ -23,9 +23,9 @@ public class WrapTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(Model prevalentSystem, Date executionTime) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
-		PropogationContext propCtx = new PropogationContext();
+//		PropogationContext propCtx = new PropogationContext();
 		
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
 		CanvasModel wrapper = new CanvasModel();

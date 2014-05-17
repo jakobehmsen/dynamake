@@ -53,15 +53,15 @@ public class TransactionFactory {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public void executeOn(Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 			T obj = (T)location.getChild(prevalentSystem);
-			transaction.executeOn(obj, executionTime);
+			transaction.executeOn(propCtx, obj, executionTime);
 		}
 
 		@Override
 		public Command<Model> antagonist() {
-			// TODO Auto-generated method stub
-			return null;
+			Command<T> transactionAntagonist = transaction.antagonist();
+			return new LocationTransaction<T>(location, transactionAntagonist);
 		}
 	}
 	
@@ -74,13 +74,13 @@ public class TransactionFactory {
 //		prevaylerService.execute(transaction);
 //	}
 	
-	public <T extends Model> void execute(final Command<T> transaction) {
+	public <T extends Model> void execute(PropogationContext propCtx, final Command<T> transaction) {
 		final Location location = getLocation();
-		prevaylerService.execute(new LocationTransaction<T>(location, transaction));
+		prevaylerService.execute(propCtx, new LocationTransaction<T>(location, transaction));
 	}
 	
-	public void executeOnRoot(final Command<Model> transaction) {
-		prevaylerService.execute(transaction);
+	public void executeOnRoot(PropogationContext propCtx, final Command<Model> transaction) {
+		prevaylerService.execute(propCtx, transaction);
 	}
 	
 	public TransactionFactory extend(final Locator locator) {
@@ -114,12 +114,11 @@ public class TransactionFactory {
 			tail.setChild(head.getChild(holder), child);
 		}
 	}
-
-	public void undo() {
-		prevaylerService.undo();
+	public void undo(PropogationContext propCtx) {
+		prevaylerService.undo(propCtx);
 	}
 
-	public void redo() {
-		prevaylerService.redo();
+	public void redo(PropogationContext propCtx) {
+		prevaylerService.redo(propCtx);
 	}
 }

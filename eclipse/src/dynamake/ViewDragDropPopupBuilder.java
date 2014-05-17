@@ -15,16 +15,18 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addTransaction("Appliance", new Runnable() {
 			@Override
 			public void run() {
+				PropogationContext propCtx = new PropogationContext();
 				selection.getTransactionFactory().executeOnRoot(
-					new SetViewTransaction(selection.getTransactionFactory().getLocation(), Model.VIEW_APPLIANCE)
+					propCtx, new SetViewTransaction(selection.getTransactionFactory().getLocation(), Model.VIEW_APPLIANCE)
 				);
 			}
 		});
 		transactionTargetContentMapBuilder.addTransaction("Engineering", new Runnable() {
 			@Override
 			public void run() {
+				PropogationContext propCtx = new PropogationContext();
 				selection.getTransactionFactory().executeOnRoot(
-					new SetViewTransaction(selection.getTransactionFactory().getLocation(), Model.VIEW_ENGINEERING)
+					propCtx, new SetViewTransaction(selection.getTransactionFactory().getLocation(), Model.VIEW_ENGINEERING)
 				);
 			}
 		});

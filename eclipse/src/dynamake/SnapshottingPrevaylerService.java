@@ -99,10 +99,10 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			prevalentSystem = prevalentSystemFunc.call();
 		
 		if(journalExisted)
-			replay(prevalentSystem, prevalanceDirectory + "/" + journalFile);
+			replay(new PropogationContext(), prevalentSystem, prevalanceDirectory + "/" + journalFile);
 	}
 	
-	private static <T> T loadAndReplay(Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath) throws ClassNotFoundException, IOException {
+	private static <T> T loadAndReplay(PropogationContext propCtx, Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath) throws ClassNotFoundException, IOException {
 		T prevalantSystem;
 		
 		Path snapshotFilePath = Paths.get(snapshotPath);
@@ -112,12 +112,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		else
 			prevalantSystem = prevalantSystemFunc.call();
 		
-		replay(prevalantSystem, journalPath);
+		replay(propCtx, prevalantSystem, journalPath);
 		
 		return prevalantSystem;
 	}
 	
-	private static <T> void replay(T prevalentSystem, String journalPath) throws ClassNotFoundException, IOException {
+	private static <T> void replay(PropogationContext propCtx, T prevalentSystem, String journalPath) throws ClassNotFoundException, IOException {
 		FileInputStream fileOutput = new FileInputStream(journalPath);
 		BufferedInputStream bufferedOutput = new BufferedInputStream(fileOutput);
 		
@@ -125,7 +125,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			// Should be read in chunks
 			ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
 			Command<T> transaction = (Command<T>)objectOutput.readObject();
-			transaction.executeOn(prevalentSystem, null);
+			transaction.executeOn(propCtx, prevalentSystem, null);
 		}
 		
 		bufferedOutput.close();
@@ -143,7 +143,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		return snapshot;
 	}
 	
-	private static <T> void saveSnapshot(Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath) throws ClassNotFoundException, IOException, ParseException {
+	private static <T> void saveSnapshot(PropogationContext propCtx, Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath) throws ClassNotFoundException, IOException, ParseException {
 		// Close journal
 		Path currentJournalFilePath = Paths.get(journalPath);
 		
@@ -165,7 +165,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			java.nio.file.Files.move(currentSnapshotFilePath, closedSnapshotFilePath);
 		
 		// Load copy of last snapshot (if any) and replay missing transactions;
-		T prevalantSystem = loadAndReplay(prevalantSystemFunc, closedJournalFilePath.toString(), closedSnapshotFilePath.toString());
+		T prevalantSystem = loadAndReplay(propCtx, prevalantSystemFunc, closedJournalFilePath.toString(), closedSnapshotFilePath.toString());
 		
 		
 		// Save modified snapshot
@@ -178,28 +178,28 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		objectOutput.close();
 	}
 	
-	private void saveSnapshot() throws ClassNotFoundException, IOException, ParseException {
-		saveSnapshot(prevalentSystemFunc, prevalanceDirectory + "/" + journalFile, prevalanceDirectory + "/" + snapshotFile);
+	private void saveSnapshot(PropogationContext propCtx) throws ClassNotFoundException, IOException, ParseException {
+		saveSnapshot(propCtx, prevalentSystemFunc, prevalanceDirectory + "/" + journalFile, prevalanceDirectory + "/" + snapshotFile);
 	}
 	
 	private int transactionIndex;
 	private ArrayList<Command<T>> transactions = new ArrayList<Command<T>>();
 	
 	@Override
-	public void undo() {
+	public void undo(PropogationContext propCtx) {
 		if(transactionIndex > 0) {
+			transactionIndex--;
 			Command<T> transaction = transactions.get(transactionIndex);
 			Command<T> antagonist = transaction.antagonist();
-			antagonist.executeOn(prevalentSystem, null);
-			transactionIndex--;
+			antagonist.executeOn(propCtx, prevalentSystem, null);
 		}
 	}
 
 	@Override
-	public void redo() {
+	public void redo(PropogationContext propCtx) {
 		if(transactionIndex < transactions.size()) {
 			Command<T> transaction = transactions.get(transactionIndex);
-			transaction.executeOn(prevalentSystem, null);
+			transaction.executeOn(propCtx, prevalentSystem, null);
 			transactionIndex++;
 		}
 	}
@@ -220,7 +220,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 
 	@Override
 //	public void execute(final Transaction<T> transaction) {
-	public void execute(final Command<T> transaction) {
+	public void execute(final PropogationContext propCtx, final Command<T> transaction) {
 //		transactionExecutor.execute(new Runnable() {
 //			@Override
 //			public void run() {
@@ -236,7 +236,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				transaction.executeOn(prevalentSystem(), null);
+				transaction.executeOn(propCtx, prevalentSystem(), null);
 				
 				if(transactionIndex == transactions.size())
 					transactions.add(transaction);
@@ -274,7 +274,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				public void run() {
 					try {
 //						prevayler.takeSnapshot();
-						saveSnapshot();
+						
+						// TODO: Consider: Should an isolated propogation context created here? I.e., a snapshot propogation context?
+						saveSnapshot(propCtx);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

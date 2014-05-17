@@ -19,8 +19,8 @@ public class TellPropertyTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(Model prevalentSystem, Date executionTime) {
-		PropogationContext propCtx = new PropogationContext();
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+//		PropogationContext propCtx = new PropogationContext();
 		
 		Model receiver = (Model)modelLocation.getChild(prevalentSystem);
 		receiver.changed(null, new Model.TellProperty(propertyName), propCtx, 0, 1);

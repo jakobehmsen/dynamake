@@ -29,17 +29,17 @@ public class AddThenBindAndOutputTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(Model prevalentSystem, Date executionTime) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 		final Model modelToBindTo = (Model)modelToBindToLocation.getChild(prevalentSystem);
 		CanvasModel canvasModel = (CanvasModel)canvasModelLocation.getChild(prevalentSystem);
 		
-		final PropogationContext addAndBindCtx = new PropogationContext();
-		final Model primitive = (Model)factory.create(prevalentSystem, creationBounds, new Hashtable<String, Object>(), addAndBindCtx, 0);
-		primitive.setProperty("X", new Fraction(creationBounds.x), addAndBindCtx, 0);
-		primitive.setProperty("Y", new Fraction(creationBounds.y), addAndBindCtx, 0);
-		primitive.setProperty("Width", new Fraction(creationBounds.width), addAndBindCtx, 0);
-		primitive.setProperty("Height", new Fraction(creationBounds.height), addAndBindCtx, 0);
+//		final PropogationContext addAndBindCtx = new PropogationContext();
+		final Model primitive = (Model)factory.create(prevalentSystem, creationBounds, new Hashtable<String, Object>(), propCtx, 0);
+		primitive.setProperty("X", new Fraction(creationBounds.x), propCtx, 0);
+		primitive.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0);
+		primitive.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0);
+		primitive.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0);
 		modelToBindTo.addObserver(primitive);
 
 //		canvasModel.addObserver(new Observer() {
@@ -53,8 +53,8 @@ public class AddThenBindAndOutputTransaction implements Command<Model> {
 //			}
 //		});
 
-		liveModel.setOutput(primitive, addAndBindCtx, 0);
-		canvasModel.addModel(primitive, addAndBindCtx, 0);
+		liveModel.setOutput(primitive, propCtx, 0);
+		canvasModel.addModel(primitive, propCtx, 0);
 	}
 
 	@Override

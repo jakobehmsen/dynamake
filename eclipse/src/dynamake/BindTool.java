@@ -38,10 +38,10 @@ public class BindTool implements Tool {
 			if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
 				if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 					targetModelComponent.getTransactionFactory().executeOnRoot(
-						new Model.RemoveObserver(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), targetModelComponent.getTransactionFactory().getLocation()));
+						new PropogationContext(), new Model.RemoveObserver(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), targetModelComponent.getTransactionFactory().getLocation()));
 				} else {
 					targetModelComponent.getTransactionFactory().executeOnRoot(
-						new Model.AddObserver(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), targetModelComponent.getTransactionFactory().getLocation()));
+						new PropogationContext(), new Model.AddObserver(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), targetModelComponent.getTransactionFactory().getLocation()));
 				}
 			}
 
