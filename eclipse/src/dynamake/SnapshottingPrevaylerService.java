@@ -11,6 +11,7 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -180,6 +181,28 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	private void saveSnapshot() throws ClassNotFoundException, IOException, ParseException {
 		saveSnapshot(prevalentSystemFunc, prevalanceDirectory + "/" + journalFile, prevalanceDirectory + "/" + snapshotFile);
 	}
+	
+	private int transactionIndex;
+	private ArrayList<Command<T>> transactions = new ArrayList<Command<T>>();
+	
+	@Override
+	public void undo() {
+		if(transactionIndex > 0) {
+			Command<T> transaction = transactions.get(transactionIndex);
+			Command<T> antagonist = transaction.antagonist();
+			antagonist.executeOn(prevalentSystem, null);
+			transactionIndex--;
+		}
+	}
+
+	@Override
+	public void redo() {
+		if(transactionIndex < transactions.size()) {
+			Command<T> transaction = transactions.get(transactionIndex);
+			transaction.executeOn(prevalentSystem, null);
+			transactionIndex++;
+		}
+	}
 
 //	private static void startJournal(String journalPath) throws IOException {
 //		Path journalFilePath = Paths.get(journalPath);
@@ -214,6 +237,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			@Override
 			public void run() {
 				transaction.executeOn(prevalentSystem(), null);
+				
+				if(transactionIndex == transactions.size())
+					transactions.add(transaction);
+				else
+					transactions.set(transactionIndex, transaction);
+				transactionIndex++;
 			}
 		});
 		

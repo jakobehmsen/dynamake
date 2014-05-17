@@ -18,6 +18,7 @@ import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
@@ -874,6 +875,26 @@ public class LiveModel extends Model {
 			
 			topPanel = new JPanel();
 			topPanel.setBackground(TOP_BACKGROUND_COLOR);
+			
+			JButton undo = new JButton("Undo");
+			undo.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					getTransactionFactory().undo();
+				}
+			});
+			topPanel.add(undo);
+			topPanel.setFocusable(false);
+			JButton redo = new JButton("Redo");
+			undo.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					getTransactionFactory().redo();
+				}
+			});
+			topPanel.add(redo);
+			topPanel.setFocusable(false);
+			
 			ButtonGroup group = new ButtonGroup();
 			topPanel.add(createStateRadioButton(transactionFactory, group, this.model.getState(), STATE_USE, "Use"));
 			

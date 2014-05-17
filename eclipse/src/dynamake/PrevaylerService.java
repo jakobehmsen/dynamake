@@ -9,4 +9,6 @@ public interface PrevaylerService<T> {
 	void execute(Command<T> transaction);
 	void close() throws IOException;
 	T prevalentSystem();
+	void undo();
+	void redo();
 }

@@ -114,4 +114,12 @@ public class TransactionFactory {
 			tail.setChild(head.getChild(holder), child);
 		}
 	}
+
+	public void undo() {
+		prevaylerService.undo();
+	}
+
+	public void redo() {
+		prevaylerService.redo();
+	}
 }
