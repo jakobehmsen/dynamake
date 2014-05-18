@@ -252,7 +252,13 @@ public class RootModel extends Model {
 			@Override
 			public void windowStateChanged(WindowEvent e) {
 				PropogationContext propCtx = new PropogationContext();
-				transactionFactory.execute(propCtx, new Model.SetPropertyTransaction("State", e.getNewState()));
+				Integer currentState = (Integer)RootModel.this.getProperty("State");
+				DualCommandPair<Model> dualCommand = new DualCommandPair<Model>(
+					new Model.SetPropertyTransaction("State", e.getNewState()),
+					new Model.SetPropertyTransaction("State", currentState)
+				);
+//				transactionFactory.execute(propCtx, new Model.SetPropertyTransaction("State", e.getNewState()));
+				transactionFactory.execute(propCtx, dualCommand);
 			}
 		});
 		
