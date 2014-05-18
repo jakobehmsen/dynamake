@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Date;
+import java.util.Hashtable;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -333,7 +334,7 @@ public class LiveModel extends Model {
 
 			public void resetEffectFrame() {
 				productionPanel.effectFrame.setBounds(new Rectangle(0, 0, 0, 0));
-				productionPanel.livePanel.getTransactionFactory().execute(new PropogationContext(), new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+//				productionPanel.livePanel.getTransactionFactory().execute(new PropogationContext(), new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
 			}
 			
 			public void updateRelativeCursorPosition(Point point, Dimension size) {
@@ -365,7 +366,7 @@ public class LiveModel extends Model {
 			
 			public void selectFromView(final ModelComponent view, final Point initialMouseDown, boolean moving) {
 				Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-				select(view, initialMouseDown, moving, effectBounds);
+				requestSelect(view, initialMouseDown, moving, effectBounds);
 			}
 			
 			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, boolean moving) {
@@ -373,19 +374,98 @@ public class LiveModel extends Model {
 				Point sourceBoundsLocation = new Point(initialMouseDown.x - sourceBoundsSize.width / 2, initialMouseDown.y - sourceBoundsSize.height / 2);
 				Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
 				Rectangle selectionBounds = SwingUtilities.convertRectangle((JComponent)view, sourceBounds, productionPanel);
-				select(view, initialMouseDown, moving, selectionBounds);
+				requestSelect(view, initialMouseDown, moving, selectionBounds);
 			}
 			
 			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, boolean moving) {
-				select(view, initialMouseDown, moving, new Rectangle(0, 0, 0, 0));
+				requestSelect(view, initialMouseDown, moving, new Rectangle(0, 0, 0, 0));
 			}
 			
-//			private void requestSelect(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
+			private void requestSelect(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
+				Point currentInitialMouseDown = (Point)productionPanel.livePanel.model.getProperty("SelectionInitialMouseDown");
+				Boolean currentSelectionMoving = (Boolean)productionPanel.livePanel.model.getProperty("SelectionMoving");
+				Rectangle currentSelectionEffectBounds = (Rectangle)productionPanel.livePanel.model.getProperty("SelectionEffectBounds");
+				DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+					new SetSelectionAndLocalsTransaction(
+						productionPanel.livePanel.getTransactionFactory().getLocation(), 
+						view.getTransactionFactory().getLocation(),
+						initialMouseDown,
+						moving,
+						effectBounds
+					),
+					new SetSelectionAndLocalsTransaction(
+						productionPanel.livePanel.getTransactionFactory().getLocation(),
+						productionPanel.editPanelMouseAdapter.selection != null ? productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation() : null,
+//						view.getTransactionFactory().getLocation(),
+						currentInitialMouseDown,
+						currentSelectionMoving,
+						currentSelectionEffectBounds
+					)
+				);
+//				Hashtable<String, Object> definitions = new Hashtable<String, Object>();
+//				definitions.put("View", view);
+				PropogationContext propCtx = new PropogationContext();
+				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+				
 //				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionInitialMouseDown", initialMouseDown));
 //				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionMoving", moving));
 //				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionEffectBounds", effectBounds));
 //				productionPanel.livePanel.getTransactionFactory().executeOnRoot(new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), view.getTransactionFactory().getLocation()));
-//			}
+			}
+			
+			private static class SetSelectionAndLocalsTransaction implements Command<Model> {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+				private Location liveModelLocation;
+				private Location selectionLocation;
+				private Point initialMouseDown;
+				private Boolean moving;
+				private Rectangle effectBounds;
+				
+				public SetSelectionAndLocalsTransaction(
+						Location liveModelLocation, Location selectionLocation,
+						Point initialMouseDown, Boolean moving,
+						Rectangle effectBounds) {
+					this.liveModelLocation = liveModelLocation;
+					this.selectionLocation = selectionLocation;
+					this.initialMouseDown = initialMouseDown;
+					this.moving = moving;
+					this.effectBounds = effectBounds;
+				}
+
+				@Override
+				public void executeOn(PropogationContext propCtx,
+						Model prevalentSystem, Date executionTime) {
+					LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
+					
+					if(selectionLocation != null) {
+						Model selection = (Model)selectionLocation.getChild(prevalentSystem);
+						
+						Hashtable<String, Object> selectDefinitions = new Hashtable<String, Object>();
+						selectDefinitions.put("SelectionInitialMouseDown", initialMouseDown);
+						selectDefinitions.put("SelectionMoving", moving);
+						selectDefinitions.put("SelectionEffectBounds", effectBounds);
+						propCtx = propCtx.define(selectDefinitions);
+						
+						liveModel.setSelection(selection, propCtx, 0);
+					} else {
+						liveModel.setSelection(null, propCtx, 0);
+					}
+					liveModel.setProperty("SelectionInitialMouseDown", initialMouseDown, propCtx, 0);
+					liveModel.setProperty("SelectionMoving", moving, propCtx, 0);
+					liveModel.setProperty("SelectionEffectBounds", effectBounds, propCtx, 0);
+					
+					
+					
+//					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), view.getTransactionFactory().getLocation()));
+//					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionInitialMouseDown", initialMouseDown));
+//					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionMoving", moving));
+//					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionEffectBounds", effectBounds));
+				}
+				
+			}
 			
 			private void select(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
 				// <Don't remove>
@@ -474,13 +554,43 @@ public class LiveModel extends Model {
 					productionPanel.selectionFrame.setBounds(selectionBounds);
 					
 					// final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds
-					PropogationContext propCtx = new PropogationContext();
+//					PropogationContext propCtx = new PropogationContext();
 					// TODO: Merge these four transactions into a single transaction
 					// Make its antagonist and use this to create a dual command 
-					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), view.getTransactionFactory().getLocation()));
-					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionInitialMouseDown", initialMouseDown));
-					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionMoving", moving));
-					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionEffectBounds", effectBounds));
+//					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), view.getTransactionFactory().getLocation()));
+//					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionInitialMouseDown", initialMouseDown));
+//					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionMoving", moving));
+//					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionEffectBounds", effectBounds));
+					
+//					Point currentInitialMouseDown = (Point)productionPanel.livePanel.model.getProperty("SelectionInitialMouseDown");
+//					Boolean currentSelectionMoving = (Boolean)productionPanel.livePanel.model.getProperty("SelectionMoving");
+//					Rectangle currentSelectionEffectBounds = (Rectangle)productionPanel.livePanel.model.getProperty("SelectionEffectBounds");
+//					DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+//						new SetSelectionAndLocalsTransaction(
+//							productionPanel.livePanel.getTransactionFactory().getLocation(), 
+//							view.getTransactionFactory().getLocation(),
+//							initialMouseDown,
+//							moving,
+//							effectBounds
+//						),
+//						new SetSelectionAndLocalsTransaction(
+//							productionPanel.livePanel.getTransactionFactory().getLocation(),
+//							productionPanel.editPanelMouseAdapter.selection != null ? productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation() : null,
+////							view.getTransactionFactory().getLocation(),
+//							currentInitialMouseDown,
+//							currentSelectionMoving,
+//							currentSelectionEffectBounds
+//						)
+//					);
+//					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+					
+//					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetSelectionAndLocalsTransaction(
+//						productionPanel.livePanel.getTransactionFactory().getLocation(), 
+//						view.getTransactionFactory().getLocation(),
+//						initialMouseDown,
+//						moving,
+//						effectBounds)
+//					);
 					
 					productionPanel.selectionBoundsBinding = new Binding<Component>() {
 						private Component component;
@@ -522,15 +632,17 @@ public class LiveModel extends Model {
 							return component;
 						}
 					};
+					productionPanel.livePanel.repaint();
 				} else {
 					if(productionPanel.effectFrame != null) {
 						productionPanel.clearFocus();
-						PropogationContext propCtx = new PropogationContext();
-						productionPanel.livePanel.transactionFactory.executeOnRoot(propCtx, new SetSelection(productionPanel.livePanel.transactionFactory.getLocation(), null));
+//						PropogationContext propCtx = new PropogationContext();
+//						productionPanel.livePanel.transactionFactory.executeOnRoot(propCtx, new SetSelection(productionPanel.livePanel.transactionFactory.getLocation(), null));
 					} else {
-						PropogationContext propCtx = new PropogationContext();
-						productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
+//						PropogationContext propCtx = new PropogationContext();
+//						productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
 					}
+					productionPanel.livePanel.repaint();
 				}
 			}
 			
@@ -742,8 +854,10 @@ public class LiveModel extends Model {
 					Rectangle outputBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 					productionPanel.outputFrame.setBounds(outputBounds);
 				} else {
-					productionPanel.remove(productionPanel.outputFrame);
-					productionPanel.outputFrame = null;
+					if(productionPanel.outputFrame != null) {
+						productionPanel.remove(productionPanel.outputFrame);
+						productionPanel.outputFrame = null;
+					}
 				}
 			}
 		}
@@ -808,6 +922,7 @@ public class LiveModel extends Model {
 		public ViewManager viewManager;
 		private TransactionFactory transactionFactory;
 		private JRadioButton[] radioButtonStates;
+		private Hashtable<Model, ModelComponent> modelToViewMap = new Hashtable<Model, ModelComponent>();
 		
 		public LivePanel(LiveModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
 			this.setLayout(new BorderLayout());
@@ -823,7 +938,7 @@ public class LiveModel extends Model {
 				public void setFocus(JComponent component) { }
 				
 				@Override
-				public void unFocus(ModelComponent view) {
+				public void unFocus(PropogationContext propCtx, ModelComponent view) {
 					if(productionPanel.editPanelMouseAdapter.selection == view)
 						productionPanel.clearFocus();
 				}
@@ -883,6 +998,9 @@ public class LiveModel extends Model {
 					if(LivePanel.this.model.output != null && LivePanel.this.model.output == view.getModelBehind()) {
 						outputViewHolder[0] = view;
 					}
+					
+					// TODO: Created a wasDestroyed callback to support cleanup
+					modelToViewMap.put(view.getModelBehind(), view);
 				}
 				
 				@Override
@@ -891,6 +1009,8 @@ public class LiveModel extends Model {
 						// Output was created as a view
 //						new String();
 						productionPanel.editPanelMouseAdapter.setOutput(view);
+						
+//						modelToViewMap.put(view.getModelBehind(), view);
 					}
 				}
 				
@@ -902,6 +1022,8 @@ public class LiveModel extends Model {
 						// Output was created as a view
 //						new String();
 						productionPanel.editPanelMouseAdapter.setOutput(null);
+						
+//						modelToViewMap.remove(view.getModelBehind());
 					}
 				}
 				
@@ -1041,6 +1163,19 @@ public class LiveModel extends Model {
 					} else if(change instanceof LiveModel.OutputChanged) {
 						if(LivePanel.this.model.output == null) {
 							productionPanel.editPanelMouseAdapter.setOutput(null);
+						}
+					} else if(change instanceof LiveModel.SelectionChanged) {
+//						ModelComponent view = (ModelComponent)propCtx.lookup("View");
+						
+						
+						if(LivePanel.this.model.selection != null) {
+							ModelComponent view = modelToViewMap.get(LivePanel.this.model.selection);
+							Point initialMouseDown = (Point)propCtx.lookup("SelectionInitialMouseDown");
+							boolean moving = (boolean)propCtx.lookup("SelectionMoving");
+							Rectangle effectBounds = (Rectangle)propCtx.lookup("SelectionEffectBounds");
+							productionPanel.editPanelMouseAdapter.select(view, initialMouseDown, moving, effectBounds);
+						} else {
+							productionPanel.editPanelMouseAdapter.select(null, null, false, null);
 						}
 					}
 				}

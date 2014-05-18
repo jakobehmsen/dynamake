@@ -116,7 +116,10 @@ public abstract class Model implements Serializable, Observer {
 	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance) {
 		if(properties == null)
 			properties = new Hashtable<String, Object>();
-		properties.put(name, value);
+		if(value != null)
+			properties.put(name, value);
+		else
+			properties.remove(name);
 		sendChanged(new PropertyChanged(name, value), propCtx, propDistance, 0);
 	}
 	

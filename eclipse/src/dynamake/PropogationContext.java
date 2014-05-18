@@ -1,12 +1,19 @@
 package dynamake;
 
+import java.util.Map;
+
 public class PropogationContext {
 	private PropogationContext parent;
 	private Model visitedByModel;
 	private int tag;
+	private Map<String, Object> definitions;
 	
 	public PropogationContext() { 
 		tag = -1;
+	}
+	
+	public PropogationContext(Map<String, Object> definitions) { 
+		this.definitions = definitions;
 	}
 	
 	public PropogationContext(int tag) {
@@ -40,6 +47,24 @@ public class PropogationContext {
 		PropogationContext newPropCtx = new PropogationContext();
 		newPropCtx.parent = this;
 		newPropCtx.tag = tag;
+		return newPropCtx;
+	}
+	
+	public Object lookup(String term) {
+		if(definitions != null) {
+			Object meaning = definitions.get(term);
+			if(meaning != null)
+				return meaning;
+		}
+		if(parent != null)
+			return parent.lookup(term);
+		return null;
+	}
+
+	public PropogationContext define(Map<String, Object> definitions) {
+		PropogationContext newPropCtx = new PropogationContext();
+		newPropCtx.parent = this;
+		newPropCtx.definitions = definitions;
 		return newPropCtx;
 	}
 

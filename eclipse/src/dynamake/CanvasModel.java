@@ -441,7 +441,7 @@ public class CanvasModel extends Model {
 								
 								shownModels.remove(sender);
 								view.remove((JComponent)modelView.getBindingTarget());
-								viewManager.unFocus(modelView.getBindingTarget());
+								viewManager.unFocus(propCtx, modelView.getBindingTarget());
 								viewManager.becameInvisible(propCtx, modelView.getBindingTarget());
 								viewManager.refresh(view);
 							}
@@ -518,7 +518,8 @@ public class CanvasModel extends Model {
 					
 					view.validate();
 					view.repaint();
-					viewManager.clearFocus(propCtx);
+//					viewManager.clearFocus(propCtx);
+					viewManager.unFocus(propCtx, removedMC);
 					viewManager.repaint(view);
 				} else if(change instanceof Model.PropertyChanged && propDistance == 1) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;

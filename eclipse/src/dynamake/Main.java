@@ -197,7 +197,7 @@ public class Main {
 				}
 
 				@Override
-				public void unFocus(ModelComponent view) {
+				public void unFocus(PropogationContext propCtx, ModelComponent view) {
 					// TODO Auto-generated method stub
 					
 				}
