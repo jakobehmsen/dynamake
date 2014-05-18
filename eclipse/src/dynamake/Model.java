@@ -685,13 +685,34 @@ public abstract class Model implements Serializable, Observer {
 				public void run() {
 					Rectangle creationBounds = droppedBounds;
 
-					dropped.getTransactionFactory().executeOnRoot(
-							new PropogationContext(), new AddThenOutputTransaction(
+					int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
+					ModelComponent output = ((LiveModel.LivePanel)livePanel).productionPanel.editPanelMouseAdapter.output;
+					Location outputLocation = null;
+					if(output != null)
+						outputLocation = output.getTransactionFactory().getLocation();
+						
+					DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+						new AddThenOutputTransaction(
 							livePanel.getTransactionFactory().getLocation(), 
 							target.getTransactionFactory().getLocation(), 
 							creationBounds, 
-							new CloneIsolatedFactory(dropped.getTransactionFactory().getLocation()))
+							new CloneIsolatedFactory(dropped.getTransactionFactory().getLocation())
+						), 
+						new SetOutputThenRemoveAtTransaction(
+							((LiveModel.LivePanel)livePanel).getTransactionFactory().getLocation(), 
+							outputLocation, 
+							target.getTransactionFactory().getLocation(), 
+							addIndex
+						)
 					);
+					dropped.getTransactionFactory().executeOnRoot(new PropogationContext(), dualCommand);
+//					dropped.getTransactionFactory().executeOnRoot(
+//						new PropogationContext(), new AddThenOutputTransaction(
+//						livePanel.getTransactionFactory().getLocation(), 
+//						target.getTransactionFactory().getLocation(), 
+//						creationBounds, 
+//						new CloneIsolatedFactory(dropped.getTransactionFactory().getLocation()))
+//					);
 				}
 			});
 			transactions.addTransaction("Clone Deep", new Runnable() {

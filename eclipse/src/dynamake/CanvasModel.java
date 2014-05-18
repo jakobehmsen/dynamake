@@ -76,6 +76,10 @@ public class CanvasModel extends Model {
 		}
 	}
 
+	public int getModelCount() {
+		return models.size();
+	}
+
 	@Override
 	protected void cloneAndMap(Hashtable<Model, Model> sourceToCloneMap) {
 		CanvasModel clone = new CanvasModel();
@@ -438,7 +442,7 @@ public class CanvasModel extends Model {
 								shownModels.remove(sender);
 								view.remove((JComponent)modelView.getBindingTarget());
 								viewManager.unFocus(modelView.getBindingTarget());
-								viewManager.becameInvisible(modelView.getBindingTarget());
+								viewManager.becameInvisible(propCtx, modelView.getBindingTarget());
 								viewManager.refresh(view);
 							}
 						}
@@ -510,9 +514,11 @@ public class CanvasModel extends Model {
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
 					removableListener.releaseBinding();
 					
+					viewManager.becameInvisible(propCtx, removedMC);
+					
 					view.validate();
 					view.repaint();
-					viewManager.clearFocus();
+					viewManager.clearFocus(propCtx);
 					viewManager.repaint(view);
 				} else if(change instanceof Model.PropertyChanged && propDistance == 1) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
@@ -551,7 +557,7 @@ public class CanvasModel extends Model {
 						for(Component newInvisible: newInvisibles) {
 							shownModels.remove(((ModelComponent)newInvisible).getModelBehind());
 							view.remove(newInvisible);
-							viewManager.becameInvisible((ModelComponent)newInvisible);
+							viewManager.becameInvisible(propCtx, (ModelComponent)newInvisible);
 						}
 						
 						Object[] visibles = new Object[view.model.models.size()];

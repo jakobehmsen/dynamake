@@ -97,13 +97,35 @@ public class PlotTool implements Tool {
 						// HACK: Models can only be added to canvases
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							PropogationContext propCtx = new PropogationContext();
-							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
-								propCtx, new AddThenOutputTransaction(
+							
+							ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
+							int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
+							ModelComponent output = productionPanel.editPanelMouseAdapter.output;
+							Location outputLocation = null;
+							if(output != null)
+								outputLocation = output.getTransactionFactory().getLocation();
+								
+							DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+								new AddThenOutputTransaction(
+										productionPanel.livePanel.getTransactionFactory().getLocation(), 
+										productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), 
+										creationBounds, 
+										factory), 
+								new SetOutputThenRemoveAtTransaction(
 									productionPanel.livePanel.getTransactionFactory().getLocation(), 
-									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), 
-									creationBounds, 
-									factory)
+									outputLocation, 
+									target.getTransactionFactory().getLocation(), 
+									addIndex
+								)
 							);
+							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+//							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
+//								propCtx, new AddThenOutputTransaction(
+//									productionPanel.livePanel.getTransactionFactory().getLocation(), 
+//									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), 
+//									creationBounds, 
+//									factory)
+//							);
 						}
 					}
 				});

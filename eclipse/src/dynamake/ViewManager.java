@@ -4,7 +4,7 @@ import javax.swing.JComponent;
 
 public interface ViewManager {
 	void setFocus(JComponent component);
-	void clearFocus();
+	void clearFocus(PropogationContext propCtx);
 	int getState();
 	Factory[] getFactories();
 	void selectAndActive(ModelComponent view, int x, int y);
@@ -14,5 +14,5 @@ public interface ViewManager {
 	Tool[] getTools();
 	void unFocus(ModelComponent view);
 	void becameVisible(ModelComponent view);
-	void becameInvisible(ModelComponent view);
+	void becameInvisible(PropogationContext propCtx, ModelComponent view);
 }

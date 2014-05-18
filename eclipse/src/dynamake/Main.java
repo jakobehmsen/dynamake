@@ -165,7 +165,7 @@ public class Main {
 				}
 				
 				@Override
-				public void clearFocus() {
+				public void clearFocus(PropogationContext propCtx) {
 					// TODO Auto-generated method stub
 					
 				}
@@ -209,7 +209,7 @@ public class Main {
 				}
 				
 				@Override
-				public void becameInvisible(ModelComponent view) {
+				public void becameInvisible(PropogationContext propCtx, ModelComponent view) {
 					// TODO Auto-generated method stub
 					
 				}

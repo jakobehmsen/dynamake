@@ -475,6 +475,8 @@ public class LiveModel extends Model {
 					
 					// final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds
 					PropogationContext propCtx = new PropogationContext();
+					// TODO: Merge these four transactions into a single transaction
+					// Make its antagonist and use this to create a dual command 
 					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), view.getTransactionFactory().getLocation()));
 					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionInitialMouseDown", initialMouseDown));
 					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionMoving", moving));
@@ -523,6 +525,8 @@ public class LiveModel extends Model {
 				} else {
 					if(productionPanel.effectFrame != null) {
 						productionPanel.clearFocus();
+						PropogationContext propCtx = new PropogationContext();
+						productionPanel.livePanel.transactionFactory.executeOnRoot(propCtx, new SetSelection(productionPanel.livePanel.transactionFactory.getLocation(), null));
 					} else {
 						PropogationContext propCtx = new PropogationContext();
 						productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetSelection(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
@@ -786,8 +790,8 @@ public class LiveModel extends Model {
 				selectionFrame = null;
 			}
 			
-			PropogationContext propCtx = new PropogationContext();
-			this.livePanel.transactionFactory.executeOnRoot(propCtx, new SetSelection(this.livePanel.transactionFactory.getLocation(), null));
+//			PropogationContext propCtx = new PropogationContext();
+//			this.livePanel.transactionFactory.executeOnRoot(propCtx, new SetSelection(this.livePanel.transactionFactory.getLocation(), null));
 		}
 	}
 	
@@ -800,7 +804,7 @@ public class LiveModel extends Model {
 		private JPanel topPanel;
 		private JLayeredPane contentPane;
 		private RemovableListener removableListener;
-		private ProductionPanel productionPanel;
+		public ProductionPanel productionPanel;
 		public ViewManager viewManager;
 		private TransactionFactory transactionFactory;
 		private JRadioButton[] radioButtonStates;
@@ -838,7 +842,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void clearFocus() {
+				public void clearFocus(PropogationContext propCtx) {
 					productionPanel.clearFocus();
 				}
 				
@@ -891,9 +895,14 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void becameInvisible(ModelComponent view) {
+				public void becameInvisible(PropogationContext propCtx, ModelComponent view) {
 					// TODO Auto-generated method stub
-					
+
+					if(productionPanel != null && LivePanel.this.model.output == view.getModelBehind()) {
+						// Output was created as a view
+//						new String();
+						productionPanel.editPanelMouseAdapter.setOutput(null);
+					}
 				}
 				
 				@Override
@@ -1029,6 +1038,10 @@ public class LiveModel extends Model {
 						}
 						
 						previousState = LivePanel.this.model.getState();
+					} else if(change instanceof LiveModel.OutputChanged) {
+						if(LivePanel.this.model.output == null) {
+							productionPanel.editPanelMouseAdapter.setOutput(null);
+						}
 					}
 				}
 			});
