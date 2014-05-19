@@ -12,8 +12,10 @@ public class DualCommandPair<T> implements DualCommand<T> {
 	
 	public DualCommandPair(Command<T> forward, Command<T> backward) {
 		this.forward = forward;
-		if(backward == null)
-			new String();
+		if(backward == null) {
+//			new String();
+			System.out.println(forward);
+		}
 		this.backward = backward;
 	}
 

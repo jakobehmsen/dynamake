@@ -545,7 +545,14 @@ public class LiveModel extends Model {
 //									setOutput(null);
 									PropogationContext propCtx = new PropogationContext();
 //									requestSetOutput(null, propCtx, 0);
-									productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null));
+									ModelLocation currentOutputLocation = 
+										productionPanel.livePanel.model.output != null ? productionPanel.livePanel.model.output.getLocator().locate() : null;
+									DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+										new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+										new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+									);
+									productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+//									productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null));
 								}
 								
 								getTool().mousePressed(productionPanel, e);
