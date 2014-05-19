@@ -258,6 +258,7 @@ public class CanvasModel extends Model {
 		private static final long serialVersionUID = 1L;
 		private CanvasModel model;
 		private TransactionFactory transactionFactory;
+		private ArrayList<ModelComponent> allModels = new ArrayList<ModelComponent>();
 		
 		public CanvasPanel(CanvasModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
 			this.model = model;
@@ -383,8 +384,25 @@ public class CanvasModel extends Model {
 
 		@Override
 		public Location getModelComponentLocation() {
-			// TODO Auto-generated method stub
-			return null;
+			return new ViewIndexLocation(index);
+		}
+	}
+	
+	private static class ViewIndexLocation implements Location {
+		private int index;
+		
+		public ViewIndexLocation(int index) {
+			this.index = index;
+		}
+
+		@Override
+		public Object getChild(Object holder) {
+			return ((CanvasPanel)holder).allModels.get(index);
+		}
+
+		@Override
+		public void setChild(Object holder, Object child) {
+			
 		}
 	}
 
@@ -496,6 +514,8 @@ public class CanvasModel extends Model {
 			addModelComponent(
 				view, transactionFactory, viewManager, shownModels, modelToModelComponentMap, modelToRemovableListenerMap, model
 			);
+			Binding<ModelComponent> itemView = modelToModelComponentMap.get(model);
+			view.allModels.add(itemView.getBindingTarget());
 		}
 		
 		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new ObserverAdapter() {
@@ -507,6 +527,8 @@ public class CanvasModel extends Model {
 					addModelComponent(
 						view, transactionFactory, viewManager, shownModels, modelToModelComponentMap, modelToRemovableListenerMap, model
 					);
+					Binding<ModelComponent> itemView = modelToModelComponentMap.get(model);
+					view.allModels.add(itemView.getBindingTarget());
 					viewManager.refresh(view);
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
 					// It could be possible to have map mapping from model to model component as follows:
@@ -516,6 +538,7 @@ public class CanvasModel extends Model {
 					modelToModelComponentMap.clear(removedModel);
 					ModelComponent removedMC = removedMCBinding.getBindingTarget();
 					view.remove((JComponent)removedMC);
+					view.allModels.remove(removedMC);
 					
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
 					removableListener.releaseBinding();

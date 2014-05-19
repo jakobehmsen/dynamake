@@ -97,7 +97,7 @@ public class RootModel extends Model {
 		}
 	}
 	
-	private static class ContentLocation implements ModelLocation {
+	private static class FieldContentLocation implements ModelLocation {
 		/**
 		 * 
 		 */
@@ -115,8 +115,20 @@ public class RootModel extends Model {
 
 		@Override
 		public Location getModelComponentLocation() {
+			return new ViewFieldContentLocation();
+		}
+	}
+	
+	private static class ViewFieldContentLocation implements Location {
+		@Override
+		public Object getChild(Object holder) {
+			return ((FrameModel)holder).getContentPane().getComponent(0);
+		}
+		
+		@Override
+		public void setChild(Object holder, Object child) {
 			// TODO Auto-generated method stub
-			return null;
+			
 		}
 	}
 	
@@ -249,7 +261,7 @@ public class RootModel extends Model {
 		final Binding<ModelComponent> contentView = content.createView(viewManager, transactionFactory.extend(new ModelLocator() {
 			@Override
 			public ModelLocation locate() {
-				return new ContentLocation();
+				return new FieldContentLocation();
 			}
 		}));
 		view.getContentPane().add((JComponent)contentView.getBindingTarget(), BorderLayout.CENTER);

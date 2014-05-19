@@ -193,11 +193,11 @@ public class LiveModel extends Model {
 	public static class ContentLocator implements dynamake.ModelLocator {
 		@Override
 		public ModelLocation locate() {
-			return new ContentLocation();
+			return new FieldContentLocation();
 		}
 	}
 	
-	private static class ContentLocation implements ModelLocation {
+	private static class FieldContentLocation implements ModelLocation {
 		/**
 		 * 
 		 */
@@ -216,7 +216,20 @@ public class LiveModel extends Model {
 		@Override
 		public Location getModelComponentLocation() {
 			// TODO Auto-generated method stub
-			return null;
+			return new ViewFieldContentLocation();
+		}
+	}
+	
+	private static class ViewFieldContentLocation implements Location {
+		@Override
+		public Object getChild(Object holder) {
+			return ((LivePanel)holder).contentView.getBindingTarget();
+		}
+		
+		@Override
+		public void setChild(Object holder, Object child) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	
@@ -929,6 +942,7 @@ public class LiveModel extends Model {
 		private TransactionFactory transactionFactory;
 		private JRadioButton[] radioButtonStates;
 		private Hashtable<Model, ModelComponent> modelToViewMap = new Hashtable<Model, ModelComponent>();
+		private final Binding<ModelComponent> contentView;
 		
 		public LivePanel(LiveModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
 			this.setLayout(new BorderLayout());
@@ -1040,7 +1054,7 @@ public class LiveModel extends Model {
 				}
 			};
 //			this.viewManager = newViewManager;
-			final Binding<ModelComponent> contentView = model.getContent().createView(newViewManager, transactionFactory.extend(new ContentLocator()));
+			contentView = model.getContent().createView(newViewManager, transactionFactory.extend(new ContentLocator()));
 
 			productionPanel = new ProductionPanel(this, contentView);
 			

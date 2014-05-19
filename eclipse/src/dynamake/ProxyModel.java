@@ -144,8 +144,20 @@ public class ProxyModel extends Model {
 
 		@Override
 		public Location getModelComponentLocation() {
+			return new ViewFieldModelLocation();
+		}
+	}
+	
+	private static class ViewFieldModelLocation implements Location {
+		@Override
+		public Object getChild(Object holder) {
+			return ((ProxyModelView)holder).view;
+		}
+		
+		@Override
+		public void setChild(Object holder, Object child) {
 			// TODO Auto-generated method stub
-			return null;
+			
 		}
 	}
 

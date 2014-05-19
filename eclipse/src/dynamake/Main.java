@@ -20,14 +20,14 @@ import org.prevayler.Prevayler;
 import org.prevayler.PrevaylerFactory;
 
 public class Main {
-	private static class RootLocator implements ModelLocator {
+	private static class ModelRootLocator implements ModelLocator {
 		@Override
 		public ModelLocation locate() {
-			return new RootLocation();
+			return new ModelRootLocation();
 		}
 	}
 	
-	private static class RootLocation implements ModelLocation {
+	private static class ModelRootLocation implements ModelLocation {
 		/**
 		 * 
 		 */
@@ -43,8 +43,17 @@ public class Main {
 
 		@Override
 		public Location getModelComponentLocation() {
-			// TODO Auto-generated method stub
-			return null;
+			return new ViewRootLocation();
+		}
+	}
+	
+	private static class ViewRootLocation implements Location {
+		@Override
+		public void setChild(Object holder, Object child) { }
+		
+		@Override
+		public Object getChild(Object holder) {
+			return holder;
 		}
 	}
 	
@@ -220,7 +229,7 @@ public class Main {
 					
 				}
 			};
-			TransactionFactory rootTransactionFactory = new TransactionFactory(prevaylerService, new RootLocator());
+			TransactionFactory rootTransactionFactory = new TransactionFactory(prevaylerService, new ModelRootLocator());
 			final Binding<ModelComponent> rootView = prevaylerService.prevalentSystem().createView(rootViewManager, rootTransactionFactory);
 			JFrame frame = (JFrame)rootView.getBindingTarget();
 			
