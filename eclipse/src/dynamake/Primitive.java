@@ -333,6 +333,12 @@ public class Primitive extends Model {
 		public Command<Model> getImplicitDropAction(ModelComponent target) {
 			return null;
 		}
+
+		@Override
+		public void initialize() {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 
 	@Override

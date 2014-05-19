@@ -70,8 +70,7 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child) {
+		public void appendContainerTransactions(TransactionMapBuilder transactions, ModelComponent child) {
 
 		}
 
@@ -87,13 +86,17 @@ public class RootModel extends Model {
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
-
+			ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
 		}
 
 		@Override
 		public Command<Model> getImplicitDropAction(ModelComponent target) {
 			return null;
+		}
+		
+		@Override
+		public void initialize() {
+			((ModelComponent)getContentPane().getComponent(0)).initialize();
 		}
 	}
 	

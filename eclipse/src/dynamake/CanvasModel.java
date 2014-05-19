@@ -343,6 +343,11 @@ public class CanvasModel extends Model {
 			// TODO Auto-generated method stub
 			return null;
 		}
+		
+		@Override
+		public void initialize() {
+			// TODO Auto-generated method stub
+		}
 	}
 	
 	private static class IndexLocator implements ModelLocator {

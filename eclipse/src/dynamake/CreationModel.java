@@ -167,6 +167,12 @@ public class CreationModel extends Model {
 		public Command<Model> getImplicitDropAction(ModelComponent target) {
 			return new SetArgumentTransaction(ownerModel.getTransactionFactory().getModelLocation(), parameterName, target.getTransactionFactory().getModelLocation());
 		}
+
+		@Override
+		public void initialize() {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	private static class PanelModel extends JPanel implements ModelComponent {
@@ -254,6 +260,12 @@ public class CreationModel extends Model {
 		public Command<Model> getImplicitDropAction(ModelComponent target) {
 			// TODO Auto-generated method stub
 			return null;
+		}
+
+		@Override
+		public void initialize() {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	

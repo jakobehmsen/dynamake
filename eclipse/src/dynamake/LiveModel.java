@@ -10,6 +10,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -943,15 +947,17 @@ public class LiveModel extends Model {
 		private JRadioButton[] radioButtonStates;
 //		private Hashtable<Model, ModelComponent> modelToViewMap = new Hashtable<Model, ModelComponent>();
 		private final Binding<ModelComponent> contentView;
+		private ModelComponent rootView;
 		
 		public LivePanel(final ModelComponent rootView, LiveModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
+			this.rootView = rootView;
 			this.setLayout(new BorderLayout());
 			this.model = model;
 			this.viewManager = viewManager;
 			this.transactionFactory = transactionFactory;
 
-			final ModelComponent[] selectedViewHolder = new ModelComponent[1];
-			final ModelComponent[] outputViewHolder = new ModelComponent[1];
+//			final ModelComponent[] selectedViewHolder = new ModelComponent[1];
+//			final ModelComponent[] outputViewHolder = new ModelComponent[1];
 			
 			ViewManager newViewManager = new ViewManager() {
 				@Override
@@ -1011,13 +1017,13 @@ public class LiveModel extends Model {
 //						productionPanel.editPanelMouseAdapter.setOutput(view);
 //					}
 					
-					if(LivePanel.this.model.selection != null && LivePanel.this.model.selection == view.getModelBehind()) {
-						selectedViewHolder[0] = view;
-					}
-					
-					if(LivePanel.this.model.output != null && LivePanel.this.model.output == view.getModelBehind()) {
-						outputViewHolder[0] = view;
-					}
+//					if(LivePanel.this.model.selection != null && LivePanel.this.model.selection == view.getModelBehind()) {
+//						selectedViewHolder[0] = view;
+//					}
+//					
+//					if(LivePanel.this.model.output != null && LivePanel.this.model.output == view.getModelBehind()) {
+//						outputViewHolder[0] = view;
+//					}
 					
 					// TODO: Created a wasDestroyed callback to support cleanup
 //					modelToViewMap.put(view.getModelBehind(), view);
@@ -1025,26 +1031,24 @@ public class LiveModel extends Model {
 				
 				@Override
 				public void becameVisible(ModelComponent view) {
-					if(productionPanel != null && LivePanel.this.model.output == view.getModelBehind()) {
-						// Output was created as a view
-//						new String();
-						productionPanel.editPanelMouseAdapter.setOutput(view);
-						
-//						modelToViewMap.put(view.getModelBehind(), view);
-					}
+//					if(productionPanel != null && LivePanel.this.model.output == view.getModelBehind()) {
+//						// Output was created as a view
+////						new String();
+//						productionPanel.editPanelMouseAdapter.setOutput(view);
+//						
+////						modelToViewMap.put(view.getModelBehind(), view);
+//					}
 				}
 				
 				@Override
 				public void becameInvisible(PropogationContext propCtx, ModelComponent view) {
-					// TODO Auto-generated method stub
-
-					if(productionPanel != null && LivePanel.this.model.output == view.getModelBehind()) {
-						// Output was created as a view
-//						new String();
-						productionPanel.editPanelMouseAdapter.setOutput(null);
-						
-//						modelToViewMap.remove(view.getModelBehind());
-					}
+//					if(productionPanel != null && LivePanel.this.model.output == view.getModelBehind()) {
+//						// Output was created as a view
+////						new String();
+//						productionPanel.editPanelMouseAdapter.setOutput(null);
+//						
+////						modelToViewMap.remove(view.getModelBehind());
+//					}
 				}
 				
 				@Override
@@ -1205,16 +1209,55 @@ public class LiveModel extends Model {
 				}
 			});
 			
-			if(selectedViewHolder[0] != null) {
-				Point initialMouseDown = (Point)model.getProperty("SelectionInitialMouseDown");
-				boolean moving = (boolean)model.getProperty("SelectionMoving");
-				Rectangle effectBounds = (Rectangle)model.getProperty("SelectionEffectBounds");
+//			this.addContainerListener(new ContainerListener() {
+//				
+//				@Override
+//				public void componentRemoved(ContainerEvent arg0) {
+//					// TODO Auto-generated method stub
+//					
+//				}
+//				
+//				@Override
+//				public void componentAdded(ContainerEvent arg0) {
+////					if(LivePanel.this.model.selection != null) {
+////						Point initialMouseDown = (Point)LivePanel.this.model.getProperty("SelectionInitialMouseDown");
+////						boolean moving = (boolean)LivePanel.this.model.getProperty("SelectionMoving");
+////						Rectangle effectBounds = (Rectangle)LivePanel.this.model.getProperty("SelectionEffectBounds");
+////
+////						ModelComponent selectionView = (ModelComponent)LivePanel.this.model.selection.getLocator().locate().getModelComponentLocation().getChild(rootView);
+////						LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectionView, initialMouseDown, moving, effectBounds);
+////					}
+//				}
+//			});
+			
+//			if(model.selection != null) {
+//				Point initialMouseDown = (Point)model.getProperty("SelectionInitialMouseDown");
+//				boolean moving = (boolean)model.getProperty("SelectionMoving");
+//				Rectangle effectBounds = (Rectangle)model.getProperty("SelectionEffectBounds");
+//
+//				ModelComponent selectionView = (ModelComponent)model.selection.getLocator().locate().getModelComponentLocation().getChild(rootView);
+//				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectionView, initialMouseDown, moving, effectBounds);
+//			}
+			
+//			if(outputViewHolder[0] != null) {
+//				LivePanel.this.productionPanel.editPanelMouseAdapter.setOutput(outputViewHolder[0]);
+//			}
+		}
+		
+		@Override
+		public void initialize() {
+			if(LivePanel.this.model.selection != null) {
+				Point initialMouseDown = (Point)LivePanel.this.model.getProperty("SelectionInitialMouseDown");
+				boolean moving = (boolean)LivePanel.this.model.getProperty("SelectionMoving");
+				Rectangle effectBounds = (Rectangle)LivePanel.this.model.getProperty("SelectionEffectBounds");
 
-				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectedViewHolder[0], initialMouseDown, moving, effectBounds);
+				ModelComponent selectionView = (ModelComponent)LivePanel.this.model.selection.getLocator().locate().getModelComponentLocation().getChild(rootView);
+				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectionView, initialMouseDown, moving, effectBounds);
 			}
 			
-			if(outputViewHolder[0] != null) {
-				LivePanel.this.productionPanel.editPanelMouseAdapter.setOutput(outputViewHolder[0]);
+			if(LivePanel.this.model.output != null) {
+				ModelComponent outputView = (ModelComponent)LivePanel.this.model.output.getLocator().locate().getModelComponentLocation().getChild(rootView);
+				LivePanel.this.productionPanel.editPanelMouseAdapter.setOutput(outputView);
 			}
 		}
 		

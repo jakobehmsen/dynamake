@@ -116,6 +116,12 @@ public class ProxyModel extends Model {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		@Override
+		public void initialize() {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	private static class FieldModelLocator implements ModelLocator {

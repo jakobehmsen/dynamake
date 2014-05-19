@@ -184,6 +184,12 @@ public class FloatingTextModel extends Model {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+		@Override
+		public void initialize() {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	@Override
