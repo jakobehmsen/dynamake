@@ -18,13 +18,13 @@ public class TransactionFactory {
 		return parent;
 	}
 	
-	public Locator getLocator() {
+	public Locator getModelLocator() {
 		return locator;
 	}
 	
-	public Location getLocation() {
+	public Location getModelLocation() {
 		if(parent != null)
-			return new CompositeLocation(parent.getLocation(), locator.locate());
+			return new CompositeLocation(parent.getModelLocation(), locator.locate());
 		return locator.locate();
 	}
 	
@@ -93,7 +93,7 @@ public class TransactionFactory {
 	}
 	
 	public <T extends Model> void execute(PropogationContext propCtx, final DualCommand<T> transaction) {
-		final Location location = getLocation();
+		final Location location = getModelLocation();
 		prevaylerService.execute(propCtx, new LocationTransaction<T>(location, transaction));
 	}
 	

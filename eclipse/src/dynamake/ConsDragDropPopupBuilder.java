@@ -24,7 +24,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					@Override
 					public void run() {
 						selection.getTransactionFactory().executeOnRoot(
-							new PropogationContext(), new Model.RemoveObserver(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
+							new PropogationContext(), new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
 						);
 					}
 				});
@@ -33,7 +33,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					@Override
 					public void run() {
 						selection.getTransactionFactory().executeOnRoot(
-							new PropogationContext(), new Model.AddObserver(selection.getTransactionFactory().getLocation(), target.getTransactionFactory().getLocation())
+							new PropogationContext(), new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
 						);
 					}
 				});
@@ -48,9 +48,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					@Override
 					public void run() {
 						target.getTransactionFactory().executeOnRoot(new PropogationContext(), new AddThenBindAndOutputTransaction(
-							livePanel.getTransactionFactory().getLocation(),
-							selection.getTransactionFactory().getLocation(), 
-							target.getTransactionFactory().getLocation(), 
+							livePanel.getTransactionFactory().getModelLocation(),
+							selection.getTransactionFactory().getModelLocation(), 
+							target.getTransactionFactory().getModelLocation(), 
 							new PrimitiveSingletonFactory(primImpl), 
 							dropBoundsOnTarget
 						));

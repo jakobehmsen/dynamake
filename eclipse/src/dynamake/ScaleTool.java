@@ -93,16 +93,16 @@ public class ScaleTool implements Tool {
 				   productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory() != productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent()) {
 					// Moving to other canvas
 					
-					Location canvasSourceLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent().getLocation();
-					Location canvasTargetLocation = productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory().getLocation();
-					Location modelLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation();
+					Location canvasSourceLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent().getModelLocation();
+					Location canvasTargetLocation = productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory().getModelLocation();
+					Location modelLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
 
 					Rectangle droppedBounds = SwingUtilities.convertRectangle(
 						productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)productionPanel.editPanelMouseAdapter.targetOver);
 					
 					PropogationContext propCtx = new PropogationContext();
 					transactionFactory.executeOnRoot(propCtx, new MoveModelTransaction(
-						productionPanel.livePanel.getTransactionFactory().getLocation(), 
+						productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
 						canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(),
 						false
 					));
@@ -113,7 +113,7 @@ public class ScaleTool implements Tool {
 					Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
 					
 					PropogationContext propCtx = new PropogationContext();
-					transactionFactory.executeOnRoot(propCtx, new ScaleTransaction(transactionFactory.getLocation(), newBounds));
+					transactionFactory.executeOnRoot(propCtx, new ScaleTransaction(transactionFactory.getModelLocation(), newBounds));
 					
 					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
 				}

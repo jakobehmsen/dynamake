@@ -17,7 +17,7 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
 				selection.getTransactionFactory().executeOnRoot(
-					propCtx, new TellPropertyTransaction(selection.getTransactionFactory().getLocation(), Model.PROPERTY_COLOR)
+					propCtx, new TellPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_COLOR)
 				);
 			}
 		});

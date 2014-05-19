@@ -387,15 +387,15 @@ public class LiveModel extends Model {
 				Rectangle currentSelectionEffectBounds = (Rectangle)productionPanel.livePanel.model.getProperty("SelectionEffectBounds");
 				DualCommand<Model> dualCommand = new DualCommandPair<Model>(
 					new SetSelectionAndLocalsTransaction(
-						productionPanel.livePanel.getTransactionFactory().getLocation(), 
-						view.getTransactionFactory().getLocation(),
+						productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+						view.getTransactionFactory().getModelLocation(),
 						initialMouseDown,
 						moving,
 						effectBounds
 					),
 					new SetSelectionAndLocalsTransaction(
-						productionPanel.livePanel.getTransactionFactory().getLocation(),
-						productionPanel.editPanelMouseAdapter.selection != null ? productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation() : null,
+						productionPanel.livePanel.getTransactionFactory().getModelLocation(),
+						productionPanel.editPanelMouseAdapter.selection != null ? productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation() : null,
 //						view.getTransactionFactory().getLocation(),
 						currentInitialMouseDown,
 						currentSelectionMoving,
@@ -519,7 +519,7 @@ public class LiveModel extends Model {
 							public void mousePressed(MouseEvent e) {
 								if(EditPanelMouseAdapter.this.output != null) {
 									setOutput(null);
-									productionPanel.livePanel.getTransactionFactory().executeOnRoot(new PropogationContext(), new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
+									productionPanel.livePanel.getTransactionFactory().executeOnRoot(new PropogationContext(), new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null));
 								}
 								
 								getTool().mousePressed(productionPanel, e);
@@ -737,7 +737,7 @@ public class LiveModel extends Model {
 				if(this.output != null) {
 					setOutput(null);
 					PropogationContext propCtx = new PropogationContext();
-					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetOutput(productionPanel.livePanel.getTransactionFactory().getLocation(), null));
+					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null));
 				}
 				getTool().mousePressed(productionPanel, e);
 			}

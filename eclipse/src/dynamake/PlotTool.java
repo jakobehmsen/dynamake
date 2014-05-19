@@ -68,14 +68,14 @@ public class PlotTool implements Tool {
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							Location[] modelLocation = new Location[componentsWithinBounds.size()];
 							for(int i = 0; i < modelLocation.length; i++) {
-								modelLocation[i] = componentsWithinBounds.get(i).getTransactionFactory().getLocation();
+								modelLocation[i] = componentsWithinBounds.get(i).getTransactionFactory().getModelLocation();
 							}
 							
 							PropogationContext propCtx = new PropogationContext();
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
 								propCtx, new WrapTransaction(
-									productionPanel.livePanel.getTransactionFactory().getLocation(),
-									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), 
+									productionPanel.livePanel.getTransactionFactory().getModelLocation(),
+									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
 									selectionCreationBounds, 
 									modelLocation)
 							);
@@ -103,18 +103,18 @@ public class PlotTool implements Tool {
 							ModelComponent output = productionPanel.editPanelMouseAdapter.output;
 							Location outputLocation = null;
 							if(output != null)
-								outputLocation = output.getTransactionFactory().getLocation();
+								outputLocation = output.getTransactionFactory().getModelLocation();
 								
 							DualCommand<Model> dualCommand = new DualCommandPair<Model>(
 								new AddThenOutputTransaction(
-										productionPanel.livePanel.getTransactionFactory().getLocation(), 
-										productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), 
+										productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+										productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
 										creationBounds, 
 										factory), 
 								new SetOutputThenRemoveAtTransaction(
-									productionPanel.livePanel.getTransactionFactory().getLocation(), 
+									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
 									outputLocation, 
-									target.getTransactionFactory().getLocation(), 
+									target.getTransactionFactory().getModelLocation(), 
 									addIndex
 								)
 							);

@@ -310,12 +310,12 @@ public class CanvasModel extends Model {
 				transactions.addTransaction("Move", new Runnable() {
 					@Override
 					public void run() {
-						Location canvasSourceLocation = dropped.getTransactionFactory().getParent().getLocation();
-						Location canvasTargetLocation = transactionFactory.getLocation();
-						Location modelLocation = dropped.getTransactionFactory().getLocation();
+						Location canvasSourceLocation = dropped.getTransactionFactory().getParent().getModelLocation();
+						Location canvasTargetLocation = transactionFactory.getModelLocation();
+						Location modelLocation = dropped.getTransactionFactory().getModelLocation();
 						
 						transactionFactory.executeOnRoot(new PropogationContext(), new MoveModelTransaction(
-							livePanel.getTransactionFactory().getLocation(), canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true
+							livePanel.getTransactionFactory().getModelLocation(), canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true
 						));
 					}
 				});

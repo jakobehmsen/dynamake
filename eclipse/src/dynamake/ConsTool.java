@@ -41,10 +41,10 @@ public class ConsTool implements Tool {
 				} else {
 					if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 						targetModelComponent.getTransactionFactory().executeOnRoot(
-							new PropogationContext(), new Model.RemoveObserver(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), targetModelComponent.getTransactionFactory().getLocation()));
+							new PropogationContext(), new Model.RemoveObserver(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
 					} else {
 						targetModelComponent.getTransactionFactory().executeOnRoot(
-							new PropogationContext(), new Model.AddObserver(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), targetModelComponent.getTransactionFactory().getLocation()));
+							new PropogationContext(), new Model.AddObserver(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
 					}
 					
 					if(productionPanel.targetFrame != null)

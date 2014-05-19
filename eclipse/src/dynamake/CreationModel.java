@@ -165,7 +165,7 @@ public class CreationModel extends Model {
 
 		@Override
 		public Command<Model> getImplicitDropAction(ModelComponent target) {
-			return new SetArgumentTransaction(ownerModel.getTransactionFactory().getLocation(), parameterName, target.getTransactionFactory().getLocation());
+			return new SetArgumentTransaction(ownerModel.getTransactionFactory().getModelLocation(), parameterName, target.getTransactionFactory().getModelLocation());
 		}
 	}
 	
@@ -320,7 +320,7 @@ public class CreationModel extends Model {
 					if(((CreationModel)sender).allArgumentsAreSet()) {
 						ModelComponent parent = ModelComponent.Util.getParent(view);
 						if(parent != null && parent.getModelBehind() instanceof CanvasModel) {
-							transactionFactory.executeOnRoot(propCtx, new InstantiateCreationTransaction(transactionFactory.getLocation(), parent.getTransactionFactory().getLocation()));
+							transactionFactory.executeOnRoot(propCtx, new InstantiateCreationTransaction(transactionFactory.getModelLocation(), parent.getTransactionFactory().getModelLocation()));
 						}
 					}
 				}

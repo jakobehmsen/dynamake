@@ -95,15 +95,15 @@ public class EditTool implements Tool {
 				   productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory() != productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent()) {
 					// Moving to other canvas
 					
-					Location canvasSourceLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent().getLocation();
-					Location canvasTargetLocation = productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory().getLocation();
-					Location modelLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation();
+					Location canvasSourceLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent().getModelLocation();
+					Location canvasTargetLocation = productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory().getModelLocation();
+					Location modelLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
 
 					Rectangle droppedBounds = SwingUtilities.convertRectangle(
 						productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)productionPanel.editPanelMouseAdapter.targetOver);
 					
 					transactionFactory.executeOnRoot(new PropogationContext(), new MoveModelTransaction(
-						productionPanel.livePanel.getTransactionFactory().getLocation(), 
+						productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
 						canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(),
 						false
 					));

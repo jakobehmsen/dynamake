@@ -17,7 +17,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
 				selection.getTransactionFactory().executeOnRoot(
-					propCtx, new SetViewTransaction(selection.getTransactionFactory().getLocation(), Model.VIEW_APPLIANCE)
+					propCtx, new SetViewTransaction(selection.getTransactionFactory().getModelLocation(), Model.VIEW_APPLIANCE)
 				);
 			}
 		});
@@ -26,7 +26,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
 				selection.getTransactionFactory().executeOnRoot(
-					propCtx, new SetViewTransaction(selection.getTransactionFactory().getLocation(), Model.VIEW_ENGINEERING)
+					propCtx, new SetViewTransaction(selection.getTransactionFactory().getModelLocation(), Model.VIEW_ENGINEERING)
 				);
 			}
 		});

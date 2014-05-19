@@ -574,14 +574,14 @@ public abstract class Model implements Serializable, Observer {
 			public void mouseReleased(MouseEvent arg0) {
 //				PropogationContext propCtx = new PropogationContext(); 
 //				model.sendChanged(new MouseUp(), propCtx, 0, 0);
-				view.getTransactionFactory().executeOnRoot(new PropogationContext(), new MouseUpTransaction(view.getTransactionFactory().getLocation()));
+				view.getTransactionFactory().executeOnRoot(new PropogationContext(), new MouseUpTransaction(view.getTransactionFactory().getModelLocation()));
 			}
 			
 			@Override
 			public void mousePressed(MouseEvent arg0) {
 //				PropogationContext propCtx = new PropogationContext(); 
 //				model.sendChanged(new MouseDown(), propCtx, 0, 0);
-				view.getTransactionFactory().executeOnRoot(new PropogationContext(), new MouseDownTransaction(view.getTransactionFactory().getLocation()));
+				view.getTransactionFactory().executeOnRoot(new PropogationContext(), new MouseDownTransaction(view.getTransactionFactory().getModelLocation()));
 			}
 			
 			@Override
@@ -692,19 +692,19 @@ public abstract class Model implements Serializable, Observer {
 					ModelComponent output = ((LiveModel.LivePanel)livePanel).productionPanel.editPanelMouseAdapter.output;
 					Location outputLocation = null;
 					if(output != null)
-						outputLocation = output.getTransactionFactory().getLocation();
+						outputLocation = output.getTransactionFactory().getModelLocation();
 						
 					DualCommand<Model> dualCommand = new DualCommandPair<Model>(
 						new AddThenOutputTransaction(
-							livePanel.getTransactionFactory().getLocation(), 
-							target.getTransactionFactory().getLocation(), 
+							livePanel.getTransactionFactory().getModelLocation(), 
+							target.getTransactionFactory().getModelLocation(), 
 							creationBounds, 
-							new CloneIsolatedFactory(dropped.getTransactionFactory().getLocation())
+							new CloneIsolatedFactory(dropped.getTransactionFactory().getModelLocation())
 						), 
 						new SetOutputThenRemoveAtTransaction(
-							((LiveModel.LivePanel)livePanel).getTransactionFactory().getLocation(), 
+							((LiveModel.LivePanel)livePanel).getTransactionFactory().getModelLocation(), 
 							outputLocation, 
-							target.getTransactionFactory().getLocation(), 
+							target.getTransactionFactory().getModelLocation(), 
 							addIndex
 						)
 					);
@@ -725,10 +725,10 @@ public abstract class Model implements Serializable, Observer {
 
 					dropped.getTransactionFactory().executeOnRoot(
 							new PropogationContext(), new AddThenOutputTransaction(
-							livePanel.getTransactionFactory().getLocation(), 
-							target.getTransactionFactory().getLocation(), 
+							livePanel.getTransactionFactory().getModelLocation(), 
+							target.getTransactionFactory().getModelLocation(), 
 							creationBounds, 
-							new CloneDeepFactory(dropped.getTransactionFactory().getLocation()))
+							new CloneDeepFactory(dropped.getTransactionFactory().getModelLocation()))
 					);
 				}
 			});
