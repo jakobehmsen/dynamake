@@ -176,7 +176,7 @@ public class TextModel extends Model {
 	}
 	
 	@Override
-	public Binding<ModelComponent> createView(final ViewManager viewManager, final TransactionFactory transactionFactory) {
+	public Binding<ModelComponent> createView(ModelComponent rootView, final ViewManager viewManager, final TransactionFactory transactionFactory) {
 		this.setLocation(transactionFactory.getModelLocation());
 		
 		final JTextPane view = new JTextPane();

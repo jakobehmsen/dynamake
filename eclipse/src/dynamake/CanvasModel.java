@@ -407,12 +407,12 @@ public class CanvasModel extends Model {
 	}
 
 	private void addModelComponent(
-			final CanvasPanel view, 
-			final TransactionFactory transactionFactory, final ViewManager viewManager, 
-			final HashSet<Model> shownModels, 
+			final ModelComponent rootView, 
+			final CanvasPanel view, final TransactionFactory transactionFactory, 
+			final ViewManager viewManager, 
+			final HashSet<Model> shownModels,
 			final Memoizer1<Model, Binding<ModelComponent>> modelToModelComponentMap,
-			Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap,
-			final Model model) {
+			Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap, final Model model) {
 		Integer viewModel2 = (Integer)model.getProperty(Model.PROPERTY_VIEW);
 		if(viewModel2 == null)
 			viewModel2 = 1;
@@ -482,7 +482,7 @@ public class CanvasModel extends Model {
 	}
 
 	@Override
-	public Binding<ModelComponent> createView(final ViewManager viewManager, final TransactionFactory transactionFactory) {
+	public Binding<ModelComponent> createView(final ModelComponent rootView, final ViewManager viewManager, final TransactionFactory transactionFactory) {
 		this.setLocation(transactionFactory.getModelLocation());
 		
 		final CanvasPanel view = new CanvasPanel(this, transactionFactory, viewManager);
@@ -496,7 +496,7 @@ public class CanvasModel extends Model {
 		final Memoizer1<Model, Binding<ModelComponent>> modelToModelComponentMap = new Memoizer1<Model, Binding<ModelComponent>>(new Func1<Model, Binding<ModelComponent>>() {
 			@Override
 			public Binding<ModelComponent> call(Model model) {
-				final Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new IndexLocator(CanvasModel.this, model)));
+				final Binding<ModelComponent> modelView = model.createView(rootView, viewManager, transactionFactory.extend(new IndexLocator(CanvasModel.this, model)));
 				
 				Rectangle bounds = new Rectangle(
 					((Fraction)model.getProperty("X")).intValue(),
@@ -514,7 +514,7 @@ public class CanvasModel extends Model {
 		final Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap = new Hashtable<Model, Model.RemovableListener>();
 		for(final Model model: models) {
 			addModelComponent(
-				view, transactionFactory, viewManager, shownModels, modelToModelComponentMap, modelToRemovableListenerMap, model
+				rootView, view, transactionFactory, viewManager, shownModels, modelToModelComponentMap, modelToRemovableListenerMap, model
 			);
 			Binding<ModelComponent> itemView = modelToModelComponentMap.get(model);
 			view.allModels.add(itemView.getBindingTarget());
@@ -527,7 +527,7 @@ public class CanvasModel extends Model {
 					final Model model = ((CanvasModel.AddedModelChange)change).model;
 					
 					addModelComponent(
-						view, transactionFactory, viewManager, shownModels, modelToModelComponentMap, modelToRemovableListenerMap, model
+						rootView, view, transactionFactory, viewManager, shownModels, modelToModelComponentMap, modelToRemovableListenerMap, model
 					);
 					Binding<ModelComponent> itemView = modelToModelComponentMap.get(model);
 					view.allModels.add(itemView.getBindingTarget());

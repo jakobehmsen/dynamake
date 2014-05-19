@@ -234,7 +234,7 @@ public class Main {
 				}
 			};
 			TransactionFactory rootTransactionFactory = new TransactionFactory(prevaylerService, new ModelRootLocator());
-			final Binding<ModelComponent> rootView = prevaylerService.prevalentSystem().createView(rootViewManager, rootTransactionFactory);
+			final Binding<ModelComponent> rootView = prevaylerService.prevalentSystem().createView(null, rootViewManager, rootTransactionFactory);
 			JFrame frame = (JFrame)rootView.getBindingTarget();
 			
 			// Can be used for intercepting mouse events?

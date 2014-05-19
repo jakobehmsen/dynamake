@@ -162,11 +162,11 @@ public class ProxyModel extends Model {
 	}
 
 	@Override
-	public Binding<ModelComponent> createView(final ViewManager viewManager,
-			TransactionFactory transactionFactory) {
+	public Binding<ModelComponent> createView(ModelComponent rootView,
+			final ViewManager viewManager, TransactionFactory transactionFactory) {
 		this.setLocation(transactionFactory.getModelLocation());
 		
-		final Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new FieldModelLocator()));
+		final Binding<ModelComponent> modelView = model.createView(rootView, viewManager, transactionFactory.extend(new FieldModelLocator()));
 		
 		final ProxyModelView view = new ProxyModelView(this, transactionFactory, modelView.getBindingTarget());
 		

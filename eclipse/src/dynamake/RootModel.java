@@ -190,7 +190,7 @@ public class RootModel extends Model {
 	}
 
 	@Override
-	public Binding<ModelComponent> createView(ViewManager viewManager, final TransactionFactory transactionFactory) {
+	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, final TransactionFactory transactionFactory) {
 		this.setLocation(transactionFactory.getModelLocation());
 		
 		final FrameModel view = new FrameModel(this, transactionFactory);
@@ -260,7 +260,7 @@ public class RootModel extends Model {
 			view.setExtendedState(state);
 		
 		view.getContentPane().setLayout(new BorderLayout());
-		final Binding<ModelComponent> contentView = content.createView(viewManager, transactionFactory.extend(new ModelLocator() {
+		final Binding<ModelComponent> contentView = content.createView(view, viewManager, transactionFactory.extend(new ModelLocator() {
 			@Override
 			public ModelLocation locate() {
 				return new FieldContentLocation();

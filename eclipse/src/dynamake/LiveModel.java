@@ -941,10 +941,10 @@ public class LiveModel extends Model {
 		public ViewManager viewManager;
 		private TransactionFactory transactionFactory;
 		private JRadioButton[] radioButtonStates;
-		private Hashtable<Model, ModelComponent> modelToViewMap = new Hashtable<Model, ModelComponent>();
+//		private Hashtable<Model, ModelComponent> modelToViewMap = new Hashtable<Model, ModelComponent>();
 		private final Binding<ModelComponent> contentView;
 		
-		public LivePanel(LiveModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
+		public LivePanel(final ModelComponent rootView, LiveModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
 			this.setLayout(new BorderLayout());
 			this.model = model;
 			this.viewManager = viewManager;
@@ -1020,7 +1020,7 @@ public class LiveModel extends Model {
 					}
 					
 					// TODO: Created a wasDestroyed callback to support cleanup
-					modelToViewMap.put(view.getModelBehind(), view);
+//					modelToViewMap.put(view.getModelBehind(), view);
 				}
 				
 				@Override
@@ -1054,7 +1054,7 @@ public class LiveModel extends Model {
 				}
 			};
 //			this.viewManager = newViewManager;
-			contentView = model.getContent().createView(newViewManager, transactionFactory.extend(new ContentLocator()));
+			contentView = model.getContent().createView(rootView, newViewManager, transactionFactory.extend(new ContentLocator()));
 
 			productionPanel = new ProductionPanel(this, contentView);
 			
@@ -1189,7 +1189,8 @@ public class LiveModel extends Model {
 						
 						
 						if(LivePanel.this.model.selection != null) {
-							ModelComponent view = modelToViewMap.get(LivePanel.this.model.selection);
+//							ModelComponent view = modelToViewMap.get(LivePanel.this.model.selection);
+							ModelComponent view = (ModelComponent)LivePanel.this.model.selection.getLocation().getModelComponentLocation().getChild(rootView);
 							Point initialMouseDown = (Point)propCtx.lookup("SelectionInitialMouseDown");
 							boolean moving = (boolean)propCtx.lookup("SelectionMoving");
 							Rectangle effectBounds = (Rectangle)propCtx.lookup("SelectionEffectBounds");
@@ -1266,10 +1267,10 @@ public class LiveModel extends Model {
 	}
 
 	@Override
-	public Binding<ModelComponent> createView(ViewManager viewManager, TransactionFactory transactionFactory) {
+	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, TransactionFactory transactionFactory) {
 		this.setLocation(transactionFactory.getModelLocation());
 		
-		final LivePanel view = new LivePanel(this, transactionFactory, viewManager);
+		final LivePanel view = new LivePanel(rootView, this, transactionFactory, viewManager);
 		
 		viewManager.wasCreated(view);
 		

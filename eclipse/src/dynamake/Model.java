@@ -296,7 +296,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 
-	public abstract Binding<ModelComponent> createView(ViewManager viewManager, TransactionFactory transactionFactory);
+	public abstract Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, TransactionFactory transactionFactory);
 	
 	private static class ChangeHolder {
 		public final Object change;
@@ -432,22 +432,22 @@ public abstract class Model implements Serializable, Observer {
 		return observers.contains(observer);
 	}
 	
-	public JFrame toFrame(ViewManager viewManager, TransactionFactory transactionFactory) {
-		JFrame frame = new JFrame();
-		
-		frame.getContentPane().setLayout(new BorderLayout());
-		final Binding<ModelComponent> view = createView(viewManager, transactionFactory);
-		frame.getContentPane().add((JComponent)view.getBindingTarget(), BorderLayout.CENTER);
-		
-		frame.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosed(WindowEvent e) {
-				view.releaseBinding();
-			}
-		});
-		
-		return frame;
-	}
+//	public JFrame toFrame(ViewManager viewManager, TransactionFactory transactionFactory) {
+//		JFrame frame = new JFrame();
+//		
+//		frame.getContentPane().setLayout(new BorderLayout());
+//		final Binding<ModelComponent> view = createView(rootView, viewManager, transactionFactory);
+//		frame.getContentPane().add((JComponent)view.getBindingTarget(), BorderLayout.CENTER);
+//		
+//		frame.addWindowListener(new WindowAdapter() {
+//			@Override
+//			public void windowClosed(WindowEvent e) {
+//				view.releaseBinding();
+//			}
+//		});
+//		
+//		return frame;
+//	}
 	
 	public static RemovableListener wrapForBoundsChanges(final Model model, final ModelComponent target, final ViewManager viewManager) {
 		return RemovableListener.addObserver(model, new ObserverAdapter() {
