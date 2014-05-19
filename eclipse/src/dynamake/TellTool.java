@@ -7,6 +7,7 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import dynamake.LiveModel.ProductionPanel;
+import dynamake.LiveModel.SetOutput;
 
 public class TellTool implements Tool {
 	@Override
@@ -41,6 +42,16 @@ public class TellTool implements Tool {
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			if(targetModelComponent != null) {
+				if(productionPanel.editPanelMouseAdapter.output != null) {
+					PropogationContext propCtx = new PropogationContext();
+					ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+					DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+						new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+						new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+					);
+					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+				}
+				
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true);
 				productionPanel.livePanel.repaint();

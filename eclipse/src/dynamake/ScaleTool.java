@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 
 import dynamake.CanvasModel.MoveModelTransaction;
 import dynamake.LiveModel.ProductionPanel;
+import dynamake.LiveModel.SetOutput;
 
 public class ScaleTool implements Tool {
 	@Override
@@ -132,6 +133,16 @@ public class ScaleTool implements Tool {
 		
 		if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			if(targetModelComponent != null) {
+				if(productionPanel.editPanelMouseAdapter.output != null) {
+					PropogationContext propCtx = new PropogationContext();
+					ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+					DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+						new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+						new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+					);
+					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+				}
+				
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				 productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true);
 				productionPanel.livePanel.repaint();

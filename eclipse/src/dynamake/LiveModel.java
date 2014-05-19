@@ -20,6 +20,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -243,6 +244,7 @@ public class LiveModel extends Model {
 	private static final int TAG_CAUSED_BY_UNDO = 0;
 	private static final int TAG_CAUSED_BY_REDO = 1;
 	private static final int TAG_CAUSED_BY_TOGGLE_BUTTON = 2;
+	private static final int TAG_CAUSED_BY_ROLLBACK = 3;
 	
 	private static abstract class FilterableActionListener implements ActionListener {
 		private boolean absorbNext;
@@ -541,19 +543,21 @@ public class LiveModel extends Model {
 
 							@Override
 							public void mousePressed(MouseEvent e) {
-								if(EditPanelMouseAdapter.this.output != null) {
-//									setOutput(null);
-									PropogationContext propCtx = new PropogationContext();
-//									requestSetOutput(null, propCtx, 0);
-									ModelLocation currentOutputLocation = 
-										productionPanel.livePanel.model.output != null ? productionPanel.livePanel.model.output.getLocator().locate() : null;
-									DualCommand<Model> dualCommand = new DualCommandPair<Model>(
-										new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-										new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-									);
-									productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
-//									productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null));
-								}
+//								productionPanel.livePanel.getTransactionFactory().beginTransaction();
+								
+//								if(EditPanelMouseAdapter.this.output != null) {
+////									setOutput(null);
+//									PropogationContext propCtx = new PropogationContext();
+////									requestSetOutput(null, propCtx, 0);
+//									ModelLocation currentOutputLocation = 
+//										productionPanel.livePanel.model.output != null ? productionPanel.livePanel.model.output.getLocator().locate() : null;
+//									DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+//										new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+//										new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+//									);
+//									productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+////									productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null));
+//								}
 								
 								getTool().mousePressed(productionPanel, e);
 							}
@@ -717,7 +721,13 @@ public class LiveModel extends Model {
 
 					Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
 					Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)targetOver);
-					popupBuilder.buildFromSelectionAndTarget(productionPanel.livePanel, transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
+					Runner runner = new Runner() {
+						@Override
+						public void run(Runnable runnable) {
+							productionPanel.livePanel.getTransactionFactory().commitTransaction();
+						}
+					};
+					popupBuilder.buildFromSelectionAndTarget(runner, productionPanel.livePanel, transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
 
 					transactionsPopupMenu.show(popupMenuInvoker, pointOnInvoker.x, pointOnInvoker.y);
 					productionPanel.livePanel.repaint();
@@ -738,7 +748,8 @@ public class LiveModel extends Model {
 						
 						@Override
 						public void popupMenuCanceled(PopupMenuEvent arg0) {
-
+//							PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_ROLLBACK);
+//							productionPanel.livePanel.getTransactionFactory().rollbackTransaction(propCtx);
 						}
 					});
 				}
@@ -767,11 +778,20 @@ public class LiveModel extends Model {
 			}
 			
 			public void mousePressed(MouseEvent e) {
-				if(this.output != null) {
-//					setOutput(null);
-					PropogationContext propCtx = new PropogationContext();
-					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null));
-				}
+//				productionPanel.livePanel.getTransactionFactory().beginTransaction();
+				
+//				if(this.output != null) {
+////					setOutput(null);
+//					PropogationContext propCtx = new PropogationContext();
+//					ModelLocation currentOutputLocation = 
+//							productionPanel.livePanel.model.output != null ? productionPanel.livePanel.model.output.getLocator().locate() : null;
+//					DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+//						new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+//						new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+//					);
+//					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+////					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null));
+//				}
 				getTool().mousePressed(productionPanel, e);
 			}
 
@@ -951,7 +971,7 @@ public class LiveModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private LiveModel model;
+		public LiveModel model;
 		private JPanel topPanel;
 		private JLayeredPane contentPane;
 		private RemovableListener removableListener;

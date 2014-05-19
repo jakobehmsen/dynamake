@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dynamake.LiveModel.ProductionPanel;
+import dynamake.LiveModel.SetOutput;
 
 public class DragTool implements Tool {
 	@Override
@@ -49,6 +50,16 @@ public class DragTool implements Tool {
 	@Override
 	public void mousePressed(ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
+			if(productionPanel.editPanelMouseAdapter.output != null) {
+				PropogationContext propCtx = new PropogationContext();
+				ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+				DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+					new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+					new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+				);
+				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+			}
+			
 			Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);

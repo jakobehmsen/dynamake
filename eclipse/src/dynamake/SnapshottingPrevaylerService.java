@@ -327,4 +327,24 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 //		return prevayler.prevalentSystem();
 		return prevalentSystem;
 	}
+	
+	private ArrayList<DualCommand<T>> transactionSequence;
+	
+	@Override
+	public void beginTransaction() {
+		transactionSequence = new ArrayList<DualCommand<T>>();
+	}
+	
+	@Override
+	public void commitTransaction() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public void rollbackTransaction(PropogationContext propCtx) {
+		for(DualCommand<T> part: transactionSequence) {
+			part.executeBackwardOn(propCtx, prevalentSystem, null);
+		}
+	}
 }

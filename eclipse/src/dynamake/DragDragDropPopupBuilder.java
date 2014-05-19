@@ -8,9 +8,9 @@ import javax.swing.JPopupMenu;
 
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
-	public void buildFromSelectionAndTarget(ModelComponent livePanel,
-			JPopupMenu popup, ModelComponent selection,
-			ModelComponent target, Point dropPointOnTarget, Rectangle dropBoundsOnTarget) {
+	public void buildFromSelectionAndTarget(Runner runner,
+			ModelComponent livePanel, JPopupMenu popup,
+			ModelComponent selection, ModelComponent target, Point dropPointOnTarget, Rectangle dropBoundsOnTarget) {
 		if(target == null || target == selection) {
 			// Build popup menu for dropping onto selection
 			buildFromSelectionToSelection(popup, selection);
