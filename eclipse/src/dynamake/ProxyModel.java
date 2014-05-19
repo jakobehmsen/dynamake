@@ -118,14 +118,14 @@ public class ProxyModel extends Model {
 		}
 	}
 	
-	private static class ModelLocator implements Locator {
+	private static class FieldModelLocator implements ModelLocator {
 		@Override
-		public Location locate() {
-			return new ModelLocation();
+		public ModelLocation locate() {
+			return new FieldModelLocation();
 		}
 	}
 	
-	private static class ModelLocation implements Location {
+	private static class FieldModelLocation implements ModelLocation {
 		/**
 		 * 
 		 */
@@ -141,12 +141,18 @@ public class ProxyModel extends Model {
 			// TODO Auto-generated method stub
 			
 		}
+
+		@Override
+		public Location getModelComponentLocation() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 
 	@Override
 	public Binding<ModelComponent> createView(final ViewManager viewManager,
 			TransactionFactory transactionFactory) {
-		final Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new ModelLocator()));
+		final Binding<ModelComponent> modelView = model.createView(viewManager, transactionFactory.extend(new FieldModelLocator()));
 		
 		final ProxyModelView view = new ProxyModelView(this, transactionFactory, modelView.getBindingTarget());
 		

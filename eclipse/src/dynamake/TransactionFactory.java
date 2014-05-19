@@ -7,9 +7,9 @@ import org.prevayler.Transaction;
 public class TransactionFactory {
 	private PrevaylerService<Model> prevaylerService;
 	private TransactionFactory parent;
-	private Locator locator;
+	private ModelLocator locator;
 	
-	public TransactionFactory(PrevaylerService<Model> prevaylerService, Locator locator) {
+	public TransactionFactory(PrevaylerService<Model> prevaylerService, ModelLocator locator) {
 		this.prevaylerService = prevaylerService;
 		this.locator = locator;
 	}
@@ -18,14 +18,14 @@ public class TransactionFactory {
 		return parent;
 	}
 	
-	public Locator getModelLocator() {
+	public ModelLocator getModelLocator() {
 		return locator;
 	}
 	
-	public Location getModelLocation() {
+	public ModelLocation getModelLocation() {
 		if(parent != null)
-			return new CompositeLocation(parent.getModelLocation(), locator.locate());
-		return locator.locate();
+			return new CompositeModelLocation(parent.getModelLocation(), (ModelLocation)locator.locate());
+		return (ModelLocation)locator.locate();
 	}
 	
 //	private static class LocationTransaction<T> implements Transaction<Model> {
@@ -105,12 +105,41 @@ public class TransactionFactory {
 		prevaylerService.execute(propCtx, transaction);
 	}
 	
-	public TransactionFactory extend(final Locator locator) {
+	public TransactionFactory extend(final ModelLocator locator) {
 		TransactionFactory extended = new TransactionFactory(prevaylerService, locator);
 		
 		extended.parent = this;
 		
 		return extended;
+	}
+	
+	private static class CompositeModelLocation implements ModelLocation {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private ModelLocation head;
+		private ModelLocation tail;
+		
+		public CompositeModelLocation(ModelLocation head, ModelLocation tail) {
+			this.head = head;
+			this.tail = tail;
+		}
+
+		@Override
+		public Object getChild(Object holder) {
+			return tail.getChild(head.getChild(holder));
+		}
+
+		@Override
+		public void setChild(Object holder, Object child) {
+			tail.setChild(head.getChild(holder), child);
+		}
+
+		@Override
+		public Location getModelComponentLocation() {
+			return new CompositeLocation(head.getModelComponentLocation(), tail.getModelComponentLocation());
+		}
 	}
 	
 	private static class CompositeLocation implements Location {
@@ -136,6 +165,7 @@ public class TransactionFactory {
 			tail.setChild(head.getChild(holder), child);
 		}
 	}
+	
 	public void undo(PropogationContext propCtx) {
 		prevaylerService.undo(propCtx);
 	}

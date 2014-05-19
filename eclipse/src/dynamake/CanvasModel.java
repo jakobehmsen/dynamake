@@ -344,7 +344,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	private static class IndexLocator implements Locator {
+	private static class IndexLocator implements ModelLocator {
 		private CanvasModel canvasModel;
 		private Model model;
 
@@ -354,13 +354,13 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public Location locate() {
+		public ModelLocation locate() {
 			int index = canvasModel.indexOfModel(model);
 			return new IndexLocation(index);
 		}
 	}
 	
-	private static class IndexLocation implements Location {
+	private static class IndexLocation implements ModelLocation {
 		/**
 		 * 
 		 */
@@ -379,6 +379,12 @@ public class CanvasModel extends Model {
 		@Override
 		public void setChild(Object holder, Object child) {
 			
+		}
+
+		@Override
+		public Location getModelComponentLocation() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 

@@ -190,14 +190,14 @@ public class LiveModel extends Model {
 //		}
 	}
 	
-	public static class ContentLocator implements dynamake.Locator {
+	public static class ContentLocator implements dynamake.ModelLocator {
 		@Override
-		public Location locate() {
+		public ModelLocation locate() {
 			return new ContentLocation();
 		}
 	}
 	
-	private static class ContentLocation implements Location {
+	private static class ContentLocation implements ModelLocation {
 		/**
 		 * 
 		 */
@@ -211,6 +211,12 @@ public class LiveModel extends Model {
 		@Override
 		public void setChild(Object holder, Object child) {
 			((LiveModel)holder).content = (Model)child;
+		}
+
+		@Override
+		public Location getModelComponentLocation() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

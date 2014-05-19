@@ -20,14 +20,14 @@ import org.prevayler.Prevayler;
 import org.prevayler.PrevaylerFactory;
 
 public class Main {
-	private static class RootLocator implements Locator {
+	private static class RootLocator implements ModelLocator {
 		@Override
-		public Location locate() {
+		public ModelLocation locate() {
 			return new RootLocation();
 		}
 	}
 	
-	private static class RootLocation implements Location {
+	private static class RootLocation implements ModelLocation {
 		/**
 		 * 
 		 */
@@ -39,6 +39,12 @@ public class Main {
 		@Override
 		public Object getChild(Object holder) {
 			return holder;
+		}
+
+		@Override
+		public Location getModelComponentLocation() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	
