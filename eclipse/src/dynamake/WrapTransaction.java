@@ -56,8 +56,8 @@ public class WrapTransaction implements Command<Model> {
 			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0);
 		}
 
-		liveModel.setOutput(wrapper, propCtx, 0);
 		target.addModel(wrapper, propCtx, 0);
+		liveModel.setOutput(wrapper, propCtx, 0);
 	}
 
 //	@Override

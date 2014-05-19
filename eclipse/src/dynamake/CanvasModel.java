@@ -141,9 +141,9 @@ public class CanvasModel extends Model {
 			model.setProperty("X", new Fraction(point.x), propCtx, 0);
 			model.setProperty("Y", new Fraction(point.y), propCtx, 0);
 			model.endUpdate(propCtx, 0);
+			canvasTarget.addModel(model, propCtx, 0);
 			if(setMovedAsOutput)
 				liveModel.setOutput(model, propCtx, 0);
-			canvasTarget.addModel(model, propCtx, 0);
 		}
 
 //		@Override

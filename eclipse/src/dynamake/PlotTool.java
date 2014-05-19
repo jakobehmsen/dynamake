@@ -107,10 +107,10 @@ public class PlotTool implements Tool {
 								
 							DualCommand<Model> dualCommand = new DualCommandPair<Model>(
 								new AddThenOutputTransaction(
-										productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-										productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
-										creationBounds, 
-										factory), 
+									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
+									creationBounds, 
+									factory), 
 								new SetOutputThenRemoveAtTransaction(
 									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
 									outputLocation, 

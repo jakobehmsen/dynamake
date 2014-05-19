@@ -53,8 +53,8 @@ public class AddThenBindAndOutputTransaction implements Command<Model> {
 //			}
 //		});
 
-		liveModel.setOutput(primitive, propCtx, 0);
 		canvasModel.addModel(primitive, propCtx, 0);
+		liveModel.setOutput(primitive, propCtx, 0);
 	}
 
 //	@Override

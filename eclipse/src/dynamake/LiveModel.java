@@ -405,6 +405,7 @@ public class LiveModel extends Model {
 			}
 			
 			private void requestSelect(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
+				// Notice: executes a transaction
 				Point currentInitialMouseDown = (Point)productionPanel.livePanel.model.getProperty("SelectionInitialMouseDown");
 				Boolean currentSelectionMoving = (Boolean)productionPanel.livePanel.model.getProperty("SelectionMoving");
 				Rectangle currentSelectionEffectBounds = (Rectangle)productionPanel.livePanel.model.getProperty("SelectionEffectBounds");
@@ -541,8 +542,10 @@ public class LiveModel extends Model {
 							@Override
 							public void mousePressed(MouseEvent e) {
 								if(EditPanelMouseAdapter.this.output != null) {
-									setOutput(null);
-									productionPanel.livePanel.getTransactionFactory().executeOnRoot(new PropogationContext(), new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null));
+//									setOutput(null);
+									PropogationContext propCtx = new PropogationContext();
+//									requestSetOutput(null, propCtx, 0);
+									productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null));
 								}
 								
 								getTool().mousePressed(productionPanel, e);
@@ -758,7 +761,7 @@ public class LiveModel extends Model {
 			
 			public void mousePressed(MouseEvent e) {
 				if(this.output != null) {
-					setOutput(null);
+//					setOutput(null);
 					PropogationContext propCtx = new PropogationContext();
 					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null));
 				}
@@ -782,6 +785,10 @@ public class LiveModel extends Model {
 					}
 				}
 			}
+			
+//			private void requestSetOutput(ModelComponent view, PropogationContext propCtx, int propDistance) {
+//				productionPanel.livePanel.model.setOutput(view.getModelBehind(), propCtx, propDistance);
+//			}
 
 			public void setOutput(ModelComponent view) {
 				this.output = view;
@@ -1135,10 +1142,10 @@ public class LiveModel extends Model {
 				int previousState;
 				
 				{
-					initialize();
+					initializeObserverAdapter();
 				}
 				
-				private void initialize() {
+				private void initializeObserverAdapter() {
 					int state = LivePanel.this.model.getState();
 					if(state != LiveModel.STATE_USE) {
 						contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);
@@ -1187,6 +1194,12 @@ public class LiveModel extends Model {
 					} else if(change instanceof LiveModel.OutputChanged) {
 						if(LivePanel.this.model.output == null) {
 							productionPanel.editPanelMouseAdapter.setOutput(null);
+						} else {
+							ModelLocator locator = LivePanel.this.model.output.getLocator();
+							ModelLocation modelLocation = locator.locate();
+							Location modelComponentLocation = modelLocation.getModelComponentLocation();
+							ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
+							productionPanel.editPanelMouseAdapter.setOutput(view);
 						}
 					} else if(change instanceof LiveModel.SelectionChanged) {
 //						ModelComponent view = (ModelComponent)propCtx.lookup("View");
