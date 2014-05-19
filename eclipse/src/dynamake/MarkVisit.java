@@ -100,6 +100,8 @@ public class MarkVisit extends Model {
 	@Override
 	public Binding<ModelComponent> createView(ViewManager viewManager,
 			TransactionFactory transactionFactory) {
+		this.setLocation(transactionFactory.getModelLocation());
+		
 		final MarkVisitedByView view = new MarkVisitedByView(this, transactionFactory);
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);

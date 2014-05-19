@@ -1267,6 +1267,8 @@ public class LiveModel extends Model {
 
 	@Override
 	public Binding<ModelComponent> createView(ViewManager viewManager, TransactionFactory transactionFactory) {
+		this.setLocation(transactionFactory.getModelLocation());
+		
 		final LivePanel view = new LivePanel(this, transactionFactory, viewManager);
 		
 		viewManager.wasCreated(view);

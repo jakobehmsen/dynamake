@@ -338,6 +338,8 @@ public class Primitive extends Model {
 	@Override
 	public Binding<ModelComponent> createView(final ViewManager viewManager,
 			TransactionFactory transactionFactory) {
+		this.setLocation(transactionFactory.getModelLocation());
+		
 		final PrimitiveView view = new PrimitiveView(this, transactionFactory);
 		
 		final Binding<Model> removableListener = RemovableListener.addAll(this, 

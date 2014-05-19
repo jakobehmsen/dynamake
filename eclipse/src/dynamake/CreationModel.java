@@ -304,6 +304,8 @@ public class CreationModel extends Model {
 	@Override
 	public Binding<ModelComponent> createView(final ViewManager viewManager,
 			final TransactionFactory transactionFactory) {
+		this.setLocation(transactionFactory.getModelLocation());
+		
 		final PanelModel view = new PanelModel(this, transactionFactory);
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);

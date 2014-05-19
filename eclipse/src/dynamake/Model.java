@@ -24,8 +24,6 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import org.prevayler.Transaction;
-
 public abstract class Model implements Serializable, Observer {
 	public static class TellProperty {
 		public final String name;
@@ -109,6 +107,16 @@ public abstract class Model implements Serializable, Observer {
 ////			return new SetPropertyTransaction(name, antagonistValue, value);
 //			return null;
 //		}
+	}
+	
+	private ModelLocation location;
+	
+	public void setLocation(ModelLocation location) {
+		this.location = location;
+	}
+	
+	public ModelLocation getLocation() {
+		return location;
 	}
 	
 	protected Hashtable<String, Object> properties;

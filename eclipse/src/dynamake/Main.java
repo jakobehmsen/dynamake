@@ -146,7 +146,11 @@ public class Main {
 				@Override
 				public Model call() {
 					// TODO Auto-generated method stub
-					return new RootModel(new LiveModel(new CanvasModel()));
+					RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
+					
+//					rootModel.setLocation(new ModelRootLocation());
+					
+					return rootModel;
 				}
 			});
 			ViewManager rootViewManager = new ViewManager() {

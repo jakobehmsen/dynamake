@@ -177,6 +177,8 @@ public class TextModel extends Model {
 	
 	@Override
 	public Binding<ModelComponent> createView(final ViewManager viewManager, final TransactionFactory transactionFactory) {
+		this.setLocation(transactionFactory.getModelLocation());
+		
 		final JTextPane view = new JTextPane();
 		final ModelScrollPane viewScrollPane = new ModelScrollPane(this, transactionFactory, viewManager, view);
 		view.setText(text.toString());

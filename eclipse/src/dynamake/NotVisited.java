@@ -96,6 +96,8 @@ public class NotVisited extends Model {
 	@Override
 	public Binding<ModelComponent> createView(ViewManager viewManager,
 			TransactionFactory transactionFactory) {
+		this.setLocation(transactionFactory.getModelLocation());
+		
 		final NotVisitedView view = new NotVisitedView(this, transactionFactory);
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);

@@ -483,6 +483,8 @@ public class CanvasModel extends Model {
 
 	@Override
 	public Binding<ModelComponent> createView(final ViewManager viewManager, final TransactionFactory transactionFactory) {
+		this.setLocation(transactionFactory.getModelLocation());
+		
 		final CanvasPanel view = new CanvasPanel(this, transactionFactory, viewManager);
 		
 		final RemovableListener removableListenerForBoundsChanges = Model.wrapForBoundsChanges(this, view, viewManager);
