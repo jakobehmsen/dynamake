@@ -109,14 +109,14 @@ public abstract class Model implements Serializable, Observer {
 //		}
 	}
 	
-	private ModelLocation location;
+	private ModelLocator locator;
 	
-	public void setLocation(ModelLocation location) {
-		this.location = location;
+	public void setLocation(ModelLocator locator) {
+		this.locator = locator;
 	}
 	
-	public ModelLocation getLocation() {
-		return location;
+	public ModelLocator getLocator() {
+		return locator;
 	}
 	
 	protected Hashtable<String, Object> properties;

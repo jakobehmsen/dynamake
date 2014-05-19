@@ -191,7 +191,7 @@ public class RootModel extends Model {
 
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, final TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocation());
+		this.setLocation(transactionFactory.getModelLocator());
 		
 		final FrameModel view = new FrameModel(this, transactionFactory);
 		

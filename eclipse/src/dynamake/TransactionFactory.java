@@ -19,6 +19,9 @@ public class TransactionFactory {
 	}
 	
 	public ModelLocator getModelLocator() {
+//		return locator;
+		if(parent != null)
+			return new CompositeModelLocator(parent.getModelLocator(), locator);
 		return locator;
 	}
 	
@@ -111,6 +114,21 @@ public class TransactionFactory {
 		extended.parent = this;
 		
 		return extended;
+	}
+	
+	private static class CompositeModelLocator implements ModelLocator {
+		private ModelLocator head;
+		private ModelLocator tail;
+		
+		public CompositeModelLocator(ModelLocator head, ModelLocator tail) {
+			this.head = head;
+			this.tail = tail;
+		}
+
+		@Override
+		public ModelLocation locate() {
+			return new CompositeModelLocation(head.locate(), tail.locate());
+		}
 	}
 	
 	private static class CompositeModelLocation implements ModelLocation {

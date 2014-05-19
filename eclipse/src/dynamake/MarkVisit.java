@@ -100,7 +100,7 @@ public class MarkVisit extends Model {
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView,
 			ViewManager viewManager, TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocation());
+		this.setLocation(transactionFactory.getModelLocator());
 		
 		final MarkVisitedByView view = new MarkVisitedByView(this, transactionFactory);
 		

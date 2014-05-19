@@ -304,7 +304,7 @@ public class CreationModel extends Model {
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView,
 			final ViewManager viewManager, final TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocation());
+		this.setLocation(transactionFactory.getModelLocator());
 		
 		final PanelModel view = new PanelModel(this, transactionFactory);
 		

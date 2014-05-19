@@ -1190,7 +1190,10 @@ public class LiveModel extends Model {
 						
 						if(LivePanel.this.model.selection != null) {
 //							ModelComponent view = modelToViewMap.get(LivePanel.this.model.selection);
-							ModelComponent view = (ModelComponent)LivePanel.this.model.selection.getLocation().getModelComponentLocation().getChild(rootView);
+							ModelLocator locator = LivePanel.this.model.selection.getLocator();
+							ModelLocation modelLocation = locator.locate();
+							Location modelComponentLocation = modelLocation.getModelComponentLocation();
+							ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
 							Point initialMouseDown = (Point)propCtx.lookup("SelectionInitialMouseDown");
 							boolean moving = (boolean)propCtx.lookup("SelectionMoving");
 							Rectangle effectBounds = (Rectangle)propCtx.lookup("SelectionEffectBounds");
@@ -1268,7 +1271,7 @@ public class LiveModel extends Model {
 
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocation());
+		this.setLocation(transactionFactory.getModelLocator());
 		
 		final LivePanel view = new LivePanel(rootView, this, transactionFactory, viewManager);
 		

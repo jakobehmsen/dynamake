@@ -188,7 +188,7 @@ public class FloatingTextModel extends Model {
 	
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView, final ViewManager viewManager, final TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocation());
+		this.setLocation(transactionFactory.getModelLocator());
 		
 		final FloatingTextModelView view = new FloatingTextModelView(this, transactionFactory, viewManager);
 		view.setText(text.toString());

@@ -338,7 +338,7 @@ public class Primitive extends Model {
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView,
 			final ViewManager viewManager, TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocation());
+		this.setLocation(transactionFactory.getModelLocator());
 		
 		final PrimitiveView view = new PrimitiveView(this, transactionFactory);
 		

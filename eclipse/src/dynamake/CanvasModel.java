@@ -483,7 +483,7 @@ public class CanvasModel extends Model {
 
 	@Override
 	public Binding<ModelComponent> createView(final ModelComponent rootView, final ViewManager viewManager, final TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocation());
+		this.setLocation(transactionFactory.getModelLocator());
 		
 		final CanvasPanel view = new CanvasPanel(this, transactionFactory, viewManager);
 		
