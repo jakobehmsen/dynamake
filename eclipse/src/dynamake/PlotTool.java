@@ -81,6 +81,11 @@ public class PlotTool implements Tool {
 									selectionCreationBounds, 
 									modelLocation)
 							);
+							
+							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().commitTransaction(commitPropCtx);
+							
+							productionPanel.editPanelMouseAdapter.resetEffectFrame();
 						}
 					}
 				});
@@ -121,6 +126,11 @@ public class PlotTool implements Tool {
 								)
 							);
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+							
+							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().commitTransaction(commitPropCtx);
+							
+							productionPanel.editPanelMouseAdapter.resetEffectFrame();
 //							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
 //								propCtx, new AddThenOutputTransaction(
 //									productionPanel.livePanel.getTransactionFactory().getLocation(), 
@@ -144,13 +154,16 @@ public class PlotTool implements Tool {
 				@Override
 				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 					if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null) {
-						productionPanel.editPanelMouseAdapter.resetEffectFrame();
+//						productionPanel.editPanelMouseAdapter.resetEffectFrame();
 						productionPanel.livePanel.repaint();
 					}
 				}
 				
 				@Override
-				public void popupMenuCanceled(PopupMenuEvent e) { }
+				public void popupMenuCanceled(PopupMenuEvent e) { 
+					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
+					productionPanel.livePanel.getTransactionFactory().rollbackTransaction(propCtx);
+				}
 			});
 			
 			Point selectionReleasePointInSelection = SwingUtilities.convertPoint(((JComponent)(e.getSource())), e.getPoint(), productionPanel);
@@ -161,6 +174,8 @@ public class PlotTool implements Tool {
 	@Override
 	public void mousePressed(ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == 1) {
+			productionPanel.livePanel.getTransactionFactory().beginTransaction();
+			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
 				ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();

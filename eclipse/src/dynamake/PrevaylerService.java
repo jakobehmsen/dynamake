@@ -12,6 +12,6 @@ public interface PrevaylerService<T> {
 	void undo(PropogationContext propCtx);
 	void redo(PropogationContext propCtx);
 	void beginTransaction();
-	void commitTransaction();
+	void commitTransaction(PropogationContext propCtx);
 	void rollbackTransaction(PropogationContext propCtx);
 }

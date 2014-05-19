@@ -241,10 +241,11 @@ public class LiveModel extends Model {
 	private static final Color TOP_BACKGROUND_COLOR = Color.GRAY;
 	private static final Color TOP_FOREGROUND_COLOR = Color.WHITE;
 	
-	private static final int TAG_CAUSED_BY_UNDO = 0;
-	private static final int TAG_CAUSED_BY_REDO = 1;
-	private static final int TAG_CAUSED_BY_TOGGLE_BUTTON = 2;
-	private static final int TAG_CAUSED_BY_ROLLBACK = 3;
+	public static final int TAG_CAUSED_BY_UNDO = 0;
+	public static final int TAG_CAUSED_BY_REDO = 1;
+	public static final int TAG_CAUSED_BY_TOGGLE_BUTTON = 2;
+	public static final int TAG_CAUSED_BY_ROLLBACK = 3;
+	public static final int TAG_CAUSED_BY_COMMIT = 4;
 	
 	private static abstract class FilterableActionListener implements ActionListener {
 		private boolean absorbNext;
@@ -724,7 +725,7 @@ public class LiveModel extends Model {
 					Runner runner = new Runner() {
 						@Override
 						public void run(Runnable runnable) {
-							productionPanel.livePanel.getTransactionFactory().commitTransaction();
+//							productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
 						}
 					};
 					popupBuilder.buildFromSelectionAndTarget(runner, productionPanel.livePanel, transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);

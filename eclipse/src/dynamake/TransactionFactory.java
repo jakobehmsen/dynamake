@@ -196,8 +196,8 @@ public class TransactionFactory {
 		prevaylerService.beginTransaction();
 	}
 	
-	public void commitTransaction() {
-		prevaylerService.commitTransaction();
+	public void commitTransaction(PropogationContext propCtx) {
+		prevaylerService.commitTransaction(propCtx);
 	}
 
 	public void rollbackTransaction(PropogationContext propCtx) {
