@@ -61,6 +61,7 @@ public class BindTool implements Tool {
 //					targetModelComponent.getTransactionFactory().executeOnRoot(
 //						new PropogationContext(), new Model.AddObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
 				}
+				
 				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
 				productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
 			} else {

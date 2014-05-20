@@ -30,7 +30,7 @@ public class ConsTool implements Tool {
 	}
 
 	@Override
-	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
 			Point releasePoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(releasePoint);
@@ -48,18 +48,29 @@ public class ConsTool implements Tool {
 						targetModelComponent.getTransactionFactory().executeOnRoot(
 							new PropogationContext(), new Model.AddObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
 					}
+					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+					productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
 					
 					if(productionPanel.targetFrame != null)
 						productionPanel.remove(productionPanel.targetFrame);
 					
-					productionPanel.editPanelMouseAdapter.resetEffectFrame();
-					productionPanel.livePanel.repaint();
+					SwingUtilities.invokeLater(new Runnable() {
+						
+						@Override
+						public void run() {
+							productionPanel.editPanelMouseAdapter.resetEffectFrame();
+							productionPanel.livePanel.repaint();
+						}
+					});
 				}
 			} else {
 				if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
+					// TODO: How to do commit here? 
 					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent);
 				} else {
 					productionPanel.editPanelMouseAdapter.resetEffectFrame();
+					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
+					productionPanel.livePanel.getTransactionFactory().rollbackTransaction(propCtx);
 				}
 			}
 
@@ -71,6 +82,8 @@ public class ConsTool implements Tool {
 	@Override
 	public void mousePressed(ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
+			productionPanel.livePanel.getTransactionFactory().beginTransaction();
+			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
 				ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
@@ -93,7 +106,7 @@ public class ConsTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e) {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null && productionPanel.editPanelMouseAdapter.effectFrameMoving) {
 			Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
@@ -133,16 +146,21 @@ public class ConsTool implements Tool {
 				}
 			}
 			
-			int width = productionPanel.effectFrame.getWidth();
-			int height = productionPanel.effectFrame.getHeight();
-			
+			final int width = productionPanel.effectFrame.getWidth();
+			final int height = productionPanel.effectFrame.getHeight();
+
 			Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			
-			int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.initialEffectBounds.width / 2;
-			int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.initialEffectBounds.height / 2;
+			final int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.selectionMouseDown.x;
+			final int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.selectionMouseDown.y;
 
-			productionPanel.effectFrame.setBounds(new Rectangle(x, y, width, height));
-			productionPanel.livePanel.repaint();
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					productionPanel.effectFrame.setBounds(new Rectangle(x, y, width, height));
+					productionPanel.livePanel.repaint();
+				}
+			});
 		}
 	}
 }
