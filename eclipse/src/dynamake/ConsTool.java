@@ -148,11 +148,11 @@ public class ConsTool implements Tool {
 			
 			final int width = productionPanel.effectFrame.getWidth();
 			final int height = productionPanel.effectFrame.getHeight();
-
+			
 			Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			
-			final int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.selectionMouseDown.x;
-			final int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.selectionMouseDown.y;
+			final int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.initialEffectBounds.width / 2;
+			final int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.initialEffectBounds.height / 2;
 
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override

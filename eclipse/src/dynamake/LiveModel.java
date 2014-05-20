@@ -723,7 +723,7 @@ public class LiveModel extends Model {
 				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ViewDragDropPopupBuilder());
 			}
 			
-			private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, DragDropPopupBuilder popupBuilder) {
+			private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, final DragDropPopupBuilder popupBuilder) {
 				if(selection != null) {
 					JPopupMenu transactionsPopupMenu = new JPopupMenu() {
 						/**
@@ -764,6 +764,8 @@ public class LiveModel extends Model {
 						
 						@Override
 						public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
+							popupBuilder.cancelPopup(productionPanel.livePanel);
+							
 							clearTarget();
 
 							resetEffectFrame();

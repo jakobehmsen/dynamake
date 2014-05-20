@@ -6,6 +6,8 @@ import java.awt.Rectangle;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 
+import dynamake.LiveModel.LivePanel;
+
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
 	public void buildFromSelectionAndTarget(Runner runner,
@@ -106,5 +108,10 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		if(!transactionTargetMapBuilder.isEmpty() && !transactionDroppedMapBuilder.isEmpty())
 			popup.addSeparator();
 		transactionDroppedMapBuilder.appendTo(popup, "Dropped");
+	}
+	
+	@Override
+	public void cancelPopup(LivePanel livePanel) {
+
 	}
 }

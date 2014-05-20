@@ -5,7 +5,7 @@ import java.awt.Rectangle;
 
 import javax.swing.JPopupMenu;
 
-import org.prevayler.Transaction;
+import dynamake.LiveModel.LivePanel;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
@@ -16,6 +16,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 		
 		if(implicitDropAction != null) {
 			selection.getTransactionFactory().executeOnRoot(new PropogationContext(), implicitDropAction);
+
+			PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+			livePanel.getTransactionFactory().commitTransaction(propCtx);
 		} else {
 			TransactionMapBuilder transactionTargetContentMapBuilder = new TransactionMapBuilder();
 			
@@ -27,6 +30,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						selection.getTransactionFactory().executeOnRoot(
 							new PropogationContext(), new Model.RemoveObserverThenOutputObserver(liveModelLocation, selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
 						);
+
+						PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+						livePanel.getTransactionFactory().commitTransaction(propCtx);
 					}
 				});
 			} else {
@@ -37,6 +43,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						selection.getTransactionFactory().executeOnRoot(
 							new PropogationContext(), new Model.AddObserverThenOutputObserver(liveModelLocation, selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
 						);
+
+						PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+						livePanel.getTransactionFactory().commitTransaction(propCtx);
 					}
 				});
 			}
@@ -56,10 +65,19 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							new PrimitiveSingletonFactory(primImpl), 
 							dropBoundsOnTarget
 						));
+
+						PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+						livePanel.getTransactionFactory().commitTransaction(propCtx);
 					}
 				});
 			}
 			transactionObserverContentMapBuilder.appendTo(popup, "Observation");
 		}
+	}
+
+	@Override
+	public void cancelPopup(LivePanel livePanel) {
+		PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
+		livePanel.getTransactionFactory().rollbackTransaction(propCtx);
 	}
 }

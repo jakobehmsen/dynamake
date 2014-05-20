@@ -5,6 +5,8 @@ import java.awt.Rectangle;
 
 import javax.swing.JPopupMenu;
 
+import dynamake.LiveModel.LivePanel;
+
 public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
 	public void buildFromSelectionAndTarget(Runner runner,
@@ -31,5 +33,10 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			}
 		});
 		transactionTargetContentMapBuilder.appendTo(popup, "Selection to target");
+	}
+	
+	@Override
+	public void cancelPopup(LivePanel livePanel) {
+
 	}
 }
