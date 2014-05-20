@@ -1229,6 +1229,8 @@ public class LiveModel extends Model {
 							ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
 							productionPanel.editPanelMouseAdapter.setOutput(view);
 						}
+						
+						productionPanel.livePanel.repaint();
 					} else if(change instanceof LiveModel.SelectionChanged) {
 //						ModelComponent view = (ModelComponent)propCtx.lookup("View");
 						
@@ -1246,6 +1248,8 @@ public class LiveModel extends Model {
 						} else {
 							productionPanel.editPanelMouseAdapter.select(null, null, false, null);
 						}
+						
+						productionPanel.livePanel.repaint();
 					}
 				}
 			});
