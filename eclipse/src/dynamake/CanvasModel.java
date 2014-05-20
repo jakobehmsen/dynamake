@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
+import javax.swing.SwingUtilities;
 
 import org.prevayler.Transaction;
 
@@ -527,7 +528,7 @@ public class CanvasModel extends Model {
 		
 		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+			public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance) {
 				if(change instanceof CanvasModel.AddedModelChange) {
 					CanvasModel.AddedModelChange addedChange = (CanvasModel.AddedModelChange)change;
 					final Model model = addedChange.model;
@@ -537,15 +538,22 @@ public class CanvasModel extends Model {
 					);
 					Binding<ModelComponent> itemView = modelToModelComponentMap.get(model);
 					view.allModels.add(addedChange.index, itemView.getBindingTarget());
-					viewManager.refresh(view);
+					
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							viewManager.refresh(view);
+						}
+					});
+//					viewManager.refresh(view);
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
 					// It could be possible to have map mapping from model to model component as follows:
 					Model removedModel = ((CanvasModel.RemovedModelChange)change).model;
 					
 					Binding<ModelComponent> removedMCBinding = modelToModelComponentMap.get(removedModel);
 					modelToModelComponentMap.clear(removedModel);
-					ModelComponent removedMC = removedMCBinding.getBindingTarget();
-					view.remove((JComponent)removedMC);
+					final ModelComponent removedMC = removedMCBinding.getBindingTarget();
+//					view.remove((JComponent)removedMC);
 					view.allModels.remove(removedMC);
 					
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
@@ -553,11 +561,23 @@ public class CanvasModel extends Model {
 					
 					viewManager.becameInvisible(propCtx, removedMC);
 					
-					view.validate();
-					view.repaint();
-//					viewManager.clearFocus(propCtx);
-					viewManager.unFocus(propCtx, removedMC);
-					viewManager.repaint(view);
+//					view.validate();
+//					view.repaint();
+////					viewManager.clearFocus(propCtx);
+//					viewManager.unFocus(propCtx, removedMC);
+//					viewManager.repaint(view);
+					
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							view.remove((JComponent)removedMC);
+							view.validate();
+							view.repaint();
+//							viewManager.clearFocus(propCtx);
+							viewManager.unFocus(propCtx, removedMC);
+							viewManager.repaint(view);
+						}
+					});
 				} else if(change instanceof Model.PropertyChanged && propDistance == 1) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
 					if(propertyChanged.name.equals(Model.PROPERTY_VIEW)) {

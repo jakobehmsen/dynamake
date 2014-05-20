@@ -41,10 +41,13 @@ public class UnwrapTransaction implements Command<Model> {
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
 			Model model = models[i];
-			int modelIndex = modelIndexes[i];
+//			int modelIndex = modelIndexes[i];
 			wrapper.removeModel(model, propCtx, 0);
-			target.addModel(modelIndex, model, propCtx, 0);
+//			target.addModel(modelIndex, model, propCtx, 0);
 		}
+
+		// Removed wrapper from target
+		target.removeModel(wrapper, propCtx, 0);
 
 		// Offset the coordinates of the moved models
 		for(Model model: models) {
@@ -54,9 +57,14 @@ public class UnwrapTransaction implements Command<Model> {
 			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0);
 			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0);
 		}
-
-		// Removed wrapper from target
-		target.removeModel(wrapper, propCtx, 0);
+		
+		// Move models from wrapper to target
+		for(int i = 0; i < models.length; i++) {
+			Model model = models[i];
+			int modelIndex = modelIndexes[i];
+//			wrapper.removeModel(model, propCtx, 0);
+			target.addModel(modelIndex, model, propCtx, 0);
+		}
 		
 		// Set output
 		if(outputLocation != null) {

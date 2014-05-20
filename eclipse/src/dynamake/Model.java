@@ -22,6 +22,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 //import javax.swing.JFrame;
 
 public abstract class Model implements Serializable, Observer {
@@ -505,15 +506,25 @@ public abstract class Model implements Serializable, Observer {
 					isUpdating = false;
 					
 					if(madeChanges) {
-						((JComponent)target).validate();
-						viewManager.refresh(target);
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								((JComponent)target).validate();
+								viewManager.refresh(target);
+							}
+						});
 						madeChanges = false;
 					}
 				}
 				
 				if(!isUpdating) {
 					if(madeChanges) {
-						viewManager.refresh(target);
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								viewManager.refresh(target);
+							}
+						});
 						madeChanges = false;
 					}
 				}

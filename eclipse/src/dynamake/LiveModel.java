@@ -1276,9 +1276,6 @@ public class LiveModel extends Model {
 					} else if(change instanceof LiveModel.SelectionChanged) {
 //						ModelComponent view = (ModelComponent)propCtx.lookup("View");
 						
-						
-						
-						
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {

@@ -247,9 +247,21 @@ public class PlotTool implements Tool {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null) {
 			Point selectionDragPoint = SwingUtilities.convertPoint(((JComponent)(e.getSource())).getParent(), e.getPoint(), productionPanel);
 			Rectangle plotBoundsInSelection = productionPanel.editPanelMouseAdapter.getPlotBounds(productionPanel.editPanelMouseAdapter.selectionMouseDown, selectionDragPoint);
-			Rectangle plotBoundsInProductionPanel = SwingUtilities.convertRectangle((JComponent)productionPanel.editPanelMouseAdapter.selection, plotBoundsInSelection, productionPanel);
-			productionPanel.effectFrame.setBounds(plotBoundsInProductionPanel);
-			productionPanel.livePanel.repaint();
+			final Rectangle plotBoundsInProductionPanel = SwingUtilities.convertRectangle((JComponent)productionPanel.editPanelMouseAdapter.selection, plotBoundsInSelection, productionPanel);
+			
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					productionPanel.effectFrame.setBounds(plotBoundsInProductionPanel);
+					productionPanel.livePanel.repaint();
+				}
+			});
+//			Point selectionDragPoint = SwingUtilities.convertPoint(((JComponent)(e.getSource())).getParent(), e.getPoint(), productionPanel);
+//			Rectangle plotBoundsInSelection = productionPanel.editPanelMouseAdapter.getPlotBounds(productionPanel.editPanelMouseAdapter.selectionMouseDown, selectionDragPoint);
+//			Rectangle plotBoundsInProductionPanel = SwingUtilities.convertRectangle((JComponent)productionPanel.editPanelMouseAdapter.selection, plotBoundsInSelection, productionPanel);
+//			productionPanel.effectFrame.setBounds(plotBoundsInProductionPanel);
+//			productionPanel.livePanel.repaint();
 		}
 	}
 }
