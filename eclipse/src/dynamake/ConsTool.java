@@ -40,12 +40,13 @@ public class ConsTool implements Tool {
 				if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
 					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent);
 				} else {
+					Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
 					if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 						targetModelComponent.getTransactionFactory().executeOnRoot(
-							new PropogationContext(), new Model.RemoveObserver(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
+							new PropogationContext(), new Model.RemoveObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
 					} else {
 						targetModelComponent.getTransactionFactory().executeOnRoot(
-							new PropogationContext(), new Model.AddObserver(productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
+							new PropogationContext(), new Model.AddObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
 					}
 					
 					if(productionPanel.targetFrame != null)

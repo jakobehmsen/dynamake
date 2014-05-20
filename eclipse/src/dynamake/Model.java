@@ -145,25 +145,30 @@ public abstract class Model implements Serializable, Observer {
 		
 	}
 	
-	public static class AddObserver implements Command<Model> {
+	public static class AddObserverThenOutputObserver implements Command<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		private Location liveModelLocation;
 		private Location observableLocation;
 		private Location observerLocation;
 		
-		public AddObserver(Location observableLocation, Location observerLocation) {
+		public AddObserverThenOutputObserver(Location liveModelLocation, Location observableLocation, Location observerLocation) {
+			this.liveModelLocation = liveModelLocation;
 			this.observableLocation = observableLocation;
 			this.observerLocation = observerLocation;
 		}
 
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
+			
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
 			observable.addObserver(observer);
+			liveModel.setOutput(observer, propCtx, 0);
 		}
 
 //		@Override
@@ -173,25 +178,30 @@ public abstract class Model implements Serializable, Observer {
 //		}
 	}
 	
-	public static class RemoveObserver implements Command<Model> {
+	public static class RemoveObserverThenOutputObserver implements Command<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		private Location liveModelLocation;
 		private Location observableLocation;
 		private Location observerLocation;
 		
-		public RemoveObserver(Location observableLocation, Location observerLocation) {
+		public RemoveObserverThenOutputObserver(Location liveModelLocation, Location observableLocation, Location observerLocation) {
+			this.liveModelLocation = liveModelLocation;
 			this.observableLocation = observableLocation;
 			this.observerLocation = observerLocation;
 		}
 
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
+			
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
 			observable.removeObserver(observer);
+			liveModel.setOutput(observer, propCtx, 0);
 		}
 
 //		@Override
