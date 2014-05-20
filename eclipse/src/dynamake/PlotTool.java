@@ -100,15 +100,6 @@ public class PlotTool implements Tool {
 							);
 							
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommandWrap);
-//							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
-//								propCtx, new WrapTransaction(
-//									productionPanel.livePanel.getTransactionFactory().getModelLocation(),
-//									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
-//									selectionCreationBounds, 
-//									modelLocations)
-//							);
-							
-//							productionPanel.livePanel.model.sendChanged(new Model.GenericChange("ResetEffectFrame"), propCtx, 0, 0);
 							
 							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().commitTransaction(commitPropCtx);
@@ -154,31 +145,10 @@ public class PlotTool implements Tool {
 								)
 							);
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommandAddModel);
-//							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
-							
-//							DualCommand<Model> dualCommandSetEffectFrameBounds = new DualCommandPair<Model>(
-//								new Model.SetPropertyTransaction("EffectFrameBounds", new Rectangle(0, 0, 0, 0)), 
-//								new Model.SetPropertyTransaction("EffectFrameBounds", productionPanel.effectFrame.getBounds())
-//							);
-//							DualCommand<Model> dualCommandSetEffectFrameBounds = productionPanel.livePanel.model.createPropertySetTransaction("EffectFrameBounds", new Rectangle(0, 0, 0, 0));
-//							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommandSetEffectFrameBounds);
-							// Reset effect frame
-//							productionPanel.livePanel.model.setEffectFrameBounds(new Rectangle(0, 0, 0, 0)); 
-//							productionPanel.livePanel.model.sendChanged(new LiveModel.SetEffectFrame, propCtx, 0, 0);
-							
-//							productionPanel.livePanel.model.sendChanged(new Model.GenericChange("ResetEffectFrame"), propCtx, 0, 0);
 							
 							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().commitTransaction(commitPropCtx);
-							
-//							productionPanel.editPanelMouseAdapter.resetEffectFrame();
-//							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
-//								propCtx, new AddThenOutputTransaction(
-//									productionPanel.livePanel.getTransactionFactory().getLocation(), 
-//									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getLocation(), 
-//									creationBounds, 
-//									factory)
-//							);
+
 							productionPanel.editPanelMouseAdapter.resetEffectFrame();
 							productionPanel.livePanel.repaint();
 						}
@@ -203,7 +173,7 @@ public class PlotTool implements Tool {
 				}
 				
 				@Override
-				public void popupMenuCanceled(PopupMenuEvent e) { 
+				public void popupMenuCanceled(PopupMenuEvent e) {
 					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
 					productionPanel.livePanel.getTransactionFactory().rollbackTransaction(propCtx);
 				}
@@ -250,7 +220,6 @@ public class PlotTool implements Tool {
 			final Rectangle plotBoundsInProductionPanel = SwingUtilities.convertRectangle((JComponent)productionPanel.editPanelMouseAdapter.selection, plotBoundsInSelection, productionPanel);
 			
 			SwingUtilities.invokeLater(new Runnable() {
-				
 				@Override
 				public void run() {
 					productionPanel.effectFrame.setBounds(plotBoundsInProductionPanel);

@@ -38,13 +38,34 @@ public class BindTool implements Tool {
 			
 			if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
 				Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
+				ModelComponent output = productionPanel.editPanelMouseAdapter.output;
+				Location outputLocation = null;
+				if(output != null)
+					outputLocation = output.getTransactionFactory().getModelLocation();
 				if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
-					targetModelComponent.getTransactionFactory().executeOnRoot(
-						new PropogationContext(), new Model.RemoveObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
+					DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+						new Model.RemoveObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()),
+						new SetOutputThenAddObserver(liveModelLocation, outputLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation())
+					);
+					
+					targetModelComponent.getTransactionFactory().executeOnRoot(new PropogationContext(), dualCommand);
+//					targetModelComponent.getTransactionFactory().executeOnRoot(
+//						new PropogationContext(), new Model.RemoveObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
 				} else {
-					targetModelComponent.getTransactionFactory().executeOnRoot(
-						new PropogationContext(), new Model.AddObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
+					DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+						new Model.AddObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()),
+						new SetOutputThenRemoveObserver(liveModelLocation, outputLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation())
+					);
+
+					targetModelComponent.getTransactionFactory().executeOnRoot(new PropogationContext(), dualCommand);
+//					targetModelComponent.getTransactionFactory().executeOnRoot(
+//						new PropogationContext(), new Model.AddObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
 				}
+				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+				productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
+			} else {
+				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
+				productionPanel.livePanel.getTransactionFactory().rollbackTransaction(propCtx);
 			}
 
 			productionPanel.editPanelMouseAdapter.resetEffectFrame();
@@ -60,6 +81,8 @@ public class BindTool implements Tool {
 	@Override
 	public void mousePressed(ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
+			productionPanel.livePanel.getTransactionFactory().beginTransaction();
+			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
 				ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
@@ -82,7 +105,7 @@ public class BindTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e) {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null && productionPanel.editPanelMouseAdapter.effectFrameMoving) {
 			Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
@@ -116,16 +139,21 @@ public class BindTool implements Tool {
 				}
 			}
 			
-			int width = productionPanel.effectFrame.getWidth();
-			int height = productionPanel.effectFrame.getHeight();
+			final int width = productionPanel.effectFrame.getWidth();
+			final int height = productionPanel.effectFrame.getHeight();
 
 			Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			
-			int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.selectionMouseDown.x;
-			int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.selectionMouseDown.y;
+			final int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.selectionMouseDown.x;
+			final int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.selectionMouseDown.y;
 
-			productionPanel.effectFrame.setBounds(new Rectangle(x, y, width, height));
-			productionPanel.livePanel.repaint();
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					productionPanel.effectFrame.setBounds(new Rectangle(x, y, width, height));
+					productionPanel.livePanel.repaint();
+				}
+			});
 		}
 	}
 }
