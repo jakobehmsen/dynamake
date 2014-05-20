@@ -1226,7 +1226,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(change instanceof LiveModel.StateChanged) {
 						if(!propCtx.isTagged(TAG_CAUSED_BY_TOGGLE_BUTTON)) {
 //							System.out.println("state change not TAG_CAUSED_BY_TOGGLE_BUTTON");
@@ -1277,26 +1277,37 @@ public class LiveModel extends Model {
 //						ModelComponent view = (ModelComponent)propCtx.lookup("View");
 						
 						
-						if(LivePanel.this.model.selection != null) {
-//							ModelComponent view = modelToViewMap.get(LivePanel.this.model.selection);
-							ModelLocator locator = LivePanel.this.model.selection.getLocator();
-							ModelLocation modelLocation = locator.locate();
-							Location modelComponentLocation = modelLocation.getModelComponentLocation();
-							ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
-							Point initialMouseDown = (Point)propCtx.lookup("SelectionInitialMouseDown");
-							boolean moving = (boolean)propCtx.lookup("SelectionMoving");
-							Rectangle effectBounds = (Rectangle)propCtx.lookup("SelectionEffectBounds");
-							productionPanel.editPanelMouseAdapter.select(view, initialMouseDown, moving, effectBounds);
-						} else {
-							productionPanel.editPanelMouseAdapter.select(null, null, false, null);
-						}
 						
-						productionPanel.livePanel.repaint();
-					} else if(change instanceof Model.GenericChange && ((Model.GenericChange)change).name.equals("ResetEffectFrame")) {
-						productionPanel.editPanelMouseAdapter.resetEffectFrame();
 						
-						productionPanel.livePanel.repaint();
-					}
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								if(LivePanel.this.model.selection != null) {
+//									ModelComponent view = modelToViewMap.get(LivePanel.this.model.selection);
+									ModelLocator locator = LivePanel.this.model.selection.getLocator();
+									ModelLocation modelLocation = locator.locate();
+									Location modelComponentLocation = modelLocation.getModelComponentLocation();
+									ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
+									Point initialMouseDown = (Point)propCtx.lookup("SelectionInitialMouseDown");
+									boolean moving = (boolean)propCtx.lookup("SelectionMoving");
+									Rectangle effectBounds = (Rectangle)propCtx.lookup("SelectionEffectBounds");
+									productionPanel.editPanelMouseAdapter.select(view, initialMouseDown, moving, effectBounds);
+								} else {
+									productionPanel.editPanelMouseAdapter.select(null, null, false, null);
+								}
+								
+								productionPanel.livePanel.repaint();
+							}
+						});
+					}/* else if(change instanceof Model.GenericChange && ((Model.GenericChange)change).name.equals("ResetEffectFrame")) {
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								productionPanel.editPanelMouseAdapter.resetEffectFrame();
+								productionPanel.livePanel.repaint();
+							}
+						});
+					}*/
 				}
 			});
 			
