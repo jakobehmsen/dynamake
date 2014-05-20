@@ -15,6 +15,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import dynamake.CanvasModel.IndexLocation;
 import dynamake.LiveModel.ProductionPanel;
 import dynamake.LiveModel.SetOutput;
 import dynamake.LiveModel.ProductionPanel.EditPanelMouseAdapter;
@@ -68,19 +69,37 @@ public class PlotTool implements Tool {
 						// Find the selected model and attempt an add model transaction
 						// HACK: Models can only be added to canvases
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
-							Location[] modelLocation = new Location[componentsWithinBounds.size()];
-							for(int i = 0; i < modelLocation.length; i++) {
-								modelLocation[i] = componentsWithinBounds.get(i).getTransactionFactory().getModelLocation();
+							Location[] modelLocations = new Location[componentsWithinBounds.size()];
+							for(int i = 0; i < modelLocations.length; i++) {
+								modelLocations[i] = componentsWithinBounds.get(i).getTransactionFactory().getModelLocation();
 							}
 							
 							PropogationContext propCtx = new PropogationContext();
-							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
-								propCtx, new WrapTransaction(
+							
+							Location outputLocation = productionPanel.livePanel.model.getOutput() != null ? productionPanel.livePanel.model.getOutput().getLocator().locate() : null;
+							int wrapperIndex = ((CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind()).getModelCount() - modelLocations.length;
+							DualCommand<Model> dualCommandWrap = new DualCommandPair<Model>(
+								new WrapTransaction(
 									productionPanel.livePanel.getTransactionFactory().getModelLocation(),
 									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
 									selectionCreationBounds, 
-									modelLocation)
+									modelLocations),
+								new UnwrapTransaction(
+									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
+									new CanvasModel.IndexLocation(wrapperIndex), 
+									selectionCreationBounds,
+									outputLocation)
 							);
+							
+							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommandWrap);
+//							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
+//								propCtx, new WrapTransaction(
+//									productionPanel.livePanel.getTransactionFactory().getModelLocation(),
+//									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
+//									selectionCreationBounds, 
+//									modelLocations)
+//							);
 							
 //							productionPanel.livePanel.model.sendChanged(new Model.GenericChange("ResetEffectFrame"), propCtx, 0, 0);
 							

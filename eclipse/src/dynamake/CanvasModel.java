@@ -366,7 +366,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	private static class IndexLocation implements ModelLocation {
+	public static class IndexLocation implements ModelLocation {
 		/**
 		 * 
 		 */

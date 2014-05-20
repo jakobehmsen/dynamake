@@ -25,7 +25,6 @@ public class WrapTransaction implements Command<Model> {
 	@Override
 	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
-//		PropogationContext propCtx = new PropogationContext();
 		
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
 		CanvasModel wrapper = new CanvasModel();
@@ -47,7 +46,6 @@ public class WrapTransaction implements Command<Model> {
 			wrapper.addModel(model, propCtx, 0);
 		}
 		
-		
 		for(Model model: models) {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
@@ -59,10 +57,4 @@ public class WrapTransaction implements Command<Model> {
 		target.addModel(wrapper, propCtx, 0);
 		liveModel.setOutput(wrapper, propCtx, 0);
 	}
-
-//	@Override
-//	public Command<Model> antagonist() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
 }

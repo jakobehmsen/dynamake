@@ -1409,4 +1409,8 @@ public class LiveModel extends Model {
 	public Model getContent() {
 		return content;
 	}
+
+	public Model getOutput() {
+		return output;
+	}
 }
