@@ -11,13 +11,15 @@ public class UnwrapTransaction implements Command<Model> {
 	private Location liveModelLocation;
 	private Location targetLocation;
 	private Location wrapperLocation;
+	private int[] modelIndexes;
 	private Rectangle creationBounds;
 	private Location outputLocation;
 	
-	public UnwrapTransaction(Location liveModelLocation, Location canvasLocation, Location wrapperLocation, Rectangle creationBounds, Location outputLocation) {
+	public UnwrapTransaction(Location liveModelLocation, Location canvasLocation, Location wrapperLocation, int[] modelIndexes, Rectangle creationBounds, Location outputLocation) {
 		this.liveModelLocation = liveModelLocation;
 		this.targetLocation = canvasLocation;
 		this.wrapperLocation = wrapperLocation;
+		this.modelIndexes = modelIndexes;
 		this.creationBounds = creationBounds;
 		this.outputLocation = outputLocation;
 	}
@@ -37,9 +39,11 @@ public class UnwrapTransaction implements Command<Model> {
 		}
 
 		// Move models from wrapper to target
-		for(Model model: models) {
+		for(int i = 0; i < models.length; i++) {
+			Model model = models[i];
+			int modelIndex = modelIndexes[i];
 			wrapper.removeModel(model, propCtx, 0);
-			target.addModel(model, propCtx, 0);
+			target.addModel(modelIndex, model, propCtx, 0);
 		}
 
 		// Offset the coordinates of the moved models

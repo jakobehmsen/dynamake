@@ -55,7 +55,10 @@ public class PlotTool implements Tool {
 			final ArrayList<ModelComponent> componentsWithinBounds = new ArrayList<ModelComponent>();
 			for(Component c: ((JComponent)targetModelComponent).getComponents()) {
 				if(selectionCreationBounds.contains(c.getBounds())) {
-					componentsWithinBounds.add((ModelComponent)c);
+//					componentsWithinBounds.add((ModelComponent)c);
+					// Add in reverse order because views are positioned in the reverse order in the CanvasModel
+					// This way, the views are sorted ascending index-wise
+					componentsWithinBounds.add(0, (ModelComponent)c);
 				}
 			}
 			
@@ -70,8 +73,11 @@ public class PlotTool implements Tool {
 						// HACK: Models can only be added to canvases
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							Location[] modelLocations = new Location[componentsWithinBounds.size()];
+							int[] modelIndexes = new int[componentsWithinBounds.size()];
 							for(int i = 0; i < modelLocations.length; i++) {
-								modelLocations[i] = componentsWithinBounds.get(i).getTransactionFactory().getModelLocation();
+								ModelComponent view = componentsWithinBounds.get(i);
+								modelLocations[i] = view.getTransactionFactory().getModelLocation();
+								modelIndexes[i] = ((CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind()).indexOfModel(view.getModelBehind());
 							}
 							
 							PropogationContext propCtx = new PropogationContext();
@@ -88,6 +94,7 @@ public class PlotTool implements Tool {
 									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
 									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
 									new CanvasModel.IndexLocation(wrapperIndex), 
+									modelIndexes,
 									selectionCreationBounds,
 									outputLocation)
 							);

@@ -529,13 +529,14 @@ public class CanvasModel extends Model {
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
 				if(change instanceof CanvasModel.AddedModelChange) {
-					final Model model = ((CanvasModel.AddedModelChange)change).model;
+					CanvasModel.AddedModelChange addedChange = (CanvasModel.AddedModelChange)change;
+					final Model model = addedChange.model;
 					
 					addModelComponent(
 						rootView, view, transactionFactory, viewManager, shownModels, modelToModelComponentMap, modelToRemovableListenerMap, model
 					);
 					Binding<ModelComponent> itemView = modelToModelComponentMap.get(model);
-					view.allModels.add(itemView.getBindingTarget());
+					view.allModels.add(addedChange.index, itemView.getBindingTarget());
 					viewManager.refresh(view);
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
 					// It could be possible to have map mapping from model to model component as follows:
