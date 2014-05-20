@@ -22,9 +22,17 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import javax.swing.JComponent;
-import javax.swing.JFrame;
+//import javax.swing.JFrame;
 
 public abstract class Model implements Serializable, Observer {
+	public static class GenericChange {
+		public final String name;
+		
+		public GenericChange(String name) {
+			this.name = name;
+		}
+	}
+	
 	public static class TellProperty {
 		public final String name;
 
@@ -135,6 +143,14 @@ public abstract class Model implements Serializable, Observer {
 		if(properties != null)
 			return properties.get(name);
 		return null;
+	}
+	
+	public DualCommand<Model> createPropertySetTransaction(String name, Object value) {
+		Object currentValue = getProperty(name);
+		
+		return new DualCommandPair<Model>(
+			new SetPropertyTransaction(name, value), 
+			new SetPropertyTransaction(name, currentValue));
 	}
 	
 	public static class BeganUpdate {

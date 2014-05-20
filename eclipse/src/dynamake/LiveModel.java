@@ -195,6 +195,24 @@ public class LiveModel extends Model {
 //		}
 	}
 	
+//	public class SetEffectFrameBounds implements Command<LiveModel> {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//		private Rectangle effectFrameBounds;
+//		
+//		public SetEffectFrameBounds(Rectangle effectFrameBounds) {
+//			this.effectFrameBounds = effectFrameBounds;
+//		}
+//
+//		@Override
+//		public void executeOn(PropogationContext propCtx,
+//				LiveModel prevalentSystem, Date executionTime) {
+//			prevalentSystem.setEffectFrameBounds(effectFrameBounds);
+//		}
+//	}
+	
 	public static class ContentLocator implements dynamake.ModelLocator {
 		@Override
 		public ModelLocation locate() {
@@ -287,6 +305,11 @@ public class LiveModel extends Model {
 		return radioButton;
 	}
 	
+//	public void setEffectFrameBounds(Rectangle effectFrameBounds) {
+//		// TODO Auto-generated method stub
+//		
+//	}
+
 	public static class ProductionPanel extends JPanel {
 		/**
 		 * 
@@ -1248,6 +1271,10 @@ public class LiveModel extends Model {
 						} else {
 							productionPanel.editPanelMouseAdapter.select(null, null, false, null);
 						}
+						
+						productionPanel.livePanel.repaint();
+					} else if(change instanceof Model.GenericChange && ((Model.GenericChange)change).name.equals("ResetEffectFrame")) {
+						productionPanel.editPanelMouseAdapter.resetEffectFrame();
 						
 						productionPanel.livePanel.repaint();
 					}

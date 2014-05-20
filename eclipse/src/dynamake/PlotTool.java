@@ -82,10 +82,13 @@ public class PlotTool implements Tool {
 									modelLocation)
 							);
 							
+//							productionPanel.livePanel.model.sendChanged(new Model.GenericChange("ResetEffectFrame"), propCtx, 0, 0);
+							
 							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().commitTransaction(commitPropCtx);
-							
+
 							productionPanel.editPanelMouseAdapter.resetEffectFrame();
+							productionPanel.livePanel.repaint();
 						}
 					}
 				});
@@ -111,8 +114,7 @@ public class PlotTool implements Tool {
 							Location outputLocation = null;
 							if(output != null)
 								outputLocation = output.getTransactionFactory().getModelLocation();
-								
-							DualCommand<Model> dualCommand = new DualCommandPair<Model>(
+							DualCommand<Model> dualCommandAddModel = new DualCommandPair<Model>(
 								new AddThenOutputTransaction(
 									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
 									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
@@ -125,12 +127,25 @@ public class PlotTool implements Tool {
 									addIndex
 								)
 							);
-							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommandAddModel);
+//							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+							
+//							DualCommand<Model> dualCommandSetEffectFrameBounds = new DualCommandPair<Model>(
+//								new Model.SetPropertyTransaction("EffectFrameBounds", new Rectangle(0, 0, 0, 0)), 
+//								new Model.SetPropertyTransaction("EffectFrameBounds", productionPanel.effectFrame.getBounds())
+//							);
+//							DualCommand<Model> dualCommandSetEffectFrameBounds = productionPanel.livePanel.model.createPropertySetTransaction("EffectFrameBounds", new Rectangle(0, 0, 0, 0));
+//							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommandSetEffectFrameBounds);
+							// Reset effect frame
+//							productionPanel.livePanel.model.setEffectFrameBounds(new Rectangle(0, 0, 0, 0)); 
+//							productionPanel.livePanel.model.sendChanged(new LiveModel.SetEffectFrame, propCtx, 0, 0);
+							
+//							productionPanel.livePanel.model.sendChanged(new Model.GenericChange("ResetEffectFrame"), propCtx, 0, 0);
 							
 							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().commitTransaction(commitPropCtx);
 							
-							productionPanel.editPanelMouseAdapter.resetEffectFrame();
+//							productionPanel.editPanelMouseAdapter.resetEffectFrame();
 //							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(
 //								propCtx, new AddThenOutputTransaction(
 //									productionPanel.livePanel.getTransactionFactory().getLocation(), 
@@ -138,6 +153,8 @@ public class PlotTool implements Tool {
 //									creationBounds, 
 //									factory)
 //							);
+							productionPanel.editPanelMouseAdapter.resetEffectFrame();
+							productionPanel.livePanel.repaint();
 						}
 					}
 				});
