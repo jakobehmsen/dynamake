@@ -232,6 +232,10 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 //		java.nio.file.Files.move(sourceJournalFilePath, targetJournalFilePath);
 //	}
 
+	public void executeTransient(Runnable runnable) {
+		transactionExecutor.execute(runnable);
+	}
+	
 	@Override
 //	public void execute(final Transaction<T> transaction) {
 	public void execute(final PropogationContext propCtx, final DualCommand<T> transaction) {

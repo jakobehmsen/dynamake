@@ -801,7 +801,7 @@ public class LiveModel extends Model {
 				return new Rectangle(left, top, right - left, bottom - top);
 			}
 			
-			public void mousePressed(MouseEvent e) {
+			public void mousePressed(final MouseEvent e) {
 //				productionPanel.livePanel.getTransactionFactory().beginTransaction();
 				
 //				if(this.output != null) {
@@ -816,15 +816,34 @@ public class LiveModel extends Model {
 //					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
 ////					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null));
 //				}
-				getTool().mousePressed(productionPanel, e);
+				
+				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+					@Override
+					public void run() {
+						getTool().mousePressed(productionPanel, e);
+					}
+				});
+				
+//				getTool().mousePressed(productionPanel, e);
 			}
 
-			public void mouseDragged(MouseEvent e) {
-				e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
-				e.setSource(productionPanel.selectionFrame);
-				for(MouseMotionListener l: productionPanel.selectionFrame.getMouseMotionListeners()) {
-					l.mouseDragged(e);
-				}
+			public void mouseDragged(final MouseEvent e) {
+				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+					@Override
+					public void run() {
+						e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
+						e.setSource(productionPanel.selectionFrame);
+						for(MouseMotionListener l: productionPanel.selectionFrame.getMouseMotionListeners()) {
+							l.mouseDragged(e);
+						}
+					}
+				});
+				
+//				e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
+//				e.setSource(productionPanel.selectionFrame);
+//				for(MouseMotionListener l: productionPanel.selectionFrame.getMouseMotionListeners()) {
+//					l.mouseDragged(e);
+//				}
 			}
 
 			public void mouseReleased(MouseEvent e) {

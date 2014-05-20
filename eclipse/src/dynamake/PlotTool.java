@@ -208,7 +208,7 @@ public class PlotTool implements Tool {
 	}
 
 	@Override
-	public void mousePressed(ProductionPanel productionPanel, MouseEvent e) {
+	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e) {
 		if(e.getButton() == 1) {
 			productionPanel.livePanel.getTransactionFactory().beginTransaction();
 			
@@ -221,7 +221,7 @@ public class PlotTool implements Tool {
 				);
 				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
 			}
-			
+
 			Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
@@ -236,7 +236,7 @@ public class PlotTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseDragged(final ProductionPanel productionPanel, final MouseEvent e) {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null) {
 			Point selectionDragPoint = SwingUtilities.convertPoint(((JComponent)(e.getSource())).getParent(), e.getPoint(), productionPanel);
 			Rectangle plotBoundsInSelection = productionPanel.editPanelMouseAdapter.getPlotBounds(productionPanel.editPanelMouseAdapter.selectionMouseDown, selectionDragPoint);

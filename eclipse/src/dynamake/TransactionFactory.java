@@ -91,6 +91,10 @@ public class TransactionFactory {
 //		prevaylerService.execute(transaction);
 //	}
 	
+	public void executeTransient(Runnable runnable) {
+		prevaylerService.executeTransient(runnable);
+	}
+	
 	public <T extends Model> void execute(PropogationContext propCtx, final Command<T> transaction) {
 		execute(propCtx, new DualCommandPair<T>(transaction, null));
 	}

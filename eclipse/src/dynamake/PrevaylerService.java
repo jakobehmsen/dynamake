@@ -14,4 +14,5 @@ public interface PrevaylerService<T> {
 	void beginTransaction();
 	void commitTransaction(PropogationContext propCtx);
 	void rollbackTransaction(PropogationContext propCtx);
+	void executeTransient(Runnable runnable);
 }
