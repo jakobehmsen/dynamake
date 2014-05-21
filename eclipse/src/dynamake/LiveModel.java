@@ -291,10 +291,16 @@ public class LiveModel extends Model {
 		radioButton.addActionListener(new FilterableActionListener() {
 			@Override
 			protected void actionPerformedUnfiltered(ActionEvent e) {
-				int previousState = model.getState();
-				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
 				// Indicate this is an radio button toggle context
-				transactionFactory.execute(propCtx, new DualCommandPair<LiveModel>(new SetState(state), new SetState(previousState)));
+				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
+				
+				transactionFactory.execute(propCtx, new DualCommandFactory<LiveModel>() {
+					@Override
+					public DualCommand<LiveModel> createDualCommand() {
+						int previousState = model.getState();
+						return new DualCommandPair<LiveModel>(new SetState(state), new SetState(previousState));
+					}
+				});
 			}
 		});
 		radioButton.setFocusable(false);
