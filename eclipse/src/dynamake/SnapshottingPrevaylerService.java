@@ -238,39 +238,82 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	
 	@Override
 //	public void execute(final Transaction<T> transaction) {
-	public void execute(final PropogationContext propCtx, final DualCommand<T> transaction) {
-		if(transactionSequence == null) {
-			executeAndRegisterTransaction(propCtx, transaction);
-			persistTransaction(propCtx, transaction);
-		} else {
-			executeTransaction(propCtx, transaction);
-			transactionSequence.add(transaction);
-		}
-	}
-	
-	public void executeTransaction(final PropogationContext propCtx, final DualCommand<T> transaction) {
+	public void execute(final PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				transaction.executeForwardOn(propCtx, prevalentSystem(), null);
-			}
-		});
-	}
-	
-	public void executeAndRegisterTransaction(final PropogationContext propCtx, final DualCommand<T> transaction) {
-		transactionExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
+				DualCommand<T> transaction = transactionFactory.createDualCommand();
 				transaction.executeForwardOn(propCtx, prevalentSystem(), null);
 				
-				if(transactionIndex == transactions.size())
-					transactions.add(transaction);
-				else
-					transactions.set(transactionIndex, transaction);
-				transactionIndex++;
+				if(transactionSequence == null) {
+					if(transactionIndex == transactions.size())
+						transactions.add(transaction);
+					else
+						transactions.set(transactionIndex, transaction);
+					transactionIndex++;
+					
+					persistTransaction(propCtx, transaction);
+				} else {
+					transactionSequence.add(transaction);
+				}
 			}
 		});
+		
+		
+//		if(transactionSequence == null) {
+//			transactionExecutor.execute(new Runnable() {
+//				@Override
+//				public void run() {
+//					DualCommand<T> transaction = transactionFactory.createDualCommand();
+//					transaction.executeForwardOn(propCtx, prevalentSystem(), null);
+//					
+//					if(transactionIndex == transactions.size())
+//						transactions.add(transaction);
+//					else
+//						transactions.set(transactionIndex, transaction);
+//					transactionIndex++;
+//					
+//					persistTransaction(propCtx, transaction);
+//				}
+//			});
+////			executeAndRegisterTransaction(propCtx, transactionFactory);
+////			persistTransaction(propCtx, transactionFactory);
+//		} else {
+//			transactionExecutor.execute(new Runnable() {
+//				@Override
+//				public void run() {
+//					DualCommand<T> transaction = transactionFactory.createDualCommand();
+//					transaction.executeForwardOn(propCtx, prevalentSystem(), null);
+//					transactionSequence.add(transaction);
+//				}
+//			});
+////			executeTransaction(propCtx, transactionFactory);
+//		}
 	}
+	
+//	private void executeTransaction(final PropogationContext propCtx, final DualCommand<T> transaction) {
+//		transactionExecutor.execute(new Runnable() {
+//			@Override
+//			public void run() {
+//				transaction.executeForwardOn(propCtx, prevalentSystem(), null);
+//			}
+//		});
+//	}
+	
+//	private void executeAndRegisterTransaction(final PropogationContext propCtx, final DualCommand<T> transaction) {
+//		transactionExecutor.execute(new Runnable() {
+//			@Override
+//			public void run() {
+//				transaction.executeForwardOn(propCtx, prevalentSystem(), null);
+//				
+//				if(transactionIndex == transactions.size())
+//					transactions.add(transaction);
+//				else
+//					transactions.set(transactionIndex, transaction);
+//				transactionIndex++;
+//			}
+//		});
+//	}
 	
 	public void registerTransaction(final PropogationContext propCtx, final DualCommand<T> transaction) {
 		transactionExecutor.execute(new Runnable() {
@@ -303,78 +346,95 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				
+				transactionEnlistingCount++;
+				if(transactionEnlistingCount >= snapshotThreshold) {
+					System.out.println("Enlisted snapshot on thread " + Thread.currentThread().getId());
+					// TODO: Consider: Should an isolated propogation context created here? I.e., a snapshot propogation context?
+					try {
+						// Could be separated into the following:
+						// Close latest journal and snapshot 
+						// With other execution service: Save snapshot based on closed journal and snapshot
+						saveSnapshot(propCtx);
+					} catch (ClassNotFoundException | IOException
+							| ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					transactionEnlistingCount = 0;
+				}
 			}
 		});
 		
-		transactionEnlistingCount++;
-		if(transactionEnlistingCount >= snapshotThreshold) {
-			System.out.println("Enlisted snapshot on thread " + Thread.currentThread().getId());
-			journalLogger.execute(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						// TODO: Consider: Should an isolated propogation context created here? I.e., a snapshot propogation context?
-						saveSnapshot(propCtx);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
-			transactionEnlistingCount = 0;
-		}
+//		transactionEnlistingCount++;
+//		if(transactionEnlistingCount >= snapshotThreshold) {
+//			System.out.println("Enlisted snapshot on thread " + Thread.currentThread().getId());
+//			journalLogger.execute(new Runnable() {
+//				@Override
+//				public void run() {
+//					try {
+//						// TODO: Consider: Should an isolated propogation context created here? I.e., a snapshot propogation context?
+//						saveSnapshot(propCtx);
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			});
+//			transactionEnlistingCount = 0;
+//		}
 	}
 	
-	public void executeSingle(final PropogationContext propCtx, final DualCommand<T> transaction) {
-		transactionExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				transaction.executeForwardOn(propCtx, prevalentSystem(), null);
-				
-				if(transactionIndex == transactions.size())
-					transactions.add(transaction);
-				else
-					transactions.set(transactionIndex, transaction);
-				transactionIndex++;
-			}
-		});
-		
-		journalLogger.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					// Should be written in chunks
-					FileOutputStream fileOutput = new FileOutputStream(prevalanceDirectory + "/" + "log.jnl", true);
-					BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutput);
-					ObjectOutputStream objectOutput = new ObjectOutputStream(bufferedOutput);
-					
-					objectOutput.writeObject(transaction);
-					
-					objectOutput.close();
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		
-		transactionEnlistingCount++;
-		if(transactionEnlistingCount >= snapshotThreshold) {
-			System.out.println("Enlisted snapshot on thread " + Thread.currentThread().getId());
-			journalLogger.execute(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						// TODO: Consider: Should an isolated propogation context created here? I.e., a snapshot propogation context?
-						saveSnapshot(propCtx);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
-			transactionEnlistingCount = 0;
-		}
-	}
+//	public void executeSingle(final PropogationContext propCtx, final DualCommand<T> transaction) {
+//		transactionExecutor.execute(new Runnable() {
+//			@Override
+//			public void run() {
+//				transaction.executeForwardOn(propCtx, prevalentSystem(), null);
+//				
+//				if(transactionIndex == transactions.size())
+//					transactions.add(transaction);
+//				else
+//					transactions.set(transactionIndex, transaction);
+//				transactionIndex++;
+//			}
+//		});
+//		
+//		journalLogger.execute(new Runnable() {
+//			@Override
+//			public void run() {
+//				try {
+//					// Should be written in chunks
+//					FileOutputStream fileOutput = new FileOutputStream(prevalanceDirectory + "/" + "log.jnl", true);
+//					BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutput);
+//					ObjectOutputStream objectOutput = new ObjectOutputStream(bufferedOutput);
+//					
+//					objectOutput.writeObject(transaction);
+//					
+//					objectOutput.close();
+//				} catch (FileNotFoundException e) {
+//					e.printStackTrace();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//		
+//		transactionEnlistingCount++;
+//		if(transactionEnlistingCount >= snapshotThreshold) {
+//			System.out.println("Enlisted snapshot on thread " + Thread.currentThread().getId());
+//			journalLogger.execute(new Runnable() {
+//				@Override
+//				public void run() {
+//					try {
+//						// TODO: Consider: Should an isolated propogation context created here? I.e., a snapshot propogation context?
+//						saveSnapshot(propCtx);
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			});
+//			transactionEnlistingCount = 0;
+//		}
+//	}
 
 	@Override
 	public void close() {
@@ -400,27 +460,56 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	
 	@Override
 	public void beginTransaction() {
-		transactionSequence = new ArrayList<DualCommand<T>>();
+		transactionExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				transactionSequence = new ArrayList<DualCommand<T>>();
+			}
+		});
 	}
 	
 	@Override
-	public void commitTransaction(PropogationContext propCtx) {
-		DualCommand<T>[] transactions = (DualCommand<T>[])new DualCommand<?>[transactionSequence.size()];
-		transactionSequence.toArray(transactions);
-		DualCommandSequence<T> compositeTransaction = new DualCommandSequence<T>(transactions);
-		registerTransaction(propCtx, compositeTransaction);
-		persistTransaction(propCtx, compositeTransaction);
-		transactionSequence = null;
+	public void commitTransaction(final PropogationContext propCtx) {
+		transactionExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				DualCommand<T>[] transactions = (DualCommand<T>[])new DualCommand<?>[transactionSequence.size()];
+				transactionSequence.toArray(transactions);
+				DualCommandSequence<T> compositeTransaction = new DualCommandSequence<T>(transactions);
+				registerTransaction(propCtx, compositeTransaction);
+				persistTransaction(propCtx, compositeTransaction);
+				transactionSequence = null;
+			}
+		});
+		
+//		DualCommand<T>[] transactions = (DualCommand<T>[])new DualCommand<?>[transactionSequence.size()];
+//		transactionSequence.toArray(transactions);
+//		DualCommandSequence<T> compositeTransaction = new DualCommandSequence<T>(transactions);
+//		registerTransaction(propCtx, compositeTransaction);
+//		persistTransaction(propCtx, compositeTransaction);
+//		transactionSequence = null;
 	}
 	
 	@Override
-	public void rollbackTransaction(PropogationContext propCtx) {
-		// Execute in reverse order
-//		for(DualCommand<T> part: transactionSequence)
-		for(int i = transactionSequence.size() - 1; i >= 0; i--) {
-			DualCommand<T> part = transactionSequence.get(i);
-			part.executeBackwardOn(propCtx, prevalentSystem, null);
-		}
-		transactionSequence = null;
+	public void rollbackTransaction(final PropogationContext propCtx) {
+		transactionExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				// Execute in reverse order
+				for(int i = transactionSequence.size() - 1; i >= 0; i--) {
+					DualCommand<T> part = transactionSequence.get(i);
+					part.executeBackwardOn(propCtx, prevalentSystem, null);
+				}
+				transactionSequence = null;
+			}
+		});
+		
+//		// Execute in reverse order
+////		for(DualCommand<T> part: transactionSequence)
+//		for(int i = transactionSequence.size() - 1; i >= 0; i--) {
+//			DualCommand<T> part = transactionSequence.get(i);
+//			part.executeBackwardOn(propCtx, prevalentSystem, null);
+//		}
+//		transactionSequence = null;
 	}
 }

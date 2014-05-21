@@ -96,20 +96,54 @@ public class TransactionFactory {
 	}
 	
 	public <T extends Model> void execute(PropogationContext propCtx, final Command<T> transaction) {
-		execute(propCtx, new DualCommandPair<T>(transaction, null));
+		execute(propCtx, new DualCommandFactory<T>() {
+			@Override
+			public DualCommand<T> createDualCommand() {
+				return new DualCommandPair<T>(transaction, null);
+			}
+		});
 	}
 	
 	public <T extends Model> void execute(PropogationContext propCtx, final DualCommand<T> transaction) {
+		execute(propCtx, new DualCommandFactory<T>() {
+			@Override
+			public DualCommand<T> createDualCommand() {
+				return transaction;
+			}
+		});
+	}
+	
+	public <T extends Model> void execute(PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
 		final Location location = getModelLocation();
-		prevaylerService.execute(propCtx, new LocationTransaction<T>(location, transaction));
+		prevaylerService.execute(propCtx, new DualCommandFactory<Model>() {
+			@Override
+			public DualCommand<Model> createDualCommand() {
+				DualCommand<T> transaction = transactionFactory.createDualCommand();
+				return new LocationTransaction<T>(location, transaction);
+			}
+		});
 	}
 	
-	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final Command<Model> transaction) {
-		executeOnRoot(propCtx, new DualCommandPair<Model>(transaction, null));
+	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final Command<T> transaction) {
+		executeOnRoot(propCtx, new DualCommandFactory<T>() {
+			@Override
+			public DualCommand<T> createDualCommand() {
+				return new DualCommandPair<T>(transaction, null);
+			}
+		});
 	}
 	
-	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final DualCommand<Model> transaction) {
-		prevaylerService.execute(propCtx, transaction);
+	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final DualCommand<T> transaction) {
+		executeOnRoot(propCtx, new DualCommandFactory<T>() {
+			@Override
+			public DualCommand<T> createDualCommand() {
+				return transaction;
+			}
+		});
+	}
+	
+	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
+		prevaylerService.execute(propCtx, (DualCommandFactory<Model>) transactionFactory);
 	}
 	
 	public TransactionFactory extend(final ModelLocator locator) {
