@@ -72,34 +72,37 @@ public class PlotTool implements Tool {
 						// Find the selected model and attempt an add model transaction
 						// HACK: Models can only be added to canvases
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
-							Location[] modelLocations = new Location[componentsWithinBounds.size()];
-							int[] modelIndexes = new int[componentsWithinBounds.size()];
-							for(int i = 0; i < modelLocations.length; i++) {
-								ModelComponent view = componentsWithinBounds.get(i);
-								modelLocations[i] = view.getTransactionFactory().getModelLocation();
-								modelIndexes[i] = ((CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind()).indexOfModel(view.getModelBehind());
-							}
-							
 							PropogationContext propCtx = new PropogationContext();
-							
-							Location outputLocation = productionPanel.livePanel.model.getOutput() != null ? productionPanel.livePanel.model.getOutput().getLocator().locate() : null;
-							int wrapperIndex = ((CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind()).getModelCount() - modelLocations.length;
-							DualCommand<Model> dualCommandWrap = new DualCommandPair<Model>(
-								new WrapTransaction(
-									productionPanel.livePanel.getTransactionFactory().getModelLocation(),
-									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
-									selectionCreationBounds, 
-									modelLocations),
-								new UnwrapTransaction(
-									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
-									new CanvasModel.IndexLocation(wrapperIndex), 
-									modelIndexes,
-									selectionCreationBounds,
-									outputLocation)
-							);
-							
-							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommandWrap);
+
+							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+								@Override
+								public DualCommand<Model> createDualCommand() {
+									Location[] modelLocations = new Location[componentsWithinBounds.size()];
+									int[] modelIndexes = new int[componentsWithinBounds.size()];
+									for(int i = 0; i < modelLocations.length; i++) {
+										ModelComponent view = componentsWithinBounds.get(i);
+										modelLocations[i] = view.getTransactionFactory().getModelLocation();
+										modelIndexes[i] = ((CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind()).indexOfModel(view.getModelBehind());
+									}
+									Location outputLocation = productionPanel.livePanel.model.getOutput() != null ? productionPanel.livePanel.model.getOutput().getLocator().locate() : null;
+									int wrapperIndex = ((CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind()).getModelCount() - modelLocations.length;
+
+									return new DualCommandPair<Model>(
+										new WrapTransaction(
+											productionPanel.livePanel.getTransactionFactory().getModelLocation(),
+											productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
+											selectionCreationBounds, 
+											modelLocations),
+										new UnwrapTransaction(
+											productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+											productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
+											new CanvasModel.IndexLocation(wrapperIndex), 
+											modelIndexes,
+											selectionCreationBounds,
+											outputLocation)
+									);
+								}
+							});
 							
 							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().commitTransaction(commitPropCtx);
@@ -125,26 +128,31 @@ public class PlotTool implements Tool {
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							PropogationContext propCtx = new PropogationContext();
 							
-							ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
-							int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
-							ModelComponent output = productionPanel.editPanelMouseAdapter.output;
-							Location outputLocation = null;
-							if(output != null)
-								outputLocation = output.getTransactionFactory().getModelLocation();
-							DualCommand<Model> dualCommandAddModel = new DualCommandPair<Model>(
-								new AddThenOutputTransaction(
-									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-									productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
-									creationBounds, 
-									factory), 
-								new SetOutputThenRemoveAtTransaction(
-									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-									outputLocation, 
-									target.getTransactionFactory().getModelLocation(), 
-									addIndex
-								)
-							);
-							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, dualCommandAddModel);
+							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+								@Override
+								public DualCommand<Model> createDualCommand() {
+									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
+									int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
+									ModelComponent output = productionPanel.editPanelMouseAdapter.output;
+									Location outputLocation = null;
+									if(output != null)
+										outputLocation = output.getTransactionFactory().getModelLocation();
+									
+									return new DualCommandPair<Model>(
+										new AddThenOutputTransaction(
+											productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+											productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
+											creationBounds, 
+											factory), 
+										new SetOutputThenRemoveAtTransaction(
+											productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+											outputLocation, 
+											target.getTransactionFactory().getModelLocation(), 
+											addIndex
+										)
+									);
+								}
+							});
 							
 							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().commitTransaction(commitPropCtx);
@@ -191,12 +199,17 @@ public class PlotTool implements Tool {
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
-				ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-				DualCommand<Model> dualCommand = new DualCommandPair<Model>(
-					new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-					new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-				);
-				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+				
+				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					@Override
+					public DualCommand<Model> createDualCommand() {
+						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+						return new DualCommandPair<Model>(
+							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+						);
+					}
+				});
 			}
 
 			Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
