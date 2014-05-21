@@ -436,32 +436,36 @@ public class LiveModel extends Model {
 				requestSelect(view, initialMouseDown, moving, new Rectangle(0, 0, 0, 0));
 			}
 			
-			private void requestSelect(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
+			private void requestSelect(final ModelComponent view, final Point initialMouseDown, final boolean moving, final Rectangle effectBounds) {
 				// Notice: executes a transaction
-				Point currentInitialMouseDown = (Point)productionPanel.livePanel.model.getProperty("SelectionInitialMouseDown");
-				Boolean currentSelectionMoving = (Boolean)productionPanel.livePanel.model.getProperty("SelectionMoving");
-				Rectangle currentSelectionEffectBounds = (Rectangle)productionPanel.livePanel.model.getProperty("SelectionEffectBounds");
-				DualCommand<Model> dualCommand = new DualCommandPair<Model>(
-					new SetSelectionAndLocalsTransaction(
-						productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-						view.getTransactionFactory().getModelLocation(),
-						initialMouseDown,
-						moving,
-						effectBounds
-					),
-					new SetSelectionAndLocalsTransaction(
-						productionPanel.livePanel.getTransactionFactory().getModelLocation(),
-						productionPanel.editPanelMouseAdapter.selection != null ? productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation() : null,
-//						view.getTransactionFactory().getLocation(),
-						currentInitialMouseDown,
-						currentSelectionMoving,
-						currentSelectionEffectBounds
-					)
-				);
-//				Hashtable<String, Object> definitions = new Hashtable<String, Object>();
-//				definitions.put("View", view);
+
 				PropogationContext propCtx = new PropogationContext();
-				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+
+				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					@Override
+					public DualCommand<Model> createDualCommand() {
+						Point currentInitialMouseDown = (Point)productionPanel.livePanel.model.getProperty("SelectionInitialMouseDown");
+						Boolean currentSelectionMoving = (Boolean)productionPanel.livePanel.model.getProperty("SelectionMoving");
+						Rectangle currentSelectionEffectBounds = (Rectangle)productionPanel.livePanel.model.getProperty("SelectionEffectBounds");
+
+						return new DualCommandPair<Model>(
+							new SetSelectionAndLocalsTransaction(
+								productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+								view.getTransactionFactory().getModelLocation(),
+								initialMouseDown,
+								moving,
+								effectBounds
+							),
+							new SetSelectionAndLocalsTransaction(
+								productionPanel.livePanel.getTransactionFactory().getModelLocation(),
+								productionPanel.editPanelMouseAdapter.selection != null ? productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation() : null,
+								currentInitialMouseDown,
+								currentSelectionMoving,
+								currentSelectionEffectBounds
+							)
+						);
+					}
+				});
 				
 //				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionInitialMouseDown", initialMouseDown));
 //				productionPanel.livePanel.getTransactionFactory().execute(new Model.SetPropertyTransaction("SelectionMoving", moving));
