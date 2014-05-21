@@ -80,18 +80,23 @@ public class ConsTool implements Tool {
 	}
 
 	@Override
-	public void mousePressed(ProductionPanel productionPanel, MouseEvent e) {
+	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
 			productionPanel.livePanel.getTransactionFactory().beginTransaction();
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
-				ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-				DualCommand<Model> dualCommand = new DualCommandPair<Model>(
-					new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-					new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-				);
-				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, dualCommand);
+				
+				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					@Override
+					public DualCommand<Model> createDualCommand() {
+						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+						return new DualCommandPair<Model>(
+							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+						);
+					}
+				});
 			}
 			
 			Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
