@@ -151,13 +151,13 @@ public class RootModel extends Model {
 			
 			PropogationContext propCtx = new PropogationContext();
 			if(newLocation != null) {
-				transactionFactory.execute(propCtx, new Model.SetPropertyTransaction("X", newLocation.x));
-				transactionFactory.execute(propCtx, new Model.SetPropertyTransaction("Y", newLocation.y));
+				transactionFactory.executeOnRoot(propCtx, new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", newLocation.x));
+				transactionFactory.executeOnRoot(propCtx, new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", newLocation.y));
 			}
 			
 			if(newSize != null) {
-				transactionFactory.execute(propCtx, new Model.SetPropertyTransaction("Width", newSize.width));
-				transactionFactory.execute(propCtx, new Model.SetPropertyTransaction("Height", newSize.height));
+				transactionFactory.executeOnRoot(propCtx, new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", newSize.width));
+				transactionFactory.executeOnRoot(propCtx, new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", newSize.height));
 			}
 		}
 		
