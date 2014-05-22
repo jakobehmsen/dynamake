@@ -291,8 +291,27 @@ public class CanvasModel extends Model {
 			transactions.addTransaction("Remove", new Runnable() {
 				@Override
 				public void run() {
-					int indexOfModel = model.indexOfModel(child.getModelBehind());
-					transactionFactory.executeOnRoot(new PropogationContext(), new RemoveModelTransaction(transactionFactory.getModelLocation(), indexOfModel));
+//					int indexOfModel = model.indexOfModel(child.getModelBehind());
+//					transactionFactory.executeOnRoot(new PropogationContext(), new RemoveModelTransaction(transactionFactory.getModelLocation(), indexOfModel));
+					
+					transactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
+						@Override
+						public DualCommand<Model> createDualCommand() {
+							int indexOfModel = model.indexOfModel(child.getModelBehind());
+							Location canvasLocation = transactionFactory.getModelLocation();
+							
+							// TODO: Make the backward transaction
+							// The removed model should probably be reconstructed
+							// The direct structure (clone isolated) (without observers and observees) could probably be used
+							// where this direct structure should, afterwards, be decorated with any missing relations to observers and observees
+							Command<Model> backward = null;
+							
+							return new DualCommandPair<Model>(
+								new RemoveModelTransaction(canvasLocation, indexOfModel),
+								backward
+							);
+						}
+					});
 				}
 			});
 		}

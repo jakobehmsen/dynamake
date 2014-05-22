@@ -113,16 +113,16 @@ public class TransactionFactory {
 //		});
 //	}
 	
-	public <T extends Model> void execute(PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
-		final Location location = getModelLocation();
-		prevaylerService.execute(propCtx, new DualCommandFactory<Model>() {
-			@Override
-			public DualCommand<Model> createDualCommand() {
-				DualCommand<T> transaction = transactionFactory.createDualCommand();
-				return new LocationTransaction<T>(location, transaction);
-			}
-		});
-	}
+//	public <T extends Model> void execute(PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
+//		final Location location = getModelLocation();
+//		prevaylerService.execute(propCtx, new DualCommandFactory<Model>() {
+//			@Override
+//			public DualCommand<Model> createDualCommand() {
+//				DualCommand<T> transaction = transactionFactory.createDualCommand();
+//				return new LocationTransaction<T>(location, transaction);
+//			}
+//		});
+//	}
 	
 	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final Command<T> transaction) {
 		executeOnRoot(propCtx, new DualCommandFactory<T>() {
