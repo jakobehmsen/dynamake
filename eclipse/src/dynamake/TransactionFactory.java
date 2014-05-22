@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.prevayler.Transaction;
 
+import dynamake.CanvasModel.IndexLocation;
+
 public class TransactionFactory {
 	private PrevaylerService<Model> prevaylerService;
 	private TransactionFactory parent;
@@ -247,5 +249,13 @@ public class TransactionFactory {
 
 	public void rollbackTransaction(PropogationContext propCtx) {
 		prevaylerService.rollbackTransaction(propCtx);
+	}
+
+	public ModelLocator extendLocator(ModelLocator otherLocator) {
+		return new CompositeModelLocator(getModelLocator(), otherLocator); 
+	}
+
+	public ModelLocation extendLocation(ModelLocation otherLocation) {
+		return new CompositeModelLocation(getModelLocation(), otherLocation);
 	}
 }

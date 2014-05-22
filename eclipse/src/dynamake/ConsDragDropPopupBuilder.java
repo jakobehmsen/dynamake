@@ -109,77 +109,31 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
 					@Override
 					public void run() {
-						target.getTransactionFactory().executeOnRoot(new PropogationContext(), new AddThenBindAndOutputTransaction(
-							livePanel.getTransactionFactory().getModelLocation(),
-							selection.getTransactionFactory().getModelLocation(), 
-							target.getTransactionFactory().getModelLocation(), 
-							new PrimitiveSingletonFactory(primImpl), 
-							dropBoundsOnTarget
-						));
-						
-						if(1 != 2) {
-							return;
-						}
-						
-						PropogationContext propCtx = new PropogationContext();
-						
-						target.getTransactionFactory().executeOnRoot(new PropogationContext(), 
-							new CanvasModel.AddModelTransaction(target.getTransactionFactory().getModelLocation(), dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl)));
+						final PropogationContext propCtx = new PropogationContext();
 						
 						target.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-//							@Override
-//							public DualCommand createDualCommand() {
-//								// Add
-//								// Bind
-//								// Output
-//								// The location for Bind and Output depends on the side effect of add
-//								
-//								// TODO Auto-generated method stub
-//								return null;
-//							}
-							
 							@Override
-							public void createDualCommands(
-									List<DualCommand<Model>> dualCommands) {
-								// Add
-								// Bind
-								// Output
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
+								Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
+								int index = canvasModel.getModelCount();
+								Location addedPrimitiveLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
 								// The location for Bind and Output depends on the side effect of add
-							}
-						});
-						
-//						AddThenBindAndOutputTransaction(
-//							livePanel.getTransactionFactory().getModelLocation(),
-//							selection.getTransactionFactory().getModelLocation(), 
-//							target.getTransactionFactory().getModelLocation(), 
-//							new PrimitiveSingletonFactory(primImpl), 
-//							dropBoundsOnTarget
-//						));
-						
-						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-							public DualCommand<Model> createDualCommand() {
-								return new DualCommandPair<Model>(
-									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
-									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
-								);
-							}
-							
-							@Override
-							public void createDualCommands(
-									List<DualCommand<Model>> dualCommands) {
-								dualCommands.add(createDualCommand());
-							}
-						});
+								
+								// Add
+								dualCommands.add(new DualCommandPair<Model>(
+									new CanvasModel.AddModelTransaction(canvasModelLocation, dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl)), 
+									new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+								));
 
-						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-							public dynamake.DualCommand<Model> createDualCommand() {
-								return LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation());
-							}
-							
-							@Override
-							public void createDualCommands(
-									List<DualCommand<Model>> dualCommands) {
-								dualCommands.add(createDualCommand());
+								// Bind
+								dualCommands.add(new DualCommandPair<Model>(
+									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), addedPrimitiveLocation), // Absolute location
+									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), addedPrimitiveLocation) // Absolute location
+								));
+								
+								// Output
+								dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, addedPrimitiveLocation)); // Absolute location
 							}
 						});
 					}

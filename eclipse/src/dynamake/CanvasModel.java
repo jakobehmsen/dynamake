@@ -446,7 +446,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	private static class IndexLocator implements ModelLocator {
+	public static class IndexLocator implements ModelLocator {
 		private CanvasModel canvasModel;
 		private Model model;
 
