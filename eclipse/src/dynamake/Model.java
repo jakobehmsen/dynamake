@@ -280,18 +280,11 @@ public abstract class Model implements Serializable, Observer {
 
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
-//			PropogationContext propCtx = new PropogationContext();
 			prevalentSystem.beginUpdate(propCtx, 0);
 			for(Command<Model> t: transactions)
 				t.executeOn(propCtx, prevalentSystem, executionTime);
 			prevalentSystem.endUpdate(propCtx, 0);
 		}
-
-//		@Override
-//		public Command<Model> antagonist() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
 	}
 	
 	public static class RemovableListener implements Binding<Model> {

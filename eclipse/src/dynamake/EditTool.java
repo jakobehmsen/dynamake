@@ -116,14 +116,18 @@ public class EditTool implements Tool {
 					
 					@SuppressWarnings("unchecked")
 					Command<Model> changeBoundsTransaction = new Model.CompositeTransaction((Command<Model>[])new Command<?>[] {
-						new Model.SetPropertyTransaction("X", new Fraction(newBounds.x)),
-						new Model.SetPropertyTransaction("Y", new Fraction(newBounds.y)),
-						new Model.SetPropertyTransaction("Width", new Fraction(newBounds.width)),
-						new Model.SetPropertyTransaction("Height", new Fraction(newBounds.height))
+						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", new Fraction(newBounds.x)),
+						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", new Fraction(newBounds.y)),
+						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", new Fraction(newBounds.width)),
+						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", new Fraction(newBounds.height))
 					});
-					transactionFactory.execute(new PropogationContext(), changeBoundsTransaction);
+					transactionFactory.executeOnRoot(new PropogationContext(), changeBoundsTransaction);
 					
-					productionPanel.livePanel.getTransactionFactory().execute(new PropogationContext(), new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new PropogationContext(), new Model.SetPropertyOnRootTransaction(
+						transactionFactory.getModelLocation(), 
+						"SelectionEffectBounds", 
+						productionPanel.effectFrame.getBounds())
+					);
 				}
 				
 				productionPanel.editPanelMouseAdapter.targetOver = null;
