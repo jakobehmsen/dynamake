@@ -154,7 +154,7 @@ public class FloatingTextModel extends Model {
 			transactions.addTransaction("Set " + PROPERTY_CARET_COLOR, new ColorTransactionBuilder(caretColor, new Action1<Color>() {
 				@Override
 				public void run(Color color) {
-					transactionFactory.execute(new PropogationContext(), new Model.SetPropertyTransaction(PROPERTY_CARET_COLOR, color));
+					transactionFactory.executeOnRoot(new PropogationContext(), new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, color));
 				}
 			}));
 		}

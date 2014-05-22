@@ -144,7 +144,6 @@ public class TextModel extends Model {
 				public void run(Color color) {
 					PropogationContext propCtx = new PropogationContext();
 					transactionFactory.executeOnRoot(propCtx, new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, color));
-//					transactionFactory.execute(propCtx, new Model.SetPropertyTransaction(PROPERTY_CARET_COLOR, color));
 				}
 			}));
 		}
