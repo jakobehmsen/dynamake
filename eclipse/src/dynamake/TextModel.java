@@ -43,22 +43,25 @@ public class TextModel extends Model {
 		
 	}
 	
-	private static class InsertTransaction implements Command<TextModel> {
+	private static class InsertTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		
+		private Location textLocation;
 		private int offset;
 		private String text;
 
-		public InsertTransaction(int offset, String text) {
+		public InsertTransaction(Location textLocation, int offset, String text) {
+			this.textLocation = textLocation;
 			this.offset = offset;
 			this.text = text;
 		}
 
-		public void executeOn(PropogationContext propCtx, TextModel prevalentSystem, Date executionTime) {
-			prevalentSystem.text.insert(offset, text);
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
+			textModel.text.insert(offset, text);
 		}
 
 //		@Override
@@ -219,7 +222,7 @@ public class TextModel extends Model {
 				try {
 					str = e.getDocument().getText(e.getOffset(), e.getLength());
 					PropogationContext propCtx = new PropogationContext();
-					transactionFactory.execute(propCtx, new InsertTransaction(offset, str));
+					transactionFactory.executeOnRoot(propCtx, new InsertTransaction(transactionFactory.getModelLocation(), offset, str));
 				} catch (BadLocationException e1) {
 					e1.printStackTrace();
 				}
