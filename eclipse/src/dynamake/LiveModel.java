@@ -171,28 +171,25 @@ public class LiveModel extends Model {
 	// Or to SetTool
 	// Or to SetRole
 	// - and reflect this naming a appropriate locations
-	public static class SetState implements Command<LiveModel> {
+	public static class SetState implements Command<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		
+		private Location modelLocation;
 		private int state;
-//		private int antagonistState;
 
-		public SetState(int state/*, int antagonistState*/) {
+		public SetState(Location modelLocation, int state) {
+			this.modelLocation = modelLocation;
 			this.state = state;
-//			this.antagonistState = antagonistState;
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, LiveModel prevalentSystem, Date executionTime) {
-			prevalentSystem.setState(state, propCtx, 0);
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+			LiveModel model = (LiveModel)modelLocation.getChild(prevalentSystem);
+			model.setState(state, propCtx, 0);
 		}
-
-//		@Override
-//		public Command<LiveModel> antagonist() {
-//			return new SetState(antagonistState, state);
-//		}
 	}
 	
 //	public class SetEffectFrameBounds implements Command<LiveModel> {
@@ -294,11 +291,12 @@ public class LiveModel extends Model {
 				// Indicate this is an radio button toggle context
 				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
 				
-				transactionFactory.execute(propCtx, new DualCommandFactory<LiveModel>() {
+				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
 					@Override
-					public DualCommand<LiveModel> createDualCommand() {
+					public DualCommand<Model> createDualCommand() {
+						Location modelLocation = transactionFactory.getModelLocation();
 						int previousState = model.getState();
-						return new DualCommandPair<LiveModel>(new SetState(state), new SetState(previousState));
+						return new DualCommandPair<Model>(new SetState(modelLocation, state), new SetState(modelLocation, previousState));
 					}
 				});
 			}
