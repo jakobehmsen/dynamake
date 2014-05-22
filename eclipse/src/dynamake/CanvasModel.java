@@ -208,6 +208,7 @@ public class CanvasModel extends Model {
 		private int index;
 		
 		public RemoveModelTransaction(Location canvasLocation, int index) {
+			this.canvasLocation = canvasLocation;
 			this.index = index;
 		}
 		
