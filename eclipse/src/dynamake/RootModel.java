@@ -277,13 +277,14 @@ public class RootModel extends Model {
 				PropogationContext propCtx = new PropogationContext();
 
 				final int newState = e.getNewState();
-				transactionFactory.execute(propCtx, new DualCommandFactory<Model>() {
+				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public DualCommand<Model> createDualCommand() {
+						Location modelLocation = transactionFactory.getModelLocation();
 						Integer currentState = (Integer)RootModel.this.getProperty("State");
 						return new DualCommandPair<Model>(
-							new Model.SetPropertyTransaction("State", newState),
-							new Model.SetPropertyTransaction("State", currentState)
+							new Model.SetPropertyOnRootTransaction(modelLocation, "State", newState),
+							new Model.SetPropertyOnRootTransaction(modelLocation, "State", currentState)
 						);
 					}
 				});
