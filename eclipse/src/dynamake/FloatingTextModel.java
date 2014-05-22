@@ -87,16 +87,19 @@ public class FloatingTextModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		
+		private Location textLocation;
 		private int start;
 		private int end;
 
-		public RemoveTransaction(int start, int end) {
+		public RemoveTransaction(Location textLocation, int start, int end) {
+			this.textLocation = textLocation;
 			this.start = start;
 			this.end = end;
 		}
 
 		public void executeOn(PropogationContext propCtx, FloatingTextModel prevalentSystem, Date executionTime) {
-			prevalentSystem.text.delete(start, end);
+			FloatingTextModel textModel = (FloatingTextModel)textLocation.getChild(prevalentSystem);
+			textModel.text.delete(start, end);
 		}
 
 //		@Override
@@ -227,7 +230,7 @@ public class FloatingTextModel extends Model {
 			public void removeUpdate(DocumentEvent e) {
 				final int start = e.getOffset();
 				final int end = e.getOffset() + e.getLength();
-				transactionFactory.execute(new PropogationContext(), new RemoveTransaction(start, end));
+				transactionFactory.execute(new PropogationContext(), new RemoveTransaction(transactionFactory.getModelLocation(), start, end));
 			}
 			
 			@Override
