@@ -106,28 +106,28 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			});
 		}
 		
-		// Only available for canvases:
-		if(target.getModelBehind() instanceof CanvasModel) {
-			TransactionMapBuilder transactionObserverMapBuilder = new TransactionMapBuilder();
-			TransactionMapBuilder transactionObserverContentMapBuilder = new TransactionMapBuilder();
-			for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
-				final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
-				transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
-					@Override
-					public void run() {
-						target.getTransactionFactory().executeOnRoot(new PropogationContext(), new AddThenBindAndOutputTransaction(
-							livePanel.getTransactionFactory().getModelLocation(),
-							selection.getTransactionFactory().getModelLocation(), 
-							target.getTransactionFactory().getModelLocation(), 
-							new PrimitiveSingletonFactory(primImpl), 
-							dropBoundsOnTarget
-						));
-					}
-				});
-			}
-			transactionObserverMapBuilder.addTransaction("Cons", transactionObserverContentMapBuilder);
-			transactionObserverMapBuilder.appendTo(popup, runner, "Observation");
-		}
+//		// Only available for canvases:
+//		if(target.getModelBehind() instanceof CanvasModel) {
+//			TransactionMapBuilder transactionObserverMapBuilder = new TransactionMapBuilder();
+//			TransactionMapBuilder transactionObserverContentMapBuilder = new TransactionMapBuilder();
+//			for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
+//				final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
+//				transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
+//					@Override
+//					public void run() {
+//						target.getTransactionFactory().executeOnRoot(new PropogationContext(), new AddThenBindAndOutputTransaction(
+//							livePanel.getTransactionFactory().getModelLocation(),
+//							selection.getTransactionFactory().getModelLocation(), 
+//							target.getTransactionFactory().getModelLocation(), 
+//							new PrimitiveSingletonFactory(primImpl), 
+//							dropBoundsOnTarget
+//						));
+//					}
+//				});
+//			}
+//			transactionObserverMapBuilder.addTransaction("Cons", transactionObserverContentMapBuilder);
+//			transactionObserverMapBuilder.appendTo(popup, runner, "Observation");
+//		}
 		
 		transactionSelectionGeneralMapBuilder.addTransaction("Inject", new Runnable() {
 			@Override
