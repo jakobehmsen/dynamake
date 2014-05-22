@@ -130,7 +130,6 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
-//			PropogationContext propCtx = new PropogationContext();
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
 			
 			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(rootPrevalentSystem);
@@ -146,12 +145,55 @@ public class CanvasModel extends Model {
 			if(setMovedAsOutput)
 				liveModel.setOutput(model, propCtx, 0);
 		}
+	}
+	
+	public static class SetOutputMoveModelTransaction implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location liveModelLocation;
+//		private Location outputLocation;
+		private Location canvasSourceLocation;
+		private Location canvasTargetLocation;
+//		private Location modelLocation;
+		private int indexSource;
+		private int indexTarget;
+		private Point point;
+		
+		public SetOutputMoveModelTransaction(Location liveModelLocation, /*Location outputLocation, */Location canvasSourceLocation, Location canvasTargetLocation, int indexSource, int indexTarget, Point point) {
+			this.liveModelLocation = liveModelLocation;
+//			this.outputLocation = outputLocation;
+			this.canvasSourceLocation = canvasSourceLocation;
+			this.canvasTargetLocation = canvasTargetLocation;
+			this.indexSource = indexSource;
+			this.indexTarget = indexTarget;
+			this.point = point;
+		}
+		
+		@Override
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
+//			if(outputLocation != null) {
+//				Model output = (Model)outputLocation.getChild(rootPrevalentSystem);
+//				liveModel.setOutput(output, propCtx, 0);
+//			} else {
+//				liveModel.setOutput(null, propCtx, 0);
+//			}
+			
+			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(rootPrevalentSystem);
+			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(rootPrevalentSystem);
+//			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
+			
+			Model model = canvasSource.getModel(indexSource);
 
-//		@Override
-//		public Command<Model> antagonist() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
+			canvasSource.removeModel(indexSource, propCtx, 0);
+			model.beginUpdate(propCtx, 0);
+			model.setProperty("X", new Fraction(point.x), propCtx, 0);
+			model.setProperty("Y", new Fraction(point.y), propCtx, 0);
+			model.endUpdate(propCtx, 0);
+			canvasTarget.addModel(indexTarget, model, propCtx, 0);
+		}
 	}
 	
 	public static class AddModelTransaction implements Command<Model> {
@@ -291,9 +333,6 @@ public class CanvasModel extends Model {
 			transactions.addTransaction("Remove", new Runnable() {
 				@Override
 				public void run() {
-//					int indexOfModel = model.indexOfModel(child.getModelBehind());
-//					transactionFactory.executeOnRoot(new PropogationContext(), new RemoveModelTransaction(transactionFactory.getModelLocation(), indexOfModel));
-					
 					transactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
 						@Override
 						public DualCommand<Model> createDualCommand() {
@@ -334,13 +373,36 @@ public class CanvasModel extends Model {
 				transactions.addTransaction("Move", new Runnable() {
 					@Override
 					public void run() {
-						Location canvasSourceLocation = dropped.getTransactionFactory().getParent().getModelLocation();
-						Location canvasTargetLocation = transactionFactory.getModelLocation();
-						Location modelLocation = dropped.getTransactionFactory().getModelLocation();
+//						Location canvasSourceLocation = dropped.getTransactionFactory().getParent().getModelLocation();
+//						Location canvasTargetLocation = transactionFactory.getModelLocation();
+//						Location modelLocation = dropped.getTransactionFactory().getModelLocation();
+//						
+//						transactionFactory.executeOnRoot(new PropogationContext(), new MoveModelTransaction(
+//							livePanel.getTransactionFactory().getModelLocation(), canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true
+//						));
 						
-						transactionFactory.executeOnRoot(new PropogationContext(), new MoveModelTransaction(
-							livePanel.getTransactionFactory().getModelLocation(), canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true
-						));
+						transactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
+							@Override
+							public DualCommand<Model> createDualCommand() {
+								Location livePanelLocation = livePanel.getTransactionFactory().getModelLocation();
+								Location canvasSourceLocation = dropped.getTransactionFactory().getParent().getModelLocation();
+								Location canvasTargetLocation = transactionFactory.getModelLocation();
+								Location modelLocation = dropped.getTransactionFactory().getModelLocation();
+								
+//								ModelComponent output = ((LiveModel.LivePanel)livePanel).productionPanel.editPanelMouseAdapter.output;
+//								Location outputLocation = null;
+//								if(output != null)
+//									outputLocation = output.getTransactionFactory().getModelLocation();
+								
+								int indexTarget = ((CanvasModel)dropped.getModelBehind()).getModelCount();
+								CanvasModel sourceCanvas = (CanvasModel)ModelComponent.Util.getParent(dropped).getModelBehind();
+								int indexSource = sourceCanvas.indexOfModel(dropped.getModelBehind());
+								
+								return new DualCommandPair<Model>(
+									new MoveModelTransaction(livePanelLocation, canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true), 
+									new SetOutputMoveModelTransaction(livePanelLocation, canvasTargetLocation, canvasSourceLocation, indexTarget, indexSource, ((JComponent)dropped).getLocation()));
+							}
+						});
 					}
 				});
 			}

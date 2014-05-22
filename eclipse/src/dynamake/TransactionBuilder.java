@@ -28,11 +28,26 @@ public abstract class TransactionBuilder {
 	}
 	
 	public void appendTo(final JPopupMenu popupMenu, String name) {
+		appendTo(popupMenu, new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				runnable.run();
+			}
+		}, name);
+	}
+	
+	public void appendTo(final JPopupMenu popupMenu, final Runner runner, String name) {
 		ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
 		appendTo(new TransactionView() {
 			@Override
 			public void hide() {
 				popupMenu.setVisible(false);
+			}
+			
+			@Override
+			public void execute(Runnable action) {
+				runner.run(action);
+//				action.run();
 			}
 		}, menuItems, name);
 		

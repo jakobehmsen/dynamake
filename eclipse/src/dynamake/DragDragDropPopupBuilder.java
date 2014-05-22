@@ -10,19 +10,29 @@ import dynamake.LiveModel.LivePanel;
 
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
-	public void buildFromSelectionAndTarget(Runner runner,
-			ModelComponent livePanel, JPopupMenu popup,
-			ModelComponent selection, ModelComponent target, Point dropPointOnTarget, Rectangle dropBoundsOnTarget) {
+	public void buildFromSelectionAndTarget(ModelComponent livePanel,
+			JPopupMenu popup, ModelComponent selection,
+			ModelComponent target, Point dropPointOnTarget, Rectangle dropBoundsOnTarget) {
 		if(target == null || target == selection) {
 			// Build popup menu for dropping onto selection
-			buildFromSelectionToSelection(popup, selection);
+			buildFromSelectionToSelection(livePanel, popup, selection);
 		} else {
 			// Build popup menu for dropping onto other
 			buildFromSelectionToOther(livePanel, popup, selection, target, dropPointOnTarget, dropBoundsOnTarget);
 		}
 	}
 	
-	private void buildFromSelectionToSelection(JPopupMenu popup, ModelComponent selection) {
+	private void buildFromSelectionToSelection(final ModelComponent livePanel, JPopupMenu popup, ModelComponent selection) {
+		Runner runner = new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				runnable.run();
+				
+				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+				livePanel.getTransactionFactory().commitTransaction(propCtx);
+			}
+		};
+		
 		ModelComponent parentModelComponent = ModelComponent.Util.closestModelComponent(((JComponent)selection).getParent()); 
 		
 		TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
@@ -32,13 +42,23 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
 		selection.appendTransactions(transactionSelectionMapBuilder);
 
-		containerTransactionMapBuilder.appendTo(popup, "Container");
+		containerTransactionMapBuilder.appendTo(popup, runner, "Container");
 		if(!containerTransactionMapBuilder.isEmpty() && !transactionSelectionMapBuilder.isEmpty())
 			popup.addSeparator();
-		transactionSelectionMapBuilder.appendTo(popup, "Selection");
+		transactionSelectionMapBuilder.appendTo(popup, runner, "Selection");
 	}
 
 	private void buildFromSelectionToOther(final ModelComponent livePanel, JPopupMenu popup, final ModelComponent selection, final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
+		Runner runner = new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				runnable.run();
+				
+				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+				livePanel.getTransactionFactory().commitTransaction(propCtx);
+			}
+		};
+		
 		TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
 		
 		if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
@@ -83,7 +103,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				});
 			}
 			transactionObserverMapBuilder.addTransaction("Cons", transactionObserverContentMapBuilder);
-			transactionObserverMapBuilder.appendTo(popup, "Observation");
+			transactionObserverMapBuilder.appendTo(popup, runner, "Observation");
 		}
 		
 		transactionSelectionGeneralMapBuilder.addTransaction("Inject", new Runnable() {
@@ -98,20 +118,21 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		TransactionMapBuilder transactionTargetMapBuilder = new TransactionMapBuilder();
 		target.appendDropTargetTransactions(livePanel, selection, dropBoundsOnTarget, dropPointOnTarget, transactionTargetMapBuilder);
 		
-		transactionSelectionGeneralMapBuilder.appendTo(popup, "General");
+		transactionSelectionGeneralMapBuilder.appendTo(popup, runner, "General");
 		if(!transactionSelectionGeneralMapBuilder.isEmpty() && !transactionTargetMapBuilder.isEmpty())
 			popup.addSeparator();
-		transactionTargetMapBuilder.appendTo(popup, "Target");
+		transactionTargetMapBuilder.appendTo(popup, runner, "Target");
 
 		TransactionMapBuilder transactionDroppedMapBuilder = new TransactionMapBuilder();
 		selection.appendDroppedTransactions(livePanel, target, dropBoundsOnTarget, transactionDroppedMapBuilder);
 		if(!transactionTargetMapBuilder.isEmpty() && !transactionDroppedMapBuilder.isEmpty())
 			popup.addSeparator();
-		transactionDroppedMapBuilder.appendTo(popup, "Dropped");
+		transactionDroppedMapBuilder.appendTo(popup, runner, "Dropped");
 	}
 	
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
-
+		PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
+		livePanel.getTransactionFactory().rollbackTransaction(propCtx);
 	}
 }

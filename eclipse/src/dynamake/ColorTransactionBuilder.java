@@ -43,10 +43,16 @@ public class ColorTransactionBuilder extends TransactionBuilder {
 		colorChooserPanel.getColorSelectionModel().addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent e) {
-				colorChooserPanel.getColorSelectionModel().removeChangeListener(this);
-				Color color = colorChooserPanel.getColorSelectionModel().getSelectedColor();
-				action.run(color);
-				view.hide();
+				final ChangeListener self = this;
+				view.execute(new Runnable() {
+					@Override
+					public void run() {
+						colorChooserPanel.getColorSelectionModel().removeChangeListener(self);
+						Color color = colorChooserPanel.getColorSelectionModel().getSelectedColor();
+						action.run(color);
+						view.hide();
+					}
+				});
 			}
 		});
 

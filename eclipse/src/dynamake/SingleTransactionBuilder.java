@@ -14,13 +14,13 @@ public class SingleTransactionBuilder extends TransactionBuilder {
 	}
 	
 	@Override
-	public void appendTo(TransactionView view, ArrayList<JMenuItem> menuItems, String name) {
+	public void appendTo(final TransactionView view, ArrayList<JMenuItem> menuItems, String name) {
 		JMenuItem menuItem = new JMenuItem();
 		menuItem.addActionListener(new ActionListener() {
-			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				action.run();
+				view.execute(action);
+//				action.run();
 			}
 		});
 		menuItems.add(menuItem);

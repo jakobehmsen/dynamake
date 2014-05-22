@@ -50,6 +50,8 @@ public class DragTool implements Tool {
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
+			productionPanel.livePanel.getTransactionFactory().beginTransaction();
+			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
 				

@@ -262,32 +262,51 @@ public class LiveModel extends Model {
 	public static final int TAG_CAUSED_BY_ROLLBACK = 3;
 	public static final int TAG_CAUSED_BY_COMMIT = 4;
 	
-	private static abstract class FilterableActionListener implements ActionListener {
-		private boolean absorbNext;
-		
-		public void absorbNext() {
-			absorbNext = true;
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if(absorbNext) {
-				absorbNext = false;
-			} else {
-				actionPerformedUnfiltered(e);
-			}
-		}
-		
-		protected abstract void actionPerformedUnfiltered(ActionEvent e);
-	}
+//	private static abstract class FilterableActionListener implements ActionListener {
+//		private boolean absorbNext;
+//		
+//		public void absorbNext() {
+//			absorbNext = true;
+//		}
+//		
+//		@Override
+//		public void actionPerformed(ActionEvent e) {
+//			if(absorbNext && false) {
+//				absorbNext = false;
+//				System.out.println("Absorbed event for " + ((JRadioButton)e.getSource()).getText());
+//			} else {
+//				System.out.println("Forwarded event for " + ((JRadioButton)e.getSource()).getText());
+//				actionPerformedUnfiltered(e);
+//			}
+//		}
+//		
+//		protected abstract void actionPerformedUnfiltered(ActionEvent e);
+//	}
 	
 	private static JRadioButton createStateRadioButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int currentState, final int state, String text) {
 		JRadioButton radioButton = new JRadioButton(text);
 		radioButton.setBackground(TOP_BACKGROUND_COLOR);
 		radioButton.setForeground(TOP_FOREGROUND_COLOR);
-		radioButton.addActionListener(new FilterableActionListener() {
+//		radioButton.addActionListener(new FilterableActionListener() {
+//			@Override
+//			protected void actionPerformedUnfiltered(ActionEvent e) {
+//				// Indicate this is an radio button toggle context
+//				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
+//				
+//				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+//					@Override
+//					public DualCommand<Model> createDualCommand() {
+//						Location modelLocation = transactionFactory.getModelLocation();
+//						int previousState = model.getState();
+//						return new DualCommandPair<Model>(new SetState(modelLocation, state), new SetState(modelLocation, previousState));
+//					}
+//				});
+//			}
+//		});
+		radioButton.addActionListener(new ActionListener() {
+			
 			@Override
-			protected void actionPerformedUnfiltered(ActionEvent e) {
+			public void actionPerformed(ActionEvent arg0) {
 				// Indicate this is an radio button toggle context
 				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
 				
@@ -759,7 +778,7 @@ public class LiveModel extends Model {
 //							productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
 						}
 					};
-					popupBuilder.buildFromSelectionAndTarget(runner, productionPanel.livePanel, transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
+					popupBuilder.buildFromSelectionAndTarget(productionPanel.livePanel, transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
 
 					transactionsPopupMenu.show(popupMenuInvoker, pointOnInvoker.x, pointOnInvoker.y);
 					productionPanel.livePanel.repaint();
@@ -772,7 +791,7 @@ public class LiveModel extends Model {
 						
 						@Override
 						public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
-							popupBuilder.cancelPopup(productionPanel.livePanel);
+//							popupBuilder.cancelPopup(productionPanel.livePanel);
 							
 							clearTarget();
 
@@ -782,6 +801,7 @@ public class LiveModel extends Model {
 						
 						@Override
 						public void popupMenuCanceled(PopupMenuEvent arg0) {
+							popupBuilder.cancelPopup(productionPanel.livePanel);
 //							PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_ROLLBACK);
 //							productionPanel.livePanel.getTransactionFactory().rollbackTransaction(propCtx);
 						}
@@ -1239,25 +1259,26 @@ public class LiveModel extends Model {
 				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(change instanceof LiveModel.StateChanged) {
 						if(!propCtx.isTagged(TAG_CAUSED_BY_TOGGLE_BUTTON)) {
-//							System.out.println("state change not TAG_CAUSED_BY_TOGGLE_BUTTON");
+							System.out.println("state change not TAG_CAUSED_BY_TOGGLE_BUTTON (" + LivePanel.this.model.getState() + ")");
 							
 							JRadioButton radioButtonNewState = radioButtonStates[LivePanel.this.model.getState()];
-							ActionListener[] actionListenersNewState = radioButtonNewState.getActionListeners();
-							for(ActionListener actionListenerNewState: actionListenersNewState) {
-								if(actionListenerNewState instanceof FilterableActionListener)
-									((FilterableActionListener)actionListenerNewState).absorbNext();
-							}
+//							ActionListener[] actionListenersNewState = radioButtonNewState.getActionListeners();
+//							for(ActionListener actionListenerNewState: actionListenersNewState) {
+//								if(actionListenerNewState instanceof FilterableActionListener)
+//									((FilterableActionListener)actionListenerNewState).absorbNext();
+//							}
 							radioButtonNewState.setSelected(true);
+//							radioButtonNewState.doClick();
 							
-							JRadioButton radioButtonPreviousState = radioButtonStates[LivePanel.this.model.getState()];
-							ActionListener[] actionListenersPreviousState = radioButtonPreviousState.getActionListeners();
-							for(ActionListener actionListenerPreviousState: actionListenersPreviousState) {
-								if(actionListenerPreviousState instanceof FilterableActionListener)
-									((FilterableActionListener)actionListenerPreviousState).absorbNext();
-							}
+//							JRadioButton radioButtonPreviousState = radioButtonStates[LivePanel.this.model.getState()];
+//							ActionListener[] actionListenersPreviousState = radioButtonPreviousState.getActionListeners();
+//							for(ActionListener actionListenerPreviousState: actionListenersPreviousState) {
+//								if(actionListenerPreviousState instanceof FilterableActionListener)
+//									((FilterableActionListener)actionListenerPreviousState).absorbNext();
+//							}
 //							radioButtonNewState.setSelected(false);
 						} else {
-//							System.out.println("state change TAG_CAUSED_BY_TOGGLE_BUTTON");
+							System.out.println("state change TAG_CAUSED_BY_TOGGLE_BUTTON");
 						}
 						
 						if(previousState == LiveModel.STATE_USE && LivePanel.this.model.getState() != LiveModel.STATE_USE) {
@@ -1286,26 +1307,54 @@ public class LiveModel extends Model {
 					} else if(change instanceof LiveModel.SelectionChanged) {
 //						ModelComponent view = (ModelComponent)propCtx.lookup("View");
 						
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								if(LivePanel.this.model.selection != null) {
-//									ModelComponent view = modelToViewMap.get(LivePanel.this.model.selection);
-									ModelLocator locator = LivePanel.this.model.selection.getLocator();
-									ModelLocation modelLocation = locator.locate();
-									Location modelComponentLocation = modelLocation.getModelComponentLocation();
-									ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
-									Point initialMouseDown = (Point)propCtx.lookup("SelectionInitialMouseDown");
-									boolean moving = (boolean)propCtx.lookup("SelectionMoving");
-									Rectangle effectBounds = (Rectangle)propCtx.lookup("SelectionEffectBounds");
+//						SwingUtilities.invokeLater(new Runnable() {
+//							@Override
+//							public void run() {
+//								if(LivePanel.this.model.selection != null) {
+////									ModelComponent view = modelToViewMap.get(LivePanel.this.model.selection);
+//									ModelLocator locator = LivePanel.this.model.selection.getLocator();
+//									ModelLocation modelLocation = locator.locate();
+//									Location modelComponentLocation = modelLocation.getModelComponentLocation();
+//									ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
+//									Point initialMouseDown = (Point)propCtx.lookup("SelectionInitialMouseDown");
+//									boolean moving = (boolean)propCtx.lookup("SelectionMoving");
+//									Rectangle effectBounds = (Rectangle)propCtx.lookup("SelectionEffectBounds");
+//									productionPanel.editPanelMouseAdapter.select(view, initialMouseDown, moving, effectBounds);
+//								} else {
+//									productionPanel.editPanelMouseAdapter.select(null, null, false, null);
+//								}
+//								
+//								productionPanel.livePanel.repaint();
+//							}
+//						});
+						
+						if(LivePanel.this.model.selection != null) {
+//							ModelComponent view = modelToViewMap.get(LivePanel.this.model.selection);
+							
+							// TODO: Consider whether this is a safe manner in which location of selection if derived.
+							ModelLocator locator = LivePanel.this.model.selection.getLocator();
+							ModelLocation modelLocation = locator.locate();
+							Location modelComponentLocation = modelLocation.getModelComponentLocation();
+							final ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
+							final Point initialMouseDown = (Point)propCtx.lookup("SelectionInitialMouseDown");
+							final boolean moving = (boolean)propCtx.lookup("SelectionMoving");
+							final Rectangle effectBounds = (Rectangle)propCtx.lookup("SelectionEffectBounds");
+							
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
 									productionPanel.editPanelMouseAdapter.select(view, initialMouseDown, moving, effectBounds);
-								} else {
+									productionPanel.livePanel.repaint();
+								}
+							});
+						} else {
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
 									productionPanel.editPanelMouseAdapter.select(null, null, false, null);
 								}
-								
-								productionPanel.livePanel.repaint();
-							}
-						});
+							});
+						}
 					}/* else if(change instanceof Model.GenericChange && ((Model.GenericChange)change).name.equals("ResetEffectFrame")) {
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override

@@ -9,9 +9,9 @@ import dynamake.LiveModel.LivePanel;
 
 public interface DragDropPopupBuilder {
 	void buildFromSelectionAndTarget(
-		Runner runner, ModelComponent livePanel,
-		JPopupMenu popup, ModelComponent selection,
-		ModelComponent target, Point dropPointOnTarget, Rectangle dropBoundsOnTarget);
+		ModelComponent livePanel, JPopupMenu popup,
+		ModelComponent selection, ModelComponent target,
+		Point dropPointOnTarget, Rectangle dropBoundsOnTarget);
 
 	void cancelPopup(LivePanel livePanel);
 }
