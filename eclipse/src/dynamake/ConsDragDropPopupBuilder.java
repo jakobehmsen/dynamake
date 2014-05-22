@@ -12,7 +12,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	public void buildFromSelectionAndTarget(final ModelComponent livePanel,
 			JPopupMenu popup, final ModelComponent selection,
 			final ModelComponent target, Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
-		Command<Model> implicitDropAction = selection.getImplicitDropAction(target);
+		DualCommandFactory<Model> implicitDropAction = selection.getImplicitDropAction(target);
 		
 		if(implicitDropAction != null) {
 			selection.getTransactionFactory().executeOnRoot(new PropogationContext(), implicitDropAction);

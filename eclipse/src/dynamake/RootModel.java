@@ -90,7 +90,7 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public Command<Model> getImplicitDropAction(ModelComponent target) {
+		public DualCommandFactory<Model> getImplicitDropAction(ModelComponent target) {
 			return null;
 		}
 		

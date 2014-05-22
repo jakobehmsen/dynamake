@@ -91,7 +91,7 @@ public class MarkVisit extends Model {
 		}
 
 		@Override
-		public Command<Model> getImplicitDropAction(ModelComponent target) {
+		public DualCommandFactory<Model> getImplicitDropAction(ModelComponent target) {
 			// TODO Auto-generated method stub
 			return null;
 		}

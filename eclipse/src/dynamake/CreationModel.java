@@ -164,8 +164,18 @@ public class CreationModel extends Model {
 		}
 
 		@Override
-		public Command<Model> getImplicitDropAction(ModelComponent target) {
-			return new SetArgumentTransaction(ownerModel.getTransactionFactory().getModelLocation(), parameterName, target.getTransactionFactory().getModelLocation());
+		public DualCommandFactory<Model> getImplicitDropAction(final ModelComponent target) {
+			return new DualCommandFactory<Model>() {
+				@Override
+				public DualCommand<Model> createDualCommand() {
+					return new DualCommandPair<Model>(
+							new SetArgumentTransaction(ownerModel.getTransactionFactory().getModelLocation(), parameterName, target.getTransactionFactory().getModelLocation()),
+						null
+					);
+				}
+			};
+			
+//			return new SetArgumentTransaction(ownerModel.getTransactionFactory().getModelLocation(), parameterName, target.getTransactionFactory().getModelLocation());
 		}
 
 		@Override
@@ -257,7 +267,7 @@ public class CreationModel extends Model {
 		}
 
 		@Override
-		public Command<Model> getImplicitDropAction(ModelComponent target) {
+		public DualCommandFactory<Model> getImplicitDropAction(ModelComponent target) {
 			// TODO Auto-generated method stub
 			return null;
 		}

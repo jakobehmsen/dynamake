@@ -33,5 +33,5 @@ public interface ModelComponent {
 		}
 	}
 
-	Command<Model> getImplicitDropAction(ModelComponent target);
+	DualCommandFactory<Model> getImplicitDropAction(ModelComponent target);
 }

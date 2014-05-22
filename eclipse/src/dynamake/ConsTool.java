@@ -65,7 +65,6 @@ public class ConsTool implements Tool {
 				}
 			} else {
 				if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
-					// TODO: How to do commit here? 
 					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent);
 				} else {
 					productionPanel.editPanelMouseAdapter.resetEffectFrame();
