@@ -71,22 +71,25 @@ public class TextModel extends Model {
 //		}
 	}
 	
-	private static class RemoveTransaction implements Command<TextModel> {
+	private static class RemoveTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		
+		private Location textLocation;
 		private int start;
 		private int end;
 
-		public RemoveTransaction(int start, int end) {
+		public RemoveTransaction(Location textLocation, int start, int end) {
+			this.textLocation = textLocation;
 			this.start = start;
 			this.end = end;
 		}
 
-		public void executeOn(PropogationContext propCtx, TextModel prevalentSystem, Date executionTime) {
-			prevalentSystem.text.delete(start, end);
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
+			textModel.text.delete(start, end);
 		}
 
 //		@Override
@@ -212,7 +215,7 @@ public class TextModel extends Model {
 				final int start = e.getOffset();
 				final int end = e.getOffset() + e.getLength();
 				PropogationContext propCtx = new PropogationContext();
-				transactionFactory.execute(propCtx, new RemoveTransaction(start, end));
+				transactionFactory.executeOnRoot(propCtx, new RemoveTransaction(transactionFactory.getModelLocation(), start, end));
 			}
 			
 			@Override
