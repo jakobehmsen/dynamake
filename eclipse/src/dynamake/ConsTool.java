@@ -35,19 +35,20 @@ public class ConsTool implements Tool {
 		if(e.getButton() == MouseEvent.BUTTON1) {
 			Point releasePoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(releasePoint);
-			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+			final ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			
 			if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
 				if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
 					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent);
 				} else {
-					final Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
-					final Location observerLocation = targetModelComponent.getTransactionFactory().getModelLocation();
 					if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 						PropogationContext propCtx = new PropogationContext();
 						targetModelComponent.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
+								Location observerLocation = targetModelComponent.getTransactionFactory().getModelLocation();
+								
 								dualCommands.add(new DualCommandPair<Model>(
 									new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
 									new Model.AddObserver(observableLocation, observerLocation) // Absolute location
@@ -61,6 +62,9 @@ public class ConsTool implements Tool {
 						targetModelComponent.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
+								Location observerLocation = targetModelComponent.getTransactionFactory().getModelLocation();
+								
 								dualCommands.add(new DualCommandPair<Model>(
 									new Model.AddObserver(observableLocation, observerLocation), // Absolute location
 									new Model.RemoveObserver(observableLocation, observerLocation) // Absolute location

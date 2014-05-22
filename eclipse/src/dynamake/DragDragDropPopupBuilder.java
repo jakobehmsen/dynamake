@@ -2,6 +2,7 @@ package dynamake;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
@@ -65,20 +66,42 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionSelectionGeneralMapBuilder.addTransaction("Unforward to", new Runnable() {
 				@Override
 				public void run() {
-					Location liveModelLocation = livePanel.getTransactionFactory().getModelLocation();
-					selection.getTransactionFactory().executeOnRoot(
-						new PropogationContext(), new Model.RemoveObserverThenOutputObserver(liveModelLocation, selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
-					);
+					PropogationContext propCtx = new PropogationContext();
+					selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						@Override
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							Location observableLocation = selection.getTransactionFactory().getModelLocation();
+							Location observerLocation = target.getTransactionFactory().getModelLocation();
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
+								new Model.AddObserver(observableLocation, observerLocation) // Absolute location
+							));
+							
+							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, observerLocation)); // Absolute location
+						}
+					});
 				}
 			});
 		} else {
 			transactionSelectionGeneralMapBuilder.addTransaction("Forward to", new Runnable() {
 				@Override
 				public void run() {
-					Location liveModelLocation = livePanel.getTransactionFactory().getModelLocation();
-					selection.getTransactionFactory().executeOnRoot(
-						new PropogationContext(), new Model.AddObserverThenOutputObserver(liveModelLocation, selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
-					);
+					PropogationContext propCtx = new PropogationContext();
+					selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						@Override
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							Location observableLocation = selection.getTransactionFactory().getModelLocation();
+							Location observerLocation = target.getTransactionFactory().getModelLocation();
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.AddObserver(observableLocation, observerLocation), // Absolute location
+								new Model.RemoveObserver(observableLocation, observerLocation) // Absolute location
+							));
+							
+							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, observerLocation)); // Absolute location
+						}
+					});
 				}
 			});
 		}
