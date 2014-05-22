@@ -346,9 +346,17 @@ public class CreationModel extends Model {
 					viewManager.refresh(view);
 					
 					if(((CreationModel)sender).allArgumentsAreSet()) {
-						ModelComponent parent = ModelComponent.Util.getParent(view);
+						final ModelComponent parent = ModelComponent.Util.getParent(view);
 						if(parent != null && parent.getModelBehind() instanceof CanvasModel) {
-							transactionFactory.executeOnRoot(propCtx, new InstantiateCreationTransaction(transactionFactory.getModelLocation(), parent.getTransactionFactory().getModelLocation()));
+							transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+								@Override
+								public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+									dualCommands.add(new DualCommandPair<Model>(
+										new InstantiateCreationTransaction(transactionFactory.getModelLocation(), parent.getTransactionFactory().getModelLocation()), 
+										null
+									));
+								}
+							});
 						}
 					}
 				}
