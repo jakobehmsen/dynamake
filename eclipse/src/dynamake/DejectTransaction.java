@@ -2,7 +2,7 @@ package dynamake;
 
 import java.util.Date;
 
-public class InjectTransaction implements Command<Model> {
+public class DejectTransaction implements Command<Model> {
 	/**
 	 * 
 	 */
@@ -11,7 +11,7 @@ public class InjectTransaction implements Command<Model> {
 	private Location sourceLocation;
 	private Location targetLocation;
 
-	public InjectTransaction(Location sourceLocation, Location targetLocation) {
+	public DejectTransaction(Location sourceLocation, Location targetLocation) {
 		this.sourceLocation = sourceLocation;
 		this.targetLocation = targetLocation;
 	}
@@ -21,6 +21,6 @@ public class InjectTransaction implements Command<Model> {
 		Model source = (Model)sourceLocation.getChild(prevalentSystem);
 		Model target = (Model)targetLocation.getChild(prevalentSystem);
 		
-		source.inject(target);
+		source.deject(target);
 	}
 }

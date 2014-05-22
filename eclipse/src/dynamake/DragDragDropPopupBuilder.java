@@ -132,9 +132,19 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionSelectionGeneralMapBuilder.addTransaction("Inject", new Runnable() {
 			@Override
 			public void run() {
-				selection.getTransactionFactory().executeOnRoot(
-					new PropogationContext(), new InjectTransaction(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
-				);
+				PropogationContext propCtx = new PropogationContext();
+				selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					@Override
+					public void createDualCommands(
+							List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(new DualCommandPair<Model>(
+							new InjectTransaction(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
+							new DejectTransaction(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
+						));
+
+						dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation())); // Absolute location
+					}
+				});
 			}
 		});
 

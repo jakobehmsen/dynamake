@@ -877,14 +877,27 @@ public abstract class Model implements Serializable, Observer {
 	public void inject(Model model) {
 		for(Observer observer: this.observers) {
 			if(observer instanceof Model) {
-				model.observers.add(observer);
-				((Model)observer).observees.add(model);
+				model.addObserver(observer);
 			}
 		}
+		
 		for(Observer observee: this.observees) {
 			if(observee instanceof Model) {
 				((Model)observee).addObserver(model);
-				model.observees.add(observee);
+			}
+		}
+	}
+
+	public void deject(Model model) {
+		for(Observer observer: this.observers) {
+			if(observer instanceof Model) {
+				model.removeObserver(observer);
+			}
+		}
+		
+		for(Observer observee: this.observees) {
+			if(observee instanceof Model) {
+				((Model)observee).removeObserver(model);
 			}
 		}
 	}
