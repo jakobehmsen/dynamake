@@ -92,47 +92,56 @@ public class EditTool implements Tool {
 			productionPanel.editPanelMouseAdapter.selectionMouseDown = null;
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.effectFrame.getBounds())) {
-				TransactionFactory transactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
+				final TransactionFactory transactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
 				if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
 				   productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
 				   productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory() != productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent()) {
 					// Moving to other canvas
-					
-					Location canvasSourceLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent().getModelLocation();
-					Location canvasTargetLocation = productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory().getModelLocation();
-					Location modelLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
 
-					Rectangle droppedBounds = SwingUtilities.convertRectangle(
+					final Rectangle droppedBounds = SwingUtilities.convertRectangle(
 						productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)productionPanel.editPanelMouseAdapter.targetOver);
+
+					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
+					final ModelComponent targetOver = productionPanel.editPanelMouseAdapter.targetOver;
 					
-					transactionFactory.executeOnRoot(new PropogationContext(), new MoveModelTransaction(
-						productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-						canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(),
-						false
-					));
-					
-//					transactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
-//						public DualCommand<Model> createDualCommand() {
-//							Location livePanelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
-//							Location canvasSourceLocation = productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory().getModelLocation();
-//							Location canvasTargetLocation = productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory().getModelLocation();
-//							Location modelLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
-//							
-//							int indexTarget = ((CanvasModel)dropped.getModelBehind()).getModelCount();
-//							CanvasModel sourceCanvas = (CanvasModel)ModelComponent.Util.getParent(dropped).getModelBehind();
-//							int indexSource = sourceCanvas.indexOfModel(dropped.getModelBehind());
-//							
-//							return new DualCommandPair<Model>(
-//								new MoveModelTransaction(livePanelLocation, canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true), 
-//								new SetOutputMoveModelTransaction(livePanelLocation, canvasTargetLocation, canvasSourceLocation, indexTarget, indexSource, ((JComponent)dropped).getLocation()));
-//						}
-//						
-//						@Override
-//						public void createDualCommands(
-//								List<DualCommand<Model>> dualCommands) {
-//							dualCommands.add(createDualCommand());
-//						}
-//					});
+					transactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
+						public DualCommand<Model> createDualCommand() {
+							Location livePanelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
+							Location canvasSourceLocation = selection.getTransactionFactory().getParent().getModelLocation();
+							Location canvasTargetLocation = targetOver.getTransactionFactory().getModelLocation();
+							Location modelLocation = selection.getTransactionFactory().getModelLocation();
+							
+							int indexTarget = ((CanvasModel)targetOver.getModelBehind()).getModelCount();
+							CanvasModel sourceCanvas = (CanvasModel)ModelComponent.Util.getParent(selection).getModelBehind();
+							int indexSource = sourceCanvas.indexOfModel(selection.getModelBehind());
+							CanvasModel targetCanvas = (CanvasModel)targetOver.getModelBehind();
+							
+							Location canvasTargetLocationAfter;
+							int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
+							if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
+								// If target canvas is contained with the source canvas, then special care needs to be taken as
+								// to predicting the location of target canvas after the move has taken place:
+								// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
+								int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
+								canvasTargetLocationAfter = transactionFactory.getParent().extendLocation(new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
+							} else {
+								canvasTargetLocationAfter = canvasTargetLocation;
+							}
+							
+							Fraction x = (Fraction)selection.getModelBehind().getProperty("X");
+							Fraction y = (Fraction)selection.getModelBehind().getProperty("Y");
+							
+							return new DualCommandPair<Model>(
+								new MoveModelTransaction(livePanelLocation, canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true), 
+								new SetOutputMoveModelTransaction(livePanelLocation, canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource, x, y));
+						}
+						
+						@Override
+						public void createDualCommands(
+								List<DualCommand<Model>> dualCommands) {
+							dualCommands.add(createDualCommand());
+						}
+					});
 				} else {
 					// Changing bounds within the same canvas
 					

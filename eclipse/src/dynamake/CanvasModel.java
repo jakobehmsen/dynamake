@@ -160,16 +160,18 @@ public class CanvasModel extends Model {
 //		private Location modelLocation;
 		private int indexSource;
 		private int indexTarget;
-		private Point point;
+		private Fraction x;
+		private Fraction y;
 		
-		public SetOutputMoveModelTransaction(Location liveModelLocation, /*Location outputLocation, */Location canvasSourceLocation, Location canvasTargetLocation, int indexSource, int indexTarget, Point point) {
+		public SetOutputMoveModelTransaction(Location liveModelLocation, /*Location outputLocation, */Location canvasSourceLocation, Location canvasTargetLocation, int indexSource, int indexTarget, Fraction x, Fraction y) {
 			this.liveModelLocation = liveModelLocation;
 //			this.outputLocation = outputLocation;
 			this.canvasSourceLocation = canvasSourceLocation;
 			this.canvasTargetLocation = canvasTargetLocation;
 			this.indexSource = indexSource;
 			this.indexTarget = indexTarget;
-			this.point = point;
+			this.x = x;
+			this.y = y;
 		}
 		
 		@Override
@@ -190,8 +192,8 @@ public class CanvasModel extends Model {
 
 			canvasSource.removeModel(indexSource, propCtx, 0);
 			model.beginUpdate(propCtx, 0);
-			model.setProperty("X", new Fraction(point.x), propCtx, 0);
-			model.setProperty("Y", new Fraction(point.y), propCtx, 0);
+			model.setProperty("X", x, propCtx, 0);
+			model.setProperty("Y", y, propCtx, 0);
 			model.endUpdate(propCtx, 0);
 			canvasTarget.addModel(indexTarget, model, propCtx, 0);
 		}
@@ -403,9 +405,12 @@ public class CanvasModel extends Model {
 									canvasTargetLocationAfter = canvasTargetLocation;
 								}
 								
+								Fraction x = (Fraction)dropped.getModelBehind().getProperty("X");
+								Fraction y = (Fraction)dropped.getModelBehind().getProperty("Y");
+								
 								return new DualCommandPair<Model>(
 									new MoveModelTransaction(livePanelLocation, canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true), 
-									new SetOutputMoveModelTransaction(livePanelLocation, canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource, ((JComponent)dropped).getLocation()));
+									new SetOutputMoveModelTransaction(livePanelLocation, canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource, x, y));
 							}
 							
 							@Override
