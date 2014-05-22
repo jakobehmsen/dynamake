@@ -159,6 +159,17 @@ public class LiveModel extends Model {
 				liveModel.setOutput(null, new PropogationContext(), 0);
 			}
 		}
+		
+		public static DualCommand<Model> createDual(LiveModel.LivePanel livePanel, Location outputLocation) {
+			Location currentOutputLocation = null;
+			if(livePanel.productionPanel.editPanelMouseAdapter.output != null)
+				currentOutputLocation = livePanel.productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+			
+			return new DualCommandPair<Model>(
+				new SetOutput(livePanel.getTransactionFactory().getModelLocation(), outputLocation), 
+				new SetOutput(livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+			);
+		}
 
 //		@Override
 //		public Command<Model> antagonist() {

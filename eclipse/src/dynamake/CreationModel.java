@@ -174,8 +174,6 @@ public class CreationModel extends Model {
 					);
 				}
 			};
-			
-//			return new SetArgumentTransaction(ownerModel.getTransactionFactory().getModelLocation(), parameterName, target.getTransactionFactory().getModelLocation());
 		}
 
 		@Override

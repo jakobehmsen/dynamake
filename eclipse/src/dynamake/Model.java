@@ -173,6 +173,28 @@ public abstract class Model implements Serializable, Observer {
 		
 	}
 	
+	public static class AddObserver implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location observableLocation;
+		private Location observerLocation;
+		
+		public AddObserver(Location observableLocation, Location observerLocation) {
+			this.observableLocation = observableLocation;
+			this.observerLocation = observerLocation;
+		}
+
+		@Override
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
+			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
+			
+			observable.addObserver(observer);
+		}
+	}
+	
 	public static class AddObserverThenOutputObserver implements Command<Model> {
 		/**
 		 * 
@@ -198,12 +220,28 @@ public abstract class Model implements Serializable, Observer {
 			observable.addObserver(observer);
 			liveModel.setOutput(observer, propCtx, 0);
 		}
+	}
+	
+	public static class RemoveObserver implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location observableLocation;
+		private Location observerLocation;
+		
+		public RemoveObserver(Location observableLocation, Location observerLocation) {
+			this.observableLocation = observableLocation;
+			this.observerLocation = observerLocation;
+		}
 
-//		@Override
-//		public Command<Model> antagonist() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
+		@Override
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
+			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
+			
+			observable.removeObserver(observer);
+		}
 	}
 	
 	public static class RemoveObserverThenOutputObserver implements Command<Model> {
@@ -231,12 +269,6 @@ public abstract class Model implements Serializable, Observer {
 			observable.removeObserver(observer);
 			liveModel.setOutput(observer, propCtx, 0);
 		}
-
-//		@Override
-//		public Command<Model> antagonist() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
 	}
 	
 	public void beginUpdate(PropogationContext propCtx, int propDistance) {

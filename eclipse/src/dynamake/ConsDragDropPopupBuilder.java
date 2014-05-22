@@ -12,6 +12,16 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	public void buildFromSelectionAndTarget(final ModelComponent livePanel,
 			JPopupMenu popup, final ModelComponent selection,
 			final ModelComponent target, Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
+		Runner runner = new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				runnable.run();
+
+				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+				livePanel.getTransactionFactory().commitTransaction(propCtx);
+			}
+		};
+		
 		DualCommandFactory<Model> implicitDropAction = selection.getImplicitDropAction(target);
 		
 		if(implicitDropAction != null) {
@@ -26,24 +36,48 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionTargetContentMapBuilder.addTransaction("Unforward to", new Runnable() {
 					@Override
 					public void run() {
-						Location liveModelLocation = livePanel.getTransactionFactory().getModelLocation();
-						selection.getTransactionFactory().executeOnRoot(
-							new PropogationContext(), new Model.RemoveObserverThenOutputObserver(liveModelLocation, selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
-						);
+						PropogationContext propCtx = new PropogationContext();
+						
+						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+							@Override
+							public DualCommand<Model> createDualCommand() {
+								return new DualCommandPair<Model>(
+									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
+									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
+								);
+							}
+						});
+						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+							public dynamake.DualCommand<Model> createDualCommand() {
+								return LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation());
+							}
+						});
 					}
 				});
 			} else {
 				transactionTargetContentMapBuilder.addTransaction("Forward to", new Runnable() {
 					@Override
 					public void run() {
-						Location liveModelLocation = livePanel.getTransactionFactory().getModelLocation();
-						selection.getTransactionFactory().executeOnRoot(
-							new PropogationContext(), new Model.AddObserverThenOutputObserver(liveModelLocation, selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
-						);
+						PropogationContext propCtx = new PropogationContext();
+
+						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+							@Override
+							public DualCommand<Model> createDualCommand() {
+								return new DualCommandPair<Model>(
+									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
+									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
+								);
+							}
+						});
+						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+							public dynamake.DualCommand<Model> createDualCommand() {
+								return LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation());
+							}
+						});
 					}
 				});
 			}
-			transactionTargetContentMapBuilder.appendTo(popup, "Selection to target");
+			transactionTargetContentMapBuilder.appendTo(popup, runner, "Selection to target");
 			popup.addSeparator();
 			
 			TransactionMapBuilder transactionObserverContentMapBuilder = new TransactionMapBuilder();
@@ -62,14 +96,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					}
 				});
 			}
-			transactionObserverContentMapBuilder.appendTo(popup, new Runner() {
-				@Override
-				public void run(Runnable runnable) {
-
-					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-					livePanel.getTransactionFactory().commitTransaction(propCtx);
-				}
-			}, "Observation");
+			transactionObserverContentMapBuilder.appendTo(popup, runner, "Observation");
 		}
 	}
 
