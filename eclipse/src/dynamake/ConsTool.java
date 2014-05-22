@@ -41,13 +41,34 @@ public class ConsTool implements Tool {
 				if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
 					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent);
 				} else {
-					Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
+					final Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
+					final Location observerLocation = targetModelComponent.getTransactionFactory().getModelLocation();
 					if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
-						targetModelComponent.getTransactionFactory().executeOnRoot(
-							new PropogationContext(), new Model.RemoveObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
+						PropogationContext propCtx = new PropogationContext();
+						targetModelComponent.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+							@Override
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(new DualCommandPair<Model>(
+									new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
+									new Model.AddObserver(observableLocation, observerLocation) // Absolute location
+								));
+								
+								dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, observerLocation)); // Absolute location
+							}
+						});
 					} else {
-						targetModelComponent.getTransactionFactory().executeOnRoot(
-							new PropogationContext(), new Model.AddObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()));
+						PropogationContext propCtx = new PropogationContext();
+						targetModelComponent.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+							@Override
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(new DualCommandPair<Model>(
+									new Model.AddObserver(observableLocation, observerLocation), // Absolute location
+									new Model.RemoveObserver(observableLocation, observerLocation) // Absolute location
+								));
+								
+								dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, observerLocation)); // Absolute location
+							}
+						});
 					}
 					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
 					productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
@@ -56,7 +77,6 @@ public class ConsTool implements Tool {
 						productionPanel.remove(productionPanel.targetFrame);
 					
 					SwingUtilities.invokeLater(new Runnable() {
-						
 						@Override
 						public void run() {
 							productionPanel.editPanelMouseAdapter.resetEffectFrame();
