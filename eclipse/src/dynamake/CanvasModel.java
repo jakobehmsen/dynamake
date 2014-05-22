@@ -379,14 +379,6 @@ public class CanvasModel extends Model {
 				transactions.addTransaction("Move", new Runnable() {
 					@Override
 					public void run() {
-//						Location canvasSourceLocation = dropped.getTransactionFactory().getParent().getModelLocation();
-//						Location canvasTargetLocation = transactionFactory.getModelLocation();
-//						Location modelLocation = dropped.getTransactionFactory().getModelLocation();
-//						
-//						transactionFactory.executeOnRoot(new PropogationContext(), new MoveModelTransaction(
-//							livePanel.getTransactionFactory().getModelLocation(), canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true
-//						));
-						
 						transactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
 							public DualCommand<Model> createDualCommand() {
 								Location livePanelLocation = livePanel.getTransactionFactory().getModelLocation();
@@ -394,18 +386,26 @@ public class CanvasModel extends Model {
 								Location canvasTargetLocation = transactionFactory.getModelLocation();
 								Location modelLocation = dropped.getTransactionFactory().getModelLocation();
 								
-//								ModelComponent output = ((LiveModel.LivePanel)livePanel).productionPanel.editPanelMouseAdapter.output;
-//								Location outputLocation = null;
-//								if(output != null)
-//									outputLocation = output.getTransactionFactory().getModelLocation();
-								
-								int indexTarget = ((CanvasModel)dropped.getModelBehind()).getModelCount();
+								int indexTarget = ((CanvasModel)getModelBehind()).getModelCount();
 								CanvasModel sourceCanvas = (CanvasModel)ModelComponent.Util.getParent(dropped).getModelBehind();
 								int indexSource = sourceCanvas.indexOfModel(dropped.getModelBehind());
+								CanvasModel targetCanvas = model;
+								
+								Location canvasTargetLocationAfter;
+								int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
+								if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
+									// If target canvas is contained with the source canvas, then special care needs to be taken as
+									// to predicting the location of target canvas after the move has taken place:
+									// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
+									int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
+									canvasTargetLocationAfter = transactionFactory.getParent().extendLocation(new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
+								} else {
+									canvasTargetLocationAfter = canvasTargetLocation;
+								}
 								
 								return new DualCommandPair<Model>(
 									new MoveModelTransaction(livePanelLocation, canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true), 
-									new SetOutputMoveModelTransaction(livePanelLocation, canvasTargetLocation, canvasSourceLocation, indexTarget, indexSource, ((JComponent)dropped).getLocation()));
+									new SetOutputMoveModelTransaction(livePanelLocation, canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource, ((JComponent)dropped).getLocation()));
 							}
 							
 							@Override

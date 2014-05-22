@@ -15,6 +15,7 @@ import javax.swing.SwingUtilities;
 import org.prevayler.Transaction;
 
 import dynamake.CanvasModel.MoveModelTransaction;
+import dynamake.CanvasModel.SetOutputMoveModelTransaction;
 import dynamake.LiveModel.ProductionPanel;
 import dynamake.LiveModel.SetOutput;
 
@@ -86,7 +87,7 @@ public class EditTool implements Tool {
 	}
 
 	@Override
-	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1 && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			productionPanel.editPanelMouseAdapter.selectionMouseDown = null;
 			
@@ -109,6 +110,29 @@ public class EditTool implements Tool {
 						canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(),
 						false
 					));
+					
+//					transactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
+//						public DualCommand<Model> createDualCommand() {
+//							Location livePanelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
+//							Location canvasSourceLocation = productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory().getModelLocation();
+//							Location canvasTargetLocation = productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory().getModelLocation();
+//							Location modelLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
+//							
+//							int indexTarget = ((CanvasModel)dropped.getModelBehind()).getModelCount();
+//							CanvasModel sourceCanvas = (CanvasModel)ModelComponent.Util.getParent(dropped).getModelBehind();
+//							int indexSource = sourceCanvas.indexOfModel(dropped.getModelBehind());
+//							
+//							return new DualCommandPair<Model>(
+//								new MoveModelTransaction(livePanelLocation, canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true), 
+//								new SetOutputMoveModelTransaction(livePanelLocation, canvasTargetLocation, canvasSourceLocation, indexTarget, indexSource, ((JComponent)dropped).getLocation()));
+//						}
+//						
+//						@Override
+//						public void createDualCommands(
+//								List<DualCommand<Model>> dualCommands) {
+//							dualCommands.add(createDualCommand());
+//						}
+//					});
 				} else {
 					// Changing bounds within the same canvas
 					
@@ -134,6 +158,9 @@ public class EditTool implements Tool {
 				productionPanel.editPanelMouseAdapter.targetOver = null;
 				productionPanel.editPanelMouseAdapter.clearTarget();
 			}
+			
+			PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+			productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
 		}
 	}
 
@@ -145,6 +172,8 @@ public class EditTool implements Tool {
 		
 		if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			if(targetModelComponent != null) {
+				productionPanel.livePanel.getTransactionFactory().beginTransaction();
+				
 				if(productionPanel.editPanelMouseAdapter.output != null) {
 					PropogationContext propCtx = new PropogationContext();
 					
@@ -166,7 +195,7 @@ public class EditTool implements Tool {
 				}
 				
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				 productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true);
+				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true);
 				productionPanel.livePanel.repaint();
 			}
 		}
