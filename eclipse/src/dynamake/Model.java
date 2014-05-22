@@ -715,7 +715,7 @@ public abstract class Model implements Serializable, Observer {
 		transactions.addTransaction("Set " + PROPERTY_COLOR, new ColorTransactionBuilder((Color)model.getProperty(PROPERTY_COLOR), new Action1<Color>() {
 			@Override
 			public void run(Color color) {
-				transactionFactory.execute(new PropogationContext(), new Model.SetPropertyTransaction(PROPERTY_COLOR, color));
+				transactionFactory.executeOnRoot(new PropogationContext(), new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, color));
 			}
 		}));
 	}
