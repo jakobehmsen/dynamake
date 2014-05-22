@@ -56,22 +56,25 @@ public class FloatingTextModel extends Model {
 		
 	}
 	
-	private static class InsertTransaction implements Command<FloatingTextModel> {
+	private static class InsertTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		
+		private Location textLocation;
 		private int offset;
 		private String text;
 
-		public InsertTransaction(int offset, String text) {
+		public InsertTransaction(Location textLocation, int offset, String text) {
+			this.textLocation = textLocation;
 			this.offset = offset;
 			this.text = text;
 		}
 
-		public void executeOn(PropogationContext propCtx, FloatingTextModel prevalentSystem, Date executionTime) {
-			prevalentSystem.text.insert(offset, text);
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+			FloatingTextModel textModel = (FloatingTextModel)textLocation.getChild(prevalentSystem);
+			textModel.text.insert(offset, text);
 		}
 
 //		@Override
@@ -81,7 +84,7 @@ public class FloatingTextModel extends Model {
 //		}
 	}
 	
-	private static class RemoveTransaction implements Command<FloatingTextModel> {
+	private static class RemoveTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -97,7 +100,7 @@ public class FloatingTextModel extends Model {
 			this.end = end;
 		}
 
-		public void executeOn(PropogationContext propCtx, FloatingTextModel prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 			FloatingTextModel textModel = (FloatingTextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.delete(start, end);
 		}
@@ -230,7 +233,7 @@ public class FloatingTextModel extends Model {
 			public void removeUpdate(DocumentEvent e) {
 				final int start = e.getOffset();
 				final int end = e.getOffset() + e.getLength();
-				transactionFactory.execute(new PropogationContext(), new RemoveTransaction(transactionFactory.getModelLocation(), start, end));
+				transactionFactory.executeOnRoot(new PropogationContext(), new RemoveTransaction(transactionFactory.getModelLocation(), start, end));
 			}
 			
 			@Override
@@ -239,7 +242,7 @@ public class FloatingTextModel extends Model {
 				final String str;
 				try {
 					str = e.getDocument().getText(e.getOffset(), e.getLength());
-					transactionFactory.execute(new PropogationContext(), new InsertTransaction(offset, str));
+					transactionFactory.executeOnRoot(new PropogationContext(), new InsertTransaction(transactionFactory.getModelLocation(), offset, str));
 				} catch (BadLocationException e1) {
 					e1.printStackTrace();
 				}
