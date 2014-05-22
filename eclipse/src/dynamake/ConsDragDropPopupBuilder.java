@@ -2,6 +2,7 @@ package dynamake;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.List;
 
 import javax.swing.JPopupMenu;
 
@@ -39,17 +40,28 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						PropogationContext propCtx = new PropogationContext();
 						
 						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-							@Override
 							public DualCommand<Model> createDualCommand() {
 								return new DualCommandPair<Model>(
 									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
 									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
 								);
 							}
+							
+							@Override
+							public void createDualCommands(
+									List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(createDualCommand());
+							}
 						});
 						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
 							public dynamake.DualCommand<Model> createDualCommand() {
 								return LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation());
+							}
+							
+							@Override
+							public void createDualCommands(
+									List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(createDualCommand());
 							}
 						});
 					}
@@ -61,17 +73,28 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						PropogationContext propCtx = new PropogationContext();
 
 						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-							@Override
 							public DualCommand<Model> createDualCommand() {
 								return new DualCommandPair<Model>(
 									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
 									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
 								);
 							}
+							
+							@Override
+							public void createDualCommands(
+									List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(createDualCommand());
+							}
 						});
 						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
 							public dynamake.DualCommand<Model> createDualCommand() {
 								return LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation());
+							}
+							
+							@Override
+							public void createDualCommands(
+									List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(createDualCommand());
 							}
 						});
 					}
@@ -93,6 +116,72 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							new PrimitiveSingletonFactory(primImpl), 
 							dropBoundsOnTarget
 						));
+						
+						if(1 != 2) {
+							return;
+						}
+						
+						PropogationContext propCtx = new PropogationContext();
+						
+						target.getTransactionFactory().executeOnRoot(new PropogationContext(), 
+							new CanvasModel.AddModelTransaction(target.getTransactionFactory().getModelLocation(), dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl)));
+						
+						target.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+//							@Override
+//							public DualCommand createDualCommand() {
+//								// Add
+//								// Bind
+//								// Output
+//								// The location for Bind and Output depends on the side effect of add
+//								
+//								// TODO Auto-generated method stub
+//								return null;
+//							}
+							
+							@Override
+							public void createDualCommands(
+									List<DualCommand<Model>> dualCommands) {
+								// Add
+								// Bind
+								// Output
+								// The location for Bind and Output depends on the side effect of add
+							}
+						});
+						
+//						AddThenBindAndOutputTransaction(
+//							livePanel.getTransactionFactory().getModelLocation(),
+//							selection.getTransactionFactory().getModelLocation(), 
+//							target.getTransactionFactory().getModelLocation(), 
+//							new PrimitiveSingletonFactory(primImpl), 
+//							dropBoundsOnTarget
+//						));
+						
+						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+							public DualCommand<Model> createDualCommand() {
+								return new DualCommandPair<Model>(
+									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
+									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
+								);
+							}
+							
+							@Override
+							public void createDualCommands(
+									List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(createDualCommand());
+							}
+						});
+
+						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+							public dynamake.DualCommand<Model> createDualCommand() {
+								return LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation());
+							}
+							
+							@Override
+							public void createDualCommands(
+									List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(createDualCommand());
+							}
+						});
 					}
 				});
 			}

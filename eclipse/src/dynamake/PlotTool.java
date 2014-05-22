@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
@@ -75,7 +76,6 @@ public class PlotTool implements Tool {
 							PropogationContext propCtx = new PropogationContext();
 
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-								@Override
 								public DualCommand<Model> createDualCommand() {
 									Location[] modelLocations = new Location[componentsWithinBounds.size()];
 									int[] modelIndexes = new int[componentsWithinBounds.size()];
@@ -101,6 +101,12 @@ public class PlotTool implements Tool {
 											selectionCreationBounds,
 											outputLocation)
 									);
+								}
+								
+								@Override
+								public void createDualCommands(
+										List<DualCommand<Model>> dualCommands) {
+									dualCommands.add(createDualCommand());
 								}
 							});
 							
@@ -129,7 +135,6 @@ public class PlotTool implements Tool {
 							PropogationContext propCtx = new PropogationContext();
 							
 							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-								@Override
 								public DualCommand<Model> createDualCommand() {
 									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
 									int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
@@ -151,6 +156,12 @@ public class PlotTool implements Tool {
 											addIndex
 										)
 									);
+								}
+								
+								@Override
+								public void createDualCommands(
+										List<DualCommand<Model>> dualCommands) {
+									dualCommands.add(createDualCommand());
 								}
 							});
 							
@@ -201,13 +212,18 @@ public class PlotTool implements Tool {
 				PropogationContext propCtx = new PropogationContext();
 				
 				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-					@Override
 					public DualCommand<Model> createDualCommand() {
 						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 						return new DualCommandPair<Model>(
 							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
 							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
 						);
+					}
+					
+					@Override
+					public void createDualCommands(
+							List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(createDualCommand());
 					}
 				});
 			}

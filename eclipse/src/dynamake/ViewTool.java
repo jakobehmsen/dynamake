@@ -2,6 +2,7 @@ package dynamake;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -46,13 +47,18 @@ public class ViewTool implements Tool {
 					PropogationContext propCtx = new PropogationContext();
 					
 					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-						@Override
 						public DualCommand<Model> createDualCommand() {
 							ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 							return new DualCommandPair<Model>(
 								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
 								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
 							);
+						}
+						
+						@Override
+						public void createDualCommands(
+								List<DualCommand<Model>> dualCommands) {
+							dualCommands.add(createDualCommand());
 						}
 					});
 				}

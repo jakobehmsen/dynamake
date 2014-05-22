@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
@@ -770,7 +771,6 @@ public abstract class Model implements Serializable, Observer {
 					final Rectangle creationBounds = droppedBounds;
 
 					dropped.getTransactionFactory().executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
-						@Override
 						public DualCommand<Model> createDualCommand() {
 							int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
 							ModelComponent output = ((LiveModel.LivePanel)livePanel).productionPanel.editPanelMouseAdapter.output;
@@ -792,6 +792,12 @@ public abstract class Model implements Serializable, Observer {
 									addIndex
 								)
 							);
+						}
+						
+						@Override
+						public void createDualCommands(
+								List<DualCommand<Model>> dualCommands) {
+							dualCommands.add(createDualCommand());
 						}
 					});
 				}

@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -166,12 +167,17 @@ public class CreationModel extends Model {
 		@Override
 		public DualCommandFactory<Model> getImplicitDropAction(final ModelComponent target) {
 			return new DualCommandFactory<Model>() {
-				@Override
 				public DualCommand<Model> createDualCommand() {
 					return new DualCommandPair<Model>(
-							new SetArgumentTransaction(ownerModel.getTransactionFactory().getModelLocation(), parameterName, target.getTransactionFactory().getModelLocation()),
+						new SetArgumentTransaction(ownerModel.getTransactionFactory().getModelLocation(), parameterName, target.getTransactionFactory().getModelLocation()),
 						null
 					);
+				}
+				
+				@Override
+				public void createDualCommands(
+						List<DualCommand<Model>> dualCommands) {
+					dualCommands.add(createDualCommand());
 				}
 			};
 		}

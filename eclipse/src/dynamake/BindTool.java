@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -38,7 +39,6 @@ public class BindTool implements Tool {
 			
 			if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
 				targetModelComponent.getTransactionFactory().executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
-					@Override
 					public DualCommand<Model> createDualCommand() {
 						Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
 						ModelComponent output = productionPanel.editPanelMouseAdapter.output;
@@ -57,6 +57,12 @@ public class BindTool implements Tool {
 								new SetOutputThenRemoveObserver(liveModelLocation, outputLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation())
 							);
 						}
+					}
+					
+					@Override
+					public void createDualCommands(
+							List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(createDualCommand());
 					}
 				});
 				
@@ -86,13 +92,18 @@ public class BindTool implements Tool {
 				PropogationContext propCtx = new PropogationContext();
 
 				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-					@Override
 					public DualCommand<Model> createDualCommand() {
 						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 						return new DualCommandPair<Model>(
 							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
 							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
 						);
+					}
+					
+					@Override
+					public void createDualCommands(
+							List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(createDualCommand());
 					}
 				});
 			}

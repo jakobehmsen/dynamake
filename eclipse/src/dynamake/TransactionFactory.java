@@ -1,6 +1,7 @@
 package dynamake;
 
 import java.util.Date;
+import java.util.List;
 
 import org.prevayler.Transaction;
 
@@ -126,9 +127,14 @@ public class TransactionFactory {
 	
 	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final Command<T> transaction) {
 		executeOnRoot(propCtx, new DualCommandFactory<T>() {
-			@Override
 			public DualCommand<T> createDualCommand() {
 				return new DualCommandPair<T>(transaction, null);
+			}
+			
+			@Override
+			public void createDualCommands(
+					List<DualCommand<T>> dualCommands) {
+				dualCommands.add(createDualCommand());
 			}
 		});
 	}
@@ -136,8 +142,9 @@ public class TransactionFactory {
 	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final DualCommand<T> transaction) {
 		executeOnRoot(propCtx, new DualCommandFactory<T>() {
 			@Override
-			public DualCommand<T> createDualCommand() {
-				return transaction;
+			public void createDualCommands(
+					List<DualCommand<T>> dualCommands) {
+				dualCommands.add(transaction);
 			}
 		});
 	}

@@ -20,6 +20,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -322,11 +323,16 @@ public class LiveModel extends Model {
 				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
 				
 				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-					@Override
 					public DualCommand<Model> createDualCommand() {
 						Location modelLocation = transactionFactory.getModelLocation();
 						int previousState = model.getState();
 						return new DualCommandPair<Model>(new SetState(modelLocation, state), new SetState(modelLocation, previousState));
+					}
+					
+					@Override
+					public void createDualCommands(
+							List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(createDualCommand());
 					}
 				});
 			}
@@ -470,7 +476,6 @@ public class LiveModel extends Model {
 				PropogationContext propCtx = new PropogationContext();
 
 				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-					@Override
 					public DualCommand<Model> createDualCommand() {
 						Point currentInitialMouseDown = (Point)productionPanel.livePanel.model.getProperty("SelectionInitialMouseDown");
 						Boolean currentSelectionMoving = (Boolean)productionPanel.livePanel.model.getProperty("SelectionMoving");
@@ -492,6 +497,12 @@ public class LiveModel extends Model {
 								currentSelectionEffectBounds
 							)
 						);
+					}
+					
+					@Override
+					public void createDualCommands(
+							List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(createDualCommand());
 					}
 				});
 				

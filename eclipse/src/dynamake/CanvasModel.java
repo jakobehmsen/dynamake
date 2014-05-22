@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -334,7 +335,6 @@ public class CanvasModel extends Model {
 				@Override
 				public void run() {
 					transactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
-						@Override
 						public DualCommand<Model> createDualCommand() {
 							int indexOfModel = model.indexOfModel(child.getModelBehind());
 							Location canvasLocation = transactionFactory.getModelLocation();
@@ -349,6 +349,12 @@ public class CanvasModel extends Model {
 								new RemoveModelTransaction(canvasLocation, indexOfModel),
 								backward
 							);
+						}
+						
+						@Override
+						public void createDualCommands(
+								List<DualCommand<Model>> dualCommands) {
+							dualCommands.add(createDualCommand());
 						}
 					});
 				}
@@ -382,7 +388,6 @@ public class CanvasModel extends Model {
 //						));
 						
 						transactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
-							@Override
 							public DualCommand<Model> createDualCommand() {
 								Location livePanelLocation = livePanel.getTransactionFactory().getModelLocation();
 								Location canvasSourceLocation = dropped.getTransactionFactory().getParent().getModelLocation();
@@ -401,6 +406,12 @@ public class CanvasModel extends Model {
 								return new DualCommandPair<Model>(
 									new MoveModelTransaction(livePanelLocation, canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true), 
 									new SetOutputMoveModelTransaction(livePanelLocation, canvasTargetLocation, canvasSourceLocation, indexTarget, indexSource, ((JComponent)dropped).getLocation()));
+							}
+							
+							@Override
+							public void createDualCommands(
+									List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(createDualCommand());
 							}
 						});
 					}

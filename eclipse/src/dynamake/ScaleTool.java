@@ -5,6 +5,7 @@ import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -141,13 +142,18 @@ public class ScaleTool implements Tool {
 					PropogationContext propCtx = new PropogationContext();
 					
 					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-						@Override
 						public DualCommand<Model> createDualCommand() {
 							ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 							return new DualCommandPair<Model>(
 								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
 								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
 							);
+						}
+						
+						@Override
+						public void createDualCommands(
+								List<DualCommand<Model>> dualCommands) {
+							dualCommands.add(createDualCommand());
 						}
 					});
 				}

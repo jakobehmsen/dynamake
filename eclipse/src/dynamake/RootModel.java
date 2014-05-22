@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowStateListener;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -278,7 +279,6 @@ public class RootModel extends Model {
 
 				final int newState = e.getNewState();
 				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-					@Override
 					public DualCommand<Model> createDualCommand() {
 						Location modelLocation = transactionFactory.getModelLocation();
 						Integer currentState = (Integer)RootModel.this.getProperty("State");
@@ -286,6 +286,12 @@ public class RootModel extends Model {
 							new Model.SetPropertyOnRootTransaction(modelLocation, "State", newState),
 							new Model.SetPropertyOnRootTransaction(modelLocation, "State", currentState)
 						);
+					}
+					
+					@Override
+					public void createDualCommands(
+							List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(createDualCommand());
 					}
 				});
 			}

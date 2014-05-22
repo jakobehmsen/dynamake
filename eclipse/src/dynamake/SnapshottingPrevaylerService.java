@@ -242,19 +242,23 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				DualCommand<T> transaction = transactionFactory.createDualCommand();
-				transaction.executeForwardOn(propCtx, prevalentSystem(), null);
+				ArrayList<DualCommand<T>> createdTransactions = new ArrayList<DualCommand<T>>();
+				transactionFactory.createDualCommands(createdTransactions);
 				
-				if(transactionSequence == null) {
-					if(transactionIndex == transactions.size())
-						transactions.add(transaction);
-					else
-						transactions.set(transactionIndex, transaction);
-					transactionIndex++;
+				for(DualCommand<T> transaction: createdTransactions) {
+					transaction.executeForwardOn(propCtx, prevalentSystem(), null);
 					
-					persistTransaction(propCtx, transaction);
-				} else {
-					transactionSequence.add(transaction);
+					if(transactionSequence == null) {
+						if(transactionIndex == transactions.size())
+							transactions.add(transaction);
+						else
+							transactions.set(transactionIndex, transaction);
+						transactionIndex++;
+						
+						persistTransaction(propCtx, transaction);
+					} else {
+						transactionSequence.add(transaction);
+					}
 				}
 			}
 		});
