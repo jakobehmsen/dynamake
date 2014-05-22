@@ -170,8 +170,48 @@ public abstract class Model implements Serializable, Observer {
 		
 	}
 	
+	public static class BeganUpdateTransaction implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private Location modelLocation;
+		
+		public BeganUpdateTransaction(Location modelLocation) {
+			this.modelLocation = modelLocation;
+		}
+
+		@Override
+		public void executeOn(PropogationContext propCtx,
+				Model prevalentSystem, Date executionTime) {
+			Model model = (Model)modelLocation.getChild(prevalentSystem);
+			model.beginUpdate(propCtx, 0);
+		}
+	}
+	
 	public static class EndedUpdate {
 		
+	}
+	
+	public static class EndedUpdateTransaction implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		private Location modelLocation;
+		
+		public EndedUpdateTransaction(Location modelLocation) {
+			this.modelLocation = modelLocation;
+		}
+
+		@Override
+		public void executeOn(PropogationContext propCtx,
+				Model prevalentSystem, Date executionTime) {
+			Model model = (Model)modelLocation.getChild(prevalentSystem);
+			model.endUpdate(propCtx, 0);
+		}
 	}
 	
 	public static class AddObserver implements Command<Model> {

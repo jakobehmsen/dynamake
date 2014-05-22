@@ -92,7 +92,7 @@ public class EditTool implements Tool {
 			productionPanel.editPanelMouseAdapter.selectionMouseDown = null;
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.effectFrame.getBounds())) {
-				final TransactionFactory transactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
+				final TransactionFactory selectionTransactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
 				if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
 				   productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
 				   productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory() != productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent()) {
@@ -104,7 +104,7 @@ public class EditTool implements Tool {
 					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
 					final ModelComponent targetOver = productionPanel.editPanelMouseAdapter.targetOver;
 					
-					transactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
+					selectionTransactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
 						public DualCommand<Model> createDualCommand() {
 							Location livePanelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
 							Location canvasSourceLocation = selection.getTransactionFactory().getParent().getModelLocation();
@@ -123,7 +123,7 @@ public class EditTool implements Tool {
 								// to predicting the location of target canvas after the move has taken place:
 								// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
 								int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
-								canvasTargetLocationAfter = transactionFactory.getParent().extendLocation(new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
+								canvasTargetLocationAfter = selectionTransactionFactory.getParent().extendLocation(new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
 							} else {
 								canvasTargetLocationAfter = canvasTargetLocation;
 							}
@@ -146,22 +146,72 @@ public class EditTool implements Tool {
 					// Changing bounds within the same canvas
 					
 					JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
-					Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
+					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
 					
-					@SuppressWarnings("unchecked")
-					Command<Model> changeBoundsTransaction = new Model.CompositeTransaction((Command<Model>[])new Command<?>[] {
-						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", new Fraction(newBounds.x)),
-						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", new Fraction(newBounds.y)),
-						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", new Fraction(newBounds.width)),
-						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", new Fraction(newBounds.height))
+//					@SuppressWarnings("unchecked")
+//					Command<Model> changeBoundsTransaction = new Model.CompositeTransaction((Command<Model>[])new Command<?>[] {
+//						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", new Fraction(newBounds.x)),
+//						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", new Fraction(newBounds.y)),
+//						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", new Fraction(newBounds.width)),
+//						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", new Fraction(newBounds.height))
+//					});
+//					transactionFactory.executeOnRoot(new PropogationContext(), changeBoundsTransaction);
+//					
+//					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new PropogationContext(), new Model.SetPropertyOnRootTransaction(
+//						transactionFactory.getModelLocation(), 
+//						"SelectionEffectBounds", 
+//						productionPanel.effectFrame.getBounds())
+//					);
+					
+					PropogationContext propCtx = new PropogationContext();
+					
+					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
+					
+					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						@Override
+						public void createDualCommands(
+								List<DualCommand<Model>> dualCommands) {
+							Model selectionModel = selection.getModelBehind();
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.BeganUpdateTransaction(selectionTransactionFactory.getModelLocation()), 
+								new Model.EndedUpdateTransaction(selectionTransactionFactory.getModelLocation())
+							));
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "X", new Fraction(newBounds.x)), 
+								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "X", selectionModel.getProperty("X"))
+							));
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "Y", new Fraction(newBounds.y)), 
+								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "Y", selectionModel.getProperty("Y"))
+							));
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "Width", new Fraction(newBounds.width)), 
+								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "Width", selectionModel.getProperty("Width"))
+							));
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "Height", new Fraction(newBounds.height)), 
+								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "Height", selectionModel.getProperty("Height"))
+							));
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.EndedUpdateTransaction(selectionTransactionFactory.getModelLocation()), 
+								new Model.BeganUpdateTransaction(selectionTransactionFactory.getModelLocation())
+							));
+						}
 					});
-					transactionFactory.executeOnRoot(new PropogationContext(), changeBoundsTransaction);
 					
-					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new PropogationContext(), new Model.SetPropertyOnRootTransaction(
-						transactionFactory.getModelLocation(), 
-						"SelectionEffectBounds", 
-						productionPanel.effectFrame.getBounds())
-					);
+//					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new PropogationContext(), new Model.SetPropertyOnRootTransaction(
+//						selectionTransactionFactory.getModelLocation(), 
+//						"SelectionEffectBounds", 
+//						productionPanel.effectFrame.getBounds())
+//					);
+					
+					productionPanel.editPanelMouseAdapter.resetEffectFrame();
 				}
 				
 				productionPanel.editPanelMouseAdapter.targetOver = null;
