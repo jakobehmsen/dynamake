@@ -96,26 +96,37 @@ public abstract class Model implements Serializable, Observer {
 		
 		private String name;
 		private Object value;
-//		private Object antagonistValue;
 		
-		public SetPropertyTransaction(String name, Object value/*, Object antagonistValue*/) {
-//			if(name.equals("X") && value instanceof Integer)
-//				new String();
-			
+		public SetPropertyTransaction(String name, Object value) {
 			this.name = name;
 			this.value = value;
-//			this.antagonistValue = antagonistValue;
 		}
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
-//			PropogationContext propCtx = new PropogationContext();
 			prevalentSystem.setProperty(name, value, propCtx, 0);
 		}
-//		@Override
-//		public Command<Model> antagonist() {
-////			return new SetPropertyTransaction(name, antagonistValue, value);
-//			return null;
-//		}
+	}
+	
+	public static class SetPropertyOnRootTransaction implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private Location modelLocation;
+		private String name;
+		private Object value;
+		
+		public SetPropertyOnRootTransaction(Location modelLocation, String name, Object value) {
+			this.modelLocation = modelLocation;
+			this.name = name;
+			this.value = value;
+		}
+		@Override
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+			Model model = (Model)modelLocation.getChild(prevalentSystem);
+			model.setProperty(name, value, propCtx, 0);
+		}
 	}
 	
 	private ModelLocator locator;
