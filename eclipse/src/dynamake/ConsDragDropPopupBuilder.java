@@ -30,9 +30,6 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						selection.getTransactionFactory().executeOnRoot(
 							new PropogationContext(), new Model.RemoveObserverThenOutputObserver(liveModelLocation, selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
 						);
-
-						PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-						livePanel.getTransactionFactory().commitTransaction(propCtx);
 					}
 				});
 			} else {
@@ -43,9 +40,6 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						selection.getTransactionFactory().executeOnRoot(
 							new PropogationContext(), new Model.AddObserverThenOutputObserver(liveModelLocation, selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
 						);
-
-						PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-						livePanel.getTransactionFactory().commitTransaction(propCtx);
 					}
 				});
 			}
@@ -65,13 +59,17 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							new PrimitiveSingletonFactory(primImpl), 
 							dropBoundsOnTarget
 						));
-
-						PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-						livePanel.getTransactionFactory().commitTransaction(propCtx);
 					}
 				});
 			}
-			transactionObserverContentMapBuilder.appendTo(popup, "Observation");
+			transactionObserverContentMapBuilder.appendTo(popup, new Runner() {
+				@Override
+				public void run(Runnable runnable) {
+
+					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+					livePanel.getTransactionFactory().commitTransaction(propCtx);
+				}
+			}, "Observation");
 		}
 	}
 
