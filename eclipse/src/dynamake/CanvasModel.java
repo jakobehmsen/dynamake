@@ -199,21 +199,23 @@ public class CanvasModel extends Model {
 //		}
 	}
 	
-	public static class RemoveModelTransaction implements Command<CanvasModel> {
+	public static class RemoveModelTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		private Location canvasLocation;
 		private int index;
 		
-		public RemoveModelTransaction(int index) {
+		public RemoveModelTransaction(Location canvasLocation, int index) {
 			this.index = index;
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, CanvasModel prevalentSystem, Date executionTime) {
-			Model modelToRemove = prevalentSystem.getModel(index);
-			prevalentSystem.removeModel(index, new PropogationContext(), 0);
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(prevalentSystem);
+			Model modelToRemove = canvas.getModel(index);
+			canvas.removeModel(index, propCtx, 0);
 			modelToRemove.beRemoved();
 		}
 
@@ -289,7 +291,7 @@ public class CanvasModel extends Model {
 				@Override
 				public void run() {
 					int indexOfModel = model.indexOfModel(child.getModelBehind());
-					transactionFactory.execute(new PropogationContext(), new RemoveModelTransaction(indexOfModel));
+					transactionFactory.executeOnRoot(new PropogationContext(), new RemoveModelTransaction(transactionFactory.getModelLocation(), indexOfModel));
 				}
 			});
 		}
