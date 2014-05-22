@@ -116,7 +116,11 @@ public class ScaleTool implements Tool {
 					PropogationContext propCtx = new PropogationContext();
 					transactionFactory.executeOnRoot(propCtx, new ScaleTransaction(transactionFactory.getModelLocation(), newBounds));
 					
-					productionPanel.livePanel.getTransactionFactory().execute(propCtx, new Model.SetPropertyTransaction("SelectionEffectBounds", productionPanel.effectFrame.getBounds()));
+					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new Model.SetPropertyOnRootTransaction(
+						productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+						"SelectionEffectBounds", 
+						productionPanel.effectFrame.getBounds())
+					);
 				}
 				
 				productionPanel.editPanelMouseAdapter.targetOver = null;
