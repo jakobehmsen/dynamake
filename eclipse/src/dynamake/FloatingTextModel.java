@@ -171,16 +171,29 @@ public class FloatingTextModel extends Model {
 		}
 
 		@Override
-		public void appendTransactions(TransactionMapBuilder transactions) {
+		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions) {
 			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
 			
 			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
 			if(caretColor == null)
 				caretColor = this.getCaretColor();
+			final Color currentCaretColor = caretColor;
 			transactions.addTransaction("Set " + PROPERTY_CARET_COLOR, new ColorTransactionBuilder(caretColor, new Action1<Color>() {
 				@Override
-				public void run(Color color) {
-					transactionFactory.executeOnRoot(new PropogationContext(), new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, color));
+				public void run(final Color color) {
+					PropogationContext propCtx = new PropogationContext();
+					
+					transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						@Override
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, color),
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, currentCaretColor)
+							));
+							
+							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, transactionFactory.getModelLocation())); // Absolute location
+						}
+					});
 				}
 			}));
 		}
@@ -346,8 +359,12 @@ public class FloatingTextModel extends Model {
 		
 		Model.loadComponentProperties(this, view, Model.COMPONENT_COLOR_FOREGROUND);
 		
+		try {
+			document.documentInsert(0, text.toString(), null);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
 		view.setDocument(document);
-		view.setText(text.toString());
 		
 		viewManager.wasCreated(view);
 

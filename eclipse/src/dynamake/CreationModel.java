@@ -138,7 +138,7 @@ public class CreationModel extends Model {
 		}
 		
 		@Override
-		public void appendTransactions(TransactionMapBuilder transactions) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -241,7 +241,7 @@ public class CreationModel extends Model {
 		}
 
 		@Override
-		public void appendTransactions(TransactionMapBuilder transactions) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions) {
 			// TODO Auto-generated method stub
 			
 		}

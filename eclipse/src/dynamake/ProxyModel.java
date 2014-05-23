@@ -95,7 +95,7 @@ public class ProxyModel extends Model {
 		}
 
 		@Override
-		public void appendTransactions(TransactionMapBuilder transactions) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions) {
 			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
 //			view.appendTransactions(transactions);
 		}

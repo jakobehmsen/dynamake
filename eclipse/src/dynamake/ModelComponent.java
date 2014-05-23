@@ -13,7 +13,7 @@ public interface ModelComponent {
 	Model getModelBehind();
 	TransactionFactory getTransactionFactory();
 	void appendContainerTransactions(TransactionMapBuilder transactions, ModelComponent child);
-	void appendTransactions(TransactionMapBuilder transactions);
+	void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions);
 	void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions);
 	void appendDropTargetTransactions(ModelComponent livePanel, ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions);
 	void initialize();

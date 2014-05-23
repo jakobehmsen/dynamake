@@ -76,7 +76,7 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public void appendTransactions(TransactionMapBuilder transactions) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions) {
 
 		}
 
