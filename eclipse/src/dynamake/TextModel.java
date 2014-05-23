@@ -134,7 +134,7 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions) {
-			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions);
 			
 			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
 			if(caretColor == null)

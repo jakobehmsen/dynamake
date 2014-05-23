@@ -365,7 +365,7 @@ public class CanvasModel extends Model {
 
 		@Override
 		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions) {
-			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions);
 		}
 		@Override
 		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {

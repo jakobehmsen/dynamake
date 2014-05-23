@@ -172,7 +172,7 @@ public class FloatingTextModel extends Model {
 
 		@Override
 		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions) {
-			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions);
 			
 			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
 			if(caretColor == null)

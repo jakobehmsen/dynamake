@@ -315,7 +315,7 @@ public class Primitive extends Model {
 
 		@Override
 		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions) {
-			Model.appendComponentPropertyChangeTransactions(model, transactionFactory, transactions);
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions);
 		}
 
 		@Override
