@@ -474,7 +474,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void visitTree(Action1<ModelComponent> visitAction) {
 			for(Component child: getComponents())
-				visitAction.run((ModelComponent)child);
+				((ModelComponent)child).visitTree(visitAction);
 			
 			visitAction.run(this);
 		}
