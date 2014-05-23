@@ -780,8 +780,19 @@ public abstract class Model implements Serializable, Observer {
 	public static void appendComponentPropertyChangeTransactions(final Model model, final TransactionFactory transactionFactory, TransactionMapBuilder transactions) {
 		transactions.addTransaction("Set " + PROPERTY_COLOR, new ColorTransactionBuilder((Color)model.getProperty(PROPERTY_COLOR), new Action1<Color>() {
 			@Override
-			public void run(Color color) {
-				transactionFactory.executeOnRoot(new PropogationContext(), new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, color));
+			public void run(final Color color) {
+				PropogationContext propCtx = new PropogationContext();
+				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					@Override
+					public void createDualCommands(
+							List<DualCommand<Model>> dualCommands) {
+						Color currentColor = (Color)model.getProperty("PROPERTY_COLOR");
+						dualCommands.add(new DualCommandPair<Model>(
+							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, color),
+							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, currentColor)
+						));
+					}
+				});
 			}
 		}));
 	}
