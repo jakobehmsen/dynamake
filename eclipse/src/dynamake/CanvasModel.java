@@ -17,6 +17,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
+import javax.swing.text.View;
 
 import org.prevayler.Transaction;
 
@@ -307,14 +308,34 @@ public class CanvasModel extends Model {
 		private static final long serialVersionUID = 1L;
 		private CanvasModel model;
 		private TransactionFactory transactionFactory;
-		private ArrayList<ModelComponent> allModels = new ArrayList<ModelComponent>();
+		private HashSet<Model> shownModels = new HashSet<Model>();
+		private Memoizer1<Model, Binding<ModelComponent>> modelToModelComponentMap;
+//		private ArrayList<ModelComponent> viewsInSequence = new ArrayList<ModelComponent>();
 		
-		public CanvasPanel(CanvasModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
+		public CanvasPanel(final ModelComponent rootView, CanvasModel model, final TransactionFactory transactionFactory, final ViewManager viewManager) {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
 			setLayout(null);
 			setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			setOpaque(true);
+			
+			modelToModelComponentMap = new Memoizer1<Model, Binding<ModelComponent>>(new Func1<Model, Binding<ModelComponent>>() {
+				@Override
+				public Binding<ModelComponent> call(Model model) {
+					final Binding<ModelComponent> modelView = model.createView(rootView, viewManager, transactionFactory.extend(new IndexLocator(CanvasPanel.this.model, model)));
+					
+					Rectangle bounds = new Rectangle(
+						((Fraction)model.getProperty("X")).intValue(),
+						((Fraction)model.getProperty("Y")).intValue(),
+						((Fraction)model.getProperty("Width")).intValue(),
+						((Fraction)model.getProperty("Height")).intValue()
+					);
+					
+					((JComponent)modelView.getBindingTarget()).setBounds(bounds);
+					
+					return modelView;
+				}
+			});
 			
 			addMouseListener(new MouseAdapter() {
 				@Override
@@ -511,7 +532,9 @@ public class CanvasModel extends Model {
 
 		@Override
 		public Object getChild(Object holder) {
-			return ((CanvasPanel)holder).allModels.get(index);
+			// Is the model at index visible? If so, then return the corresponding model. If not, then return null.
+			Model model = ((CanvasPanel)holder).model.models.get(index);
+			return ((CanvasPanel)holder).modelToModelComponentMap.get(model).getBindingTarget();
 		}
 
 		@Override
@@ -524,17 +547,15 @@ public class CanvasModel extends Model {
 			final ModelComponent rootView, 
 			final CanvasPanel view, final TransactionFactory transactionFactory, 
 			final ViewManager viewManager, 
-			final HashSet<Model> shownModels,
-			final Memoizer1<Model, Binding<ModelComponent>> modelToModelComponentMap,
 			Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap, final Model model) {
 		Integer viewModel2 = (Integer)model.getProperty(Model.PROPERTY_VIEW);
 		if(viewModel2 == null)
 			viewModel2 = 1;
 
 		if(view.model.conformsToView(viewModel2)) {
-			shownModels.add(model);
+			view.shownModels.add(model);
 			
-			Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
+			Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 
 			view.add((JComponent)modelView.getBindingTarget());
 			view.setComponentZOrder((JComponent)modelView.getBindingTarget(), 0);
@@ -554,30 +575,32 @@ public class CanvasModel extends Model {
 						int modelView2 = (int)propertyChanged.value;
 						if(view.model.conformsToView(modelView2)) {
 							// Should be shown
-							if(!shownModels.contains(sender)) {
-								Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
+							if(!view.shownModels.contains(sender)) {
+								Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 								
-								shownModels.add(sender);
+								view.shownModels.add(sender);
 								view.add((JComponent)modelView.getBindingTarget());
 								int zOrder = view.getComponentCount();
 								for(int i = 0; i < models.size(); i++) {
 									Model m = models.get(i);
+									
+									if(view.shownModels.contains(m))
+										zOrder--;
+									
 									if(m == sender)
 										break;
-									
-									if(shownModels.contains(m))
-										zOrder--;
 								}
+								
 								view.setComponentZOrder((JComponent)modelView.getBindingTarget(), zOrder);
 								viewManager.becameVisible(modelView.getBindingTarget());
 								viewManager.refresh(view);
 							}
 						} else {
 							// Should be hidden
-							if(shownModels.contains(sender)) {
-								Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
+							if(view.shownModels.contains(sender)) {
+								Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 								
-								shownModels.remove(sender);
+								view.shownModels.remove(sender);
 								view.remove((JComponent)modelView.getBindingTarget());
 								viewManager.unFocus(propCtx, modelView.getBindingTarget());
 								viewManager.becameInvisible(propCtx, modelView.getBindingTarget());
@@ -599,7 +622,7 @@ public class CanvasModel extends Model {
 	public Binding<ModelComponent> createView(final ModelComponent rootView, final ViewManager viewManager, final TransactionFactory transactionFactory) {
 		this.setLocation(transactionFactory.getModelLocator());
 		
-		final CanvasPanel view = new CanvasPanel(this, transactionFactory, viewManager);
+		final CanvasPanel view = new CanvasPanel(rootView, this, transactionFactory, viewManager);
 		
 		final RemovableListener removableListenerForBoundsChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		Model.loadComponentProperties(this, view, Model.COMPONENT_COLOR_BACKGROUND);
@@ -607,31 +630,13 @@ public class CanvasModel extends Model {
 		Model.wrapForComponentGUIEvents(this, view, view, viewManager);
 		
 		final HashSet<Model> shownModels = new HashSet<Model>();
-		final Memoizer1<Model, Binding<ModelComponent>> modelToModelComponentMap = new Memoizer1<Model, Binding<ModelComponent>>(new Func1<Model, Binding<ModelComponent>>() {
-			@Override
-			public Binding<ModelComponent> call(Model model) {
-				final Binding<ModelComponent> modelView = model.createView(rootView, viewManager, transactionFactory.extend(new IndexLocator(CanvasModel.this, model)));
-				
-				Rectangle bounds = new Rectangle(
-					((Fraction)model.getProperty("X")).intValue(),
-					((Fraction)model.getProperty("Y")).intValue(),
-					((Fraction)model.getProperty("Width")).intValue(),
-					((Fraction)model.getProperty("Height")).intValue()
-				);
-				
-				((JComponent)modelView.getBindingTarget()).setBounds(bounds);
-				
-				return modelView;
-			}
-		});
 		
 		final Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap = new Hashtable<Model, Model.RemovableListener>();
 		for(final Model model: models) {
 			addModelComponent(
-				rootView, view, transactionFactory, viewManager, shownModels, modelToModelComponentMap, modelToRemovableListenerMap, model
+				rootView, view, transactionFactory, viewManager, 
+				modelToRemovableListenerMap, model
 			);
-			Binding<ModelComponent> itemView = modelToModelComponentMap.get(model);
-			view.allModels.add(itemView.getBindingTarget());
 		}
 		
 		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new ObserverAdapter() {
@@ -642,10 +647,9 @@ public class CanvasModel extends Model {
 					final Model model = addedChange.model;
 					
 					addModelComponent(
-						rootView, view, transactionFactory, viewManager, shownModels, modelToModelComponentMap, modelToRemovableListenerMap, model
+						rootView, view, transactionFactory, viewManager, 
+						modelToRemovableListenerMap, model
 					);
-					Binding<ModelComponent> itemView = modelToModelComponentMap.get(model);
-					view.allModels.add(addedChange.index, itemView.getBindingTarget());
 					
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
@@ -653,27 +657,18 @@ public class CanvasModel extends Model {
 							viewManager.refresh(view);
 						}
 					});
-//					viewManager.refresh(view);
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
 					// It could be possible to have map mapping from model to model component as follows:
 					Model removedModel = ((CanvasModel.RemovedModelChange)change).model;
 					
-					Binding<ModelComponent> removedMCBinding = modelToModelComponentMap.get(removedModel);
-					modelToModelComponentMap.clear(removedModel);
+					Binding<ModelComponent> removedMCBinding = view.modelToModelComponentMap.get(removedModel);
+					view.modelToModelComponentMap.clear(removedModel);
 					final ModelComponent removedMC = removedMCBinding.getBindingTarget();
-//					view.remove((JComponent)removedMC);
-					view.allModels.remove(removedMC);
 					
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
 					removableListener.releaseBinding();
 					
 					viewManager.becameInvisible(propCtx, removedMC);
-					
-//					view.validate();
-//					view.repaint();
-////					viewManager.clearFocus(propCtx);
-//					viewManager.unFocus(propCtx, removedMC);
-//					viewManager.repaint(view);
 					
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
@@ -681,7 +676,6 @@ public class CanvasModel extends Model {
 							view.remove((JComponent)removedMC);
 							view.validate();
 							view.repaint();
-//							viewManager.clearFocus(propCtx);
 							viewManager.unFocus(propCtx, removedMC);
 							viewManager.repaint(view);
 						}
@@ -744,7 +738,7 @@ public class CanvasModel extends Model {
 									// Model to add
 									Model model = (Model)visible;
 									shownModels.add(model);
-									Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
+									Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 
 									view.add((JComponent)modelView.getBindingTarget());
 									viewManager.becameVisible(modelView.getBindingTarget());
@@ -760,7 +754,7 @@ public class CanvasModel extends Model {
 								if(visible instanceof Model) {
 									// Model to add
 									Model model = (Model)visible;
-									Binding<ModelComponent> modelView = modelToModelComponentMap.call(model);
+									Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 									
 									view.setComponentZOrder((JComponent)modelView.getBindingTarget(), zOrder);
 								} else {
