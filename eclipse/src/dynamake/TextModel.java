@@ -142,9 +142,18 @@ public class TextModel extends Model {
 				caretColor = view.getCaretColor();
 			transactions.addTransaction("Set " + PROPERTY_CARET_COLOR, new ColorTransactionBuilder(caretColor, new Action1<Color>() {
 				@Override
-				public void run(Color color) {
+				public void run(final Color color) {
 					PropogationContext propCtx = new PropogationContext();
-					transactionFactory.executeOnRoot(propCtx, new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, color));
+					
+					transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						@Override
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, color),
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, model.getProperty("PROPERTY_CARET_COLOR"))
+							));
+						}
+					});
 				}
 			}));
 		}
