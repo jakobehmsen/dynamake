@@ -6,13 +6,17 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.PlainDocument;
 
 import org.prevayler.Transaction;
 
@@ -56,6 +60,26 @@ public class FloatingTextModel extends Model {
 		
 	}
 	
+	private static class InsertedText {
+		public final int offset;
+		public final String text;
+		
+		public InsertedText(int offset, String text) {
+			this.offset = offset;
+			this.text = text;
+		}
+	}
+	
+	private static class RemovedText {
+		public final int start;
+		public final int end;
+		
+		public RemovedText(int start, int end) {
+			this.start = start;
+			this.end = end;
+		}
+	}
+	
 	private static class InsertTransaction implements Command<Model> {
 		/**
 		 * 
@@ -75,6 +99,7 @@ public class FloatingTextModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 			FloatingTextModel textModel = (FloatingTextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.insert(offset, text);
+			textModel.sendChanged(new InsertedText(offset, text), propCtx, 0, 0);
 		}
 
 //		@Override
@@ -103,6 +128,7 @@ public class FloatingTextModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 			FloatingTextModel textModel = (FloatingTextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.delete(start, end);
+			textModel.sendChanged(new RemovedText(start, end), propCtx, 0, 0);
 		}
 
 //		@Override
@@ -198,12 +224,72 @@ public class FloatingTextModel extends Model {
 		}
 	}
 	
+	// The same as LiveModel.TAG_CAUSED_BY_TOGGLE_BUTTON; 
+	// TODO: Consider: Perhaps, there should be a general "caused by view" tag?
+	private static final int TAG_CAUSED_BY_VIEW = 2; 
+	
+	private static class ViewDocument extends PlainDocument {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private FloatingTextModel model;
+		private TransactionFactory transactionFactory;
+		
+		public ViewDocument(FloatingTextModel model, TransactionFactory transactionFactory) {
+			this.model = model;
+			this.transactionFactory = transactionFactory;
+		}
+		
+		@Override
+		public void insertString(final int offs, final String str, AttributeSet a)
+				throws BadLocationException {
+			documentInsert(offs, str, a);
+			
+			transactionFactory.executeOnRoot(new PropogationContext(TAG_CAUSED_BY_VIEW), new DualCommandFactory<Model>() {
+				@Override
+				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					dualCommands.add(new DualCommandPair<Model>(
+						new InsertTransaction(transactionFactory.getModelLocation(), offs, str), 
+						new RemoveTransaction(transactionFactory.getModelLocation(), offs, offs + str.length())
+					));
+				}
+			});
+		}
+		
+		public void documentInsert(int offs, String str, AttributeSet a) throws BadLocationException {
+			super.insertString(offs, str, a);
+		}
+		
+		@Override
+		public void remove(int offs, int len) throws BadLocationException {
+			documentRemove(offs, len);
+
+			final int start = offs;
+			final int end = offs + len;
+			
+			transactionFactory.executeOnRoot(new PropogationContext(TAG_CAUSED_BY_VIEW), new DualCommandFactory<Model>() {
+				@Override
+				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					String removedText = model.text.substring(start, end);
+					dualCommands.add(new DualCommandPair<Model>(
+						new RemoveTransaction(transactionFactory.getModelLocation(), start, end), 
+						new InsertTransaction(transactionFactory.getModelLocation(), start, removedText)
+					));
+				}
+			});
+		}
+		
+		public void documentRemove(int offs, int len) throws BadLocationException {
+			super.remove(offs, len);
+		}
+	}
+	
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView, final ViewManager viewManager, final TransactionFactory transactionFactory) {
 		this.setLocation(transactionFactory.getModelLocator());
 		
 		final FloatingTextModelView view = new FloatingTextModelView(this, transactionFactory, viewManager);
-		view.setText(text.toString());
 		
 		// TODO: Investigate: Is caret color loaded anywhere?
 		final RemovableListener removeListenerForCaretColor = Model.bindProperty(this, PROPERTY_CARET_COLOR, new Action1<Color>() {
@@ -214,6 +300,8 @@ public class FloatingTextModel extends Model {
 			}
 		});
 		
+		final ViewDocument document = new ViewDocument(this, transactionFactory);
+		
 		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		final Model.RemovableListener removeListenerForComponentPropertyChanges = Model.wrapForComponentColorChanges(this, view, view, viewManager, Model.COMPONENT_COLOR_FOREGROUND);
 		final Binding<Model> removableListener = RemovableListener.addAll(this, 
@@ -223,34 +311,43 @@ public class FloatingTextModel extends Model {
 					view.setFont(new Font(font.getFamily(), font.getStyle(), value.intValue()));
 					viewManager.refresh(view);
 				}
+			}),
+			RemovableListener.addObserver(this, new Observer() {
+				@Override
+				public void removeObservee(Observer observee) { }
+				
+				@Override
+				public void addObservee(Observer observee) { }
+				
+				@Override
+				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+					if(!propCtx.isTagged(TAG_CAUSED_BY_VIEW)) {
+						if(change instanceof InsertedText) {
+							InsertedText insertText = (InsertedText)change;
+							
+							try {
+								document.documentInsert(insertText.offset, insertText.text, null);
+							} catch (BadLocationException e) {
+								e.printStackTrace();
+							}
+						} else if(change instanceof RemovedText) {
+							RemovedText removedText = (RemovedText)change;
+							
+							try {
+								document.documentRemove(removedText.start, removedText.end - removedText.start);
+							} catch (BadLocationException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}
 			})
 		);
 		
 		Model.loadComponentProperties(this, view, Model.COMPONENT_COLOR_FOREGROUND);
 		
-		view.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				final int start = e.getOffset();
-				final int end = e.getOffset() + e.getLength();
-				transactionFactory.executeOnRoot(new PropogationContext(), new RemoveTransaction(transactionFactory.getModelLocation(), start, end));
-			}
-			
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				final int offset = e.getOffset();
-				final String str;
-				try {
-					str = e.getDocument().getText(e.getOffset(), e.getLength());
-					transactionFactory.executeOnRoot(new PropogationContext(), new InsertTransaction(transactionFactory.getModelLocation(), offset, str));
-				} catch (BadLocationException e1) {
-					e1.printStackTrace();
-				}
-			}
-			
-			@Override
-			public void changedUpdate(DocumentEvent e) { }
-		});
+		view.setDocument(document);
+		view.setText(text.toString());
 		
 		viewManager.wasCreated(view);
 
