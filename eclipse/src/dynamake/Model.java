@@ -26,6 +26,8 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 //import javax.swing.JFrame;
 
+import dynamake.CanvasModel.IndexLocation;
+
 public abstract class Model implements Serializable, Observer {
 	public static class GenericChange {
 		public final String name;
@@ -858,15 +860,24 @@ public abstract class Model implements Serializable, Observer {
 			transactions.addTransaction("Clone Deep", new Runnable() {
 				@Override
 				public void run() {
-					Rectangle creationBounds = droppedBounds;
-
-					dropped.getTransactionFactory().executeOnRoot(
-						new PropogationContext(), new AddThenOutputTransaction(
-						livePanel.getTransactionFactory().getModelLocation(), 
-						target.getTransactionFactory().getModelLocation(), 
-						creationBounds, 
-						new CloneDeepFactory(dropped.getTransactionFactory().getModelLocation()))
-					);
+					final Rectangle creationBounds = droppedBounds;
+					
+					PropogationContext propCtx = new PropogationContext();
+					dropped.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						@Override
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
+							Location cloneLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(cloneIndex));
+							Location targetCanvasLocation = target.getTransactionFactory().getModelLocation();
+							Factory factory = new CloneDeepFactory(dropped.getTransactionFactory().getModelLocation());
+							dualCommands.add(new DualCommandPair<Model>(
+								new CanvasModel.AddModelTransaction(targetCanvasLocation, creationBounds, factory),
+								new CanvasModel.RemoveModelTransaction(targetCanvasLocation, cloneIndex)
+							));
+							
+							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, cloneLocation)); // Absolute location
+						}
+					});
 				}
 			});
 		}
