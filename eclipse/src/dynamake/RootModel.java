@@ -137,12 +137,14 @@ public class RootModel extends Model {
 	}
 	
 	private static class BoundsChangeHandler extends MouseAdapter implements ComponentListener {
+		private RootModel rootModel;
 		private TransactionFactory transactionFactory;
 		private boolean mouseIsDown;
 		private Point newLocation;
 		private Dimension newSize;
 		
-		public BoundsChangeHandler(TransactionFactory transactionFactory) {
+		public BoundsChangeHandler(RootModel rootModel, TransactionFactory transactionFactory) {
+			this.rootModel = rootModel;
 			this.transactionFactory = transactionFactory;
 		}
 
@@ -152,13 +154,47 @@ public class RootModel extends Model {
 			
 			PropogationContext propCtx = new PropogationContext();
 			if(newLocation != null) {
-				transactionFactory.executeOnRoot(propCtx, new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", newLocation.x));
-				transactionFactory.executeOnRoot(propCtx, new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", newLocation.y));
+				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					@Override
+					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(new DualCommandPair<Model>(
+							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", newLocation.x),
+							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", rootModel.getProperty("X"))
+						));
+					}
+				});
+
+				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					@Override
+					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(new DualCommandPair<Model>(
+							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", newLocation.y),
+							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", rootModel.getProperty("Y"))
+						));
+					}
+				});
 			}
 			
 			if(newSize != null) {
-				transactionFactory.executeOnRoot(propCtx, new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", newSize.width));
-				transactionFactory.executeOnRoot(propCtx, new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", newSize.height));
+				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					@Override
+					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(new DualCommandPair<Model>(
+							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", newSize.width),
+							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", rootModel.getProperty("Width"))
+						));
+					}
+				});
+
+				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					@Override
+					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(new DualCommandPair<Model>(
+							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", newSize.height),
+							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", rootModel.getProperty("Height"))
+						));
+					}
+				});
 			}
 		}
 		
@@ -255,7 +291,7 @@ public class RootModel extends Model {
 //			public void componentHidden(ComponentEvent e) { }
 //		});
 		
-		BoundsChangeHandler boundsChangeHandler = new BoundsChangeHandler(transactionFactory);
+		BoundsChangeHandler boundsChangeHandler = new BoundsChangeHandler(this, transactionFactory);
 		view.addMouseListener(boundsChangeHandler);
 		view.addComponentListener(boundsChangeHandler);
 		
