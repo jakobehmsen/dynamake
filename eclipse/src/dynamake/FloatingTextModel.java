@@ -235,6 +235,11 @@ public class FloatingTextModel extends Model {
 			// TODO Auto-generated method stub
 			
 		}
+		
+		@Override
+		public void visitTree(Action1<ModelComponent> visitAction) {
+			visitAction.run(this);
+		}
 	}
 	
 	// The same as LiveModel.TAG_CAUSED_BY_TOGGLE_BUTTON; 

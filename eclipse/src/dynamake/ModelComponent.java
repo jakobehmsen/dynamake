@@ -34,4 +34,5 @@ public interface ModelComponent {
 	}
 
 	DualCommandFactory<Model> getImplicitDropAction(ModelComponent target);
+	void visitTree(Action1<ModelComponent> visitAction);
 }

@@ -187,6 +187,11 @@ public class CreationModel extends Model {
 			// TODO Auto-generated method stub
 			
 		}
+		
+		@Override
+		public void visitTree(Action1<ModelComponent> visitAction) {
+			visitAction.run(this);
+		}
 	}
 	
 	private static class PanelModel extends JPanel implements ModelComponent {
@@ -280,6 +285,11 @@ public class CreationModel extends Model {
 		public void initialize() {
 			// TODO Auto-generated method stub
 			
+		}
+		
+		@Override
+		public void visitTree(Action1<ModelComponent> visitAction) {
+			visitAction.run(this);
 		}
 	}
 	

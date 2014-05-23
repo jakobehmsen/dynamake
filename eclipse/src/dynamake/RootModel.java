@@ -99,6 +99,11 @@ public class RootModel extends Model {
 		public void initialize() {
 			((ModelComponent)getContentPane().getComponent(0)).initialize();
 		}
+		
+		@Override
+		public void visitTree(Action1<ModelComponent> visitAction) {
+			visitAction.run(this);
+		}
 	}
 	
 	private static class FieldContentLocation implements ModelLocation {

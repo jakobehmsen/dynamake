@@ -339,6 +339,11 @@ public class Primitive extends Model {
 			// TODO Auto-generated method stub
 			
 		}
+		
+		@Override
+		public void visitTree(Action1<ModelComponent> visitAction) {
+			visitAction.run(this);
+		}
 	}
 
 	@Override

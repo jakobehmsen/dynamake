@@ -122,6 +122,11 @@ public class ProxyModel extends Model {
 			// TODO Auto-generated method stub
 			
 		}
+		
+		@Override
+		public void visitTree(Action1<ModelComponent> visitAction) {
+			visitAction.run(this);
+		}
 	}
 	
 	private static class FieldModelLocator implements ModelLocator {

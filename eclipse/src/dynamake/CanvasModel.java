@@ -449,6 +449,14 @@ public class CanvasModel extends Model {
 		public void initialize() {
 			// TODO Auto-generated method stub
 		}
+		
+		@Override
+		public void visitTree(Action1<ModelComponent> visitAction) {
+			for(Component child: getComponents())
+				visitAction.run((ModelComponent)child);
+			
+			visitAction.run(this);
+		}
 	}
 	
 	public static class IndexLocator implements ModelLocator {

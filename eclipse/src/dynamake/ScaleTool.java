@@ -5,6 +5,7 @@ import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -16,6 +17,7 @@ import dynamake.CanvasModel.MoveModelTransaction;
 import dynamake.CanvasModel.SetOutputMoveModelTransaction;
 import dynamake.LiveModel.ProductionPanel;
 import dynamake.LiveModel.SetOutput;
+import dynamake.Model.SetPropertyOnRootTransaction;
 
 public class ScaleTool implements Tool {
 	@Override
@@ -86,7 +88,9 @@ public class ScaleTool implements Tool {
 
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1 && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
+//		if(e.getButton() == MouseEvent.BUTTON1 && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
+		if(viewPressedOn != null) {
+			viewPressedOn = null;
 			productionPanel.editPanelMouseAdapter.selectionMouseDown = null;
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.effectFrame.getBounds())) {
@@ -143,25 +147,73 @@ public class ScaleTool implements Tool {
 				} else {
 					// Changing bounds within the same canvas
 					
+					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
+					
 					JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
-					Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
+					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
 					
 					PropogationContext propCtx = new PropogationContext();
-					selectionTransactionFactory.executeOnRoot(propCtx, new ScaleTransaction(selectionTransactionFactory.getModelLocation(), newBounds));
 					
-					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new Model.SetPropertyOnRootTransaction(
-						productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-						"SelectionEffectBounds", 
-						productionPanel.effectFrame.getBounds())
-					);
+					selectionTransactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						@Override
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							final ArrayList<Command<Model>> scaleUndoCommands = new ArrayList<Command<Model>>();
+							
+							selection.visitTree(new Action1<ModelComponent>() {
+								@Override
+								public void run(ModelComponent modelComponent) {
+									scaleUndoCommands.add(new SetPropertyOnRootTransaction(
+										modelComponent.getTransactionFactory().getModelLocation(),
+										"X",
+										modelComponent.getModelBehind().getProperty("X")
+									));
+									scaleUndoCommands.add(new SetPropertyOnRootTransaction(
+										modelComponent.getTransactionFactory().getModelLocation(),
+										"Y",
+										modelComponent.getModelBehind().getProperty("Y")
+									));
+									scaleUndoCommands.add(new SetPropertyOnRootTransaction(
+										modelComponent.getTransactionFactory().getModelLocation(),
+										"Width",
+										modelComponent.getModelBehind().getProperty("Width")
+									));
+									scaleUndoCommands.add(new SetPropertyOnRootTransaction(
+											modelComponent.getTransactionFactory().getModelLocation(),
+										"Height",
+										modelComponent.getModelBehind().getProperty("Height")
+									));
+								}
+							});
+							
+							@SuppressWarnings("unchecked")
+							Command<Model>[] scaleUndoCommandArray = (Command<Model>[])new Command<?>[scaleUndoCommands.size()];
+							scaleUndoCommands.toArray(scaleUndoCommandArray);
+							Command<Model> scaleUndoCommand = new CompositeCommand<Model>(scaleUndoCommandArray);
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new ScaleTransaction(selectionTransactionFactory.getModelLocation(), newBounds),
+								scaleUndoCommand
+							));
+							
+							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, selectionTransactionFactory.getModelLocation())); // Absolute location
+						}
+					});
+					
+					// Let the effect be transient only from now on?
+					productionPanel.editPanelMouseAdapter.resetEffectFrame();
 				}
 				
 				productionPanel.editPanelMouseAdapter.targetOver = null;
 				productionPanel.editPanelMouseAdapter.clearTarget();
 			}
+			
+			PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+			productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
 		}
 	}
-
+	
+	private ModelComponent viewPressedOn;
+	
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
@@ -170,6 +222,10 @@ public class ScaleTool implements Tool {
 		
 		if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			if(targetModelComponent != null) {
+				viewPressedOn = targetModelComponent;
+				
+				productionPanel.livePanel.getTransactionFactory().beginTransaction();
+				
 				if(productionPanel.editPanelMouseAdapter.output != null) {
 					PropogationContext propCtx = new PropogationContext();
 					
@@ -191,7 +247,7 @@ public class ScaleTool implements Tool {
 				}
 				
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				 productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true);
+				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true);
 				productionPanel.livePanel.repaint();
 			}
 		}
