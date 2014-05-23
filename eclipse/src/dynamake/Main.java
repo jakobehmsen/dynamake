@@ -201,18 +201,20 @@ public class Main {
 					
 				}
 				
+				private Tool[] tools = new Tool[] {
+					new EditTool(),
+					new PlotTool(),
+					new BindTool(),
+					new DragTool(),
+					new ConsTool(),
+					new TellTool(),
+					new ViewTool(),
+					new ScaleTool()
+				}; 
+				
 				@Override
 				public Tool[] getTools() {
-					return new Tool[] {
-						new EditTool(),
-						new PlotTool(),
-						new BindTool(),
-						new DragTool(),
-						new ConsTool(),
-						new TellTool(),
-						new ViewTool(),
-						new ScaleTool()
-					};
+					return tools;
 				}
 
 				@Override

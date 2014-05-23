@@ -88,7 +88,15 @@ public class EditTool implements Tool {
 
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1 && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
+//		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
+//		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
+//		ModelComponent targetModelComponent =  productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+
+//		if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != productionPanel.contentView.getBindingTarget()) {
+		
+//		if(e.getButton() == MouseEvent.BUTTON1 && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
+		if(viewPressedOn != null) {
+			viewPressedOn = null;
 			productionPanel.editPanelMouseAdapter.selectionMouseDown = null;
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.effectFrame.getBounds())) {
@@ -211,6 +219,7 @@ public class EditTool implements Tool {
 //						productionPanel.effectFrame.getBounds())
 //					);
 					
+					// Let the effect be transient only from now on?
 					productionPanel.editPanelMouseAdapter.resetEffectFrame();
 				}
 				
@@ -222,15 +231,19 @@ public class EditTool implements Tool {
 			productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
 		}
 	}
+	
+	private ModelComponent viewPressedOn;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 		ModelComponent targetModelComponent =  productionPanel.editPanelMouseAdapter.closestModelComponent(target);
-		
+
 		if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			if(targetModelComponent != null) {
+				viewPressedOn = targetModelComponent;
+				
 				productionPanel.livePanel.getTransactionFactory().beginTransaction();
 				
 				if(productionPanel.editPanelMouseAdapter.output != null) {
