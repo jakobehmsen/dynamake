@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
@@ -220,7 +221,16 @@ public class TextModel extends Model {
 				final int start = e.getOffset();
 				final int end = e.getOffset() + e.getLength();
 				PropogationContext propCtx = new PropogationContext();
-				transactionFactory.executeOnRoot(propCtx, new RemoveTransaction(transactionFactory.getModelLocation(), start, end));
+				
+				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					@Override
+					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(new DualCommandPair<Model>(
+							new RemoveTransaction(transactionFactory.getModelLocation(), start, end),
+							null
+						));
+					}
+				});		
 			}
 			
 			@Override
@@ -230,7 +240,16 @@ public class TextModel extends Model {
 				try {
 					str = e.getDocument().getText(e.getOffset(), e.getLength());
 					PropogationContext propCtx = new PropogationContext();
-					transactionFactory.executeOnRoot(propCtx, new InsertTransaction(transactionFactory.getModelLocation(), offset, str));
+					
+					transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						@Override
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							dualCommands.add(new DualCommandPair<Model>(
+								new InsertTransaction(transactionFactory.getModelLocation(), offset, str),
+								null
+							));
+						}
+					});	
 				} catch (BadLocationException e1) {
 					e1.printStackTrace();
 				}
