@@ -26,6 +26,7 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
+import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.PopupMenuEvent;
@@ -233,12 +234,14 @@ public class LiveModel extends Model {
 	public static final int TAG_CAUSED_BY_ROLLBACK = 3;
 	public static final int TAG_CAUSED_BY_COMMIT = 4;
 	
-	private static JRadioButton createStateRadioButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int currentState, final int state, String text) {
-		JRadioButton radioButton = new JRadioButton(text);
-		radioButton.setBackground(TOP_BACKGROUND_COLOR);
-		radioButton.setForeground(TOP_FOREGROUND_COLOR);
-		radioButton.addActionListener(new ActionListener() {
-			
+	private static JToggleButton createToolButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int currentState, final int state, String text) {
+//		JRadioButton radioButton = new JRadioButton(text);
+		JToggleButton buttonTool = new JToggleButton(text);
+		buttonTool.setBackground(TOP_BACKGROUND_COLOR);
+		buttonTool.setForeground(TOP_FOREGROUND_COLOR);
+		buttonTool.setBorderPainted(false);
+		
+		buttonTool.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// Indicate this is an radio button toggle context
@@ -259,12 +262,12 @@ public class LiveModel extends Model {
 				});
 			}
 		});
-		radioButton.setFocusable(false);
-		group.add(radioButton);
+		buttonTool.setFocusable(false);
+		group.add(buttonTool);
 		if(currentState == state) {
-			radioButton.setSelected(true);
+			buttonTool.setSelected(true);
 		}
-		return radioButton;
+		return buttonTool;
 	}
 
 	public static class ProductionPanel extends JPanel {
@@ -860,7 +863,7 @@ public class LiveModel extends Model {
 		public ProductionPanel productionPanel;
 		public ViewManager viewManager;
 		private TransactionFactory transactionFactory;
-		private JRadioButton[] radioButtonStates;
+		private JToggleButton[] buttonTools;
 		private final Binding<ModelComponent> contentView;
 		private ModelComponent rootView;
 		
@@ -960,17 +963,22 @@ public class LiveModel extends Model {
 			topPanel.setFocusable(false);
 
 			Tool[] tools = viewManager.getTools();
-			radioButtonStates = new JRadioButton[1 + tools.length];
+			buttonTools = new JToggleButton[1 + tools.length];
 			ButtonGroup group = new ButtonGroup();
 			
-			radioButtonStates[0] = createStateRadioButton(model, transactionFactory, group, this.model.getState(), STATE_USE, "Use");
+			buttonTools[0] = createToolButton(model, transactionFactory, group, this.model.getState(), STATE_USE, "Use");
 
 			for(int i = 0; i < tools.length; i++) {
 				Tool tool = tools[i];
-				radioButtonStates[i + 1] = createStateRadioButton(model, transactionFactory, group, this.model.getState(), i + 1, tool.getName());
+				buttonTools[i + 1] = createToolButton(model, transactionFactory, group, this.model.getState(), i + 1, tool.getName());
 			}
-			for(JRadioButton radioButtonState: radioButtonStates)
-				topPanel.add(radioButtonState);
+			for(JToggleButton buttonTool: buttonTools) {
+				JPanel buttonToolWrapper = new JPanel();
+				buttonToolWrapper.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+				buttonToolWrapper.setLayout(new BorderLayout());
+				buttonToolWrapper.add(buttonTool, BorderLayout.CENTER);
+				topPanel.add(buttonToolWrapper);
+			}
 			topPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			
 			contentPane = new JLayeredPane();
@@ -1021,12 +1029,8 @@ public class LiveModel extends Model {
 				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance) {
 					if(change instanceof LiveModel.StateChanged) {
 						if(!propCtx.isTagged(TAG_CAUSED_BY_TOGGLE_BUTTON)) {
-							System.out.println("state change not TAG_CAUSED_BY_TOGGLE_BUTTON (" + LivePanel.this.model.getState() + ")");
-							
-							JRadioButton radioButtonNewState = radioButtonStates[LivePanel.this.model.getState()];
-							radioButtonNewState.setSelected(true);
-						} else {
-							System.out.println("state change TAG_CAUSED_BY_TOGGLE_BUTTON");
+							JToggleButton buttonNewTool = buttonTools[LivePanel.this.model.getState()];
+							buttonNewTool.setSelected(true);
 						}
 						
 						if(previousState == LiveModel.STATE_USE && LivePanel.this.model.getState() != LiveModel.STATE_USE) {

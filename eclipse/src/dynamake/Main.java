@@ -1,6 +1,7 @@
 package dynamake;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.WindowAdapter;
@@ -15,6 +16,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.UIManager;
 
 import org.prevayler.Prevayler;
 import org.prevayler.PrevaylerFactory;
@@ -236,6 +238,9 @@ public class Main {
 				}
 			};
 			TransactionFactory rootTransactionFactory = new TransactionFactory(prevaylerService, new ModelRootLocator());
+			
+			UIManager.put("ToggleButton.select", Color.DARK_GRAY);
+			
 			final Binding<ModelComponent> rootView = prevaylerService.prevalentSystem().createView(null, rootViewManager, rootTransactionFactory);
 			rootView.getBindingTarget().initialize();
 			JFrame frame = (JFrame)rootView.getBindingTarget();
