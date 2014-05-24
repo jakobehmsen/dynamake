@@ -19,6 +19,8 @@ import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -26,7 +28,9 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.PopupMenuEvent;
@@ -935,9 +939,14 @@ public class LiveModel extends Model {
 			productionPanel = new ProductionPanel(this, contentView);
 			
 			topPanel = new JPanel();
+			
 			topPanel.setBackground(TOP_BACKGROUND_COLOR);
 			
+			JToolBar toolBar = new JToolBar();
+			
 			JButton undo = new JButton("Undo");
+			undo.setBackground(TOP_FOREGROUND_COLOR);
+			undo.setForeground(TOP_BACKGROUND_COLOR);
 			undo.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
@@ -946,9 +955,11 @@ public class LiveModel extends Model {
 					getTransactionFactory().undo(propCtx);
 				}
 			});
+			undo.setFocusable(false);
 			topPanel.add(undo);
-			topPanel.setFocusable(false);
 			JButton redo = new JButton("Redo");
+			redo.setBackground(TOP_FOREGROUND_COLOR);
+			redo.setForeground(TOP_BACKGROUND_COLOR);
 			redo.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
@@ -957,8 +968,11 @@ public class LiveModel extends Model {
 					getTransactionFactory().redo(propCtx);
 				}
 			});
+			redo.setFocusable(false);
 			topPanel.add(redo);
-			topPanel.setFocusable(false);
+			
+			topPanel.add(new JSeparator(JSeparator.VERTICAL));
+			topPanel.add(new JSeparator(JSeparator.VERTICAL));
 
 			Tool[] tools = viewManager.getTools();
 			buttonTools = new JToggleButton[1 + tools.length];
@@ -977,6 +991,10 @@ public class LiveModel extends Model {
 				buttonToolWrapper.add(buttonTool, BorderLayout.CENTER);
 				topPanel.add(buttonToolWrapper);
 			}
+			
+//			topPanel.setLayout(new BorderLayout());
+//			topPanel.add(toolBar, BorderLayout.CENTER);
+			
 			topPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			
 			contentPane = new JLayeredPane();
