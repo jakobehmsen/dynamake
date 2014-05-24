@@ -11,7 +11,7 @@ public class FloatingTextModelFactory implements Factory {
 
 	@Override
 	public String getName() {
-		return "FText";
+		return "Text";
 	}
 
 	@Override

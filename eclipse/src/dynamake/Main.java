@@ -127,13 +127,13 @@ public class Main {
 			
 			ArrayList<Factory> factoryBuilder = new ArrayList<Factory>();
 			
-			factoryBuilder.add(new TextModelFactory());
+//			factoryBuilder.add(new TextModelFactory());
 			factoryBuilder.add(new CanvasModelFactory());
 //			factoryBuilder.add(new ButtonModelFactory());
 			factoryBuilder.add(new FloatingTextModelFactory());
 			
-			for(Primitive.Implementation implementationSingleton: Primitive.getImplementationSingletons())
-				factoryBuilder.add(new PrimitiveSingletonFactory(implementationSingleton));
+//			for(Primitive.Implementation implementationSingleton: Primitive.getImplementationSingletons())
+//				factoryBuilder.add(new PrimitiveSingletonFactory(implementationSingleton));
 			
 			final Factory[] factories = new Factory[factoryBuilder.size()];
 			factoryBuilder.toArray(factories);
