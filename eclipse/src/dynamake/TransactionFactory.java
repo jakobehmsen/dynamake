@@ -258,4 +258,8 @@ public class TransactionFactory {
 	public ModelLocation extendLocation(ModelLocation otherLocation) {
 		return new CompositeModelLocation(getModelLocation(), otherLocation);
 	}
+
+	public PrevaylerServiceConnection<Model> createConnection() {
+		return prevaylerService.createConnection();
+	}
 }

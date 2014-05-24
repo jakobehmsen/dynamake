@@ -85,25 +85,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class SetPropertyTransaction implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		
-		private String name;
-		private Object value;
-		
-		public SetPropertyTransaction(String name, Object value) {
-			this.name = name;
-			this.value = value;
-		}
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
-			prevalentSystem.setProperty(name, value, propCtx, 0);
-		}
-	}
-	
 	public static class SetPropertyOnRootTransaction implements Command<Model> {
 		/**
 		 * 
@@ -122,6 +103,12 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
+			
+			if(!propCtx.isTagged(LiveModel.TAG_CAUSED_BY_REDO) && !propCtx.isTagged(LiveModel.TAG_CAUSED_BY_UNDO)) {
+				Object currentValue = model.getProperty(name);
+				propCtx.collectBackwardTransaction(new SetPropertyOnRootTransaction(modelLocation, name, currentValue));
+			}
+			
 			model.setProperty(name, value, propCtx, 0);
 		}
 	}
@@ -152,14 +139,6 @@ public abstract class Model implements Serializable, Observer {
 		if(properties != null)
 			return properties.get(name);
 		return null;
-	}
-	
-	public DualCommand<Model> createPropertySetTransaction(String name, Object value) {
-		Object currentValue = getProperty(name);
-		
-		return new DualCommandPair<Model>(
-			new SetPropertyTransaction(name, value), 
-			new SetPropertyTransaction(name, currentValue));
 	}
 	
 	public static class BeganUpdate {
@@ -473,20 +452,54 @@ public abstract class Model implements Serializable, Observer {
 		int nextPropDistance = propDistance + 1;
 		observersToAdd = new ArrayList<Observer>();
 		observersToRemove = new ArrayList<Observer>();
-		
+
 		// Possible improvement: Only create branches if having multiple observers which may create side effects to the prop. ctx
+		
+		/**
+		
+		How to recognize dead-ends?
+		Should each observer tell back, somehow, whether the change was (or will be) absorbed?
+		- Proactive or reactive?
+		
+		- Proactive: something like:
+		observer.absorbsOnly(change) => boolean
+		
+		- Reactive: something like:
+		
+		observer.changed(..., new Action1<Boolean>() {
+			void call(Boolean wasAbsorbed) {
+				...
+			}
+		});
+		
+		or, in the observer.changed method:
+		
+		propCtx.absorb()
+		
+		Should the logic of recognizing dead-end propogations be here? 
+		- Or perhaps in PrevaylerService? - implicitly through PropogationContext
+		
+		Doesn't matter in the long run, because it is just refactored if found unsatisfactory
+		So, what requires the fewest steps right now?
+		-  Probably propCtx.absorb()
+		
+		 */
+		
 		for(Observer observer: observers) {
 			PropogationContext propCtxBranch = propCtx.branch();
 			observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance);
 		}
+		
 		for(Observer observerToAdd: observersToAdd) {
 			observers.add(observerToAdd);
 			observerToAdd.addObservee(this);
 		}
+		
 		for(Observer observerToRemove: observersToRemove) {
 			observers.remove(observerToRemove);
 			observerToRemove.removeObservee(this);
 		}
+		
 		observersToAdd = null;
 		observersToRemove = null;
 	}

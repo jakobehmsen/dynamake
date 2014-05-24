@@ -38,7 +38,8 @@ public class BindTool implements Tool {
 			final ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			
 			if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
-				targetModelComponent.getTransactionFactory().executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
+//				targetModelComponent.getTransactionFactory().executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
+				prevaylerConnection.execute(new PropogationContext(), new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
 						Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
 						ModelComponent output = productionPanel.editPanelMouseAdapter.output;
@@ -67,10 +68,12 @@ public class BindTool implements Tool {
 				});
 				
 				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-				productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
+//				productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
+				prevaylerConnection.commit(propCtx);
 			} else {
 				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
-				productionPanel.livePanel.getTransactionFactory().rollbackTransaction(propCtx);
+//				productionPanel.livePanel.getTransactionFactory().rollbackTransaction(propCtx);
+				prevaylerConnection.rollback(propCtx);
 			}
 
 			productionPanel.editPanelMouseAdapter.resetEffectFrame();
@@ -82,11 +85,15 @@ public class BindTool implements Tool {
 			productionPanel.livePanel.repaint();
 		}
 	}
+	
+	private PrevaylerServiceConnection<Model> prevaylerConnection;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-			productionPanel.livePanel.getTransactionFactory().beginTransaction();
+//			productionPanel.livePanel.getTransactionFactory().beginTransaction();
+			
+			prevaylerConnection = productionPanel.livePanel.getTransactionFactory().createConnection();
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();

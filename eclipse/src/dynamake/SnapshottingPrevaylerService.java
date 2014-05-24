@@ -319,17 +319,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 //		});
 //	}
 	
-	public void registerTransaction(final PropogationContext propCtx, final DualCommand<T> transaction) {
-		transactionExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				if(transactionIndex == transactions.size())
-					transactions.add(transaction);
-				else
-					transactions.set(transactionIndex, transaction);
-				transactionIndex++;
-			}
-		});
+	private void registerTransaction(final PropogationContext propCtx, final DualCommand<T> transaction) {
+		if(transactionIndex == transactions.size())
+			transactions.add(transaction);
+		else
+			transactions.set(transactionIndex, transaction);
+		transactionIndex++;
 	}
 	
 	public void persistTransaction(final PropogationContext propCtx, final DualCommand<T> transaction) {
@@ -515,5 +510,65 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 //			part.executeBackwardOn(propCtx, prevalentSystem, null);
 //		}
 //		transactionSequence = null;
+	}
+	
+	private static class Connection<T> implements PrevaylerServiceConnection<T> {
+		private SnapshottingPrevaylerService<T> prevaylerService;
+		private ArrayList<DualCommand<T>> transactionSequence = new ArrayList<DualCommand<T>>();
+
+		public Connection(SnapshottingPrevaylerService<T> prevaylerService) {
+			this.prevaylerService = prevaylerService;
+		}
+
+		@Override
+		public void execute(final PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
+			prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					ArrayList<DualCommand<T>> createdTransactions = new ArrayList<DualCommand<T>>();
+					transactionFactory.createDualCommands(createdTransactions);
+					
+					for(DualCommand<T> transaction: createdTransactions) {
+						transaction.executeForwardOn(propCtx, prevaylerService.prevalentSystem(), null);
+						transactionSequence.add(transaction);
+					}
+				}
+			});
+		}
+
+		@Override
+		public void commit(final PropogationContext propCtx) {
+			prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					DualCommand<T>[] transactions = (DualCommand<T>[])new DualCommand<?>[transactionSequence.size()];
+					transactionSequence.toArray(transactions);
+					DualCommandSequence<T> compositeTransaction = new DualCommandSequence<T>(transactions);
+					prevaylerService.registerTransaction(propCtx, compositeTransaction);
+					prevaylerService.persistTransaction(propCtx, compositeTransaction);
+					transactionSequence = null;
+				}
+			});
+		}
+
+		@Override
+		public void rollback(final PropogationContext propCtx) {
+			prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					// Execute in reverse order
+					for(int i = transactionSequence.size() - 1; i >= 0; i--) {
+						DualCommand<T> part = transactionSequence.get(i);
+						part.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null);
+					}
+					transactionSequence = null;
+				}
+			});
+		}
+	}
+	
+	@Override
+	public PrevaylerServiceConnection<T> createConnection() {
+		return new SnapshottingPrevaylerService.Connection<T>(this);
 	}
 }

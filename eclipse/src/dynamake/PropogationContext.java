@@ -8,6 +8,7 @@ import java.util.Map;
 
 public class PropogationContext {
 	private PropogationContext parent;
+	private ArrayList<PropogationContext> children = new ArrayList<PropogationContext>();
 	private HashSet<Model> visitedByModels = new HashSet<Model>();
 	private Map<String, Object> definitions = new Hashtable<String, Object>();
 	
@@ -86,6 +87,7 @@ public class PropogationContext {
 	public PropogationContext branch() {
 		PropogationContext propCtxBranch = new PropogationContext();
 		propCtxBranch.parent = this;
+		this.children.add(propCtxBranch);
 		return propCtxBranch;
 	}
 }
