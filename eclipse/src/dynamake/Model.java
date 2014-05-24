@@ -1,6 +1,5 @@
 package dynamake;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -8,8 +7,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -24,9 +21,6 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
-//import javax.swing.JFrame;
-
-import dynamake.CanvasModel.IndexLocation;
 
 public abstract class Model implements Serializable, Observer {
 	public static class GenericChange {
@@ -472,23 +466,6 @@ public abstract class Model implements Serializable, Observer {
 			sendSingleChanged(changeHolder.change, changeHolder.propCtx, changeHolder.propDistance, changeHolder.changeDistance);
 		}
 		changeQueue = null;
-		
-//		int nextChangeDistance = changeDistance + 1;
-//		int nextPropDistance = propDistance + 1;
-//		observersToAdd = new ArrayList<Observer>();
-//		observersToRemove = new ArrayList<Observer>();
-//		for(Observer observer: observers)
-//			observer.changed(this, change, propCtx, nextPropDistance, nextChangeDistance);
-//		for(Observer observerToAdd: observersToAdd) {
-//			observers.add(observerToAdd);
-//			observerToAdd.addObservee(this);
-//		}
-//		for(Observer observerToRemove: observersToRemove) {
-//			observers.remove(observerToRemove);
-//			observerToRemove.removeObservee(this);
-//		}
-//		observersToAdd = null;
-//		observersToRemove = null;
 	}
 	
 	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
@@ -537,23 +514,6 @@ public abstract class Model implements Serializable, Observer {
 	public boolean isObservedBy(Observer observer) {
 		return observers.contains(observer);
 	}
-	
-//	public JFrame toFrame(ViewManager viewManager, TransactionFactory transactionFactory) {
-//		JFrame frame = new JFrame();
-//		
-//		frame.getContentPane().setLayout(new BorderLayout());
-//		final Binding<ModelComponent> view = createView(rootView, viewManager, transactionFactory);
-//		frame.getContentPane().add((JComponent)view.getBindingTarget(), BorderLayout.CENTER);
-//		
-//		frame.addWindowListener(new WindowAdapter() {
-//			@Override
-//			public void windowClosed(WindowEvent e) {
-//				view.releaseBinding();
-//			}
-//		});
-//		
-//		return frame;
-//	}
 	
 	public static RemovableListener wrapForBoundsChanges(final Model model, final ModelComponent target, final ViewManager viewManager) {
 		return RemovableListener.addObserver(model, new ObserverAdapter() {
@@ -655,15 +615,8 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
-//			PropogationContext propCtx = new PropogationContext(); 
 			model.sendChanged(new MouseUp(), propCtx, 0, 0);
 		}
-
-//		@Override
-//		public Command<Model> antagonist() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
 	}
 	
 	private static class MouseDownTransaction implements Command<Model> {
@@ -681,30 +634,19 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
-//			PropogationContext propCtx = new PropogationContext(); 
 			model.sendChanged(new MouseDown(), propCtx, 0, 0);
 		}
-
-//		@Override
-//		public Command<Model> antagonist() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
 	}
 	
 	public static void wrapForComponentGUIEvents(final Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager) {
 		((JComponent)view).addMouseListener(new MouseListener() {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
-//				PropogationContext propCtx = new PropogationContext(); 
-//				model.sendChanged(new MouseUp(), propCtx, 0, 0);
 				view.getTransactionFactory().executeOnRoot(new PropogationContext(), new MouseUpTransaction(view.getTransactionFactory().getModelLocation()));
 			}
 			
 			@Override
 			public void mousePressed(MouseEvent arg0) {
-//				PropogationContext propCtx = new PropogationContext(); 
-//				model.sendChanged(new MouseDown(), propCtx, 0, 0);
 				view.getTransactionFactory().executeOnRoot(new PropogationContext(), new MouseDownTransaction(view.getTransactionFactory().getModelLocation()));
 			}
 			

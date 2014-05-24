@@ -992,9 +992,6 @@ public class LiveModel extends Model {
 				topPanel.add(buttonToolWrapper);
 			}
 			
-//			topPanel.setLayout(new BorderLayout());
-//			topPanel.add(toolBar, BorderLayout.CENTER);
-			
 			topPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			
 			contentPane = new JLayeredPane();
