@@ -237,8 +237,8 @@ public class Primitive extends Model {
 						
 						@Override
 						public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
-							PropogationContext newPropCtx = propCtx.markVisitedBy(model);
-							receiver.sendChanged(change, newPropCtx, propDistance, changeDistance);
+							propCtx.markVisitedBy(model);
+							receiver.sendChanged(change, propCtx, propDistance, changeDistance);
 						}
 					};
 				}

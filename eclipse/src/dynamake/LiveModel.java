@@ -436,11 +436,9 @@ public class LiveModel extends Model {
 					if(selectionLocation != null) {
 						Model selection = (Model)selectionLocation.getChild(prevalentSystem);
 						
-						Hashtable<String, Object> selectDefinitions = new Hashtable<String, Object>();
-						selectDefinitions.put("SelectionInitialMouseDown", initialMouseDown);
-						selectDefinitions.put("SelectionMoving", moving);
-						selectDefinitions.put("SelectionEffectBounds", effectBounds);
-						propCtx = propCtx.define(selectDefinitions);
+						propCtx.define("SelectionInitialMouseDown", initialMouseDown);
+						propCtx.define("SelectionMoving", moving);
+						propCtx.define("SelectionEffectBounds", effectBounds);
 						
 						liveModel.setSelection(selection, propCtx, 0);
 					} else {

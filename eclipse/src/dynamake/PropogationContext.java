@@ -1,27 +1,31 @@
 package dynamake;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 public class PropogationContext {
 	private PropogationContext parent;
-	private Model visitedByModel;
-	private int tag;
-	private Map<String, Object> definitions;
+	private HashSet<Model> visitedByModels = new HashSet<Model>();
+	private Map<String, Object> definitions = new Hashtable<String, Object>();
 	
-	public PropogationContext() { 
-		tag = -1;
-	}
+	private HashSet<Integer> tags = new HashSet<Integer>();
+	private List<Command<Model>> backwardTransactions = new ArrayList<Command<Model>>();
+	
+	public PropogationContext() { }
 	
 	public PropogationContext(Map<String, Object> definitions) { 
 		this.definitions = definitions;
 	}
 	
 	public PropogationContext(int tag) {
-		this.tag = tag;
+		tag(tag);
 	}
 	
 	public boolean isMarkedVisitedBy(Model model) {
-		if(visitedByModel != null && visitedByModel == model)
+		if(visitedByModels.contains(model))
 			return true;
 		if(parent != null)
 			return parent.isMarkedVisitedBy(model);
@@ -29,25 +33,19 @@ public class PropogationContext {
 	}
 	
 	public boolean isTagged(int tag) {
-		if(this.tag == tag)
+		if(this.tags.contains(tag))
 			return true;
 		if(parent != null)
 			return parent.isTagged(tag);
 		return false;
 	}
 
-	public PropogationContext markVisitedBy(Model model) {
-		PropogationContext newPropCtx = new PropogationContext();
-		newPropCtx.parent = this;
-		newPropCtx.visitedByModel = model;
-		return newPropCtx;
+	public void markVisitedBy(Model model) {
+		visitedByModels.add(model);
 	}
 
-	public PropogationContext tag(int tag) {
-		PropogationContext newPropCtx = new PropogationContext();
-		newPropCtx.parent = this;
-		newPropCtx.tag = tag;
-		return newPropCtx;
+	public void tag(int tag) {
+		tags.add(tag);
 	}
 	
 	public Object lookup(String term) {
@@ -61,11 +59,8 @@ public class PropogationContext {
 		return null;
 	}
 
-	public PropogationContext define(Map<String, Object> definitions) {
-		PropogationContext newPropCtx = new PropogationContext();
-		newPropCtx.parent = this;
-		newPropCtx.definitions = definitions;
-		return newPropCtx;
+	public void define(String term, Object meaning) {
+		definitions.put(term, meaning);
 	}
 
 	public boolean isOrDerivesFrom(PropogationContext propCtx) {
@@ -74,5 +69,17 @@ public class PropogationContext {
 		if(parent != null)
 			return parent.isOrDerivesFrom(propCtx);
 		return false;
+	}
+	
+	public void collectBackwardTransaction(Command<Model> backwardTransaction) {
+		backwardTransactions.add(backwardTransaction);
+	}
+	
+	public List<Command<Model>> getBackwardTransactions() {
+		return backwardTransactions;
+	}
+	
+	public PropogationContext getParent() {
+		return parent;
 	}
 }
