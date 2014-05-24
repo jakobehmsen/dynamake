@@ -473,8 +473,12 @@ public abstract class Model implements Serializable, Observer {
 		int nextPropDistance = propDistance + 1;
 		observersToAdd = new ArrayList<Observer>();
 		observersToRemove = new ArrayList<Observer>();
-		for(Observer observer: observers)
-			observer.changed(this, change, propCtx, nextPropDistance, nextChangeDistance);
+		
+		// Possible improvement: Only create branches if having multiple observers which may create side effects to the prop. ctx
+		for(Observer observer: observers) {
+			PropogationContext propCtxBranch = propCtx.branch();
+			observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance);
+		}
 		for(Observer observerToAdd: observersToAdd) {
 			observers.add(observerToAdd);
 			observerToAdd.addObservee(this);

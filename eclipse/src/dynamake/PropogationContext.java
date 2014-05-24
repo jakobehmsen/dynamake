@@ -82,4 +82,10 @@ public class PropogationContext {
 	public PropogationContext getParent() {
 		return parent;
 	}
+
+	public PropogationContext branch() {
+		PropogationContext propCtxBranch = new PropogationContext();
+		propCtxBranch.parent = this;
+		return propCtxBranch;
+	}
 }

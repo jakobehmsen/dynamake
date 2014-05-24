@@ -1123,8 +1123,7 @@ public class LiveModel extends Model {
 
 		@Override
 		public Model getModelBehind() {
-			// TODO Auto-generated method stub
-			return null;
+			return model;
 		}
 
 		@Override
