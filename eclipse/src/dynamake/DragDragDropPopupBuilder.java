@@ -63,7 +63,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				
 				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
 				connection.commit(propCtx);
-//				livePanel.getTransactionFactory().commitTransaction(propCtx);
 			}
 		};
 		
