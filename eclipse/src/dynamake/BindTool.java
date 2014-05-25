@@ -94,7 +94,7 @@ public class BindTool implements Tool {
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
 
-				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
 						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 						return new DualCommandPair<Model>(
