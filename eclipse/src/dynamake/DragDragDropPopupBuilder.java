@@ -10,6 +10,12 @@ import javax.swing.JPopupMenu;
 import dynamake.LiveModel.LivePanel;
 
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
+	private PrevaylerServiceConnection<Model> connection;
+	
+	public DragDragDropPopupBuilder(PrevaylerServiceConnection<Model> connection) {
+		this.connection = connection;
+	}
+
 	@Override
 	public void buildFromSelectionAndTarget(ModelComponent livePanel,
 			JPopupMenu popup, ModelComponent selection,
@@ -30,7 +36,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				runnable.run();
 				
 				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-				livePanel.getTransactionFactory().commitTransaction(propCtx);
+				connection.commit(propCtx);
 			}
 		};
 		
@@ -56,7 +62,8 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				runnable.run();
 				
 				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-				livePanel.getTransactionFactory().commitTransaction(propCtx);
+				connection.commit(propCtx);
+//				livePanel.getTransactionFactory().commitTransaction(propCtx);
 			}
 		};
 		
@@ -67,7 +74,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				@Override
 				public void run() {
 					PropogationContext propCtx = new PropogationContext();
-					selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					connection.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Location observableLocation = selection.getTransactionFactory().getModelLocation();
@@ -88,7 +95,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				@Override
 				public void run() {
 					PropogationContext propCtx = new PropogationContext();
-					selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					connection.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Location observableLocation = selection.getTransactionFactory().getModelLocation();
@@ -133,7 +140,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			@Override
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
-				selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(
 							List<DualCommand<Model>> dualCommands) {
@@ -166,6 +173,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
 		PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
-		livePanel.getTransactionFactory().rollbackTransaction(propCtx);
+		connection.rollback(propCtx);
 	}
 }

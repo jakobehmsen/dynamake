@@ -38,25 +38,28 @@ public class DragTool implements Tool {
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			
 			if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
-				productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel.selectionFrame, e.getPoint(), targetModelComponent);
+				productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, connection);
 			} else {
-				productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel.selectionFrame, e.getPoint(), null);
+				productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel.selectionFrame, e.getPoint(), null, connection);
 			}
 
 			productionPanel.editPanelMouseAdapter.targetOver = null;
 			productionPanel.livePanel.repaint();
 		}
 	}
+	
+	private PrevaylerServiceConnection<Model> connection;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-			productionPanel.livePanel.getTransactionFactory().beginTransaction();
+			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
+//			productionPanel.livePanel.getTransactionFactory().beginTransaction();
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
 				
-				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
 						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 						return new DualCommandPair<Model>(
