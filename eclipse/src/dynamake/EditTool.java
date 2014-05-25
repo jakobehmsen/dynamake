@@ -112,7 +112,7 @@ public class EditTool implements Tool {
 					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
 					final ModelComponent targetOver = productionPanel.editPanelMouseAdapter.targetOver;
 					
-					selectionTransactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
+					connection.execute(new PropogationContext(), new DualCommandFactory<Model>() {
 						public DualCommand<Model> createDualCommand() {
 							Location livePanelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
 							Location canvasSourceLocation = selection.getTransactionFactory().getParent().getModelLocation();
@@ -175,7 +175,7 @@ public class EditTool implements Tool {
 					
 					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
 					
-					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					connection.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(
 								List<DualCommand<Model>> dualCommands) {
@@ -228,11 +228,12 @@ public class EditTool implements Tool {
 			}
 			
 			PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-			productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
+			connection.commit(propCtx);
 		}
 	}
 	
 	private ModelComponent viewPressedOn;
+	private PrevaylerServiceConnection<Model> connection;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
@@ -243,13 +244,12 @@ public class EditTool implements Tool {
 		if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			if(targetModelComponent != null) {
 				viewPressedOn = targetModelComponent;
-				
-				productionPanel.livePanel.getTransactionFactory().beginTransaction();
+				connection = productionPanel.livePanel.getTransactionFactory().createConnection();
 				
 				if(productionPanel.editPanelMouseAdapter.output != null) {
 					PropogationContext propCtx = new PropogationContext();
 					
-					productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					connection.execute(propCtx, new DualCommandFactory<Model>() {
 						public DualCommand<Model> createDualCommand() {
 							ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 							return new DualCommandPair<Model>(
