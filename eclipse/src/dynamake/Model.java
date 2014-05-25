@@ -101,7 +101,7 @@ public abstract class Model implements Serializable, Observer {
 			this.value = value;
 		}
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
 			if(!propCtx.isTagged(LiveModel.TAG_CAUSED_BY_REDO) && !propCtx.isTagged(LiveModel.TAG_CAUSED_BY_UNDO)) {
@@ -109,7 +109,7 @@ public abstract class Model implements Serializable, Observer {
 				propCtx.collectBackwardTransaction(new SetPropertyOnRootTransaction(modelLocation, name, currentValue));
 			}
 			
-			model.setProperty(name, value, propCtx, 0);
+			model.setProperty(name, value, propCtx, 0, connection);
 		}
 	}
 	
@@ -125,14 +125,14 @@ public abstract class Model implements Serializable, Observer {
 	
 	protected Hashtable<String, Object> properties;
 	
-	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance) {
+	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		if(properties == null)
 			properties = new Hashtable<String, Object>();
 		if(value != null)
 			properties.put(name, value);
 		else
 			properties.remove(name);
-		sendChanged(new PropertyChanged(name, value), propCtx, propDistance, 0);
+		sendChanged(new PropertyChanged(name, value), propCtx, propDistance, 0, connection);
 	}
 	
 	public Object getProperty(String name) {
@@ -159,9 +159,9 @@ public abstract class Model implements Serializable, Observer {
 
 		@Override
 		public void executeOn(PropogationContext propCtx,
-				Model prevalentSystem, Date executionTime) {
+				Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
-			model.beginUpdate(propCtx, 0);
+			model.beginUpdate(propCtx, 0, connection);
 		}
 	}
 	
@@ -183,9 +183,9 @@ public abstract class Model implements Serializable, Observer {
 
 		@Override
 		public void executeOn(PropogationContext propCtx,
-				Model prevalentSystem, Date executionTime) {
+				Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
-			model.endUpdate(propCtx, 0);
+			model.endUpdate(propCtx, 0, connection);
 		}
 	}
 	
@@ -203,7 +203,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
@@ -227,14 +227,14 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
 			
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
 			observable.addObserver(observer);
-			liveModel.setOutput(observer, propCtx, 0);
+			liveModel.setOutput(observer, propCtx, 0, connection);
 		}
 	}
 	
@@ -252,7 +252,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
@@ -276,41 +276,41 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
 			
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
 			observable.removeObserver(observer);
-			liveModel.setOutput(observer, propCtx, 0);
+			liveModel.setOutput(observer, propCtx, 0, connection);
 		}
 	}
 	
-	public void beginUpdate(PropogationContext propCtx, int propDistance) {
-		sendChanged(new BeganUpdate(), propCtx, propDistance, 0);
+	public void beginUpdate(PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
+		sendChanged(new BeganUpdate(), propCtx, propDistance, 0, connection);
 	}
 	
-	public void endUpdate(PropogationContext propCtx, int propDistance) {
-		sendChanged(new EndedUpdate(), propCtx, propDistance, 0);
+	public void endUpdate(PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
+		sendChanged(new EndedUpdate(), propCtx, propDistance, 0, connection);
 	}
 	
 	@Override
-	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
 		if(change instanceof SetProperty && changeDistance == 1) {
 			SetProperty setProperty = (SetProperty)change;
-			setProperty(setProperty.name, setProperty.value, propCtx, propDistance);
+			setProperty(setProperty.name, setProperty.value, propCtx, propDistance, connection);
 		} else if(change instanceof TellProperty && changeDistance == 1) {
 			TellProperty tellProperty = (TellProperty)change;
 			Object value = getProperty(tellProperty.name);
 			if(value != null)
-				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0);
+				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0, connection);
 		} else {
-			modelChanged(sender, change, propCtx, propDistance, changeDistance);
+			modelChanged(sender, change, propCtx, propDistance, changeDistance, connection);
 		}
 	}
 	
-	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection connection) {
 		
 	}
 	
@@ -327,11 +327,11 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
-			prevalentSystem.beginUpdate(propCtx, 0);
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
+			prevalentSystem.beginUpdate(propCtx, 0, connection);
 			for(Command<Model> t: transactions)
-				t.executeOn(propCtx, prevalentSystem, executionTime);
-			prevalentSystem.endUpdate(propCtx, 0);
+				t.executeOn(propCtx, prevalentSystem, executionTime, connection);
+			prevalentSystem.endUpdate(propCtx, 0, connection);
 		}
 	}
 	
@@ -426,28 +426,28 @@ public abstract class Model implements Serializable, Observer {
 		properties = (Hashtable<String, Object>)ois.readObject();
 	}
 
-	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance) {
-		setProperty(Model.PROPERTY_VIEW, view, propCtx, propDistance);
+	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
+		setProperty(Model.PROPERTY_VIEW, view, propCtx, propDistance, connection);
 	}
 	
-	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection connection) {
 		if(changeQueue != null) {
 			changeQueue.add(new ChangeHolder(change, propCtx, propDistance, changeDistance));
 			return;
 		}
 		
 		changeQueue = new ArrayDeque<Model.ChangeHolder>();
-		sendSingleChanged(change, propCtx, propDistance, changeDistance);
+		sendSingleChanged(change, propCtx, propDistance, changeDistance, connection);
 		while(true) {
 			ChangeHolder changeHolder = changeQueue.poll();
 			if(changeHolder == null)
 				break;
-			sendSingleChanged(changeHolder.change, changeHolder.propCtx, changeHolder.propDistance, changeHolder.changeDistance);
+			sendSingleChanged(changeHolder.change, changeHolder.propCtx, changeHolder.propDistance, changeHolder.changeDistance, connection);
 		}
 		changeQueue = null;
 	}
 	
-	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection connection) {
 		int nextChangeDistance = changeDistance + 1;
 		int nextPropDistance = propDistance + 1;
 		observersToAdd = new ArrayList<Observer>();
@@ -487,7 +487,7 @@ public abstract class Model implements Serializable, Observer {
 		
 		for(Observer observer: observers) {
 			PropogationContext propCtxBranch = propCtx.branch();
-			observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance);
+			observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connection);
 		}
 		
 		for(Observer observerToAdd: observersToAdd) {
@@ -538,7 +538,7 @@ public abstract class Model implements Serializable, Observer {
 			boolean madeChanges;
 			
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
 				if(change instanceof Model.PropertyChanged
 						&& changeDistance == 1 /* And not a forwarded change */) {
 					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
@@ -594,7 +594,7 @@ public abstract class Model implements Serializable, Observer {
 	public static RemovableListener wrapForComponentColorChanges(Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager, final int componentColor) {
 		return RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
 				if(change instanceof Model.PropertyChanged) {
 					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 
@@ -630,9 +630,9 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
-			model.sendChanged(new MouseUp(), propCtx, 0, 0);
+			model.sendChanged(new MouseUp(), propCtx, 0, 0, connection);
 		}
 	}
 	
@@ -649,9 +649,9 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
-			model.sendChanged(new MouseDown(), propCtx, 0, 0);
+			model.sendChanged(new MouseDown(), propCtx, 0, 0, connection);
 		}
 	}
 	
@@ -727,7 +727,7 @@ public abstract class Model implements Serializable, Observer {
 			propertySetter.run((T)value);
 		return Model.RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
 				if(change instanceof Model.PropertyChanged 
 					&& changeDistance == 1 /* And not a forwarded change */) {
 					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
@@ -941,22 +941,22 @@ public abstract class Model implements Serializable, Observer {
 		return view >= value;
 	}
 	
-	public void scale(Rectangle newBounds, PropogationContext propCtx, int propDistance) {
+	public void scale(Rectangle newBounds, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		Fraction currentWidth = (Fraction)getProperty("Width");
 		Fraction currentHeight = (Fraction)getProperty("Height");
 		
-		setProperty("X", new Fraction(newBounds.x), propCtx, propDistance);
-		setProperty("Y", new Fraction(newBounds.y), propCtx, propDistance);
-		setProperty("Width", new Fraction(newBounds.width), propCtx, propDistance);
-		setProperty("Height", new Fraction(newBounds.height), propCtx, propDistance);
+		setProperty("X", new Fraction(newBounds.x), propCtx, propDistance, connection);
+		setProperty("Y", new Fraction(newBounds.y), propCtx, propDistance, connection);
+		setProperty("Width", new Fraction(newBounds.width), propCtx, propDistance, connection);
+		setProperty("Height", new Fraction(newBounds.height), propCtx, propDistance, connection);
 		
 		Fraction hChange = new Fraction(newBounds.width).divide(currentWidth);
 		Fraction vChange = new Fraction(newBounds.height).divide(currentHeight);
 
-		modelScale(hChange, vChange, propCtx, propDistance);
+		modelScale(hChange, vChange, propCtx, propDistance, connection);
 	}
 
-	public void scale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance) {
+	public void scale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		Fraction currentX = (Fraction)getProperty("X");
 		Fraction currentY = (Fraction)getProperty("Y");
 		Fraction currentWidth = (Fraction)getProperty("Width");
@@ -967,15 +967,15 @@ public abstract class Model implements Serializable, Observer {
 		Fraction newWidth = currentWidth.multiply(hChange);
 		Fraction newHeight = currentHeight.multiply(vChange);
 
-		setProperty("X", newX, propCtx, propDistance);
-		setProperty("Y", newY, propCtx, propDistance);
-		setProperty("Width", newWidth, propCtx, propDistance);
-		setProperty("Height", newHeight, propCtx, propDistance);
+		setProperty("X", newX, propCtx, propDistance, connection);
+		setProperty("Y", newY, propCtx, propDistance, connection);
+		setProperty("Width", newWidth, propCtx, propDistance, connection);
+		setProperty("Height", newHeight, propCtx, propDistance, connection);
 		
-		modelScale(hChange, vChange, propCtx, propDistance);
+		modelScale(hChange, vChange, propCtx, propDistance, connection);
 	}
 	
-	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance) {
+	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		
 	}
 }

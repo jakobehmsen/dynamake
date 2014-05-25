@@ -60,7 +60,7 @@ public class TextModel extends Model {
 			this.text = text;
 		}
 
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.insert(offset, text);
 		}
@@ -88,7 +88,7 @@ public class TextModel extends Model {
 			this.end = end;
 		}
 
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.delete(start, end);
 		}

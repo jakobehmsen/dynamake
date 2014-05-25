@@ -15,7 +15,7 @@ public class CanvasModelFactory implements Factory {
 	}
 
 	@Override
-	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance) {
+	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		return new CanvasModel();
 	}
 }

@@ -35,19 +35,19 @@ public class AddThenOutputTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime) {
+	public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 //		PropogationContext propCtx = new PropogationContext();
 		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
 		CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-		Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, arguments, propCtx, 0);
+		Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, arguments, propCtx, 0, connection);
 
-		model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0);
-		model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0);
-		model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0);
-		model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0);
+		model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection);
+		model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection);
+		model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection);
+		model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection);
 		
-		canvas.addModel(model, propCtx, 0);
-		liveModel.setOutput(model, propCtx, 0);
+		canvas.addModel(model, propCtx, 0, connection);
+		liveModel.setOutput(model, propCtx, 0, connection);
 	}
 
 //	@Override

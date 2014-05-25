@@ -127,7 +127,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			// Should be read in chunks
 			ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
 			DualCommand<T> transaction = (DualCommand<T>)objectOutput.readObject();
-			transaction.executeForwardOn(propCtx, prevalentSystem, null);
+			transaction.executeForwardOn(propCtx, prevalentSystem, null, null);
 		}
 		
 		bufferedOutput.close();
@@ -198,7 +198,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 //					DualCommand<T> antagonist = transaction.antagonist();
 //					antagonist.executeOn(propCtx, prevalentSystem, null);
 					
-					transaction.executeBackwardOn(propCtx, prevalentSystem, null);
+					transaction.executeBackwardOn(propCtx, prevalentSystem, null, null);
 				}
 			}
 		});
@@ -211,7 +211,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			public void run() {
 				if(transactionIndex < transactions.size()) {
 					DualCommand<T> transaction = transactions.get(transactionIndex);
-					transaction.executeForwardOn(propCtx, prevalentSystem, null);
+					transaction.executeForwardOn(propCtx, prevalentSystem, null, null);
 					transactionIndex++;
 				}
 			}
@@ -246,7 +246,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				transactionFactory.createDualCommands(createdTransactions);
 				
 				for(DualCommand<T> transaction: createdTransactions) {
-					transaction.executeForwardOn(propCtx, prevalentSystem(), null);
+					transaction.executeForwardOn(propCtx, prevalentSystem(), null, null);
 					
 					if(transactionSequence == null) {
 						if(transactionIndex == transactions.size())
@@ -497,7 +497,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				// Execute in reverse order
 				for(int i = transactionSequence.size() - 1; i >= 0; i--) {
 					DualCommand<T> part = transactionSequence.get(i);
-					part.executeBackwardOn(propCtx, prevalentSystem, null);
+					part.executeBackwardOn(propCtx, prevalentSystem, null, null);
 				}
 				transactionSequence = null;
 			}
@@ -529,9 +529,32 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					transactionFactory.createDualCommands(createdTransactions);
 					
 					for(DualCommand<T> transaction: createdTransactions) {
-						transaction.executeForwardOn(propCtx, prevaylerService.prevalentSystem(), null);
+						transaction.executeForwardOn(propCtx, prevaylerService.prevalentSystem(), null, SnapshottingPrevaylerService.Connection.this);
 						transactionSequence.add(transaction);
 					}
+				}
+			});
+		}
+		
+		@Override
+		public void execute2(final PropogationContext propCtx, final DualCommandFactory2<T> transactionFactory) {
+			prevaylerService.transactionExecutor.execute(new Runnable() {
+				@SuppressWarnings("unchecked")
+				@Override
+				public void run() {
+					ArrayList<Command<T>> createdForwardTransactions = new ArrayList<Command<T>>();
+					ArrayList<Command<T>> createdBackwardTransactions = new ArrayList<Command<T>>();
+					
+					transactionFactory.createForwardTransactions(createdForwardTransactions);
+					transactionFactory.createBackwardTransactions(createdBackwardTransactions);
+					
+					for(Command<T> forward: createdForwardTransactions)
+						forward.executeOn(propCtx, prevaylerService.prevalentSystem(), null, SnapshottingPrevaylerService.Connection.this);
+					
+					transactionSequence.add(new DualCommandPair2<T>(
+						createdForwardTransactions.toArray((Command<T>[])new Command<?>[createdForwardTransactions.size()]),
+						createdBackwardTransactions.toArray((Command<T>[])new Command<?>[createdBackwardTransactions.size()])
+					));
 				}
 			});
 		}
@@ -559,7 +582,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					// Execute in reverse order
 					for(int i = transactionSequence.size() - 1; i >= 0; i--) {
 						DualCommand<T> part = transactionSequence.get(i);
-						part.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null);
+						part.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, null);
 					}
 					transactionSequence = null;
 				}

@@ -20,10 +20,10 @@ public class SetViewTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 //		PropogationContext propCtx = new PropogationContext();
 		Model model = (Model)modelLocation.getChild(prevalentSystem);
-		model.setView(view, propCtx, 0, 0);
+		model.setView(view, propCtx, 0, 0, connection);
 	}
 
 //	@Override

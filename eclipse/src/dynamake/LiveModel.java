@@ -80,24 +80,24 @@ public class LiveModel extends Model {
 		return clone;
 	}
 	
-	public void setSelection(Model selection, PropogationContext propCtx, int propDistance) {
+	public void setSelection(Model selection, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		this.selection = selection;
-		sendChanged(new SelectionChanged(), propCtx, propDistance, 0);
+		sendChanged(new SelectionChanged(), propCtx, propDistance, 0, connection);
 	}
 
-	public void setOutput(Model output, PropogationContext propCtx, int propDistance) {
+	public void setOutput(Model output, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		this.output = output;
 		
-		sendChanged(new OutputChanged(), propCtx, propDistance, 0);
+		sendChanged(new OutputChanged(), propCtx, propDistance, 0, connection);
 	}
 
 	public int getState() {
 		return state;
 	}
 	
-	public void setState(int state, PropogationContext propCtx, int propDistance) {
+	public void setState(int state, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		this.state = state;
-		sendChanged(new StateChanged(), propCtx, propDistance, 0);
+		sendChanged(new StateChanged(), propCtx, propDistance, 0, connection);
 	}
 	
 	public static class SetSelection implements Command<Model> {
@@ -114,13 +114,13 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
-				liveModel.setSelection(selection, new PropogationContext(), 0);
+				liveModel.setSelection(selection, new PropogationContext(), 0, connection);
 			} else {
-				liveModel.setSelection(null, new PropogationContext(), 0);
+				liveModel.setSelection(null, new PropogationContext(), 0, connection);
 			}
 		}
 	}
@@ -139,13 +139,13 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
-				liveModel.setOutput(selection, new PropogationContext(), 0);
+				liveModel.setOutput(selection, new PropogationContext(), 0, connection);
 			} else {
-				liveModel.setOutput(null, new PropogationContext(), 0);
+				liveModel.setOutput(null, new PropogationContext(), 0, connection);
 			}
 		}
 		
@@ -180,9 +180,9 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			LiveModel model = (LiveModel)modelLocation.getChild(prevalentSystem);
-			model.setState(state, propCtx, 0);
+			model.setState(state, propCtx, 0, connection);
 		}
 	}
 	
@@ -434,7 +434,7 @@ public class LiveModel extends Model {
 
 				@Override
 				public void executeOn(PropogationContext propCtx,
-						Model prevalentSystem, Date executionTime) {
+						Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 					LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 					
 					if(selectionLocation != null) {
@@ -444,13 +444,13 @@ public class LiveModel extends Model {
 						propCtx.define("SelectionMoving", moving);
 						propCtx.define("SelectionEffectBounds", effectBounds);
 						
-						liveModel.setSelection(selection, propCtx, 0);
+						liveModel.setSelection(selection, propCtx, 0, connection);
 					} else {
-						liveModel.setSelection(null, propCtx, 0);
+						liveModel.setSelection(null, propCtx, 0, connection);
 					}
-					liveModel.setProperty("SelectionInitialMouseDown", initialMouseDown, propCtx, 0);
-					liveModel.setProperty("SelectionMoving", moving, propCtx, 0);
-					liveModel.setProperty("SelectionEffectBounds", effectBounds, propCtx, 0);
+					liveModel.setProperty("SelectionInitialMouseDown", initialMouseDown, propCtx, 0, connection);
+					liveModel.setProperty("SelectionMoving", moving, propCtx, 0, connection);
+					liveModel.setProperty("SelectionEffectBounds", effectBounds, propCtx, 0, connection);
 				}
 			}
 			
@@ -1039,7 +1039,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance) {
+				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
 					if(change instanceof LiveModel.StateChanged) {
 						if(!propCtx.isTagged(TAG_CAUSED_BY_TOGGLE_BUTTON)) {
 							JToggleButton buttonNewTool = buttonTools[LivePanel.this.model.getState()];

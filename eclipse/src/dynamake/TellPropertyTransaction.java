@@ -19,11 +19,11 @@ public class TellPropertyTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 //		PropogationContext propCtx = new PropogationContext();
 		
 		Model receiver = (Model)modelLocation.getChild(prevalentSystem);
-		receiver.changed(null, new Model.TellProperty(propertyName), propCtx, 0, 1);
+		receiver.changed(null, new Model.TellProperty(propertyName), propCtx, 0, 1, connection);
 	}
 
 //	@Override

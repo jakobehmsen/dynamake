@@ -15,7 +15,7 @@ public class NotVisitedByFactory implements Factory {
 	}
 
 	@Override
-	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance) {
+	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		Model model = (Model)arguments.get("By");
 		
 		return new NotVisited(model);

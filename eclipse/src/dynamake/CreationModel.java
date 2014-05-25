@@ -51,12 +51,12 @@ public class CreationModel extends Model {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			CreationModel creation = (CreationModel)creationLocation.getChild(prevalentSystem);
 			Model argument = (Model)argumentLocation.getChild(prevalentSystem);
 //			// HACK: For now, only meta model are used as arguments
 //			argument = argument.getMetaModel();
-			creation.setArgument(parameterName, argument, new PropogationContext(), 0);
+			creation.setArgument(parameterName, argument, new PropogationContext(), 0, connection);
 		}
 
 //		@Override
@@ -80,7 +80,7 @@ public class CreationModel extends Model {
 		return clone;
 	}
 	
-	public void setArgument(String parameterName, Object argument, PropogationContext propCtx, int propDistance) {
+	public void setArgument(String parameterName, Object argument, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		int i;
 		for(i = 0; i < parameterNames.length; i++) {
 			if(parameterNames[i].equals(parameterName))
@@ -91,7 +91,7 @@ public class CreationModel extends Model {
 			return;
 		
 		argumentMap.put(parameterName, argument);
-		sendChanged(new ArgumentChanged(parameterName, argument), propCtx, propDistance, 0);
+		sendChanged(new ArgumentChanged(parameterName, argument), propCtx, propDistance, 0, connection);
 	}
 	
 	public boolean argumentIsSet(String parameterName) {
@@ -308,7 +308,7 @@ public class CreationModel extends Model {
 
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model arg0, Date arg1) {
+		public void executeOn(PropogationContext propCtx, Model arg0, Date arg1, PrevaylerServiceConnection<Model> connection) {
 //			PropogationContext propCtx = new PropogationContext();
 			
 			CreationModel creation = (CreationModel)creationLocation.getChild(arg0);
@@ -319,15 +319,15 @@ public class CreationModel extends Model {
 			Fraction width = (Fraction)creation.getProperty("Width");
 			Fraction height = (Fraction)creation.getProperty("Height");
 			
-			Model model = (Model)creation.factory.create(arg0, new Rectangle(x.intValue(), y.intValue(), width.intValue(), height.intValue()), creation.argumentMap, propCtx, 0);
+			Model model = (Model)creation.factory.create(arg0, new Rectangle(x.intValue(), y.intValue(), width.intValue(), height.intValue()), creation.argumentMap, propCtx, 0, connection);
 
-			model.setProperty("X", x, propCtx, 0);
-			model.setProperty("Y", y, propCtx, 0);
-			model.setProperty("Width", width, propCtx, 0);
-			model.setProperty("Height", height, propCtx, 0);
+			model.setProperty("X", x, propCtx, 0, connection);
+			model.setProperty("Y", y, propCtx, 0, connection);
+			model.setProperty("Width", width, propCtx, 0, connection);
+			model.setProperty("Height", height, propCtx, 0, connection);
 			
-			canvas.removeModel(creation, propCtx, 0);
-			canvas.addModel(model, propCtx, 0);
+			canvas.removeModel(creation, propCtx, 0, connection);
+			canvas.addModel(model, propCtx, 0, connection);
 		}
 
 //		@Override
@@ -348,7 +348,7 @@ public class CreationModel extends Model {
 		
 		final RemovableListener removableListenerForArgumentChanges = Model.RemovableListener.addObserver(this, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
 				if(change instanceof CreationModel.ArgumentChanged) {
 					ArgumentChanged argumentChanged = (ArgumentChanged)change;
 					

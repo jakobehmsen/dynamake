@@ -39,12 +39,12 @@ public class FloatingTextModel extends Model {
 	}
 	
 	@Override
-	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance) {
+	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		Fraction fontSize = (Fraction)getProperty("FontSize");
 		if(fontSize == null)
 			fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(hChange);
-		setProperty("FontSize", fontSize, propCtx, propDistance);
+		setProperty("FontSize", fontSize, propCtx, propDistance, connection);
 	}
 	
 	public void setText(String text) {
@@ -96,10 +96,10 @@ public class FloatingTextModel extends Model {
 			this.text = text;
 		}
 
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			FloatingTextModel textModel = (FloatingTextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.insert(offset, text);
-			textModel.sendChanged(new InsertedText(offset, text), propCtx, 0, 0);
+			textModel.sendChanged(new InsertedText(offset, text), propCtx, 0, 0, connection);
 		}
 
 //		@Override
@@ -125,10 +125,10 @@ public class FloatingTextModel extends Model {
 			this.end = end;
 		}
 
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			FloatingTextModel textModel = (FloatingTextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.delete(start, end);
-			textModel.sendChanged(new RemovedText(start, end), propCtx, 0, 0);
+			textModel.sendChanged(new RemovedText(start, end), propCtx, 0, 0, connection);
 		}
 
 //		@Override
@@ -338,7 +338,7 @@ public class FloatingTextModel extends Model {
 				public void addObservee(Observer observee) { }
 				
 				@Override
-				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance) {
+				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
 					if(!propCtx.isTagged(TAG_CAUSED_BY_VIEW)) {
 						if(change instanceof InsertedText) {
 							InsertedText insertText = (InsertedText)change;

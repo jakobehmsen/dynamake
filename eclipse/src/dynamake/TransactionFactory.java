@@ -34,56 +34,56 @@ public class TransactionFactory {
 		return (ModelLocation)locator.locate();
 	}
 	
-//	private static class LocationTransaction<T> implements Transaction<Model> {
-	private static class LocationTransaction<T> implements DualCommand<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		
+////	private static class LocationTransaction<T> implements Transaction<Model> {
+//	private static class LocationTransaction<T extends Model> implements DualCommand<T> {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//		
+////		private Location location;
+////		private Transaction<T> transaction;
+////
+////		public LocationTransaction(Location location, Transaction<T> transaction) {
+////			this.location = location;
+////			this.transaction = transaction;
+////		}
+//		
 //		private Location location;
-//		private Transaction<T> transaction;
+//		private DualCommand<T> transaction;
 //
-//		public LocationTransaction(Location location, Transaction<T> transaction) {
+//		public LocationTransaction(Location location, DualCommand<T> transaction) {
 //			this.location = location;
 //			this.transaction = transaction;
 //		}
-		
-		private Location location;
-		private DualCommand<T> transaction;
-
-		public LocationTransaction(Location location, DualCommand<T> transaction) {
-			this.location = location;
-			this.transaction = transaction;
-		}
-
-//		@SuppressWarnings("unchecked")
-//		@Override
-//		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
-//			T obj = (T)location.getChild(prevalentSystem);
-//			transaction.executeOn(propCtx, obj, executionTime);
-//		}
 //
+////		@SuppressWarnings("unchecked")
+////		@Override
+////		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+////			T obj = (T)location.getChild(prevalentSystem);
+////			transaction.executeOn(propCtx, obj, executionTime);
+////		}
+////
+////		@Override
+////		public Command<Model> antagonist() {
+////			Command<T> transactionAntagonist = transaction.antagonist();
+////			return new LocationTransaction<T>(location, transactionAntagonist);
+////		}
+//		
 //		@Override
-//		public Command<Model> antagonist() {
-//			Command<T> transactionAntagonist = transaction.antagonist();
-//			return new LocationTransaction<T>(location, transactionAntagonist);
+//		public void executeForwardOn(PropogationContext propCtx,
+//				T prevalentSystem, Date executionTime, PrevaylerServiceConnection<T> connection) {
+//			T obj = (T)location.getChild(prevalentSystem);
+//			transaction.executeForwardOn(propCtx, obj, executionTime, connection);
 //		}
-		
-		@Override
-		public void executeForwardOn(PropogationContext propCtx,
-				Model prevalentSystem, Date executionTime) {
-			T obj = (T)location.getChild(prevalentSystem);
-			transaction.executeForwardOn(propCtx, obj, executionTime);
-		}
-		
-		@Override
-		public void executeBackwardOn(PropogationContext propCtx,
-				Model prevalentSystem, Date executionTime) {
-			T obj = (T)location.getChild(prevalentSystem);
-			transaction.executeBackwardOn(propCtx, obj, executionTime);
-		}
-	}
+//		
+//		@Override
+//		public void executeBackwardOn(PropogationContext propCtx,
+//				T prevalentSystem, Date executionTime, PrevaylerServiceConnection<T> newParam) {
+//			T obj = (T)location.getChild(prevalentSystem);
+//			transaction.executeBackwardOn(propCtx, obj, executionTime, null);
+//		}
+//	}
 	
 //	public <T extends Model> void execute(final Transaction<T> transaction) {
 //		final Location location = getLocation();

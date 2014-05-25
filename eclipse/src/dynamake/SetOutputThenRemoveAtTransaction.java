@@ -20,16 +20,16 @@ public class SetOutputThenRemoveAtTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 		if(outputLocation != null) {
 			Model output = (Model)outputLocation.getChild(prevalentSystem);
-			liveModel.setOutput(output, propCtx, 0);
+			liveModel.setOutput(output, propCtx, 0, connection);
 		} else {
-			liveModel.setOutput(null, propCtx, 0);
+			liveModel.setOutput(null, propCtx, 0, connection);
 		}
 		
 		CanvasModel canvas = (CanvasModel)canvasLocation.getChild(prevalentSystem);
-		canvas.removeModel(index, propCtx, 0);
+		canvas.removeModel(index, propCtx, 0, connection);
 	}
 }

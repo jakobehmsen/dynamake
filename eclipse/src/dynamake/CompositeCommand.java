@@ -15,9 +15,9 @@ public class CompositeCommand<T> implements Command<T> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime) {
+	public void executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceConnection<T> connection) {
 		for(Command<T> command: commandSequence) {
-			command.executeOn(propCtx, prevalentSystem, executionTime);
+			command.executeOn(propCtx, prevalentSystem, executionTime, connection);
 		}
 	}
 }

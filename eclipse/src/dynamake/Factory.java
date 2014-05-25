@@ -11,7 +11,7 @@ public interface Factory extends Serializable {
 	// With such parameters (and constraints, in general), it would be possible to implicitly support creation of an intermediate CreationModel
 	
 	String getName();
-	Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance);
+	Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection);
 	
 	public static class Constant implements Factory {
 		/**
@@ -33,7 +33,7 @@ public interface Factory extends Serializable {
 		}
 
 		@Override
-		public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance) {
+		public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 			return value;
 		}
 	}

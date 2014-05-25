@@ -21,13 +21,13 @@ public class SetOutputThenAddObserver implements Command<Model> {
 
 	@Override
 	public void executeOn(PropogationContext propCtx,
-			Model prevalentSystem, Date executionTime) {
+			Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 		if(outputLocation != null) {
 			Model output = (Model)outputLocation.getChild(prevalentSystem);
-			liveModel.setOutput(output, propCtx, 0);
+			liveModel.setOutput(output, propCtx, 0, connection);
 		} else {
-			liveModel.setOutput(null, propCtx, 0);
+			liveModel.setOutput(null, propCtx, 0, connection);
 		}
 		
 		Model observable = (Model)observableLocation.getChild(prevalentSystem);
