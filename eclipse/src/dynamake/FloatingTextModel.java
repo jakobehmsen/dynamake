@@ -183,7 +183,8 @@ public class FloatingTextModel extends Model {
 				public void run(final Color color) {
 					PropogationContext propCtx = new PropogationContext();
 					
-					transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
+					connection.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							dualCommands.add(new DualCommandPair<Model>(
@@ -194,6 +195,7 @@ public class FloatingTextModel extends Model {
 							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, transactionFactory.getModelLocation())); // Absolute location
 						}
 					});
+					connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
 				}
 			}));
 		}
@@ -264,15 +266,18 @@ public class FloatingTextModel extends Model {
 				throws BadLocationException {
 			documentInsert(offs, str, a);
 			
-			transactionFactory.executeOnRoot(new PropogationContext(TAG_CAUSED_BY_VIEW), new DualCommandFactory<Model>() {
+			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_VIEW);
+			PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
+			connection.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 					dualCommands.add(new DualCommandPair<Model>(
-						new InsertTransaction(transactionFactory.getModelLocation(), offs, str), 
-						new RemoveTransaction(transactionFactory.getModelLocation(), offs, offs + str.length())
-					));
+							new InsertTransaction(transactionFactory.getModelLocation(), offs, str), 
+							new RemoveTransaction(transactionFactory.getModelLocation(), offs, offs + str.length())
+						));
 				}
 			});
+			connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
 		}
 		
 		public void documentInsert(int offs, String str, AttributeSet a) throws BadLocationException {
@@ -286,7 +291,9 @@ public class FloatingTextModel extends Model {
 			final int start = offs;
 			final int end = offs + len;
 			
-			transactionFactory.executeOnRoot(new PropogationContext(TAG_CAUSED_BY_VIEW), new DualCommandFactory<Model>() {
+			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_VIEW);
+			PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
+			connection.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 					String removedText = model.text.substring(start, end);
@@ -296,6 +303,7 @@ public class FloatingTextModel extends Model {
 					));
 				}
 			});
+			connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
 		}
 		
 		public void documentRemove(int offs, int len) throws BadLocationException {
