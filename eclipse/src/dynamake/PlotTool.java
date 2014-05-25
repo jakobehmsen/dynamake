@@ -75,7 +75,7 @@ public class PlotTool implements Tool {
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							PropogationContext propCtx = new PropogationContext();
 
-							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+							connection.execute(propCtx, new DualCommandFactory<Model>() {
 								public DualCommand<Model> createDualCommand() {
 									Location[] modelLocations = new Location[componentsWithinBounds.size()];
 									int[] modelIndexes = new int[componentsWithinBounds.size()];
@@ -111,7 +111,7 @@ public class PlotTool implements Tool {
 							});
 							
 							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().commitTransaction(commitPropCtx);
+							connection.commit(commitPropCtx);
 
 							productionPanel.editPanelMouseAdapter.resetEffectFrame();
 							productionPanel.livePanel.repaint();
@@ -134,7 +134,7 @@ public class PlotTool implements Tool {
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							PropogationContext propCtx = new PropogationContext();
 							
-							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+							connection.execute(propCtx, new DualCommandFactory<Model>() {
 								public DualCommand<Model> createDualCommand() {
 									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
 									int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
@@ -166,7 +166,7 @@ public class PlotTool implements Tool {
 							});
 							
 							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-							productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().commitTransaction(commitPropCtx);
+							connection.commit(commitPropCtx);
 
 							productionPanel.editPanelMouseAdapter.resetEffectFrame();
 							productionPanel.livePanel.repaint();
@@ -194,7 +194,7 @@ public class PlotTool implements Tool {
 				@Override
 				public void popupMenuCanceled(PopupMenuEvent e) {
 					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
-					productionPanel.livePanel.getTransactionFactory().rollbackTransaction(propCtx);
+					connection.rollback(propCtx);
 				}
 			});
 			
@@ -202,16 +202,18 @@ public class PlotTool implements Tool {
 			factoryPopopMenu.show(productionPanel, selectionReleasePointInSelection.x + 10, selectionReleasePointInSelection.y);
 		}
 	}
+	
+	private PrevaylerServiceConnection<Model> connection;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e) {
 		if(e.getButton() == 1) {
-			productionPanel.livePanel.getTransactionFactory().beginTransaction();
+			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
 				
-				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
 						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 						return new DualCommandPair<Model>(

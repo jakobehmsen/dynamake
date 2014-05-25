@@ -95,7 +95,7 @@ public class ConsTool implements Tool {
 				} else {
 					productionPanel.editPanelMouseAdapter.resetEffectFrame();
 					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
-					productionPanel.livePanel.getTransactionFactory().rollbackTransaction(propCtx);
+					connection.rollback(propCtx);
 				}
 			}
 
