@@ -39,11 +39,11 @@ public class ConsTool implements Tool {
 			
 			if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
 				if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
-					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent);
+					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, connection);
 				} else {
 					if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 						PropogationContext propCtx = new PropogationContext();
-						targetModelComponent.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						connection.execute(propCtx, new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
@@ -59,7 +59,7 @@ public class ConsTool implements Tool {
 						});
 					} else {
 						PropogationContext propCtx = new PropogationContext();
-						targetModelComponent.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						connection.execute(propCtx, new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
@@ -74,8 +74,9 @@ public class ConsTool implements Tool {
 							}
 						});
 					}
+					
 					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-					productionPanel.livePanel.getTransactionFactory().commitTransaction(propCtx);
+					connection.commit(propCtx);
 					
 					if(productionPanel.targetFrame != null)
 						productionPanel.remove(productionPanel.targetFrame);
@@ -90,7 +91,7 @@ public class ConsTool implements Tool {
 				}
 			} else {
 				if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
-					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent);
+					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, connection);
 				} else {
 					productionPanel.editPanelMouseAdapter.resetEffectFrame();
 					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
@@ -102,16 +103,19 @@ public class ConsTool implements Tool {
 			productionPanel.livePanel.repaint();
 		}
 	}
+	
+	private PrevaylerServiceConnection<Model> connection;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-			productionPanel.livePanel.getTransactionFactory().beginTransaction();
+//			productionPanel.livePanel.getTransactionFactory().beginTransaction();
+			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
 				
-				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
 						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 						return new DualCommandPair<Model>(

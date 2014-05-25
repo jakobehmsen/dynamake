@@ -362,6 +362,8 @@ public class LiveModel extends Model {
 			}
 			
 			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, boolean moving) {
+				// TODO: Once finished with replace all usages of beginTransaction, commitTransaction, and rollbackTransaction:
+				// Put a PrevayerServiceConnection<Model> as parameter to this method and forward the connection in the flow.
 				Dimension sourceBoundsSize = new Dimension(125, 33);
 				Point sourceBoundsLocation = new Point(initialMouseDown.x - sourceBoundsSize.width / 2, initialMouseDown.y - sourceBoundsSize.height / 2);
 				Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
@@ -375,6 +377,11 @@ public class LiveModel extends Model {
 			
 			private void requestSelect(final ModelComponent view, final Point initialMouseDown, final boolean moving, final Rectangle effectBounds) {
 				// Notice: executes a transaction
+				
+
+				// TODO: Once finished with replace all usages of beginTransaction, commitTransaction, and rollbackTransaction:
+				// Put a PrevayerServiceConnection<Model> as parameter to this method and forward the connection in the flow.
+				// Use connection for execution of the set selection transaction.
 
 				PropogationContext propCtx = new PropogationContext();
 
@@ -589,8 +596,8 @@ public class LiveModel extends Model {
 				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder());
 			}
 			
-			public void showPopupForSelectionCons(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver) {
-				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder());
+			public void showPopupForSelectionCons(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceConnection<Model> connection) {
+				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(connection));
 			}
 			
 			public void showPopupForSelectionTell(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver) {

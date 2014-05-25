@@ -9,6 +9,12 @@ import javax.swing.JPopupMenu;
 import dynamake.LiveModel.LivePanel;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
+	private PrevaylerServiceConnection<Model> connection;
+	
+	public ConsDragDropPopupBuilder(PrevaylerServiceConnection<Model> connection) {
+		this.connection = connection;
+	}
+
 	@Override
 	public void buildFromSelectionAndTarget(final ModelComponent livePanel,
 			JPopupMenu popup, final ModelComponent selection,
@@ -19,17 +25,17 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				runnable.run();
 
 				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-				livePanel.getTransactionFactory().commitTransaction(propCtx);
+				connection.commit(propCtx);
 			}
 		};
 		
 		DualCommandFactory<Model> implicitDropAction = selection.getImplicitDropAction(target);
 		
 		if(implicitDropAction != null) {
-			selection.getTransactionFactory().executeOnRoot(new PropogationContext(), implicitDropAction);
+			connection.execute(new PropogationContext(), implicitDropAction);
 
 			PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-			livePanel.getTransactionFactory().commitTransaction(propCtx);
+			connection.commit(propCtx);
 		} else {
 			TransactionMapBuilder transactionTargetContentMapBuilder = new TransactionMapBuilder();
 			
@@ -39,7 +45,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					public void run() {
 						PropogationContext propCtx = new PropogationContext();
 						
-						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						connection.execute(propCtx, new DualCommandFactory<Model>() {
 							public DualCommand<Model> createDualCommand() {
 								return new DualCommandPair<Model>(
 									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
@@ -53,7 +59,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 								dualCommands.add(createDualCommand());
 							}
 						});
-						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						connection.execute(propCtx, new DualCommandFactory<Model>() {
 							public dynamake.DualCommand<Model> createDualCommand() {
 								return LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation());
 							}
@@ -72,7 +78,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					public void run() {
 						PropogationContext propCtx = new PropogationContext();
 
-						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						connection.execute(propCtx, new DualCommandFactory<Model>() {
 							public DualCommand<Model> createDualCommand() {
 								return new DualCommandPair<Model>(
 									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
@@ -86,7 +92,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 								dualCommands.add(createDualCommand());
 							}
 						});
-						selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						connection.execute(propCtx, new DualCommandFactory<Model>() {
 							public dynamake.DualCommand<Model> createDualCommand() {
 								return LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation());
 							}
@@ -111,7 +117,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					public void run() {
 						final PropogationContext propCtx = new PropogationContext();
 						
-						target.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+						connection.execute(propCtx, new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
@@ -146,6 +152,6 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
 		PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
-		livePanel.getTransactionFactory().rollbackTransaction(propCtx);
+		connection.rollback(propCtx);
 	}
 }
