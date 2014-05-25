@@ -9,6 +9,12 @@ import javax.swing.JPopupMenu;
 import dynamake.LiveModel.LivePanel;
 
 public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
+	private PrevaylerServiceConnection<Model> connection;
+	
+	public ViewDragDropPopupBuilder(PrevaylerServiceConnection<Model> connection) {
+		this.connection = connection;
+	}
+
 	@Override
 	public void buildFromSelectionAndTarget(final ModelComponent livePanel,
 			JPopupMenu popup, final ModelComponent selection,
@@ -19,7 +25,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 				runnable.run();
 				
 				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-				livePanel.getTransactionFactory().commitTransaction(propCtx);
+				connection.commit(propCtx);
 			}
 		};
 		
@@ -30,7 +36,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
 				
-				selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
@@ -54,7 +60,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
 				
-				selection.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
