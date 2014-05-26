@@ -760,12 +760,12 @@ public abstract class Model implements Serializable, Observer {
 		});
 	}
 	
-	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final TransactionFactory transactionFactory, TransactionMapBuilder transactions) {
+	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final TransactionFactory transactionFactory, TransactionMapBuilder transactions, final PrevaylerServiceConnection<Model> connection) {
 		transactions.addTransaction("Set " + PROPERTY_COLOR, new ColorTransactionBuilder((Color)model.getProperty(PROPERTY_COLOR), new Action1<Color>() {
 			@Override
 			public void run(final Color color) {
 				PropogationContext propCtx = new PropogationContext();
-				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(
 							List<DualCommand<Model>> dualCommands) {
@@ -799,14 +799,14 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void appendGeneralDroppedTransactions(final ModelComponent livePanel,
-			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions) {
+			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, final PrevaylerServiceConnection<Model> connection) {
 		if(target.getModelBehind() instanceof CanvasModel) {
 			transactions.addTransaction("Clone Isolated", new Runnable() {
 				@Override
 				public void run() {
 					final Rectangle creationBounds = droppedBounds;
 
-					dropped.getTransactionFactory().executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
+					connection.execute(new PropogationContext(), new DualCommandFactory<Model>() {
 						public DualCommand<Model> createDualCommand() {
 							int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
 							ModelComponent output = ((LiveModel.LivePanel)livePanel).productionPanel.editPanelMouseAdapter.output;
@@ -844,7 +844,7 @@ public abstract class Model implements Serializable, Observer {
 					final Rectangle creationBounds = droppedBounds;
 					
 					PropogationContext propCtx = new PropogationContext();
-					dropped.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					connection.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();

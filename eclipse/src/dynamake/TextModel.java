@@ -172,7 +172,7 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions);
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, connection);
 			
 			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
 			if(caretColor == null)
@@ -202,7 +202,7 @@ public class TextModel extends Model {
 		
 		@Override
 		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions);
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection);
 			
 //			if(target.getModelBehind() instanceof CanvasModel) {
 //				transactions.addTransaction("For new button", new Runnable() {
