@@ -175,9 +175,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				if(transactionIndex > 0) {
 					transactionIndex--;
 					DualCommand<T> transaction = transactions.get(transactionIndex);
-//					DualCommand<T> antagonist = transaction.antagonist();
-//					antagonist.executeOn(propCtx, prevalentSystem, null);
-					
 					transaction.executeBackwardOn(propCtx, prevalentSystem, null, null);
 				}
 			}

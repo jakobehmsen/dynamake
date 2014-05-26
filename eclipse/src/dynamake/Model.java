@@ -448,6 +448,8 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
+		boolean isolateSideEffects = connection == null; // If true, then performing replay, undo, or redo.
+		
 		int nextChangeDistance = changeDistance + 1;
 		int nextPropDistance = propDistance + 1;
 		observersToAdd = new ArrayList<Observer>();
@@ -487,7 +489,12 @@ public abstract class Model implements Serializable, Observer {
 		
 		for(Observer observer: observers) {
 			PropogationContext propCtxBranch = propCtx.branch();
-			observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connection);
+			if(isolateSideEffects) {
+				if(!(observer instanceof Model))
+					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connection);
+			} else {
+				observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connection);
+			}
 		}
 		
 		for(Observer observerToAdd: observersToAdd) {
