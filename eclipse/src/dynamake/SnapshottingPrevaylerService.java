@@ -390,13 +390,13 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						commit(null);
 					}
 				}
-			}
-			
-			if(parent != null)
-				parent.absorb();
-			else {
-				// Every effect has been absorbed
-				commit(null);
+			} else {
+				if(parent != null)
+					parent.absorb();
+				else {
+					// Every effect has been absorbed
+					commit(null);
+				}
 			}
 		}
 		

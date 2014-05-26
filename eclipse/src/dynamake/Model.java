@@ -518,7 +518,7 @@ public abstract class Model implements Serializable, Observer {
 			}
 			
 			int branchIndex = 0;
-			PrevaylerServiceConnection<Model>[] connectionBranches = connection.branch(branchCount);
+			PrevaylerServiceConnection<Model>[] connectionBranches = branchCount > 0 ? connection.branch(branchCount) : null;
 			for(int i = 0; i < observers.size(); i++) {
 				Observer observer = observers.get(i);
 				PrevaylerServiceConnection<Model> connectionBranch;

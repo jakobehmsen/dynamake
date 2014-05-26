@@ -63,6 +63,8 @@ public class PlotTool implements Tool {
 				}
 			}
 			
+			final PrevaylerServiceConnection<Model> step2Branch = branches[1];
+			
 			if(componentsWithinBounds.size() > 0) {
 				JMenuItem factoryMenuItem = new JMenuItem();
 				factoryMenuItem.setText("Wrap");
@@ -75,7 +77,8 @@ public class PlotTool implements Tool {
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							PropogationContext propCtx = new PropogationContext();
 
-							connection.execute(propCtx, new DualCommandFactory<Model>() {
+//							connection.execute(propCtx, new DualCommandFactory<Model>() {
+							step2Branch.execute(propCtx, new DualCommandFactory<Model>() {
 								public DualCommand<Model> createDualCommand() {
 									Location[] modelLocations = new Location[componentsWithinBounds.size()];
 									int[] modelIndexes = new int[componentsWithinBounds.size()];
@@ -110,8 +113,10 @@ public class PlotTool implements Tool {
 								}
 							});
 							
-							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-							connection.commit(commitPropCtx);
+							step2Branch.absorb();
+							
+//							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+//							connection.commit(commitPropCtx);
 
 							productionPanel.editPanelMouseAdapter.resetEffectFrame();
 							productionPanel.livePanel.repaint();
@@ -134,7 +139,8 @@ public class PlotTool implements Tool {
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							PropogationContext propCtx = new PropogationContext();
 							
-							connection.execute(propCtx, new DualCommandFactory<Model>() {
+//							connection.execute(propCtx, new DualCommandFactory<Model>() {
+							step2Branch.execute(propCtx, new DualCommandFactory<Model>() {
 								public DualCommand<Model> createDualCommand() {
 									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
 									int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
@@ -165,8 +171,10 @@ public class PlotTool implements Tool {
 								}
 							});
 							
-							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-							connection.commit(commitPropCtx);
+//							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+//							connection.commit(commitPropCtx);
+							
+							step2Branch.absorb();
 
 							productionPanel.editPanelMouseAdapter.resetEffectFrame();
 							productionPanel.livePanel.repaint();
@@ -204,16 +212,22 @@ public class PlotTool implements Tool {
 	}
 	
 	private PrevaylerServiceConnection<Model> connection;
+	private PrevaylerServiceConnection<Model>[] branches;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e) {
 		if(e.getButton() == 1) {
 			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
 			
+			branches = connection.branch(2);
+			
+			PrevaylerServiceConnection<Model> step1Branch = branches[0];
+			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
 				
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
+//				connection.execute(propCtx, new DualCommandFactory<Model>() {
+				step1Branch.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
 						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 						return new DualCommandPair<Model>(
@@ -235,7 +249,8 @@ public class PlotTool implements Tool {
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			if(targetModelComponent != null && targetModelComponent.getModelBehind() instanceof CanvasModel) {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, connection);
+//				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, connection);
+				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, step1Branch);
 				productionPanel.livePanel.repaint();
 			} else {
 				productionPanel.editPanelMouseAdapter.selectionMouseDown = e.getPoint();
