@@ -273,7 +273,7 @@ public class Primitive extends Model {
 	}
 	
 	@Override
-	public void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection connection) {
+	public void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
 		implementation.execute(this, sender, change, propCtx, propDistance, changeDistance, connection);
 	}
 	

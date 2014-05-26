@@ -261,7 +261,7 @@ public class LiveModel extends Model {
 						dualCommands.add(createDualCommand());
 					}
 				});
-				connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
+//				connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
 			}
 		});
 		buttonTool.setFocusable(false);

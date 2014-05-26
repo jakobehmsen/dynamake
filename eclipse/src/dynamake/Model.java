@@ -326,8 +326,8 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection connection) {
-		
+	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
+		connection.absorb();
 	}
 	
 	public static class CompositeTransaction implements Command<Model> {
@@ -501,20 +501,37 @@ public abstract class Model implements Serializable, Observer {
 		So, what requires the fewest steps right now?
 		-  Probably propCtx.absorb()
 		
-		 */
-		
-		PrevaylerServiceConnection<Model>[] connectionBranches = connection.branch(observers.size());
-//		for(Observer observer: observers) {
-		for(int i = 0; i < observers.size(); i++) {
-			Observer observer = observers.get(i);
-			PrevaylerServiceConnection<Model> connectionBranch = connectionBranches[i];
-			PropogationContext propCtxBranch = propCtx.branch();
-			if(isolateSideEffects) {
-				if(!(observer instanceof Model))
-					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch);
-			} else {
+		*/
+
+		if(isolateSideEffects) {
+			for(Observer observer: observers) {
+				if(!(observer instanceof Model)) {
+					PropogationContext propCtxBranch = propCtx.branch();
+					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connection);
+				}
+			}
+		} else {
+			int branchCount = 0;
+			for(Observer observer: observers) {
+				if(observer instanceof Model)
+					branchCount++;
+			}
+			
+			int branchIndex = 0;
+			PrevaylerServiceConnection<Model>[] connectionBranches = connection.branch(branchCount);
+			for(int i = 0; i < observers.size(); i++) {
+				Observer observer = observers.get(i);
+				PrevaylerServiceConnection<Model> connectionBranch;
+				if(observer instanceof Model) {
+					connectionBranch = connectionBranches[branchIndex];
+					branchIndex++;
+				} else
+					connectionBranch = connection;
+				PropogationContext propCtxBranch = propCtx.branch();
 				observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch);
 			}
+			if(branchCount == 0)
+				connection.absorb();
 		}
 		
 		for(Observer observerToAdd: observersToAdd) {

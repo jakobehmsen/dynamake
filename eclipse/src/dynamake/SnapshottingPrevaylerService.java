@@ -403,6 +403,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		@Override
 		public PrevaylerServiceConnection<T>[] branch(int branchCount) {
 			branches = (SnapshottingPrevaylerService.Connection<T>[])new SnapshottingPrevaylerService.Connection<?>[branchCount];
+			
+			for(int i = 0; i < branchCount; i++) {
+				branches[i] = new SnapshottingPrevaylerService.Connection<T>(prevaylerService);
+				branches[i].parent = this;
+			}
 
 			return branches;
 		}
