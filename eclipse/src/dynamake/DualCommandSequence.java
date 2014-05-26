@@ -23,7 +23,7 @@ public class DualCommandSequence<T> implements DualCommand<T> {
 
 	@Override
 	public void executeBackwardOn(PropogationContext propCtx,
-			T prevalentSystem, Date executionTime, PrevaylerServiceConnection<T> newParam) {
+			T prevalentSystem, Date executionTime, PrevaylerServiceConnection<T> connection) {
 		// Reverse the sequence
 		for(int i = transactions.length - 1; i >= 0; i--) {
 			DualCommand<T> t = transactions[i];

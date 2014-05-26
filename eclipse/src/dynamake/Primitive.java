@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JLabel;

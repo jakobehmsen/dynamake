@@ -213,7 +213,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		transactionExecutor.execute(runnable);
 	}
 	
-	private void registerTransaction(final PropogationContext propCtx, final DualCommand<T> transaction) {
+	private void registerTransaction(final DualCommand<T> transaction) {
 		if(transactionIndex == transactions.size())
 			transactions.add(transaction);
 		else
@@ -329,14 +329,29 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					DualCommand<T>[] transactions = (DualCommand<T>[])new DualCommand<?>[transactionSequence.size()];
-					transactionSequence.toArray(transactions);
-					DualCommandSequence<T> compositeTransaction = new DualCommandSequence<T>(transactions);
-					prevaylerService.registerTransaction(propCtx, compositeTransaction);
-					prevaylerService.persistTransaction(propCtx, compositeTransaction);
-					transactionSequence = null;
+//					DualCommand<T>[] transactions = (DualCommand<T>[])new DualCommand<?>[transactionSequence.size()];
+//					transactionSequence.toArray(transactions);
+//					DualCommandSequence<T> compositeTransaction = new DualCommandSequence<T>(transactions);
+//					prevaylerService.registerTransaction(compositeTransaction);
+//					prevaylerService.persistTransaction(propCtx, compositeTransaction);
+//					transactionSequence = null;
+					commit(propCtx, SnapshottingPrevaylerService.Connection.this);
 				}
 			});
+		}
+		
+		private static <T> void commit(final PropogationContext propCtx, SnapshottingPrevaylerService.Connection<T> connection) {
+			DualCommand<T>[] transactions = (DualCommand<T>[])new DualCommand<?>[connection.transactionSequence.size()];
+			connection.transactionSequence.toArray(transactions);
+			DualCommandSequence<T> compositeTransaction = new DualCommandSequence<T>(transactions);
+			connection.prevaylerService.registerTransaction(compositeTransaction);
+			connection.prevaylerService.persistTransaction(propCtx, compositeTransaction);
+			connection.transactionSequence = null;
+			
+			if(connection.branches != null) {
+				for(SnapshottingPrevaylerService.Connection<T> branch: connection.branches)
+					commit(propCtx, branch);
+			}
 		}
 
 		@Override
@@ -352,6 +367,44 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					transactionSequence = null;
 				}
 			});
+		}
+		
+		private PrevaylerServiceConnection<T> parent;
+		private int branchAbsorbCount;
+		private SnapshottingPrevaylerService.Connection<T>[] branches;
+		
+		@Override
+		public void absorb() {
+			if(branches != null) {
+				int newBranchAbsorbCount;
+				synchronized (this) {
+					branchAbsorbCount++;
+					newBranchAbsorbCount = branchAbsorbCount;
+				}
+				
+				if(newBranchAbsorbCount == branches.length) {
+					if(parent != null)
+						parent.absorb();
+					else {
+						// Every effect has been absorbed
+						commit(null);
+					}
+				}
+			}
+			
+			if(parent != null)
+				parent.absorb();
+			else {
+				// Every effect has been absorbed
+				commit(null);
+			}
+		}
+		
+		@Override
+		public PrevaylerServiceConnection<T>[] branch(int branchCount) {
+			branches = (SnapshottingPrevaylerService.Connection<T>[])new SnapshottingPrevaylerService.Connection<?>[branchCount];
+
+			return branches;
 		}
 	}
 	

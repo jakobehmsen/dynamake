@@ -104,10 +104,10 @@ public abstract class Model implements Serializable, Observer {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-			if(!propCtx.isTagged(LiveModel.TAG_CAUSED_BY_REDO) && !propCtx.isTagged(LiveModel.TAG_CAUSED_BY_UNDO)) {
-				Object currentValue = model.getProperty(name);
-				propCtx.collectBackwardTransaction(new SetPropertyOnRootTransaction(modelLocation, name, currentValue));
-			}
+//			if(!propCtx.isTagged(LiveModel.TAG_CAUSED_BY_REDO) && !propCtx.isTagged(LiveModel.TAG_CAUSED_BY_UNDO)) {
+//				Object currentValue = model.getProperty(name);
+//				propCtx.collectBackwardTransaction(new SetPropertyOnRootTransaction(modelLocation, name, currentValue));
+//			}
 			
 			model.setProperty(name, value, propCtx, 0, connection);
 		}
@@ -298,8 +298,24 @@ public abstract class Model implements Serializable, Observer {
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
 		if(change instanceof SetProperty && changeDistance == 1) {
-			SetProperty setProperty = (SetProperty)change;
-			setProperty(setProperty.name, setProperty.value, propCtx, propDistance, connection);
+			// Side-effect
+			
+			final SetProperty setProperty = (SetProperty)change;
+			
+			connection.execute(propCtx, new DualCommandFactory<Model>() {
+				@Override
+				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					Location modelLocation = getLocator().locate();
+					Object currentValue = getProperty(setProperty.name);
+					
+					dualCommands.add(new DualCommandPair<Model>(
+						new SetPropertyOnRootTransaction(modelLocation, setProperty.name, setProperty.value),
+						new SetPropertyOnRootTransaction(modelLocation, setProperty.name, currentValue)
+					));
+				}
+			});
+			
+//			setProperty(setProperty.name, setProperty.value, propCtx, propDistance, connection);
 		} else if(change instanceof TellProperty && changeDistance == 1) {
 			TellProperty tellProperty = (TellProperty)change;
 			Object value = getProperty(tellProperty.name);
@@ -487,13 +503,17 @@ public abstract class Model implements Serializable, Observer {
 		
 		 */
 		
-		for(Observer observer: observers) {
+		PrevaylerServiceConnection<Model>[] connectionBranches = connection.branch(observers.size());
+//		for(Observer observer: observers) {
+		for(int i = 0; i < observers.size(); i++) {
+			Observer observer = observers.get(i);
+			PrevaylerServiceConnection<Model> connectionBranch = connectionBranches[i];
 			PropogationContext propCtxBranch = propCtx.branch();
 			if(isolateSideEffects) {
 				if(!(observer instanceof Model))
-					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connection);
+					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch);
 			} else {
-				observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connection);
+				observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch);
 			}
 		}
 		

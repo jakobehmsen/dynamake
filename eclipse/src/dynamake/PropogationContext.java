@@ -13,7 +13,7 @@ public class PropogationContext {
 	private Map<String, Object> definitions = new Hashtable<String, Object>();
 	
 	private HashSet<Integer> tags = new HashSet<Integer>();
-	private List<Command<Model>> backwardTransactions = new ArrayList<Command<Model>>();
+//	private List<Command<Model>> backwardTransactions = new ArrayList<Command<Model>>();
 	
 	public PropogationContext() { }
 	
@@ -72,13 +72,13 @@ public class PropogationContext {
 		return false;
 	}
 	
-	public void collectBackwardTransaction(Command<Model> backwardTransaction) {
-		backwardTransactions.add(backwardTransaction);
-	}
+//	public void collectBackwardTransaction(Command<Model> backwardTransaction) {
+//		backwardTransactions.add(backwardTransaction);
+//	}
 	
-	public List<Command<Model>> getBackwardTransactions() {
-		return backwardTransactions;
-	}
+//	public List<Command<Model>> getBackwardTransactions() {
+//		return backwardTransactions;
+//	}
 	
 	public PropogationContext getParent() {
 		return parent;
