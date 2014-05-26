@@ -1,12 +1,5 @@
 package dynamake;
 
-import java.util.Date;
-import java.util.List;
-
-import org.prevayler.Transaction;
-
-import dynamake.CanvasModel.IndexLocation;
-
 public class TransactionFactory {
 	private PrevaylerService<Model> prevaylerService;
 	private TransactionFactory parent;
@@ -22,7 +15,6 @@ public class TransactionFactory {
 	}
 	
 	public ModelLocator getModelLocator() {
-//		return locator;
 		if(parent != null)
 			return new CompositeModelLocator(parent.getModelLocator(), locator);
 		return locator;
@@ -34,128 +26,11 @@ public class TransactionFactory {
 		return (ModelLocation)locator.locate();
 	}
 	
-////	private static class LocationTransaction<T> implements Transaction<Model> {
-//	private static class LocationTransaction<T extends Model> implements DualCommand<T> {
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//		
-////		private Location location;
-////		private Transaction<T> transaction;
-////
-////		public LocationTransaction(Location location, Transaction<T> transaction) {
-////			this.location = location;
-////			this.transaction = transaction;
-////		}
-//		
-//		private Location location;
-//		private DualCommand<T> transaction;
-//
-//		public LocationTransaction(Location location, DualCommand<T> transaction) {
-//			this.location = location;
-//			this.transaction = transaction;
-//		}
-//
-////		@SuppressWarnings("unchecked")
-////		@Override
-////		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime) {
-////			T obj = (T)location.getChild(prevalentSystem);
-////			transaction.executeOn(propCtx, obj, executionTime);
-////		}
-////
-////		@Override
-////		public Command<Model> antagonist() {
-////			Command<T> transactionAntagonist = transaction.antagonist();
-////			return new LocationTransaction<T>(location, transactionAntagonist);
-////		}
-//		
-//		@Override
-//		public void executeForwardOn(PropogationContext propCtx,
-//				T prevalentSystem, Date executionTime, PrevaylerServiceConnection<T> connection) {
-//			T obj = (T)location.getChild(prevalentSystem);
-//			transaction.executeForwardOn(propCtx, obj, executionTime, connection);
-//		}
-//		
-//		@Override
-//		public void executeBackwardOn(PropogationContext propCtx,
-//				T prevalentSystem, Date executionTime, PrevaylerServiceConnection<T> newParam) {
-//			T obj = (T)location.getChild(prevalentSystem);
-//			transaction.executeBackwardOn(propCtx, obj, executionTime, null);
-//		}
-//	}
-	
-//	public <T extends Model> void execute(final Transaction<T> transaction) {
-//		final Location location = getLocation();
-//		prevaylerService.execute(new LocationTransaction<T>(location, transaction));
-//	}
-//	
-//	public void executeOnRoot(final Transaction<Model> transaction) {
-//		prevaylerService.execute(transaction);
-//	}
-	
 	// TODO: Consider: Could be replaced by a using a PrevaylerServiceConnection without committing?
 	public void executeTransient(Runnable runnable) {
 		prevaylerService.executeTransient(runnable);
 	}
-	
-//	public <T extends Model> void execute(PropogationContext propCtx, final Command<T> transaction) {
-//		execute(propCtx, new DualCommandFactory<T>() {
-//			@Override
-//			public DualCommand<T> createDualCommand() {
-//				return new DualCommandPair<T>(transaction, null);
-//			}
-//		});
-//	}
-	
-//	public <T extends Model> void execute(PropogationContext propCtx, final DualCommand<T> transaction) {
-//		execute(propCtx, new DualCommandFactory<T>() {
-//			@Override
-//			public DualCommand<T> createDualCommand() {
-//				return transaction;
-//			}
-//		});
-//	}
-	
-//	public <T extends Model> void execute(PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
-//		final Location location = getModelLocation();
-//		prevaylerService.execute(propCtx, new DualCommandFactory<Model>() {
-//			@Override
-//			public DualCommand<Model> createDualCommand() {
-//				DualCommand<T> transaction = transactionFactory.createDualCommand();
-//				return new LocationTransaction<T>(location, transaction);
-//			}
-//		});
-//	}
-	
-//	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final Command<T> transaction) {
-//		executeOnRoot(propCtx, new DualCommandFactory<T>() {
-//			public DualCommand<T> createDualCommand() {
-//				return new DualCommandPair<T>(transaction, null);
-//			}
-//			
-//			@Override
-//			public void createDualCommands(
-//					List<DualCommand<T>> dualCommands) {
-//				dualCommands.add(createDualCommand());
-//			}
-//		});
-//	}
-	
-//	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final DualCommand<T> transaction) {
-//		executeOnRoot(propCtx, new DualCommandFactory<T>() {
-//			@Override
-//			public void createDualCommands(
-//					List<DualCommand<T>> dualCommands) {
-//				dualCommands.add(transaction);
-//			}
-//		});
-//	}
-	
-	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
-		prevaylerService.execute(propCtx, (DualCommandFactory<Model>) transactionFactory);
-	}
-	
+
 	public TransactionFactory extend(final ModelLocator locator) {
 		TransactionFactory extended = new TransactionFactory(prevaylerService, locator);
 		
@@ -209,10 +84,6 @@ public class TransactionFactory {
 	}
 	
 	private static class CompositeLocation implements Location {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
 		private Location head;
 		private Location tail;
 		
@@ -238,18 +109,6 @@ public class TransactionFactory {
 
 	public void redo(PropogationContext propCtx) {
 		prevaylerService.redo(propCtx);
-	}
-
-	public void beginTransaction() {
-		prevaylerService.beginTransaction();
-	}
-	
-	public void commitTransaction(PropogationContext propCtx) {
-		prevaylerService.commitTransaction(propCtx);
-	}
-
-	public void rollbackTransaction(PropogationContext propCtx) {
-		prevaylerService.rollbackTransaction(propCtx);
 	}
 
 	public ModelLocator extendLocator(ModelLocator otherLocator) {
