@@ -354,37 +354,28 @@ public class LiveModel extends Model {
 					selectionFrameVerticalPosition = VERTICAL_REGION_SOUTH;
 			}
 			
-			public void selectFromView(final ModelComponent view, final Point initialMouseDown, boolean moving) {
+			public void selectFromView(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceConnection<Model> connection) {
 				Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-				requestSelect(view, initialMouseDown, moving, effectBounds);
+				requestSelect(view, initialMouseDown, moving, effectBounds, connection);
 			}
 			
-			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, boolean moving) {
+			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceConnection<Model> connection) {
 				// TODO: Once finished with replace all usages of beginTransaction, commitTransaction, and rollbackTransaction:
 				// Put a PrevayerServiceConnection<Model> as parameter to this method and forward the connection in the flow.
 				Dimension sourceBoundsSize = new Dimension(125, 33);
 				Point sourceBoundsLocation = new Point(initialMouseDown.x - sourceBoundsSize.width / 2, initialMouseDown.y - sourceBoundsSize.height / 2);
 				Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
 				Rectangle selectionBounds = SwingUtilities.convertRectangle((JComponent)view, sourceBounds, productionPanel);
-				requestSelect(view, initialMouseDown, moving, selectionBounds);
+				requestSelect(view, initialMouseDown, moving, selectionBounds, connection);
 			}
 			
-			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, boolean moving) {
-				requestSelect(view, initialMouseDown, moving, new Rectangle(0, 0, 0, 0));
+			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceConnection<Model> connection) {
+				requestSelect(view, initialMouseDown, moving, new Rectangle(0, 0, 0, 0), connection);
 			}
 			
-			private void requestSelect(final ModelComponent view, final Point initialMouseDown, final boolean moving, final Rectangle effectBounds) {
+			private void requestSelect(final ModelComponent view, final Point initialMouseDown, final boolean moving, final Rectangle effectBounds, PrevaylerServiceConnection<Model> connection) {
 				// Notice: executes a transaction
-				
-
-				// TODO: Once finished with replace all usages of beginTransaction, commitTransaction, and rollbackTransaction:
-				// Put a PrevayerServiceConnection<Model> as parameter to this method and forward the connection in the flow.
-				// Use connection for execution of the set selection transaction.
-
 				PropogationContext propCtx = new PropogationContext();
-				
-				// TODO: When the connection is supplied as a parameter, remove this line
-				PrevaylerServiceConnection<Model> connection = productionPanel.livePanel.getTransactionFactory().createConnection();
 				
 				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
@@ -416,9 +407,6 @@ public class LiveModel extends Model {
 						dualCommands.add(createDualCommand());
 					}
 				});
-				
-				// TODO: When the connection is supplied as a parameter, remove this line
-				connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
 			}
 			
 			private static class SetSelectionAndLocalsTransaction implements Command<Model> {

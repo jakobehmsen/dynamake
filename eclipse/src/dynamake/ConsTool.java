@@ -137,7 +137,7 @@ public class ConsTool implements Tool {
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			if(targetModelComponent != null) {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromDefault(targetModelComponent, referencePoint, true);
+				productionPanel.editPanelMouseAdapter.selectFromDefault(targetModelComponent, referencePoint, true, connection);
 				productionPanel.livePanel.repaint();
 			}
 		}

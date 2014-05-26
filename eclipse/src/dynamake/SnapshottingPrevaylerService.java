@@ -286,6 +286,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			this.prevaylerService = prevaylerService;
 		}
 
+		// TODO: Replace usage of execute with execute2
+		
 		@Override
 		public void execute(final PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
 			prevaylerService.transactionExecutor.execute(new Runnable() {
