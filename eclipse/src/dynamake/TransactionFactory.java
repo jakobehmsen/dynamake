@@ -127,29 +127,29 @@ public class TransactionFactory {
 //		});
 //	}
 	
-	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final Command<T> transaction) {
-		executeOnRoot(propCtx, new DualCommandFactory<T>() {
-			public DualCommand<T> createDualCommand() {
-				return new DualCommandPair<T>(transaction, null);
-			}
-			
-			@Override
-			public void createDualCommands(
-					List<DualCommand<T>> dualCommands) {
-				dualCommands.add(createDualCommand());
-			}
-		});
-	}
+//	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final Command<T> transaction) {
+//		executeOnRoot(propCtx, new DualCommandFactory<T>() {
+//			public DualCommand<T> createDualCommand() {
+//				return new DualCommandPair<T>(transaction, null);
+//			}
+//			
+//			@Override
+//			public void createDualCommands(
+//					List<DualCommand<T>> dualCommands) {
+//				dualCommands.add(createDualCommand());
+//			}
+//		});
+//	}
 	
-	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final DualCommand<T> transaction) {
-		executeOnRoot(propCtx, new DualCommandFactory<T>() {
-			@Override
-			public void createDualCommands(
-					List<DualCommand<T>> dualCommands) {
-				dualCommands.add(transaction);
-			}
-		});
-	}
+//	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final DualCommand<T> transaction) {
+//		executeOnRoot(propCtx, new DualCommandFactory<T>() {
+//			@Override
+//			public void createDualCommands(
+//					List<DualCommand<T>> dualCommands) {
+//				dualCommands.add(transaction);
+//			}
+//		});
+//	}
 	
 	public <T extends Model> void executeOnRoot(PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
 		prevaylerService.execute(propCtx, (DualCommandFactory<Model>) transactionFactory);

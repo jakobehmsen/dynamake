@@ -167,11 +167,11 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-			TransactionMapBuilder transactions, ModelComponent child) {
+			TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection) {
 		}
 
 		@Override
-		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions) {
+		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions);
 			
 			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
@@ -201,7 +201,7 @@ public class TextModel extends Model {
 		}
 		
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions) {
+		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions);
 			
 //			if(target.getModelBehind() instanceof CanvasModel) {
@@ -221,7 +221,7 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
+				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			// TODO Auto-generated method stub
 			
 		}

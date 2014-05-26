@@ -1,5 +1,11 @@
 package dynamake;
 
+/*
+
+Possible alternative names:
+Session, Recorder, Mediator
+
+*/
 public interface PrevaylerServiceConnection<T> {
 	/**
 	 * Take something which has two methods:

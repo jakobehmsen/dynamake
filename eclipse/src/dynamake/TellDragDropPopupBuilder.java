@@ -45,9 +45,6 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 						));
 					}
 				});
-//				selection.getTransactionFactory().executeOnRoot(
-//					propCtx, new TellPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_COLOR)
-//				);
 			}
 		});
 		transactionTargetContentMapBuilder.appendTo(popup, runner, "Selection to target");

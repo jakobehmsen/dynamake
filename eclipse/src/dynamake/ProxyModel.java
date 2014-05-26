@@ -90,24 +90,24 @@ public class ProxyModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child) {
+				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection) {
 //			view.appendContainerTransactions(transactions, child);
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions);
 //			view.appendTransactions(transactions);
 		}
 
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
+				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 //			view.appendDropTargetTransactions(dropped, droppedBounds, dropPoint, transactions);
 		}
 

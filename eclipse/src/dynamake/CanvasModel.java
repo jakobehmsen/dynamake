@@ -17,9 +17,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
-import javax.swing.text.View;
-
-import org.prevayler.Transaction;
 
 public class CanvasModel extends Model {
 	/**
@@ -353,11 +350,12 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, final ModelComponent child) {
+				TransactionMapBuilder transactions, final ModelComponent child, final PrevaylerServiceConnection<Model> connection) {
 			transactions.addTransaction("Remove", new Runnable() {
 				@Override
 				public void run() {
-					transactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
+					PropogationContext propCtx = new PropogationContext();
+					connection.execute(propCtx, new DualCommandFactory<Model>() {
 						public DualCommand<Model> createDualCommand() {
 							int indexOfModel = model.indexOfModel(child.getModelBehind());
 							Location canvasLocation = transactionFactory.getModelLocation();
@@ -385,24 +383,25 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions);
 		}
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions);
 		}
 		
 		@Override
 		public void appendDropTargetTransactions(final ModelComponent livePanel,
-				final ModelComponent dropped, final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions) {
+				final ModelComponent dropped, final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions, final PrevaylerServiceConnection<Model> connection) {
 			if(dropped.getTransactionFactory().getParent() != null && 
 				dropped.getTransactionFactory().getParent() != CanvasPanel.this.transactionFactory &&
 				!isContainerOf(dropped.getTransactionFactory(), this.transactionFactory) /*Dropee cannot be child of dropped*/) {
 				transactions.addTransaction("Move", new Runnable() {
 					@Override
 					public void run() {
-						transactionFactory.executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
+						PropogationContext propCtx = new PropogationContext();
+						connection.execute(propCtx, new DualCommandFactory<Model>() {
 							public DualCommand<Model> createDualCommand() {
 								Location livePanelLocation = livePanel.getTransactionFactory().getModelLocation();
 								Location canvasSourceLocation = dropped.getTransactionFactory().getParent().getModelLocation();

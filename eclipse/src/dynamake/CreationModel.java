@@ -138,13 +138,13 @@ public class CreationModel extends Model {
 		}
 		
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			// TODO Auto-generated method stub
 			
 		}
 		
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -152,14 +152,14 @@ public class CreationModel extends Model {
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
 				ModelComponent dropped, Rectangle droppedBounds,
-				Point dropPoint, TransactionMapBuilder transactions) {
+				Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			// TODO Auto-generated method stub
 			
 		}
 		
 		@Override
 		public void appendContainerTransactions(TransactionMapBuilder transactions,
-				ModelComponent child) {
+				ModelComponent child, PrevaylerServiceConnection<Model> connection) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -240,24 +240,24 @@ public class CreationModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child) {
+				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			// TODO Auto-generated method stub
 			
 		}
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions) {
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions) {
+				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
 			// TODO Auto-generated method stub
 			
 		}
