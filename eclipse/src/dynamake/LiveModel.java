@@ -15,19 +15,15 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -251,7 +247,8 @@ public class LiveModel extends Model {
 				// Indicate this is an radio button toggle context
 				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
 				
-				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
 						Location modelLocation = transactionFactory.getModelLocation();
 						int previousState = model.getState();
@@ -264,6 +261,7 @@ public class LiveModel extends Model {
 						dualCommands.add(createDualCommand());
 					}
 				});
+				connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
 			}
 		});
 		buttonTool.setFocusable(false);
@@ -384,13 +382,16 @@ public class LiveModel extends Model {
 				// Use connection for execution of the set selection transaction.
 
 				PropogationContext propCtx = new PropogationContext();
-
-				productionPanel.livePanel.getTransactionFactory().executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				
+				// TODO: When the connection is supplied as a parameter, remove this line
+				PrevaylerServiceConnection<Model> connection = productionPanel.livePanel.getTransactionFactory().createConnection();
+				
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
 						Point currentInitialMouseDown = (Point)productionPanel.livePanel.model.getProperty("SelectionInitialMouseDown");
 						Boolean currentSelectionMoving = (Boolean)productionPanel.livePanel.model.getProperty("SelectionMoving");
 						Rectangle currentSelectionEffectBounds = (Rectangle)productionPanel.livePanel.model.getProperty("SelectionEffectBounds");
-
+	
 						return new DualCommandPair<Model>(
 							new SetSelectionAndLocalsTransaction(
 								productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
@@ -415,6 +416,9 @@ public class LiveModel extends Model {
 						dualCommands.add(createDualCommand());
 					}
 				});
+				
+				// TODO: When the connection is supplied as a parameter, remove this line
+				connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
 			}
 			
 			private static class SetSelectionAndLocalsTransaction implements Command<Model> {
@@ -948,8 +952,6 @@ public class LiveModel extends Model {
 			topPanel = new JPanel();
 			
 			topPanel.setBackground(TOP_BACKGROUND_COLOR);
-			
-			JToolBar toolBar = new JToolBar();
 			
 			JButton undo = new JButton("Undo");
 			undo.setBackground(TOP_FOREGROUND_COLOR);

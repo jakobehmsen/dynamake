@@ -94,6 +94,7 @@ public class TransactionFactory {
 //		prevaylerService.execute(transaction);
 //	}
 	
+	// TODO: Consider: Could be replaced by a using a PrevaylerServiceConnection without committing?
 	public void executeTransient(Runnable runnable) {
 		prevaylerService.executeTransient(runnable);
 	}
