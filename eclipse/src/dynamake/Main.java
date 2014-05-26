@@ -132,7 +132,7 @@ public class Main {
 //			factoryBuilder.add(new TextModelFactory());
 			factoryBuilder.add(new CanvasModelFactory());
 //			factoryBuilder.add(new ButtonModelFactory());
-			factoryBuilder.add(new FloatingTextModelFactory());
+			factoryBuilder.add(new TextModelFactory());
 			
 //			for(Primitive.Implementation implementationSingleton: Primitive.getImplementationSingletons())
 //				factoryBuilder.add(new PrimitiveSingletonFactory(implementationSingleton));

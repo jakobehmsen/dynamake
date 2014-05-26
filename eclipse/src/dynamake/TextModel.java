@@ -1,6 +1,7 @@
 package dynamake;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Date;
@@ -8,12 +9,18 @@ import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.PlainDocument;
 
 import org.prevayler.Transaction;
+
+import dynamake.Model.RemovableListener;
 
 public class TextModel extends Model {
 	public static final String PROPERTY_CARET_COLOR = "Caret Color";
@@ -31,6 +38,15 @@ public class TextModel extends Model {
 		return clone;
 	}
 	
+	@Override
+	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
+		Fraction fontSize = (Fraction)getProperty("FontSize");
+		if(fontSize == null)
+			fontSize = new Fraction(12);
+		fontSize = fontSize.multiply(hChange);
+		setProperty("FontSize", fontSize, propCtx, propDistance, connection);
+	}
+	
 	public void setText(String text) {
 		this.text.setLength(0);
 		this.text.append(text);
@@ -42,6 +58,26 @@ public class TextModel extends Model {
 	
 	public void remove(int start, int end) {
 		
+	}
+	
+	private static class InsertedText {
+		public final int offset;
+		public final String text;
+		
+		public InsertedText(int offset, String text) {
+			this.offset = offset;
+			this.text = text;
+		}
+	}
+	
+	private static class RemovedText {
+		public final int start;
+		public final int end;
+		
+		public RemovedText(int start, int end) {
+			this.start = start;
+			this.end = end;
+		}
 	}
 	
 	private static class InsertTransaction implements Command<Model> {
@@ -63,10 +99,11 @@ public class TextModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.insert(offset, text);
+			textModel.sendChanged(new InsertedText(offset, text), propCtx, 0, 0, connection);
 		}
 
 //		@Override
-//		public Command<TextModel> antagonist() {
+//		public Command<FloatingTextModel> antagonist() {
 //			// TODO Auto-generated method stub
 //			return null;
 //		}
@@ -91,31 +128,31 @@ public class TextModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.delete(start, end);
+			textModel.sendChanged(new RemovedText(start, end), propCtx, 0, 0, connection);
 		}
 
 //		@Override
-//		public Command<TextModel> antagonist() {
+//		public Command<FloatingTextModel> antagonist() {
 //			// TODO Auto-generated method stub
 //			return null;
 //		}
 	}
 	
-	private static class ModelScrollPane extends JScrollPane implements ModelComponent {
+	private static class FloatingTextModelView extends JTextField implements ModelComponent {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		private TextModel model;
 		private TransactionFactory transactionFactory;
-//		private TransactionFactory metaTransactionFactory;
 		private JTextPane view;
 
-		public ModelScrollPane(TextModel model, TransactionFactory transactionFactory, final ViewManager viewManager, JTextPane view) {
-			super(view);
+		public FloatingTextModelView(TextModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
-//			this.metaTransactionFactory = transactionFactory.extend(new Model.MetaModelLocator());
-			this.view = view;
+			
+			this.setOpaque(false);
+			this.setBorder(null);
 		}		
 
 		@Override
@@ -134,26 +171,31 @@ public class TextModel extends Model {
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions) {
+		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions) {
 			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions);
 			
 			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
 			if(caretColor == null)
-				caretColor = view.getCaretColor();
+				caretColor = this.getCaretColor();
+			final Color currentCaretColor = caretColor;
 			transactions.addTransaction("Set " + PROPERTY_CARET_COLOR, new ColorTransactionBuilder(caretColor, new Action1<Color>() {
 				@Override
 				public void run(final Color color) {
 					PropogationContext propCtx = new PropogationContext();
 					
-					transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+					PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
+					connection.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							dualCommands.add(new DualCommandPair<Model>(
 								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, color),
-								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, model.getProperty("PROPERTY_CARET_COLOR"))
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, currentCaretColor)
 							));
+							
+							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, transactionFactory.getModelLocation())); // Absolute location
 						}
 					});
+					connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
 				}
 			}));
 		}
@@ -202,13 +244,78 @@ public class TextModel extends Model {
 		}
 	}
 	
+	// The same as LiveModel.TAG_CAUSED_BY_TOGGLE_BUTTON; 
+	// TODO: Consider: Perhaps, there should be a general "caused by view" tag?
+	private static final int TAG_CAUSED_BY_VIEW = 2; 
+	
+	private static class ViewDocument extends PlainDocument {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private TextModel model;
+		private TransactionFactory transactionFactory;
+		
+		public ViewDocument(TextModel model, TransactionFactory transactionFactory) {
+			this.model = model;
+			this.transactionFactory = transactionFactory;
+		}
+		
+		@Override
+		public void insertString(final int offs, final String str, AttributeSet a)
+				throws BadLocationException {
+			documentInsert(offs, str, a);
+			
+			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_VIEW);
+			PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
+			connection.execute(propCtx, new DualCommandFactory<Model>() {
+				@Override
+				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					dualCommands.add(new DualCommandPair<Model>(
+						new InsertTransaction(transactionFactory.getModelLocation(), offs, str), 
+						new RemoveTransaction(transactionFactory.getModelLocation(), offs, offs + str.length())
+					));
+				}
+			});
+			connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
+		}
+		
+		public void documentInsert(int offs, String str, AttributeSet a) throws BadLocationException {
+			super.insertString(offs, str, a);
+		}
+		
+		@Override
+		public void remove(int offs, int len) throws BadLocationException {
+			documentRemove(offs, len);
+
+			final int start = offs;
+			final int end = offs + len;
+			
+			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_VIEW);
+			PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
+			connection.execute(propCtx, new DualCommandFactory<Model>() {
+				@Override
+				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					String removedText = model.text.substring(start, end);
+					dualCommands.add(new DualCommandPair<Model>(
+						new RemoveTransaction(transactionFactory.getModelLocation(), start, end), 
+						new InsertTransaction(transactionFactory.getModelLocation(), start, removedText)
+					));
+				}
+			});
+			connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
+		}
+		
+		public void documentRemove(int offs, int len) throws BadLocationException {
+			super.remove(offs, len);
+		}
+	}
+	
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView, final ViewManager viewManager, final TransactionFactory transactionFactory) {
 		this.setLocation(transactionFactory.getModelLocator());
 		
-		final JTextPane view = new JTextPane();
-		final ModelScrollPane viewScrollPane = new ModelScrollPane(this, transactionFactory, viewManager, view);
-		view.setText(text.toString());
+		final FloatingTextModelView view = new FloatingTextModelView(this, transactionFactory, viewManager);
 		
 		// TODO: Investigate: Is caret color loaded anywhere?
 		final RemovableListener removeListenerForCaretColor = Model.bindProperty(this, PROPERTY_CARET_COLOR, new Action1<Color>() {
@@ -219,56 +326,60 @@ public class TextModel extends Model {
 			}
 		});
 		
-		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, viewScrollPane, viewManager);
-		final Model.RemovableListener removeListenerForComponentPropertyChanges = Model.wrapForComponentColorChanges(this, viewScrollPane, view, viewManager, Model.COMPONENT_COLOR_FOREGROUND);
+		final ViewDocument document = new ViewDocument(this, transactionFactory);
+		
+		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
+		final Model.RemovableListener removeListenerForComponentPropertyChanges = Model.wrapForComponentColorChanges(this, view, view, viewManager, Model.COMPONENT_COLOR_FOREGROUND);
+		final Binding<Model> removableListener = RemovableListener.addAll(this, 
+			bindProperty(this, "FontSize", new Action1<Fraction>() {
+				public void run(Fraction value) {
+					Font font = view.getFont();
+					view.setFont(new Font(font.getFamily(), font.getStyle(), value.intValue()));
+					viewManager.refresh(view);
+				}
+			}),
+			RemovableListener.addObserver(this, new Observer() {
+				@Override
+				public void removeObservee(Observer observee) { }
+				
+				@Override
+				public void addObservee(Observer observee) { }
+				
+				@Override
+				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
+					if(!propCtx.isTagged(TAG_CAUSED_BY_VIEW)) {
+						if(change instanceof InsertedText) {
+							InsertedText insertText = (InsertedText)change;
+							
+							try {
+								document.documentInsert(insertText.offset, insertText.text, null);
+							} catch (BadLocationException e) {
+								e.printStackTrace();
+							}
+						} else if(change instanceof RemovedText) {
+							RemovedText removedText = (RemovedText)change;
+							
+							try {
+								document.documentRemove(removedText.start, removedText.end - removedText.start);
+							} catch (BadLocationException e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+			})
+		);
 		
 		Model.loadComponentProperties(this, view, Model.COMPONENT_COLOR_FOREGROUND);
 		
-		view.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				final int start = e.getOffset();
-				final int end = e.getOffset() + e.getLength();
-				PropogationContext propCtx = new PropogationContext();
-				
-				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						dualCommands.add(new DualCommandPair<Model>(
-							new RemoveTransaction(transactionFactory.getModelLocation(), start, end),
-							null
-						));
-					}
-				});		
-			}
-			
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				final int offset = e.getOffset();
-				final String str;
-				try {
-					str = e.getDocument().getText(e.getOffset(), e.getLength());
-					PropogationContext propCtx = new PropogationContext();
-					
-					transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
-						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							dualCommands.add(new DualCommandPair<Model>(
-								new InsertTransaction(transactionFactory.getModelLocation(), offset, str),
-								null
-							));
-						}
-					});	
-				} catch (BadLocationException e1) {
-					e1.printStackTrace();
-				}
-			}
-			
-			@Override
-			public void changedUpdate(DocumentEvent e) { }
-		});
+		try {
+			document.documentInsert(0, text.toString(), null);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		view.setDocument(document);
 		
-		viewManager.wasCreated(viewScrollPane);
+		viewManager.wasCreated(view);
 
 		return new Binding<ModelComponent>() {
 			@Override
@@ -276,11 +387,12 @@ public class TextModel extends Model {
 				removeListenerForCaretColor.releaseBinding();
 				removeListenerForBoundChanges.releaseBinding();
 				removeListenerForComponentPropertyChanges.releaseBinding();
+				removableListener.releaseBinding();
 			}
 			
 			@Override
 			public ModelComponent getBindingTarget() {
-				return viewScrollPane;
+				return view;
 			}
 		};
 	}
