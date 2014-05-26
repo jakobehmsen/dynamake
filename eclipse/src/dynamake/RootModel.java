@@ -158,8 +158,10 @@ public class RootModel extends Model {
 			mouseIsDown = false;
 			
 			PropogationContext propCtx = new PropogationContext();
+			PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
+			
 			if(newLocation != null) {
-				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
@@ -168,8 +170,7 @@ public class RootModel extends Model {
 						));
 					}
 				});
-
-				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
@@ -181,7 +182,7 @@ public class RootModel extends Model {
 			}
 			
 			if(newSize != null) {
-				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
@@ -190,8 +191,7 @@ public class RootModel extends Model {
 						));
 					}
 				});
-
-				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
@@ -201,6 +201,8 @@ public class RootModel extends Model {
 					}
 				});
 			}
+			
+			connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
 		}
 		
 		@Override
@@ -319,7 +321,8 @@ public class RootModel extends Model {
 				PropogationContext propCtx = new PropogationContext();
 
 				final int newState = e.getNewState();
-				transactionFactory.executeOnRoot(propCtx, new DualCommandFactory<Model>() {
+				PrevaylerServiceConnection<Model> connection = view.getTransactionFactory().createConnection();
+				connection.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
 						Location modelLocation = transactionFactory.getModelLocation();
 						Integer currentState = (Integer)RootModel.this.getProperty("State");
@@ -335,6 +338,7 @@ public class RootModel extends Model {
 						dualCommands.add(createDualCommand());
 					}
 				});
+				connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
 			}
 		});
 		
