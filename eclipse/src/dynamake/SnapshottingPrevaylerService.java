@@ -422,6 +422,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		private Branch<T> parent;
 		private SnapshottingPrevaylerService<T> prevaylerService;
 		private ArrayList<DualCommand<T>> transactionSequence;
+		private int branchAbsorbCount;
 		private ArrayList<SnapshottingPrevaylerService.Branch<T>> branches = new ArrayList<SnapshottingPrevaylerService.Branch<T>>();
 		
 		private Branch(Branch<T> parent, SnapshottingPrevaylerService<T> prevaylerService, final DualCommandFactory<T> transactionFactory, final PropogationContext propCtx) {
@@ -442,14 +443,55 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			});
 		}
 		
-		private void commit() {
+		public void commit(final PropogationContext propCtx) {
+			prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					commit(propCtx, SnapshottingPrevaylerService.Branch.this);
+				}
+			});
+		}
+		
+		private static <T> void commit(final PropogationContext propCtx, SnapshottingPrevaylerService.Branch<T> connection) {
+			DualCommand<T>[] transactions = (DualCommand<T>[])new DualCommand<?>[connection.transactionSequence.size()];
+			connection.transactionSequence.toArray(transactions);
+			DualCommandSequence<T> compositeTransaction = new DualCommandSequence<T>(transactions);
+			connection.prevaylerService.registerTransaction(compositeTransaction);
+			connection.prevaylerService.persistTransaction(propCtx, compositeTransaction);
+			connection.transactionSequence = null;
 			
+			if(connection.branches.size() > 0) {
+				for(SnapshottingPrevaylerService.Branch<T> branch: connection.branches)
+					commit(propCtx, branch);
+			}
 		}
 
 		@Override
 		public void absorb() {
-			// TODO Auto-generated method stub
-			
+			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					if(branches.size() > 0) {
+						branchAbsorbCount++;
+						
+						if(branchAbsorbCount == branches.size()) {
+							if(parent != null)
+								parent.absorb();
+							else {
+								// Every effect has been absorbed
+								commit(null);
+							}
+						}
+					} else {
+						if(parent != null)
+							parent.absorb();
+						else {
+							// Every effect has been absorbed
+							commit(null);
+						}
+					}
+				}
+			});
 		}
 
 		@Override
