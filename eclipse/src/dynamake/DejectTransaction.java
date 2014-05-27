@@ -17,7 +17,7 @@ public class DejectTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		Model source = (Model)sourceLocation.getChild(prevalentSystem);
 		Model target = (Model)targetLocation.getChild(prevalentSystem);
 		

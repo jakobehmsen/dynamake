@@ -20,7 +20,7 @@ public class SetOutputThenRemoveAtTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 		if(outputLocation != null) {
 			Model output = (Model)outputLocation.getChild(prevalentSystem);
