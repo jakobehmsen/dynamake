@@ -369,44 +369,80 @@ public class LiveModel extends Model {
 				requestSelect(view, initialMouseDown, moving, selectionBounds, connection);
 			}
 			
-			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceConnection<Model> connection) {
-				requestSelect(view, initialMouseDown, moving, new Rectangle(0, 0, 0, 0), connection);
+			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, boolean moving, Object connectionOrBranch) {
+				requestSelect(view, initialMouseDown, moving, new Rectangle(0, 0, 0, 0), connectionOrBranch);
 			}
 			
-			private void requestSelect(final ModelComponent view, final Point initialMouseDown, final boolean moving, final Rectangle effectBounds, PrevaylerServiceConnection<Model> connection) {
+			private void requestSelect(final ModelComponent view, final Point initialMouseDown, final boolean moving, final Rectangle effectBounds, Object connectionOrBranch) {
 				// Notice: executes a transaction
 				PropogationContext propCtx = new PropogationContext();
 				
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
-					public DualCommand<Model> createDualCommand() {
-						Point currentInitialMouseDown = (Point)productionPanel.livePanel.model.getProperty("SelectionInitialMouseDown");
-						Boolean currentSelectionMoving = (Boolean)productionPanel.livePanel.model.getProperty("SelectionMoving");
-						Rectangle currentSelectionEffectBounds = (Rectangle)productionPanel.livePanel.model.getProperty("SelectionEffectBounds");
-	
-						return new DualCommandPair<Model>(
-							new SetSelectionAndLocalsTransaction(
-								productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-								view.getTransactionFactory().getModelLocation(),
-								initialMouseDown,
-								moving,
-								effectBounds
-							),
-							new SetSelectionAndLocalsTransaction(
-								productionPanel.livePanel.getTransactionFactory().getModelLocation(),
-								productionPanel.editPanelMouseAdapter.selection != null ? productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation() : null,
-								currentInitialMouseDown,
-								currentSelectionMoving,
-								currentSelectionEffectBounds
-							)
-						);
-					}
+				if(connectionOrBranch instanceof PrevaylerServiceConnection<?>) {
+					PrevaylerServiceConnection<Model> connection = (PrevaylerServiceConnection<Model>)connectionOrBranch;
+					connection.execute(propCtx, new DualCommandFactory<Model>() {
+						public DualCommand<Model> createDualCommand() {
+							Point currentInitialMouseDown = (Point)productionPanel.livePanel.model.getProperty("SelectionInitialMouseDown");
+							Boolean currentSelectionMoving = (Boolean)productionPanel.livePanel.model.getProperty("SelectionMoving");
+							Rectangle currentSelectionEffectBounds = (Rectangle)productionPanel.livePanel.model.getProperty("SelectionEffectBounds");
+		
+							return new DualCommandPair<Model>(
+								new SetSelectionAndLocalsTransaction(
+									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+									view.getTransactionFactory().getModelLocation(),
+									initialMouseDown,
+									moving,
+									effectBounds
+								),
+								new SetSelectionAndLocalsTransaction(
+									productionPanel.livePanel.getTransactionFactory().getModelLocation(),
+									productionPanel.editPanelMouseAdapter.selection != null ? productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation() : null,
+									currentInitialMouseDown,
+									currentSelectionMoving,
+									currentSelectionEffectBounds
+								)
+							);
+						}
+						
+						@Override
+						public void createDualCommands(
+								List<DualCommand<Model>> dualCommands) {
+							dualCommands.add(createDualCommand());
+						}
+					});
+				} else {
+					PrevaylerServiceBranch<Model> branch = (PrevaylerServiceBranch<Model>)connectionOrBranch;
 					
-					@Override
-					public void createDualCommands(
-							List<DualCommand<Model>> dualCommands) {
-						dualCommands.add(createDualCommand());
-					}
-				});
+					branch.branch(propCtx, new DualCommandFactory<Model>() {
+						public DualCommand<Model> createDualCommand() {
+							Point currentInitialMouseDown = (Point)productionPanel.livePanel.model.getProperty("SelectionInitialMouseDown");
+							Boolean currentSelectionMoving = (Boolean)productionPanel.livePanel.model.getProperty("SelectionMoving");
+							Rectangle currentSelectionEffectBounds = (Rectangle)productionPanel.livePanel.model.getProperty("SelectionEffectBounds");
+		
+							return new DualCommandPair<Model>(
+								new SetSelectionAndLocalsTransaction(
+									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+									view.getTransactionFactory().getModelLocation(),
+									initialMouseDown,
+									moving,
+									effectBounds
+								),
+								new SetSelectionAndLocalsTransaction(
+									productionPanel.livePanel.getTransactionFactory().getModelLocation(),
+									productionPanel.editPanelMouseAdapter.selection != null ? productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation() : null,
+									currentInitialMouseDown,
+									currentSelectionMoving,
+									currentSelectionEffectBounds
+								)
+							);
+						}
+						
+						@Override
+						public void createDualCommands(
+								List<DualCommand<Model>> dualCommands) {
+							dualCommands.add(createDualCommand());
+						}
+					});
+				}
 			}
 			
 			private static class SetSelectionAndLocalsTransaction implements Command<Model> {

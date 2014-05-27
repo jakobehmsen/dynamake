@@ -472,6 +472,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				@Override
 				public void run() {
 					if(branches.size() > 0) {
+						int newBranchAbsorbCount;
 						branchAbsorbCount++;
 						
 						if(branchAbsorbCount == branches.size()) {
