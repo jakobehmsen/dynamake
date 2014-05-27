@@ -417,4 +417,65 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	public PrevaylerServiceConnection<T> createConnection() {
 		return new SnapshottingPrevaylerService.Connection<T>(this);
 	}
+	
+	private static class Branch<T> implements PrevaylerServiceBranch<T> {
+		private Branch<T> parent;
+		private SnapshottingPrevaylerService<T> prevaylerService;
+		private ArrayList<DualCommand<T>> transactionSequence;
+		private ArrayList<SnapshottingPrevaylerService.Branch<T>> branches = new ArrayList<SnapshottingPrevaylerService.Branch<T>>();
+		
+		private Branch(Branch<T> parent, SnapshottingPrevaylerService<T> prevaylerService, final DualCommandFactory<T> transactionFactory, final PropogationContext propCtx) {
+			this.parent = parent;
+			this.prevaylerService = prevaylerService;
+			
+			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					ArrayList<DualCommand<T>> createdTransactions = new ArrayList<DualCommand<T>>();
+					transactionFactory.createDualCommands(createdTransactions);
+					
+					for(DualCommand<T> transaction: createdTransactions) {
+						transaction.executeForwardOn(propCtx, Branch.this.prevaylerService.prevalentSystem(), null, null);
+						transactionSequence.add(transaction);
+					}
+				}
+			});
+		}
+		
+		private void commit() {
+			
+		}
+
+		@Override
+		public void absorb() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void reject() {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public PrevaylerServiceBranch<T> branch(PropogationContext propCtx,
+				DualCommandFactory<T> transactionFactory) {
+			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, transactionFactory, propCtx);
+			
+			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					Branch.this.branches.add(branch);
+				}
+			});
+			
+			return branch;
+		}
+	}
+	
+	@Override
+	public PrevaylerServiceBranch<T> createBranch(PropogationContext propCtx, DualCommandFactory<T> transactionFactory) {
+		return new SnapshottingPrevaylerService.Branch<T>(null, this, transactionFactory, propCtx);
+	}
 }
