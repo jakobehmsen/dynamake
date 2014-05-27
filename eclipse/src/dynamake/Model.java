@@ -1035,7 +1035,7 @@ public abstract class Model implements Serializable, Observer {
 		Fraction hChange = new Fraction(newBounds.width).divide(currentWidth);
 		Fraction vChange = new Fraction(newBounds.height).divide(currentHeight);
 
-		modelScale(hChange, vChange, propCtx, propDistance, connection);
+		modelScale(hChange, vChange, propCtx, propDistance, connection, branch);
 	}
 
 	public void scale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
@@ -1054,10 +1054,10 @@ public abstract class Model implements Serializable, Observer {
 		setProperty("Width", newWidth, propCtx, propDistance, connection, branch);
 		setProperty("Height", newHeight, propCtx, propDistance, connection, branch);
 		
-		modelScale(hChange, vChange, propCtx, propDistance, connection);
+		modelScale(hChange, vChange, propCtx, propDistance, connection, branch);
 	}
 	
-	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
+	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		
 	}
 }

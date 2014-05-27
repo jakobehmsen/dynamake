@@ -30,6 +30,6 @@ public class SetOutputThenRemoveAtTransaction implements Command<Model> {
 		}
 		
 		CanvasModel canvas = (CanvasModel)canvasLocation.getChild(prevalentSystem);
-		canvas.removeModel(index, propCtx, 0, connection);
+		canvas.removeModel(index, propCtx, 0, connection, branch);
 	}
 }

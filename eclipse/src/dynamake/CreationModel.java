@@ -326,8 +326,8 @@ public class CreationModel extends Model {
 			model.setProperty("Width", width, propCtx, 0, connection, branch);
 			model.setProperty("Height", height, propCtx, 0, connection, branch);
 			
-			canvas.removeModel(creation, propCtx, 0, connection);
-			canvas.addModel(model, propCtx, 0, connection);
+			canvas.removeModel(creation, propCtx, 0, connection, branch);
+			canvas.addModel(model, propCtx, 0, connection, branch);
 		}
 
 //		@Override

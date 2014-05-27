@@ -42,8 +42,8 @@ public class WrapTransaction implements Command<Model> {
 		}
 		
 		for(Model model: models) {
-			target.removeModel(model, propCtx, 0, connection);
-			wrapper.addModel(model, propCtx, 0, connection);
+			target.removeModel(model, propCtx, 0, connection, branch);
+			wrapper.addModel(model, propCtx, 0, connection, branch);
 		}
 		
 		for(Model model: models) {
@@ -54,7 +54,7 @@ public class WrapTransaction implements Command<Model> {
 			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, connection, branch);
 		}
 
-		target.addModel(wrapper, propCtx, 0, connection);
+		target.addModel(wrapper, propCtx, 0, connection, branch);
 		liveModel.setOutput(wrapper, propCtx, 0, connection);
 	}
 }

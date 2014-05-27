@@ -258,7 +258,7 @@ public class Primitive extends Model {
 	}
 	
 	@Override
-	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
+	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		Fraction fontSize = (Fraction)getProperty("FontSize");
 		if(fontSize == null)
 			fontSize = new Fraction(12);

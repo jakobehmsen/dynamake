@@ -46,7 +46,7 @@ public class AddThenOutputTransaction implements Command<Model> {
 		model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection, branch);
 		model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection, branch);
 		
-		canvas.addModel(model, propCtx, 0, connection);
+		canvas.addModel(model, propCtx, 0, connection, branch);
 		liveModel.setOutput(model, propCtx, 0, connection);
 	}
 
