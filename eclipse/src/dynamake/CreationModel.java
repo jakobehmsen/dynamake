@@ -51,12 +51,12 @@ public class CreationModel extends Model {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			CreationModel creation = (CreationModel)creationLocation.getChild(prevalentSystem);
 			Model argument = (Model)argumentLocation.getChild(prevalentSystem);
 //			// HACK: For now, only meta model are used as arguments
 //			argument = argument.getMetaModel();
-			creation.setArgument(parameterName, argument, new PropogationContext(), 0, connection);
+			creation.setArgument(parameterName, argument, new PropogationContext(), 0, connection, branch);
 		}
 
 //		@Override
@@ -80,7 +80,7 @@ public class CreationModel extends Model {
 		return clone;
 	}
 	
-	public void setArgument(String parameterName, Object argument, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
+	public void setArgument(String parameterName, Object argument, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		int i;
 		for(i = 0; i < parameterNames.length; i++) {
 			if(parameterNames[i].equals(parameterName))
@@ -308,7 +308,7 @@ public class CreationModel extends Model {
 
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model arg0, Date arg1, PrevaylerServiceConnection<Model> connection) {
+		public void executeOn(PropogationContext propCtx, Model arg0, Date arg1, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 //			PropogationContext propCtx = new PropogationContext();
 			
 			CreationModel creation = (CreationModel)creationLocation.getChild(arg0);
