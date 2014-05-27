@@ -55,6 +55,6 @@ public class WrapTransaction implements Command<Model> {
 		}
 
 		target.addModel(wrapper, propCtx, 0, connection, branch);
-		liveModel.setOutput(wrapper, propCtx, 0, connection);
+		liveModel.setOutput(wrapper, propCtx, 0, connection, branch);
 	}
 }

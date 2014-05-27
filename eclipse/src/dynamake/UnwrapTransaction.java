@@ -69,9 +69,9 @@ public class UnwrapTransaction implements Command<Model> {
 		// Set output
 		if(outputLocation != null) {
 			Model output = (Model)outputLocation.getChild(prevalentSystem);
-			liveModel.setOutput(output, propCtx, 0, connection);
+			liveModel.setOutput(output, propCtx, 0, connection, branch);
 		} else {
-			liveModel.setOutput(null, propCtx, 0, connection);
+			liveModel.setOutput(null, propCtx, 0, connection, branch);
 		}
 	}
 }

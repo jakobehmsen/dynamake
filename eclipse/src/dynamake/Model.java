@@ -232,7 +232,7 @@ public abstract class Model implements Serializable, Observer {
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
 			observable.addObserver(observer);
-			liveModel.setOutput(observer, propCtx, 0, connection);
+			liveModel.setOutput(observer, propCtx, 0, connection, branch);
 		}
 	}
 	
@@ -281,7 +281,7 @@ public abstract class Model implements Serializable, Observer {
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
 			observable.removeObserver(observer);
-			liveModel.setOutput(observer, propCtx, 0, connection);
+			liveModel.setOutput(observer, propCtx, 0, connection, branch);
 		}
 	}
 	

@@ -76,12 +76,12 @@ public class LiveModel extends Model {
 		return clone;
 	}
 	
-	public void setSelection(Model selection, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
+	public void setSelection(Model selection, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		this.selection = selection;
 		sendChanged(new SelectionChanged(), propCtx, propDistance, 0, connection, branch);
 	}
 
-	public void setOutput(Model output, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
+	public void setOutput(Model output, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		this.output = output;
 		
 		sendChanged(new OutputChanged(), propCtx, propDistance, 0, connection, branch);
@@ -91,7 +91,7 @@ public class LiveModel extends Model {
 		return state;
 	}
 	
-	public void setState(int state, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
+	public void setState(int state, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		this.state = state;
 		sendChanged(new StateChanged(), propCtx, propDistance, 0, connection, branch);
 	}
@@ -110,13 +110,13 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
-				liveModel.setSelection(selection, new PropogationContext(), 0, connection);
+				liveModel.setSelection(selection, new PropogationContext(), 0, connection, branch);
 			} else {
-				liveModel.setSelection(null, new PropogationContext(), 0, connection);
+				liveModel.setSelection(null, new PropogationContext(), 0, connection, branch);
 			}
 		}
 	}
@@ -135,13 +135,13 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
-				liveModel.setOutput(selection, new PropogationContext(), 0, connection);
+				liveModel.setOutput(selection, new PropogationContext(), 0, connection, branch);
 			} else {
-				liveModel.setOutput(null, new PropogationContext(), 0, connection);
+				liveModel.setOutput(null, new PropogationContext(), 0, connection, branch);
 			}
 		}
 		
@@ -176,9 +176,9 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			LiveModel model = (LiveModel)modelLocation.getChild(prevalentSystem);
-			model.setState(state, propCtx, 0, connection);
+			model.setState(state, propCtx, 0, connection, branch);
 		}
 	}
 	
@@ -468,8 +468,7 @@ public class LiveModel extends Model {
 				}
 
 				@Override
-				public void executeOn(PropogationContext propCtx,
-						Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
+				public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 					LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 					
 					if(selectionLocation != null) {
@@ -479,9 +478,9 @@ public class LiveModel extends Model {
 						propCtx.define("SelectionMoving", moving);
 						propCtx.define("SelectionEffectBounds", effectBounds);
 						
-						liveModel.setSelection(selection, propCtx, 0, connection);
+						liveModel.setSelection(selection, propCtx, 0, connection, branch);
 					} else {
-						liveModel.setSelection(null, propCtx, 0, connection);
+						liveModel.setSelection(null, propCtx, 0, connection, branch);
 					}
 					liveModel.setProperty("SelectionInitialMouseDown", initialMouseDown, propCtx, 0, connection, branch);
 					liveModel.setProperty("SelectionMoving", moving, propCtx, 0, connection, branch);

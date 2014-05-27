@@ -142,7 +142,7 @@ public class CanvasModel extends Model {
 			model.endUpdate(propCtx, 0, connection, branch);
 			canvasTarget.addModel(model, propCtx, 0, connection, branch);
 			if(setMovedAsOutput)
-				liveModel.setOutput(model, propCtx, 0, connection);
+				liveModel.setOutput(model, propCtx, 0, connection, branch);
 		}
 	}
 	
