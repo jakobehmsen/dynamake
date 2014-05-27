@@ -96,7 +96,7 @@ public class TextModel extends Model {
 			this.text = text;
 		}
 
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.insert(offset, text);
 			textModel.sendChanged(new InsertedText(offset, text), propCtx, 0, 0, connection, branch);
@@ -125,7 +125,7 @@ public class TextModel extends Model {
 			this.end = end;
 		}
 
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.delete(start, end);
 			textModel.sendChanged(new RemovedText(start, end), propCtx, 0, 0, connection, branch);

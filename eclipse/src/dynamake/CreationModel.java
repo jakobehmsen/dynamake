@@ -319,7 +319,7 @@ public class CreationModel extends Model {
 			Fraction width = (Fraction)creation.getProperty("Width");
 			Fraction height = (Fraction)creation.getProperty("Height");
 			
-			Model model = (Model)creation.factory.create(arg0, new Rectangle(x.intValue(), y.intValue(), width.intValue(), height.intValue()), creation.argumentMap, propCtx, 0, connection);
+			Model model = (Model)creation.factory.create(arg0, new Rectangle(x.intValue(), y.intValue(), width.intValue(), height.intValue()), creation.argumentMap, propCtx, 0, connection, branch);
 
 			model.setProperty("X", x, propCtx, 0, connection, branch);
 			model.setProperty("Y", y, propCtx, 0, connection, branch);

@@ -225,7 +225,7 @@ public class CanvasModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 //			PropogationContext propCtx = new PropogationContext();
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, connection);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, connection, branch);
 
 			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, branch);
 			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, branch);

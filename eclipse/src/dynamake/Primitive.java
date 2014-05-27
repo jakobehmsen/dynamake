@@ -222,7 +222,7 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
+				public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 					final Model model = (Model)modelLocation.getChild(rootModel);
 					
 					return new Implementation() {

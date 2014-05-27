@@ -35,7 +35,7 @@ public class AddThenBindAndOutputTransaction implements Command<Model> {
 		CanvasModel canvasModel = (CanvasModel)canvasModelLocation.getChild(prevalentSystem);
 		
 //		final PropogationContext addAndBindCtx = new PropogationContext();
-		final Model primitive = (Model)factory.create(prevalentSystem, creationBounds, new Hashtable<String, Object>(), propCtx, 0, connection);
+		final Model primitive = (Model)factory.create(prevalentSystem, creationBounds, new Hashtable<String, Object>(), propCtx, 0, connection, branch);
 		primitive.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, branch);
 		primitive.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, branch);
 		primitive.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection, branch);

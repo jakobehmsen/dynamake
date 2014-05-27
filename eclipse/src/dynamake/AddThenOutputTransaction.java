@@ -39,7 +39,7 @@ public class AddThenOutputTransaction implements Command<Model> {
 //		PropogationContext propCtx = new PropogationContext();
 		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
 		CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-		Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, arguments, propCtx, 0, connection);
+		Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, arguments, propCtx, 0, connection, branch);
 
 		model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, branch);
 		model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, branch);
