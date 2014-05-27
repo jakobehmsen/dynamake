@@ -29,10 +29,10 @@ public class WrapTransaction implements Command<Model> {
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
 		CanvasModel wrapper = new CanvasModel();
 		
-		wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection);
-		wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection);
-		wrapper.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection);
-		wrapper.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection);
+		wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, branch);
+		wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, branch);
+		wrapper.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection, branch);
+		wrapper.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection, branch);
 		
 		Model[] models = new Model[modelLocations.length];
 		for(int i = 0; i < modelLocations.length; i++) {
@@ -50,8 +50,8 @@ public class WrapTransaction implements Command<Model> {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
 			
-			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, connection);
-			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, connection);
+			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, connection, branch);
+			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, connection, branch);
 		}
 
 		target.addModel(wrapper, propCtx, 0, connection);

@@ -29,9 +29,9 @@ public class NotVisited extends Model {
 	}
 	
 	@Override
-	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
+	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		if(!propCtx.isMarkedVisitedBy(model))
-			sendChanged(change, propCtx, propDistance, changeDistance, connection);
+			sendChanged(change, propCtx, propDistance, changeDistance, connection, branch);
 	}
 	
 	private static class NotVisitedView extends JPanel implements ModelComponent {

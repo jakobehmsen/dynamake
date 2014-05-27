@@ -91,7 +91,7 @@ public class CreationModel extends Model {
 			return;
 		
 		argumentMap.put(parameterName, argument);
-		sendChanged(new ArgumentChanged(parameterName, argument), propCtx, propDistance, 0, connection);
+		sendChanged(new ArgumentChanged(parameterName, argument), propCtx, propDistance, 0, connection, branch);
 	}
 	
 	public boolean argumentIsSet(String parameterName) {
@@ -321,10 +321,10 @@ public class CreationModel extends Model {
 			
 			Model model = (Model)creation.factory.create(arg0, new Rectangle(x.intValue(), y.intValue(), width.intValue(), height.intValue()), creation.argumentMap, propCtx, 0, connection);
 
-			model.setProperty("X", x, propCtx, 0, connection);
-			model.setProperty("Y", y, propCtx, 0, connection);
-			model.setProperty("Width", width, propCtx, 0, connection);
-			model.setProperty("Height", height, propCtx, 0, connection);
+			model.setProperty("X", x, propCtx, 0, connection, branch);
+			model.setProperty("Y", y, propCtx, 0, connection, branch);
+			model.setProperty("Width", width, propCtx, 0, connection, branch);
+			model.setProperty("Height", height, propCtx, 0, connection, branch);
 			
 			canvas.removeModel(creation, propCtx, 0, connection);
 			canvas.addModel(model, propCtx, 0, connection);
@@ -348,7 +348,7 @@ public class CreationModel extends Model {
 		
 		final RemovableListener removableListenerForArgumentChanges = Model.RemovableListener.addObserver(this, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 				if(change instanceof CreationModel.ArgumentChanged) {
 					ArgumentChanged argumentChanged = (ArgumentChanged)change;
 					

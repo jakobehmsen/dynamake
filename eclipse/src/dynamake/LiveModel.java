@@ -78,13 +78,13 @@ public class LiveModel extends Model {
 	
 	public void setSelection(Model selection, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		this.selection = selection;
-		sendChanged(new SelectionChanged(), propCtx, propDistance, 0, connection);
+		sendChanged(new SelectionChanged(), propCtx, propDistance, 0, connection, branch);
 	}
 
 	public void setOutput(Model output, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		this.output = output;
 		
-		sendChanged(new OutputChanged(), propCtx, propDistance, 0, connection);
+		sendChanged(new OutputChanged(), propCtx, propDistance, 0, connection, branch);
 	}
 
 	public int getState() {
@@ -93,7 +93,7 @@ public class LiveModel extends Model {
 	
 	public void setState(int state, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection) {
 		this.state = state;
-		sendChanged(new StateChanged(), propCtx, propDistance, 0, connection);
+		sendChanged(new StateChanged(), propCtx, propDistance, 0, connection, branch);
 	}
 	
 	public static class SetSelection implements Command<Model> {
@@ -483,9 +483,9 @@ public class LiveModel extends Model {
 					} else {
 						liveModel.setSelection(null, propCtx, 0, connection);
 					}
-					liveModel.setProperty("SelectionInitialMouseDown", initialMouseDown, propCtx, 0, connection);
-					liveModel.setProperty("SelectionMoving", moving, propCtx, 0, connection);
-					liveModel.setProperty("SelectionEffectBounds", effectBounds, propCtx, 0, connection);
+					liveModel.setProperty("SelectionInitialMouseDown", initialMouseDown, propCtx, 0, connection, branch);
+					liveModel.setProperty("SelectionMoving", moving, propCtx, 0, connection, branch);
+					liveModel.setProperty("SelectionEffectBounds", effectBounds, propCtx, 0, connection, branch);
 				}
 			}
 			
@@ -1072,7 +1072,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
+				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 					if(change instanceof LiveModel.StateChanged) {
 						if(!propCtx.isTagged(TAG_CAUSED_BY_TOGGLE_BUTTON)) {
 							JToggleButton buttonNewTool = buttonTools[LivePanel.this.model.getState()];

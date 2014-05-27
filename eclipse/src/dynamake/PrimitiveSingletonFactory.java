@@ -27,7 +27,7 @@ public class PrimitiveSingletonFactory implements Factory {
 		Fraction fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(new Fraction(creationBounds.height, 35));
 //		Fraction fontSize = 12 * 40 creationBounds.height;
-		model.setProperty("FontSize", fontSize, propCtx, propDistance, connection);
+		model.setProperty("FontSize", fontSize, propCtx, propDistance, connection, branch);
 		return model;
 		
 //		return new Primitive(implementationSingleton);

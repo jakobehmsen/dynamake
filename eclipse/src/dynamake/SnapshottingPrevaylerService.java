@@ -314,7 +314,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					transactionFactory.createBackwardTransactions(createdBackwardTransactions);
 					
 					for(Command<T> forward: createdForwardTransactions)
-						forward.executeOn(propCtx, prevaylerService.prevalentSystem(), null, SnapshottingPrevaylerService.Connection.this);
+						forward.executeOn(propCtx, prevaylerService.prevalentSystem(), null, SnapshottingPrevaylerService.Connection.this, branch);
 					
 					transactionSequence.add(new DualCommandPair2<T>(
 						createdForwardTransactions.toArray((Command<T>[])new Command<?>[createdForwardTransactions.size()]),

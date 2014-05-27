@@ -44,7 +44,7 @@ public class TextModel extends Model {
 		if(fontSize == null)
 			fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(hChange);
-		setProperty("FontSize", fontSize, propCtx, propDistance, connection);
+		setProperty("FontSize", fontSize, propCtx, propDistance, connection, branch);
 	}
 	
 	public void setText(String text) {
@@ -99,7 +99,7 @@ public class TextModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.insert(offset, text);
-			textModel.sendChanged(new InsertedText(offset, text), propCtx, 0, 0, connection);
+			textModel.sendChanged(new InsertedText(offset, text), propCtx, 0, 0, connection, branch);
 		}
 
 //		@Override
@@ -128,7 +128,7 @@ public class TextModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.delete(start, end);
-			textModel.sendChanged(new RemovedText(start, end), propCtx, 0, 0, connection);
+			textModel.sendChanged(new RemovedText(start, end), propCtx, 0, 0, connection, branch);
 		}
 
 //		@Override
@@ -346,7 +346,7 @@ public class TextModel extends Model {
 				public void addObservee(Observer observee) { }
 				
 				@Override
-				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection) {
+				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 					if(!propCtx.isTagged(TAG_CAUSED_BY_VIEW)) {
 						if(change instanceof InsertedText) {
 							InsertedText insertText = (InsertedText)change;

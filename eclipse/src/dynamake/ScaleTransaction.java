@@ -24,7 +24,7 @@ public class ScaleTransaction implements Command<Model> {
 //		PropogationContext propCtx = new PropogationContext();
 		Model model = (Model)modelLocation.getChild(prevalentSystem);
 //		Model model = prevalentSystem;
-		model.scale(newBounds, propCtx, 0, connection);
+		model.scale(newBounds, propCtx, 0, connection, branch);
 		
 //		int currentWidth = (int)model.getProperty("Width");
 //		int currentHeight = (int)model.getProperty("Height");

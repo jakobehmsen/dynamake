@@ -28,7 +28,7 @@ public interface PrevaylerServiceConnection<T> {
 	This is to replace commit. Likely, a reject method (or named the like) with equivalent behavior as to rollback is added.
 	
 	*/
-	void absorb();
+//	void absorb();
 	// This method also?
 	// void reject()
 	
@@ -37,5 +37,5 @@ public interface PrevaylerServiceConnection<T> {
 	Freezes this connection and create branchCount branches.
 	
 	*/
-	PrevaylerServiceConnection<T>[] branch(int branchCount);
+//	PrevaylerServiceConnection<T>[] branch(int branchCount);
 }

@@ -41,10 +41,10 @@ public class AddThenOutputTransaction implements Command<Model> {
 		CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 		Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, arguments, propCtx, 0, connection);
 
-		model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection);
-		model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection);
-		model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection);
-		model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection);
+		model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, branch);
+		model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, branch);
+		model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection, branch);
+		model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection, branch);
 		
 		canvas.addModel(model, propCtx, 0, connection);
 		liveModel.setOutput(model, propCtx, 0, connection);
