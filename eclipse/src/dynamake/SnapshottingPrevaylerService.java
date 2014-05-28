@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BEncoderStream;
+
 public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	private Func0<T> prevalentSystemFunc;
 	private T prevalentSystem;
@@ -423,8 +425,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		private SnapshottingPrevaylerService<T> prevaylerService;
 //		private ArrayList<DualCommand<T>> transactionSequence = new ArrayList<DualCommand<T>>();
 		private DualCommand<T> transaction;
-		private int branchAbsorbCount;
+//		private int branchAbsorbCount;
 		private ArrayList<SnapshottingPrevaylerService.Branch<T>> branches = new ArrayList<SnapshottingPrevaylerService.Branch<T>>();
+		private ArrayList<SnapshottingPrevaylerService.Branch<T>> absorbedBranches = new ArrayList<SnapshottingPrevaylerService.Branch<T>>();
 		private PropogationContext propCtx;
 		private PrevaylerServiceBranchContinuation<T> continuation;
 		
@@ -464,15 +467,42 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 //			connection.prevaylerService.registerTransaction(compositeTransaction);
 //			connection.prevaylerService.persistTransaction(propCtx, compositeTransaction);
 //			connection.transactionSequence = null;
-			if(connection.transaction != null) {
-				connection.prevaylerService.registerTransaction(connection.transaction);
-				connection.prevaylerService.persistTransaction(propCtx, connection.transaction);
+			
+			DualCommand<T> reduction = connection.reduce();
+			
+			if(reduction != null) {
+				connection.prevaylerService.registerTransaction(reduction);
+				connection.prevaylerService.persistTransaction(propCtx, reduction);
+			}
+			System.out.println("Commit");
+			
+//			if(connection.branches.size() > 0) {
+//				for(SnapshottingPrevaylerService.Branch<T> branch: connection.branches)
+//					commit(propCtx, branch);
+//			}
+		}
+		
+		private DualCommand<T> reduce() {
+			ArrayList<DualCommand<T>> transactionList = new ArrayList<DualCommand<T>>();
+			
+			if(transaction != null)
+				transactionList.add(transaction);
+			
+			for(SnapshottingPrevaylerService.Branch<T> branch: absorbedBranches) {
+				DualCommand<T> reduction = branch.reduce();
+				
+				if(reduction != null)
+					transactionList.add(reduction);
 			}
 			
-			if(connection.branches.size() > 0) {
-				for(SnapshottingPrevaylerService.Branch<T> branch: connection.branches)
-					commit(propCtx, branch);
-			}
+			if(transactionList.size() > 1) {
+				DualCommand<T>[] transactionArray = (DualCommand<T>[])new DualCommand<?>[transactionList.size()];
+				transactionList.toArray(transactionArray);
+				
+				return new DualCommandSequence<T>(transactionArray);
+			} else if(transactionList.size() == 1)
+				return transactionList.get(0);
+			return null;
 		}
 
 		@Override
@@ -481,26 +511,52 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					if(branches.size() > 0) {
-						branchAbsorbCount++;
-						
-						if(branchAbsorbCount == branches.size()) {
-							if(parent != null)
-								parent.absorb();
-							else {
-								// Every effect has been absorbed
-								commit(null);
-							}
-						}
-					} else {
+//					if(branches.size() > 0) {
+//						
+//						branchAbsorbCount++;
+//						
+//						if(branchAbsorbCount == branches.size()) {
+//							if(parent != null)
+//								parent.absorb();
+//							else {
+//								// Every effect has been absorbed
+//								commit(null);
+//							}
+//						}
+//					} else {
+//						if(parent != null)
+//							parent.absorb();
+//						else {
+//							// Every effect has been absorbed
+//							commit(null);
+//						}
+//					}
+//					System.out.println("Absorb performed");
+					if(parent != null)
+						parent.absorbBranch(Branch.this);
+					else {
+						// Every effect has been absorbed
+						commit(null);
+					}
+				}
+			});
+		}
+		
+		private void absorbBranch(final Branch<T> branch) {
+			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					absorbedBranches.add(branch);
+					
+					if(absorbedBranches.size() == branches.size()) {
 						if(parent != null)
-							parent.absorb();
+							parent.absorbBranch(Branch.this);
 						else {
 							// Every effect has been absorbed
 							commit(null);
 						}
 					}
-					System.out.println("Absorb performed");
+					System.out.println("Absorb branch performed");
 				}
 			});
 		}
