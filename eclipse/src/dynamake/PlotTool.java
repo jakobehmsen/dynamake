@@ -75,9 +75,50 @@ public class PlotTool implements Tool {
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							PropogationContext propCtx = new PropogationContext();
 
-//							connection.execute(propCtx, new DualCommandFactory<Model>() {
-							branchStep2.branch(propCtx, new DualCommandFactory<Model>() {
-								public DualCommand<Model> createDualCommand() {
+////							connection.execute(propCtx, new DualCommandFactory<Model>() {
+//							branchStep2.branch(propCtx, new DualCommandFactory<Model>() {
+//								public DualCommand<Model> createDualCommand() {
+//									Location[] modelLocations = new Location[componentsWithinBounds.size()];
+//									int[] modelIndexes = new int[componentsWithinBounds.size()];
+//									for(int i = 0; i < modelLocations.length; i++) {
+//										ModelComponent view = componentsWithinBounds.get(i);
+//										modelLocations[i] = view.getTransactionFactory().getModelLocation();
+//										modelIndexes[i] = ((CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind()).indexOfModel(view.getModelBehind());
+//									}
+//									Location outputLocation = productionPanel.livePanel.model.getOutput() != null ? productionPanel.livePanel.model.getOutput().getLocator().locate() : null;
+//									int wrapperIndex = ((CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind()).getModelCount() - modelLocations.length;
+//
+//									return new DualCommandPair<Model>(
+//										new WrapTransaction(
+//											productionPanel.livePanel.getTransactionFactory().getModelLocation(),
+//											productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
+//											selectionCreationBounds, 
+//											modelLocations),
+//										new UnwrapTransaction(
+//											productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+//											productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
+//											new CanvasModel.IndexLocation(wrapperIndex), 
+//											modelIndexes,
+//											selectionCreationBounds,
+//											outputLocation)
+//									);
+//								}
+//								
+//								@Override
+//								public void createDualCommands(
+//										List<DualCommand<Model>> dualCommands) {
+//									dualCommands.add(createDualCommand());
+//								}
+//							}, new PrevaylerServiceBranchContinuation<Model>() {
+//								@Override
+//								public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+//									branch.absorb();
+//								}
+//							});
+							
+							branchStep2.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+								@Override
+								public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
 									Location[] modelLocations = new Location[componentsWithinBounds.size()];
 									int[] modelIndexes = new int[componentsWithinBounds.size()];
 									for(int i = 0; i < modelLocations.length; i++) {
@@ -87,8 +128,9 @@ public class PlotTool implements Tool {
 									}
 									Location outputLocation = productionPanel.livePanel.model.getOutput() != null ? productionPanel.livePanel.model.getOutput().getLocator().locate() : null;
 									int wrapperIndex = ((CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind()).getModelCount() - modelLocations.length;
-
-									return new DualCommandPair<Model>(
+									
+									// TODO: Must be changed into several transaction. E.g., set output must be a transaction of its own.
+									DualCommand<Model> transaction = new DualCommandPair<Model>(
 										new WrapTransaction(
 											productionPanel.livePanel.getTransactionFactory().getModelLocation(),
 											productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
@@ -102,12 +144,16 @@ public class PlotTool implements Tool {
 											selectionCreationBounds,
 											outputLocation)
 									);
-								}
-								
-								@Override
-								public void createDualCommands(
-										List<DualCommand<Model>> dualCommands) {
-									dualCommands.add(createDualCommand());
+									
+									branchCreation.create(
+										transaction, 
+										new PrevaylerServiceBranchContinuation<Model>() {
+											@Override
+											public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+												branch.absorb();
+											}
+										}
+									);
 								}
 							});
 							
@@ -137,35 +183,94 @@ public class PlotTool implements Tool {
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							PropogationContext propCtx = new PropogationContext();
 							
-//							connection.execute(propCtx, new DualCommandFactory<Model>() {
-							branchStep2.branch(propCtx, new DualCommandFactory<Model>() {
-								public DualCommand<Model> createDualCommand() {
-									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
-									int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
-									ModelComponent output = productionPanel.editPanelMouseAdapter.output;
-									Location outputLocation = null;
-									if(output != null)
-										outputLocation = output.getTransactionFactory().getModelLocation();
-									
-									return new DualCommandPair<Model>(
-										new AddThenOutputTransaction(
-											productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-											productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
-											creationBounds, 
-											factory), 
-										new SetOutputThenRemoveAtTransaction(
-											productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-											outputLocation, 
-											target.getTransactionFactory().getModelLocation(), 
-											addIndex
-										)
-									);
-								}
-								
+////							connection.execute(propCtx, new DualCommandFactory<Model>() {
+//							branchStep2.branch(propCtx, new DualCommandFactory<Model>() {
+////								public DualCommand<Model> createDualCommand() {
+////									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
+//////									int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
+//////									ModelComponent output = productionPanel.editPanelMouseAdapter.output;
+//////									Location outputLocation = null;
+//////									if(output != null)
+//////										outputLocation = output.getTransactionFactory().getModelLocation();
+//////									
+//////									return new DualCommandPair<Model>(
+//////										new AddThenOutputBranchTransaction(
+//////											productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+//////											productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
+//////											creationBounds, 
+//////											factory), 
+//////										new SetOutputThenRemoveAtTransaction(
+//////											productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+//////											outputLocation, 
+//////											target.getTransactionFactory().getModelLocation(), 
+//////											addIndex
+//////										)
+//////									);
+////								}
+//								
+//								@Override
+//								public void createDualCommands(
+//										List<DualCommand<Model>> dualCommands) {
+//									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
+//									
+//									CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
+//									Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
+//									int index = canvasModel.getModelCount();
+//									Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
+//									// The location for Output depends on the side effect of add
+//									
+//									// Add
+//									dualCommands.add(new DualCommandPair<Model>(
+//										new CanvasModel.AddModelTransaction(canvasModelLocation, creationBounds, factory), 
+//										new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+//									));
+//									
+//									// Output
+//									dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation)); // Absolute location
+//								}
+//							}, new PrevaylerServiceBranchContinuation<Model>() {
+//								@Override
+//								public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+//									branch.absorb();
+//								}
+//							});
+							
+							branchStep2.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
 								@Override
-								public void createDualCommands(
-										List<DualCommand<Model>> dualCommands) {
-									dualCommands.add(createDualCommand());
+								public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
+									
+									CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
+									Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
+									int index = canvasModel.getModelCount();
+									final Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
+									// The location for Output depends on the side effect of add
+									
+									branchCreation.create(
+										new DualCommandPair<Model>(
+											new CanvasModel.AddModel2Transaction(canvasModelLocation, creationBounds, factory), 
+											new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+										), 
+										new PrevaylerServiceBranchContinuation<Model>() {
+											@Override
+											public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+												branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+													@Override
+													public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+														branchCreation.create(
+															LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation),
+															new PrevaylerServiceBranchContinuation<Model>() {
+																@Override
+																public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+																	branch.absorb();
+																}
+															}
+														);
+													}
+												});
+											}
+										}
+									);
 								}
 							});
 							
@@ -216,30 +321,60 @@ public class PlotTool implements Tool {
 	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e) {
 		if(e.getButton() == 1) {
 			PropogationContext propCtx = new PropogationContext();
-			branch = productionPanel.livePanel.getTransactionFactory().createBranch(propCtx, new DualCommandFactory<Model>() {
+			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+//			branchStep2 = branch.branch(propCtx, new DualCommandFactory<Model>() {
+//				@Override
+//				public void createDualCommands(List<DualCommand<Model>> dualCommands) { }
+//			}, new PrevaylerServiceBranchContinuation<Model>() {
+//				@Override
+//				public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) { }
+//			});
+			
+			branchStep2 = branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
 				@Override
-				public void createDualCommands(List<DualCommand<Model>> dualCommands) { }
-			});
-			branchStep2 = branch.branch(propCtx, new DualCommandFactory<Model>() {
-				@Override
-				public void createDualCommands(List<DualCommand<Model>> dualCommands) { }
+				public void create(PrevaylerServiceBranchCreation<Model> branchCreation) { }
 			});
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 //				connection.execute(propCtx, new DualCommandFactory<Model>() {
-				branch.branch(propCtx, new DualCommandFactory<Model>() {
-					public DualCommand<Model> createDualCommand() {
-						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-						return new DualCommandPair<Model>(
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-						);
-					}
-					
+//				branch.branch(propCtx, new DualCommandFactory<Model>() {
+//					public DualCommand<Model> createDualCommand() {
+//						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+//						return new DualCommandPair<Model>(
+//							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+//							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+//						);
+//					}
+//					
+//					@Override
+//					public void createDualCommands(
+//							List<DualCommand<Model>> dualCommands) {
+//						dualCommands.add(createDualCommand());
+//					}
+//				}, new PrevaylerServiceBranchContinuation<Model>() {
+//					@Override
+//					public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) { 
+//						branch.absorb();
+//					}
+//				});
+				
+				branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
 					@Override
-					public void createDualCommands(
-							List<DualCommand<Model>> dualCommands) {
-						dualCommands.add(createDualCommand());
+					public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+						
+						branchCreation.create(
+							new DualCommandPair<Model>(
+								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+							), 
+							new PrevaylerServiceBranchContinuation<Model>() {
+								@Override
+								public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+									branch.absorb();
+								}
+							}
+						);
 					}
 				});
 			}

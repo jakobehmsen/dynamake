@@ -325,7 +325,8 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-		branch.absorb();
+//		branch.absorb();
+		branch.doContinue();
 	}
 	
 	public static class CompositeTransaction implements Command<Model> {
@@ -531,7 +532,7 @@ public abstract class Model implements Serializable, Observer {
 				}
 //				if(branchCount == 0)
 //					connection.absorb();
-			} else {
+			} else if(branch != null) {
 //				int branchIndex = 0;
 //				PrevaylerServiceConnection<Model>[] connectionBranches = branchCount > 0 ? connection.branch(branchCount) : null;
 				for(int i = 0; i < observers.size(); i++) {
@@ -545,8 +546,10 @@ public abstract class Model implements Serializable, Observer {
 					PropogationContext propCtxBranch = propCtx.branch();
 					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, branch);
 				}
-				if(branchCount == 0)
-					branch.absorb();
+				if(branchCount == 0) {
+//					branch.absorb();
+					branch.doContinue();
+				}
 			}
 		}
 		

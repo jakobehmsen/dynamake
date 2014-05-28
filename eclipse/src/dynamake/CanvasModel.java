@@ -234,12 +234,45 @@ public class CanvasModel extends Model {
 			
 			canvas.addModel(model, new PropogationContext(), 0, connection, branch);
 		}
+	}
+	
+	public static class AddModel2Transaction implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location canvasLocation;
+		private Rectangle creationBounds;
+		Hashtable<String, Object> creationArgs;
+		private Factory factory;
+		
+		public AddModel2Transaction(Location canvasLocation, Rectangle creationBounds, Factory factory) {
+			this.canvasLocation = canvasLocation;
+			this.creationBounds = creationBounds;
+			this.factory = factory;
+			this.creationArgs = new Hashtable<String, Object>();
+		}
+		
+		public AddModel2Transaction(Location canvasLocation, Rectangle creationBounds, Hashtable<String, Object> creationArgs, Factory factory) {
+			this.canvasLocation = canvasLocation;
+			this.creationBounds = creationBounds;
+			this.creationArgs = creationArgs;
+			this.factory = factory;
+		}
+		
+		@Override
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+//			PropogationContext propCtx = new PropogationContext();
+			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, connection, branch);
 
-//		@Override
-//		public Command<Model> antagonist() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
+			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, null);
+			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, null);
+			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection, null);
+			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection, branch);
+			
+			canvas.addModel(model, new PropogationContext(), 0, connection, branch);
+		}
 	}
 	
 	public static class RemoveModelTransaction implements Command<Model> {

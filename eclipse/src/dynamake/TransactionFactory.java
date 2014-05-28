@@ -123,7 +123,7 @@ public class TransactionFactory {
 		return prevaylerService.createConnection();
 	}
 
-	public PrevaylerServiceBranch<Model> createBranch(PropogationContext propCtx, DualCommandFactory<Model> transactionFactory) {
-		return prevaylerService.createBranch(propCtx, transactionFactory);
+	public PrevaylerServiceBranch<Model> createBranch() {
+		return prevaylerService.createBranch();
 	}
 }

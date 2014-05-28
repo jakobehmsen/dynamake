@@ -12,5 +12,5 @@ public interface PrevaylerService<T> {
 	
 	void executeTransient(Runnable runnable);
 	
-	PrevaylerServiceBranch<T> createBranch(PropogationContext propCtx, DualCommandFactory<T> transactionFactory);
+	PrevaylerServiceBranch<T> createBranch();
 }

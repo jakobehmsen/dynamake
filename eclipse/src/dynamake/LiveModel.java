@@ -39,7 +39,15 @@ public class LiveModel extends Model {
 	private static final long serialVersionUID = 1L;
 
 	public static class SelectionChanged {
+		public final Point selectionInitialMouseDown;
+		public final boolean selectionMoving;
+		public final Rectangle selectionEffectBounds;
 		
+		public SelectionChanged(Point selectionInitialMouseDown, boolean selectionMoving, Rectangle selectionEffectBounds) {
+			this.selectionInitialMouseDown = selectionInitialMouseDown;
+			this.selectionMoving = selectionMoving;
+			this.selectionEffectBounds = selectionEffectBounds;
+		}
 	}
 
 	public static class OutputChanged {
@@ -78,7 +86,12 @@ public class LiveModel extends Model {
 	
 	public void setSelection(Model selection, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		this.selection = selection;
-		sendChanged(new SelectionChanged(), propCtx, propDistance, 0, connection, branch);
+		
+		Point selectionInitialMouseDown = (Point)getProperty("SelectionInitialMouseDown");
+		boolean selectionMoving = (boolean)getProperty("SelectionMoving");
+		Rectangle selectionEffectBounds = (Rectangle)getProperty("SelectionEffectBounds");
+		
+		sendChanged(new SelectionChanged(selectionInitialMouseDown, selectionMoving, selectionEffectBounds), propCtx, propDistance, 0, connection, branch);
 	}
 
 	public void setOutput(Model output, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
@@ -412,34 +425,133 @@ public class LiveModel extends Model {
 				} else {
 					PrevaylerServiceBranch<Model> branch = (PrevaylerServiceBranch<Model>)connectionOrBranch;
 					
-					branch.branch(propCtx, new DualCommandFactory<Model>() {
-						public DualCommand<Model> createDualCommand() {
-							Point currentInitialMouseDown = (Point)productionPanel.livePanel.model.getProperty("SelectionInitialMouseDown");
-							Boolean currentSelectionMoving = (Boolean)productionPanel.livePanel.model.getProperty("SelectionMoving");
-							Rectangle currentSelectionEffectBounds = (Rectangle)productionPanel.livePanel.model.getProperty("SelectionEffectBounds");
-		
-							return new DualCommandPair<Model>(
-								new SetSelectionAndLocalsTransaction(
-									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-									view.getTransactionFactory().getModelLocation(),
-									initialMouseDown,
-									moving,
-									effectBounds
-								),
-								new SetSelectionAndLocalsTransaction(
-									productionPanel.livePanel.getTransactionFactory().getModelLocation(),
-									productionPanel.editPanelMouseAdapter.selection != null ? productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation() : null,
-									currentInitialMouseDown,
-									currentSelectionMoving,
-									currentSelectionEffectBounds
-								)
-							);
-						}
-						
+//					branch.branch(propCtx, new DualCommandFactory<Model>() {
+//						public DualCommand<Model> createDualCommand() {
+//							Point currentInitialMouseDown = (Point)productionPanel.livePanel.model.getProperty("SelectionInitialMouseDown");
+//							Boolean currentSelectionMoving = (Boolean)productionPanel.livePanel.model.getProperty("SelectionMoving");
+//							Rectangle currentSelectionEffectBounds = (Rectangle)productionPanel.livePanel.model.getProperty("SelectionEffectBounds");
+//		
+//							return new DualCommandPair<Model>(
+//								new SetSelectionAndLocalsTransaction(
+//									productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
+//									view.getTransactionFactory().getModelLocation(),
+//									initialMouseDown,
+//									moving,
+//									effectBounds
+//								),
+//								new SetSelectionAndLocalsTransaction(
+//									productionPanel.livePanel.getTransactionFactory().getModelLocation(),
+//									productionPanel.editPanelMouseAdapter.selection != null ? productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation() : null,
+//									currentInitialMouseDown,
+//									currentSelectionMoving,
+//									currentSelectionEffectBounds
+//								)
+//							);
+//						}
+//						
+//						@Override
+//						public void createDualCommands(
+//								List<DualCommand<Model>> dualCommands) {
+//							dualCommands.add(createDualCommand());
+//						}
+//					}, new PrevaylerServiceBranchContinuation<Model>() {
+//						@Override
+//						public void doContinue(PropogationContext propCtx,
+//								PrevaylerServiceBranch<Model> branch) {
+//							System.out.println("Request select");
+//							branch.absorb();
+//						}
+//					});
+					
+					branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
 						@Override
-						public void createDualCommands(
-								List<DualCommand<Model>> dualCommands) {
-							dualCommands.add(createDualCommand());
+						public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+							final LiveModel liveModel = productionPanel.livePanel.model;
+							final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
+							
+							/*
+							
+							LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
+					
+							if(selectionLocation != null) {
+								Model selection = (Model)selectionLocation.getChild(prevalentSystem);
+								
+								propCtx.define("SelectionInitialMouseDown", initialMouseDown);
+								propCtx.define("SelectionMoving", moving);
+								propCtx.define("SelectionEffectBounds", effectBounds);
+								
+								liveModel.setSelection(selection, propCtx, 0, connection, branch);
+							} else {
+								liveModel.setSelection(null, propCtx, 0, connection, branch);
+							}
+							liveModel.setProperty("SelectionInitialMouseDown", initialMouseDown, propCtx, 0, connection, branch);
+							liveModel.setProperty("SelectionMoving", moving, propCtx, 0, connection, branch);
+							liveModel.setProperty("SelectionEffectBounds", effectBounds, propCtx, 0, connection, branch);
+							
+							*/
+							
+							branchCreation.create(
+								new DualCommandPair<Model>(
+									new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
+									new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", liveModel.getProperty("SelectionInitialMouseDown"))
+								), 
+								new PrevaylerServiceBranchContinuation<Model>() {
+									@Override
+									public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+										branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+											@Override
+											public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+												branchCreation.create(
+													new DualCommandPair<Model>(
+														new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
+														new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
+													), 
+													new PrevaylerServiceBranchContinuation<Model>() {
+														@Override
+														public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+															branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+																@Override
+																public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+																	branchCreation.create(
+																		new DualCommandPair<Model>(
+																			new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
+																			new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
+																		), 
+																		new PrevaylerServiceBranchContinuation<Model>() {
+																			@Override
+																			public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+																				branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+																					@Override
+																					public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+																						Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
+																							? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
+																						Location selectionLocation = view.getTransactionFactory().getModelLocation();
+																						DualCommand<Model> transaction = new DualCommandPair<Model>(
+																							new SetSelection(liveModelLocation, selectionLocation), 
+																							new SetSelection(liveModelLocation, currentSelectionLocation)
+																						);
+																						
+																						branchCreation.create(transaction, new PrevaylerServiceBranchContinuation<Model>() {
+																							@Override
+																							public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+																								branch.absorb();
+																							}
+																						});
+																					}
+																				});
+																			}
+																		}
+																	);
+																}
+															});
+														}
+													}
+												);
+											}
+										});
+									}
+								}
+							);
 						}
 					});
 				}
@@ -1103,14 +1215,19 @@ public class LiveModel extends Model {
 						productionPanel.livePanel.repaint();
 					} else if(change instanceof LiveModel.SelectionChanged) {
 						if(LivePanel.this.model.selection != null) {
+							SelectionChanged selectionChanged = (SelectionChanged)change;
+							
 							// TODO: Consider whether this is a safe manner in which location of selection if derived.
 							ModelLocator locator = LivePanel.this.model.selection.getLocator();
 							ModelLocation modelLocation = locator.locate();
 							Location modelComponentLocation = modelLocation.getModelComponentLocation();
 							final ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
-							final Point initialMouseDown = (Point)propCtx.lookup("SelectionInitialMouseDown");
-							final boolean moving = (boolean)propCtx.lookup("SelectionMoving");
-							final Rectangle effectBounds = (Rectangle)propCtx.lookup("SelectionEffectBounds");
+//							final Point initialMouseDown = (Point)propCtx.lookup("SelectionInitialMouseDown");
+//							final boolean moving = (boolean)propCtx.lookup("SelectionMoving");
+//							final Rectangle effectBounds = (Rectangle)propCtx.lookup("SelectionEffectBounds");
+							final Point initialMouseDown = selectionChanged.selectionInitialMouseDown;
+							final boolean moving = selectionChanged.selectionMoving;
+							final Rectangle effectBounds = selectionChanged.selectionEffectBounds;
 							
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
