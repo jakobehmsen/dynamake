@@ -235,49 +235,64 @@ public class PlotTool implements Tool {
 //								}
 //							});
 							
-							branchStep2.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+//							branchStep2.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+//								@Override
+//								public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+//									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
+//									
+//									CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
+//									Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
+//									int index = canvasModel.getModelCount();
+//									final Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
+//									// The location for Output depends on the side effect of add
+//									
+//									branchCreation.create(
+//										new DualCommandPair<Model>(
+//											new CanvasModel.AddModel2Transaction(canvasModelLocation, creationBounds, factory), 
+//											new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+//										), 
+//										new PrevaylerServiceBranchContinuation<Model>() {
+//											@Override
+//											public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+//												branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+//													@Override
+//													public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+//														branchCreation.create(
+//															LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation),
+//															new PrevaylerServiceBranchContinuation<Model>() {
+//																@Override
+//																public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+//																	branch.absorb();
+//																}
+//															}
+//														);
+//													}
+//												});
+//											}
+//										}
+//									);
+//								}
+//							});
+							
+							branchStep2.branch(propCtx, new PrevaylerServiceBranchSequenceCreator<Model>(new DualCommandFactory<Model>() {
 								@Override
-								public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+								public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
 									
 									CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 									Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
 									int index = canvasModel.getModelCount();
-									final Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
+									Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
 									// The location for Output depends on the side effect of add
 									
-									branchCreation.create(
-										new DualCommandPair<Model>(
-											new CanvasModel.AddModel2Transaction(canvasModelLocation, creationBounds, factory), 
-											new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
-										), 
-										new PrevaylerServiceBranchContinuation<Model>() {
-											@Override
-											public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-												branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
-													@Override
-													public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
-														branchCreation.create(
-															LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation),
-															new PrevaylerServiceBranchContinuation<Model>() {
-																@Override
-																public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-																	branch.absorb();
-																}
-															}
-														);
-													}
-												});
-											}
-										}
-									);
+									dualCommands.add(new DualCommandPair<Model>(
+										new CanvasModel.AddModel2Transaction(canvasModelLocation, creationBounds, factory), 
+										new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+									));
+									
+									dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
 								}
-							});
-							
-//							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-//							connection.commit(commitPropCtx);
-							
-//							step2Branch.absorb();
+							}, PrevaylerServiceBranchContinuation.Util.<Model>absorb()));
 
 							productionPanel.editPanelMouseAdapter.resetEffectFrame();
 							productionPanel.livePanel.repaint();
@@ -297,7 +312,6 @@ public class PlotTool implements Tool {
 				@Override
 				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
 					if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null) {
-//						productionPanel.editPanelMouseAdapter.resetEffectFrame();
 						productionPanel.livePanel.repaint();
 					}
 				}
@@ -322,42 +336,10 @@ public class PlotTool implements Tool {
 		if(e.getButton() == 1) {
 			PropogationContext propCtx = new PropogationContext();
 			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
-//			branchStep2 = branch.branch(propCtx, new DualCommandFactory<Model>() {
-//				@Override
-//				public void createDualCommands(List<DualCommand<Model>> dualCommands) { }
-//			}, new PrevaylerServiceBranchContinuation<Model>() {
-//				@Override
-//				public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) { }
-//			});
 			
-			branchStep2 = branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
-				@Override
-				public void create(PrevaylerServiceBranchCreation<Model> branchCreation) { }
-			});
+			branchStep2 = branch.branch(propCtx, PrevaylerServiceBranchCreator.Util.<Model>empty());
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
-//				connection.execute(propCtx, new DualCommandFactory<Model>() {
-//				branch.branch(propCtx, new DualCommandFactory<Model>() {
-//					public DualCommand<Model> createDualCommand() {
-//						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-//						return new DualCommandPair<Model>(
-//							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-//							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-//						);
-//					}
-//					
-//					@Override
-//					public void createDualCommands(
-//							List<DualCommand<Model>> dualCommands) {
-//						dualCommands.add(createDualCommand());
-//					}
-//				}, new PrevaylerServiceBranchContinuation<Model>() {
-//					@Override
-//					public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) { 
-//						branch.absorb();
-//					}
-//				});
-				
 				branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
 					@Override
 					public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
@@ -368,12 +350,7 @@ public class PlotTool implements Tool {
 								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
 								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
 							), 
-							new PrevaylerServiceBranchContinuation<Model>() {
-								@Override
-								public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-									branch.absorb();
-								}
-							}
+							PrevaylerServiceBranchContinuation.Util.<Model>absorb()
 						);
 					}
 				});
@@ -384,7 +361,6 @@ public class PlotTool implements Tool {
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			if(targetModelComponent != null && targetModelComponent.getModelBehind() instanceof CanvasModel) {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-//				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, connection);
 				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, branch);
 				productionPanel.livePanel.repaint();
 			} else {
@@ -407,11 +383,6 @@ public class PlotTool implements Tool {
 					productionPanel.livePanel.repaint();
 				}
 			});
-//			Point selectionDragPoint = SwingUtilities.convertPoint(((JComponent)(e.getSource())).getParent(), e.getPoint(), productionPanel);
-//			Rectangle plotBoundsInSelection = productionPanel.editPanelMouseAdapter.getPlotBounds(productionPanel.editPanelMouseAdapter.selectionMouseDown, selectionDragPoint);
-//			Rectangle plotBoundsInProductionPanel = SwingUtilities.convertRectangle((JComponent)productionPanel.editPanelMouseAdapter.selection, plotBoundsInSelection, productionPanel);
-//			productionPanel.effectFrame.setBounds(plotBoundsInProductionPanel);
-//			productionPanel.livePanel.repaint();
 		}
 	}
 }
