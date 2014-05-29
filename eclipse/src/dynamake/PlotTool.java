@@ -157,6 +157,174 @@ public class PlotTool implements Tool {
 								}
 							});
 							
+							branchStep2.branch(propCtx, new PrevaylerServiceBranchSequenceCreator<Model>(new DualCommandFactory<Model>() {
+								@Override
+								public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+									CanvasModel target = (CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind();
+									Location targetLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
+									int indexOfWrapper = target.getModelCount();
+									ModelLocation wrapperLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(indexOfWrapper));
+									
+									// Create and add new canvas to target at location wrapper
+									dualCommands.add(new DualCommandPair<Model>(
+										new CanvasModel.AddModel2Transaction(targetLocation, creationBounds, new CanvasModelFactory()), 
+										new CanvasModel.RemoveModelTransaction(targetLocation, indexOfWrapper) // Relative location
+									));
+									
+									
+									// Each of the model locations should be moved from target to wrapper
+									Location[] modelLocations = new Location[componentsWithinBounds.size()];
+									int[] modelIndexes = new int[componentsWithinBounds.size()];
+									for(int i = 0; i < modelLocations.length; i++) {
+										ModelComponent view = componentsWithinBounds.get(i);
+										modelLocations[i] = view.getTransactionFactory().getModelLocation();
+										modelIndexes[i] = ((CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind()).indexOfModel(view.getModelBehind());
+									}
+									
+									for(int i = 0; i < modelLocations.length; i++) {
+										Location modelLocationInSource = modelLocations[i];
+										ModelLocation relativeModelInWrapperLocation = new CompositeModelLocation(wrapperLocation, new CanvasModel.IndexLocation(indexOfWrapper));
+										Location modelInWrapperLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().extendLocation(relativeModelInWrapperLocation);
+										dualCommands.add(new DualCommandPair<Model>(
+											new CanvasModel.MoveModel2Transaction(targetLocation, wrapperLocation, modelLocationInSource), 
+											new CanvasModel.MoveModel2Transaction(wrapperLocation, targetLocation, modelInWrapperLocation)
+										));
+									}
+									
+									// Subtract x and y of wrapper from x and y for each moved model
+									for(int i = 0; i < modelLocations.length; i++) {
+										ModelLocation relativeModelInWrapperLocation = new CompositeModelLocation(wrapperLocation, new CanvasModel.IndexLocation(indexOfWrapper));
+										Location modelInWrapperLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().extendLocation(relativeModelInWrapperLocation);
+										Model model = target.getModel(modelIndexes[i]);
+										
+										Fraction x = (Fraction)model.getProperty("X");
+										dualCommands.add(new DualCommandPair<Model>(
+											new Model.SetPropertyOnRootTransaction(modelInWrapperLocation, "X", x.subtract(new Fraction(creationBounds.x))), 
+											new Model.SetPropertyOnRootTransaction(modelInWrapperLocation, "X", x)
+										));
+
+										Fraction y = (Fraction)model.getProperty("Y");
+										dualCommands.add(new DualCommandPair<Model>(
+											new Model.SetPropertyOnRootTransaction(modelInWrapperLocation, "Y", y.subtract(new Fraction(creationBounds.y))), 
+											new Model.SetPropertyOnRootTransaction(modelInWrapperLocation, "Y", y)
+										));
+									}
+									
+									// Output wrapper
+									dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, wrapperLocation));
+									
+									
+//									Location[] modelLocations = new Location[componentsWithinBounds.size()];
+//									int[] modelIndexes = new int[componentsWithinBounds.size()];
+//									for(int i = 0; i < modelLocations.length; i++) {
+//										ModelComponent view = componentsWithinBounds.get(i);
+//										modelLocations[i] = view.getTransactionFactory().getModelLocation();
+//										modelIndexes[i] = ((CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind()).indexOfModel(view.getModelBehind());
+//									}
+//									Location<Model> outputLocation = productionPanel.livePanel.model.getOutput() != null ? productionPanel.livePanel.model.getOutput().getLocator().locate() : null;
+//									int wrapperIndex = ((CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind()).getModelCount() - modelLocations.length;
+									
+									/*
+									
+									Each model have exactly one "physical" location with "physical" attributes (x, y, width, and bounds).
+									To support move operations, move operations must be atomic and not requiring temporary "logical" locations.
+									To emulate "logical" locations, special invisible "physical" locations may be used?
+									
+									 */
+									
+									// Add new canvas to target at location wrapperLocation
+									// 
+									
+//									dualCommands.add(Model.SetPropertyOnRootTransaction.createDualCommand());
+									
+//									dualCommands.add(new DualCommandPair<Model>(
+//										new SetVariableTransaction("Wrapper", new CanvasModelFactory()),
+//										new EmptyCommand<Model>()
+//									));
+//									
+//									dualCommands.add(new DualCommandPair<Model>(
+//										new IsolateTransaction<Model>(new Model.SetPropertyOnRootTransaction(new VariableLocation<Model>("Wrapper"), "X", new Fraction(creationBounds.x))),
+//										new EmptyCommand<Model>()
+//									));
+//									
+//									dualCommands.add(new DualCommandPair<Model>(
+//										new IsolateTransaction<Model>(new Model.SetPropertyOnRootTransaction(new VariableLocation<Model>("Wrapper"), "Y", new Fraction(creationBounds.y))),
+//										new EmptyCommand<Model>()
+//									));
+//									
+//									dualCommands.add(new DualCommandPair<Model>(
+//										new IsolateTransaction<Model>(new Model.SetPropertyOnRootTransaction(new VariableLocation<Model>("Wrapper"), "Width", new Fraction(creationBounds.width))),
+//										new EmptyCommand<Model>()
+//									));
+//									
+//									dualCommands.add(new DualCommandPair<Model>(
+//										new IsolateTransaction<Model>(new Model.SetPropertyOnRootTransaction(new VariableLocation<Model>("Wrapper"), "Height", new Fraction(creationBounds.height))),
+//										new EmptyCommand<Model>()
+//									));
+//									
+//									for(int i = 0; i < modelLocations.length; i++) {
+//										Location<Model> modelLocation = modelLocations[i];
+//										
+//										// Copy reference of model to transient location
+//										dualCommands.add(new DualCommandPair<Model>(
+//											new SetVariableTransaction("ItemToMove", new LocationFactory(modelLocation)),
+//											new EmptyCommand<Model>()
+//										));
+//										
+//										// Remove model from target using transient location
+//										
+//										// Add model to wrapper using transient location
+//
+////										target.removeModel(model, propCtx, 0, connection, branch);
+////										wrapper.addModel(model, propCtx, 0, connection, branch);
+//									}
+									
+									/*
+									
+									LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
+
+									CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
+									CanvasModel wrapper = new CanvasModel();
+									
+									wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, branch);
+									wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, branch);
+									wrapper.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection, branch);
+									wrapper.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection, branch);
+									
+									Model[] models = new Model[modelLocations.length];
+									for(int i = 0; i < modelLocations.length; i++) {
+										Model model = (Model)modelLocations[i].getChild(prevalentSystem);
+										
+										models[i] = model;
+									}
+									
+									for(Model model: models) {
+										target.removeModel(model, propCtx, 0, connection, branch);
+										wrapper.addModel(model, propCtx, 0, connection, branch);
+									}
+									
+									for(Model model: models) {
+										Fraction x = (Fraction)model.getProperty("X");
+										Fraction y = (Fraction)model.getProperty("Y");
+										
+										model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, connection, branch);
+										model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, connection, branch);
+									}
+							
+									target.addModel(wrapper, propCtx, 0, connection, branch);
+									liveModel.setOutput(wrapper, propCtx, 0, connection, branch);
+									
+									*/
+									
+//									dualCommands.add(new DualCommandPair<Model>(
+//										new CanvasModel.AddModel2Transaction(canvasModelLocation, creationBounds, factory), 
+//										new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+//									));
+//									
+//									dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
+								}
+							}, PrevaylerServiceBranchContinuation.Util.<Model>absorb()));
+							
 //							step2Branch.absorb();
 							
 //							PropogationContext commitPropCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
@@ -182,97 +350,6 @@ public class PlotTool implements Tool {
 						// HACK: Models can only be added to canvases
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							PropogationContext propCtx = new PropogationContext();
-							
-////							connection.execute(propCtx, new DualCommandFactory<Model>() {
-//							branchStep2.branch(propCtx, new DualCommandFactory<Model>() {
-////								public DualCommand<Model> createDualCommand() {
-////									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
-//////									int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
-//////									ModelComponent output = productionPanel.editPanelMouseAdapter.output;
-//////									Location outputLocation = null;
-//////									if(output != null)
-//////										outputLocation = output.getTransactionFactory().getModelLocation();
-//////									
-//////									return new DualCommandPair<Model>(
-//////										new AddThenOutputBranchTransaction(
-//////											productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-//////											productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), 
-//////											creationBounds, 
-//////											factory), 
-//////										new SetOutputThenRemoveAtTransaction(
-//////											productionPanel.livePanel.getTransactionFactory().getModelLocation(), 
-//////											outputLocation, 
-//////											target.getTransactionFactory().getModelLocation(), 
-//////											addIndex
-//////										)
-//////									);
-////								}
-//								
-//								@Override
-//								public void createDualCommands(
-//										List<DualCommand<Model>> dualCommands) {
-//									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
-//									
-//									CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-//									Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
-//									int index = canvasModel.getModelCount();
-//									Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
-//									// The location for Output depends on the side effect of add
-//									
-//									// Add
-//									dualCommands.add(new DualCommandPair<Model>(
-//										new CanvasModel.AddModelTransaction(canvasModelLocation, creationBounds, factory), 
-//										new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
-//									));
-//									
-//									// Output
-//									dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation)); // Absolute location
-//								}
-//							}, new PrevaylerServiceBranchContinuation<Model>() {
-//								@Override
-//								public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-//									branch.absorb();
-//								}
-//							});
-							
-//							branchStep2.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
-//								@Override
-//								public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
-//									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
-//									
-//									CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-//									Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
-//									int index = canvasModel.getModelCount();
-//									final Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
-//									// The location for Output depends on the side effect of add
-//									
-//									branchCreation.create(
-//										new DualCommandPair<Model>(
-//											new CanvasModel.AddModel2Transaction(canvasModelLocation, creationBounds, factory), 
-//											new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
-//										), 
-//										new PrevaylerServiceBranchContinuation<Model>() {
-//											@Override
-//											public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-//												branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
-//													@Override
-//													public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
-//														branchCreation.create(
-//															LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation),
-//															new PrevaylerServiceBranchContinuation<Model>() {
-//																@Override
-//																public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-//																	branch.absorb();
-//																}
-//															}
-//														);
-//													}
-//												});
-//											}
-//										}
-//									);
-//								}
-//							});
 							
 							branchStep2.branch(propCtx, new PrevaylerServiceBranchSequenceCreator<Model>(new DualCommandFactory<Model>() {
 								@Override

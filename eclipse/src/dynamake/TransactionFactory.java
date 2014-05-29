@@ -54,36 +54,7 @@ public class TransactionFactory {
 		}
 	}
 	
-	private static class CompositeModelLocation implements ModelLocation {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private ModelLocation head;
-		private ModelLocation tail;
-		
-		public CompositeModelLocation(ModelLocation head, ModelLocation tail) {
-			this.head = head;
-			this.tail = tail;
-		}
-
-		@Override
-		public Object getChild(Object holder) {
-			return tail.getChild(head.getChild(holder));
-		}
-
-		@Override
-		public void setChild(Object holder, Object child) {
-			tail.setChild(head.getChild(holder), child);
-		}
-
-		@Override
-		public Location getModelComponentLocation() {
-			return new CompositeLocation(head.getModelComponentLocation(), tail.getModelComponentLocation());
-		}
-	}
-	
-	private static class CompositeLocation implements Location {
+	static class CompositeLocation<T> implements Location {
 		private Location head;
 		private Location tail;
 		
@@ -99,7 +70,7 @@ public class TransactionFactory {
 
 		@Override
 		public void setChild(Object holder, Object child) {
-			tail.setChild(head.getChild(holder), child);
+//			tail.setChild(head.getChild(holder, branch), child);
 		}
 	}
 	

@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -573,6 +574,23 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void doContinue() {
 			continuation.doContinue(propCtx, this);
 		}
+		
+//		private Hashtable<String, Object> variables = new Hashtable<String, Object>();
+//
+//		@Override
+//		public void setVariable(String variableName, Object value) {
+//			variables.put(variableName, value);
+//		}
+//		
+//		@Override
+//		public Object getVariable(String variableName) {
+//			Object value = variables.get(variableName);
+//			if(value != null)
+//				return value;
+//			if(parent != null)
+//				return parent.getVariable(variableName);
+//			return null;
+//		}
 	}
 	
 	@Override

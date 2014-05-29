@@ -106,6 +106,36 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+	public static class MoveModel2Transaction implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private Location canvasSourceLocation;
+		private Location canvasTargetLocation;
+		private Location modelLocation;
+
+		public MoveModel2Transaction(Location canvasSourceLocation,
+				Location canvasTargetLocation, Location modelLocation) {
+			this.canvasSourceLocation = canvasSourceLocation;
+			this.canvasTargetLocation = canvasTargetLocation;
+			this.modelLocation = modelLocation;
+		}
+
+		@Override
+		public void executeOn(PropogationContext propCtx,
+				Model prevalentSystem, Date executionTime,
+				PrevaylerServiceConnection<Model> connection,
+				PrevaylerServiceBranch<Model> branch) {
+			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(prevalentSystem);
+			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(prevalentSystem);
+			Model model = (Model)modelLocation.getChild(prevalentSystem);
+			
+			CanvasModel.move(canvasSource, canvasTarget, model, propCtx, 0, connection, branch);
+		}
+	}
+	
 	public static class MoveModelTransaction implements Command<Model> {
 		/**
 		 * 
@@ -306,7 +336,7 @@ public class CanvasModel extends Model {
 	public void addModel(Model model, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		addModel(models.size(), model, propCtx, propDistance, connection, branch);
 	}
-	
+
 	public Model getModel(int index) {
 		return models.get(index);
 	}
@@ -325,6 +355,14 @@ public class CanvasModel extends Model {
 		Model model = models.get(index);
 		models.remove(index);
 		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, connection, branch);
+	}
+	
+	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		int indexOfModel = canvasSource.indexOfModel(model);
+		canvasSource.models.remove(indexOfModel);
+		canvasSource.sendChanged(new RemovedModelChange(indexOfModel, model), propCtx, propDistance, 0, connection, branch);
+		canvasTarget.models.add(model);
+		canvasTarget.sendChanged(new AddedModelChange(indexOfModel, model), propCtx, propDistance, 0, connection, branch);
 	}
 	
 	public int indexOfModel(Model model) {
