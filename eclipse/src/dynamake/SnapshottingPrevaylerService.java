@@ -503,11 +503,13 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					absorbedBranches.add(branch);
 					
 					if(absorbedBranches.size() == branches.size()) {
-						if(parent != null)
-							parent.absorbBranch(Branch.this);
-						else {
-							// Every effect has been absorbed
-							commit(null);
+						if(isClosed) {
+							if(parent != null) {
+								parent.absorbBranch(Branch.this);
+							} else {
+								// Every effect has been absorbed
+								commit(null);
+							}
 						}
 					}
 //					System.out.println("Absorb branch performed");
@@ -559,7 +561,10 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 								branch.transaction = transaction;
 								branch.continuation = continuation;
 								
+								// Start collecting branches
 								transaction.executeForwardOn(propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
+								
+								// Start collected branches
 								branch.created = true;
 							}
 						});
@@ -568,6 +573,93 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			});
 			
 			return branch;
+		}
+		
+		@Override
+		public PrevaylerServiceBranch<T> branch() {
+			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, continuation);
+			
+			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					if(!isClosed) {
+						if(!rejected) {
+							Branch.this.branches.add(branch);
+						} else {
+							branch.rejected = true;
+						}
+					}
+				}
+			});
+			
+			return branch;
+		}
+		
+		private static class TransactionCreation<T> {
+			public final PropogationContext propCtx;
+			public final DualCommandFactory<T> transactionFactory;
+			
+			public TransactionCreation(PropogationContext propCtx, DualCommandFactory<T> transactionFactory) {
+				this.propCtx = propCtx;
+				this.transactionFactory = transactionFactory;
+			}
+		}
+		
+		private boolean isClosed;
+		private ArrayList<TransactionCreation<T>> transactionFactories = new ArrayList<TransactionCreation<T>>();
+		private ArrayList<TransactionCreation<T>> executedTransactionFactories = new ArrayList<TransactionCreation<T>>();
+		private DualCommandFactory<T> transactionFactory;
+		
+		@Override
+		public void execute(final PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
+			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, null);
+			branch.transactionFactory = transactionFactory;
+			branch.isClosed = true;
+			
+			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					if(!isClosed) {
+						branches.add(branch);
+					}
+				}
+			});
+		}
+		
+		@Override
+		public void close() {
+			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					if(!rejected) {
+						for(final Branch<T> branch: branches) {
+							Branch.this.prevaylerService.transactionExecutor.execute(new Runnable() {
+								@Override
+								public void run() {
+//									if(branch.transaction != null)
+//										branch.transaction.executeForwardOn(propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
+									if(branch.transactionFactory != null) {
+										ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
+										branch.transactionFactory.createDualCommands(dualCommands);
+										DualCommand<T>[] dualCommandArray = dualCommands.toArray(new DualCommand[dualCommands.size()]);
+										
+										DualCommandSequence<T> transaction = new DualCommandSequence<>(dualCommandArray);
+										branch.transaction = transaction;
+										
+										branch.transaction.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
+									}
+								}
+							});
+						}
+						
+						isClosed = true;
+						
+						// Check whether is absorbed
+						
+						
+					}
+				}
+			});
 		}
 		
 		@Override
