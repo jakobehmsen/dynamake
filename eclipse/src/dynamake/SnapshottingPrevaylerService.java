@@ -501,20 +501,24 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				@Override
 				public void run() {
 					absorbedBranches.add(branch);
-					
-					if(absorbedBranches.size() == branches.size()) {
-						if(isClosed) {
-							if(parent != null) {
-								parent.absorbBranch(Branch.this);
-							} else {
-								// Every effect has been absorbed
-								commit(null);
-							}
-						}
+
+					if(isClosed) {
+						checkAbsorbed();
 					}
 //					System.out.println("Absorb branch performed");
 				}
 			});
+		}
+		
+		private void checkAbsorbed() {
+			if(absorbedBranches.size() == branches.size()) {
+				if(parent != null) {
+					parent.absorbBranch(Branch.this);
+				} else {
+					// Every effect has been absorbed
+					commit(null);
+				}
+			}
 		}
 
 		@Override
@@ -595,19 +599,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			return branch;
 		}
 		
-		private static class TransactionCreation<T> {
-			public final PropogationContext propCtx;
-			public final DualCommandFactory<T> transactionFactory;
-			
-			public TransactionCreation(PropogationContext propCtx, DualCommandFactory<T> transactionFactory) {
-				this.propCtx = propCtx;
-				this.transactionFactory = transactionFactory;
-			}
-		}
-		
 		private boolean isClosed;
-		private ArrayList<TransactionCreation<T>> transactionFactories = new ArrayList<TransactionCreation<T>>();
-		private ArrayList<TransactionCreation<T>> executedTransactionFactories = new ArrayList<TransactionCreation<T>>();
 		private DualCommandFactory<T> transactionFactory;
 		
 		@Override
@@ -653,10 +645,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						}
 						
 						isClosed = true;
-						
-						// Check whether is absorbed
-						
-						
+
+						checkAbsorbed();
 					}
 				}
 			});
