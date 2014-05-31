@@ -65,7 +65,7 @@ public class LiveModel extends Model {
 	public static final int STATE_DRAG = 4;
 	public static final int STATE_CONS = 5;
 	
-	private int state;
+	private int tool;
 	private Model content;
 	private Model selection;
 	private Model output;
@@ -78,7 +78,7 @@ public class LiveModel extends Model {
 	public Model modelCloneIsolated() {
 		LiveModel clone = new LiveModel(content.cloneIsolated());
 		
-		clone.state = state;
+		clone.tool = tool;
 		clone.selection = this.selection.cloneIsolated();
 		
 		return clone;
@@ -100,12 +100,12 @@ public class LiveModel extends Model {
 		sendChanged(new OutputChanged(), propCtx, propDistance, 0, connection, branch);
 	}
 
-	public int getState() {
-		return state;
+	public int getTool() {
+		return tool;
 	}
 	
-	public void setState(int state, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-		this.state = state;
+	public void setTool(int tool, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		this.tool = tool;
 		sendChanged(new StateChanged(), propCtx, propDistance, 0, connection, branch);
 	}
 	
@@ -169,29 +169,25 @@ public class LiveModel extends Model {
 			);
 		}
 	}
-	
-	// TODO: Consider: Should be renamed to SetMode instead?
-	// Or to SetTool
-	// Or to SetRole
-	// - and reflect this naming a appropriate locations
-	public static class SetState implements Command<Model> {
+
+	public static class SetTool implements Command<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		
 		private Location modelLocation;
-		private int state;
+		private int tool;
 
-		public SetState(Location modelLocation, int state) {
+		public SetTool(Location modelLocation, int tool) {
 			this.modelLocation = modelLocation;
-			this.state = state;
+			this.tool = tool;
 		}
 		
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			LiveModel model = (LiveModel)modelLocation.getChild(prevalentSystem);
-			model.setState(state, propCtx, 0, connection, branch);
+			model.setTool(tool, propCtx, 0, connection, branch);
 		}
 	}
 	
@@ -281,10 +277,10 @@ public class LiveModel extends Model {
 					@Override
 					public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
 						Location modelLocation = transactionFactory.getModelLocation();
-						int previousState = model.getState();
+						int previousState = model.getTool();
 						
 						branchCreation.create(
-							new DualCommandPair<Model>(new SetState(modelLocation, state), new SetState(modelLocation, previousState)), 
+							new DualCommandPair<Model>(new SetTool(modelLocation, state), new SetTool(modelLocation, previousState)), 
 							new PrevaylerServiceBranchContinuation<Model>() {
 								@Override
 								public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
@@ -352,7 +348,7 @@ public class LiveModel extends Model {
 			}
 			
 			private Tool getTool() {
-				return productionPanel.livePanel.viewManager.getTools()[productionPanel.livePanel.model.state - 1];
+				return productionPanel.livePanel.viewManager.getTools()[productionPanel.livePanel.model.tool - 1];
 			}
 
 			public void resetEffectFrame() {
@@ -1056,7 +1052,7 @@ public class LiveModel extends Model {
 				
 				@Override
 				public int getState() {
-					return LivePanel.this.model.getState();
+					return LivePanel.this.model.getTool();
 				}
 				
 				@Override
@@ -1141,11 +1137,11 @@ public class LiveModel extends Model {
 			buttonTools = new JToggleButton[1 + tools.length];
 			ButtonGroup group = new ButtonGroup();
 			
-			buttonTools[0] = createToolButton(model, transactionFactory, group, this.model.getState(), STATE_USE, "Use");
+			buttonTools[0] = createToolButton(model, transactionFactory, group, this.model.getTool(), STATE_USE, "Use");
 
 			for(int i = 0; i < tools.length; i++) {
 				Tool tool = tools[i];
-				buttonTools[i + 1] = createToolButton(model, transactionFactory, group, this.model.getState(), i + 1, tool.getName());
+				buttonTools[i + 1] = createToolButton(model, transactionFactory, group, this.model.getTool(), i + 1, tool.getName());
 			}
 			for(JToggleButton buttonTool: buttonTools) {
 				JPanel buttonToolWrapper = new JPanel();
@@ -1192,7 +1188,7 @@ public class LiveModel extends Model {
 				}
 				
 				private void initializeObserverAdapter() {
-					int state = LivePanel.this.model.getState();
+					int state = LivePanel.this.model.getTool();
 					if(state != LiveModel.STATE_USE) {
 						contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);
 						contentPane.revalidate();
@@ -1205,21 +1201,21 @@ public class LiveModel extends Model {
 				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 					if(change instanceof LiveModel.StateChanged) {
 						if(!propCtx.isTagged(TAG_CAUSED_BY_TOGGLE_BUTTON)) {
-							JToggleButton buttonNewTool = buttonTools[LivePanel.this.model.getState()];
+							JToggleButton buttonNewTool = buttonTools[LivePanel.this.model.getTool()];
 							buttonNewTool.setSelected(true);
 						}
 						
-						if(previousState == LiveModel.STATE_USE && LivePanel.this.model.getState() != LiveModel.STATE_USE) {
+						if(previousState == LiveModel.STATE_USE && LivePanel.this.model.getTool() != LiveModel.STATE_USE) {
 							contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);
 							contentPane.revalidate();
 							contentPane.repaint();
-						} else if(previousState != LiveModel.STATE_USE && LivePanel.this.model.getState() == LiveModel.STATE_USE) {
+						} else if(previousState != LiveModel.STATE_USE && LivePanel.this.model.getTool() == LiveModel.STATE_USE) {
 							contentPane.remove(productionPanel);
 							contentPane.revalidate();
 							contentPane.repaint();
 						}
 						
-						previousState = LivePanel.this.model.getState();
+						previousState = LivePanel.this.model.getTool();
 					} else if(change instanceof LiveModel.OutputChanged) {
 						if(LivePanel.this.model.output == null) {
 							productionPanel.editPanelMouseAdapter.setOutput(null);
