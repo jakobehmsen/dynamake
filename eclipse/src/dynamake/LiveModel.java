@@ -256,40 +256,37 @@ public class LiveModel extends Model {
 				// Indicate this is an radio button toggle context
 				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
 				
-//				PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
-//				connection.execute(propCtx, new DualCommandFactory<Model>() {
-//					public DualCommand<Model> createDualCommand() {
-//						Location modelLocation = transactionFactory.getModelLocation();
-//						int previousState = model.getState();
-//						return new DualCommandPair<Model>(new SetState(modelLocation, state), new SetState(modelLocation, previousState));
-//					}
-//					
+				PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
+//				branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
 //					@Override
-//					public void createDualCommands(
-//							List<DualCommand<Model>> dualCommands) {
-//						dualCommands.add(createDualCommand());
+//					public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+//						Location modelLocation = transactionFactory.getModelLocation();
+//						int previousState = model.getTool();
+//						
+//						branchCreation.create(
+//							new DualCommandPair<Model>(new SetTool(modelLocation, state), new SetTool(modelLocation, previousState)), 
+//							new PrevaylerServiceBranchContinuation<Model>() {
+//								@Override
+//								public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+//									branch.absorb();
+//								}
+//							}
+//						);
 //					}
 //				});
-//				connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
 				
-				PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
-				branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
-					public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						Location modelLocation = transactionFactory.getModelLocation();
-						int previousState = model.getTool();
+						int previousTool = model.getTool();
 						
-						branchCreation.create(
-							new DualCommandPair<Model>(new SetTool(modelLocation, state), new SetTool(modelLocation, previousState)), 
-							new PrevaylerServiceBranchContinuation<Model>() {
-								@Override
-								public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-									branch.absorb();
-								}
-							}
+						dualCommands.add(
+							new DualCommandPair<Model>(new SetTool(modelLocation, state), new SetTool(modelLocation, previousTool))
 						);
 					}
 				});
+				branch.close();
 			}
 		});
 		buttonTool.setFocusable(false);
