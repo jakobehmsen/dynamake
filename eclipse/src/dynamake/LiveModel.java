@@ -831,6 +831,19 @@ public class LiveModel extends Model {
 			}
 			
 			public void mousePressed(final MouseEvent e) {
+				/*
+				
+				For further implementations of tools, when branches are used in all tools:
+				
+				Create a branch here, through which executions are scheduled and flushed immediately, such that
+				it is ensured that selections have been made before drag and release events.
+				This branch is then provided to the respective tool.
+				
+				NOTICE: This requires that each tool must ensure selecting a model during each press event.
+				- NOTICE FURTHER: In some cases, this guarantee may not make sense.
+				
+				*/
+				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
 					public void run() {
