@@ -475,95 +475,104 @@ public class LiveModel extends Model {
 //						}
 //					});
 					
-					branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+//					branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+//						@Override
+//						public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+//							final LiveModel liveModel = productionPanel.livePanel.model;
+//							final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
+//							
+//							branchCreation.create(
+//								new DualCommandPair<Model>(
+//									new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
+//									new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", liveModel.getProperty("SelectionInitialMouseDown"))
+//								), 
+//								new PrevaylerServiceBranchContinuation<Model>() {
+//									@Override
+//									public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+//										branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+//											@Override
+//											public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+//												branchCreation.create(
+//													new DualCommandPair<Model>(
+//														new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
+//														new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
+//													), 
+//													new PrevaylerServiceBranchContinuation<Model>() {
+//														@Override
+//														public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+//															branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+//																@Override
+//																public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+//																	branchCreation.create(
+//																		new DualCommandPair<Model>(
+//																			new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
+//																			new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
+//																		), 
+//																		new PrevaylerServiceBranchContinuation<Model>() {
+//																			@Override
+//																			public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+//																				branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
+//																					@Override
+//																					public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+//																						Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
+//																							? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
+//																						Location selectionLocation = view.getTransactionFactory().getModelLocation();
+//																						DualCommand<Model> transaction = new DualCommandPair<Model>(
+//																							new SetSelection(liveModelLocation, selectionLocation), 
+//																							new SetSelection(liveModelLocation, currentSelectionLocation)
+//																						);
+//																						
+//																						branchCreation.create(transaction, new PrevaylerServiceBranchContinuation<Model>() {
+//																							@Override
+//																							public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
+//																								branch.absorb();
+//																							}
+//																						});
+//																					}
+//																				});
+//																			}
+//																		}
+//																	);
+//																}
+//															});
+//														}
+//													}
+//												);
+//											}
+//										});
+//									}
+//								}
+//							);
+//						}
+//					});
+					
+					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
-						public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							final LiveModel liveModel = productionPanel.livePanel.model;
 							final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
 							
-							/*
+							dualCommands.add(new DualCommandPair<Model>(
+								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
+								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", liveModel.getProperty("SelectionInitialMouseDown"))
+							));
+							dualCommands.add(new DualCommandPair<Model>(
+								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
+								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
+							));
+							dualCommands.add(new DualCommandPair<Model>(
+								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
+								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
+							));
 							
-							LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
-					
-							if(selectionLocation != null) {
-								Model selection = (Model)selectionLocation.getChild(prevalentSystem);
-								
-								propCtx.define("SelectionInitialMouseDown", initialMouseDown);
-								propCtx.define("SelectionMoving", moving);
-								propCtx.define("SelectionEffectBounds", effectBounds);
-								
-								liveModel.setSelection(selection, propCtx, 0, connection, branch);
-							} else {
-								liveModel.setSelection(null, propCtx, 0, connection, branch);
-							}
-							liveModel.setProperty("SelectionInitialMouseDown", initialMouseDown, propCtx, 0, connection, branch);
-							liveModel.setProperty("SelectionMoving", moving, propCtx, 0, connection, branch);
-							liveModel.setProperty("SelectionEffectBounds", effectBounds, propCtx, 0, connection, branch);
+							Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
+									? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
+							Location selectionLocation = view.getTransactionFactory().getModelLocation();
 							
-							*/
-							
-							branchCreation.create(
-								new DualCommandPair<Model>(
-									new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
-									new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", liveModel.getProperty("SelectionInitialMouseDown"))
-								), 
-								new PrevaylerServiceBranchContinuation<Model>() {
-									@Override
-									public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-										branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
-											@Override
-											public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
-												branchCreation.create(
-													new DualCommandPair<Model>(
-														new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
-														new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
-													), 
-													new PrevaylerServiceBranchContinuation<Model>() {
-														@Override
-														public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-															branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
-																@Override
-																public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
-																	branchCreation.create(
-																		new DualCommandPair<Model>(
-																			new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
-																			new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
-																		), 
-																		new PrevaylerServiceBranchContinuation<Model>() {
-																			@Override
-																			public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-																				branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
-																					@Override
-																					public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
-																						Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
-																							? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
-																						Location selectionLocation = view.getTransactionFactory().getModelLocation();
-																						DualCommand<Model> transaction = new DualCommandPair<Model>(
-																							new SetSelection(liveModelLocation, selectionLocation), 
-																							new SetSelection(liveModelLocation, currentSelectionLocation)
-																						);
-																						
-																						branchCreation.create(transaction, new PrevaylerServiceBranchContinuation<Model>() {
-																							@Override
-																							public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-																								branch.absorb();
-																							}
-																						});
-																					}
-																				});
-																			}
-																		}
-																	);
-																}
-															});
-														}
-													}
-												);
-											}
-										});
-									}
-								}
-							);
+							dualCommands.add(new DualCommandPair<Model>(
+								new SetSelection(liveModelLocation, selectionLocation), 
+								new SetSelection(liveModelLocation, currentSelectionLocation)
+							));
 						}
 					});
 				}

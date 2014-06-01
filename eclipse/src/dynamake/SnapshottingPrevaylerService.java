@@ -428,14 +428,14 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		private ArrayList<SnapshottingPrevaylerService.Branch<T>> branches = new ArrayList<SnapshottingPrevaylerService.Branch<T>>();
 		private ArrayList<SnapshottingPrevaylerService.Branch<T>> absorbedBranches = new ArrayList<SnapshottingPrevaylerService.Branch<T>>();
 		private PropogationContext propCtx;
-		private PrevaylerServiceBranchContinuation<T> continuation;
+//		private PrevaylerServiceBranchContinuation<T> continuation;
 		private boolean rejected;
 		private boolean created;
 		
 		private Branch(Branch<T> parent, SnapshottingPrevaylerService<T> prevaylerService, final PropogationContext propCtx, PrevaylerServiceBranchContinuation<T> continuation) {
 			this.parent = parent;
 			this.prevaylerService = prevaylerService;
-			this.continuation = continuation;
+//			this.continuation = continuation;
 			this.propCtx = propCtx;
 		}
 		
@@ -547,41 +547,41 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			}
 		}
 		
-		@Override
-		public PrevaylerServiceBranch<T> branch(final PropogationContext propCtx,
-				final PrevaylerServiceBranchCreator<T> branchCreator) {
-			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, continuation);
-			
-			this.prevaylerService.transactionExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-//					System.out.println("Added branch (" + Branch.this.branches.size() + ")");
-					if(!rejected) {
-						// Only branch if not rejected
-						Branch.this.branches.add(branch);
-						branchCreator.create(new PrevaylerServiceBranchCreation<T>() {
-							@Override
-							public void create(DualCommand<T> transaction, PrevaylerServiceBranchContinuation<T> continuation) {
-								branch.transaction = transaction;
-								branch.continuation = continuation;
-								
-								// Start collecting branches
-								transaction.executeForwardOn(propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
-								
-								// Start collected branches
-								branch.created = true;
-							}
-						});
-					}
-				}
-			});
-			
-			return branch;
-		}
+//		@Override
+//		public PrevaylerServiceBranch<T> branch(final PropogationContext propCtx,
+//				final PrevaylerServiceBranchCreator<T> branchCreator) {
+//			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, continuation);
+//			
+//			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+//				@Override
+//				public void run() {
+////					System.out.println("Added branch (" + Branch.this.branches.size() + ")");
+//					if(!rejected) {
+//						// Only branch if not rejected
+//						Branch.this.branches.add(branch);
+//						branchCreator.create(new PrevaylerServiceBranchCreation<T>() {
+//							@Override
+//							public void create(DualCommand<T> transaction, PrevaylerServiceBranchContinuation<T> continuation) {
+//								branch.transaction = transaction;
+//								branch.continuation = continuation;
+//								
+//								// Start collecting branches
+//								transaction.executeForwardOn(propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
+//								
+//								// Start collected branches
+//								branch.created = true;
+//							}
+//						});
+//					}
+//				}
+//			});
+//			
+//			return branch;
+//		}
 		
 		@Override
 		public PrevaylerServiceBranch<T> branch() {
-			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, continuation);
+			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, null);
 			
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
@@ -624,25 +624,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				@Override
 				public void run() {
 					if(!rejected) {
-						for(final Branch<T> branch: branches) {
-							Branch.this.prevaylerService.transactionExecutor.execute(new Runnable() {
-								@Override
-								public void run() {
-//									if(branch.transaction != null)
-//										branch.transaction.executeForwardOn(propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
-									if(branch.transactionFactory != null) {
-										ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
-										branch.transactionFactory.createDualCommands(dualCommands);
-										DualCommand<T>[] dualCommandArray = dualCommands.toArray(new DualCommand[dualCommands.size()]);
-										
-										DualCommandSequence<T> transaction = new DualCommandSequence<>(dualCommandArray);
-										branch.transaction = transaction;
-										
-										branch.transaction.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
-									}
-								}
-							});
-						}
+						flushBranches();
 						
 						isClosed = true;
 
@@ -652,9 +634,40 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			});
 		}
 		
+		private void flushBranches() {
+			for(final Branch<T> branch: branches) {
+				Branch.this.prevaylerService.transactionExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						if(branch.transactionFactory != null) {
+							ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
+							branch.transactionFactory.createDualCommands(dualCommands);
+							@SuppressWarnings("unchecked")
+							DualCommand<T>[] dualCommandArray = dualCommands.toArray(new DualCommand[dualCommands.size()]);
+							
+							DualCommandSequence<T> transaction = new DualCommandSequence<>(dualCommandArray);
+							branch.transaction = transaction;
+							
+							branch.transaction.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
+						}
+					}
+				});
+			}
+		}
+		
+		@Override
+		public void flush() {
+			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					flushBranches();
+				}
+			});
+		}
+		
 		@Override
 		public void doContinue() {
-			continuation.doContinue(propCtx, this);
+//			continuation.doContinue(propCtx, this);
 		}
 		
 //		private Hashtable<String, Object> variables = new Hashtable<String, Object>();

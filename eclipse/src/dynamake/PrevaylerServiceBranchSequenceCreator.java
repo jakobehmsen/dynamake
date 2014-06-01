@@ -22,12 +22,12 @@ public class PrevaylerServiceBranchSequenceCreator<T> implements PrevaylerServic
 			nextContinuation = new PrevaylerServiceBranchContinuation<T>() {
 				@Override
 				public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<T> branch) {
-					branch.branch(propCtx, new PrevaylerServiceBranchCreator<T>() {
-						@Override
-						public void create(PrevaylerServiceBranchCreation<T> branchCreation) {
-							connectParts(branchCreation, index + 1, dualCommands);
-						}
-					});
+//					branch.branch(propCtx, new PrevaylerServiceBranchCreator<T>() {
+//						@Override
+//						public void create(PrevaylerServiceBranchCreation<T> branchCreation) {
+//							connectParts(branchCreation, index + 1, dualCommands);
+//						}
+//					});
 				}
 			};
 		}
