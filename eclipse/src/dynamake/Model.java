@@ -326,7 +326,6 @@ public abstract class Model implements Serializable, Observer {
 	
 	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		branch.absorb();
-//		branch.doContinue();
 	}
 	
 	public static class CompositeTransaction implements Command<Model> {
@@ -517,38 +516,28 @@ public abstract class Model implements Serializable, Observer {
 			}
 			
 			if(connection != null) {
-//				int branchIndex = 0;
-//				PrevaylerServiceConnection<Model>[] connectionBranches = branchCount > 0 ? connection.branch(branchCount) : null;
 				for(int i = 0; i < observers.size(); i++) {
 					Observer observer = observers.get(i);
 					PrevaylerServiceConnection<Model> connectionBranch;
-//					if(observer instanceof Model) {
-//						connectionBranch = connectionBranches[branchIndex];
-//						branchIndex++;
-//					} else
-						connectionBranch = connection;
+					connectionBranch = connection;
 					PropogationContext propCtxBranch = propCtx.branch();
 					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, branch);
 				}
-//				if(branchCount == 0)
-//					connection.absorb();
 			} else if(branch != null) {
-//				int branchIndex = 0;
-//				PrevaylerServiceConnection<Model>[] connectionBranches = branchCount > 0 ? connection.branch(branchCount) : null;
 				for(int i = 0; i < observers.size(); i++) {
 					Observer observer = observers.get(i);
 					PrevaylerServiceConnection<Model> connectionBranch;
-//					if(observer instanceof Model) {
-//						connectionBranch = connectionBranches[branchIndex];
-//						branchIndex++;
-//					} else
-						connectionBranch = connection;
+					connectionBranch = connection;
 					PropogationContext propCtxBranch = propCtx.branch();
-					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, branch);
+					PrevaylerServiceBranch<Model> innerBranch;
+					if(observer instanceof Model)
+						innerBranch = branch.branch();
+					else
+						innerBranch = branch;
+					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, innerBranch);
 				}
 				if(branchCount == 0) {
 					branch.absorb();
-//					branch.doContinue();
 				}
 			}
 		}
