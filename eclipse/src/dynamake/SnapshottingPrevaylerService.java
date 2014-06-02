@@ -557,7 +557,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					continuations.add(continuation);
+					if(!isClosed)
+						continuations.add(continuation);
 				}
 			});
 		}
