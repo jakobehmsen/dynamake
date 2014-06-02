@@ -518,6 +518,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					// Every effect has been absorbed
 					commit(null);
 				}
+				
+				for(PrevaylerServiceBranchContinuation<T> continuation: continuations)
+					continuation.doContinue(propCtx, this);
 			}
 		}
 
@@ -545,6 +548,18 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				if(transaction != null)
 					transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, null, null);
 			}
+		}
+		
+		private ArrayList<PrevaylerServiceBranchContinuation<T>> continuations = new ArrayList<PrevaylerServiceBranchContinuation<T>>();
+		
+		@Override
+		public void onAbsorbed(final PrevaylerServiceBranchContinuation<T> continuation) {
+			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					continuations.add(continuation);
+				}
+			});
 		}
 		
 //		@Override
@@ -668,6 +683,45 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		@Override
 		public void doContinue() {
 //			continuation.doContinue(propCtx, this);
+		}
+		
+		@Override
+		public void sendChangeToObservers(Model sender,
+				ArrayList<Observer> observers, Object change,
+				PropogationContext propCtx, int nextPropDistance,
+				int nextChangeDistance,
+				PrevaylerServiceConnection<Model> connection) {
+			int branchCount = 0;
+			for(Observer observer: observers) {
+				if(observer instanceof Model)
+					branchCount++;
+			}
+			
+			if(connection != null) {
+				for(int i = 0; i < observers.size(); i++) {
+					Observer observer = observers.get(i);
+					PrevaylerServiceConnection<Model> connectionBranch;
+					connectionBranch = connection;
+					PropogationContext propCtxBranch = propCtx.branch();
+					observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, (PrevaylerServiceBranch<Model>)this);
+				}
+			} else if(this != null) {
+				for(int i = 0; i < observers.size(); i++) {
+					Observer observer = observers.get(i);
+					PrevaylerServiceConnection<Model> connectionBranch;
+					connectionBranch = connection;
+					PropogationContext propCtxBranch = propCtx.branch();
+					PrevaylerServiceBranch<Model> innerBranch;
+					if(observer instanceof Model)
+						innerBranch = (PrevaylerServiceBranch<Model>)this.branch();
+					else
+						innerBranch = (PrevaylerServiceBranch<Model>)this;
+					observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, innerBranch);
+				}
+				if(branchCount == 0) {
+					this.absorb();
+				}
+			}
 		}
 		
 //		private Hashtable<String, Object> variables = new Hashtable<String, Object>();

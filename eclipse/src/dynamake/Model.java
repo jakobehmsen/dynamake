@@ -462,7 +462,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-		boolean isolateSideEffects = connection == null && branch == null; // If true, then performing replay, undo, or redo.
+//		boolean isolateSideEffects = connection == null && branch == null; // If true, then performing replay, undo, or redo.
 		
 		int nextChangeDistance = changeDistance + 1;
 		int nextPropDistance = propDistance + 1;
@@ -500,47 +500,49 @@ public abstract class Model implements Serializable, Observer {
 		-  Probably propCtx.absorb()
 		
 		*/
+		
+		branch.sendChangeToObservers(this, observers, change, propCtx, nextPropDistance, nextChangeDistance, connection);
 
-		if(isolateSideEffects) {
-			for(Observer observer: observers) {
-				if(!(observer instanceof Model)) {
-					PropogationContext propCtxBranch = propCtx.branch();
-					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connection, branch);
-				}
-			}
-		} else {
-			int branchCount = 0;
-			for(Observer observer: observers) {
-				if(observer instanceof Model)
-					branchCount++;
-			}
-			
-			if(connection != null) {
-				for(int i = 0; i < observers.size(); i++) {
-					Observer observer = observers.get(i);
-					PrevaylerServiceConnection<Model> connectionBranch;
-					connectionBranch = connection;
-					PropogationContext propCtxBranch = propCtx.branch();
-					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, branch);
-				}
-			} else if(branch != null) {
-				for(int i = 0; i < observers.size(); i++) {
-					Observer observer = observers.get(i);
-					PrevaylerServiceConnection<Model> connectionBranch;
-					connectionBranch = connection;
-					PropogationContext propCtxBranch = propCtx.branch();
-					PrevaylerServiceBranch<Model> innerBranch;
-					if(observer instanceof Model)
-						innerBranch = branch.branch();
-					else
-						innerBranch = branch;
-					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, innerBranch);
-				}
-				if(branchCount == 0) {
-					branch.absorb();
-				}
-			}
-		}
+//		if(isolateSideEffects) {
+//			for(Observer observer: observers) {
+//				if(!(observer instanceof Model)) {
+//					PropogationContext propCtxBranch = propCtx.branch();
+//					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connection, branch);
+//				}
+//			}
+//		} else {
+//			int branchCount = 0;
+//			for(Observer observer: observers) {
+//				if(observer instanceof Model)
+//					branchCount++;
+//			}
+//			
+//			if(connection != null) {
+//				for(int i = 0; i < observers.size(); i++) {
+//					Observer observer = observers.get(i);
+//					PrevaylerServiceConnection<Model> connectionBranch;
+//					connectionBranch = connection;
+//					PropogationContext propCtxBranch = propCtx.branch();
+//					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, branch);
+//				}
+//			} else if(branch != null) {
+//				for(int i = 0; i < observers.size(); i++) {
+//					Observer observer = observers.get(i);
+//					PrevaylerServiceConnection<Model> connectionBranch;
+//					connectionBranch = connection;
+//					PropogationContext propCtxBranch = propCtx.branch();
+//					PrevaylerServiceBranch<Model> innerBranch;
+//					if(observer instanceof Model)
+//						innerBranch = branch.branch();
+//					else
+//						innerBranch = branch;
+//					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, innerBranch);
+//				}
+//				if(branchCount == 0) {
+//					branch.absorb();
+//				}
+//			}
+//		}
 		
 		for(Observer observerToAdd: observersToAdd) {
 			observers.add(observerToAdd);

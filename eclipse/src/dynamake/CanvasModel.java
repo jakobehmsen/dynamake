@@ -134,7 +134,16 @@ public class CanvasModel extends Model {
 			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(prevalentSystem);
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-			CanvasModel.move(canvasSource, canvasTarget, model, indexInTarget, propCtx, 0, connection, branch);
+			PrevaylerServiceBranch<Model> removeBranch = branch.branch();
+			PrevaylerServiceBranch<Model> addBranch = branch.branch();
+
+			int indexOfModel = canvasSource.indexOfModel(model);
+			canvasSource.removeModel(indexOfModel, propCtx, 0, connection, removeBranch);
+			
+			canvasTarget.addModel(model, propCtx, 0, connection, addBranch);
+			
+			removeBranch.close();
+			addBranch.close();
 		}
 	}
 	
