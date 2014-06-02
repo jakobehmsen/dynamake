@@ -140,7 +140,7 @@ public class CanvasModel extends Model {
 			int indexOfModel = canvasSource.indexOfModel(model);
 			canvasSource.removeModel(indexOfModel, propCtx, 0, connection, removeBranch);
 			
-			canvasTarget.addModel(model, propCtx, 0, connection, addBranch);
+			canvasTarget.addModel(indexInTarget, model, propCtx, 0, connection, addBranch);
 			
 			removeBranch.close();
 			addBranch.close();
