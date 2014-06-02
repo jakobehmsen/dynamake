@@ -167,6 +167,48 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		saveSnapshot(propCtx, prevalentSystemFunc, prevalanceDirectory + "/" + journalFile, prevalanceDirectory + "/" + snapshotFile);
 	}
 	
+	private static class IsolatedBranch<T> implements PrevaylerServiceBranch<T> {
+		@Override
+		public void absorb() { }
+
+		@Override
+		public void reject() { }
+
+		@Override
+		public PrevaylerServiceBranch<T> branch() {
+			return new IsolatedBranch<T>();
+		}
+
+		@Override
+		public void execute(PropogationContext propCtx, DualCommandFactory<T> transactionFactory) { }
+
+		@Override
+		public void onAbsorbed(PrevaylerServiceBranchContinuation<T> continuation) { }
+
+		@Override
+		public void doContinue() { }
+
+		@Override
+		public void close() { }
+
+		@Override
+		public void flush() { }
+
+		@Override
+		public void sendChangeToObservers(Model sender,
+				ArrayList<Observer> observers, Object change,
+				PropogationContext propCtx, int nextPropDistance,
+				int nextChangeDistance,
+				PrevaylerServiceConnection<Model> connection) {
+			for(Observer observer: observers) {
+				if(!(observer instanceof Model)) {
+					PropogationContext propCtxBranch = propCtx.branch();
+					observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, connection, (PrevaylerServiceBranch<Model>)this);
+				}
+			}
+		}
+	}
+	
 	private int transactionIndex;
 	private ArrayList<DualCommand<T>> transactions = new ArrayList<DualCommand<T>>();
 	
@@ -178,7 +220,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				if(transactionIndex > 0) {
 					transactionIndex--;
 					DualCommand<T> transaction = transactions.get(transactionIndex);
-					transaction.executeBackwardOn(propCtx, prevalentSystem, null, null, null);
+					transaction.executeBackwardOn(propCtx, prevalentSystem, null, null, new IsolatedBranch<T>());
 				}
 			}
 		});
@@ -191,7 +233,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			public void run() {
 				if(transactionIndex < transactions.size()) {
 					DualCommand<T> transaction = transactions.get(transactionIndex);
-					transaction.executeForwardOn(propCtx, prevalentSystem, null, null, null);
+					transaction.executeForwardOn(propCtx, prevalentSystem, null, null, new IsolatedBranch<T>());
 					transactionIndex++;
 				}
 			}
