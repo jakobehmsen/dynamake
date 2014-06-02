@@ -110,7 +110,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			// Should be read in chunks
 			ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
 			DualCommand<T> transaction = (DualCommand<T>)objectOutput.readObject();
-			transaction.executeForwardOn(propCtx, prevalentSystem, null, null, null);
+			transaction.executeForwardOn(propCtx, prevalentSystem, null, null, new IsolatedBranch<T>());
 		}
 		
 		bufferedOutput.close();
