@@ -191,8 +191,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		@Override
 		public void close() { }
 
-		@Override
-		public void flush() { }
+//		@Override
+//		public void flush() { }
 
 		@Override
 		public void sendChangeToObservers(Model sender,
@@ -728,18 +728,18 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			}
 		}
 
-		@Override
-		public void flush() {
-			/*
-			Is flush really necessary? It could be replaced be making a branch and then closing that branch. 
-			*/
-			this.prevaylerService.transactionExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					flushBranches();
-				}
-			});
-		}
+//		@Override
+//		public void flush() {
+//			/*
+//			Is flush really necessary? It could be replaced be making a branch and then closing that branch. 
+//			*/
+//			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+//				@Override
+//				public void run() {
+//					flushBranches();
+//				}
+//			});
+//		}
 		
 		@Override
 		public void doContinue() {

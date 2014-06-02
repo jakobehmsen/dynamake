@@ -14,7 +14,7 @@ public interface PrevaylerServiceBranch<T> {
 	void close();
 //	void setVariable(String variableName, Object value);
 //	Object getVariable(String variableName);
-	void flush();
+//	void flush();
 	
 	
 	void sendChangeToObservers(Model sender, ArrayList<Observer> observers,

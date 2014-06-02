@@ -63,6 +63,8 @@ public class PlotTool implements Tool {
 				}
 			}
 			
+			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+			
 			if(componentsWithinBounds.size() > 0) {
 				JMenuItem factoryMenuItem = new JMenuItem();
 				factoryMenuItem.setText("Wrap");
@@ -310,7 +312,6 @@ public class PlotTool implements Tool {
 	}
 	
 	private PrevaylerServiceBranch<Model> branch;
-	private PrevaylerServiceBranch<Model> branchStep2;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e) {
@@ -318,7 +319,7 @@ public class PlotTool implements Tool {
 			PropogationContext propCtx = new PropogationContext();
 			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 			
-			branchStep2 = branch.branch();
+			PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 //				branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
@@ -336,7 +337,7 @@ public class PlotTool implements Tool {
 //					}
 //				});
 				
-				branch.execute(propCtx, new DualCommandFactory<Model>() {
+				branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
@@ -356,13 +357,14 @@ public class PlotTool implements Tool {
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			if(targetModelComponent != null && targetModelComponent.getModelBehind() instanceof CanvasModel) {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, branch);
+				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, branchStep2);
 				productionPanel.livePanel.repaint();
 			} else {
 				productionPanel.editPanelMouseAdapter.selectionMouseDown = e.getPoint();
 			}
 			
-			branch.flush();
+//			branch.flush();
+			branchStep2.close();
 		}
 	}
 
