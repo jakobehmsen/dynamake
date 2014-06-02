@@ -207,6 +207,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				}
 			}
 		}
+		
+		@Override
+		public PrevaylerServiceBranch<T> isolatedBranch() {
+			return branch();
+		}
 	}
 	
 	private int transactionIndex;
@@ -542,9 +547,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
+					System.out.println("absorb@absorbBranch(" + branch + ")");
 					absorbedBranches.add(branch);
 
 					if(isClosed) {
+						System.out.println("checkAbsorbed@absorbBranch");
 						checkAbsorbed();
 					}
 //					System.out.println("Absorb branch performed");
@@ -664,7 +671,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void execute(final PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
 			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, null);
 			branch.transactionFactory = transactionFactory;
-			branch.isClosed = true;
 			
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
@@ -686,6 +692,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						
 						isClosed = true;
 
+						System.out.println("checkAbsorbed@close");
 						checkAbsorbed();
 					}
 				}
@@ -694,27 +701,38 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		
 		private void flushBranches() {
 			for(final Branch<T> branch: branches) {
-				Branch.this.prevaylerService.transactionExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
+//				Branch.this.prevaylerService.transactionExecutor.execute(new Runnable() {
+//					@Override
+//					public void run() {
 						if(branch.transactionFactory != null) {
 							ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
 							branch.transactionFactory.createDualCommands(dualCommands);
 							@SuppressWarnings("unchecked")
 							DualCommand<T>[] dualCommandArray = dualCommands.toArray(new DualCommand[dualCommands.size()]);
 							
-							DualCommandSequence<T> transaction = new DualCommandSequence<>(dualCommandArray);
+							DualCommandSequence<T> transaction = new DualCommandSequence<T>(dualCommandArray);
 							branch.transaction = transaction;
 							
-							branch.transaction.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
+							for(DualCommand<T> t: dualCommands) {
+								Branch<T> b = (Branch<T>)branch.branch();
+								b.close();
+								t.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, b);
+							}
+//							branch.transaction.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
+							
+							System.out.println("absorb@flushBranches");
+							absorbedBranches.add(branch);
 						}
-					}
-				});
+//					}
+//				});
 			}
 		}
-		
+
 		@Override
 		public void flush() {
+			/*
+			Is flush really necessary? It could be replaced be making a branch and then closing that branch. 
+			*/
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -765,6 +783,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					this.absorb();
 				}
 			}
+		}
+		
+		@Override
+		public PrevaylerServiceBranch<T> isolatedBranch() {
+			return new IsolatedBranch<T>();
 		}
 		
 //		private Hashtable<String, Object> variables = new Hashtable<String, Object>();

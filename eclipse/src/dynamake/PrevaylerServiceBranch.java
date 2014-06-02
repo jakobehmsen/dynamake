@@ -21,4 +21,5 @@ public interface PrevaylerServiceBranch<T> {
 			Object change, PropogationContext propCtx, int nextPropDistance,
 			int nextChangeDistance,
 			PrevaylerServiceConnection<Model> connection);
+	PrevaylerServiceBranch<T> isolatedBranch();
 }

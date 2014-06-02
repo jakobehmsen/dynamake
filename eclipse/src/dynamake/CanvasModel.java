@@ -307,10 +307,11 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, connection, branch);
 
-			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, null);
-			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, null);
-			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection, null);
-			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection, null);
+			PrevaylerServiceBranch<Model> setPropertyBranch = branch.isolatedBranch();
+			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, setPropertyBranch);
+			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, setPropertyBranch);
+			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection, setPropertyBranch);
+			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection, setPropertyBranch);
 			
 			canvas.addModel(model, new PropogationContext(), 0, connection, branch);
 		}
