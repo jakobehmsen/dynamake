@@ -71,23 +71,23 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public void appendContainerTransactions(TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection) {
+		public void appendContainerTransactions(TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 
 		}
 
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-			ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
+			ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		}
 
 		@Override

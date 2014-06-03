@@ -167,12 +167,12 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-			TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection) {
+			TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		}
 
 		@Override
-		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, connection);
+		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, connection, branch);
 			
 			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
 			if(caretColor == null)
@@ -201,7 +201,7 @@ public class TextModel extends Model {
 		}
 		
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
+		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection);
 			
 //			if(target.getModelBehind() instanceof CanvasModel) {
@@ -221,7 +221,7 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
+				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}

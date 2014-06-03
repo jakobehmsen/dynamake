@@ -379,9 +379,9 @@ public class LiveModel extends Model {
 					selectionFrameVerticalPosition = VERTICAL_REGION_SOUTH;
 			}
 			
-			public void selectFromView(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceConnection<Model> connection) {
+			public void selectFromView(final ModelComponent view, final Point initialMouseDown, boolean moving, Object connectionOrBranch) {
 				Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-				requestSelect(view, initialMouseDown, moving, effectBounds, connection);
+				requestSelect(view, initialMouseDown, moving, effectBounds, connectionOrBranch);
 			}
 			
 			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceConnection<Model> connection) {
@@ -755,8 +755,8 @@ public class LiveModel extends Model {
 				}
 			}
 			
-			public void showPopupForSelectionObject(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceConnection<Model> connection) {
-				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(connection));
+			public void showPopupForSelectionObject(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceBranch<Model> branch) {
+				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(branch));
 			}
 			
 			public void showPopupForSelectionCons(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceConnection<Model> connection) {
@@ -1316,25 +1316,25 @@ public class LiveModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection) {
+				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
+				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}

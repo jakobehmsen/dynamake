@@ -37,41 +37,63 @@ public class DragTool implements Tool {
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(releasePoint);
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			
+			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+			
 			if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
-				productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, connection);
+				productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, branchStep2);
 			} else {
-				productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel.selectionFrame, e.getPoint(), null, connection);
+				productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel.selectionFrame, e.getPoint(), null, branchStep2);
 			}
+			
+			branch.close();
 
 			productionPanel.editPanelMouseAdapter.targetOver = null;
 			productionPanel.livePanel.repaint();
 		}
 	}
 	
-	private PrevaylerServiceConnection<Model> connection;
+//	private PrevaylerServiceConnection<Model> connection;
+	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
+//			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
+			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 //			productionPanel.livePanel.getTransactionFactory().beginTransaction();
+			
+			PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
+//				
+//				connection.execute(propCtx, new DualCommandFactory<Model>() {
+//					public DualCommand<Model> createDualCommand() {
+//						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+//						return new DualCommandPair<Model>(
+//							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+//							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+//						);
+//					}
+//					
+//					@Override
+//					public void createDualCommands(
+//							List<DualCommand<Model>> dualCommands) {
+//						dualCommands.add(createDualCommand());
+//					}
+//				});
 				
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
-					public DualCommand<Model> createDualCommand() {
-						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-						return new DualCommandPair<Model>(
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-						);
-					}
-					
+				branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
-					public void createDualCommands(
-							List<DualCommand<Model>> dualCommands) {
-						dualCommands.add(createDualCommand());
+					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+						
+						dualCommands.add(
+							new DualCommandPair<Model>(
+								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+							)
+						);
 					}
 				});
 			}
@@ -79,10 +101,13 @@ public class DragTool implements Tool {
 			Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+			
 			if(targetModelComponent != null) {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, connection);
+				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
 			}
+			
+			branchStep1.close();
 		}
 	}
 
@@ -92,8 +117,10 @@ public class DragTool implements Tool {
 			Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
 			ModelComponent newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(newTargetOver);
+			
 			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
 				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
+				
 				if(productionPanel.targetFrame != null)
 					productionPanel.remove(productionPanel.targetFrame);
 				

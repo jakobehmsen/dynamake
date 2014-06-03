@@ -10,10 +10,10 @@ import javax.swing.JPopupMenu;
 import dynamake.LiveModel.LivePanel;
 
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
-	private PrevaylerServiceConnection<Model> connection;
+	private PrevaylerServiceBranch<Model> branch;
 	
-	public DragDragDropPopupBuilder(PrevaylerServiceConnection<Model> connection) {
-		this.connection = connection;
+	public DragDragDropPopupBuilder(PrevaylerServiceBranch<Model> branch) {
+		this.branch = branch;
 	}
 
 	@Override
@@ -35,6 +35,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run(Runnable runnable) {
 				runnable.run();
 				
+				branch.close();
 //				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
 //				connection.commit(propCtx);
 			}
@@ -44,10 +45,10 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		
 		TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
 		if(parentModelComponent != null)
-			parentModelComponent.appendContainerTransactions(containerTransactionMapBuilder, selection, connection);
+			parentModelComponent.appendContainerTransactions(containerTransactionMapBuilder, selection, null, branch);
 
 		TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
-		selection.appendTransactions(livePanel, transactionSelectionMapBuilder, connection);
+		selection.appendTransactions(livePanel, transactionSelectionMapBuilder, null, branch);
 
 		containerTransactionMapBuilder.appendTo(popup, runner, "Container");
 		if(!containerTransactionMapBuilder.isEmpty() && !transactionSelectionMapBuilder.isEmpty())
@@ -62,7 +63,8 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				runnable.run();
 				
 				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-				connection.commit(propCtx);
+//				connection.commit(propCtx);
+				branch.close();
 			}
 		};
 		
@@ -73,7 +75,22 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				@Override
 				public void run() {
 					PropogationContext propCtx = new PropogationContext();
-					connection.execute(propCtx, new DualCommandFactory<Model>() {
+//					connection.execute(propCtx, new DualCommandFactory<Model>() {
+//						@Override
+//						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//							Location observableLocation = selection.getTransactionFactory().getModelLocation();
+//							Location observerLocation = target.getTransactionFactory().getModelLocation();
+//							
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
+//								new Model.AddObserver(observableLocation, observerLocation) // Absolute location
+//							));
+//							
+//							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, observerLocation)); // Absolute location
+//						}
+//					});
+					
+					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Location observableLocation = selection.getTransactionFactory().getModelLocation();
@@ -94,7 +111,22 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				@Override
 				public void run() {
 					PropogationContext propCtx = new PropogationContext();
-					connection.execute(propCtx, new DualCommandFactory<Model>() {
+//					connection.execute(propCtx, new DualCommandFactory<Model>() {
+//						@Override
+//						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//							Location observableLocation = selection.getTransactionFactory().getModelLocation();
+//							Location observerLocation = target.getTransactionFactory().getModelLocation();
+//							
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new Model.AddObserver(observableLocation, observerLocation), // Absolute location
+//								new Model.RemoveObserver(observableLocation, observerLocation) // Absolute location
+//							));
+//							
+//							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, observerLocation)); // Absolute location
+//						}
+//					});
+					
+					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Location observableLocation = selection.getTransactionFactory().getModelLocation();
@@ -139,7 +171,20 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			@Override
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
+//				connection.execute(propCtx, new DualCommandFactory<Model>() {
+//					@Override
+//					public void createDualCommands(
+//							List<DualCommand<Model>> dualCommands) {
+//						dualCommands.add(new DualCommandPair<Model>(
+//							new InjectTransaction(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
+//							new DejectTransaction(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
+//						));
+//
+//						dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation())); // Absolute location
+//					}
+//				});
+				
+				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(
 							List<DualCommand<Model>> dualCommands) {
@@ -155,7 +200,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		});
 
 		TransactionMapBuilder transactionTargetMapBuilder = new TransactionMapBuilder();
-		target.appendDropTargetTransactions(livePanel, selection, dropBoundsOnTarget, dropPointOnTarget, transactionTargetMapBuilder, connection);
+		target.appendDropTargetTransactions(livePanel, selection, dropBoundsOnTarget, dropPointOnTarget, transactionTargetMapBuilder, null, branch);
 		
 		transactionSelectionGeneralMapBuilder.appendTo(popup, runner, "General");
 		if(!transactionSelectionGeneralMapBuilder.isEmpty() && !transactionTargetMapBuilder.isEmpty())
@@ -163,7 +208,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetMapBuilder.appendTo(popup, runner, "Target");
 
 		TransactionMapBuilder transactionDroppedMapBuilder = new TransactionMapBuilder();
-		selection.appendDroppedTransactions(livePanel, target, dropBoundsOnTarget, transactionDroppedMapBuilder, connection);
+		selection.appendDroppedTransactions(livePanel, target, dropBoundsOnTarget, transactionDroppedMapBuilder, null, branch);
 		if(!transactionTargetMapBuilder.isEmpty() && !transactionDroppedMapBuilder.isEmpty())
 			popup.addSeparator();
 		transactionDroppedMapBuilder.appendTo(popup, runner, "Dropped");
@@ -172,6 +217,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
 		PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
-		connection.rollback(propCtx);
+//		connection.rollback(propCtx);
+		branch.reject();
 	}
 }

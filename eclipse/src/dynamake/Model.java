@@ -814,12 +814,26 @@ public abstract class Model implements Serializable, Observer {
 		});
 	}
 	
-	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final TransactionFactory transactionFactory, TransactionMapBuilder transactions, final PrevaylerServiceConnection<Model> connection) {
+	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final TransactionFactory transactionFactory, TransactionMapBuilder transactions, final PrevaylerServiceConnection<Model> connection, final PrevaylerServiceBranch<Model> branch) {
 		transactions.addTransaction("Set " + PROPERTY_COLOR, new ColorTransactionBuilder((Color)model.getProperty(PROPERTY_COLOR), new Action1<Color>() {
 			@Override
 			public void run(final Color color) {
 				PropogationContext propCtx = new PropogationContext();
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
+//				connection.execute(propCtx, new DualCommandFactory<Model>() {
+//					@Override
+//					public void createDualCommands(
+//							List<DualCommand<Model>> dualCommands) {
+//						Color currentColor = (Color)model.getProperty("PROPERTY_COLOR");
+//						dualCommands.add(new DualCommandPair<Model>(
+//							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, color),
+//							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, currentColor)
+//						));
+//						
+//						dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, transactionFactory.getModelLocation())); // Absolute location
+//					}
+//				});
+				
+				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(
 							List<DualCommand<Model>> dualCommands) {

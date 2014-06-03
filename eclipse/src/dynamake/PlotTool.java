@@ -193,10 +193,10 @@ public class PlotTool implements Tool {
 			PropogationContext propCtx = new PropogationContext();
 			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 			
-			PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+			PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
-				branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+				branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
@@ -217,13 +217,13 @@ public class PlotTool implements Tool {
 			if(targetModelComponent != null && targetModelComponent.getModelBehind() instanceof CanvasModel) {
 				System.out.println("selectFromEmpty");
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, branchStep2);
+				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, branchStep1);
 				productionPanel.livePanel.repaint();
 			} else {
 				productionPanel.editPanelMouseAdapter.selectionMouseDown = e.getPoint();
 			}
 			
-			branchStep2.close();
+			branchStep1.close();
 		}
 	}
 

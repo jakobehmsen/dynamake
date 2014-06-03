@@ -433,7 +433,7 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, final ModelComponent child, final PrevaylerServiceConnection<Model> connection) {
+				TransactionMapBuilder transactions, final ModelComponent child, final PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			transactions.addTransaction("Remove", new Runnable() {
 				@Override
 				public void run() {
@@ -466,17 +466,17 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, connection);
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, connection, branch);
 		}
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection) {
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection);
 		}
 		
 		@Override
 		public void appendDropTargetTransactions(final ModelComponent livePanel,
-				final ModelComponent dropped, final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions, final PrevaylerServiceConnection<Model> connection) {
+				final ModelComponent dropped, final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions, final PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			if(dropped.getTransactionFactory().getParent() != null && 
 				dropped.getTransactionFactory().getParent() != CanvasPanel.this.transactionFactory &&
 				!isContainerOf(dropped.getTransactionFactory(), this.transactionFactory) /*Dropee cannot be child of dropped*/) {
