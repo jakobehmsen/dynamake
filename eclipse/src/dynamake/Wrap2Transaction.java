@@ -52,8 +52,10 @@ public class Wrap2Transaction implements Command<Model> {
 
 			PrevaylerServiceBranch<Model> setXBranch = branch.branch();
 			PrevaylerServiceBranch<Model> setYBranch = branch.branch();
+			
 			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, connection, setXBranch);
 			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, connection, setYBranch);
+			
 			setXBranch.close();
 			setYBranch.close();
 		}

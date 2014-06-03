@@ -211,7 +211,9 @@ public class PlotTool implements Tool {
 									CanvasModel target = (CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind();
 									Location targetLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
 									int indexOfWrapper = target.getModelCount() - componentsWithinBounds.size();
-									ModelLocation wrapperLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(indexOfWrapper));
+//									ModelLocation wrapperLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(indexOfWrapper));
+									ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
+									ModelLocation wrapperLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().extendLocation(wrapperLocationInTarget);
 									
 									// Each of the model locations should be moved from target to wrapper
 									Location[] modelLocations = new Location[componentsWithinBounds.size()];
@@ -224,7 +226,7 @@ public class PlotTool implements Tool {
 									
 									dualCommands.add(new DualCommandPair<Model>(
 										new Wrap2Transaction(targetLocation, selectionCreationBounds, modelLocations), 
-										null
+										new Unwrap2Transaction(targetLocation, wrapperLocationInTarget, modelIndexes, selectionCreationBounds)
 									));
 									
 									dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, wrapperLocation));
