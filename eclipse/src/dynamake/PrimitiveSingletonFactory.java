@@ -26,8 +26,9 @@ public class PrimitiveSingletonFactory implements Factory {
 		Primitive model = new Primitive(implementationSingleton);
 		Fraction fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(new Fraction(creationBounds.height, 35));
+		PrevaylerServiceBranch<Model> setPropertyBranch = branch.isolatedBranch();
 //		Fraction fontSize = 12 * 40 creationBounds.height;
-		model.setProperty("FontSize", fontSize, propCtx, propDistance, connection, branch);
+		model.setProperty("FontSize", fontSize, propCtx, propDistance, connection, setPropertyBranch);
 		return model;
 		
 //		return new Primitive(implementationSingleton);

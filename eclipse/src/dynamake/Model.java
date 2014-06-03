@@ -206,6 +206,10 @@ public abstract class Model implements Serializable, Observer {
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
 			observable.addObserver(observer);
+			
+			// No side effect may be provoked in addObserver, thus no implicit absorbtion of branch occurs
+			// Absorb branch here
+			branch.absorb();
 		}
 	}
 	
@@ -255,6 +259,10 @@ public abstract class Model implements Serializable, Observer {
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
 			observable.removeObserver(observer);
+			
+			// No side effect may be provoked in addObserver, thus no implicit absorbtion of branch occurs
+			// Absorb branch here
+			branch.absorb();
 		}
 	}
 	
