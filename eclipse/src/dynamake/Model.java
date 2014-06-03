@@ -298,9 +298,10 @@ public abstract class Model implements Serializable, Observer {
 		if(change instanceof SetProperty && changeDistance == 1) {
 			// Side-effect
 			
+			PrevaylerServiceBranch<Model> innerBranch = branch.branch();
 			final SetProperty setProperty = (SetProperty)change;
 			
-			connection.execute(propCtx, new DualCommandFactory<Model>() {
+			innerBranch.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 					Location modelLocation = getLocator().locate();
@@ -312,6 +313,7 @@ public abstract class Model implements Serializable, Observer {
 					));
 				}
 			});
+			innerBranch.close();
 			
 //			setProperty(setProperty.name, setProperty.value, propCtx, propDistance, connection);
 		} else if(change instanceof TellProperty && changeDistance == 1) {
@@ -837,7 +839,7 @@ public abstract class Model implements Serializable, Observer {
 					@Override
 					public void createDualCommands(
 							List<DualCommand<Model>> dualCommands) {
-						Color currentColor = (Color)model.getProperty("PROPERTY_COLOR");
+						Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
 						dualCommands.add(new DualCommandPair<Model>(
 							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, color),
 							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, currentColor)

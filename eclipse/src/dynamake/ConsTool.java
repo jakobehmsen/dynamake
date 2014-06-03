@@ -38,12 +38,15 @@ public class ConsTool implements Tool {
 			final ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			
 			if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
+				PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+				
 				if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
-					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, connection);
+					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, branchStep2);
+					branch.close();
 				} else {
 					if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 						PropogationContext propCtx = new PropogationContext();
-						connection.execute(propCtx, new DualCommandFactory<Model>() {
+						branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
@@ -59,7 +62,7 @@ public class ConsTool implements Tool {
 						});
 					} else {
 						PropogationContext propCtx = new PropogationContext();
-						connection.execute(propCtx, new DualCommandFactory<Model>() {
+						branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
@@ -76,7 +79,8 @@ public class ConsTool implements Tool {
 					}
 					
 					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-					connection.commit(propCtx);
+//					connection.commit(propCtx);
+					branch.close();
 					
 					if(productionPanel.targetFrame != null)
 						productionPanel.remove(productionPanel.targetFrame);
@@ -91,11 +95,14 @@ public class ConsTool implements Tool {
 				}
 			} else {
 				if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
-					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, connection);
+					final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+					
+					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, branchStep2);
+					branch.close();
 				} else {
 					productionPanel.editPanelMouseAdapter.resetEffectFrame();
 					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
-					connection.rollback(propCtx);
+					branch.reject();
 				}
 			}
 
@@ -104,30 +111,48 @@ public class ConsTool implements Tool {
 		}
 	}
 	
-	private PrevaylerServiceConnection<Model> connection;
+//	private PrevaylerServiceConnection<Model> connection;
+	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
 //			productionPanel.livePanel.getTransactionFactory().beginTransaction();
-			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
+//			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
+			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+			
+			PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
 				
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
-					public DualCommand<Model> createDualCommand() {
-						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-						return new DualCommandPair<Model>(
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-						);
-					}
-					
+//				connection.execute(propCtx, new DualCommandFactory<Model>() {
+//					public DualCommand<Model> createDualCommand() {
+//						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+//						return new DualCommandPair<Model>(
+//							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+//							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+//						);
+//					}
+//					
+//					@Override
+//					public void createDualCommands(
+//							List<DualCommand<Model>> dualCommands) {
+//						dualCommands.add(createDualCommand());
+//					}
+//				});
+				
+				branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
-					public void createDualCommands(
-							List<DualCommand<Model>> dualCommands) {
-						dualCommands.add(createDualCommand());
+					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+						
+						dualCommands.add(
+							new DualCommandPair<Model>(
+								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+							)
+						);
 					}
 				});
 			}
@@ -137,9 +162,11 @@ public class ConsTool implements Tool {
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			if(targetModelComponent != null) {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromDefault(targetModelComponent, referencePoint, true, connection);
+				productionPanel.editPanelMouseAdapter.selectFromDefault(targetModelComponent, referencePoint, true, branchStep1);
 				productionPanel.livePanel.repaint();
 			}
+			
+			branchStep1.close();
 		}
 	}
 

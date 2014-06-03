@@ -544,9 +544,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		private void absorbBranch(final Branch<T> branch) {
-			this.prevaylerService.transactionExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
+//			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+//				@Override
+//				public void run() {
 //					System.out.println("absorb@absorbBranch(" + branch + ")");
 					absorbedBranches.add(branch);
 
@@ -555,8 +555,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						checkAbsorbed();
 					}
 //					System.out.println("Absorb branch performed");
-				}
-			});
+//				}
+//			});
 		}
 		
 		private void checkAbsorbed() {
@@ -656,6 +656,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		@Override
 		public PrevaylerServiceBranch<T> branch() {
 			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, null);
+//			branch.isClosed = true;
 			
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
@@ -680,6 +681,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void execute(final PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
 			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, null);
 			branch.transactionFactory = transactionFactory;
+			branch.isClosed = true;
 			
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
@@ -702,7 +704,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						isClosed = true;
 
 //						System.out.println("checkAbsorbed@close");
-						checkAbsorbed();
+//						checkAbsorbed();
 					}
 				}
 			});
@@ -723,14 +725,26 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 							branch.transaction = transaction;
 							
 							for(DualCommand<T> t: dualCommands) {
-								Branch<T> b = (Branch<T>)branch.branch();
-								b.close();
+								final Branch<T> b = (Branch<T>)branch.branch();
 								t.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, b);
+								b.close();
+								
+								// If, after being closed, the branch has no inner branches, then it perceived as absorbed. Otherwise,
+								// it will absorb by itself.
+								this.prevaylerService.transactionExecutor.execute(new Runnable() {
+									@Override
+									public void run() {
+										if(b.branches.size() == 0) {
+											absorbedBranches.add(branch);
+											checkAbsorbed();
+										}
+									}
+								});
 							}
 //							branch.transaction.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
 							
 //							System.out.println("absorb@flushBranches");
-							absorbedBranches.add(branch);
+//							absorbedBranches.add(branch);
 						}
 //					}
 //				});
@@ -781,13 +795,17 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					PrevaylerServiceConnection<Model> connectionBranch;
 					connectionBranch = connection;
 					PropogationContext propCtxBranch = propCtx.branch();
-					PrevaylerServiceBranch<Model> innerBranch;
-					if(observer instanceof Model)
-						innerBranch = (PrevaylerServiceBranch<Model>)this.branch();
-					else
-						innerBranch = (PrevaylerServiceBranch<Model>)this;
+					PrevaylerServiceBranch<Model> innerBranch = (PrevaylerServiceBranch<Model>)this;
+//					PrevaylerServiceBranch<Model> innerBranch;
+//					if(observer instanceof Model)
+//						innerBranch = (PrevaylerServiceBranch<Model>)this.branch();
+//					else
+//						innerBranch = (PrevaylerServiceBranch<Model>)this;
 					observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, innerBranch);
+//					if(observer instanceof Model)
+//						innerBranch.close();
 				}
+				
 				if(branchCount == 0) {
 					this.absorb();
 				}

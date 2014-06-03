@@ -87,11 +87,15 @@ public class LiveModel extends Model {
 	public void setSelection(Model selection, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 		this.selection = selection;
 		
-		Point selectionInitialMouseDown = (Point)getProperty("SelectionInitialMouseDown");
-		boolean selectionMoving = (boolean)getProperty("SelectionMoving");
-		Rectangle selectionEffectBounds = (Rectangle)getProperty("SelectionEffectBounds");
-		
-		sendChanged(new SelectionChanged(selectionInitialMouseDown, selectionMoving, selectionEffectBounds), propCtx, propDistance, 0, connection, branch);
+		if(this.selection != null) {
+			Point selectionInitialMouseDown = (Point)getProperty("SelectionInitialMouseDown");
+			boolean selectionMoving = (boolean)getProperty("SelectionMoving");
+			Rectangle selectionEffectBounds = (Rectangle)getProperty("SelectionEffectBounds");
+			
+			sendChanged(new SelectionChanged(selectionInitialMouseDown, selectionMoving, selectionEffectBounds), propCtx, propDistance, 0, connection, branch);
+		} else {
+			sendChanged(new SelectionChanged(null, false, null), propCtx, propDistance, 0, connection, branch);
+		}
 	}
 
 	public void setOutput(Model output, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
@@ -384,14 +388,14 @@ public class LiveModel extends Model {
 				requestSelect(view, initialMouseDown, moving, effectBounds, connectionOrBranch);
 			}
 			
-			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceConnection<Model> connection) {
+			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, boolean moving, Object connectionOrBranch) {
 				// TODO: Once finished with replace all usages of beginTransaction, commitTransaction, and rollbackTransaction:
 				// Put a PrevayerServiceConnection<Model> as parameter to this method and forward the connection in the flow.
 				Dimension sourceBoundsSize = new Dimension(125, 33);
 				Point sourceBoundsLocation = new Point(initialMouseDown.x - sourceBoundsSize.width / 2, initialMouseDown.y - sourceBoundsSize.height / 2);
 				Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
 				Rectangle selectionBounds = SwingUtilities.convertRectangle((JComponent)view, sourceBounds, productionPanel);
-				requestSelect(view, initialMouseDown, moving, selectionBounds, connection);
+				requestSelect(view, initialMouseDown, moving, selectionBounds, connectionOrBranch);
 			}
 			
 			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, boolean moving, Object connectionOrBranch) {
@@ -759,8 +763,8 @@ public class LiveModel extends Model {
 				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(branch));
 			}
 			
-			public void showPopupForSelectionCons(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceConnection<Model> connection) {
-				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(connection));
+			public void showPopupForSelectionCons(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceBranch<Model> branch) {
+				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(branch));
 			}
 			
 			public void showPopupForSelectionTell(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceConnection<Model> connection) {
