@@ -477,7 +477,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		private PropogationContext propCtx;
 //		private PrevaylerServiceBranchContinuation<T> continuation;
 		private boolean rejected;
-		private boolean created;
+//		private boolean created;
 		
 		private Branch(Branch<T> parent, SnapshottingPrevaylerService<T> prevaylerService, final PropogationContext propCtx, PrevaylerServiceBranchContinuation<T> continuation) {
 			this.parent = parent;
@@ -589,14 +589,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		private void rejectDownwards() {
 			rejected = true;
 			
-			if(created) {
-				// Reject in reverse order, i.e. start with the branches first
-				for(Branch<T> branch: branches)
-					branch.rejectDownwards();
-				
-				if(transaction != null)
-					transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, null, null);
-			}
+			// Reject in reverse order, i.e. start with the branches first
+			for(Branch<T> branch: branches)
+				branch.rejectDownwards();
+			
+			if(transaction != null)
+				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, null, isolatedBranch());
 		}
 		
 		private ArrayList<PrevaylerServiceBranchContinuation<T>> continuations = new ArrayList<PrevaylerServiceBranchContinuation<T>>();
@@ -692,7 +690,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						
 						isClosed = true;
 
-						System.out.println("checkAbsorbed@close");
+//						System.out.println("checkAbsorbed@close");
 						checkAbsorbed();
 					}
 				}
@@ -720,7 +718,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 							}
 //							branch.transaction.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
 							
-							System.out.println("absorb@flushBranches");
+//							System.out.println("absorb@flushBranches");
 							absorbedBranches.add(branch);
 						}
 //					}
@@ -811,7 +809,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	@Override
 	public PrevaylerServiceBranch<T> createBranch() {
 		SnapshottingPrevaylerService.Branch<T> rootBranch = new SnapshottingPrevaylerService.Branch<T>(null, this, null, null);
-		rootBranch.created = true;
+//		rootBranch.created = true;
 		return rootBranch;
 	}
 }
