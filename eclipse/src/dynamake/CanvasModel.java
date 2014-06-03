@@ -238,6 +238,9 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+	/*
+	Obsolete: replace by AddModel2Transaction
+	*/
 	public static class AddModelTransaction implements Command<Model> {
 		/**
 		 * 

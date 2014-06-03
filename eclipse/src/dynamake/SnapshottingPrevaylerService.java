@@ -735,7 +735,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 							branch.prevaylerService.transactionExecutor.execute(new Runnable() {
 								@Override
 								public void run() {
-									// Is there a scenario where branch is absorbed before this point
+									// Is there a scenario where branch is absorbed before this point?
 									branch.checkAbsorbed();
 								}
 							});
