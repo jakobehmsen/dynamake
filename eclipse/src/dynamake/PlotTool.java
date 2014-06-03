@@ -174,6 +174,7 @@ public class PlotTool implements Tool {
 				
 				@Override
 				public void popupMenuCanceled(PopupMenuEvent e) {
+					System.out.println("Cancel popup");
 					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
 					branch.reject();
 				}
@@ -214,6 +215,7 @@ public class PlotTool implements Tool {
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			if(targetModelComponent != null && targetModelComponent.getModelBehind() instanceof CanvasModel) {
+				System.out.println("selectFromEmpty");
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, branchStep2);
 				productionPanel.livePanel.repaint();

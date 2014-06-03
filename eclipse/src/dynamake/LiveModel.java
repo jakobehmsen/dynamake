@@ -573,6 +573,8 @@ public class LiveModel extends Model {
 								new SetSelection(liveModelLocation, selectionLocation), 
 								new SetSelection(liveModelLocation, currentSelectionLocation)
 							));
+							
+							System.out.println("select do");
 						}
 					});
 				}
@@ -622,6 +624,7 @@ public class LiveModel extends Model {
 			}
 			
 			private void select(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
+				System.out.println("in select method");
 				// <Don't remove>
 				// Whether the following check is necessary or not has not been decided yet, so don't remove the code
 //				if(this.selection == view)
@@ -1262,11 +1265,13 @@ public class LiveModel extends Model {
 							final Point initialMouseDown = selectionChanged.selectionInitialMouseDown;
 							final boolean moving = selectionChanged.selectionMoving;
 							final Rectangle effectBounds = selectionChanged.selectionEffectBounds;
+
+							productionPanel.editPanelMouseAdapter.select(view, initialMouseDown, moving, effectBounds);
 							
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
-									productionPanel.editPanelMouseAdapter.select(view, initialMouseDown, moving, effectBounds);
+//									productionPanel.editPanelMouseAdapter.select(view, initialMouseDown, moving, effectBounds);
 									productionPanel.livePanel.repaint();
 								}
 							});

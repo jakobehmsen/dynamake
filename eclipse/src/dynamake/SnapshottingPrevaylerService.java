@@ -547,11 +547,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					System.out.println("absorb@absorbBranch(" + branch + ")");
+//					System.out.println("absorb@absorbBranch(" + branch + ")");
 					absorbedBranches.add(branch);
 
 					if(isClosed) {
-						System.out.println("checkAbsorbed@absorbBranch");
+//						System.out.println("checkAbsorbed@absorbBranch");
 						checkAbsorbed();
 					}
 //					System.out.println("Absorb branch performed");
@@ -575,15 +575,26 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 
 		@Override
 		public void reject() {
+			System.out.println("reject enqueue");
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					if(parent != null)
-						parent.reject();
-					else
-						rejectDownwards();
+					System.out.println("reject do");
+					
+//					if(parent != null)
+//						parent.reject();
+//					else
+//						rejectDownwards();
+					rejectSync();
 				}
 			});
+		}
+		
+		private void rejectSync() {
+			if(parent != null)
+				parent.rejectSync();
+			else
+				rejectDownwards();
 		}
 		
 		private void rejectDownwards() {
