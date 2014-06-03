@@ -575,11 +575,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 
 		@Override
 		public void reject() {
-			System.out.println("reject enqueue");
+//			System.out.println("reject enqueue");
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					System.out.println("reject do");
+//					System.out.println("reject do");
 					
 //					if(parent != null)
 //						parent.reject();
@@ -681,7 +681,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void execute(final PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
 			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, null);
 			branch.transactionFactory = transactionFactory;
-			branch.isClosed = true;
+//			branch.isClosed = true;
 			
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
@@ -728,23 +728,17 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 								final Branch<T> b = (Branch<T>)branch.branch();
 								t.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, b);
 								b.close();
-								
-								// If, after being closed, the branch has no inner branches, then it perceived as absorbed. Otherwise,
-								// it will absorb by itself.
-								this.prevaylerService.transactionExecutor.execute(new Runnable() {
-									@Override
-									public void run() {
-										if(b.branches.size() == 0) {
-											absorbedBranches.add(branch);
-											checkAbsorbed();
-										}
-									}
-								});
 							}
-//							branch.transaction.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
 							
-//							System.out.println("absorb@flushBranches");
-//							absorbedBranches.add(branch);
+							branch.close();
+							
+							branch.prevaylerService.transactionExecutor.execute(new Runnable() {
+								@Override
+								public void run() {
+									// Is there a scenario where branch is absorbed before this point
+									branch.checkAbsorbed();
+								}
+							});
 						}
 //					}
 //				});

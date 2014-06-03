@@ -578,7 +578,7 @@ public class LiveModel extends Model {
 								new SetSelection(liveModelLocation, currentSelectionLocation)
 							));
 							
-							System.out.println("select do");
+//							System.out.println("select do");
 						}
 					});
 				}
@@ -628,7 +628,7 @@ public class LiveModel extends Model {
 			}
 			
 			private void select(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
-				System.out.println("in select method");
+//				System.out.println("in select method");
 				// <Don't remove>
 				// Whether the following check is necessary or not has not been decided yet, so don't remove the code
 //				if(this.selection == view)
