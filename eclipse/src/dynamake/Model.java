@@ -322,13 +322,18 @@ public abstract class Model implements Serializable, Observer {
 				}
 			});
 			innerBranch.close();
-			
-//			setProperty(setProperty.name, setProperty.value, propCtx, propDistance, connection);
 		} else if(change instanceof TellProperty && changeDistance == 1) {
+			PrevaylerServiceBranch<Model> innerBranch = branch.branch();
+			
 			TellProperty tellProperty = (TellProperty)change;
 			Object value = getProperty(tellProperty.name);
 			if(value != null)
-				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0, connection, branch);
+				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0, connection, innerBranch);
+
+			innerBranch.close();
+			
+			if(value == null)
+				innerBranch.absorb();
 		} else {
 			modelChanged(sender, change, propCtx, propDistance, changeDistance, connection, branch);
 		}

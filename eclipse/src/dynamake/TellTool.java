@@ -29,19 +29,26 @@ public class TellTool implements Tool {
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-			productionPanel.editPanelMouseAdapter.showPopupForSelectionTell(productionPanel.selectionFrame, e.getPoint(), null, connection);
+			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+			
+			productionPanel.editPanelMouseAdapter.showPopupForSelectionTell(productionPanel.selectionFrame, e.getPoint(), null, branchStep2);
+			
+			branch.close();
 
 			productionPanel.editPanelMouseAdapter.targetOver = null;
 			productionPanel.livePanel.repaint();
 		}
 	}
 	
-	private PrevaylerServiceConnection<Model> connection;
+//	private PrevaylerServiceConnection<Model> connection;
+	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
+			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+			
+			PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 			
 			Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
@@ -50,7 +57,7 @@ public class TellTool implements Tool {
 				if(productionPanel.editPanelMouseAdapter.output != null) {
 					PropogationContext propCtx = new PropogationContext();
 					
-					connection.execute(propCtx, new DualCommandFactory<Model>() {
+					branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
 						public DualCommand<Model> createDualCommand() {
 							ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 							return new DualCommandPair<Model>(
@@ -68,9 +75,11 @@ public class TellTool implements Tool {
 				}
 				
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, connection);
+				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
 				productionPanel.livePanel.repaint();
 			}
+			
+			branchStep1.close();
 		}
 	}
 

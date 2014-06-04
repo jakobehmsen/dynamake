@@ -9,10 +9,10 @@ import javax.swing.JPopupMenu;
 import dynamake.LiveModel.LivePanel;
 
 public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
-	private PrevaylerServiceConnection<Model> connection;
+	private PrevaylerServiceBranch<Model> branch;
 	
-	public TellDragDropPopupBuilder(PrevaylerServiceConnection<Model> connection) {
-		this.connection = connection;
+	public TellDragDropPopupBuilder(PrevaylerServiceBranch<Model> branch) {
+		this.branch = branch;
 	}
 
 	@Override
@@ -24,8 +24,7 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run(Runnable runnable) {
 				runnable.run();
 				
-				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-				connection.commit(propCtx);
+				branch.close();
 			}
 		};
 		
@@ -36,12 +35,12 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
 				
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
+				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
 							new TellPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_COLOR),
-							null
+							new TellPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_COLOR)
 						));
 					}
 				});
@@ -52,7 +51,6 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 	
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
-		PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
-		connection.rollback(propCtx);
+		branch.reject();
 	}
 }

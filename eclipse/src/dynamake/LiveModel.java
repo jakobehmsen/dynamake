@@ -128,7 +128,7 @@ public class LiveModel extends Model {
 		
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-			System.out.println("SetSelection");
+//			System.out.println("SetSelection");
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
@@ -818,8 +818,8 @@ public class LiveModel extends Model {
 				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(branch));
 			}
 			
-			public void showPopupForSelectionTell(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceConnection<Model> connection) {
-				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new TellDragDropPopupBuilder(connection));
+			public void showPopupForSelectionTell(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceBranch<Model> branch) {
+				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new TellDragDropPopupBuilder(branch));
 			}
 
 			public void showPopupForSelectionView(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceConnection<Model> connection) {

@@ -36,8 +36,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				runnable.run();
 				
 				branch.close();
-//				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-//				connection.commit(propCtx);
 			}
 		};
 		
@@ -62,8 +60,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run(Runnable runnable) {
 				runnable.run();
 				
-				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-//				connection.commit(propCtx);
 				branch.close();
 			}
 		};
@@ -75,21 +71,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				@Override
 				public void run() {
 					PropogationContext propCtx = new PropogationContext();
-//					connection.execute(propCtx, new DualCommandFactory<Model>() {
-//						@Override
-//						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//							Location observableLocation = selection.getTransactionFactory().getModelLocation();
-//							Location observerLocation = target.getTransactionFactory().getModelLocation();
-//							
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
-//								new Model.AddObserver(observableLocation, observerLocation) // Absolute location
-//							));
-//							
-//							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, observerLocation)); // Absolute location
-//						}
-//					});
-					
 					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -111,21 +92,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				@Override
 				public void run() {
 					PropogationContext propCtx = new PropogationContext();
-//					connection.execute(propCtx, new DualCommandFactory<Model>() {
-//						@Override
-//						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//							Location observableLocation = selection.getTransactionFactory().getModelLocation();
-//							Location observerLocation = target.getTransactionFactory().getModelLocation();
-//							
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new Model.AddObserver(observableLocation, observerLocation), // Absolute location
-//								new Model.RemoveObserver(observableLocation, observerLocation) // Absolute location
-//							));
-//							
-//							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, observerLocation)); // Absolute location
-//						}
-//					});
-					
 					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -144,46 +110,10 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			});
 		}
 		
-//		// Only available for canvases:
-//		if(target.getModelBehind() instanceof CanvasModel) {
-//			TransactionMapBuilder transactionObserverMapBuilder = new TransactionMapBuilder();
-//			TransactionMapBuilder transactionObserverContentMapBuilder = new TransactionMapBuilder();
-//			for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
-//				final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
-//				transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
-//					@Override
-//					public void run() {
-//						target.getTransactionFactory().executeOnRoot(new PropogationContext(), new AddThenBindAndOutputTransaction(
-//							livePanel.getTransactionFactory().getModelLocation(),
-//							selection.getTransactionFactory().getModelLocation(), 
-//							target.getTransactionFactory().getModelLocation(), 
-//							new PrimitiveSingletonFactory(primImpl), 
-//							dropBoundsOnTarget
-//						));
-//					}
-//				});
-//			}
-//			transactionObserverMapBuilder.addTransaction("Cons", transactionObserverContentMapBuilder);
-//			transactionObserverMapBuilder.appendTo(popup, runner, "Observation");
-//		}
-		
 		transactionSelectionGeneralMapBuilder.addTransaction("Inject", new Runnable() {
 			@Override
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
-//				connection.execute(propCtx, new DualCommandFactory<Model>() {
-//					@Override
-//					public void createDualCommands(
-//							List<DualCommand<Model>> dualCommands) {
-//						dualCommands.add(new DualCommandPair<Model>(
-//							new InjectTransaction(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
-//							new DejectTransaction(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
-//						));
-//
-//						dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation())); // Absolute location
-//					}
-//				});
-				
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(
@@ -216,8 +146,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
-		PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
-//		connection.rollback(propCtx);
 		branch.reject();
 	}
 }

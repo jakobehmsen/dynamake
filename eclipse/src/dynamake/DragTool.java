@@ -52,15 +52,12 @@ public class DragTool implements Tool {
 		}
 	}
 	
-//	private PrevaylerServiceConnection<Model> connection;
 	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-//			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
 			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
-//			productionPanel.livePanel.getTransactionFactory().beginTransaction();
 			
 			PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 			
