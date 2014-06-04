@@ -88,16 +88,12 @@ public class EditTool implements Tool {
 
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e) {
-//		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
-//		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
-//		ModelComponent targetModelComponent =  productionPanel.editPanelMouseAdapter.closestModelComponent(target);
-
-//		if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != productionPanel.contentView.getBindingTarget()) {
-		
-//		if(e.getButton() == MouseEvent.BUTTON1 && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 		if(viewPressedOn != null) {
 			viewPressedOn = null;
 			productionPanel.editPanelMouseAdapter.selectionMouseDown = null;
+			
+			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+			branch.close();
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.effectFrame.getBounds())) {
 				final TransactionFactory selectionTransactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
@@ -112,7 +108,7 @@ public class EditTool implements Tool {
 					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
 					final ModelComponent targetOver = productionPanel.editPanelMouseAdapter.targetOver;
 					
-					connection.execute(new PropogationContext(), new DualCommandFactory<Model>() {
+					branchStep2.execute(new PropogationContext(), new DualCommandFactory<Model>() {
 						public DualCommand<Model> createDualCommand() {
 							Location livePanelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
 							Location canvasSourceLocation = selection.getTransactionFactory().getParent().getModelLocation();
@@ -156,26 +152,11 @@ public class EditTool implements Tool {
 					JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
 					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
 					
-//					@SuppressWarnings("unchecked")
-//					Command<Model> changeBoundsTransaction = new Model.CompositeTransaction((Command<Model>[])new Command<?>[] {
-//						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", new Fraction(newBounds.x)),
-//						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", new Fraction(newBounds.y)),
-//						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", new Fraction(newBounds.width)),
-//						new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", new Fraction(newBounds.height))
-//					});
-//					transactionFactory.executeOnRoot(new PropogationContext(), changeBoundsTransaction);
-//					
-//					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new PropogationContext(), new Model.SetPropertyOnRootTransaction(
-//						transactionFactory.getModelLocation(), 
-//						"SelectionEffectBounds", 
-//						productionPanel.effectFrame.getBounds())
-//					);
-					
 					PropogationContext propCtx = new PropogationContext();
 					
 					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
 					
-					connection.execute(propCtx, new DualCommandFactory<Model>() {
+					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(
 								List<DualCommand<Model>> dualCommands) {
@@ -227,13 +208,16 @@ public class EditTool implements Tool {
 				productionPanel.editPanelMouseAdapter.clearTarget();
 			}
 			
-			PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-			connection.commit(propCtx);
+			branchStep2.close();
+			
+//			PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+//			connection.commit(propCtx);
 		}
 	}
 	
 	private ModelComponent viewPressedOn;
-	private PrevaylerServiceConnection<Model> connection;
+//	private PrevaylerServiceConnection<Model> connection;
+	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
@@ -244,12 +228,14 @@ public class EditTool implements Tool {
 		if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			if(targetModelComponent != null) {
 				viewPressedOn = targetModelComponent;
-				connection = productionPanel.livePanel.getTransactionFactory().createConnection();
+				branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+//				connection = productionPanel.livePanel.getTransactionFactory().createConnection();
+				PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 				
 				if(productionPanel.editPanelMouseAdapter.output != null) {
 					PropogationContext propCtx = new PropogationContext();
 					
-					connection.execute(propCtx, new DualCommandFactory<Model>() {
+					branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
 						public DualCommand<Model> createDualCommand() {
 							ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 							return new DualCommandPair<Model>(
@@ -267,8 +253,10 @@ public class EditTool implements Tool {
 				}
 				
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, connection);
+				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
 				productionPanel.livePanel.repaint();
+				
+				branchStep1.close();
 			}
 		}
 	}
