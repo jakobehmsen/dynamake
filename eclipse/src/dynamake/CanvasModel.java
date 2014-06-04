@@ -114,14 +114,14 @@ public class CanvasModel extends Model {
 		
 		private Location canvasSourceLocation;
 		private Location canvasTargetLocation;
-		private Location modelLocation;
+		private int indexInSource;
 		private int indexInTarget;
 
 		public MoveModel2Transaction(Location canvasSourceLocation,
-				Location canvasTargetLocation, Location modelLocation, int indexInTarget) {
+				Location canvasTargetLocation, int indexInSource, int indexInTarget) {
 			this.canvasSourceLocation = canvasSourceLocation;
 			this.canvasTargetLocation = canvasTargetLocation;
-			this.modelLocation = modelLocation;
+			this.indexInSource = indexInSource;
 			this.indexInTarget = indexInTarget;
 		}
 
@@ -132,7 +132,7 @@ public class CanvasModel extends Model {
 				PrevaylerServiceBranch<Model> branch) {
 			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(prevalentSystem);
 			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(prevalentSystem);
-			Model model = (Model)modelLocation.getChild(prevalentSystem);
+			Model model = (Model)canvasSource.getModel(indexInSource);
 			
 			PrevaylerServiceBranch<Model> removeBranch = branch.branch();
 			PrevaylerServiceBranch<Model> addBranch = branch.branch();

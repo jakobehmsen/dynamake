@@ -486,7 +486,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			this.propCtx = propCtx;
 		}
 		
-		public void commit(final PropogationContext propCtx) {
+		private void commit(final PropogationContext propCtx) {
 			prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -544,19 +544,13 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		private void absorbBranch(final Branch<T> branch) {
-//			this.prevaylerService.transactionExecutor.execute(new Runnable() {
-//				@Override
-//				public void run() {
-//					System.out.println("absorb@absorbBranch(" + branch + ")");
-					absorbedBranches.add(branch);
+			absorbedBranches.add(branch);
 
-					if(isClosed) {
-//						System.out.println("checkAbsorbed@absorbBranch");
-						checkAbsorbed();
-					}
-//					System.out.println("Absorb branch performed");
-//				}
-//			});
+			if(isClosed) {
+//				System.out.println("checkAbsorbed@absorbBranch");
+				checkAbsorbed();
+			}
+//			System.out.println("Absorb branch performed");
 		}
 		
 		private void checkAbsorbed() {
@@ -580,11 +574,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				@Override
 				public void run() {
 //					System.out.println("reject do");
-					
-//					if(parent != null)
-//						parent.reject();
-//					else
-//						rejectDownwards();
 					rejectSync();
 				}
 			});
@@ -620,38 +609,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				}
 			});
 		}
-		
-//		@Override
-//		public PrevaylerServiceBranch<T> branch(final PropogationContext propCtx,
-//				final PrevaylerServiceBranchCreator<T> branchCreator) {
-//			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, continuation);
-//			
-//			this.prevaylerService.transactionExecutor.execute(new Runnable() {
-//				@Override
-//				public void run() {
-////					System.out.println("Added branch (" + Branch.this.branches.size() + ")");
-//					if(!rejected) {
-//						// Only branch if not rejected
-//						Branch.this.branches.add(branch);
-//						branchCreator.create(new PrevaylerServiceBranchCreation<T>() {
-//							@Override
-//							public void create(DualCommand<T> transaction, PrevaylerServiceBranchContinuation<T> continuation) {
-//								branch.transaction = transaction;
-//								branch.continuation = continuation;
-//								
-//								// Start collecting branches
-//								transaction.executeForwardOn(propCtx, branch.prevaylerService.prevalentSystem(), null, null, branch);
-//								
-//								// Start collected branches
-//								branch.created = true;
-//							}
-//						});
-//					}
-//				}
-//			});
-//			
-//			return branch;
-//		}
 		
 		@Override
 		public PrevaylerServiceBranch<T> branch() {
@@ -702,9 +659,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						flushBranches();
 						
 						isClosed = true;
-
-//						System.out.println("checkAbsorbed@close");
-//						checkAbsorbed();
 					}
 				}
 			});
@@ -712,36 +666,68 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		
 		private void flushBranches() {
 			for(final Branch<T> branch: branches) {
-//				Branch.this.prevaylerService.transactionExecutor.execute(new Runnable() {
-//					@Override
-//					public void run() {
-						if(branch.transactionFactory != null) {
-							ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
-							branch.transactionFactory.createDualCommands(dualCommands);
-							@SuppressWarnings("unchecked")
-							DualCommand<T>[] dualCommandArray = dualCommands.toArray(new DualCommand[dualCommands.size()]);
-							
-							DualCommandSequence<T> transaction = new DualCommandSequence<T>(dualCommandArray);
-							branch.transaction = transaction;
-							
-							for(DualCommand<T> t: dualCommands) {
-								final Branch<T> b = (Branch<T>)branch.branch();
-								t.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, b);
-								b.close();
-							}
-							
-							branch.close();
-							
-							branch.prevaylerService.transactionExecutor.execute(new Runnable() {
-								@Override
-								public void run() {
-									// Is there a scenario where branch is absorbed before this point?
-									branch.checkAbsorbed();
+				if(branch.transactionFactory != null) {
+					ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
+					branch.transactionFactory.createDualCommands(dualCommands);
+					@SuppressWarnings("unchecked")
+					DualCommand<T>[] dualCommandArray = dualCommands.toArray(new DualCommand[dualCommands.size()]);
+					
+					DualCommandSequence<T> transaction = new DualCommandSequence<T>(dualCommandArray);
+					branch.transaction = transaction;
+					
+					for(DualCommand<T> t: dualCommands) {
+						final Branch<T> b = (Branch<T>)branch.branch();
+						t.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, b);
+						
+						b.prevaylerService.transactionExecutor.execute(new Runnable() {
+							@Override
+							public void run() {
+								b.flushBranches();
+								
+								b.isClosed = true;
+								
+								if(b.branches.size() > 0) {
+									boolean hasExecutions = false;
+									
+									for(final Branch<T> branch: b.branches) {
+										if(branch.transactionFactory != null) {
+											hasExecutions = true;
+											break;
+										}
+									}
+									
+									if(!hasExecutions)
+										b.checkAbsorbed();
 								}
-							});
+							}
+						});
+						
+//						b.close();
+					}
+					
+					branch.prevaylerService.transactionExecutor.execute(new Runnable() {
+						@Override
+						public void run() {
+							branch.flushBranches();
+							branch.isClosed = true;
+							
+							// Is there a scenario where branch is absorbed before this point?
+							// Shouldn't be possible, since the branch isn't closed
+							branch.checkAbsorbed();
 						}
-//					}
-//				});
+					});
+					
+//					branch.close();
+//					
+//					branch.prevaylerService.transactionExecutor.execute(new Runnable() {
+//						@Override
+//						public void run() {
+//							// Is there a scenario where branch is absorbed before this point?
+//							// Shouldn't be possible, since the branch isn't closed?
+//							branch.checkAbsorbed();
+//						}
+//					});
+				}
 			}
 		}
 
