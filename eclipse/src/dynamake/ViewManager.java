@@ -12,7 +12,7 @@ public interface ViewManager {
 	void refresh(ModelComponent view);
 	void wasCreated(ModelComponent view);
 	Tool[] getTools();
-	void unFocus(PropogationContext propCtx, ModelComponent view);
+	void unFocus(PropogationContext propCtx, ModelComponent view, PrevaylerServiceBranch<Model> branch);
 	void becameVisible(ModelComponent view);
 	void becameInvisible(PropogationContext propCtx, ModelComponent view);
 }

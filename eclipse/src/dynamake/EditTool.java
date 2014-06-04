@@ -170,6 +170,8 @@ public class EditTool implements Tool {
 							
 							Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
 							
+							productionPanel.editPanelMouseAdapter.createSelectCommands(null, null, false, null, dualCommands);
+							
 							dualCommands.add(new DualCommandPair<Model>(
 								new CanvasModel.MoveModel2Transaction(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
 								new CanvasModel.MoveModel2Transaction(canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource)

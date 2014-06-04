@@ -128,6 +128,7 @@ public class LiveModel extends Model {
 		
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+			System.out.println("SetSelection");
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
@@ -553,35 +554,85 @@ public class LiveModel extends Model {
 					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							final LiveModel liveModel = productionPanel.livePanel.model;
-							final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
-								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", liveModel.getProperty("SelectionInitialMouseDown"))
-							));
-							dualCommands.add(new DualCommandPair<Model>(
-								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
-								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
-							));
-							dualCommands.add(new DualCommandPair<Model>(
-								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
-								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
-							));
-							
-							Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
-									? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
-							Location selectionLocation = view.getTransactionFactory().getModelLocation();
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new SetSelection(liveModelLocation, selectionLocation), 
-								new SetSelection(liveModelLocation, currentSelectionLocation)
-							));
+							createSelectCommands(view, initialMouseDown, moving, effectBounds, dualCommands);
+//							final LiveModel liveModel = productionPanel.livePanel.model;
+//							final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
+//							
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
+//								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", liveModel.getProperty("SelectionInitialMouseDown"))
+//							));
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
+//								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
+//							));
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
+//								new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
+//							));
+//							
+//							Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
+//									? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
+//							Location selectionLocation = view != null ? view.getTransactionFactory().getModelLocation() : null;
+//							
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new SetSelection(liveModelLocation, selectionLocation), 
+//								new SetSelection(liveModelLocation, currentSelectionLocation)
+//							));
 							
 //							System.out.println("select do");
 						}
 					});
 				}
+			}
+			
+			public void createSelectCommands(final ModelComponent view, final Point initialMouseDown, final boolean moving, final Rectangle effectBounds, List<DualCommand<Model>> dualCommands) {
+				final LiveModel liveModel = productionPanel.livePanel.model;
+				final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
+				
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", liveModel.getProperty("SelectionInitialMouseDown"))
+//				));
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
+//				));
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
+//				));
+//				
+//				Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
+//						? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
+//				Location selectionLocation = view != null ? view.getTransactionFactory().getModelLocation() : null;
+//				
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new SetSelection(liveModelLocation, selectionLocation), 
+//					new SetSelection(liveModelLocation, currentSelectionLocation)
+//				));
+				
+				Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
+						? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
+				Location selectionLocation = view != null ? view.getTransactionFactory().getModelLocation() : null;
+				
+				dualCommands.add(new DualCommandPair<Model>(
+					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
+					new SetSelection(liveModelLocation, currentSelectionLocation)
+				));
+				dualCommands.add(new DualCommandPair<Model>(
+					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
+					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
+				));
+				dualCommands.add(new DualCommandPair<Model>(
+					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
+					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
+				));
+				
+				dualCommands.add(new DualCommandPair<Model>(
+					new SetSelection(liveModelLocation, selectionLocation), 
+					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", liveModel.getProperty("SelectionInitialMouseDown"))
+				));
 			}
 			
 			private static class SetSelectionAndLocalsTransaction implements Command<Model> {
@@ -1068,9 +1119,12 @@ public class LiveModel extends Model {
 				public void setFocus(JComponent component) { }
 				
 				@Override
-				public void unFocus(PropogationContext propCtx, ModelComponent view) {
-					if(productionPanel.editPanelMouseAdapter.selection == view)
-						productionPanel.clearFocus();
+				public void unFocus(PropogationContext propCtx, ModelComponent view, PrevaylerServiceBranch<Model> branch) {
+					if(productionPanel.editPanelMouseAdapter.selection == view) {
+//						productionPanel.clearFocus();
+						
+						productionPanel.editPanelMouseAdapter.requestSelect(null, null, false, null, branch);
+					}
 				}
 				
 				@Override

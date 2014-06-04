@@ -787,6 +787,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				}
 				
 				if(branchCount == 0) {
+					// Probably, each route of logic should be responsible for absorbtion
 					this.absorb();
 				}
 			}

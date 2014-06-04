@@ -220,7 +220,7 @@ public class Main {
 				}
 
 				@Override
-				public void unFocus(PropogationContext propCtx, ModelComponent view) {
+				public void unFocus(PropogationContext propCtx, ModelComponent view, PrevaylerServiceBranch<Model> branch) {
 					// TODO Auto-generated method stub
 					
 				}

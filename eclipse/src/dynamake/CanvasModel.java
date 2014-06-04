@@ -687,7 +687,7 @@ public class CanvasModel extends Model {
 								
 								view.shownModels.remove(sender);
 								view.remove((JComponent)modelView.getBindingTarget());
-								viewManager.unFocus(propCtx, modelView.getBindingTarget());
+								viewManager.unFocus(propCtx, modelView.getBindingTarget(), branch);
 								viewManager.becameInvisible(propCtx, modelView.getBindingTarget());
 								viewManager.refresh(view);
 							}
@@ -754,6 +754,7 @@ public class CanvasModel extends Model {
 					removableListener.releaseBinding();
 					
 					viewManager.becameInvisible(propCtx, removedMC);
+					viewManager.unFocus(propCtx, removedMC, branch);
 					
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
@@ -761,7 +762,6 @@ public class CanvasModel extends Model {
 							view.remove((JComponent)removedMC);
 							view.validate();
 							view.repaint();
-							viewManager.unFocus(propCtx, removedMC);
 							viewManager.repaint(view);
 						}
 					});
