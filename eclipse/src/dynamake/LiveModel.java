@@ -822,8 +822,8 @@ public class LiveModel extends Model {
 				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new TellDragDropPopupBuilder(branch));
 			}
 
-			public void showPopupForSelectionView(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceConnection<Model> connection) {
-				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ViewDragDropPopupBuilder(connection));
+			public void showPopupForSelectionView(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceBranch<Model> branch) {
+				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ViewDragDropPopupBuilder(branch));
 			}
 			
 			private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, final DragDropPopupBuilder popupBuilder) {
@@ -1317,9 +1317,6 @@ public class LiveModel extends Model {
 							ModelLocation modelLocation = locator.locate();
 							Location modelComponentLocation = modelLocation.getModelComponentLocation();
 							final ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
-//							final Point initialMouseDown = (Point)propCtx.lookup("SelectionInitialMouseDown");
-//							final boolean moving = (boolean)propCtx.lookup("SelectionMoving");
-//							final Rectangle effectBounds = (Rectangle)propCtx.lookup("SelectionEffectBounds");
 							final Point initialMouseDown = selectionChanged.selectionInitialMouseDown;
 							final boolean moving = selectionChanged.selectionMoving;
 							final Rectangle effectBounds = selectionChanged.selectionEffectBounds;
@@ -1329,15 +1326,16 @@ public class LiveModel extends Model {
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
-//									productionPanel.editPanelMouseAdapter.select(view, initialMouseDown, moving, effectBounds);
 									productionPanel.livePanel.repaint();
 								}
 							});
 						} else {
+							productionPanel.editPanelMouseAdapter.select(null, null, false, null);
+							
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
-									productionPanel.editPanelMouseAdapter.select(null, null, false, null);
+									productionPanel.livePanel.repaint();
 								}
 							});
 						}

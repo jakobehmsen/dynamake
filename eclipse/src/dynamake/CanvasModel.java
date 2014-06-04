@@ -448,6 +448,8 @@ public class CanvasModel extends Model {
 							int indexOfModel = model.indexOfModel(child.getModelBehind());
 							Location canvasLocation = transactionFactory.getModelLocation();
 							
+							// TODO: Clear the current selection which is, here, assumed to the child
+							
 							// TODO: Make the backward transaction
 							// The removed model should probably be reconstructed
 							// The direct structure (clone isolated) (without observers and observees) could probably be used

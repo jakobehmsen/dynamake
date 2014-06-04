@@ -104,6 +104,8 @@ public abstract class Model implements Serializable, Observer {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
+			System.out.println("Setting " + name + " to " + value);
+			
 //			if(!propCtx.isTagged(LiveModel.TAG_CAUSED_BY_REDO) && !propCtx.isTagged(LiveModel.TAG_CAUSED_BY_UNDO)) {
 //				Object currentValue = model.getProperty(name);
 //				propCtx.collectBackwardTransaction(new SetPropertyOnRootTransaction(modelLocation, name, currentValue));

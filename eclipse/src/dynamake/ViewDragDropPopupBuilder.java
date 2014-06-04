@@ -9,10 +9,10 @@ import javax.swing.JPopupMenu;
 import dynamake.LiveModel.LivePanel;
 
 public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
-	private PrevaylerServiceConnection<Model> connection;
+	private PrevaylerServiceBranch<Model> branch;
 	
-	public ViewDragDropPopupBuilder(PrevaylerServiceConnection<Model> connection) {
-		this.connection = connection;
+	public ViewDragDropPopupBuilder(PrevaylerServiceBranch<Model> branch) {
+		this.branch = branch;
 	}
 
 	@Override
@@ -24,8 +24,9 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run(Runnable runnable) {
 				runnable.run();
 				
-				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-				connection.commit(propCtx);
+//				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+//				connection.commit(propCtx);
+				branch.close();
 			}
 		};
 		
@@ -36,7 +37,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
 				
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
+				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
@@ -60,18 +61,24 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
 				
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
+				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;
+						
+						// If the model is going to be hidden after the change, clear the current selection
+						ModelComponent container = ModelComponent.Util.getParent(selection);
+						if(!container.getModelBehind().conformsToView(Model.VIEW_ENGINEERING)) {
+							((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.createSelectCommands(null, null, false, null, dualCommands);
+						}
+						
 						dualCommands.add(new DualCommandPair<Model>(
 							new Model.SetPropertyOnRootTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
 							new Model.SetPropertyOnRootTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_VIEW, currentView)
 						));
 
-						ModelComponent container = ModelComponent.Util.getParent(selection);
 						if(container.getModelBehind().conformsToView(Model.VIEW_ENGINEERING))
 							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, selection.getTransactionFactory().getModelLocation())); // Absolute location
 					}
