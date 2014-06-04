@@ -37,41 +37,47 @@ public class BindTool implements Tool {
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(releasePoint);
 			final ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			
+			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+			branch.close();
+			
 			if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
-//				targetModelComponent.getTransactionFactory().executeOnRoot(new PropogationContext(), new DualCommandFactory<Model>() {
-				connection.execute(new PropogationContext(), new DualCommandFactory<Model>() {
-					public DualCommand<Model> createDualCommand() {
-						Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
-						ModelComponent output = productionPanel.editPanelMouseAdapter.output;
-						Location outputLocation = null;
-						if(output != null)
-							outputLocation = output.getTransactionFactory().getModelLocation();
-						
-						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
-							return new DualCommandPair<Model>(
-								new Model.RemoveObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()),
-								new SetOutputThenAddObserver(liveModelLocation, outputLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation())
-							);
-						} else {
-							return new DualCommandPair<Model>(
-								new Model.AddObserverThenOutputObserver(liveModelLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation()),
-								new SetOutputThenRemoveObserver(liveModelLocation, outputLocation, productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation(), targetModelComponent.getTransactionFactory().getModelLocation())
-							);
+				if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
+					PropogationContext propCtx = new PropogationContext();
+					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+						@Override
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
+							Location observerLocation = targetModelComponent.getTransactionFactory().getModelLocation();
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
+								new Model.AddObserver(observableLocation, observerLocation) // Absolute location
+							));
+							
+							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, observerLocation)); // Absolute location
 						}
-					}
-					
-					@Override
-					public void createDualCommands(
-							List<DualCommand<Model>> dualCommands) {
-						dualCommands.add(createDualCommand());
-					}
-				});
+					});
+				} else {
+					PropogationContext propCtx = new PropogationContext();
+					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+						@Override
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
+							Location observerLocation = targetModelComponent.getTransactionFactory().getModelLocation();
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.AddObserver(observableLocation, observerLocation), // Absolute location
+								new Model.RemoveObserver(observableLocation, observerLocation) // Absolute location
+							));
+							
+							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, observerLocation)); // Absolute location
+						}
+					});
+				}
 				
-				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-				connection.commit(propCtx);
+				branchStep2.close();
 			} else {
-				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
-				connection.rollback(propCtx);
+				branchStep2.reject();
 			}
 
 			productionPanel.editPanelMouseAdapter.resetEffectFrame();
@@ -84,17 +90,19 @@ public class BindTool implements Tool {
 		}
 	}
 	
-	private PrevaylerServiceConnection<Model> connection;
+	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
+			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+			
+			PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
 
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
+				branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
 						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 						return new DualCommandPair<Model>(
@@ -116,9 +124,11 @@ public class BindTool implements Tool {
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			if(targetModelComponent != null) {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, connection);
+				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
 				productionPanel.livePanel.repaint();
 			}
+			
+			branchStep1.close();
 		}
 	}
 
