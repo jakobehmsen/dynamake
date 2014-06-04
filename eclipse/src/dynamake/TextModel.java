@@ -171,7 +171,7 @@ public class TextModel extends Model {
 		}
 
 		@Override
-		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, final PrevaylerServiceBranch<Model> branch) {
 			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, connection, branch);
 			
 			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
@@ -183,8 +183,8 @@ public class TextModel extends Model {
 				public void run(final Color color) {
 					PropogationContext propCtx = new PropogationContext();
 					
-					PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
-					connection.execute(propCtx, new DualCommandFactory<Model>() {
+//					PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
+					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							dualCommands.add(new DualCommandPair<Model>(
@@ -195,7 +195,7 @@ public class TextModel extends Model {
 							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, transactionFactory.getModelLocation())); // Absolute location
 						}
 					});
-					connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
+//					connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
 				}
 			}));
 		}
