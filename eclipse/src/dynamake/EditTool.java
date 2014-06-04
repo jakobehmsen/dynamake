@@ -187,7 +187,7 @@ public class EditTool implements Tool {
 								new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "Y", selection.getModelBehind().getProperty("Y"))
 							));
 							
-							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, modelLocation));
+							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, modelLocationAfterMove));
 						}
 					});
 				} else {
