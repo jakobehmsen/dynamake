@@ -340,7 +340,14 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-		branch.absorb();
+//		branch.absorb();
+		absorbChange(branch);
+	}
+	
+	public void absorbChange(PrevaylerServiceBranch<Model> branch) {
+		PrevaylerServiceBranch<Model> innerBranch = branch.branch();
+		innerBranch.close();
+		innerBranch.absorb();
 	}
 	
 	public static class CompositeTransaction implements Command<Model> {
