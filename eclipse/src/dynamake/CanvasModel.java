@@ -18,6 +18,8 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingUtilities;
 
+import dynamake.LiveModel.LivePanel;
+
 public class CanvasModel extends Model {
 	/**
 	 * 
@@ -436,12 +438,12 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, final ModelComponent child, final PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				TransactionMapBuilder transactions, final ModelComponent child, final PrevaylerServiceConnection<Model> connection, final PrevaylerServiceBranch<Model> branch) {
 			transactions.addTransaction("Remove", new Runnable() {
 				@Override
 				public void run() {
 					PropogationContext propCtx = new PropogationContext();
-					connection.execute(propCtx, new DualCommandFactory<Model>() {
+					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						public DualCommand<Model> createDualCommand() {
 							int indexOfModel = model.indexOfModel(child.getModelBehind());
 							Location canvasLocation = transactionFactory.getModelLocation();
@@ -563,6 +565,49 @@ public class CanvasModel extends Model {
 			
 			visitAction.run(this);
 		}
+	}
+	
+	public static void appendMoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent source, ModelComponent target, final Point moveLocation) {
+		Location canvasSourceLocation = source.getTransactionFactory().getParent().getModelLocation();
+		ModelLocation canvasTargetLocation = target.getTransactionFactory().getModelLocation();
+		
+		int indexTarget = ((CanvasModel)target.getModelBehind()).getModelCount();
+		CanvasModel sourceCanvas = (CanvasModel)ModelComponent.Util.getParent(source).getModelBehind();
+		int indexSource = sourceCanvas.indexOfModel(source.getModelBehind());
+		CanvasModel targetCanvas = (CanvasModel)target.getModelBehind();
+		
+		ModelLocation canvasTargetLocationAfter;
+		int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
+		if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
+			// If target canvas is contained with the source canvas, then special care needs to be taken as
+			// to predicting the location of target canvas after the move has taken place:
+			// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
+			int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
+			canvasTargetLocationAfter = source.getTransactionFactory().getParent().extendLocation(new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
+		} else {
+			canvasTargetLocationAfter = canvasTargetLocation;
+		}
+		
+		Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
+		
+		livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, null, false, null, dualCommands);
+		
+		dualCommands.add(new DualCommandPair<Model>(
+			new CanvasModel.MoveModel2Transaction(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
+			new CanvasModel.MoveModel2Transaction(canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource)
+		));
+		
+		dualCommands.add(new DualCommandPair<Model>(
+			new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "X", new Fraction(moveLocation.x)), 
+			new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "X", source.getModelBehind().getProperty("X"))
+		));
+		
+		dualCommands.add(new DualCommandPair<Model>(
+			new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
+			new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "Y", source.getModelBehind().getProperty("Y"))
+		));
+		
+		dualCommands.add(LiveModel.SetOutput.createDual(livePanel, modelLocationAfterMove));
 	}
 	
 	public static class IndexLocator implements ModelLocator {

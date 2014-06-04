@@ -109,85 +109,10 @@ public class EditTool implements Tool {
 					final ModelComponent targetOver = productionPanel.editPanelMouseAdapter.targetOver;
 					
 					branchStep2.execute(new PropogationContext(), new DualCommandFactory<Model>() {
-//						public DualCommand<Model> createDualCommand() {
-//							Location livePanelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
-//							Location canvasSourceLocation = selection.getTransactionFactory().getParent().getModelLocation();
-//							Location canvasTargetLocation = targetOver.getTransactionFactory().getModelLocation();
-//							Location modelLocation = selection.getTransactionFactory().getModelLocation();
-//							
-//							int indexTarget = ((CanvasModel)targetOver.getModelBehind()).getModelCount();
-//							CanvasModel sourceCanvas = (CanvasModel)ModelComponent.Util.getParent(selection).getModelBehind();
-//							int indexSource = sourceCanvas.indexOfModel(selection.getModelBehind());
-//							CanvasModel targetCanvas = (CanvasModel)targetOver.getModelBehind();
-//							
-//							Location canvasTargetLocationAfter;
-//							int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
-//							if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
-//								// If target canvas is contained with the source canvas, then special care needs to be taken as
-//								// to predicting the location of target canvas after the move has taken place:
-//								// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
-//								int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
-//								canvasTargetLocationAfter = selectionTransactionFactory.getParent().extendLocation(new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
-//							} else {
-//								canvasTargetLocationAfter = canvasTargetLocation;
-//							}
-//							
-//							Fraction x = (Fraction)selection.getModelBehind().getProperty("X");
-//							Fraction y = (Fraction)selection.getModelBehind().getProperty("Y");
-//							
-//							return new DualCommandPair<Model>(
-//								new MoveModelTransaction(livePanelLocation, canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true), 
-//								new SetOutputMoveModelTransaction(livePanelLocation, canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource, x, y));
-//						}
-						
 						@Override
 						public void createDualCommands(
 								List<DualCommand<Model>> dualCommands) {
-//							dualCommands.add(createDualCommand());
-							
-//							Location livePanelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
-							Location canvasSourceLocation = selection.getTransactionFactory().getParent().getModelLocation();
-							ModelLocation canvasTargetLocation = targetOver.getTransactionFactory().getModelLocation();
-							Location modelLocation = selection.getTransactionFactory().getModelLocation();
-							
-							int indexTarget = ((CanvasModel)targetOver.getModelBehind()).getModelCount();
-							CanvasModel sourceCanvas = (CanvasModel)ModelComponent.Util.getParent(selection).getModelBehind();
-							int indexSource = sourceCanvas.indexOfModel(selection.getModelBehind());
-							CanvasModel targetCanvas = (CanvasModel)targetOver.getModelBehind();
-//							Location modelLocationAfterMove = targetOver.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(indexTarget));
-							
-							ModelLocation canvasTargetLocationAfter;
-							int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
-							if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
-								// If target canvas is contained with the source canvas, then special care needs to be taken as
-								// to predicting the location of target canvas after the move has taken place:
-								// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
-								int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
-								canvasTargetLocationAfter = selectionTransactionFactory.getParent().extendLocation(new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
-							} else {
-								canvasTargetLocationAfter = canvasTargetLocation;
-							}
-							
-							Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
-							
-							productionPanel.editPanelMouseAdapter.createSelectCommands(null, null, false, null, dualCommands);
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new CanvasModel.MoveModel2Transaction(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
-								new CanvasModel.MoveModel2Transaction(canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource)
-							));
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "X", new Fraction(droppedBounds.x)), 
-								new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "X", selection.getModelBehind().getProperty("X"))
-							));
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "Y", new Fraction(droppedBounds.y)), 
-								new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "Y", selection.getModelBehind().getProperty("Y"))
-							));
-							
-							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, modelLocationAfterMove));
+							CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, selection, targetOver, droppedBounds.getLocation());
 						}
 					});
 				} else {
