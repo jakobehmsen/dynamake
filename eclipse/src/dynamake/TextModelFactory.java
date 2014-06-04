@@ -20,7 +20,8 @@ public class TextModelFactory implements Factory {
 		Fraction fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(new Fraction(creationBounds.height, 20));
 //		Fraction fontSize = 12 * 40 creationBounds.height;
-		model.setProperty("FontSize", fontSize, propCtx, propDistance, connection, branch);
+		PrevaylerServiceBranch<Model> setFontSizeBranch = branch.isolatedBranch();
+		model.setProperty("FontSize", fontSize, propCtx, propDistance, connection, setFontSizeBranch);
 		return model;
 	}
 }

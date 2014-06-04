@@ -267,8 +267,20 @@ public class TextModel extends Model {
 			documentInsert(offs, str, a);
 			
 			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_VIEW);
-			PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
-			connection.execute(propCtx, new DualCommandFactory<Model>() {
+//			PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
+//			connection.execute(propCtx, new DualCommandFactory<Model>() {
+//				@Override
+//				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//					dualCommands.add(new DualCommandPair<Model>(
+//						new InsertTransaction(transactionFactory.getModelLocation(), offs, str), 
+//						new RemoveTransaction(transactionFactory.getModelLocation(), offs, offs + str.length())
+//					));
+//				}
+//			});
+//			connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
+			
+			PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
+			branch.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 					dualCommands.add(new DualCommandPair<Model>(
@@ -277,7 +289,7 @@ public class TextModel extends Model {
 					));
 				}
 			});
-			connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
+			branch.close();
 		}
 		
 		public void documentInsert(int offs, String str, AttributeSet a) throws BadLocationException {
@@ -292,8 +304,21 @@ public class TextModel extends Model {
 			final int end = offs + len;
 			
 			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_VIEW);
-			PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
-			connection.execute(propCtx, new DualCommandFactory<Model>() {
+//			PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
+//			connection.execute(propCtx, new DualCommandFactory<Model>() {
+//				@Override
+//				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//					String removedText = model.text.substring(start, end);
+//					dualCommands.add(new DualCommandPair<Model>(
+//						new RemoveTransaction(transactionFactory.getModelLocation(), start, end), 
+//						new InsertTransaction(transactionFactory.getModelLocation(), start, removedText)
+//					));
+//				}
+//			});
+//			connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
+			
+			PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
+			branch.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 					String removedText = model.text.substring(start, end);
@@ -303,7 +328,7 @@ public class TextModel extends Model {
 					));
 				}
 			});
-			connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
+			branch.close();
 		}
 		
 		public void documentRemove(int offs, int len) throws BadLocationException {
