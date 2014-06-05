@@ -100,11 +100,12 @@ public abstract class Model implements Serializable, Observer {
 			this.name = name;
 			this.value = value;
 		}
+		
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-			System.out.println("Setting " + name + " to " + value);
+//			System.out.println("Setting " + name + " to " + value);
 			
 //			if(!propCtx.isTagged(LiveModel.TAG_CAUSED_BY_REDO) && !propCtx.isTagged(LiveModel.TAG_CAUSED_BY_UNDO)) {
 //				Object currentValue = model.getProperty(name);
@@ -112,6 +113,14 @@ public abstract class Model implements Serializable, Observer {
 //			}
 			
 			model.setProperty(name, value, propCtx, 0, connection, branch);
+		}
+		
+		public static DualCommand<Model> createDual(Model model, String name, Object value) {
+			Location modelLocation = model.getLocator().locate();
+			return new DualCommandPair<Model>(
+				new SetPropertyOnRootTransaction(modelLocation, name, value), 
+				new SetPropertyOnRootTransaction(modelLocation, name, model.getProperty(name))
+			);
 		}
 	}
 	
@@ -1090,6 +1099,53 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		
+	}
+	
+	public void appendScale(final Rectangle newBounds, List<DualCommand<Model>> dualCommands) {
+		Fraction currentWidth = (Fraction)getProperty("Width");
+		Fraction currentHeight = (Fraction)getProperty("Height");
+		
+		dualCommands.add(SetPropertyOnRootTransaction.createDual(Model.this, "X", new Fraction(newBounds.x)));
+		dualCommands.add(SetPropertyOnRootTransaction.createDual(Model.this, "Y", new Fraction(newBounds.y)));
+		dualCommands.add(SetPropertyOnRootTransaction.createDual(Model.this, "Width", new Fraction(newBounds.width)));
+		dualCommands.add(SetPropertyOnRootTransaction.createDual(Model.this, "Height", new Fraction(newBounds.height)));
+//		setProperty("X", new Fraction(newBounds.x), propCtx, propDistance, connection, branch);
+//		setProperty("Y", new Fraction(newBounds.y), propCtx, propDistance, connection, branch);
+//		setProperty("Width", new Fraction(newBounds.width), propCtx, propDistance, connection, branch);
+//		setProperty("Height", new Fraction(newBounds.height), propCtx, propDistance, connection, branch);
+		
+		Fraction hChange = new Fraction(newBounds.width).divide(currentWidth);
+		Fraction vChange = new Fraction(newBounds.height).divide(currentHeight);
+
+		modelAppendScale(hChange, vChange, dualCommands);
+	}
+
+	public void appendScale(final Fraction hChange, final Fraction vChange, List<DualCommand<Model>> dualCommands) {
+//		setProperty("X", newX, propCtx, propDistance, connection, branch);
+//		setProperty("Y", newY, propCtx, propDistance, connection, branch);
+//		setProperty("Width", newWidth, propCtx, propDistance, connection, branch);
+//		setProperty("Height", newHeight, propCtx, propDistance, connection, branch);
+		
+		Fraction currentX = (Fraction)getProperty("X");
+		Fraction currentY = (Fraction)getProperty("Y");
+		Fraction currentWidth = (Fraction)getProperty("Width");
+		Fraction currentHeight = (Fraction)getProperty("Height");
+		
+		Fraction newX = currentX.multiply(hChange);
+		Fraction newY = currentY.multiply(vChange);
+		Fraction newWidth = currentWidth.multiply(hChange);
+		Fraction newHeight = currentHeight.multiply(vChange);
+		
+		dualCommands.add(SetPropertyOnRootTransaction.createDual(Model.this, "X", newX));
+		dualCommands.add(SetPropertyOnRootTransaction.createDual(Model.this, "Y", newY));
+		dualCommands.add(SetPropertyOnRootTransaction.createDual(Model.this, "Width", newWidth));
+		dualCommands.add(SetPropertyOnRootTransaction.createDual(Model.this, "Height", newHeight));
+		
+		modelAppendScale(hChange, vChange, dualCommands);
+	}
+	
+	protected void modelAppendScale(Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
 		
 	}
 }

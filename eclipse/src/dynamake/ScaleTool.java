@@ -93,6 +93,9 @@ public class ScaleTool implements Tool {
 			viewPressedOn = null;
 			productionPanel.editPanelMouseAdapter.selectionMouseDown = null;
 			
+			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+			branch.close();
+			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.effectFrame.getBounds())) {
 				final TransactionFactory selectionTransactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
 				if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
@@ -106,42 +109,11 @@ public class ScaleTool implements Tool {
 					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
 					final ModelComponent targetOver = productionPanel.editPanelMouseAdapter.targetOver;
 					
-					connection.execute(new PropogationContext(), new DualCommandFactory<Model>() {
-						public DualCommand<Model> createDualCommand() {
-							Location livePanelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
-							Location canvasSourceLocation = selection.getTransactionFactory().getParent().getModelLocation();
-							Location canvasTargetLocation = targetOver.getTransactionFactory().getModelLocation();
-							Location modelLocation = selection.getTransactionFactory().getModelLocation();
-							
-							int indexTarget = ((CanvasModel)targetOver.getModelBehind()).getModelCount();
-							CanvasModel sourceCanvas = (CanvasModel)ModelComponent.Util.getParent(selection).getModelBehind();
-							int indexSource = sourceCanvas.indexOfModel(selection.getModelBehind());
-							CanvasModel targetCanvas = (CanvasModel)targetOver.getModelBehind();
-							
-							Location canvasTargetLocationAfter;
-							int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
-							if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
-								// If target canvas is contained with the source canvas, then special care needs to be taken as
-								// to predicting the location of target canvas after the move has taken place:
-								// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
-								int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
-								canvasTargetLocationAfter = selectionTransactionFactory.getParent().extendLocation(new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
-							} else {
-								canvasTargetLocationAfter = canvasTargetLocation;
-							}
-							
-							Fraction x = (Fraction)selection.getModelBehind().getProperty("X");
-							Fraction y = (Fraction)selection.getModelBehind().getProperty("Y");
-							
-							return new DualCommandPair<Model>(
-								new MoveModelTransaction(livePanelLocation, canvasSourceLocation, canvasTargetLocation, modelLocation, droppedBounds.getLocation(), true), 
-								new SetOutputMoveModelTransaction(livePanelLocation, canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource, x, y));
-						}
-						
+					branchStep2.execute(new PropogationContext(), new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(
 								List<DualCommand<Model>> dualCommands) {
-							dualCommands.add(createDualCommand());
+							CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, selection, targetOver, droppedBounds.getLocation());
 						}
 					});
 				} else {
@@ -154,46 +126,10 @@ public class ScaleTool implements Tool {
 					
 					PropogationContext propCtx = new PropogationContext();
 					
-					connection.execute(propCtx, new DualCommandFactory<Model>() {
+					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							final ArrayList<Command<Model>> scaleUndoCommands = new ArrayList<Command<Model>>();
-							
-							selection.visitTree(new Action1<ModelComponent>() {
-								@Override
-								public void run(ModelComponent modelComponent) {
-									scaleUndoCommands.add(new SetPropertyOnRootTransaction(
-										modelComponent.getTransactionFactory().getModelLocation(),
-										"X",
-										modelComponent.getModelBehind().getProperty("X")
-									));
-									scaleUndoCommands.add(new SetPropertyOnRootTransaction(
-										modelComponent.getTransactionFactory().getModelLocation(),
-										"Y",
-										modelComponent.getModelBehind().getProperty("Y")
-									));
-									scaleUndoCommands.add(new SetPropertyOnRootTransaction(
-										modelComponent.getTransactionFactory().getModelLocation(),
-										"Width",
-										modelComponent.getModelBehind().getProperty("Width")
-									));
-									scaleUndoCommands.add(new SetPropertyOnRootTransaction(
-											modelComponent.getTransactionFactory().getModelLocation(),
-										"Height",
-										modelComponent.getModelBehind().getProperty("Height")
-									));
-								}
-							});
-							
-							@SuppressWarnings("unchecked")
-							Command<Model>[] scaleUndoCommandArray = (Command<Model>[])new Command<?>[scaleUndoCommands.size()];
-							scaleUndoCommands.toArray(scaleUndoCommandArray);
-							Command<Model> scaleUndoCommand = new CompositeCommand<Model>(scaleUndoCommandArray);
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new ScaleTransaction(selectionTransactionFactory.getModelLocation(), newBounds),
-								scaleUndoCommand
-							));
+							selection.getModelBehind().appendScale(newBounds, dualCommands);
 							
 							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, selectionTransactionFactory.getModelLocation())); // Absolute location
 						}
@@ -207,13 +143,16 @@ public class ScaleTool implements Tool {
 				productionPanel.editPanelMouseAdapter.clearTarget();
 			}
 			
-			PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-			connection.commit(propCtx);
+			branchStep2.close();
+			
+//			PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
+//			connection.commit(propCtx);
 		}
 	}
 	
 	private ModelComponent viewPressedOn;
-	private PrevaylerServiceConnection<Model> connection;
+//	private PrevaylerServiceConnection<Model> connection;
+	private PrevaylerServiceBranch<Model> branch;
 	
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
@@ -224,12 +163,14 @@ public class ScaleTool implements Tool {
 		if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			if(targetModelComponent != null) {
 				viewPressedOn = targetModelComponent;
-				connection = productionPanel.livePanel.getTransactionFactory().createConnection();
+				branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+//				connection = productionPanel.livePanel.getTransactionFactory().createConnection();
+				PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 				
 				if(productionPanel.editPanelMouseAdapter.output != null) {
 					PropogationContext propCtx = new PropogationContext();
 					
-					connection.execute(propCtx, new DualCommandFactory<Model>() {
+					branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
 						public DualCommand<Model> createDualCommand() {
 							ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
 							return new DualCommandPair<Model>(
@@ -247,8 +188,10 @@ public class ScaleTool implements Tool {
 				}
 				
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, connection);
+				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
 				productionPanel.livePanel.repaint();
+				
+				branchStep1.close();
 			}
 		}
 	}

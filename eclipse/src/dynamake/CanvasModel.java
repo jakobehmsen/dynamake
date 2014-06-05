@@ -53,6 +53,13 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
+	protected void modelAppendScale(Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
+		for(Model model: models) {
+			model.appendScale(hChange, vChange, dualCommands);
+		}
+	}
+	
+	@Override
 	public Model modelCloneIsolated() {
 		ArrayList<Model> clonedModels = new ArrayList<Model>();
 		
