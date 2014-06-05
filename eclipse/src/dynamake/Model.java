@@ -1064,43 +1064,43 @@ public abstract class Model implements Serializable, Observer {
 		return view >= value;
 	}
 	
-	public void scale(Rectangle newBounds, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-		Fraction currentWidth = (Fraction)getProperty("Width");
-		Fraction currentHeight = (Fraction)getProperty("Height");
-		
-		setProperty("X", new Fraction(newBounds.x), propCtx, propDistance, connection, branch);
-		setProperty("Y", new Fraction(newBounds.y), propCtx, propDistance, connection, branch);
-		setProperty("Width", new Fraction(newBounds.width), propCtx, propDistance, connection, branch);
-		setProperty("Height", new Fraction(newBounds.height), propCtx, propDistance, connection, branch);
-		
-		Fraction hChange = new Fraction(newBounds.width).divide(currentWidth);
-		Fraction vChange = new Fraction(newBounds.height).divide(currentHeight);
-
-		modelScale(hChange, vChange, propCtx, propDistance, connection, branch);
-	}
-
-	public void scale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-		Fraction currentX = (Fraction)getProperty("X");
-		Fraction currentY = (Fraction)getProperty("Y");
-		Fraction currentWidth = (Fraction)getProperty("Width");
-		Fraction currentHeight = (Fraction)getProperty("Height");
-		
-		Fraction newX = currentX.multiply(hChange);
-		Fraction newY = currentY.multiply(vChange);
-		Fraction newWidth = currentWidth.multiply(hChange);
-		Fraction newHeight = currentHeight.multiply(vChange);
-
-		setProperty("X", newX, propCtx, propDistance, connection, branch);
-		setProperty("Y", newY, propCtx, propDistance, connection, branch);
-		setProperty("Width", newWidth, propCtx, propDistance, connection, branch);
-		setProperty("Height", newHeight, propCtx, propDistance, connection, branch);
-		
-		modelScale(hChange, vChange, propCtx, propDistance, connection, branch);
-	}
-	
-	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-		
-	}
+//	public void scale(Rectangle newBounds, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+//		Fraction currentWidth = (Fraction)getProperty("Width");
+//		Fraction currentHeight = (Fraction)getProperty("Height");
+//		
+//		setProperty("X", new Fraction(newBounds.x), propCtx, propDistance, connection, branch);
+//		setProperty("Y", new Fraction(newBounds.y), propCtx, propDistance, connection, branch);
+//		setProperty("Width", new Fraction(newBounds.width), propCtx, propDistance, connection, branch);
+//		setProperty("Height", new Fraction(newBounds.height), propCtx, propDistance, connection, branch);
+//		
+//		Fraction hChange = new Fraction(newBounds.width).divide(currentWidth);
+//		Fraction vChange = new Fraction(newBounds.height).divide(currentHeight);
+//
+//		modelScale(hChange, vChange, propCtx, propDistance, connection, branch);
+//	}
+//
+//	public void scale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+//		Fraction currentX = (Fraction)getProperty("X");
+//		Fraction currentY = (Fraction)getProperty("Y");
+//		Fraction currentWidth = (Fraction)getProperty("Width");
+//		Fraction currentHeight = (Fraction)getProperty("Height");
+//		
+//		Fraction newX = currentX.multiply(hChange);
+//		Fraction newY = currentY.multiply(vChange);
+//		Fraction newWidth = currentWidth.multiply(hChange);
+//		Fraction newHeight = currentHeight.multiply(vChange);
+//
+//		setProperty("X", newX, propCtx, propDistance, connection, branch);
+//		setProperty("Y", newY, propCtx, propDistance, connection, branch);
+//		setProperty("Width", newWidth, propCtx, propDistance, connection, branch);
+//		setProperty("Height", newHeight, propCtx, propDistance, connection, branch);
+//		
+//		modelScale(hChange, vChange, propCtx, propDistance, connection, branch);
+//	}
+//	
+//	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+//		
+//	}
 	
 	public void appendScale(final Rectangle newBounds, List<DualCommand<Model>> dualCommands) {
 		Fraction currentWidth = (Fraction)getProperty("Width");

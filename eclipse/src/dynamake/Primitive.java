@@ -278,14 +278,26 @@ public class Primitive extends Model {
 		this.implementation = implementation;
 	}
 	
+//	@Override
+//	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+//		Fraction fontSize = (Fraction)getProperty("FontSize");
+//		if(fontSize == null)
+//			fontSize = new Fraction(12);
+////		fontSize = fontSize * hChange.floatValue();
+//		fontSize = fontSize.multiply(hChange);
+//		setProperty("FontSize", fontSize, propCtx, propDistance, connection, branch);
+//	}
+	
 	@Override
-	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	protected void modelAppendScale(Fraction hChange, Fraction vChange,
+			List<DualCommand<Model>> dualCommands) {
 		Fraction fontSize = (Fraction)getProperty("FontSize");
 		if(fontSize == null)
 			fontSize = new Fraction(12);
 //		fontSize = fontSize * hChange.floatValue();
 		fontSize = fontSize.multiply(hChange);
-		setProperty("FontSize", fontSize, propCtx, propDistance, connection, branch);
+		
+		dualCommands.add(SetPropertyOnRootTransaction.createDual(this, "FontSize", fontSize));
 	}
 	
 	@Override

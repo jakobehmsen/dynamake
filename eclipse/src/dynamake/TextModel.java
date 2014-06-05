@@ -21,6 +21,7 @@ import javax.swing.text.PlainDocument;
 import org.prevayler.Transaction;
 
 import dynamake.Model.RemovableListener;
+import dynamake.Model.SetPropertyOnRootTransaction;
 
 public class TextModel extends Model {
 	public static final String PROPERTY_CARET_COLOR = "Caret Color";
@@ -38,13 +39,24 @@ public class TextModel extends Model {
 		return clone;
 	}
 	
+//	@Override
+//	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+//		Fraction fontSize = (Fraction)getProperty("FontSize");
+//		if(fontSize == null)
+//			fontSize = new Fraction(12);
+//		fontSize = fontSize.multiply(hChange);
+//		setProperty("FontSize", fontSize, propCtx, propDistance, connection, branch);
+//	}
+	
 	@Override
-	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	protected void modelAppendScale(Fraction hChange, Fraction vChange,
+			List<DualCommand<Model>> dualCommands) {
 		Fraction fontSize = (Fraction)getProperty("FontSize");
 		if(fontSize == null)
 			fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(hChange);
-		setProperty("FontSize", fontSize, propCtx, propDistance, connection, branch);
+		
+		dualCommands.add(SetPropertyOnRootTransaction.createDual(this, "FontSize", fontSize));
 	}
 	
 	public void setText(String text) {

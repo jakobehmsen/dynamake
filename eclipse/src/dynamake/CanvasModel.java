@@ -45,12 +45,12 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	@Override
-	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-		for(Model model: models) {
-			model.scale(hChange, vChange, propCtx, propDistance, connection, branch);
-		}
-	}
+//	@Override
+//	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+//		for(Model model: models) {
+//			model.scale(hChange, vChange, propCtx, propDistance, connection, branch);
+//		}
+//	}
 	
 	@Override
 	protected void modelAppendScale(Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
