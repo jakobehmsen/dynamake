@@ -1149,7 +1149,7 @@ public class LiveModel extends Model {
 
 		@Override
 		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection);
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection, branch);
 		}
 
 		@Override

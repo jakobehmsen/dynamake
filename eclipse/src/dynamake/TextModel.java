@@ -214,7 +214,7 @@ public class TextModel extends Model {
 		
 		@Override
 		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection);
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection, branch);
 			
 //			if(target.getModelBehind() instanceof CanvasModel) {
 //				transactions.addTransaction("For new button", new Runnable() {

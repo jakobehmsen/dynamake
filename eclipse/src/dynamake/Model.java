@@ -900,14 +900,14 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void appendGeneralDroppedTransactions(final ModelComponent livePanel,
-			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, final PrevaylerServiceConnection<Model> connection) {
+			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, final PrevaylerServiceConnection<Model> connection, final PrevaylerServiceBranch<Model> branch) {
 		if(target.getModelBehind() instanceof CanvasModel) {
 			transactions.addTransaction("Clone Isolated", new Runnable() {
 				@Override
 				public void run() {
 					final Rectangle creationBounds = droppedBounds;
 
-					connection.execute(new PropogationContext(), new DualCommandFactory<Model>() {
+					branch.execute(new PropogationContext(), new DualCommandFactory<Model>() {
 						public DualCommand<Model> createDualCommand() {
 							int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
 							ModelComponent output = ((LiveModel.LivePanel)livePanel).productionPanel.editPanelMouseAdapter.output;
@@ -945,7 +945,7 @@ public abstract class Model implements Serializable, Observer {
 					final Rectangle creationBounds = droppedBounds;
 					
 					PropogationContext propCtx = new PropogationContext();
-					connection.execute(propCtx, new DualCommandFactory<Model>() {
+					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
@@ -953,7 +953,7 @@ public abstract class Model implements Serializable, Observer {
 							Location targetCanvasLocation = target.getTransactionFactory().getModelLocation();
 							Factory factory = new CloneDeepFactory(dropped.getTransactionFactory().getModelLocation());
 							dualCommands.add(new DualCommandPair<Model>(
-								new CanvasModel.AddModelTransaction(targetCanvasLocation, creationBounds, factory),
+								new CanvasModel.AddModel2Transaction(targetCanvasLocation, creationBounds, factory),
 								new CanvasModel.RemoveModelTransaction(targetCanvasLocation, cloneIndex)
 							));
 							
