@@ -79,14 +79,20 @@ public class BindTool implements Tool {
 			} else {
 				branchStep2.reject();
 			}
-
-			productionPanel.editPanelMouseAdapter.resetEffectFrame();
-
-			if(productionPanel.targetFrame != null)
-				productionPanel.remove(productionPanel.targetFrame);
 			
 			productionPanel.editPanelMouseAdapter.targetOver = null;
-			productionPanel.livePanel.repaint();
+
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					productionPanel.editPanelMouseAdapter.resetEffectFrame();
+
+					if(productionPanel.targetFrame != null)
+						productionPanel.remove(productionPanel.targetFrame);
+					
+					productionPanel.livePanel.repaint();
+				}
+			});
 		}
 	}
 	
@@ -125,7 +131,13 @@ public class BindTool implements Tool {
 			if(targetModelComponent != null) {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
-				productionPanel.livePanel.repaint();
+				
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						productionPanel.livePanel.repaint();
+					}
+				});
 			}
 			
 			branchStep1.close();
@@ -137,33 +149,44 @@ public class BindTool implements Tool {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null && productionPanel.editPanelMouseAdapter.effectFrameMoving) {
 			Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
-			ModelComponent newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(newTargetOver);
+			final ModelComponent newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(newTargetOver);
 			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
 				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
-				if(productionPanel.targetFrame != null)
-					productionPanel.remove(productionPanel.targetFrame);
+				if(productionPanel.targetFrame != null) {
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							productionPanel.remove(productionPanel.targetFrame);
+						}
+					});
+				}
 				
 				if(newTargetOverComponent != null && newTargetOverComponent != productionPanel.editPanelMouseAdapter.selection) {
 					productionPanel.targetFrame = new JPanel();
-					Color color = 
+					final Color color = 
 						productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(newTargetOverComponent.getModelBehind()) ? ProductionPanel.UNBIND_COLOR
 						: ProductionPanel.BIND_COLOR;
 
-					productionPanel.targetFrame.setBorder(
-						BorderFactory.createCompoundBorder(
-							BorderFactory.createLineBorder(Color.BLACK, 1), 
-							BorderFactory.createCompoundBorder(
-								BorderFactory.createLineBorder(color, 3), 
-								BorderFactory.createLineBorder(Color.BLACK, 1)
-							)
-						)
-					);
-					
-					Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
-						((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), productionPanel);
-					productionPanel.targetFrame.setBounds(targetFrameBounds);
-					productionPanel.targetFrame.setBackground(new Color(0, 0, 0, 0));
-					productionPanel.add(productionPanel.targetFrame);
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							productionPanel.targetFrame.setBorder(
+								BorderFactory.createCompoundBorder(
+									BorderFactory.createLineBorder(Color.BLACK, 1), 
+									BorderFactory.createCompoundBorder(
+										BorderFactory.createLineBorder(color, 3), 
+										BorderFactory.createLineBorder(Color.BLACK, 1)
+									)
+								)
+							);
+							
+							Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
+								((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), productionPanel);
+							productionPanel.targetFrame.setBounds(targetFrameBounds);
+							productionPanel.targetFrame.setBackground(new Color(0, 0, 0, 0));
+							productionPanel.add(productionPanel.targetFrame);
+						}
+					});
 				}
 			}
 			
