@@ -908,33 +908,19 @@ public abstract class Model implements Serializable, Observer {
 					final Rectangle creationBounds = droppedBounds;
 
 					branch.execute(new PropogationContext(), new DualCommandFactory<Model>() {
-						public DualCommand<Model> createDualCommand() {
-							int addIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
-							ModelComponent output = ((LiveModel.LivePanel)livePanel).productionPanel.editPanelMouseAdapter.output;
-							Location outputLocation = null;
-							if(output != null)
-								outputLocation = output.getTransactionFactory().getModelLocation();
-
-							return new DualCommandPair<Model>(
-								new AddThenOutputTransaction(
-									livePanel.getTransactionFactory().getModelLocation(), 
-									target.getTransactionFactory().getModelLocation(), 
-									creationBounds, 
-									new CloneIsolatedFactory(dropped.getTransactionFactory().getModelLocation())
-								), 
-								new SetOutputThenRemoveAtTransaction(
-									((LiveModel.LivePanel)livePanel).getTransactionFactory().getModelLocation(), 
-									outputLocation, 
-									target.getTransactionFactory().getModelLocation(), 
-									addIndex
-								)
-							);
-						}
-						
 						@Override
 						public void createDualCommands(
 								List<DualCommand<Model>> dualCommands) {
-							dualCommands.add(createDualCommand());
+							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
+							Location cloneLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(cloneIndex));
+							Location targetCanvasLocation = target.getTransactionFactory().getModelLocation();
+							Factory factory = new CloneIsolatedFactory(dropped.getTransactionFactory().getModelLocation());
+							dualCommands.add(new DualCommandPair<Model>(
+								new CanvasModel.AddModel2Transaction(targetCanvasLocation, creationBounds, factory),
+								new CanvasModel.RemoveModelTransaction(targetCanvasLocation, cloneIndex)
+							));
+							
+							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, cloneLocation)); // Absolute location
 						}
 					});
 				}
