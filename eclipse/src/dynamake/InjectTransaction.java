@@ -22,5 +22,7 @@ public class InjectTransaction implements Command<Model> {
 		Model target = (Model)targetLocation.getChild(prevalentSystem);
 		
 		source.inject(target);
+		
+		branch.absorb();
 	}
 }
