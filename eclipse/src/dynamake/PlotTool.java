@@ -16,10 +16,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import dynamake.CanvasModel.IndexLocation;
 import dynamake.LiveModel.ProductionPanel;
 import dynamake.LiveModel.SetOutput;
-import dynamake.LiveModel.ProductionPanel.EditPanelMouseAdapter;
 
 public class PlotTool implements Tool {
 	@Override
@@ -106,8 +104,13 @@ public class PlotTool implements Tool {
 							branchStep2.close();
 							branch.close();
 
-							productionPanel.editPanelMouseAdapter.resetEffectFrame();
-							productionPanel.livePanel.repaint();
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									productionPanel.editPanelMouseAdapter.resetEffectFrame();
+									productionPanel.livePanel.repaint();
+								}
+							});
 						}
 					}
 				});
@@ -150,8 +153,13 @@ public class PlotTool implements Tool {
 							branchStep2.close();
 							branch.close();
 
-							productionPanel.editPanelMouseAdapter.resetEffectFrame();
-							productionPanel.livePanel.repaint();
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									productionPanel.editPanelMouseAdapter.resetEffectFrame();
+									productionPanel.livePanel.repaint();
+								}
+							});
 						}
 					}
 				});
@@ -174,8 +182,8 @@ public class PlotTool implements Tool {
 				
 				@Override
 				public void popupMenuCanceled(PopupMenuEvent e) {
-					System.out.println("Cancel popup");
-					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
+//					System.out.println("Cancel popup");
+//					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
 					branch.reject();
 				}
 			});
@@ -218,7 +226,13 @@ public class PlotTool implements Tool {
 //				System.out.println("selectFromEmpty");
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, branchStep1);
-				productionPanel.livePanel.repaint();
+				
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						productionPanel.livePanel.repaint();
+					}
+				});
 			} else {
 				productionPanel.editPanelMouseAdapter.selectionMouseDown = e.getPoint();
 			}
