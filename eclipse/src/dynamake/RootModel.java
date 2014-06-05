@@ -158,51 +158,38 @@ public class RootModel extends Model {
 			mouseIsDown = false;
 			
 			PropogationContext propCtx = new PropogationContext();
-			PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
+			PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
 			
-			if(newLocation != null) {
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
-					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+			branch.execute(propCtx, new DualCommandFactory<Model>() {
+				@Override
+				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					if(newLocation != null) {
 						dualCommands.add(new DualCommandPair<Model>(
 							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", newLocation.x),
 							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", rootModel.getProperty("X"))
 						));
-					}
-				});
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
-					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						
 						dualCommands.add(new DualCommandPair<Model>(
 							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", newLocation.y),
 							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", rootModel.getProperty("Y"))
 						));
 					}
-				});
-			}
-			
-			if(newSize != null) {
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
-					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					
+					if(newSize != null) {
 						dualCommands.add(new DualCommandPair<Model>(
 							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", newSize.width),
 							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", rootModel.getProperty("Width"))
 						));
-					}
-				});
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
-					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+
 						dualCommands.add(new DualCommandPair<Model>(
 							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", newSize.height),
 							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", rootModel.getProperty("Height"))
 						));
 					}
-				});
-			}
+				}
+			});
 			
-			connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
+			branch.close();
 		}
 		
 		@Override
@@ -321,7 +308,6 @@ public class RootModel extends Model {
 				PropogationContext propCtx = new PropogationContext();
 
 				final int newState = e.getNewState();
-//				PrevaylerServiceConnection<Model> connection = view.getTransactionFactory().createConnection();
 				PrevaylerServiceBranch<Model> branch = view.getTransactionFactory().createBranch();
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
@@ -339,7 +325,6 @@ public class RootModel extends Model {
 						dualCommands.add(createDualCommand());
 					}
 				});
-//				connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
 				branch.close();
 			}
 		});
