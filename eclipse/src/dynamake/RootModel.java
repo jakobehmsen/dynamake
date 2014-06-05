@@ -321,8 +321,9 @@ public class RootModel extends Model {
 				PropogationContext propCtx = new PropogationContext();
 
 				final int newState = e.getNewState();
-				PrevaylerServiceConnection<Model> connection = view.getTransactionFactory().createConnection();
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
+//				PrevaylerServiceConnection<Model> connection = view.getTransactionFactory().createConnection();
+				PrevaylerServiceBranch<Model> branch = view.getTransactionFactory().createBranch();
+				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
 						Location modelLocation = transactionFactory.getModelLocation();
 						Integer currentState = (Integer)RootModel.this.getProperty("State");
@@ -338,7 +339,8 @@ public class RootModel extends Model {
 						dualCommands.add(createDualCommand());
 					}
 				});
-				connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
+//				connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
+				branch.close();
 			}
 		});
 		
