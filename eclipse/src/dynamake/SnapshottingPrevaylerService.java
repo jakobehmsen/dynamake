@@ -343,6 +343,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		private void commit(final PropogationContext propCtx) {
+			System.out.println("Commit branch");
+			
 			prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -383,15 +385,18 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				return transactionList.get(0);
 			return null;
 		}
+		
+		private boolean isAbsorbed;
 
 		@Override
 		public void absorb() {
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					if(parent != null)
+					if(parent != null) {
 						parent.absorbBranch(Branch.this);
-					else {
+						isAbsorbed = true;
+					} else {
 						// Every effect has been absorbed
 						commit(null);
 					}
@@ -469,7 +474,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		@Override
 		public PrevaylerServiceBranch<T> branch() {
 			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, null);
-//			branch.isClosed = true;
 			
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
@@ -494,7 +498,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void execute(final PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
 			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, null);
 			branch.transactionFactory = transactionFactory;
-//			branch.isClosed = true;
 			
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
@@ -543,17 +546,24 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 								b.isClosed = true;
 								
 								if(b.branches.size() > 0) {
-									boolean hasExecutions = false;
-									
-									for(final Branch<T> branch: b.branches) {
-										if(branch.transactionFactory != null) {
-											hasExecutions = true;
-											break;
-										}
-									}
-									
-									if(!hasExecutions)
+									// Branch may have been absorbed at this point
+									if(!b.isAbsorbed) {
 										b.checkAbsorbed();
+//										System.out.println("absorb b");
+									}
+//									boolean hasExecutions = false;
+//									
+//									for(final Branch<T> branch: b.branches) {
+//										if(branch.transactionFactory != null) {
+//											hasExecutions = true;
+//											break;
+//										}
+//									}
+//									
+//									if(!hasExecutions) {
+////										b.checkAbsorbed();
+//										System.out.println("Previously checked absorbtion here!!!");
+//									}
 								}
 							}
 						});
@@ -572,17 +582,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 							branch.checkAbsorbed();
 						}
 					});
-					
-//					branch.close();
-//					
-//					branch.prevaylerService.transactionExecutor.execute(new Runnable() {
-//						@Override
-//						public void run() {
-//							// Is there a scenario where branch is absorbed before this point?
-//							// Shouldn't be possible, since the branch isn't closed?
-//							branch.checkAbsorbed();
-//						}
-//					});
 				}
 			}
 		}

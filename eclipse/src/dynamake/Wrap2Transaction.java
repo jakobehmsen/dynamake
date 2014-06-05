@@ -40,8 +40,10 @@ public class Wrap2Transaction implements Command<Model> {
 		for(Model model: models) {
 			PrevaylerServiceBranch<Model> removeBranch = branch.branch();
 			PrevaylerServiceBranch<Model> addBranch = branch.branch();
+			
 			target.removeModel(model, propCtx, 0, removeBranch);
 			wrapper.addModel(model, propCtx, 0, addBranch);
+			
 			removeBranch.close();
 			addBranch.close();
 		}
