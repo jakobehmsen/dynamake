@@ -747,33 +747,33 @@ public abstract class Model implements Serializable, Observer {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 				PropogationContext propCtx = new PropogationContext();
-				PrevaylerServiceConnection<Model> connection = view.getTransactionFactory().createConnection();
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
+				PrevaylerServiceBranch<Model> branch = view.getTransactionFactory().createBranch();
+				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
 							new MouseUpTransaction(view.getTransactionFactory().getModelLocation()), 
-							null
+							new MouseUpTransaction(view.getTransactionFactory().getModelLocation())
 						));
 					}
 				});
-				connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
+				branch.close();
 			}
 			
 			@Override
 			public void mousePressed(MouseEvent arg0) {
 				PropogationContext propCtx = new PropogationContext();
-				PrevaylerServiceConnection<Model> connection = view.getTransactionFactory().createConnection();
-				connection.execute(propCtx, new DualCommandFactory<Model>() {
+				PrevaylerServiceBranch<Model> branch = view.getTransactionFactory().createBranch();
+				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
 							new MouseDownTransaction(view.getTransactionFactory().getModelLocation()), 
-							null
+							new MouseDownTransaction(view.getTransactionFactory().getModelLocation())
 						));
 					}
 				});
-				connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT)); // TODO: Should be implicit instead
+				branch.close();
 			}
 			
 			@Override
