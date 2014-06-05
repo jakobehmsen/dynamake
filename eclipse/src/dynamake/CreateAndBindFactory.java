@@ -23,8 +23,8 @@ public class CreateAndBindFactory implements Factory {
 	}
 	
 	@Override
-	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-		Model createdModel = (Model)factory.create(rootModel, creationBounds, arguments, propCtx, propDistance, connection, branch);
+	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+		Model createdModel = (Model)factory.create(rootModel, creationBounds, arguments, propCtx, propDistance, branch);
 		Model modelToBindTo = (Model)locationOfModelToBindTo.getChild(rootModel);
 		modelToBindTo.addObserver(createdModel);
 		return createdModel;

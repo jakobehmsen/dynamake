@@ -3,7 +3,7 @@ package dynamake;
 public class ObserverAdapter implements Observer {
 	@Override
 	public void changed(Model sender, Object change,
-		PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) { }
+		PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) { }
 
 	@Override
 	public void addObservee(Observer observee) { }

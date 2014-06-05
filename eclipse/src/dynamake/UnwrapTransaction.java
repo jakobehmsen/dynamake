@@ -25,7 +25,7 @@ public class UnwrapTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 		
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
@@ -42,20 +42,20 @@ public class UnwrapTransaction implements Command<Model> {
 		for(int i = 0; i < models.length; i++) {
 			Model model = models[i];
 //			int modelIndex = modelIndexes[i];
-			wrapper.removeModel(model, propCtx, 0, connection, branch);
+			wrapper.removeModel(model, propCtx, 0, branch);
 //			target.addModel(modelIndex, model, propCtx, 0);
 		}
 
 		// Removed wrapper from target
-		target.removeModel(wrapper, propCtx, 0, connection, branch);
+		target.removeModel(wrapper, propCtx, 0, branch);
 
 		// Offset the coordinates of the moved models
 		for(Model model: models) {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
 			
-			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, connection, branch);
-			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, connection, branch);
+			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, branch);
+			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, branch);
 		}
 		
 		// Move models from wrapper to target
@@ -63,15 +63,15 @@ public class UnwrapTransaction implements Command<Model> {
 			Model model = models[i];
 			int modelIndex = modelIndexes[i];
 //			wrapper.removeModel(model, propCtx, 0);
-			target.addModel(modelIndex, model, propCtx, 0, connection, branch);
+			target.addModel(modelIndex, model, propCtx, 0, branch);
 		}
 		
 		// Set output
 		if(outputLocation != null) {
 			Model output = (Model)outputLocation.getChild(prevalentSystem);
-			liveModel.setOutput(output, propCtx, 0, connection, branch);
+			liveModel.setOutput(output, propCtx, 0, branch);
 		} else {
-			liveModel.setOutput(null, propCtx, 0, connection, branch);
+			liveModel.setOutput(null, propCtx, 0, branch);
 		}
 	}
 }

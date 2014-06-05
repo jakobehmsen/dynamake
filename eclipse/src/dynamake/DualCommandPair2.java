@@ -16,14 +16,14 @@ public class DualCommandPair2<T> implements DualCommand<T> {
 	}
 
 	@Override
-	public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceConnection<T> connection, PrevaylerServiceBranch<T> branch) {
+	public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) {
 		for(Command<T> forward: forwardTransactions)
-			forward.executeOn(propCtx, prevalentSystem, executionTime, connection, branch);
+			forward.executeOn(propCtx, prevalentSystem, executionTime, branch);
 	}
 
 	@Override
-	public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceConnection<T> connection, PrevaylerServiceBranch<T> branch) {
+	public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) {
 		for(Command<T> backward: backwardTransactions)
-			backward.executeOn(propCtx, prevalentSystem, executionTime, connection, branch);
+			backward.executeOn(propCtx, prevalentSystem, executionTime, branch);
 	}
 }

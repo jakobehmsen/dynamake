@@ -43,10 +43,10 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		
 		TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
 		if(parentModelComponent != null)
-			parentModelComponent.appendContainerTransactions(containerTransactionMapBuilder, selection, null, branch);
+			parentModelComponent.appendContainerTransactions(containerTransactionMapBuilder, selection, branch);
 
 		TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
-		selection.appendTransactions(livePanel, transactionSelectionMapBuilder, null, branch);
+		selection.appendTransactions(livePanel, transactionSelectionMapBuilder, branch);
 
 		containerTransactionMapBuilder.appendTo(popup, runner, "Container");
 		if(!containerTransactionMapBuilder.isEmpty() && !transactionSelectionMapBuilder.isEmpty())
@@ -130,7 +130,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		});
 
 		TransactionMapBuilder transactionTargetMapBuilder = new TransactionMapBuilder();
-		target.appendDropTargetTransactions(livePanel, selection, dropBoundsOnTarget, dropPointOnTarget, transactionTargetMapBuilder, null, branch);
+		target.appendDropTargetTransactions(livePanel, selection, dropBoundsOnTarget, dropPointOnTarget, transactionTargetMapBuilder, branch);
 		
 		transactionSelectionGeneralMapBuilder.appendTo(popup, runner, "General");
 		if(!transactionSelectionGeneralMapBuilder.isEmpty() && !transactionTargetMapBuilder.isEmpty())
@@ -138,7 +138,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetMapBuilder.appendTo(popup, runner, "Target");
 
 		TransactionMapBuilder transactionDroppedMapBuilder = new TransactionMapBuilder();
-		selection.appendDroppedTransactions(livePanel, target, dropBoundsOnTarget, transactionDroppedMapBuilder, null, branch);
+		selection.appendDroppedTransactions(livePanel, target, dropBoundsOnTarget, transactionDroppedMapBuilder, branch);
 		if(!transactionTargetMapBuilder.isEmpty() && !transactionDroppedMapBuilder.isEmpty())
 			popup.addSeparator();
 		transactionDroppedMapBuilder.appendTo(popup, runner, "Dropped");

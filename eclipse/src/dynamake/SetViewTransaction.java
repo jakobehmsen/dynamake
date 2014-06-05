@@ -5,7 +5,6 @@ import java.util.Date;
 import org.prevayler.Transaction;
 
 public class SetViewTransaction implements Command<Model> {
-
 	/**
 	 * 
 	 */
@@ -20,15 +19,8 @@ public class SetViewTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-//		PropogationContext propCtx = new PropogationContext();
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 		Model model = (Model)modelLocation.getChild(prevalentSystem);
-		model.setView(view, propCtx, 0, 0, connection, branch);
+		model.setView(view, propCtx, 0, 0, branch);
 	}
-
-//	@Override
-//	public Command<Model> antagonist() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
 }

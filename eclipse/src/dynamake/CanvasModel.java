@@ -135,10 +135,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx,
-				Model prevalentSystem, Date executionTime,
-				PrevaylerServiceConnection<Model> connection,
-				PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(prevalentSystem);
 			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(prevalentSystem);
 			Model model = (Model)canvasSource.getModel(indexInSource);
@@ -147,9 +144,9 @@ public class CanvasModel extends Model {
 			PrevaylerServiceBranch<Model> addBranch = branch.branch();
 
 			int indexOfModel = canvasSource.indexOfModel(model);
-			canvasSource.removeModel(indexOfModel, propCtx, 0, connection, removeBranch);
+			canvasSource.removeModel(indexOfModel, propCtx, 0, removeBranch);
 			
-			canvasTarget.addModel(indexInTarget, model, propCtx, 0, connection, addBranch);
+			canvasTarget.addModel(indexInTarget, model, propCtx, 0, addBranch);
 			
 			removeBranch.close();
 			addBranch.close();
@@ -178,21 +175,21 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
 			
 			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(rootPrevalentSystem);
 			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 
-			canvasSource.removeModel(model, propCtx, 0, connection, branch);
-			model.beginUpdate(propCtx, 0, connection, branch);
-			model.setProperty("X", new Fraction(point.x), propCtx, 0, connection, branch);
-			model.setProperty("Y", new Fraction(point.y), propCtx, 0, connection, branch);
-			model.endUpdate(propCtx, 0, connection, branch);
-			canvasTarget.addModel(model, propCtx, 0, connection, branch);
+			canvasSource.removeModel(model, propCtx, 0, branch);
+			model.beginUpdate(propCtx, 0, branch);
+			model.setProperty("X", new Fraction(point.x), propCtx, 0, branch);
+			model.setProperty("Y", new Fraction(point.y), propCtx, 0, branch);
+			model.endUpdate(propCtx, 0, branch);
+			canvasTarget.addModel(model, propCtx, 0, branch);
 			if(setMovedAsOutput)
-				liveModel.setOutput(model, propCtx, 0, connection, branch);
+				liveModel.setOutput(model, propCtx, 0, branch);
 		}
 	}
 	
@@ -223,7 +220,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
 //			if(outputLocation != null) {
 //				Model output = (Model)outputLocation.getChild(rootPrevalentSystem);
@@ -238,12 +235,12 @@ public class CanvasModel extends Model {
 			
 			Model model = canvasSource.getModel(indexSource);
 
-			canvasSource.removeModel(indexSource, propCtx, 0, connection, branch);
-			model.beginUpdate(propCtx, 0, connection, branch);
-			model.setProperty("X", x, propCtx, 0, connection, branch);
-			model.setProperty("Y", y, propCtx, 0, connection, branch);
-			model.endUpdate(propCtx, 0, connection, branch);
-			canvasTarget.addModel(indexTarget, model, propCtx, 0, connection, branch);
+			canvasSource.removeModel(indexSource, propCtx, 0, branch);
+			model.beginUpdate(propCtx, 0, branch);
+			model.setProperty("X", x, propCtx, 0, branch);
+			model.setProperty("Y", y, propCtx, 0, branch);
+			model.endUpdate(propCtx, 0, branch);
+			canvasTarget.addModel(indexTarget, model, propCtx, 0, branch);
 		}
 	}
 	
@@ -275,17 +272,17 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 //			PropogationContext propCtx = new PropogationContext();
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, connection, branch);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, branch);
 
-			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, branch);
-			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, branch);
-			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection, branch);
-			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection, branch);
+			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, branch);
+			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, branch);
+			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, branch);
+			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, branch);
 			
-			canvas.addModel(model, new PropogationContext(), 0, connection, branch);
+			canvas.addModel(model, new PropogationContext(), 0, branch);
 		}
 	}
 	
@@ -314,18 +311,18 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 //			PropogationContext propCtx = new PropogationContext();
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, connection, branch);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, branch);
 
 			PrevaylerServiceBranch<Model> setPropertyBranch = branch.isolatedBranch();
-			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, setPropertyBranch);
-			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, setPropertyBranch);
-			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection, setPropertyBranch);
-			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection, setPropertyBranch);
+			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, setPropertyBranch);
+			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, setPropertyBranch);
+			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, setPropertyBranch);
+			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, setPropertyBranch);
 			
-			canvas.addModel(model, new PropogationContext(), 0, connection, branch);
+			canvas.addModel(model, new PropogationContext(), 0, branch);
 		}
 	}
 	
@@ -343,10 +340,10 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModel(index);
-			canvas.removeModel(index, propCtx, 0, connection, branch);
+			canvas.removeModel(index, propCtx, 0, branch);
 			modelToRemove.beRemoved();
 		}
 
@@ -357,36 +354,36 @@ public class CanvasModel extends Model {
 //		}
 	}
 	
-	public void addModel(Model model, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-		addModel(models.size(), model, propCtx, propDistance, connection, branch);
+	public void addModel(Model model, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+		addModel(models.size(), model, propCtx, propDistance, branch);
 	}
 
 	public Model getModel(int index) {
 		return models.get(index);
 	}
 
-	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 		models.add(index, model);
-		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, connection, branch);
+		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, branch);
 	}
 	
-	public void removeModel(Model model, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	public void removeModel(Model model, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 		int indexOfModel = indexOfModel(model);
-		removeModel(indexOfModel, propCtx, propDistance, connection, branch);
+		removeModel(indexOfModel, propCtx, propDistance, branch);
 	}
 	
-	public void removeModel(int index, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	public void removeModel(int index, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 		Model model = models.get(index);
 		models.remove(index);
-		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, connection, branch);
+		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, branch);
 	}
 	
-	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, int indexInTarget, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, int indexInTarget, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 		int indexOfModel = canvasSource.indexOfModel(model);
 		canvasSource.models.remove(indexOfModel);
-		canvasSource.sendChanged(new RemovedModelChange(indexOfModel, model), propCtx, propDistance, 0, connection, null);
+		canvasSource.sendChanged(new RemovedModelChange(indexOfModel, model), propCtx, propDistance, 0, null);
 		canvasTarget.models.add(indexInTarget, model);
-		canvasTarget.sendChanged(new AddedModelChange(indexInTarget, model), propCtx, propDistance, 0, connection, branch);
+		canvasTarget.sendChanged(new AddedModelChange(indexInTarget, model), propCtx, propDistance, 0, branch);
 	}
 	
 	public int indexOfModel(Model model) {
@@ -445,7 +442,7 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, final ModelComponent child, final PrevaylerServiceConnection<Model> connection, final PrevaylerServiceBranch<Model> branch) {
+				TransactionMapBuilder transactions, final ModelComponent child, final PrevaylerServiceBranch<Model> branch) {
 			transactions.addTransaction("Remove", new Runnable() {
 				@Override
 				public void run() {
@@ -480,17 +477,17 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, connection, branch);
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, branch);
 		}
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection, branch);
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, branch);
 		}
 		
 		@Override
 		public void appendDropTargetTransactions(final ModelComponent livePanel,
-				final ModelComponent dropped, final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions, final PrevaylerServiceConnection<Model> connection, final PrevaylerServiceBranch<Model> branch) {
+				final ModelComponent dropped, final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions, final PrevaylerServiceBranch<Model> branch) {
 			if(dropped.getTransactionFactory().getParent() != null && 
 				dropped.getTransactionFactory().getParent() != CanvasPanel.this.transactionFactory &&
 				!isContainerOf(dropped.getTransactionFactory(), this.transactionFactory) /*Dropee cannot be child of dropped*/) {
@@ -678,7 +675,7 @@ public class CanvasModel extends Model {
 			
 			@Override
 			public void changed(Model sender, Object change,
-					PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+					PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 				if(change instanceof PropertyChanged) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
 					if(propertyChanged.name.equals(Model.PROPERTY_VIEW)) {
@@ -751,7 +748,7 @@ public class CanvasModel extends Model {
 		
 		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+			public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 				if(change instanceof CanvasModel.AddedModelChange) {
 					CanvasModel.AddedModelChange addedChange = (CanvasModel.AddedModelChange)change;
 					final Model model = addedChange.model;

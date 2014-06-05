@@ -110,7 +110,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			// Should be read in chunks
 			ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
 			DualCommand<T> transaction = (DualCommand<T>)objectOutput.readObject();
-			transaction.executeForwardOn(propCtx, prevalentSystem, null, null, new IsolatedBranch<T>());
+			transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
 		}
 		
 		bufferedOutput.close();
@@ -198,12 +198,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void sendChangeToObservers(Model sender,
 				ArrayList<Observer> observers, Object change,
 				PropogationContext propCtx, int nextPropDistance,
-				int nextChangeDistance,
-				PrevaylerServiceConnection<Model> connection) {
+				int nextChangeDistance) {
 			for(Observer observer: observers) {
 				if(!(observer instanceof Model)) {
 					PropogationContext propCtxBranch = propCtx.branch();
-					observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, connection, (PrevaylerServiceBranch<Model>)this);
+					observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, (PrevaylerServiceBranch<Model>)this);
 				}
 			}
 		}
@@ -225,7 +224,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				if(transactionIndex > 0) {
 					transactionIndex--;
 					DualCommand<T> transaction = transactions.get(transactionIndex);
-					transaction.executeBackwardOn(propCtx, prevalentSystem, null, null, new IsolatedBranch<T>());
+					transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
 				}
 			}
 		});
@@ -238,7 +237,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			public void run() {
 				if(transactionIndex < transactions.size()) {
 					DualCommand<T> transaction = transactions.get(transactionIndex);
-					transaction.executeForwardOn(propCtx, prevalentSystem, null, null, new IsolatedBranch<T>());
+					transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
 					transactionIndex++;
 				}
 			}
@@ -323,149 +322,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	@Override
 	public T prevalentSystem() {
 		return prevalentSystem;
-	}
-	
-	private static class Connection<T> implements PrevaylerServiceConnection<T> {
-		private SnapshottingPrevaylerService<T> prevaylerService;
-		private ArrayList<DualCommand<T>> transactionSequence = new ArrayList<DualCommand<T>>();
-
-		public Connection(SnapshottingPrevaylerService<T> prevaylerService) {
-			this.prevaylerService = prevaylerService;
-		}
-
-		// TODO: Replace usage of execute with execute2
-		
-		@Override
-		public void execute(final PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
-			prevaylerService.transactionExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					ArrayList<DualCommand<T>> createdTransactions = new ArrayList<DualCommand<T>>();
-					transactionFactory.createDualCommands(createdTransactions);
-					
-					for(DualCommand<T> transaction: createdTransactions) {
-						transaction.executeForwardOn(propCtx, prevaylerService.prevalentSystem(), null, SnapshottingPrevaylerService.Connection.this, null);
-						transactionSequence.add(transaction);
-					}
-				}
-			});
-		}
-		
-		@Override
-		public void execute2(final PropogationContext propCtx, final DualCommandFactory2<T> transactionFactory) {
-			prevaylerService.transactionExecutor.execute(new Runnable() {
-				@SuppressWarnings("unchecked")
-				@Override
-				public void run() {
-					ArrayList<Command<T>> createdForwardTransactions = new ArrayList<Command<T>>();
-					ArrayList<Command<T>> createdBackwardTransactions = new ArrayList<Command<T>>();
-					
-					transactionFactory.createForwardTransactions(createdForwardTransactions);
-					transactionFactory.createBackwardTransactions(createdBackwardTransactions);
-					
-					for(Command<T> forward: createdForwardTransactions)
-						forward.executeOn(propCtx, prevaylerService.prevalentSystem(), null, SnapshottingPrevaylerService.Connection.this, null);
-					
-					transactionSequence.add(new DualCommandPair2<T>(
-						createdForwardTransactions.toArray((Command<T>[])new Command<?>[createdForwardTransactions.size()]),
-						createdBackwardTransactions.toArray((Command<T>[])new Command<?>[createdBackwardTransactions.size()])
-					));
-				}
-			});
-		}
-
-		@Override
-		public void commit(final PropogationContext propCtx) {
-			prevaylerService.transactionExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-//					DualCommand<T>[] transactions = (DualCommand<T>[])new DualCommand<?>[transactionSequence.size()];
-//					transactionSequence.toArray(transactions);
-//					DualCommandSequence<T> compositeTransaction = new DualCommandSequence<T>(transactions);
-//					prevaylerService.registerTransaction(compositeTransaction);
-//					prevaylerService.persistTransaction(propCtx, compositeTransaction);
-//					transactionSequence = null;
-					commit(propCtx, SnapshottingPrevaylerService.Connection.this);
-				}
-			});
-		}
-		
-		private static <T> void commit(final PropogationContext propCtx, SnapshottingPrevaylerService.Connection<T> connection) {
-			DualCommand<T>[] transactions = (DualCommand<T>[])new DualCommand<?>[connection.transactionSequence.size()];
-			connection.transactionSequence.toArray(transactions);
-			DualCommandSequence<T> compositeTransaction = new DualCommandSequence<T>(transactions);
-			connection.prevaylerService.registerTransaction(compositeTransaction);
-			connection.prevaylerService.persistTransaction(propCtx, compositeTransaction);
-			connection.transactionSequence = null;
-			
-//			if(connection.branches != null) {
-//				for(SnapshottingPrevaylerService.Connection<T> branch: connection.branches)
-//					commit(propCtx, branch);
-//			}
-		}
-
-		@Override
-		public void rollback(final PropogationContext propCtx) {
-			prevaylerService.transactionExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					// Execute in reverse order
-					for(int i = transactionSequence.size() - 1; i >= 0; i--) {
-						DualCommand<T> part = transactionSequence.get(i);
-						part.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, null, null);
-					}
-					transactionSequence = null;
-				}
-			});
-		}
-		
-//		private PrevaylerServiceConnection<T> parent;
-//		private int branchAbsorbCount;
-//		private SnapshottingPrevaylerService.Connection<T>[] branches;
-		
-//		@Override
-//		public void absorb() {
-//			if(branches != null) {
-//				int newBranchAbsorbCount;
-//				synchronized (this) {
-//					branchAbsorbCount++;
-//					newBranchAbsorbCount = branchAbsorbCount;
-//				}
-//				
-//				if(newBranchAbsorbCount == branches.length) {
-//					if(parent != null)
-//						parent.absorb();
-//					else {
-//						// Every effect has been absorbed
-//						commit(null);
-//					}
-//				}
-//			} else {
-//				if(parent != null)
-//					parent.absorb();
-//				else {
-//					// Every effect has been absorbed
-//					commit(null);
-//				}
-//			}
-//		}
-		
-//		@Override
-//		public PrevaylerServiceConnection<T>[] branch(int branchCount) {
-//			branches = (SnapshottingPrevaylerService.Connection<T>[])new SnapshottingPrevaylerService.Connection<?>[branchCount];
-//			
-//			for(int i = 0; i < branchCount; i++) {
-//				branches[i] = new SnapshottingPrevaylerService.Connection<T>(prevaylerService);
-//				branches[i].parent = this;
-//			}
-//
-//			return branches;
-//		}
-	}
-	
-	@Override
-	public PrevaylerServiceConnection<T> createConnection() {
-		return new SnapshottingPrevaylerService.Connection<T>(this);
 	}
 	
 	private static class Branch<T> implements PrevaylerServiceBranch<T> {
@@ -594,7 +450,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				branch.rejectDownwards();
 			
 			if(transaction != null)
-				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, null, isolatedBranch());
+				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, isolatedBranch());
 		}
 		
 		private ArrayList<PrevaylerServiceBranchContinuation<T>> continuations = new ArrayList<PrevaylerServiceBranchContinuation<T>>();
@@ -677,7 +533,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					
 					for(DualCommand<T> t: dualCommands) {
 						final Branch<T> b = (Branch<T>)branch.branch();
-						t.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null, b);
+						t.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, b);
 						
 						b.prevaylerService.transactionExecutor.execute(new Runnable() {
 							@Override
@@ -753,43 +609,30 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void sendChangeToObservers(Model sender,
 				ArrayList<Observer> observers, Object change,
 				PropogationContext propCtx, int nextPropDistance,
-				int nextChangeDistance,
-				PrevaylerServiceConnection<Model> connection) {
+				int nextChangeDistance) {
 			int branchCount = 0;
 			for(Observer observer: observers) {
 				if(observer instanceof Model)
 					branchCount++;
 			}
 			
-			if(connection != null) {
-				for(int i = 0; i < observers.size(); i++) {
-					Observer observer = observers.get(i);
-					PrevaylerServiceConnection<Model> connectionBranch;
-					connectionBranch = connection;
-					PropogationContext propCtxBranch = propCtx.branch();
-					observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, (PrevaylerServiceBranch<Model>)this);
-				}
-			} else if(this != null) {
-				for(int i = 0; i < observers.size(); i++) {
-					Observer observer = observers.get(i);
-					PrevaylerServiceConnection<Model> connectionBranch;
-					connectionBranch = connection;
-					PropogationContext propCtxBranch = propCtx.branch();
-					PrevaylerServiceBranch<Model> innerBranch = (PrevaylerServiceBranch<Model>)this;
-//					PrevaylerServiceBranch<Model> innerBranch;
-//					if(observer instanceof Model)
-//						innerBranch = (PrevaylerServiceBranch<Model>)this.branch();
-//					else
-//						innerBranch = (PrevaylerServiceBranch<Model>)this;
-					observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, innerBranch);
-//					if(observer instanceof Model)
-//						innerBranch.close();
-				}
-				
-				if(branchCount == 0) {
-					// Probably, each route of logic should be responsible for absorbtion
-					this.absorb();
-				}
+			for(int i = 0; i < observers.size(); i++) {
+				Observer observer = observers.get(i);
+				PropogationContext propCtxBranch = propCtx.branch();
+				PrevaylerServiceBranch<Model> innerBranch = (PrevaylerServiceBranch<Model>)this;
+//				PrevaylerServiceBranch<Model> innerBranch;
+//				if(observer instanceof Model)
+//					innerBranch = (PrevaylerServiceBranch<Model>)this.branch();
+//				else
+//					innerBranch = (PrevaylerServiceBranch<Model>)this;
+				observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, innerBranch);
+//				if(observer instanceof Model)
+//					innerBranch.close();
+			}
+			
+			if(branchCount == 0) {
+				// Probably, each route of logic should be responsible for absorbtion
+				this.absorb();
 			}
 		}
 		

@@ -51,12 +51,12 @@ public class CreationModel extends Model {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			CreationModel creation = (CreationModel)creationLocation.getChild(prevalentSystem);
 			Model argument = (Model)argumentLocation.getChild(prevalentSystem);
 //			// HACK: For now, only meta model are used as arguments
 //			argument = argument.getMetaModel();
-			creation.setArgument(parameterName, argument, new PropogationContext(), 0, connection, branch);
+			creation.setArgument(parameterName, argument, new PropogationContext(), 0, branch);
 		}
 
 //		@Override
@@ -80,7 +80,7 @@ public class CreationModel extends Model {
 		return clone;
 	}
 	
-	public void setArgument(String parameterName, Object argument, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	public void setArgument(String parameterName, Object argument, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 		int i;
 		for(i = 0; i < parameterNames.length; i++) {
 			if(parameterNames[i].equals(parameterName))
@@ -91,7 +91,7 @@ public class CreationModel extends Model {
 			return;
 		
 		argumentMap.put(parameterName, argument);
-		sendChanged(new ArgumentChanged(parameterName, argument), propCtx, propDistance, 0, connection, branch);
+		sendChanged(new ArgumentChanged(parameterName, argument), propCtx, propDistance, 0, branch);
 	}
 	
 	public boolean argumentIsSet(String parameterName) {
@@ -138,13 +138,13 @@ public class CreationModel extends Model {
 		}
 		
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
 		
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -152,14 +152,14 @@ public class CreationModel extends Model {
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
 				ModelComponent dropped, Rectangle droppedBounds,
-				Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
 		
 		@Override
 		public void appendContainerTransactions(TransactionMapBuilder transactions,
-				ModelComponent child, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				ModelComponent child, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -240,24 +240,24 @@ public class CreationModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection, branch);
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, branch);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -308,7 +308,7 @@ public class CreationModel extends Model {
 
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model arg0, Date arg1, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model arg0, Date arg1, PrevaylerServiceBranch<Model> branch) {
 //			PropogationContext propCtx = new PropogationContext();
 			
 			CreationModel creation = (CreationModel)creationLocation.getChild(arg0);
@@ -319,15 +319,15 @@ public class CreationModel extends Model {
 			Fraction width = (Fraction)creation.getProperty("Width");
 			Fraction height = (Fraction)creation.getProperty("Height");
 			
-			Model model = (Model)creation.factory.create(arg0, new Rectangle(x.intValue(), y.intValue(), width.intValue(), height.intValue()), creation.argumentMap, propCtx, 0, connection, branch);
+			Model model = (Model)creation.factory.create(arg0, new Rectangle(x.intValue(), y.intValue(), width.intValue(), height.intValue()), creation.argumentMap, propCtx, 0, branch);
 
-			model.setProperty("X", x, propCtx, 0, connection, branch);
-			model.setProperty("Y", y, propCtx, 0, connection, branch);
-			model.setProperty("Width", width, propCtx, 0, connection, branch);
-			model.setProperty("Height", height, propCtx, 0, connection, branch);
+			model.setProperty("X", x, propCtx, 0, branch);
+			model.setProperty("Y", y, propCtx, 0, branch);
+			model.setProperty("Width", width, propCtx, 0, branch);
+			model.setProperty("Height", height, propCtx, 0, branch);
 			
-			canvas.removeModel(creation, propCtx, 0, connection, branch);
-			canvas.addModel(model, propCtx, 0, connection, branch);
+			canvas.removeModel(creation, propCtx, 0, branch);
+			canvas.addModel(model, propCtx, 0, branch);
 		}
 
 //		@Override
@@ -348,7 +348,7 @@ public class CreationModel extends Model {
 		
 		final RemovableListener removableListenerForArgumentChanges = Model.RemovableListener.addObserver(this, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 				if(change instanceof CreationModel.ArgumentChanged) {
 					ArgumentChanged argumentChanged = (ArgumentChanged)change;
 					

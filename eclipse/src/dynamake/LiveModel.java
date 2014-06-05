@@ -84,7 +84,7 @@ public class LiveModel extends Model {
 		return clone;
 	}
 	
-	public void setSelection(Model selection, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	public void setSelection(Model selection, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 		this.selection = selection;
 		
 		if(this.selection != null) {
@@ -92,25 +92,25 @@ public class LiveModel extends Model {
 			boolean selectionMoving = (boolean)getProperty("SelectionMoving");
 			Rectangle selectionEffectBounds = (Rectangle)getProperty("SelectionEffectBounds");
 			
-			sendChanged(new SelectionChanged(selectionInitialMouseDown, selectionMoving, selectionEffectBounds), propCtx, propDistance, 0, connection, branch);
+			sendChanged(new SelectionChanged(selectionInitialMouseDown, selectionMoving, selectionEffectBounds), propCtx, propDistance, 0, branch);
 		} else {
-			sendChanged(new SelectionChanged(null, false, null), propCtx, propDistance, 0, connection, branch);
+			sendChanged(new SelectionChanged(null, false, null), propCtx, propDistance, 0, branch);
 		}
 	}
 
-	public void setOutput(Model output, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	public void setOutput(Model output, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 		this.output = output;
 		
-		sendChanged(new OutputChanged(), propCtx, propDistance, 0, connection, branch);
+		sendChanged(new OutputChanged(), propCtx, propDistance, 0, branch);
 	}
 
 	public int getTool() {
 		return tool;
 	}
 	
-	public void setTool(int tool, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	public void setTool(int tool, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 		this.tool = tool;
-		sendChanged(new StateChanged(), propCtx, propDistance, 0, connection, branch);
+		sendChanged(new StateChanged(), propCtx, propDistance, 0, branch);
 	}
 	
 	public static class SetSelection implements Command<Model> {
@@ -127,14 +127,14 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 //			System.out.println("SetSelection");
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
-				liveModel.setSelection(selection, new PropogationContext(), 0, connection, branch);
+				liveModel.setSelection(selection, new PropogationContext(), 0, branch);
 			} else {
-				liveModel.setSelection(null, new PropogationContext(), 0, connection, branch);
+				liveModel.setSelection(null, new PropogationContext(), 0, branch);
 			}
 		}
 	}
@@ -153,13 +153,13 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
-				liveModel.setOutput(selection, new PropogationContext(), 0, connection, branch);
+				liveModel.setOutput(selection, new PropogationContext(), 0, branch);
 			} else {
-				liveModel.setOutput(null, new PropogationContext(), 0, connection, branch);
+				liveModel.setOutput(null, new PropogationContext(), 0, branch);
 			}
 		}
 		
@@ -190,9 +190,9 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			LiveModel model = (LiveModel)modelLocation.getChild(prevalentSystem);
-			model.setTool(tool, propCtx, 0, connection, branch);
+			model.setTool(tool, propCtx, 0, branch);
 		}
 	}
 	
@@ -1042,7 +1042,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 					if(change instanceof LiveModel.StateChanged) {
 						if(!propCtx.isTagged(TAG_CAUSED_BY_TOGGLE_BUTTON)) {
 							JToggleButton buttonNewTool = buttonTools[LivePanel.this.model.getTool()];
@@ -1136,25 +1136,25 @@ public class LiveModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection, branch);
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, branch);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}

@@ -21,7 +21,7 @@ public class Unwrap2Transaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
 		CanvasModel wrapper = (CanvasModel)wrapperLocationInTarget.getChild(target);
 		
@@ -37,13 +37,13 @@ public class Unwrap2Transaction implements Command<Model> {
 			PrevaylerServiceBranch<Model> removeBranch = branch.branch();
 			
 			Model model = models[i];
-			wrapper.removeModel(model, propCtx, 0, connection, removeBranch);
+			wrapper.removeModel(model, propCtx, 0, removeBranch);
 			
 			removeBranch.close();
 		}
 
 		// Removed wrapper from target
-		target.removeModel(wrapper, propCtx, 0, connection, branch);
+		target.removeModel(wrapper, propCtx, 0, branch);
 
 		// Offset the coordinates of the moved models
 		for(Model model: models) {
@@ -53,8 +53,8 @@ public class Unwrap2Transaction implements Command<Model> {
 			PrevaylerServiceBranch<Model> setXBranch = branch.branch();
 			PrevaylerServiceBranch<Model> setYBranch = branch.branch();
 			
-			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, connection, setXBranch);
-			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, connection, setYBranch);
+			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, setXBranch);
+			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, setYBranch);
 			
 			setXBranch.close();
 			setYBranch.close();
@@ -66,7 +66,7 @@ public class Unwrap2Transaction implements Command<Model> {
 			
 			Model model = models[i];
 			int modelIndex = modelIndexes[i];
-			target.addModel(modelIndex, model, propCtx, 0, connection, addBranch);
+			target.addModel(modelIndex, model, propCtx, 0, addBranch);
 			
 			addBranch.close();
 		}

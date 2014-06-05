@@ -19,16 +19,16 @@ public class Wrap2Transaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
 		CanvasModel wrapper = new CanvasModel();
 		
 		PrevaylerServiceBranch<Model> propertyBranch = branch.isolatedBranch();
 		
-		wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, propertyBranch);
-		wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, propertyBranch);
-		wrapper.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection, propertyBranch);
-		wrapper.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection, propertyBranch);
+		wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, propertyBranch);
+		wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, propertyBranch);
+		wrapper.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, propertyBranch);
+		wrapper.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, propertyBranch);
 		
 		Model[] models = new Model[modelLocations.length];
 		for(int i = 0; i < modelLocations.length; i++) {
@@ -40,8 +40,8 @@ public class Wrap2Transaction implements Command<Model> {
 		for(Model model: models) {
 			PrevaylerServiceBranch<Model> removeBranch = branch.branch();
 			PrevaylerServiceBranch<Model> addBranch = branch.branch();
-			target.removeModel(model, propCtx, 0, connection, removeBranch);
-			wrapper.addModel(model, propCtx, 0, connection, addBranch);
+			target.removeModel(model, propCtx, 0, removeBranch);
+			wrapper.addModel(model, propCtx, 0, addBranch);
 			removeBranch.close();
 			addBranch.close();
 		}
@@ -53,13 +53,13 @@ public class Wrap2Transaction implements Command<Model> {
 			PrevaylerServiceBranch<Model> setXBranch = branch.branch();
 			PrevaylerServiceBranch<Model> setYBranch = branch.branch();
 			
-			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, connection, setXBranch);
-			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, connection, setYBranch);
+			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, setXBranch);
+			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, setYBranch);
 			
 			setXBranch.close();
 			setYBranch.close();
 		}
 
-		target.addModel(wrapper, propCtx, 0, connection, branch);
+		target.addModel(wrapper, propCtx, 0, branch);
 	}
 }

@@ -16,7 +16,7 @@ import org.prevayler.Transaction;
 public class Primitive extends Model {
 	public interface Implementation extends Serializable {
 		String getName();
-		void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch);
+		void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch);
 	}
 	
 	public static Implementation[] getImplementationSingletons() {
@@ -33,10 +33,10 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 					if(change instanceof Model.PropertyChanged && ((Model.PropertyChanged)change).name.equals(Model.PROPERTY_COLOR)) {
 						Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
-						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance, 0, connection, branch);
+						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance, 0, branch);
 					} else {
 						receiver.absorbChange(branch);
 					}
@@ -54,11 +54,11 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
 						Model.SetProperty setProperty = new Model.SetProperty(Model.PROPERTY_COLOR, atom.value);
-						receiver.sendChanged(setProperty, propCtx, propDistance, 0, connection, branch);
+						receiver.sendChanged(setProperty, propCtx, propDistance, 0, branch);
 					} else {
 						receiver.absorbChange(branch);
 					}
@@ -76,11 +76,11 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
 						Color darkenedColor = ((Color)atom.value).darker();
-						receiver.sendChanged(new Model.Atom(darkenedColor), propCtx, propDistance, 0, connection, branch);
+						receiver.sendChanged(new Model.Atom(darkenedColor), propCtx, propDistance, 0, branch);
 					} else {
 						receiver.absorbChange(branch);
 					}
@@ -98,11 +98,11 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
 						Color brightenedColor = ((Color)atom.value).brighter();
-						receiver.sendChanged(new Model.Atom(brightenedColor), propCtx, propDistance, 0, connection, branch);
+						receiver.sendChanged(new Model.Atom(brightenedColor), propCtx, propDistance, 0, branch);
 					} else {
 						receiver.absorbChange(branch);
 					}
@@ -120,9 +120,9 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 					if(propDistance == 1)
-						receiver.sendChanged(change, propCtx, propDistance, changeDistance, connection, branch);
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch);
 					else {
 						receiver.absorbChange(branch);
 					}
@@ -140,9 +140,9 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 					if(propDistance > 1)
-						receiver.sendChanged(change, propCtx, propDistance, changeDistance, connection, branch);
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch);
 					else {
 						receiver.absorbChange(branch);
 					}
@@ -160,9 +160,9 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 					if(change instanceof Model.PropertyChanged)
-						receiver.sendChanged(change, propCtx, propDistance, changeDistance, connection, branch);
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch);
 					else {
 						receiver.absorbChange(branch);
 					}
@@ -182,9 +182,9 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 					if(change instanceof Model.MouseDown) {
-						receiver.sendChanged(change, propCtx, propDistance, changeDistance, connection, branch);
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch);
 					} else {
 						receiver.absorbChange(branch);
 					}
@@ -202,9 +202,9 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 					if(change instanceof Model.MouseUp) {
-						receiver.sendChanged(change, propCtx, propDistance, changeDistance, connection, branch);
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch);
 					} else {
 						receiver.absorbChange(branch);
 					}
@@ -222,8 +222,8 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-					receiver.sendChanged(new Model.TellProperty(Model.PROPERTY_COLOR), propCtx, propDistance, 0, connection, branch);
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+					receiver.sendChanged(new Model.TellProperty(Model.PROPERTY_COLOR), propCtx, propDistance, 0, branch);
 				}
 			},
 		};
@@ -243,7 +243,7 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 					final Model model = (Model)modelLocation.getChild(rootModel);
 					
 					return new Implementation() {
@@ -258,9 +258,9 @@ public class Primitive extends Model {
 						}
 						
 						@Override
-						public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+						public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 							propCtx.markVisitedBy(model);
-							receiver.sendChanged(change, propCtx, propDistance, changeDistance, connection, branch);
+							receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch);
 						}
 					};
 				}
@@ -306,8 +306,8 @@ public class Primitive extends Model {
 	}
 	
 	@Override
-	public void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-		implementation.execute(this, sender, change, propCtx, propDistance, changeDistance, connection, branch);
+	public void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+		implementation.execute(this, sender, change, propCtx, propDistance, changeDistance, branch);
 	}
 	
 	private static class PrimitiveView extends JLabel implements ModelComponent {
@@ -343,23 +343,23 @@ public class Primitive extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
 
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, connection, branch);
+		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, branch);
 		}
 
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection, branch);
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, branch);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
 
 		}
 		

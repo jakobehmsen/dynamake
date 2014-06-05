@@ -108,10 +108,10 @@ public class TextModel extends Model {
 			this.text = text;
 		}
 
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.insert(offset, text);
-			textModel.sendChanged(new InsertedText(offset, text), propCtx, 0, 0, connection, branch);
+			textModel.sendChanged(new InsertedText(offset, text), propCtx, 0, 0, branch);
 		}
 
 //		@Override
@@ -137,10 +137,10 @@ public class TextModel extends Model {
 			this.end = end;
 		}
 
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.delete(start, end);
-			textModel.sendChanged(new RemovedText(start, end), propCtx, 0, 0, connection, branch);
+			textModel.sendChanged(new RemovedText(start, end), propCtx, 0, 0, branch);
 		}
 
 //		@Override
@@ -179,12 +179,12 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-			TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+			TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
 		}
 
 		@Override
-		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, final PrevaylerServiceBranch<Model> branch) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, connection, branch);
+		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions, final PrevaylerServiceBranch<Model> branch) {
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, branch);
 			
 			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
 			if(caretColor == null)
@@ -213,8 +213,8 @@ public class TextModel extends Model {
 		}
 		
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, connection, branch);
+		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, branch);
 			
 //			if(target.getModelBehind() instanceof CanvasModel) {
 //				transactions.addTransaction("For new button", new Runnable() {
@@ -233,7 +233,7 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -383,7 +383,7 @@ public class TextModel extends Model {
 				public void addObservee(Observer observee) { }
 				
 				@Override
-				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 					if(!propCtx.isTagged(TAG_CAUSED_BY_VIEW)) {
 						if(change instanceof InsertedText) {
 							InsertedText insertText = (InsertedText)change;

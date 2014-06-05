@@ -8,8 +8,6 @@ public interface PrevaylerService<T> {
 	void undo(PropogationContext propCtx);
 	void redo(PropogationContext propCtx);
 	
-	PrevaylerServiceConnection<T> createConnection();
-	
 	void executeTransient(Runnable runnable);
 	
 	PrevaylerServiceBranch<T> createBranch();

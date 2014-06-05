@@ -29,17 +29,17 @@ public class AddThenBindAndOutputTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 		final Model modelToBindTo = (Model)modelToBindToLocation.getChild(prevalentSystem);
 		CanvasModel canvasModel = (CanvasModel)canvasModelLocation.getChild(prevalentSystem);
 		
 //		final PropogationContext addAndBindCtx = new PropogationContext();
-		final Model primitive = (Model)factory.create(prevalentSystem, creationBounds, new Hashtable<String, Object>(), propCtx, 0, connection, branch);
-		primitive.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, connection, branch);
-		primitive.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, connection, branch);
-		primitive.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, connection, branch);
-		primitive.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, connection, branch);
+		final Model primitive = (Model)factory.create(prevalentSystem, creationBounds, new Hashtable<String, Object>(), propCtx, 0, branch);
+		primitive.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, branch);
+		primitive.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, branch);
+		primitive.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, branch);
+		primitive.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, branch);
 		modelToBindTo.addObserver(primitive);
 
 //		canvasModel.addObserver(new Observer() {
@@ -53,8 +53,8 @@ public class AddThenBindAndOutputTransaction implements Command<Model> {
 //			}
 //		});
 
-		canvasModel.addModel(primitive, propCtx, 0, connection, branch);
-		liveModel.setOutput(primitive, propCtx, 0, connection, branch);
+		canvasModel.addModel(primitive, propCtx, 0, branch);
+		liveModel.setOutput(primitive, propCtx, 0, branch);
 	}
 
 //	@Override

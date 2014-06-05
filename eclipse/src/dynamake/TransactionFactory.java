@@ -90,10 +90,6 @@ public class TransactionFactory {
 		return new CompositeModelLocation(getModelLocation(), otherLocation);
 	}
 
-	public PrevaylerServiceConnection<Model> createConnection() {
-		return prevaylerService.createConnection();
-	}
-
 	public PrevaylerServiceBranch<Model> createBranch() {
 		return prevaylerService.createBranch();
 	}
