@@ -12,7 +12,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
+import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -84,10 +86,10 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			prevalentSystem = prevalentSystemFunc.call();
 		
 		if(journalExisted)
-			replay(new PropogationContext(), prevalentSystem, prevalanceDirectory + "/" + journalFile);
+			replay(new PropogationContext(), prevalentSystem, prevalanceDirectory + "/" + journalFile, transactionUndoStack, transactionRedoStack);
 	}
 	
-	private static <T> T loadAndReplay(PropogationContext propCtx, Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath) throws ClassNotFoundException, IOException {
+	private static <T> T loadAndReplay(PropogationContext propCtx, Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath, Stack<DualCommand<T>> transactionUndoStack, Stack<DualCommand<T>> transactionRedoStack) throws ClassNotFoundException, IOException {
 		T prevalantSystem;
 		
 		Path snapshotFilePath = Paths.get(snapshotPath);
@@ -97,12 +99,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		else
 			prevalantSystem = prevalantSystemFunc.call();
 		
-		replay(propCtx, prevalantSystem, journalPath);
+		replay(propCtx, prevalantSystem, journalPath, transactionUndoStack, transactionRedoStack);
 		
 		return prevalantSystem;
 	}
 	
-	private static <T> void replay(PropogationContext propCtx, T prevalentSystem, String journalPath) throws ClassNotFoundException, IOException {
+	private static <T> void replay(PropogationContext propCtx, T prevalentSystem, String journalPath, Stack<DualCommand<T>> transactionUndoStack, Stack<DualCommand<T>> transactionRedoStack) throws ClassNotFoundException, IOException {
 		FileInputStream fileOutput = new FileInputStream(journalPath);
 		BufferedInputStream bufferedOutput = new BufferedInputStream(fileOutput);
 		
@@ -110,7 +112,24 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			// Should be read in chunks
 			ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
 			DualCommand<T> transaction = (DualCommand<T>)objectOutput.readObject();
-			transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+			
+			// Probably, there should an extra layer of interface here, where there are three implementations:
+			// One for undo
+			// One for redo
+			// One for do
+			// Such command should be called a meta-command?
+			if(transaction instanceof UndoTransaction) {
+				DualCommand<T> transactionToUndo = transactionUndoStack.pop();
+				transactionToUndo.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+				transactionRedoStack.push(transactionToUndo);
+			} else if(transaction instanceof RedoTransaction) {
+				DualCommand<T> transactionToRedo = transactionRedoStack.pop();
+				transactionToRedo.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+				transactionUndoStack.push(transactionToRedo);
+			} else {
+				transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+				transactionUndoStack.push(transaction);
+			}
 		}
 		
 		bufferedOutput.close();
@@ -150,8 +169,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			java.nio.file.Files.move(currentSnapshotFilePath, closedSnapshotFilePath);
 		
 		// Load copy of last snapshot (if any) and replay missing transactions;
-		T prevalantSystem = loadAndReplay(propCtx, prevalantSystemFunc, closedJournalFilePath.toString(), closedSnapshotFilePath.toString());
-		
+		Stack<DualCommand<T>> snapshotTransactionUndoStack = new Stack<DualCommand<T>>();
+		Stack<DualCommand<T>> snapshotTransactionRedoStack = new Stack<DualCommand<T>>();
+		T prevalantSystem = loadAndReplay(propCtx, prevalantSystemFunc, closedJournalFilePath.toString(), closedSnapshotFilePath.toString(), snapshotTransactionUndoStack, snapshotTransactionRedoStack);
 		
 		// Save modified snapshot
 		FileOutputStream fileOutput = new FileOutputStream(snapshotPath, true);
@@ -215,16 +235,52 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	
 	private int transactionIndex;
 	private ArrayList<DualCommand<T>> transactions = new ArrayList<DualCommand<T>>();
+	private Stack<DualCommand<T>> transactionUndoStack = new Stack<DualCommand<T>>();
+	private Stack<DualCommand<T>> transactionRedoStack = new Stack<DualCommand<T>>();
+	
+	private static class UndoTransaction<T> implements DualCommand<T> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		@Override
+		public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
+		
+		@Override
+		public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
+	}
+	
+	private static class RedoTransaction<T> implements DualCommand<T> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		@Override
+		public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
+		
+		@Override
+		public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
+	}
 	
 	@Override
 	public void undo(final PropogationContext propCtx) {
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				if(transactionIndex > 0) {
-					transactionIndex--;
-					DualCommand<T> transaction = transactions.get(transactionIndex);
+//				if(transactionIndex > 0) {
+//					transactionIndex--;
+//					DualCommand<T> transaction = transactions.get(transactionIndex);
+//					transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+//				}
+				
+				if(transactionUndoStack.size() > 0) {
+					DualCommand<T> transaction = transactionUndoStack.pop();
 					transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+					transactionRedoStack.push(transaction);
+					
+					persistTransaction(propCtx, new UndoTransaction<T>());
 				}
 			}
 		});
@@ -235,11 +291,17 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				if(transactionIndex < transactions.size()) {
-					DualCommand<T> transaction = transactions.get(transactionIndex);
-					transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
-					transactionIndex++;
-				}
+//				if(transactionIndex < transactions.size()) {
+//					DualCommand<T> transaction = transactions.get(transactionIndex);
+//					transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+//					transactionIndex++;
+//				}
+
+				DualCommand<T> transaction = transactionRedoStack.get(transactionIndex);
+				transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+				transactionUndoStack.push(transaction);
+				
+				persistTransaction(propCtx, new RedoTransaction<T>());
 			}
 		});
 	}
@@ -263,11 +325,14 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	}
 	
 	private void registerTransaction(final DualCommand<T> transaction) {
-		if(transactionIndex == transactions.size())
-			transactions.add(transaction);
-		else
-			transactions.set(transactionIndex, transaction);
-		transactionIndex++;
+//		if(transactionIndex == transactions.size())
+//			transactions.add(transaction);
+//		else
+//			transactions.set(transactionIndex, transaction);
+//		transactionIndex++;
+		
+		transactionUndoStack.push(transaction);
+		transactionRedoStack.clear();
 	}
 	
 	public void persistTransaction(final PropogationContext propCtx, final DualCommand<T> transaction) {
