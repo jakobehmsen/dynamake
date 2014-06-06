@@ -121,6 +121,22 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		bufferedOutput.close();
 	}
 	
+	private static class Snapshot<T> {
+		public final T prevalentSystem;
+		public final Stack<DualCommand<T>> transactionUndoStack;
+		public final Stack<DualCommand<T>> transactionRedoStack;
+		public Snapshot(T prevalentSystem,
+				Stack<DualCommand<T>> transactionUndoStack,
+				Stack<DualCommand<T>> transactionRedoStack) {
+			super();
+			this.prevalentSystem = prevalentSystem;
+			this.transactionUndoStack = transactionUndoStack;
+			this.transactionRedoStack = transactionRedoStack;
+		}
+		
+		
+	}
+	
 	private static <T> T loadSnapshot(String snapshotPath) throws IOException, ClassNotFoundException {
 		FileInputStream fileOutput = new FileInputStream(snapshotPath);
 		BufferedInputStream bufferedOutput = new BufferedInputStream(fileOutput);

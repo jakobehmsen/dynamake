@@ -26,13 +26,13 @@ public class EditTool implements Tool {
 	}
 	
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e) {
 		if(productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			Point point = e.getPoint();
 			
 			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(point, productionPanel.effectFrame.getSize());
 			
-			Cursor cursor = null;
+			final Cursor cursor;
 			
 			switch(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition) {
 			case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_WEST:
@@ -46,6 +46,9 @@ public class EditTool implements Tool {
 				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
 					cursor = Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);
 					break;
+				default:
+					cursor = null;
+					break;
 				}
 				break;
 			case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_CENTER:
@@ -55,6 +58,9 @@ public class EditTool implements Tool {
 					break;
 				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
 					cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
+					break;
+				default:
+					cursor = null;
 					break;
 				}
 				break;
@@ -69,20 +75,36 @@ public class EditTool implements Tool {
 				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
 					cursor = Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);
 					break;
+				default:
+					cursor = null;
+					break;
 				}
+				break;
+			default:
+				cursor = null;
 				break;
 			}
 			
 			if(productionPanel.effectFrame.getCursor() != cursor) {
-				productionPanel.effectFrame.setCursor(cursor);
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						productionPanel.effectFrame.setCursor(cursor);
+					}
+				});
 			}
 		}
 	}
 
 	@Override
-	public void mouseExited(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseExited(final ProductionPanel productionPanel, MouseEvent e) {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown == null) {
-			productionPanel.effectFrame.setCursor(null);
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					productionPanel.effectFrame.setCursor(null);
+				}
+			});
 		}
 	}
 
@@ -163,12 +185,6 @@ public class EditTool implements Tool {
 						}
 					});
 					
-//					productionPanel.livePanel.getTransactionFactory().executeOnRoot(new PropogationContext(), new Model.SetPropertyOnRootTransaction(
-//						selectionTransactionFactory.getModelLocation(), 
-//						"SelectionEffectBounds", 
-//						productionPanel.effectFrame.getBounds())
-//					);
-					
 					// Let the effect be transient only from now on?
 					productionPanel.editPanelMouseAdapter.resetEffectFrame();
 				}
@@ -178,14 +194,10 @@ public class EditTool implements Tool {
 			}
 			
 			branchStep2.close();
-			
-//			PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-//			connection.commit(propCtx);
 		}
 	}
 	
 	private ModelComponent viewPressedOn;
-//	private PrevaylerServiceConnection<Model> connection;
 	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
@@ -198,7 +210,6 @@ public class EditTool implements Tool {
 			if(targetModelComponent != null) {
 				viewPressedOn = targetModelComponent;
 				branch = productionPanel.livePanel.getTransactionFactory().createBranch();
-//				connection = productionPanel.livePanel.getTransactionFactory().createConnection();
 				PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 				
 				if(productionPanel.editPanelMouseAdapter.output != null) {
@@ -223,7 +234,13 @@ public class EditTool implements Tool {
 				
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
-				productionPanel.livePanel.repaint();
+				
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						productionPanel.livePanel.repaint();
+					}
+				});
 				
 				branchStep1.close();
 			}
@@ -231,9 +248,8 @@ public class EditTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e) {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null && productionPanel.editPanelMouseAdapter.effectFrameMoving && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
-			
 			ModelComponent newTargetOverComponent;
 			
 			if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
@@ -282,7 +298,6 @@ public class EditTool implements Tool {
 				}
 			}
 			
-			
 			int x = productionPanel.effectFrame.getX();
 			int y = productionPanel.effectFrame.getY();
 			int width = productionPanel.effectFrame.getWidth();
@@ -327,9 +342,16 @@ public class EditTool implements Tool {
 				break;
 			}
 			}
-
-			productionPanel.effectFrame.setBounds(new Rectangle(x, y, width, height));
-			productionPanel.livePanel.repaint();
+			
+			final Rectangle newEffectBounds = new Rectangle(x, y, width, height);
+			
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					productionPanel.effectFrame.setBounds(newEffectBounds);
+					productionPanel.livePanel.repaint();
+				}
+			});
 		}
 	}
 }

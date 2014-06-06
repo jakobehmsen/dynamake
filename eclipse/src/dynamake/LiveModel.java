@@ -426,7 +426,7 @@ public class LiveModel extends Model {
 				));
 			}
 			
-			private void select(final ModelComponent view, final Point initialMouseDown, boolean moving, Rectangle effectBounds) {
+			private void select(final ModelComponent view, final Point initialMouseDown, boolean moving, final Rectangle effectBounds) {
 //				System.out.println("in select method");
 				// <Don't remove>
 				// Whether the following check is necessary or not has not been decided yet, so don't remove the code
@@ -449,7 +449,12 @@ public class LiveModel extends Model {
 							BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
 						));
 
-						productionPanel.add(productionPanel.effectFrame);
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								productionPanel.add(productionPanel.effectFrame);
+							}
+						});
 					}
 					
 					if(productionPanel.selectionFrame == null) {
@@ -495,7 +500,12 @@ public class LiveModel extends Model {
 						productionPanel.selectionFrame.addMouseListener(mouseAdapter);
 						productionPanel.selectionFrame.addMouseMotionListener(mouseAdapter);
 
-						productionPanel.add(productionPanel.selectionFrame);
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								productionPanel.add(productionPanel.selectionFrame);
+							}
+						});
 					}
 					
 					selectionMouseDown = initialMouseDown;
@@ -503,12 +513,25 @@ public class LiveModel extends Model {
 					effectFrameMoving = moving;
 					updateRelativeCursorPosition(initialMouseDown, ((JComponent)view).getSize());
 					
-					productionPanel.effectFrame.setBounds(effectBounds);
+					SwingUtilities.invokeLater(new Runnable() {
+						
+						@Override
+						public void run() {
+							productionPanel.effectFrame.setBounds(effectBounds);
+						}
+					});
+					
 					initialEffectLocation = effectBounds.getLocation();
 					this.initialEffectBounds = effectBounds;
 					
-					Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-					productionPanel.selectionFrame.setBounds(selectionBounds);
+					final Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+					
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							productionPanel.selectionFrame.setBounds(selectionBounds);
+						}
+					});
 					
 					productionPanel.selectionBoundsBinding = new Binding<Component>() {
 						private Component component;
