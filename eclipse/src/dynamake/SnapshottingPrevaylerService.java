@@ -65,7 +65,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		if(snapshotExisted) {
-//			prevalentSystem = loadSnapshot(prevalanceDirectory + "/" + snapshotFile);
 			Snapshot<T> snapshot = loadSnapshot(prevalanceDirectory + "/" + snapshotFile);
 			prevalentSystem = snapshot.prevalentSystem;
 			transactionUndoStack = snapshot.transactionUndoStack;
@@ -130,6 +129,10 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	}
 	
 	private static class Snapshot<T> implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		public final T prevalentSystem;
 		public final Stack<DualCommand<T>> transactionUndoStack;
 		public final Stack<DualCommand<T>> transactionRedoStack;
@@ -560,24 +563,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 										b.checkAbsorbed();
 //										System.out.println("absorb b");
 									}
-//									boolean hasExecutions = false;
-//									
-//									for(final Branch<T> branch: b.branches) {
-//										if(branch.transactionFactory != null) {
-//											hasExecutions = true;
-//											break;
-//										}
-//									}
-//									
-//									if(!hasExecutions) {
-////										b.checkAbsorbed();
-//										System.out.println("Previously checked absorbtion here!!!");
-//									}
 								}
 							}
 						});
-						
-//						b.close();
 					}
 					
 					branch.prevaylerService.transactionExecutor.execute(new Runnable() {
