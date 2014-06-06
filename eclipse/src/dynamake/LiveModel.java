@@ -248,7 +248,7 @@ public class LiveModel extends Model {
 	public static final int TAG_CAUSED_BY_ROLLBACK = 3;
 	public static final int TAG_CAUSED_BY_COMMIT = 4;
 	
-	private static JToggleButton createToolButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int currentState, final int state, String text) {
+	private static JToggleButton createToolButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int currentState, final int state, final String text) {
 //		JRadioButton radioButton = new JRadioButton(text);
 		JToggleButton buttonTool = new JToggleButton(text);
 		buttonTool.setBackground(TOP_BACKGROUND_COLOR);
@@ -258,27 +258,11 @@ public class LiveModel extends Model {
 		buttonTool.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("Change tool to " + text);
 				// Indicate this is an radio button toggle context
 				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
 				
 				PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
-//				branch.branch(propCtx, new PrevaylerServiceBranchCreator<Model>() {
-//					@Override
-//					public void create(PrevaylerServiceBranchCreation<Model> branchCreation) {
-//						Location modelLocation = transactionFactory.getModelLocation();
-//						int previousState = model.getTool();
-//						
-//						branchCreation.create(
-//							new DualCommandPair<Model>(new SetTool(modelLocation, state), new SetTool(modelLocation, previousState)), 
-//							new PrevaylerServiceBranchContinuation<Model>() {
-//								@Override
-//								public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-//									branch.absorb();
-//								}
-//							}
-//						);
-//					}
-//				});
 				
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
@@ -464,6 +448,7 @@ public class LiveModel extends Model {
 							BorderFactory.createDashedBorder(Color.BLACK, 2.0f, 2.0f, 1.5f, false),
 							BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
 						));
+
 						productionPanel.add(productionPanel.effectFrame);
 					}
 					
@@ -517,6 +502,7 @@ public class LiveModel extends Model {
 					selectionFrameSize = ((JComponent)view).getSize();
 					effectFrameMoving = moving;
 					updateRelativeCursorPosition(initialMouseDown, ((JComponent)view).getSize());
+					
 					productionPanel.effectFrame.setBounds(effectBounds);
 					initialEffectLocation = effectBounds.getLocation();
 					this.initialEffectBounds = effectBounds;
@@ -564,13 +550,13 @@ public class LiveModel extends Model {
 							return component;
 						}
 					};
-					productionPanel.livePanel.repaint();
+//					productionPanel.livePanel.repaint();
 				} else {
 					if(productionPanel.effectFrame != null) {
 						productionPanel.clearFocus();
 					}
 					
-					productionPanel.livePanel.repaint();
+//					productionPanel.livePanel.repaint();
 				}
 			}
 			

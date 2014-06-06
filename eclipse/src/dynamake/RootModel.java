@@ -156,40 +156,42 @@ public class RootModel extends Model {
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			mouseIsDown = false;
-			
-			PropogationContext propCtx = new PropogationContext();
-			PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
-			
-			branch.execute(propCtx, new DualCommandFactory<Model>() {
-				@Override
-				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-					if(newLocation != null) {
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", newLocation.x),
-							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", rootModel.getProperty("X"))
-						));
-						
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", newLocation.y),
-							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", rootModel.getProperty("Y"))
-						));
-					}
-					
-					if(newSize != null) {
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", newSize.width),
-							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", rootModel.getProperty("Width"))
-						));
 
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", newSize.height),
-							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", rootModel.getProperty("Height"))
-						));
+			if(newLocation != null && newSize != null) {
+				PropogationContext propCtx = new PropogationContext();
+				PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
+				
+				branch.execute(propCtx, new DualCommandFactory<Model>() {
+					@Override
+					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						if(newLocation != null) {
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", newLocation.x),
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", rootModel.getProperty("X"))
+							));
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", newLocation.y),
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", rootModel.getProperty("Y"))
+							));
+						}
+						
+						if(newSize != null) {
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", newSize.width),
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", rootModel.getProperty("Width"))
+							));
+	
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", newSize.height),
+								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", rootModel.getProperty("Height"))
+							));
+						}
 					}
-				}
-			});
-			
-			branch.close();
+				});
+				
+				branch.close();
+			}
 		}
 		
 		@Override
