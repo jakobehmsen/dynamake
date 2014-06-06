@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -64,7 +65,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		if(snapshotExisted) {
-			prevalentSystem = loadSnapshot(prevalanceDirectory + "/" + snapshotFile);
+//			prevalentSystem = loadSnapshot(prevalanceDirectory + "/" + snapshotFile);
+			Snapshot<T> snapshot = loadSnapshot(prevalanceDirectory + "/" + snapshotFile);
+			prevalentSystem = snapshot.prevalentSystem;
+			transactionUndoStack = snapshot.transactionUndoStack;
+			transactionRedoStack = snapshot.transactionRedoStack;
 		} else
 			prevalentSystem = prevalentSystemFunc.call();
 		
@@ -72,19 +77,22 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			replay(new PropogationContext(), prevalentSystem, prevalanceDirectory + "/" + journalFile, transactionUndoStack, transactionRedoStack);
 	}
 	
-	private static <T> T loadAndReplay(PropogationContext propCtx, Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath, Stack<DualCommand<T>> transactionUndoStack, Stack<DualCommand<T>> transactionRedoStack) throws ClassNotFoundException, IOException {
-		T prevalantSystem;
+	private static <T> Snapshot<T> loadAndReplay(PropogationContext propCtx, Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath) throws ClassNotFoundException, IOException {
+		Snapshot<T> snapshot;
 		
 		Path snapshotFilePath = Paths.get(snapshotPath);
 		
 		if(java.nio.file.Files.exists(snapshotFilePath))
-			prevalantSystem = loadSnapshot(snapshotPath);
-		else
-			prevalantSystem = prevalantSystemFunc.call();
+			snapshot = loadSnapshot(snapshotPath);
+		else {
+			T prevalantSystem = prevalantSystemFunc.call();
+			
+			snapshot = new Snapshot<T>(prevalantSystem, new Stack<DualCommand<T>>(), new Stack<DualCommand<T>>());
+		}
 		
-		replay(propCtx, prevalantSystem, journalPath, transactionUndoStack, transactionRedoStack);
+		replay(propCtx, snapshot.prevalentSystem, journalPath, snapshot.transactionUndoStack, snapshot.transactionRedoStack);
 		
-		return prevalantSystem;
+		return snapshot;
 	}
 	
 	private static <T> void replay(PropogationContext propCtx, T prevalentSystem, String journalPath, Stack<DualCommand<T>> transactionUndoStack, Stack<DualCommand<T>> transactionRedoStack) throws ClassNotFoundException, IOException {
@@ -121,29 +129,25 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		bufferedOutput.close();
 	}
 	
-	private static class Snapshot<T> {
+	private static class Snapshot<T> implements Serializable {
 		public final T prevalentSystem;
 		public final Stack<DualCommand<T>> transactionUndoStack;
 		public final Stack<DualCommand<T>> transactionRedoStack;
-		public Snapshot(T prevalentSystem,
-				Stack<DualCommand<T>> transactionUndoStack,
-				Stack<DualCommand<T>> transactionRedoStack) {
-			super();
+		
+		public Snapshot(T prevalentSystem, Stack<DualCommand<T>> transactionUndoStack, Stack<DualCommand<T>> transactionRedoStack) {
 			this.prevalentSystem = prevalentSystem;
 			this.transactionUndoStack = transactionUndoStack;
 			this.transactionRedoStack = transactionRedoStack;
 		}
-		
-		
 	}
 	
-	private static <T> T loadSnapshot(String snapshotPath) throws IOException, ClassNotFoundException {
+	private static <T> Snapshot<T> loadSnapshot(String snapshotPath) throws IOException, ClassNotFoundException {
 		FileInputStream fileOutput = new FileInputStream(snapshotPath);
 		BufferedInputStream bufferedOutput = new BufferedInputStream(fileOutput);
 
 		ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
 		@SuppressWarnings("unchecked")
-		T snapshot = (T)objectOutput.readObject();
+		Snapshot<T> snapshot = (Snapshot<T>)objectOutput.readObject();
 		
 		bufferedOutput.close();
 		
@@ -169,16 +173,14 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			java.nio.file.Files.move(currentSnapshotFilePath, closedSnapshotFilePath);
 		
 		// Load copy of last snapshot (if any) and replay missing transactions;
-		Stack<DualCommand<T>> snapshotTransactionUndoStack = new Stack<DualCommand<T>>();
-		Stack<DualCommand<T>> snapshotTransactionRedoStack = new Stack<DualCommand<T>>();
-		T prevalantSystem = loadAndReplay(propCtx, prevalantSystemFunc, closedJournalFilePath.toString(), closedSnapshotFilePath.toString(), snapshotTransactionUndoStack, snapshotTransactionRedoStack);
+		Snapshot<T> snapshot = loadAndReplay(propCtx, prevalantSystemFunc, closedJournalFilePath.toString(), closedSnapshotFilePath.toString());
 		
 		// Save modified snapshot
 		FileOutputStream fileOutput = new FileOutputStream(snapshotPath, true);
 		BufferedOutputStream bufferedOutput = new BufferedOutputStream(fileOutput);
 		ObjectOutputStream objectOutput = new ObjectOutputStream(bufferedOutput);
 		
-		objectOutput.writeObject(prevalantSystem);
+		objectOutput.writeObject(snapshot);
 		
 		objectOutput.close();
 	}
