@@ -6,13 +6,15 @@ import java.awt.Rectangle;
 
 import org.prevayler.Transaction;
 
+import dynamake.LiveModel.LivePanel;
+
 /**
  * Assumed only to be implemented by JComponent (or JFrame) class extensions.
  */
 public interface ModelComponent {
 	Model getModelBehind();
 	TransactionFactory getTransactionFactory();
-	void appendContainerTransactions(TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch);
+	void appendContainerTransactions(LivePanel livePanel, TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch);
 	void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch);
 	void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch);
 	void appendDropTargetTransactions(ModelComponent livePanel, ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch);

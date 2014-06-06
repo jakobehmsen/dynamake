@@ -326,6 +326,29 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+	public static class AddModel2NoCreationBoundsTransaction implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location canvasLocation;
+		private int index;
+		private Factory factory;
+		
+		public AddModel2NoCreationBoundsTransaction(Location canvasLocation, int index, Factory factory) {
+			this.canvasLocation = canvasLocation;
+			this.index = index;
+			this.factory = factory;
+		}
+
+		@Override
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
+			Model model = (Model)factory.create(rootPrevalentSystem, null, null, propCtx, 0, branch);
+			canvas.addModel(index, model, new PropogationContext(), 0, branch);
+		}
+	}
+	
 	public static class RemoveModelTransaction implements Command<Model> {
 		/**
 		 * 
@@ -442,34 +465,31 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, final ModelComponent child, final PrevaylerServiceBranch<Model> branch) {
+				final LivePanel livePanel, TransactionMapBuilder transactions, final ModelComponent child, final PrevaylerServiceBranch<Model> branch) {
 			transactions.addTransaction("Remove", new Runnable() {
 				@Override
 				public void run() {
 					PropogationContext propCtx = new PropogationContext();
 					branch.execute(propCtx, new DualCommandFactory<Model>() {
-						public DualCommand<Model> createDualCommand() {
+						@Override
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							// Clear the current selection which is, here, assumed to the child
+							livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, null, false, null, dualCommands);
+							
 							int indexOfModel = model.indexOfModel(child.getModelBehind());
 							Location canvasLocation = transactionFactory.getModelLocation();
-							
-							// TODO: Clear the current selection which is, here, assumed to the child
 							
 							// TODO: Make the backward transaction
 							// The removed model should probably be reconstructed
 							// The direct structure (clone isolated) (without observers and observees) could probably be used
 							// where this direct structure should, afterwards, be decorated with any missing relations to observers and observees
-							Command<Model> backward = null;
+							Model childClone = child.getModelBehind().cloneDeep(); // TODO: Fix this: Not a perfect clone
+							Command<Model> backward = new AddModel2NoCreationBoundsTransaction(canvasLocation, indexOfModel, new AsIsFactory(childClone));
 							
-							return new DualCommandPair<Model>(
+							dualCommands.add(new DualCommandPair<Model>(
 								new RemoveModelTransaction(canvasLocation, indexOfModel),
 								backward
-							);
-						}
-						
-						@Override
-						public void createDualCommands(
-								List<DualCommand<Model>> dualCommands) {
-							dualCommands.add(createDualCommand());
+							));
 						}
 					});
 				}

@@ -18,6 +18,8 @@ import javax.swing.JFrame;
 
 import org.prevayler.Transaction;
 
+import dynamake.LiveModel.LivePanel;
+
 public class RootModel extends Model {
 	/**
 	 * 
@@ -71,7 +73,7 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public void appendContainerTransactions(TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
+		public void appendContainerTransactions(LivePanel livePanel, TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
 
 		}
 

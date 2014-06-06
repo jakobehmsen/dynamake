@@ -1144,7 +1144,7 @@ public class LiveModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
+				LivePanel livePanel, TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}

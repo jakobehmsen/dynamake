@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 
 import org.prevayler.Transaction;
 
+import dynamake.LiveModel.LivePanel;
+
 public class ProxyModel extends Model {
 	/**
 	 * 
@@ -90,7 +92,7 @@ public class ProxyModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
+				LivePanel livePanel, TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
 //			view.appendContainerTransactions(transactions, child);
 		}
 

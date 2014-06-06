@@ -11,6 +11,8 @@ import javax.swing.JPanel;
 
 import org.prevayler.Transaction;
 
+import dynamake.LiveModel.LivePanel;
+
 public class MarkVisit extends Model {
 	/**
 	 * 
@@ -67,7 +69,7 @@ public class MarkVisit extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
+				LivePanel livePanel, TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}

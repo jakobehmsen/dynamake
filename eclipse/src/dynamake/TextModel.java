@@ -20,6 +20,7 @@ import javax.swing.text.PlainDocument;
 
 import org.prevayler.Transaction;
 
+import dynamake.LiveModel.LivePanel;
 import dynamake.Model.RemovableListener;
 import dynamake.Model.SetPropertyOnRootTransaction;
 
@@ -179,7 +180,7 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-			TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
+			LivePanel livePanel, TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
 		}
 
 		@Override

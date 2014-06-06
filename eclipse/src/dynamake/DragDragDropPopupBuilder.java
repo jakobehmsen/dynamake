@@ -43,7 +43,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		
 		TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
 		if(parentModelComponent != null)
-			parentModelComponent.appendContainerTransactions(containerTransactionMapBuilder, selection, branch);
+			parentModelComponent.appendContainerTransactions((LivePanel)livePanel, containerTransactionMapBuilder, selection, branch);
 
 		TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
 		selection.appendTransactions(livePanel, transactionSelectionMapBuilder, branch);

@@ -13,6 +13,8 @@ import javax.swing.JLabel;
 
 import org.prevayler.Transaction;
 
+import dynamake.LiveModel.LivePanel;
+
 public class Primitive extends Model {
 	public interface Implementation extends Serializable {
 		String getName();
@@ -343,7 +345,7 @@ public class Primitive extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-				TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
+				LivePanel livePanel, TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
 
 		}
 
