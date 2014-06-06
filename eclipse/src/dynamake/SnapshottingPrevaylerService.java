@@ -187,9 +187,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void execute(PropogationContext propCtx, DualCommandFactory<T> transactionFactory) { }
 
 		@Override
-		public void onAbsorbed(PrevaylerServiceBranchContinuation<T> continuation) { }
-
-		@Override
 		public void close() { }
 
 		@SuppressWarnings("unchecked")
@@ -432,9 +429,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					// Every effect has been absorbed
 					commit(null);
 				}
-				
-				for(PrevaylerServiceBranchContinuation<T> continuation: continuations)
-					continuation.doContinue(propCtx, this);
 			}
 		}
 
@@ -466,19 +460,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			
 			if(transaction != null)
 				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, isolatedBranch());
-		}
-		
-		private ArrayList<PrevaylerServiceBranchContinuation<T>> continuations = new ArrayList<PrevaylerServiceBranchContinuation<T>>();
-		
-		@Override
-		public void onAbsorbed(final PrevaylerServiceBranchContinuation<T> continuation) {
-			this.prevaylerService.transactionExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-					if(!isClosed)
-						continuations.add(continuation);
-				}
-			});
 		}
 		
 		@Override
