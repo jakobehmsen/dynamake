@@ -13,12 +13,9 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import com.sun.xml.internal.messaging.saaj.packaging.mime.util.BEncoderStream;
 
 public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	private Func0<T> prevalentSystemFunc;
@@ -66,20 +63,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			snapshotExisted = false;
 		}
 		
-//		if(journalExisted) {
-//			FileInputStream fileOutput = new FileInputStream(journalDirectory + "/" + "log.jnl");
-//			BufferedInputStream bufferedOutput = new BufferedInputStream(fileOutput);
-//			
-//			while(bufferedOutput.available() != 0) {
-//				// Should be read in chunks
-//				ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
-//				Transaction<T> transaction = (Transaction<T>)objectOutput.readObject();
-//				transaction.executeOn(prevalentSystem, null);
-//			}
-//			
-//			bufferedOutput.close();
-//		}
-		
 		if(snapshotExisted) {
 			prevalentSystem = loadSnapshot(prevalanceDirectory + "/" + snapshotFile);
 		} else
@@ -110,7 +93,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		
 		while(bufferedOutput.available() != 0) {
 			// Should be read in chunks
+			@SuppressWarnings("resource")
 			ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
+			@SuppressWarnings("unchecked")
 			DualCommand<T> transaction = (DualCommand<T>)objectOutput.readObject();
 			
 			// Probably, there should an extra layer of interface here, where there are three implementations:
@@ -129,6 +114,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			} else {
 				transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
 				transactionUndoStack.push(transaction);
+				transactionRedoStack.clear();
 			}
 		}
 		
@@ -140,6 +126,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		BufferedInputStream bufferedOutput = new BufferedInputStream(fileOutput);
 
 		ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
+		@SuppressWarnings("unchecked")
 		T snapshot = (T)objectOutput.readObject();
 		
 		bufferedOutput.close();
@@ -150,10 +137,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	private static <T> void saveSnapshot(PropogationContext propCtx, Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath) throws ClassNotFoundException, IOException, ParseException {
 		// Close journal
 		Path currentJournalFilePath = Paths.get(journalPath);
-		
-//		Date now = new Date();
-//		String nowFormatted = new DateFormatter().valueToString(now);
-//		String nowFormatted = now.toString().replace(":", "_").replace(" ", "_");
+
 		String nowFormatted = "" + System.nanoTime();
 		Path closedJournalFilePath = Paths.get(currentJournalFilePath.getParent() + "/" + nowFormatted + currentJournalFilePath.getFileName());
 		
@@ -162,7 +146,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		// Start new journal
 		java.nio.file.Files.createFile(currentJournalFilePath);
 		
-		// Close snapshot and load copy of last snapshot (if any) and replay missing transactions;
+		// Close snapshot
 		Path currentSnapshotFilePath = Paths.get(snapshotPath);
 		Path closedSnapshotFilePath = Paths.get(currentSnapshotFilePath.getParent() + "/" + nowFormatted + currentSnapshotFilePath.getFileName());
 		if(java.nio.file.Files.exists(currentSnapshotFilePath))
@@ -206,14 +190,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void onAbsorbed(PrevaylerServiceBranchContinuation<T> continuation) { }
 
 		@Override
-		public void doContinue() { }
-
-		@Override
 		public void close() { }
 
-//		@Override
-//		public void flush() { }
-
+		@SuppressWarnings("unchecked")
 		@Override
 		public void sendChangeToObservers(Model sender,
 				ArrayList<Observer> observers, Object change,
@@ -233,8 +212,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 	}
 	
-	private int transactionIndex;
-	private ArrayList<DualCommand<T>> transactions = new ArrayList<DualCommand<T>>();
 	private Stack<DualCommand<T>> transactionUndoStack = new Stack<DualCommand<T>>();
 	private Stack<DualCommand<T>> transactionRedoStack = new Stack<DualCommand<T>>();
 	
@@ -269,12 +246,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-//				if(transactionIndex > 0) {
-//					transactionIndex--;
-//					DualCommand<T> transaction = transactions.get(transactionIndex);
-//					transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
-//				}
-				
 				if(transactionUndoStack.size() > 0) {
 					DualCommand<T> transaction = transactionUndoStack.pop();
 					transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
@@ -291,46 +262,22 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-//				if(transactionIndex < transactions.size()) {
-//					DualCommand<T> transaction = transactions.get(transactionIndex);
-//					transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
-//					transactionIndex++;
-//				}
-
-				DualCommand<T> transaction = transactionRedoStack.get(transactionIndex);
-				transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
-				transactionUndoStack.push(transaction);
-				
-				persistTransaction(propCtx, new RedoTransaction<T>());
+				if(transactionRedoStack.size() > 0) {
+					DualCommand<T> transaction = transactionRedoStack.pop();
+					transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+					transactionUndoStack.push(transaction);
+					
+					persistTransaction(propCtx, new RedoTransaction<T>());
+				}
 			}
 		});
 	}
-
-//	private static void startJournal(String journalPath) throws IOException {
-//		Path journalFilePath = Paths.get(journalPath);
-//		java.nio.file.Files.createFile(journalFilePath);
-//	}
-//
-//	private static String closeJournal(String prevalanceDirectory) throws ParseException, IOException {
-//		Path sourceJournalFilePath = Paths.get(prevalanceDirectory + "/" + journalFile);
-//		Date now = new Date();
-//		String nowFormatted = new DateFormatter().valueToString(now);
-//		Path targetJournalFilePath = Paths.get(prevalanceDirectory + "/" + nowFormatted + journalFile);
-//		
-//		java.nio.file.Files.move(sourceJournalFilePath, targetJournalFilePath);
-//	}
 
 	public void executeTransient(Runnable runnable) {
 		transactionExecutor.execute(runnable);
 	}
 	
 	private void registerTransaction(final DualCommand<T> transaction) {
-//		if(transactionIndex == transactions.size())
-//			transactions.add(transaction);
-//		else
-//			transactions.set(transactionIndex, transaction);
-//		transactionIndex++;
-		
 		transactionUndoStack.push(transaction);
 		transactionRedoStack.clear();
 	}
@@ -396,14 +343,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		private ArrayList<SnapshottingPrevaylerService.Branch<T>> branches = new ArrayList<SnapshottingPrevaylerService.Branch<T>>();
 		private ArrayList<SnapshottingPrevaylerService.Branch<T>> absorbedBranches = new ArrayList<SnapshottingPrevaylerService.Branch<T>>();
 		private PropogationContext propCtx;
-//		private PrevaylerServiceBranchContinuation<T> continuation;
 		private boolean rejected;
-//		private boolean created;
 		
-		private Branch(Branch<T> parent, SnapshottingPrevaylerService<T> prevaylerService, final PropogationContext propCtx, PrevaylerServiceBranchContinuation<T> continuation) {
+		private Branch(Branch<T> parent, SnapshottingPrevaylerService<T> prevaylerService, final PropogationContext propCtx) {
 			this.parent = parent;
 			this.prevaylerService = prevaylerService;
-//			this.continuation = continuation;
 			this.propCtx = propCtx;
 		}
 		
@@ -442,6 +386,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			}
 			
 			if(transactionList.size() > 1) {
+				@SuppressWarnings("unchecked")
 				DualCommand<T>[] transactionArray = (DualCommand<T>[])new DualCommand<?>[transactionList.size()];
 				transactionList.toArray(transactionArray);
 				
@@ -538,7 +483,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		
 		@Override
 		public PrevaylerServiceBranch<T> branch() {
-			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, null);
+			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx);
 			
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
@@ -561,7 +506,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		
 		@Override
 		public void execute(final PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
-			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx, null);
+			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx);
 			branch.transactionFactory = transactionFactory;
 			
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
@@ -650,24 +595,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				}
 			}
 		}
-
-//		@Override
-//		public void flush() {
-//			/*
-//			Is flush really necessary? It could be replaced be making a branch and then closing that branch. 
-//			*/
-//			this.prevaylerService.transactionExecutor.execute(new Runnable() {
-//				@Override
-//				public void run() {
-//					flushBranches();
-//				}
-//			});
-//		}
-		
-		@Override
-		public void doContinue() {
-//			continuation.doContinue(propCtx, this);
-		}
 		
 		@Override
 		public void sendChangeToObservers(Model sender,
@@ -695,7 +622,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			}
 			
 			if(branchCount == 0) {
-				// Probably, each route of logic should be responsible for absorbtion
 				this.absorb();
 			}
 		}
@@ -704,29 +630,10 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public PrevaylerServiceBranch<T> isolatedBranch() {
 			return new IsolatedBranch<T>();
 		}
-		
-//		private Hashtable<String, Object> variables = new Hashtable<String, Object>();
-//
-//		@Override
-//		public void setVariable(String variableName, Object value) {
-//			variables.put(variableName, value);
-//		}
-//		
-//		@Override
-//		public Object getVariable(String variableName) {
-//			Object value = variables.get(variableName);
-//			if(value != null)
-//				return value;
-//			if(parent != null)
-//				return parent.getVariable(variableName);
-//			return null;
-//		}
 	}
 	
 	@Override
 	public PrevaylerServiceBranch<T> createBranch() {
-		SnapshottingPrevaylerService.Branch<T> rootBranch = new SnapshottingPrevaylerService.Branch<T>(null, this, null, null);
-//		rootBranch.created = true;
-		return rootBranch;
+		return new SnapshottingPrevaylerService.Branch<T>(null, this, null);
 	}
 }

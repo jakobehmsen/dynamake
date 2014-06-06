@@ -10,7 +10,6 @@ public interface PrevaylerServiceBranch<T> {
 	PrevaylerServiceBranch<T> branch();
 	void execute(PropogationContext propCtx, DualCommandFactory<T> transactionFactory);
 	void onAbsorbed(PrevaylerServiceBranchContinuation<T> continuation);
-	void doContinue();
 	void close();
 //	void setVariable(String variableName, Object value);
 //	Object getVariable(String variableName);
