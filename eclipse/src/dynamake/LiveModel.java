@@ -337,7 +337,14 @@ public class LiveModel extends Model {
 			}
 
 			public void resetEffectFrame() {
-				productionPanel.effectFrame.setBounds(new Rectangle(0, 0, 0, 0));
+				final JPanel effectFrame = productionPanel.effectFrame;
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						effectFrame.setBounds(new Rectangle(0, 0, 0, 0));
+					}
+				});
 			}
 			
 			public void updateRelativeCursorPosition(Point point, Dimension size) {
@@ -653,7 +660,13 @@ public class LiveModel extends Model {
 
 			public void clearTarget() {
 				if(productionPanel.targetFrame != null) {
-					productionPanel.remove(productionPanel.targetFrame);
+					final JPanel targetFrame = productionPanel.targetFrame;
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							productionPanel.remove(targetFrame);
+						}
+					});
 					productionPanel.targetFrame = null;
 				}
 			}

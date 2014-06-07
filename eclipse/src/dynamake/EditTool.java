@@ -184,7 +184,7 @@ public class EditTool implements Tool {
 							));
 						}
 					});
-					
+
 					// Let the effect be transient only from now on?
 					productionPanel.editPanelMouseAdapter.resetEffectFrame();
 				}
