@@ -227,12 +227,12 @@ public class PlotTool implements Tool {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, branchStep1);
 				
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						productionPanel.livePanel.repaint();
-					}
-				});
+//				SwingUtilities.invokeLater(new Runnable() {
+//					@Override
+//					public void run() {
+//						productionPanel.livePanel.repaint();
+//					}
+//				});
 			} else {
 				productionPanel.editPanelMouseAdapter.selectionMouseDown = e.getPoint();
 			}

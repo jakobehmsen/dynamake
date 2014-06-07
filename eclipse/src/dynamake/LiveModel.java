@@ -1058,13 +1058,23 @@ public class LiveModel extends Model {
 						}
 						
 						if(previousState == LiveModel.STATE_USE && LivePanel.this.model.getTool() != LiveModel.STATE_USE) {
-							contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);
-							contentPane.revalidate();
-							contentPane.repaint();
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);
+									contentPane.revalidate();
+									contentPane.repaint();
+								}
+							});
 						} else if(previousState != LiveModel.STATE_USE && LivePanel.this.model.getTool() == LiveModel.STATE_USE) {
-							contentPane.remove(productionPanel);
-							contentPane.revalidate();
-							contentPane.repaint();
+							SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
+									contentPane.remove(productionPanel);
+									contentPane.revalidate();
+									contentPane.repaint();
+								}
+							});
 						}
 						
 						previousState = LivePanel.this.model.getTool();
@@ -1079,7 +1089,12 @@ public class LiveModel extends Model {
 							productionPanel.editPanelMouseAdapter.setOutput(view);
 						}
 						
-						productionPanel.livePanel.repaint();
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								productionPanel.livePanel.repaint();
+							}
+						});
 					} else if(change instanceof LiveModel.SelectionChanged) {
 						if(LivePanel.this.model.selection != null) {
 							SelectionChanged selectionChanged = (SelectionChanged)change;

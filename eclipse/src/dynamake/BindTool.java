@@ -82,13 +82,14 @@ public class BindTool implements Tool {
 			
 			productionPanel.editPanelMouseAdapter.targetOver = null;
 
+			final JPanel targetFrame = productionPanel.targetFrame;
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
 					productionPanel.editPanelMouseAdapter.resetEffectFrame();
 
-					if(productionPanel.targetFrame != null)
-						productionPanel.remove(productionPanel.targetFrame);
+					if(targetFrame != null)
+						productionPanel.remove(targetFrame);
 					
 					productionPanel.livePanel.repaint();
 				}
@@ -153,10 +154,11 @@ public class BindTool implements Tool {
 			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
 				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
 				if(productionPanel.targetFrame != null) {
+					final JPanel oldTargetFrame = productionPanel.targetFrame;
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							productionPanel.remove(productionPanel.targetFrame);
+							productionPanel.remove(oldTargetFrame);
 						}
 					});
 				}
