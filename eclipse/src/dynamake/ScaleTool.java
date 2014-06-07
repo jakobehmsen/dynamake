@@ -197,7 +197,7 @@ public class ScaleTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e) {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null && productionPanel.editPanelMouseAdapter.effectFrameMoving && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			
 			ModelComponent newTargetOverComponent;
@@ -293,9 +293,16 @@ public class ScaleTool implements Tool {
 				break;
 			}
 			}
+		
+			final Rectangle newEffectBounds = new Rectangle(x, y, width, height);
 
-			productionPanel.effectFrame.setBounds(new Rectangle(x, y, width, height));
-			productionPanel.livePanel.repaint();
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					productionPanel.effectFrame.setBounds(newEffectBounds);
+					productionPanel.livePanel.repaint();
+				}
+			});
 		}
 	}
 }
