@@ -448,10 +448,11 @@ public class LiveModel extends Model {
 							BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
 						));
 
+						final JPanel effectFrame = productionPanel.effectFrame;
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								productionPanel.add(productionPanel.effectFrame);
+								productionPanel.add(effectFrame);
 							}
 						});
 					}
@@ -499,10 +500,11 @@ public class LiveModel extends Model {
 						productionPanel.selectionFrame.addMouseListener(mouseAdapter);
 						productionPanel.selectionFrame.addMouseMotionListener(mouseAdapter);
 
+						final JPanel selectionFrame = productionPanel.selectionFrame; 
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								productionPanel.add(productionPanel.selectionFrame);
+								productionPanel.add(selectionFrame);
 							}
 						});
 					}
@@ -511,12 +513,13 @@ public class LiveModel extends Model {
 					selectionFrameSize = ((JComponent)view).getSize();
 					effectFrameMoving = moving;
 					updateRelativeCursorPosition(initialMouseDown, ((JComponent)view).getSize());
-					
+
+					final JPanel effectFrame = productionPanel.effectFrame;
 					SwingUtilities.invokeLater(new Runnable() {
 						
 						@Override
 						public void run() {
-							productionPanel.effectFrame.setBounds(effectBounds);
+							effectFrame.setBounds(effectBounds);
 						}
 					});
 					
@@ -524,11 +527,12 @@ public class LiveModel extends Model {
 					this.initialEffectBounds = effectBounds;
 					
 					final Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-					
+
+					final JPanel selectionFrame = productionPanel.selectionFrame; 
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							productionPanel.selectionFrame.setBounds(selectionBounds);
+							selectionFrame.setBounds(selectionBounds);
 						}
 					});
 					
@@ -721,95 +725,38 @@ public class LiveModel extends Model {
 						productionPanel.outputFrame = new JPanel();
 						productionPanel.outputFrame.setBackground(new Color(0, 0, 0, 0));
 						
-//						Color color = Color.GRAY;
-						
 						productionPanel.outputFrame.setBorder(
 							BorderFactory.createBevelBorder(
 								BevelBorder.RAISED, OUTPUT_COLOR.darker().darker(), OUTPUT_COLOR.darker(), OUTPUT_COLOR.darker().darker().darker(), OUTPUT_COLOR.darker().darker())
 						);
 						
-//						productionPanel.outputFrame.setBorder(
-//							BorderFactory.createCompoundBorder(
-//								BorderFactory.createBevelBorder(BevelBorder.RAISED, OUTPUT_COLOR.darker().darker(), OUTPUT_COLOR.darker(), OUTPUT_COLOR.darker().darker(), OUTPUT_COLOR.darker()),
-//								BorderFactory.createBevelBorder(BevelBorder.RAISED, OUTPUT_COLOR.darker(), OUTPUT_COLOR, OUTPUT_COLOR.darker().darker(), OUTPUT_COLOR.darker())
-//							)
-//						);
-		
-//						productionPanel.outputFrame.setBorder(
-//							BorderFactory.createCompoundBorder(
-//								BorderFactory.createLineBorder(Color.BLACK, 2), 
-//								BorderFactory.createCompoundBorder(
-//									BorderFactory.createLineBorder(new Color(155, 235, 235), 2), 
-//									BorderFactory.createLineBorder(Color.BLACK, 2)
-//								)
-//							)
-//						);
+						final JPanel outputFrame = productionPanel.outputFrame;
 						
-//						Color outputColorDarkened = OUTPUT_COLOR.darker().darker();
-//						productionPanel.outputFrame.setBorder(
-//							BorderFactory.createCompoundBorder(
-//								BorderFactory.createLineBorder(Color.BLACK, 1), 
-//								BorderFactory.createCompoundBorder(
-//									BorderFactory.createLineBorder(OUTPUT_COLOR, 2), 
-//									BorderFactory.createCompoundBorder(
-//										BorderFactory.createLineBorder(outputColorDarkened, 2), 
-//										BorderFactory.createCompoundBorder(
-//											BorderFactory.createLineBorder(OUTPUT_COLOR, 2), 
-//											BorderFactory.createLineBorder(Color.BLACK, 1)
-//										)
-//									)
-//								)
-//							)
-//						);
-						
-//						productionPanel.outputFrame.setBorder(
-//							BorderFactory.createCompoundBorder(
-//								BorderFactory.createLineBorder(Color.BLACK, 1), 
-//								BorderFactory.createCompoundBorder(
-//									BorderFactory.createLineBorder(new Color(155, 235, 235), 2), 
-//									BorderFactory.createCompoundBorder(
-////										BorderFactory.createLineBorder(Color.LIGHT_GRAY, 2),
-//										BorderFactory.createLineBorder(new Color(71, 92, 92), 2), 
-//										BorderFactory.createCompoundBorder(
-//											BorderFactory.createLineBorder(new Color(155, 235, 235), 2), 
-//											BorderFactory.createLineBorder(Color.BLACK, 1)
-//										)
-//									)
-//								)
-//							)
-//						);
-						
-//						productionPanel.outputFrame.setBorder(
-//							BorderFactory.createCompoundBorder(
-//								BorderFactory.createMatteBorder(2, 0, 0, 0, OUTPUT_COLOR.darker().darker()), 
-//								BorderFactory.createCompoundBorder(
-//									BorderFactory.createMatteBorder(0, 2, 0, 0, OUTPUT_COLOR.darker().darker()), 
-//									BorderFactory.createCompoundBorder(
-//										BorderFactory.createMatteBorder(0, 0, 2, 0, OUTPUT_COLOR.darker()), 
-//										BorderFactory.createMatteBorder(0, 0, 0, 2, OUTPUT_COLOR.darker())
-//									)
-//								)
-//							)
-//						);
-						
-//						productionPanel.outputFrame.setBorder(
-//							BorderFactory.createCompoundBorder(
-//								BorderFactory.createLineBorder(Color.BLACK, 2),
-//								BorderFactory.createCompoundBorder(
-//									BorderFactory.createMatteBorder(2, 2, 12, 2, Color.WHITE),
-//									BorderFactory.createLineBorder(Color.BLACK, 2)
-//								)
-//							)
-//						);
-						
-						productionPanel.add(productionPanel.outputFrame);
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								productionPanel.add(outputFrame);
+							}
+						});
 					}
 					
-					Rectangle outputBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-					productionPanel.outputFrame.setBounds(outputBounds);
+					final Rectangle outputBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+					final JPanel outputFrame = productionPanel.outputFrame;
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							outputFrame.setBounds(outputBounds);
+						}
+					});
 				} else {
 					if(productionPanel.outputFrame != null) {
-						productionPanel.remove(productionPanel.outputFrame);
+						final JPanel outputFrame = productionPanel.outputFrame;
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								productionPanel.remove(outputFrame);
+							}
+						});
 						productionPanel.outputFrame = null;
 					}
 				}

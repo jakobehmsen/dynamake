@@ -26,6 +26,7 @@ public class DualCommandPair<T> implements DualCommand<T> {
 
 	@Override
 	public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) {
+		System.out.println("Backwarding " + backward);
 		backward.executeOn(propCtx, prevalentSystem, executionTime, branch);
 	}
 }
