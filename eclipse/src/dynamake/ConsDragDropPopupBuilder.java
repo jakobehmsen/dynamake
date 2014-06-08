@@ -24,8 +24,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run(Runnable runnable) {
 				runnable.run();
 
-				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-//				connection.commit(propCtx);
+				((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.clearEffectFrame();
 				branch.close();
 			}
 		};
@@ -35,8 +34,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 		if(implicitDropAction != null) {
 			branch.execute(new PropogationContext(), implicitDropAction);
 
-			PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-//			connection.commit(propCtx);
+			((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.clearEffectFrame();
 			branch.close();
 		} else {
 			TransactionMapBuilder transactionTargetContentMapBuilder = new TransactionMapBuilder();
@@ -48,18 +46,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						PropogationContext propCtx = new PropogationContext();
 						
 						branch.execute(propCtx, new DualCommandFactory<Model>() {
-//							public DualCommand<Model> createDualCommand() {
-//								return new DualCommandPair<Model>(
-//									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
-//									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
-//								);
-//							}
-							
 							@Override
 							public void createDualCommands(
 									List<DualCommand<Model>> dualCommands) {
-//								dualCommands.add(createDualCommand());
-								
 								dualCommands.add(new DualCommandPair<Model>(
 									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
 									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
@@ -68,17 +57,6 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 								dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation()));
 							}
 						});
-//						branch.execute(propCtx, new DualCommandFactory<Model>() {
-//							public dynamake.DualCommand<Model> createDualCommand() {
-//								return LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation());
-//							}
-//							
-//							@Override
-//							public void createDualCommands(
-//									List<DualCommand<Model>> dualCommands) {
-//								dualCommands.add(createDualCommand());
-//							}
-//						});
 					}
 				});
 			} else {
@@ -88,18 +66,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						PropogationContext propCtx = new PropogationContext();
 
 						branch.execute(propCtx, new DualCommandFactory<Model>() {
-//							public DualCommand<Model> createDualCommand() {
-//								return new DualCommandPair<Model>(
-//									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
-//									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
-//								);
-//							}
-							
 							@Override
 							public void createDualCommands(
 									List<DualCommand<Model>> dualCommands) {
-//								dualCommands.add(createDualCommand());
-								
 								dualCommands.add(new DualCommandPair<Model>(
 									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
 									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
@@ -108,17 +77,6 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 								dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation()));
 							}
 						});
-//						branch.execute(propCtx, new DualCommandFactory<Model>() {
-//							public dynamake.DualCommand<Model> createDualCommand() {
-//								return LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation());
-//							}
-//							
-//							@Override
-//							public void createDualCommands(
-//									List<DualCommand<Model>> dualCommands) {
-//								dualCommands.add(createDualCommand());
-//							}
-//						});
 					}
 				});
 			}
@@ -167,8 +125,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
-		PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
-//		connection.rollback(propCtx);
+		livePanel.productionPanel.editPanelMouseAdapter.clearEffectFrame();
 		branch.reject();
 	}
 }

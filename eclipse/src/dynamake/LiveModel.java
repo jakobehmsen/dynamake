@@ -446,12 +446,11 @@ public class LiveModel extends Model {
 			}
 			
 			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceBranch<Model> branch) {
-				// TODO: Once finished with replace all usages of beginTransaction, commitTransaction, and rollbackTransaction:
-				// Put a PrevayerServiceConnection<Model> as parameter to this method and forward the connection in the flow.
 				Dimension sourceBoundsSize = new Dimension(125, 33);
 				Point sourceBoundsLocation = new Point(initialMouseDown.x - sourceBoundsSize.width / 2, initialMouseDown.y - sourceBoundsSize.height / 2);
 				Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
 				Rectangle selectionBounds = SwingUtilities.convertRectangle((JComponent)view, sourceBounds, productionPanel);
+				createEffectFrame(selectionBounds);
 				requestSelect(view, initialMouseDown, moving, selectionBounds, branch);
 			}
 			

@@ -77,18 +77,17 @@ public class ConsTool implements Tool {
 							}
 						});
 					}
-					
-					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-//					connection.commit(propCtx);
+
 					branch.close();
 					
 					if(productionPanel.targetFrame != null)
 						productionPanel.remove(productionPanel.targetFrame);
 					
+					productionPanel.editPanelMouseAdapter.clearEffectFrame();
+					
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							productionPanel.editPanelMouseAdapter.resetEffectFrame();
 							productionPanel.livePanel.repaint();
 						}
 					});
@@ -100,8 +99,7 @@ public class ConsTool implements Tool {
 					productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, branchStep2);
 					branch.close();
 				} else {
-					productionPanel.editPanelMouseAdapter.resetEffectFrame();
-					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
+					productionPanel.editPanelMouseAdapter.clearEffectFrame();
 					branch.reject();
 				}
 			}
@@ -111,37 +109,18 @@ public class ConsTool implements Tool {
 		}
 	}
 	
-//	private PrevaylerServiceConnection<Model> connection;
 	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-//			productionPanel.livePanel.getTransactionFactory().beginTransaction();
-//			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
 			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 			
 			PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
-				
-//				connection.execute(propCtx, new DualCommandFactory<Model>() {
-//					public DualCommand<Model> createDualCommand() {
-//						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-//						return new DualCommandPair<Model>(
-//							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-//							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-//						);
-//					}
-//					
-//					@Override
-//					public void createDualCommands(
-//							List<DualCommand<Model>> dualCommands) {
-//						dualCommands.add(createDualCommand());
-//					}
-//				});
-				
+
 				branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -163,7 +142,6 @@ public class ConsTool implements Tool {
 			if(targetModelComponent != null) {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				productionPanel.editPanelMouseAdapter.selectFromDefault(targetModelComponent, referencePoint, true, branchStep1);
-				productionPanel.livePanel.repaint();
 			}
 			
 			branchStep1.close();
@@ -211,18 +189,19 @@ public class ConsTool implements Tool {
 				}
 			}
 			
-			final int width = productionPanel.effectFrame.getWidth();
-			final int height = productionPanel.effectFrame.getHeight();
+			final int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
+			final int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
 			
 			Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			
 			final int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.initialEffectBounds.width / 2;
 			final int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.initialEffectBounds.height / 2;
 
+			productionPanel.editPanelMouseAdapter.changeEffectFrame(new Rectangle(x, y, width, height));
+
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					productionPanel.effectFrame.setBounds(new Rectangle(x, y, width, height));
 					productionPanel.livePanel.repaint();
 				}
 			});

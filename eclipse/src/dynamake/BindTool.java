@@ -135,12 +135,12 @@ public class BindTool implements Tool {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
 				
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						productionPanel.livePanel.repaint();
-					}
-				});
+//				SwingUtilities.invokeLater(new Runnable() {
+//					@Override
+//					public void run() {
+//						productionPanel.livePanel.repaint();
+//					}
+//				});
 			}
 			
 			branchStep1.close();
