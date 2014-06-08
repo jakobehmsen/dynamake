@@ -76,8 +76,10 @@ public class BindTool implements Tool {
 				}
 				
 				branchStep2.close();
+				productionPanel.editPanelMouseAdapter.clearEffectFrame();
 			} else {
 				branchStep2.reject();
+				productionPanel.editPanelMouseAdapter.clearEffectFrame();
 			}
 			
 			productionPanel.editPanelMouseAdapter.targetOver = null;
@@ -192,18 +194,19 @@ public class BindTool implements Tool {
 				}
 			}
 			
-			final int width = productionPanel.effectFrame.getWidth();
-			final int height = productionPanel.effectFrame.getHeight();
+			final int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
+			final int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
 
 			Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			
 			final int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.selectionMouseDown.x;
 			final int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.selectionMouseDown.y;
 
+			productionPanel.editPanelMouseAdapter.changeEffectFrame(new Rectangle(x, y, width, height));
+			
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					productionPanel.effectFrame.setBounds(new Rectangle(x, y, width, height));
 					productionPanel.livePanel.repaint();
 				}
 			});

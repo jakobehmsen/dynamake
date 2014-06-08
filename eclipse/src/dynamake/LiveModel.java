@@ -341,6 +341,7 @@ public class LiveModel extends Model {
 				if(productionPanel.effectFrame2 == null) {
 					final JPanel effectFrame = new JPanel();
 					effectFrame.setBackground(new Color(0, 0, 0, 0));
+					effectFrame.setBounds(creationBounds);
 					
 					effectFrame.setBorder(BorderFactory.createCompoundBorder(
 						BorderFactory.createDashedBorder(Color.BLACK, 2.0f, 2.0f, 1.5f, false),
@@ -392,6 +393,14 @@ public class LiveModel extends Model {
 				}
 			}
 
+			public int getEffectFrameWidth() {
+				return productionPanel.effectFrame2.getWidth();
+			}
+
+			public int getEffectFrameHeight() {
+				return productionPanel.effectFrame2.getHeight();
+			}
+
 			public void resetEffectFrame() {
 //				final JPanel effectFrame = productionPanel.effectFrame;
 //				SwingUtilities.invokeLater(new Runnable() {
@@ -432,6 +441,7 @@ public class LiveModel extends Model {
 			
 			public void selectFromView(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceBranch<Model> branch) {
 				Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+				createEffectFrame(effectBounds);
 				requestSelect(view, initialMouseDown, moving, effectBounds, branch);
 			}
 			
@@ -446,6 +456,7 @@ public class LiveModel extends Model {
 			}
 			
 			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceBranch<Model> branch) {
+				productionPanel.editPanelMouseAdapter.createEffectFrame(new Rectangle(0, 0, 0, 0));
 				requestSelect(view, initialMouseDown, moving, new Rectangle(0, 0, 0, 0), branch);
 			}
 			
