@@ -149,7 +149,7 @@ public class EditTool implements Tool {
 		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 		ModelComponent targetModelComponent =  productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 
-		if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != productionPanel.contentView.getBindingTarget()) {
+		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			if(targetModelComponent != null) {
 				viewPressedOn = targetModelComponent;
 				branch = productionPanel.livePanel.getTransactionFactory().createBranch();

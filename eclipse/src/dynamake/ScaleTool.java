@@ -120,7 +120,7 @@ public class ScaleTool implements Tool {
 		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 		ModelComponent targetModelComponent =  productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 		
-		if(e.getButton() == MouseEvent.BUTTON1 && targetModelComponent != productionPanel.contentView.getBindingTarget()) {
+		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			if(targetModelComponent != null) {
 				viewPressedOn = targetModelComponent;
 				branch = productionPanel.livePanel.getTransactionFactory().createBranch();
@@ -161,7 +161,6 @@ public class ScaleTool implements Tool {
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e) {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
-			
 			ModelComponent newTargetOverComponent;
 			
 			if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&

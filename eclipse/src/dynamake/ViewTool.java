@@ -28,58 +28,54 @@ public class ViewTool implements Tool {
 
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1) {
-			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
-			
-			productionPanel.editPanelMouseAdapter.showPopupForSelectionView(productionPanel.selectionFrame, e.getPoint(), null, branchStep2);
-			
-			branch.close();
+		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+		
+		productionPanel.editPanelMouseAdapter.showPopupForSelectionView(productionPanel.selectionFrame, e.getPoint(), null, branchStep2);
+		
+		branch.close();
 
-			productionPanel.editPanelMouseAdapter.targetOver = null;
-			productionPanel.livePanel.repaint();
-		}
+		productionPanel.editPanelMouseAdapter.targetOver = null;
+		productionPanel.livePanel.repaint();
 	}
 	
 	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1) {
-			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
-			
-			PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
-			
-			Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
-			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
-			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
-			if(targetModelComponent != null) {
-				if(productionPanel.editPanelMouseAdapter.output != null) {
-					PropogationContext propCtx = new PropogationContext();
-					
-					branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
-						public DualCommand<Model> createDualCommand() {
-							ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-							return new DualCommandPair<Model>(
-								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-							);
-						}
-						
-						@Override
-						public void createDualCommands(
-								List<DualCommand<Model>> dualCommands) {
-							dualCommands.add(createDualCommand());
-						}
-					});
-				}
+		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+		
+		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+		
+		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
+		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
+		ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+		if(targetModelComponent != null) {
+			if(productionPanel.editPanelMouseAdapter.output != null) {
+				PropogationContext propCtx = new PropogationContext();
 				
-				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
-				productionPanel.livePanel.repaint();
+				branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
+					public DualCommand<Model> createDualCommand() {
+						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+						return new DualCommandPair<Model>(
+							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+						);
+					}
+					
+					@Override
+					public void createDualCommands(
+							List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(createDualCommand());
+					}
+				});
 			}
 			
-			branchStep1.close();
+			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
+			productionPanel.livePanel.repaint();
 		}
+		
+		branchStep1.close();
 	}
 
 	@Override
