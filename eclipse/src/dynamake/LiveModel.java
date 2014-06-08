@@ -291,6 +291,7 @@ public class LiveModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		public JPanel effectFrame;
+		private JPanel effectFrame2;
 		public JPanel selectionFrame;
 		public JPanel targetFrame;
 		public JPanel outputFrame;
@@ -335,16 +336,71 @@ public class LiveModel extends Model {
 			private Tool getTool() {
 				return productionPanel.livePanel.viewManager.getTools()[productionPanel.livePanel.model.tool - 1];
 			}
+			
+			public void createEffectFrame(Rectangle creationBounds) {
+				if(productionPanel.effectFrame2 == null) {
+					final JPanel effectFrame = new JPanel();
+					effectFrame.setBackground(new Color(0, 0, 0, 0));
+					
+					effectFrame.setBorder(BorderFactory.createCompoundBorder(
+						BorderFactory.createDashedBorder(Color.BLACK, 2.0f, 2.0f, 1.5f, false),
+						BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
+					));
+					
+					productionPanel.effectFrame2 = effectFrame;
+
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							productionPanel.add(effectFrame);
+							System.out.println("Added effect frame");
+						}
+					});
+				} else {
+					System.out.println("Attempted to created an effect frame when it has already been created.");
+				}
+			}
+			
+			public void changeEffectFrame(final Rectangle newBounds) {
+				if(productionPanel.effectFrame2 != null) {
+					final JPanel effectFrame = productionPanel.effectFrame2;
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							effectFrame.setBounds(newBounds);
+							System.out.println("Changed effect frame");
+						}
+					});
+				} else {
+					System.out.println("Attempted to change effect frame when it hasn't been created.");
+				}
+			}
+			
+			public void clearEffectFrame() {
+				if(productionPanel.effectFrame2 != null) {
+					final JPanel effectFrame = productionPanel.effectFrame2;
+					productionPanel.effectFrame2 = null;
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							productionPanel.remove(effectFrame);
+							System.out.println("Removed effect frame");
+						}
+					});
+				} else {
+					System.out.println("Attempted to clear effect frame when it hasn't been created.");
+				}
+			}
 
 			public void resetEffectFrame() {
-				final JPanel effectFrame = productionPanel.effectFrame;
-				SwingUtilities.invokeLater(new Runnable() {
-					
-					@Override
-					public void run() {
-						effectFrame.setBounds(new Rectangle(0, 0, 0, 0));
-					}
-				});
+//				final JPanel effectFrame = productionPanel.effectFrame;
+//				SwingUtilities.invokeLater(new Runnable() {
+//					
+//					@Override
+//					public void run() {
+//						effectFrame.setBounds(new Rectangle(0, 0, 0, 0));
+//					}
+//				});
 			}
 			
 			public void updateRelativeCursorPosition(Point point, Dimension size) {
@@ -446,23 +502,23 @@ public class LiveModel extends Model {
 					productionPanel.selectionBoundsBinding.releaseBinding();
 				
 				if(this.selection != null) {
-					if(productionPanel.effectFrame == null) {
-						productionPanel.effectFrame = new JPanel();
-						productionPanel.effectFrame.setBackground(new Color(0, 0, 0, 0));
-						
-						productionPanel.effectFrame.setBorder(BorderFactory.createCompoundBorder(
-							BorderFactory.createDashedBorder(Color.BLACK, 2.0f, 2.0f, 1.5f, false),
-							BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
-						));
-
-						final JPanel effectFrame = productionPanel.effectFrame;
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								productionPanel.add(effectFrame);
-							}
-						});
-					}
+//					if(productionPanel.effectFrame == null) {
+//						productionPanel.effectFrame = new JPanel();
+//						productionPanel.effectFrame.setBackground(new Color(0, 0, 0, 0));
+//						
+//						productionPanel.effectFrame.setBorder(BorderFactory.createCompoundBorder(
+//							BorderFactory.createDashedBorder(Color.BLACK, 2.0f, 2.0f, 1.5f, false),
+//							BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
+//						));
+//
+//						final JPanel effectFrame = productionPanel.effectFrame;
+//						SwingUtilities.invokeLater(new Runnable() {
+//							@Override
+//							public void run() {
+//								productionPanel.add(effectFrame);
+//							}
+//						});
+//					}
 					
 					if(productionPanel.selectionFrame == null) {
 						productionPanel.selectionFrame = new JPanel();
@@ -521,14 +577,13 @@ public class LiveModel extends Model {
 					effectFrameMoving = moving;
 					updateRelativeCursorPosition(initialMouseDown, ((JComponent)view).getSize());
 
-					final JPanel effectFrame = productionPanel.effectFrame;
-					SwingUtilities.invokeLater(new Runnable() {
-						
-						@Override
-						public void run() {
-							effectFrame.setBounds(effectBounds);
-						}
-					});
+//					final JPanel effectFrame = productionPanel.effectFrame;
+//					SwingUtilities.invokeLater(new Runnable() {
+//						@Override
+//						public void run() {
+//							effectFrame.setBounds(effectBounds);
+//						}
+//					});
 					
 					initialEffectLocation = effectBounds.getLocation();
 					this.initialEffectBounds = effectBounds;
@@ -585,9 +640,9 @@ public class LiveModel extends Model {
 					};
 //					productionPanel.livePanel.repaint();
 				} else {
-					if(productionPanel.effectFrame != null) {
-						productionPanel.clearFocus();
-					}
+//					if(productionPanel.effectFrame != null) {
+//						productionPanel.clearFocus();
+//					}
 					
 //					productionPanel.livePanel.repaint();
 				}
@@ -630,7 +685,7 @@ public class LiveModel extends Model {
 					};
 
 					Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
-					Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)targetOver);
+					Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, productionPanel.effectFrame2.getBounds(), (JComponent)targetOver);
 					popupBuilder.buildFromSelectionAndTarget(productionPanel.livePanel, transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
 
 					transactionsPopupMenu.show(popupMenuInvoker, pointOnInvoker.x, pointOnInvoker.y);
@@ -782,7 +837,7 @@ public class LiveModel extends Model {
 		
 		public ProductionPanel(final LivePanel livePanel, final Binding<ModelComponent> contentView) {
 			this.setLayout(null);
-			effectFrame = null;
+//			effectFrame = null;
 			this.livePanel = livePanel;
 			this.contentView = contentView;
 			
@@ -799,16 +854,16 @@ public class LiveModel extends Model {
 		}
 
 		public void clearFocus() {
-			if(effectFrame != null) {
-				this.remove(effectFrame);
-				effectFrame = null;
-				
-				if(selectionBoundsBinding != null)
-					selectionBoundsBinding.releaseBinding();
-				
-				this.remove(selectionFrame);
-				selectionFrame = null;
-			}
+//			if(effectFrame != null) {
+//				this.remove(effectFrame);
+//				effectFrame = null;
+//				
+//				if(selectionBoundsBinding != null)
+//					selectionBoundsBinding.releaseBinding();
+//				
+//				this.remove(selectionFrame);
+//				selectionFrame = null;
+//			}
 			
 			if(selectionFrame != null) {
 				if(selectionBoundsBinding != null)

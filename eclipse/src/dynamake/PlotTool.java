@@ -107,7 +107,7 @@ public class PlotTool implements Tool {
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
-									productionPanel.editPanelMouseAdapter.resetEffectFrame();
+									productionPanel.editPanelMouseAdapter.clearEffectFrame();
 									productionPanel.livePanel.repaint();
 								}
 							});
@@ -156,7 +156,7 @@ public class PlotTool implements Tool {
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
-									productionPanel.editPanelMouseAdapter.resetEffectFrame();
+									productionPanel.editPanelMouseAdapter.clearEffectFrame();
 									productionPanel.livePanel.repaint();
 								}
 							});
@@ -182,8 +182,7 @@ public class PlotTool implements Tool {
 				
 				@Override
 				public void popupMenuCanceled(PopupMenuEvent e) {
-//					System.out.println("Cancel popup");
-//					PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_ROLLBACK);
+					productionPanel.editPanelMouseAdapter.clearEffectFrame();
 					branch.reject();
 				}
 			});
@@ -223,16 +222,9 @@ public class PlotTool implements Tool {
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 			if(targetModelComponent != null && targetModelComponent.getModelBehind() instanceof CanvasModel) {
-//				System.out.println("selectFromEmpty");
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+				productionPanel.editPanelMouseAdapter.createEffectFrame(new Rectangle(0, 0, 0, 0));
 				productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, true, branchStep1);
-				
-//				SwingUtilities.invokeLater(new Runnable() {
-//					@Override
-//					public void run() {
-//						productionPanel.livePanel.repaint();
-//					}
-//				});
 			} else {
 				productionPanel.editPanelMouseAdapter.selectionMouseDown = e.getPoint();
 			}
@@ -247,11 +239,11 @@ public class PlotTool implements Tool {
 			Point selectionDragPoint = SwingUtilities.convertPoint(((JComponent)(e.getSource())).getParent(), e.getPoint(), productionPanel);
 			Rectangle plotBoundsInSelection = productionPanel.editPanelMouseAdapter.getPlotBounds(productionPanel.editPanelMouseAdapter.selectionMouseDown, selectionDragPoint);
 			final Rectangle plotBoundsInProductionPanel = SwingUtilities.convertRectangle((JComponent)productionPanel.editPanelMouseAdapter.selection, plotBoundsInSelection, productionPanel);
-			
+
+			productionPanel.editPanelMouseAdapter.changeEffectFrame(plotBoundsInProductionPanel);
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					productionPanel.effectFrame.setBounds(plotBoundsInProductionPanel);
 					productionPanel.livePanel.repaint();
 				}
 			});

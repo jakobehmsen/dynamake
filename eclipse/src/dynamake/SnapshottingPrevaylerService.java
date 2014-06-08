@@ -370,7 +370,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		private void commit(final PropogationContext propCtx) {
-			System.out.println("Commit branch");
+//			System.out.println("Commit branch");
 			
 			prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
