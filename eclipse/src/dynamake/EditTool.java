@@ -12,10 +12,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.prevayler.Transaction;
-
-import dynamake.CanvasModel.MoveModelTransaction;
-import dynamake.CanvasModel.SetOutputMoveModelTransaction;
 import dynamake.LiveModel.ProductionPanel;
 import dynamake.LiveModel.SetOutput;
 
@@ -185,14 +181,15 @@ public class EditTool implements Tool {
 						}
 					});
 
-					// Let the effect be transient only from now on?
-					productionPanel.editPanelMouseAdapter.resetEffectFrame();
+//					// Let the effect be transient only from now on?
+//					productionPanel.editPanelMouseAdapter.resetEffectFrame();
 				}
 				
 				productionPanel.editPanelMouseAdapter.targetOver = null;
 				productionPanel.editPanelMouseAdapter.clearTarget();
 			}
 			
+			productionPanel.editPanelMouseAdapter.clearEffectFrame();
 			branchStep2.close();
 		}
 	}
@@ -235,12 +232,12 @@ public class EditTool implements Tool {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
 				
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						productionPanel.livePanel.repaint();
-					}
-				});
+//				SwingUtilities.invokeLater(new Runnable() {
+//					@Override
+//					public void run() {
+//						productionPanel.livePanel.repaint();
+//					}
+//				});
 				
 				branchStep1.close();
 			}
@@ -344,11 +341,12 @@ public class EditTool implements Tool {
 			}
 			
 			final Rectangle newEffectBounds = new Rectangle(x, y, width, height);
+			productionPanel.editPanelMouseAdapter.createEffectFrame(newEffectBounds);
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					productionPanel.effectFrame.setBounds(newEffectBounds);
+//					productionPanel.effectFrame.setBounds(newEffectBounds);
 					productionPanel.livePanel.repaint();
 				}
 			});

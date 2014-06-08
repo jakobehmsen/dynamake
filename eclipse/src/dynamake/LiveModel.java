@@ -290,11 +290,16 @@ public class LiveModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		
+		// Temporary frames
 		public JPanel effectFrame;
 		private JPanel effectFrame2;
-		public JPanel selectionFrame;
 		public JPanel targetFrame;
+		
+		// Persistent frames
+		public JPanel selectionFrame;
 		public JPanel outputFrame;
+		
 		public Binding<Component> selectionBoundsBinding;
 
 		public static final Color TARGET_OVER_COLOR = new Color(35, 89, 184);
