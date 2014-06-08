@@ -293,8 +293,7 @@ public class LiveModel extends Model {
 		private static final long serialVersionUID = 1L;
 		
 		// Temporary frames
-		public JPanel effectFrame;
-		private JPanel effectFrame2;
+		private JPanel effectFrame;
 		public JPanel targetFrame;
 		
 		// Persistent frames
@@ -344,17 +343,17 @@ public class LiveModel extends Model {
 			}
 			
 			public void createEffectFrame(Rectangle creationBounds) {
-				if(productionPanel.effectFrame2 == null) {
-					final JPanel effectFrame = new JPanel();
-					effectFrame.setBackground(new Color(0, 0, 0, 0));
-					effectFrame.setBounds(creationBounds);
+				if(productionPanel.effectFrame == null) {
+					final JPanel localEffectFrame = new JPanel();
+					localEffectFrame.setBackground(new Color(0, 0, 0, 0));
+					localEffectFrame.setBounds(creationBounds);
 					
-					effectFrame.setBorder(BorderFactory.createCompoundBorder(
+					localEffectFrame.setBorder(BorderFactory.createCompoundBorder(
 						BorderFactory.createDashedBorder(Color.BLACK, 2.0f, 2.0f, 1.5f, false),
 						BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
 					));
 					
-					productionPanel.effectFrame2 = effectFrame;
+					productionPanel.effectFrame = localEffectFrame;
 					
 					// Ensure effect frame is shown in front of selection frame
 					if(productionPanel.selectionFrame != null) {
@@ -362,7 +361,7 @@ public class LiveModel extends Model {
 							@Override
 							public void run() {
 								productionPanel.remove(productionPanel.selectionFrame);
-								productionPanel.add(effectFrame);
+								productionPanel.add(localEffectFrame);
 								productionPanel.add(productionPanel.selectionFrame);
 							}
 						});
@@ -370,7 +369,7 @@ public class LiveModel extends Model {
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								productionPanel.add(effectFrame);
+								productionPanel.add(localEffectFrame);
 							}
 						});
 					}
@@ -380,13 +379,12 @@ public class LiveModel extends Model {
 			}
 			
 			public void changeEffectFrame(final Rectangle newBounds) {
-				if(productionPanel.effectFrame2 != null) {
-					final JPanel effectFrame = productionPanel.effectFrame2;
+				if(productionPanel.effectFrame != null) {
+					final JPanel localEffectFrame = productionPanel.effectFrame;
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							effectFrame.setBounds(newBounds);
-							System.out.println("Changed effect frame");
+							localEffectFrame.setBounds(newBounds);
 						}
 					});
 				} else {
@@ -395,14 +393,13 @@ public class LiveModel extends Model {
 			}
 			
 			public void clearEffectFrame() {
-				if(productionPanel.effectFrame2 != null) {
-					final JPanel effectFrame = productionPanel.effectFrame2;
-					productionPanel.effectFrame2 = null;
+				if(productionPanel.effectFrame != null) {
+					final JPanel localEffectFrame = productionPanel.effectFrame;
+					productionPanel.effectFrame = null;
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							productionPanel.remove(effectFrame);
-							System.out.println("Removed effect frame");
+							productionPanel.remove(localEffectFrame);
 						}
 					});
 				} else {
@@ -411,44 +408,33 @@ public class LiveModel extends Model {
 			}
 
 			public int getEffectFrameX() {
-				return productionPanel.effectFrame2.getX();
+				return productionPanel.effectFrame.getX();
 			}
 
 			public int getEffectFrameY() {
-				return productionPanel.effectFrame2.getY();
+				return productionPanel.effectFrame.getY();
 			}
 
 			public int getEffectFrameWidth() {
-				return productionPanel.effectFrame2.getWidth();
+				return productionPanel.effectFrame.getWidth();
 			}
 
 			public int getEffectFrameHeight() {
-				return productionPanel.effectFrame2.getHeight();
+				return productionPanel.effectFrame.getHeight();
 			}
 
 			public Rectangle getEffectFrameBounds() {
-				return productionPanel.effectFrame2.getBounds();
+				return productionPanel.effectFrame.getBounds();
 			}
 
 			public void setEffectFrameCursor(final Cursor cursor) {
-				final JPanel effectFrame = productionPanel.effectFrame2;
+				final JPanel localEffectFrame = productionPanel.effectFrame;
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						effectFrame.setCursor(cursor);
+						localEffectFrame.setCursor(cursor);
 					}
 				});
-			}
-
-			public void resetEffectFrame() {
-//				final JPanel effectFrame = productionPanel.effectFrame;
-//				SwingUtilities.invokeLater(new Runnable() {
-//					
-//					@Override
-//					public void run() {
-//						effectFrame.setBounds(new Rectangle(0, 0, 0, 0));
-//					}
-//				});
 			}
 			
 			public void updateRelativeCursorPosition(Point point, Dimension size) {
@@ -580,24 +566,6 @@ public class LiveModel extends Model {
 					productionPanel.selectionBoundsBinding.releaseBinding();
 				
 				if(this.selection != null) {
-//					if(productionPanel.effectFrame == null) {
-//						productionPanel.effectFrame = new JPanel();
-//						productionPanel.effectFrame.setBackground(new Color(0, 0, 0, 0));
-//						
-//						productionPanel.effectFrame.setBorder(BorderFactory.createCompoundBorder(
-//							BorderFactory.createDashedBorder(Color.BLACK, 2.0f, 2.0f, 1.5f, false),
-//							BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
-//						));
-//
-//						final JPanel effectFrame = productionPanel.effectFrame;
-//						SwingUtilities.invokeLater(new Runnable() {
-//							@Override
-//							public void run() {
-//								productionPanel.add(effectFrame);
-//							}
-//						});
-//					}
-					
 					if(productionPanel.selectionFrame == null) {
 						productionPanel.selectionFrame = new JPanel();
 						productionPanel.selectionFrame.setBackground(new Color(0, 0, 0, 0));
@@ -643,7 +611,7 @@ public class LiveModel extends Model {
 
 						final JPanel selectionFrame = productionPanel.selectionFrame; 
 						
-						if(productionPanel.effectFrame2 != null)
+						if(productionPanel.effectFrame != null)
 							System.out.println("Effect frame was there before selection was added");
 						SwingUtilities.invokeLater(new Runnable() {
 							@Override
@@ -657,14 +625,6 @@ public class LiveModel extends Model {
 					selectionFrameSize = ((JComponent)view).getSize();
 					effectFrameMoving = moving;
 					updateRelativeCursorPosition(initialMouseDown, ((JComponent)view).getSize());
-
-//					final JPanel effectFrame = productionPanel.effectFrame;
-//					SwingUtilities.invokeLater(new Runnable() {
-//						@Override
-//						public void run() {
-//							effectFrame.setBounds(effectBounds);
-//						}
-//					});
 					
 					initialEffectLocation = effectBounds.getLocation();
 					this.initialEffectBounds = effectBounds;
@@ -719,13 +679,9 @@ public class LiveModel extends Model {
 							return component;
 						}
 					};
-//					productionPanel.livePanel.repaint();
 				} else {
-					if(productionPanel.selectionFrame != null) {
+					if(productionPanel.selectionFrame != null)
 						productionPanel.clearFocus();
-					}
-					
-//					productionPanel.livePanel.repaint();
 				}
 			}
 			
@@ -766,7 +722,7 @@ public class LiveModel extends Model {
 					};
 
 					Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
-					Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, productionPanel.effectFrame2.getBounds(), (JComponent)targetOver);
+					Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)targetOver);
 					popupBuilder.buildFromSelectionAndTarget(productionPanel.livePanel, transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
 
 					transactionsPopupMenu.show(popupMenuInvoker, pointOnInvoker.x, pointOnInvoker.y);
@@ -782,7 +738,6 @@ public class LiveModel extends Model {
 						public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
 							clearTarget();
 
-							resetEffectFrame();
 							productionPanel.livePanel.repaint();
 						}
 						
@@ -923,7 +878,6 @@ public class LiveModel extends Model {
 		
 		public ProductionPanel(final LivePanel livePanel, final Binding<ModelComponent> contentView) {
 			this.setLayout(null);
-//			effectFrame = null;
 			this.livePanel = livePanel;
 			this.contentView = contentView;
 			
@@ -940,17 +894,6 @@ public class LiveModel extends Model {
 		}
 
 		public void clearFocus() {
-//			if(effectFrame != null) {
-//				this.remove(effectFrame);
-//				effectFrame = null;
-//				
-//				if(selectionBoundsBinding != null)
-//					selectionBoundsBinding.releaseBinding();
-//				
-//				this.remove(selectionFrame);
-//				selectionFrame = null;
-//			}
-			
 			if(selectionFrame != null) {
 				if(selectionBoundsBinding != null)
 					selectionBoundsBinding.releaseBinding();
@@ -958,9 +901,6 @@ public class LiveModel extends Model {
 				this.remove(selectionFrame);
 				selectionFrame = null;
 			}
-			
-//			PropogationContext propCtx = new PropogationContext();
-//			this.livePanel.transactionFactory.executeOnRoot(propCtx, new SetSelection(this.livePanel.transactionFactory.getLocation(), null));
 		}
 	}
 	
@@ -994,8 +934,6 @@ public class LiveModel extends Model {
 				@Override
 				public void unFocus(PropogationContext propCtx, ModelComponent view, PrevaylerServiceBranch<Model> branch) {
 					if(productionPanel.editPanelMouseAdapter.selection == view) {
-//						productionPanel.clearFocus();
-						
 						productionPanel.editPanelMouseAdapter.requestSelect(null, null, false, null, branch);
 					}
 				}
