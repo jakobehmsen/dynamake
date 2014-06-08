@@ -40,7 +40,6 @@ public class TellTool implements Tool {
 		}
 	}
 	
-//	private PrevaylerServiceConnection<Model> connection;
 	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
@@ -75,7 +74,7 @@ public class TellTool implements Tool {
 				}
 				
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
+				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
 				productionPanel.livePanel.repaint();
 			}
 			

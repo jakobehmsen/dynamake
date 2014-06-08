@@ -474,7 +474,7 @@ public class CanvasModel extends Model {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							// Clear the current selection which is, here, assumed to the child
-							livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, false, null, dualCommands);
+							livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
 							
 							int indexOfModel = model.indexOfModel(child.getModelBehind());
 							Location canvasLocation = transactionFactory.getModelLocation();
@@ -587,7 +587,7 @@ public class CanvasModel extends Model {
 		
 		Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
 		
-		livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, false, null, dualCommands);
+		livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
 		
 		dualCommands.add(new DualCommandPair<Model>(
 			new CanvasModel.MoveModel2Transaction(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 

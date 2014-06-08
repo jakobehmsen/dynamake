@@ -40,13 +40,11 @@ public class ViewTool implements Tool {
 		}
 	}
 	
-//	private PrevaylerServiceConnection<Model> connection;
 	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
-//			connection = productionPanel.livePanel.getTransactionFactory().createConnection();
 			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 			
 			PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
@@ -76,7 +74,7 @@ public class ViewTool implements Tool {
 				}
 				
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
+				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
 				productionPanel.livePanel.repaint();
 			}
 			
