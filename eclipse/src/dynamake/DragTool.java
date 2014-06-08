@@ -31,7 +31,7 @@ public class DragTool implements Tool {
 	}
 
 	@Override
-	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1) {
 			Point releasePoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(releasePoint);
@@ -48,7 +48,13 @@ public class DragTool implements Tool {
 			branch.close();
 
 			productionPanel.editPanelMouseAdapter.targetOver = null;
-			productionPanel.livePanel.repaint();
+			
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					productionPanel.livePanel.repaint();
+				}
+			});
 		}
 	}
 	
@@ -63,23 +69,7 @@ public class DragTool implements Tool {
 			
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
-//				
-//				connection.execute(propCtx, new DualCommandFactory<Model>() {
-//					public DualCommand<Model> createDualCommand() {
-//						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-//						return new DualCommandPair<Model>(
-//							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-//							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-//						);
-//					}
-//					
-//					@Override
-//					public void createDualCommands(
-//							List<DualCommand<Model>> dualCommands) {
-//						dualCommands.add(createDualCommand());
-//					}
-//				});
-				
+
 				branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -109,7 +99,7 @@ public class DragTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e) {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null && productionPanel.editPanelMouseAdapter.effectFrameMoving) {
 			Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
@@ -144,16 +134,22 @@ public class DragTool implements Tool {
 				}
 			}
 			
-			int width = productionPanel.effectFrame.getWidth();
-			int height = productionPanel.effectFrame.getHeight();
+			final int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
+			final int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
 
 			Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			
 			int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.selectionMouseDown.x;
 			int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.selectionMouseDown.y;
 
-			productionPanel.effectFrame.setBounds(new Rectangle(x, y, width, height));
-			productionPanel.livePanel.repaint();
+			productionPanel.editPanelMouseAdapter.changeEffectFrame(new Rectangle(x, y, width, height));
+			
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					productionPanel.livePanel.repaint();
+				}
+			});
 		}
 	}
 }

@@ -34,7 +34,8 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			@Override
 			public void run(Runnable runnable) {
 				runnable.run();
-				
+
+				((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.clearEffectFrame();
 				branch.close();
 			}
 		};
@@ -59,7 +60,8 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			@Override
 			public void run(Runnable runnable) {
 				runnable.run();
-				
+
+				((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.clearEffectFrame();
 				branch.close();
 			}
 		};
@@ -146,6 +148,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
+		livePanel.productionPanel.editPanelMouseAdapter.clearEffectFrame();
 		branch.reject();
 	}
 }

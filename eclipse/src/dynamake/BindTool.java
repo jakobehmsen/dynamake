@@ -76,20 +76,17 @@ public class BindTool implements Tool {
 				}
 				
 				branchStep2.close();
-				productionPanel.editPanelMouseAdapter.clearEffectFrame();
 			} else {
 				branchStep2.reject();
-				productionPanel.editPanelMouseAdapter.clearEffectFrame();
 			}
-			
+
+			productionPanel.editPanelMouseAdapter.clearEffectFrame();
 			productionPanel.editPanelMouseAdapter.targetOver = null;
 
 			final JPanel targetFrame = productionPanel.targetFrame;
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					productionPanel.editPanelMouseAdapter.resetEffectFrame();
-
 					if(targetFrame != null)
 						productionPanel.remove(targetFrame);
 					
@@ -134,13 +131,6 @@ public class BindTool implements Tool {
 			if(targetModelComponent != null) {
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
-				
-//				SwingUtilities.invokeLater(new Runnable() {
-//					@Override
-//					public void run() {
-//						productionPanel.livePanel.repaint();
-//					}
-//				});
 			}
 			
 			branchStep1.close();
