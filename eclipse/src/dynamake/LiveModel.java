@@ -3,6 +3,7 @@ package dynamake;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -409,12 +410,34 @@ public class LiveModel extends Model {
 				}
 			}
 
+			public int getEffectFrameX() {
+				return productionPanel.effectFrame2.getX();
+			}
+
+			public int getEffectFrameY() {
+				return productionPanel.effectFrame2.getY();
+			}
+
 			public int getEffectFrameWidth() {
 				return productionPanel.effectFrame2.getWidth();
 			}
 
 			public int getEffectFrameHeight() {
 				return productionPanel.effectFrame2.getHeight();
+			}
+
+			public Rectangle getEffectFrameBounds() {
+				return productionPanel.effectFrame2.getBounds();
+			}
+
+			public void setEffectFrameCursor(final Cursor cursor) {
+				final JPanel effectFrame = productionPanel.effectFrame2;
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						effectFrame.setCursor(cursor);
+					}
+				});
 			}
 
 			public void resetEffectFrame() {
@@ -488,12 +511,41 @@ public class LiveModel extends Model {
 			}
 			
 			public void createSelectCommands(final ModelComponent view, final Point initialMouseDown, final boolean moving, final Rectangle effectBounds, List<DualCommand<Model>> dualCommands) {
+//				final LiveModel liveModel = productionPanel.livePanel.model;
+//				final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
+//				
+//				Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
+//						? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
+//				Location selectionLocation = view != null ? view.getTransactionFactory().getModelLocation() : null;
+//				
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
+//					new SetSelection(liveModelLocation, currentSelectionLocation)
+//				));
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
+//				));
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
+//				));
+//				
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new SetSelection(liveModelLocation, selectionLocation), 
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", liveModel.getProperty("SelectionInitialMouseDown"))
+//				));
+				
+				Location selectionLocation = view != null ? view.getTransactionFactory().getModelLocation() : null;
+				createSelectCommands2(selectionLocation, initialMouseDown, moving, effectBounds, dualCommands);
+			}
+			
+			public void createSelectCommands2(final Location selectionLocation, final Point initialMouseDown, final boolean moving, final Rectangle effectBounds, List<DualCommand<Model>> dualCommands) {
 				final LiveModel liveModel = productionPanel.livePanel.model;
 				final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
 				
 				Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
 						? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
-				Location selectionLocation = view != null ? view.getTransactionFactory().getModelLocation() : null;
 				
 				dualCommands.add(new DualCommandPair<Model>(
 					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
@@ -669,9 +721,9 @@ public class LiveModel extends Model {
 					};
 //					productionPanel.livePanel.repaint();
 				} else {
-//					if(productionPanel.effectFrame != null) {
-//						productionPanel.clearFocus();
-//					}
+					if(productionPanel.selectionFrame != null) {
+						productionPanel.clearFocus();
+					}
 					
 //					productionPanel.livePanel.repaint();
 				}
@@ -813,6 +865,11 @@ public class LiveModel extends Model {
 						l.mouseReleased(e);
 					}
 				}
+			}
+			
+			@Override
+			public void mouseMoved(MouseEvent e) {
+//				getTool().mouseMoved(productionPanel, e);
 			}
 
 			public void setOutput(ModelComponent view) {

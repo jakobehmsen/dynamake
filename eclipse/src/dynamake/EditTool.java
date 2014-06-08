@@ -26,7 +26,7 @@ public class EditTool implements Tool {
 		if(productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			Point point = e.getPoint();
 			
-			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(point, productionPanel.effectFrame.getSize());
+			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(point, productionPanel.selectionFrame.getSize());
 			
 			final Cursor cursor;
 			
@@ -81,11 +81,11 @@ public class EditTool implements Tool {
 				break;
 			}
 			
-			if(productionPanel.effectFrame.getCursor() != cursor) {
+			if(productionPanel.selectionFrame.getCursor() != cursor) {
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						productionPanel.effectFrame.setCursor(cursor);
+						productionPanel.selectionFrame.setCursor(cursor);
 					}
 				});
 			}
@@ -98,7 +98,7 @@ public class EditTool implements Tool {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					productionPanel.effectFrame.setCursor(null);
+					productionPanel.selectionFrame.setCursor(null);
 				}
 			});
 		}
@@ -113,7 +113,7 @@ public class EditTool implements Tool {
 			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 			branch.close();
 			
-			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.effectFrame.getBounds())) {
+			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.editPanelMouseAdapter.getEffectFrameBounds())) {
 				final TransactionFactory selectionTransactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
 				if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
 				   productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
@@ -121,7 +121,7 @@ public class EditTool implements Tool {
 					// Moving to other canvas
 
 					final Rectangle droppedBounds = SwingUtilities.convertRectangle(
-						productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)productionPanel.editPanelMouseAdapter.targetOver);
+						productionPanel, productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), (JComponent)productionPanel.editPanelMouseAdapter.targetOver);
 
 					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
 					final ModelComponent targetOver = productionPanel.editPanelMouseAdapter.targetOver;
@@ -137,7 +137,7 @@ public class EditTool implements Tool {
 					// Changing bounds within the same canvas
 					
 					JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
-					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel.effectFrame.getParent(), productionPanel.effectFrame.getBounds(), parent);
+					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), parent);
 					
 					PropogationContext propCtx = new PropogationContext();
 					
@@ -180,9 +180,6 @@ public class EditTool implements Tool {
 							));
 						}
 					});
-
-//					// Let the effect be transient only from now on?
-//					productionPanel.editPanelMouseAdapter.resetEffectFrame();
 				}
 				
 				productionPanel.editPanelMouseAdapter.targetOver = null;
@@ -231,13 +228,7 @@ public class EditTool implements Tool {
 				
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
-				
-//				SwingUtilities.invokeLater(new Runnable() {
-//					@Override
-//					public void run() {
-//						productionPanel.livePanel.repaint();
-//					}
-//				});
+				productionPanel.editPanelMouseAdapter.setEffectFrameCursor(productionPanel.selectionFrame.getCursor());
 				
 				branchStep1.close();
 			}
@@ -294,11 +285,11 @@ public class EditTool implements Tool {
 					productionPanel.add(productionPanel.targetFrame);
 				}
 			}
-			
-			int x = productionPanel.effectFrame.getX();
-			int y = productionPanel.effectFrame.getY();
-			int width = productionPanel.effectFrame.getWidth();
-			int height = productionPanel.effectFrame.getHeight();
+
+			int x = productionPanel.editPanelMouseAdapter.getEffectFrameX();
+			int y = productionPanel.editPanelMouseAdapter.getEffectFrameY();
+			int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
+			int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
 			
 			Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
 			
@@ -341,12 +332,11 @@ public class EditTool implements Tool {
 			}
 			
 			final Rectangle newEffectBounds = new Rectangle(x, y, width, height);
-			productionPanel.editPanelMouseAdapter.createEffectFrame(newEffectBounds);
+			productionPanel.editPanelMouseAdapter.changeEffectFrame(newEffectBounds);
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-//					productionPanel.effectFrame.setBounds(newEffectBounds);
 					productionPanel.livePanel.repaint();
 				}
 			});

@@ -604,6 +604,9 @@ public class CanvasModel extends Model {
 			new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
 		));
 		
+//		livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(
+//			selection, livePanel.productionPanel.editPanelMouseAdapter.selectionMouseDown, false, new Rectangle(0, 0, 0, 0), dualCommands);
+		
 		dualCommands.add(LiveModel.SetOutput.createDual(livePanel, modelLocationAfterMove));
 	}
 	
