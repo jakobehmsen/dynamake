@@ -40,11 +40,9 @@ public class LiveModel extends Model {
 
 	public static class SelectionChanged {
 		public final boolean selectionMoving;
-		public final Rectangle selectionEffectBounds;
 		
-		public SelectionChanged(boolean selectionMoving, Rectangle selectionEffectBounds) {
+		public SelectionChanged(boolean selectionMoving) {
 			this.selectionMoving = selectionMoving;
-			this.selectionEffectBounds = selectionEffectBounds;
 		}
 	}
 
@@ -87,11 +85,10 @@ public class LiveModel extends Model {
 		
 		if(this.selection != null) {
 			boolean selectionMoving = (boolean)getProperty("SelectionMoving");
-			Rectangle selectionEffectBounds = (Rectangle)getProperty("SelectionEffectBounds");
 			
-			sendChanged(new SelectionChanged(selectionMoving, selectionEffectBounds), propCtx, propDistance, 0, branch);
+			sendChanged(new SelectionChanged(selectionMoving), propCtx, propDistance, 0, branch);
 		} else {
-			sendChanged(new SelectionChanged(false, null), propCtx, propDistance, 0, branch);
+			sendChanged(new SelectionChanged(false), propCtx, propDistance, 0, branch);
 		}
 	}
 
@@ -315,7 +312,7 @@ public class LiveModel extends Model {
 			public ModelComponent selection;
 			public boolean effectFrameMoving;
 			public Point selectionMouseDown;
-			public Point initialEffectLocation;
+//			public Point initialEffectLocation;
 			public Rectangle initialEffectBounds;
 			public Dimension selectionFrameSize;
 			public int selectionFrameHorizontalPosition;
@@ -352,6 +349,7 @@ public class LiveModel extends Model {
 					
 					productionPanel.effectFrame = localEffectFrame;
 					selectionMouseDown = initialMouseDown;
+					initialEffectBounds = creationBounds;
 					
 					// Ensure effect frame is shown in front of selection frame
 					if(productionPanel.selectionFrame != null) {
@@ -395,6 +393,7 @@ public class LiveModel extends Model {
 					final JPanel localEffectFrame = productionPanel.effectFrame;
 					productionPanel.effectFrame = null;
 					selectionMouseDown = null;
+					initialEffectBounds = null;
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
@@ -587,17 +586,30 @@ public class LiveModel extends Model {
 //				));
 						
 
+////				dualCommands.add(new DualCommandPair<Model>(
+////					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
+////					new SetSelection(liveModelLocation, currentSelectionLocation)
+////				));
+//						
 //				dualCommands.add(new DualCommandPair<Model>(
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
 //					new SetSelection(liveModelLocation, currentSelectionLocation)
 //				));
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
+//				));
+//				
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new SetSelection(liveModelLocation, selectionLocation), 
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
+//				));
+				
+				
+						
 				dualCommands.add(new DualCommandPair<Model>(
 					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
 					new SetSelection(liveModelLocation, currentSelectionLocation)
-				));
-				dualCommands.add(new DualCommandPair<Model>(
-					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
-					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
 				));
 				
 				dualCommands.add(new DualCommandPair<Model>(
@@ -606,7 +618,7 @@ public class LiveModel extends Model {
 				));
 			}
 			
-			private void select(final ModelComponent view, boolean moving, final Rectangle effectBounds) {
+			private void select(final ModelComponent view, boolean moving) {
 //				System.out.println("in select method");
 				// <Don't remove>
 				// Whether the following check is necessary or not has not been decided yet, so don't remove the code
@@ -677,9 +689,6 @@ public class LiveModel extends Model {
 					
 					selectionFrameSize = ((JComponent)view).getSize();
 					effectFrameMoving = moving;
-					
-					initialEffectLocation = effectBounds.getLocation();
-					this.initialEffectBounds = effectBounds;
 					
 					final Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 
@@ -1196,9 +1205,8 @@ public class LiveModel extends Model {
 							Location modelComponentLocation = modelLocation.getModelComponentLocation();
 							final ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
 							final boolean moving = selectionChanged.selectionMoving;
-							final Rectangle effectBounds = selectionChanged.selectionEffectBounds;
 
-							productionPanel.editPanelMouseAdapter.select(view, moving, effectBounds);
+							productionPanel.editPanelMouseAdapter.select(view, moving);
 							
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
@@ -1207,7 +1215,7 @@ public class LiveModel extends Model {
 								}
 							});
 						} else {
-							productionPanel.editPanelMouseAdapter.select(null, false, null);
+							productionPanel.editPanelMouseAdapter.select(null, false);
 							
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
@@ -1225,10 +1233,9 @@ public class LiveModel extends Model {
 		public void initialize() {
 			if(LivePanel.this.model.selection != null) {
 				boolean moving = (boolean)LivePanel.this.model.getProperty("SelectionMoving");
-				Rectangle effectBounds = (Rectangle)LivePanel.this.model.getProperty("SelectionEffectBounds");
 
 				ModelComponent selectionView = (ModelComponent)LivePanel.this.model.selection.getLocator().locate().getModelComponentLocation().getChild(rootView);
-				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectionView, moving, effectBounds);
+				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectionView, moving);
 			}
 			
 			if(LivePanel.this.model.output != null) {
