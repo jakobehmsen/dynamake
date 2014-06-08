@@ -231,7 +231,6 @@ public class LiveModel extends Model {
 	public static final int TAG_CAUSED_BY_COMMIT = 4;
 	
 	private static JToggleButton createToolButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int currentState, final int state, final String text) {
-//		JRadioButton radioButton = new JRadioButton(text);
 		JToggleButton buttonTool = new JToggleButton(text);
 		buttonTool.setBackground(TOP_BACKGROUND_COLOR);
 		buttonTool.setForeground(TOP_FOREGROUND_COLOR);
@@ -288,10 +287,6 @@ public class LiveModel extends Model {
 		public static final Color BIND_COLOR = new Color(25, 209, 89);
 		public static final Color UNBIND_COLOR = new Color(240, 34, 54);
 		public static final Color SELECTION_COLOR = Color.GRAY;
-//		public static final Color OUTPUT_COLOR = new Color(155, 235, 235);
-//		public static final Color OUTPUT_COLOR = Color.GREEN;
-//		public static final Color OUTPUT_COLOR = new Color(180, 232, 111);
-//		public static final Color OUTPUT_COLOR = new Color(217, 240, 173);
 		public static final Color OUTPUT_COLOR = new Color(54, 240, 17);
 		
 		public static class EditPanelMouseAdapter extends MouseAdapter {
@@ -547,63 +542,10 @@ public class LiveModel extends Model {
 			}
 			
 			public void createSelectCommandsFromLocation(final Location selectionLocation, List<DualCommand<Model>> dualCommands) {
-//				final LiveModel liveModel = productionPanel.livePanel.model;
 				final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
 				
 				Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
 						? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
-				
-//				dualCommands.add(new DualCommandPair<Model>(
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
-//					new SetSelection(liveModelLocation, currentSelectionLocation)
-//				));
-//				dualCommands.add(new DualCommandPair<Model>(
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
-//				));
-//				dualCommands.add(new DualCommandPair<Model>(
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
-//				));
-//				
-//				dualCommands.add(new DualCommandPair<Model>(
-//					new SetSelection(liveModelLocation, selectionLocation), 
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", liveModel.getProperty("SelectionInitialMouseDown"))
-//				));
-						
-
-////				dualCommands.add(new DualCommandPair<Model>(
-////					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
-////					new SetSelection(liveModelLocation, currentSelectionLocation)
-////				));
-//						
-//				dualCommands.add(new DualCommandPair<Model>(
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
-//					new SetSelection(liveModelLocation, currentSelectionLocation)
-//				));
-//				dualCommands.add(new DualCommandPair<Model>(
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
-//				));
-//				
-//				dualCommands.add(new DualCommandPair<Model>(
-//					new SetSelection(liveModelLocation, selectionLocation), 
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
-//				));
-				
-				
-						
-//				dualCommands.add(new DualCommandPair<Model>(
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
-//					new SetSelection(liveModelLocation, currentSelectionLocation)
-//				));
-//				
-//				dualCommands.add(new DualCommandPair<Model>(
-//					new SetSelection(liveModelLocation, selectionLocation), 
-//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
-//				));
-				
-				
 						
 				dualCommands.add(new DualCommandPair<Model>(
 					new SetSelection(liveModelLocation, selectionLocation), 
