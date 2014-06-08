@@ -28,58 +28,7 @@ public class EditTool implements Tool {
 			
 			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(point, productionPanel.selectionFrame.getSize());
 			
-			final Cursor cursor;
-			
-			switch(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition) {
-			case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_WEST:
-				switch(productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition) {
-				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH:
-					cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
-					break;
-				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER:
-					cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
-					break;
-				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
-					cursor = Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);
-					break;
-				default:
-					cursor = null;
-					break;
-				}
-				break;
-			case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_CENTER:
-				switch(productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition) {
-				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH:
-					cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
-					break;
-				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
-					cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
-					break;
-				default:
-					cursor = null;
-					break;
-				}
-				break;
-			case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_EAST:
-				switch(productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition) {
-				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH:
-					cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
-					break;
-				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER:
-					cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
-					break;
-				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
-					cursor = Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);
-					break;
-				default:
-					cursor = null;
-					break;
-				}
-				break;
-			default:
-				cursor = null;
-				break;
-			}
+			final Cursor cursor = productionPanel.editPanelMouseAdapter.getCursorFromRelativePosition();
 			
 			if(productionPanel.selectionFrame.getCursor() != cursor) {
 				SwingUtilities.invokeLater(new Runnable() {
@@ -228,6 +177,7 @@ public class EditTool implements Tool {
 				
 				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, true, branchStep1);
+				productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(referencePoint, ((JComponent)targetModelComponent).getSize());
 				if(productionPanel.selectionFrame != null)
 					productionPanel.editPanelMouseAdapter.setEffectFrameCursor(productionPanel.selectionFrame.getCursor());
 				

@@ -39,12 +39,10 @@ public class LiveModel extends Model {
 	private static final long serialVersionUID = 1L;
 
 	public static class SelectionChanged {
-		public final Point selectionInitialMouseDown;
 		public final boolean selectionMoving;
 		public final Rectangle selectionEffectBounds;
 		
-		public SelectionChanged(Point selectionInitialMouseDown, boolean selectionMoving, Rectangle selectionEffectBounds) {
-			this.selectionInitialMouseDown = selectionInitialMouseDown;
+		public SelectionChanged(boolean selectionMoving, Rectangle selectionEffectBounds) {
 			this.selectionMoving = selectionMoving;
 			this.selectionEffectBounds = selectionEffectBounds;
 		}
@@ -88,13 +86,12 @@ public class LiveModel extends Model {
 		this.selection = selection;
 		
 		if(this.selection != null) {
-			Point selectionInitialMouseDown = (Point)getProperty("SelectionInitialMouseDown");
 			boolean selectionMoving = (boolean)getProperty("SelectionMoving");
 			Rectangle selectionEffectBounds = (Rectangle)getProperty("SelectionEffectBounds");
 			
-			sendChanged(new SelectionChanged(selectionInitialMouseDown, selectionMoving, selectionEffectBounds), propCtx, propDistance, 0, branch);
+			sendChanged(new SelectionChanged(selectionMoving, selectionEffectBounds), propCtx, propDistance, 0, branch);
 		} else {
-			sendChanged(new SelectionChanged(null, false, null), propCtx, propDistance, 0, branch);
+			sendChanged(new SelectionChanged(false, null), propCtx, propDistance, 0, branch);
 		}
 	}
 
@@ -342,7 +339,7 @@ public class LiveModel extends Model {
 				return productionPanel.livePanel.viewManager.getTools()[productionPanel.livePanel.model.tool - 1];
 			}
 			
-			public void createEffectFrame(Rectangle creationBounds) {
+			public void createEffectFrame(Rectangle creationBounds, Point initialMouseDown) {
 				if(productionPanel.effectFrame == null) {
 					final JPanel localEffectFrame = new JPanel();
 					localEffectFrame.setBackground(new Color(0, 0, 0, 0));
@@ -354,6 +351,7 @@ public class LiveModel extends Model {
 					));
 					
 					productionPanel.effectFrame = localEffectFrame;
+					selectionMouseDown = initialMouseDown;
 					
 					// Ensure effect frame is shown in front of selection frame
 					if(productionPanel.selectionFrame != null) {
@@ -396,6 +394,7 @@ public class LiveModel extends Model {
 				if(productionPanel.effectFrame != null) {
 					final JPanel localEffectFrame = productionPanel.effectFrame;
 					productionPanel.effectFrame = null;
+					selectionMouseDown = null;
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
@@ -464,10 +463,71 @@ public class LiveModel extends Model {
 					selectionFrameVerticalPosition = VERTICAL_REGION_SOUTH;
 			}
 			
+			public Cursor getCursorFromRelativePosition() {
+				return getCursorFromRelativePosition(selectionFrameHorizontalPosition, selectionFrameVerticalPosition);
+			}
+			
+			public static Cursor getCursorFromRelativePosition(int horizontalPosition, int verticalPosition) {
+				final Cursor cursor;
+				
+				switch(horizontalPosition) {
+				case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_WEST:
+					switch(verticalPosition) {
+					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH:
+						cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
+						break;
+					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER:
+						cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
+						break;
+					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
+						cursor = Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);
+						break;
+					default:
+						cursor = null;
+						break;
+					}
+					break;
+				case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_CENTER:
+					switch(verticalPosition) {
+					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH:
+						cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
+						break;
+					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
+						cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
+						break;
+					default:
+						cursor = null;
+						break;
+					}
+					break;
+				case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_EAST:
+					switch(verticalPosition) {
+					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH:
+						cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
+						break;
+					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER:
+						cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
+						break;
+					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
+						cursor = Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);
+						break;
+					default:
+						cursor = null;
+						break;
+					}
+					break;
+				default:
+					cursor = null;
+					break;
+				}
+				
+				return cursor;
+			}
+			
 			public void selectFromView(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceBranch<Model> branch) {
 				Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-				requestSelect(view, initialMouseDown, moving, effectBounds, branch);
-				createEffectFrame(effectBounds);
+				requestSelect(view, moving, effectBounds, branch);
+				createEffectFrame(effectBounds, initialMouseDown);
 			}
 			
 			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceBranch<Model> branch) {
@@ -475,35 +535,39 @@ public class LiveModel extends Model {
 				Point sourceBoundsLocation = new Point(initialMouseDown.x - sourceBoundsSize.width / 2, initialMouseDown.y - sourceBoundsSize.height / 2);
 				Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
 				Rectangle selectionBounds = SwingUtilities.convertRectangle((JComponent)view, sourceBounds, productionPanel);
-				requestSelect(view, initialMouseDown, moving, selectionBounds, branch);
-				createEffectFrame(selectionBounds);
+				requestSelect(view, moving, selectionBounds, branch);
+				createEffectFrame(selectionBounds, initialMouseDown);
 			}
 			
 			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, boolean moving, PrevaylerServiceBranch<Model> branch) {
-				requestSelect(view, initialMouseDown, moving, new Rectangle(0, 0, 0, 0), branch);
-				createEffectFrame(new Rectangle(0, 0, 0, 0));
+				requestSelect(view, moving, new Rectangle(0, 0, 0, 0), branch);
+				createEffectFrame(new Rectangle(0, 0, 0, 0), initialMouseDown);
 			}
 			
-			private void requestSelect(final ModelComponent view, final Point initialMouseDown, final boolean moving, final Rectangle effectBounds, PrevaylerServiceBranch<Model> branch) {
+			private void requestSelect(final ModelComponent view, final boolean moving, final Rectangle effectBounds, PrevaylerServiceBranch<Model> branch) {
 				// Notice: executes a transaction
 				PropogationContext propCtx = new PropogationContext();
 				
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						createSelectCommands(view, initialMouseDown, moving, effectBounds, dualCommands);
+						createSelectCommands(view, moving, effectBounds, dualCommands);
 					}
 				});
 			}
 			
-			public void createSelectCommands(final ModelComponent view, final Point initialMouseDown, final boolean moving, final Rectangle effectBounds, List<DualCommand<Model>> dualCommands) {
-//				final LiveModel liveModel = productionPanel.livePanel.model;
-//				final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
-//				
-//				Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
-//						? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
-//				Location selectionLocation = view != null ? view.getTransactionFactory().getModelLocation() : null;
-//				
+			public void createSelectCommands(final ModelComponent view, final boolean moving, final Rectangle effectBounds, List<DualCommand<Model>> dualCommands) {
+				Location selectionLocation = view != null ? view.getTransactionFactory().getModelLocation() : null;
+				createSelectCommandsFromLocation(selectionLocation, moving, effectBounds, dualCommands);
+			}
+			
+			public void createSelectCommandsFromLocation(final Location selectionLocation, final boolean moving, final Rectangle effectBounds, List<DualCommand<Model>> dualCommands) {
+				final LiveModel liveModel = productionPanel.livePanel.model;
+				final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
+				
+				Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
+						? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
+				
 //				dualCommands.add(new DualCommandPair<Model>(
 //					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
 //					new SetSelection(liveModelLocation, currentSelectionLocation)
@@ -521,38 +585,28 @@ public class LiveModel extends Model {
 //					new SetSelection(liveModelLocation, selectionLocation), 
 //					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", liveModel.getProperty("SelectionInitialMouseDown"))
 //				));
-				
-				Location selectionLocation = view != null ? view.getTransactionFactory().getModelLocation() : null;
-				createSelectCommands2(selectionLocation, initialMouseDown, moving, effectBounds, dualCommands);
-			}
-			
-			public void createSelectCommands2(final Location selectionLocation, final Point initialMouseDown, final boolean moving, final Rectangle effectBounds, List<DualCommand<Model>> dualCommands) {
-				final LiveModel liveModel = productionPanel.livePanel.model;
-				final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
-				
-				Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
-						? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
-				
+						
+
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
+//					new SetSelection(liveModelLocation, currentSelectionLocation)
+//				));
 				dualCommands.add(new DualCommandPair<Model>(
-					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", initialMouseDown), 
+					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
 					new SetSelection(liveModelLocation, currentSelectionLocation)
 				));
 				dualCommands.add(new DualCommandPair<Model>(
-					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", moving), 
-					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
-				));
-				dualCommands.add(new DualCommandPair<Model>(
 					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", effectBounds), 
-					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
+					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionEffectBounds", liveModel.getProperty("SelectionEffectBounds"))
 				));
 				
 				dualCommands.add(new DualCommandPair<Model>(
 					new SetSelection(liveModelLocation, selectionLocation), 
-					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionInitialMouseDown", liveModel.getProperty("SelectionInitialMouseDown"))
+					new SetPropertyOnRootTransaction(liveModelLocation, "SelectionMoving", liveModel.getProperty("SelectionMoving"))
 				));
 			}
 			
-			private void select(final ModelComponent view, final Point initialMouseDown, boolean moving, final Rectangle effectBounds) {
+			private void select(final ModelComponent view, boolean moving, final Rectangle effectBounds) {
 //				System.out.println("in select method");
 				// <Don't remove>
 				// Whether the following check is necessary or not has not been decided yet, so don't remove the code
@@ -621,10 +675,8 @@ public class LiveModel extends Model {
 						});
 					}
 					
-					selectionMouseDown = initialMouseDown;
 					selectionFrameSize = ((JComponent)view).getSize();
 					effectFrameMoving = moving;
-					updateRelativeCursorPosition(initialMouseDown, ((JComponent)view).getSize());
 					
 					initialEffectLocation = effectBounds.getLocation();
 					this.initialEffectBounds = effectBounds;
@@ -934,7 +986,7 @@ public class LiveModel extends Model {
 				@Override
 				public void unFocus(PropogationContext propCtx, ModelComponent view, PrevaylerServiceBranch<Model> branch) {
 					if(productionPanel.editPanelMouseAdapter.selection == view) {
-						productionPanel.editPanelMouseAdapter.requestSelect(null, null, false, null, branch);
+						productionPanel.editPanelMouseAdapter.requestSelect(null, false, null, branch);
 					}
 				}
 				
@@ -1143,11 +1195,10 @@ public class LiveModel extends Model {
 							ModelLocation modelLocation = locator.locate();
 							Location modelComponentLocation = modelLocation.getModelComponentLocation();
 							final ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
-							final Point initialMouseDown = selectionChanged.selectionInitialMouseDown;
 							final boolean moving = selectionChanged.selectionMoving;
 							final Rectangle effectBounds = selectionChanged.selectionEffectBounds;
 
-							productionPanel.editPanelMouseAdapter.select(view, initialMouseDown, moving, effectBounds);
+							productionPanel.editPanelMouseAdapter.select(view, moving, effectBounds);
 							
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
@@ -1156,7 +1207,7 @@ public class LiveModel extends Model {
 								}
 							});
 						} else {
-							productionPanel.editPanelMouseAdapter.select(null, null, false, null);
+							productionPanel.editPanelMouseAdapter.select(null, false, null);
 							
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
@@ -1173,12 +1224,11 @@ public class LiveModel extends Model {
 		@Override
 		public void initialize() {
 			if(LivePanel.this.model.selection != null) {
-				Point initialMouseDown = (Point)LivePanel.this.model.getProperty("SelectionInitialMouseDown");
 				boolean moving = (boolean)LivePanel.this.model.getProperty("SelectionMoving");
 				Rectangle effectBounds = (Rectangle)LivePanel.this.model.getProperty("SelectionEffectBounds");
 
 				ModelComponent selectionView = (ModelComponent)LivePanel.this.model.selection.getLocator().locate().getModelComponentLocation().getChild(rootView);
-				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectionView, initialMouseDown, moving, effectBounds);
+				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectionView, moving, effectBounds);
 			}
 			
 			if(LivePanel.this.model.output != null) {

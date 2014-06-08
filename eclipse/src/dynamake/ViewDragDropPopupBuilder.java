@@ -71,7 +71,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 						// If the model is going to be hidden after the change, clear the current selection
 						ModelComponent container = ModelComponent.Util.getParent(selection);
 						if(!container.getModelBehind().conformsToView(Model.VIEW_ENGINEERING)) {
-							((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.createSelectCommands(null, null, false, null, dualCommands);
+							((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.createSelectCommands(null, false, null, dualCommands);
 						}
 						
 						dualCommands.add(new DualCommandPair<Model>(
