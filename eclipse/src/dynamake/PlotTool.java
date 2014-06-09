@@ -237,10 +237,11 @@ public class PlotTool implements Tool {
 			Rectangle plotBoundsInSelection = productionPanel.editPanelMouseAdapter.getPlotBounds(productionPanel.editPanelMouseAdapter.selectionMouseDown, selectionDragPoint);
 			final Rectangle plotBoundsInProductionPanel = SwingUtilities.convertRectangle((JComponent)productionPanel.editPanelMouseAdapter.selection, plotBoundsInSelection, productionPanel);
 
-			productionPanel.editPanelMouseAdapter.changeEffectFrame(plotBoundsInProductionPanel);
+//			productionPanel.editPanelMouseAdapter.changeEffectFrame(plotBoundsInProductionPanel);
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
+					productionPanel.editPanelMouseAdapter.changeEffectFrameDirect(plotBoundsInProductionPanel);
 					productionPanel.livePanel.repaint();
 				}
 			});
