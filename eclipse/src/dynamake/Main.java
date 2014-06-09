@@ -18,9 +18,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 
-import org.prevayler.Prevayler;
-import org.prevayler.PrevaylerFactory;
-
 public class Main {
 	private static class ModelRootLocator implements ModelLocator {
 		@Override

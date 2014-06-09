@@ -136,6 +136,14 @@ public class LiveModel extends Model {
 //		return toolButtonsArray;
 //	}
 	
+	public void removeButtonToToolBinding(int button, int tool, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+		buttonToToolMap.remove(button);
+		System.out.println("Removed binding from button " + button + " and tool " + tool);
+		System.out.println("buttonToToolMap: " + buttonToToolMap);
+		
+		sendChanged(new ButtonToolBindingChanged(-1, tool), propCtx, propDistance, 0, branch);
+	}
+	
 	public void bindButtonToTool(int button, int tool, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 //		ArrayList<Integer> toolButtons = toolToButtonsMap.get(button);
 //		if(toolButtons == null) {
@@ -150,6 +158,9 @@ public class LiveModel extends Model {
 //		}
 		
 		buttonToToolMap.put(button, tool);
+		System.out.println("Bound button " + button + " to tool " + tool);
+			
+		System.out.println("buttonToToolMap: " + buttonToToolMap);
 //		toolToButtonMap.put(tool, button);
 		sendChanged(new ButtonToolBindingChanged(button, tool), propCtx, propDistance, 0, branch);
 	}
@@ -173,6 +184,28 @@ public class LiveModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.bindButtonToTool(button, tool, propCtx, 0, branch);
+		}
+	}
+	
+	public static class RemoveButtonToToolBindingCommand implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location modelLocation;
+		private int button;
+		private int tool;
+
+		public RemoveButtonToToolBindingCommand(Location modelLocation, int button, int tool) {
+			this.modelLocation = modelLocation;
+			this.button = button;
+			this.tool = tool;
+		}
+		
+		@Override
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
+			liveModel.removeButtonToToolBinding(button, tool, propCtx, 0, branch);
 		}
 	}
 	
@@ -365,7 +398,7 @@ public class LiveModel extends Model {
 		buttonTool.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				System.out.println("Mouse button:" + e.getButton());
+//				System.out.println("Mouse button:" + e.getButton());
 				
 				final int newButton = e.getButton();
 				
@@ -379,19 +412,35 @@ public class LiveModel extends Model {
 						int currentButton = buttonTool.button;
 						
 						Location modelLocation = transactionFactory.getModelLocation();
-						int previousTool = model.getToolForButton(newButton);
 						
-						if(previousTool != -1) {
+						int previousToolForNewButton = model.getToolForButton(newButton);
+						
+						if(previousToolForNewButton != -1) {
+							// If the new button is associated to another tool, then remove that binding
 							dualCommands.add(new DualCommandPair<Model>(
-								new BindButtonToToolCommand(modelLocation, -1, previousTool), 
-								new BindButtonToToolCommand(modelLocation, newButton, previousTool))
+								new RemoveButtonToToolBindingCommand(modelLocation, newButton, previousToolForNewButton), 
+								new BindButtonToToolCommand(modelLocation, newButton, previousToolForNewButton))
 							);
 						}
 						
-						dualCommands.add(new DualCommandPair<Model>(
-							new BindButtonToToolCommand(modelLocation, newButton, tool), 
-							new BindButtonToToolCommand(modelLocation, currentButton, tool))
-						);
+						if(currentButton != -1) {
+							// If this tool is associated to button, then remove that binding before
+							dualCommands.add(new DualCommandPair<Model>(
+								new RemoveButtonToToolBindingCommand(modelLocation, currentButton, tool), 
+								new BindButtonToToolCommand(modelLocation, currentButton, tool))
+							);
+							
+							// adding the replacement binding
+							dualCommands.add(new DualCommandPair<Model>(
+								new BindButtonToToolCommand(modelLocation, newButton, tool), 
+								new RemoveButtonToToolBindingCommand(modelLocation, newButton, tool))
+							);
+						} else {
+							dualCommands.add(new DualCommandPair<Model>(
+								new BindButtonToToolCommand(modelLocation, newButton, tool), 
+								new RemoveButtonToToolBindingCommand(modelLocation, newButton, tool)
+							));
+						}
 					}
 				});
 				branch.close();
