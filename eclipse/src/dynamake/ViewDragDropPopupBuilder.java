@@ -23,9 +23,8 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			@Override
 			public void run(Runnable runnable) {
 				runnable.run();
-				
-//				PropogationContext propCtx = new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT);
-//				connection.commit(propCtx);
+
+				((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.clearEffectFrame();
 				branch.close();
 			}
 		};
@@ -91,6 +90,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 	
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
-
+		livePanel.productionPanel.editPanelMouseAdapter.clearEffectFrame();
+		branch.reject();
 	}
 }
