@@ -16,14 +16,15 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 	}
 
 	@Override
-	public void buildFromSelectionAndTarget(ModelComponent livePanel,
+	public void buildFromSelectionAndTarget(final ModelComponent livePanel,
 			JPopupMenu popup, final ModelComponent selection,
 			final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
 		Runner runner = new Runner() {
 			@Override
 			public void run(Runnable runnable) {
 				runnable.run();
-				
+
+				((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.clearEffectFrame();
 				branch.close();
 			}
 		};
@@ -51,6 +52,7 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 	
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
+		livePanel.productionPanel.editPanelMouseAdapter.clearEffectFrame();
 		branch.reject();
 	}
 }

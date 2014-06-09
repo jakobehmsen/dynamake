@@ -706,19 +706,19 @@ public class LiveModel extends Model {
 				}
 			}
 			
-			public void changeEffectFrame(final Rectangle newBounds) {
-				if(productionPanel.effectFrame != null) {
-					final JPanel localEffectFrame = productionPanel.effectFrame;
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							localEffectFrame.setBounds(newBounds);
-						}
-					});
-				} else {
-					System.out.println("Attempted to change effect frame when it hasn't been created.");
-				}
-			}
+//			public void changeEffectFrame(final Rectangle newBounds) {
+//				if(productionPanel.effectFrame != null) {
+//					final JPanel localEffectFrame = productionPanel.effectFrame;
+//					SwingUtilities.invokeLater(new Runnable() {
+//						@Override
+//						public void run() {
+//							localEffectFrame.setBounds(newBounds);
+//						}
+//					});
+//				} else {
+//					System.out.println("Attempted to change effect frame when it hasn't been created.");
+//				}
+//			}
 			
 			public void changeEffectFrameDirect(final Rectangle newBounds) {
 				productionPanel.effectFrame.setBounds(newBounds);
