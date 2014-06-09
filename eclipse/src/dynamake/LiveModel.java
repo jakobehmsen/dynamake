@@ -674,6 +674,7 @@ public class LiveModel extends Model {
 					
 //					Color effectColor = Color.BLACK;
 					Color effectColor = ToolButton.getColorForButton(buttonPressed);
+					effectColor = effectColor.darker();
 					localEffectFrame.setBorder(BorderFactory.createCompoundBorder(
 						BorderFactory.createDashedBorder(effectColor, 2.0f, 2.0f, 1.5f, false),
 						BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
