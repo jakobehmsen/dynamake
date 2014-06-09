@@ -255,11 +255,11 @@ public class ScaleTool implements Tool {
 			}
 		
 			final Rectangle newEffectBounds = new Rectangle(x, y, width, height);
-			productionPanel.editPanelMouseAdapter.changeEffectFrame(newEffectBounds);
 
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
+					productionPanel.editPanelMouseAdapter.changeEffectFrameDirect(newEffectBounds);
 					productionPanel.livePanel.repaint();
 				}
 			});
