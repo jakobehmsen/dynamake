@@ -349,13 +349,71 @@ public class LiveModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		private int tool;
 		private int button;
 		private String text;
+		private LiveModel liveModel;
+		private TransactionFactory transactionFactory;
 		
-		public ToolButton(int button, String text) {
+		public ToolButton(int tool, int button, String text, LiveModel liveModel, TransactionFactory transactionFactory) {
+			this.tool = tool;
 			this.button = button;
 			this.text = text;
+			this.liveModel = liveModel;
+			this.transactionFactory = transactionFactory;
 			update();
+			
+			this.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+//					System.out.println("Mouse button:" + e.getButton());
+					
+					final int newButton = e.getButton();
+					
+					PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
+					
+					PrevaylerServiceBranch<Model> branch = ToolButton.this.transactionFactory.createBranch();
+					
+					branch.execute(propCtx, new DualCommandFactory<Model>() {
+						@Override
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							int currentButton = ToolButton.this.button;
+							
+							Location modelLocation = ToolButton.this.transactionFactory.getModelLocation();
+							
+							int previousToolForNewButton = ToolButton.this.liveModel.getToolForButton(newButton);
+							
+							if(previousToolForNewButton != -1) {
+								// If the new button is associated to another tool, then remove that binding
+								dualCommands.add(new DualCommandPair<Model>(
+									new RemoveButtonToToolBindingCommand(modelLocation, newButton, previousToolForNewButton), 
+									new BindButtonToToolCommand(modelLocation, newButton, previousToolForNewButton))
+								);
+							}
+							
+							if(currentButton != -1) {
+								// If this tool is associated to button, then remove that binding before
+								dualCommands.add(new DualCommandPair<Model>(
+									new RemoveButtonToToolBindingCommand(modelLocation, currentButton, ToolButton.this.tool), 
+									new BindButtonToToolCommand(modelLocation, currentButton, ToolButton.this.tool))
+								);
+								
+								// adding the replacement binding
+								dualCommands.add(new DualCommandPair<Model>(
+									new BindButtonToToolCommand(modelLocation, newButton, ToolButton.this.tool), 
+									new RemoveButtonToToolBindingCommand(modelLocation, newButton, ToolButton.this.tool))
+								);
+							} else {
+								dualCommands.add(new DualCommandPair<Model>(
+									new BindButtonToToolCommand(modelLocation, newButton, ToolButton.this.tool), 
+									new RemoveButtonToToolBindingCommand(modelLocation, newButton, ToolButton.this.tool)
+								));
+							}
+						}
+					});
+					branch.close();
+				}
+			});
 		}
 		
 		private void update() {
@@ -372,7 +430,7 @@ public class LiveModel extends Model {
 	}
 	
 	private static JComponent createToolButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int button, int currentTool, final int tool, final String text) {
-		final ToolButton buttonTool = new ToolButton(button, text);
+		final ToolButton buttonTool = new ToolButton(tool, button, text, model, transactionFactory);
 		
 		buttonTool.setBackground(TOP_BACKGROUND_COLOR);
 		buttonTool.setForeground(TOP_FOREGROUND_COLOR);
@@ -395,57 +453,57 @@ public class LiveModel extends Model {
 //			}
 //		});
 		
-		buttonTool.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-//				System.out.println("Mouse button:" + e.getButton());
-				
-				final int newButton = e.getButton();
-				
-				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
-				
-				PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
-				
-				branch.execute(propCtx, new DualCommandFactory<Model>() {
-					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						int currentButton = buttonTool.button;
-						
-						Location modelLocation = transactionFactory.getModelLocation();
-						
-						int previousToolForNewButton = model.getToolForButton(newButton);
-						
-						if(previousToolForNewButton != -1) {
-							// If the new button is associated to another tool, then remove that binding
-							dualCommands.add(new DualCommandPair<Model>(
-								new RemoveButtonToToolBindingCommand(modelLocation, newButton, previousToolForNewButton), 
-								new BindButtonToToolCommand(modelLocation, newButton, previousToolForNewButton))
-							);
-						}
-						
-						if(currentButton != -1) {
-							// If this tool is associated to button, then remove that binding before
-							dualCommands.add(new DualCommandPair<Model>(
-								new RemoveButtonToToolBindingCommand(modelLocation, currentButton, tool), 
-								new BindButtonToToolCommand(modelLocation, currentButton, tool))
-							);
-							
-							// adding the replacement binding
-							dualCommands.add(new DualCommandPair<Model>(
-								new BindButtonToToolCommand(modelLocation, newButton, tool), 
-								new RemoveButtonToToolBindingCommand(modelLocation, newButton, tool))
-							);
-						} else {
-							dualCommands.add(new DualCommandPair<Model>(
-								new BindButtonToToolCommand(modelLocation, newButton, tool), 
-								new RemoveButtonToToolBindingCommand(modelLocation, newButton, tool)
-							));
-						}
-					}
-				});
-				branch.close();
-			}
-		});
+//		buttonTool.addMouseListener(new MouseAdapter() {
+//			@Override
+//			public void mousePressed(MouseEvent e) {
+////				System.out.println("Mouse button:" + e.getButton());
+//				
+//				final int newButton = e.getButton();
+//				
+//				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
+//				
+//				PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
+//				
+//				branch.execute(propCtx, new DualCommandFactory<Model>() {
+//					@Override
+//					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//						int currentButton = buttonTool.button;
+//						
+//						Location modelLocation = transactionFactory.getModelLocation();
+//						
+//						int previousToolForNewButton = model.getToolForButton(newButton);
+//						
+//						if(previousToolForNewButton != -1) {
+//							// If the new button is associated to another tool, then remove that binding
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new RemoveButtonToToolBindingCommand(modelLocation, newButton, previousToolForNewButton), 
+//								new BindButtonToToolCommand(modelLocation, newButton, previousToolForNewButton))
+//							);
+//						}
+//						
+//						if(currentButton != -1) {
+//							// If this tool is associated to button, then remove that binding before
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new RemoveButtonToToolBindingCommand(modelLocation, currentButton, tool), 
+//								new BindButtonToToolCommand(modelLocation, currentButton, tool))
+//							);
+//							
+//							// adding the replacement binding
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new BindButtonToToolCommand(modelLocation, newButton, tool), 
+//								new RemoveButtonToToolBindingCommand(modelLocation, newButton, tool))
+//							);
+//						} else {
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new BindButtonToToolCommand(modelLocation, newButton, tool), 
+//								new RemoveButtonToToolBindingCommand(modelLocation, newButton, tool)
+//							));
+//						}
+//					}
+//				});
+//				branch.close();
+//			}
+//		});
 		
 //		buttonTool.addActionListener(new ActionListener() {
 //			@Override
