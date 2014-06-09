@@ -205,7 +205,7 @@ public class RootModel extends Model {
 		
 		@Override
 		public void mouseClicked(MouseEvent arg0) {
-			System.out.println("mouseClicked on frame");
+//			System.out.println("mouseClicked on frame");
 		}
 		
 		@Override

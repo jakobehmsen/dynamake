@@ -140,8 +140,8 @@ public class LiveModel extends Model {
 	
 	public void removeButtonToToolBinding(int button, int tool, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 		buttonToToolMap.remove(button);
-		System.out.println("Removed binding from button " + button + " and tool " + tool);
-		System.out.println("buttonToToolMap: " + buttonToToolMap);
+//		System.out.println("Removed binding from button " + button + " and tool " + tool);
+//		System.out.println("buttonToToolMap: " + buttonToToolMap);
 		
 		sendChanged(new ButtonToolBindingChanged(-1, tool), propCtx, propDistance, 0, branch);
 	}
@@ -160,9 +160,9 @@ public class LiveModel extends Model {
 //		}
 		
 		buttonToToolMap.put(button, tool);
-		System.out.println("Bound button " + button + " to tool " + tool);
-			
-		System.out.println("buttonToToolMap: " + buttonToToolMap);
+//		System.out.println("Bound button " + button + " to tool " + tool);
+//			
+//		System.out.println("buttonToToolMap: " + buttonToToolMap);
 //		toolToButtonMap.put(tool, button);
 		sendChanged(new ButtonToolBindingChanged(button, tool), propCtx, propDistance, 0, branch);
 	}
