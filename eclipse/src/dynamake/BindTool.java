@@ -187,12 +187,11 @@ public class BindTool implements Tool {
 			
 			final int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.selectionMouseDown.x;
 			final int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.selectionMouseDown.y;
-
-			productionPanel.editPanelMouseAdapter.changeEffectFrame(new Rectangle(x, y, width, height));
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
+					productionPanel.editPanelMouseAdapter.changeEffectFrameDirect(new Rectangle(x, y, width, height));
 					productionPanel.livePanel.repaint();
 				}
 			});
