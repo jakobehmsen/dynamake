@@ -720,6 +720,10 @@ public class LiveModel extends Model {
 				}
 			}
 			
+			public void changeEffectFrameDirect(final Rectangle newBounds) {
+				productionPanel.effectFrame.setBounds(newBounds);
+			}
+			
 			public void clearEffectFrame() {
 				if(productionPanel.effectFrame != null) {
 					final JPanel localEffectFrame = productionPanel.effectFrame;
