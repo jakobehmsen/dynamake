@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -25,6 +26,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -335,6 +337,7 @@ public class LiveModel extends Model {
 		}
 	}
 	
+	private static final int BUTTON_FONT_SIZE = 13;
 	private static final Color TOP_BACKGROUND_COLOR = Color.GRAY;
 	private static final Color TOP_FOREGROUND_COLOR = Color.WHITE;
 	
@@ -344,7 +347,7 @@ public class LiveModel extends Model {
 	public static final int TAG_CAUSED_BY_ROLLBACK = 3;
 	public static final int TAG_CAUSED_BY_COMMIT = 4;
 	
-	private static class ToolButton extends JButton {
+	private static class ToolButton extends JPanel {
 		/**
 		 * 
 		 */
@@ -354,6 +357,8 @@ public class LiveModel extends Model {
 		private String text;
 		private LiveModel liveModel;
 		private TransactionFactory transactionFactory;
+		private JLabel labelToolName;
+		private JLabel labelButton;
 		
 		public ToolButton(int tool, int button, String text, LiveModel liveModel, TransactionFactory transactionFactory) {
 			this.tool = tool;
@@ -361,6 +366,26 @@ public class LiveModel extends Model {
 			this.text = text;
 			this.liveModel = liveModel;
 			this.transactionFactory = transactionFactory;
+
+			/*
+			buttonTool.setBackground(TOP_BACKGROUND_COLOR);
+			buttonTool.setForeground(TOP_FOREGROUND_COLOR);
+			*/
+			
+			setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+			setLayout(new BorderLayout());
+			setBackground(TOP_BACKGROUND_COLOR);
+			labelToolName = new JLabel();
+			labelToolName.setAlignmentY(JLabel.CENTER_ALIGNMENT);
+			labelToolName.setForeground(TOP_FOREGROUND_COLOR);
+			labelToolName.setFont(new Font(labelToolName.getFont().getFontName(), Font.BOLD, BUTTON_FONT_SIZE));
+			add(labelToolName, BorderLayout.CENTER);
+			labelButton = new JLabel();
+			add(labelButton, BorderLayout.EAST);
+			labelButton.setFont(new Font(labelButton.getFont().getFontName(), Font.ITALIC | Font.BOLD, 18));
+			labelButton.setAlignmentY(JLabel.CENTER_ALIGNMENT);
+			this.setPreferredSize(new Dimension(60, 25));
+			
 			update();
 			
 			this.addMouseListener(new MouseAdapter() {
@@ -377,6 +402,8 @@ public class LiveModel extends Model {
 					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							setBackground(TOP_BACKGROUND_COLOR.brighter());
+							
 							int currentButton = ToolButton.this.button;
 							
 							Location modelLocation = ToolButton.this.transactionFactory.getModelLocation();
@@ -413,14 +440,37 @@ public class LiveModel extends Model {
 					});
 					branch.close();
 				}
+				
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					setBackground(TOP_BACKGROUND_COLOR);
+				}
 			});
 		}
 		
+		private static final Color[] BUTTON_COLORS = new Color[] {
+			new Color(220, 10, 10),//Color.RED,
+			new Color(10, 220, 10), //Color.GREEN,
+			new Color(10, 10, 220), //Color.BLUE,
+			new Color(10, 220, 220), //Color.CYAN,
+			new Color(220, 220, 10), //Color.ORANGE
+			new Color(220, 10, 220),
+		};
+		
+		public Color getColorForButton(int button) {
+			return BUTTON_COLORS[button - 1];
+		}
+		
 		private void update() {
-			if(button != -1)
-				setText(text + "(" + button + ")");
-			else
-				setText(text);
+			labelToolName.setText(text);
+			if(button != -1) {
+				labelButton.setText("" + button);
+//				label.setText(text + "(" + button + ")");
+				labelButton.setForeground(getColorForButton(button));
+			} else {
+				labelButton.setText("");
+				labelButton.setForeground(null);
+			}
 		}
 		
 		public void setButton(int button) {
@@ -432,9 +482,9 @@ public class LiveModel extends Model {
 	private static JComponent createToolButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int button, int currentTool, final int tool, final String text) {
 		final ToolButton buttonTool = new ToolButton(tool, button, text, model, transactionFactory);
 		
-		buttonTool.setBackground(TOP_BACKGROUND_COLOR);
-		buttonTool.setForeground(TOP_FOREGROUND_COLOR);
-		buttonTool.setBorderPainted(false);
+//		buttonTool.setBackground(TOP_BACKGROUND_COLOR);
+//		buttonTool.setForeground(TOP_FOREGROUND_COLOR);
+//		buttonTool.setBorderPainted(false);
 		
 		/*
 		Somehow, when clicking on a button, the mouse button which was used to click on the button
@@ -529,10 +579,10 @@ public class LiveModel extends Model {
 //			}
 //		});
 		buttonTool.setFocusable(false);
-		group.add(buttonTool);
-		if(currentTool == tool) {
-			buttonTool.setSelected(true);
-		}
+//		group.add(buttonTool);
+//		if(currentTool == tool) {
+//			buttonTool.setSelected(true);
+//		}
 		return buttonTool;
 	}
 	
@@ -1295,6 +1345,7 @@ public class LiveModel extends Model {
 			topPanel.setBackground(TOP_BACKGROUND_COLOR);
 			
 			JButton undo = new JButton("Undo");
+			undo.setFont(new Font(undo.getFont().getFontName(), Font.BOLD, BUTTON_FONT_SIZE));
 			undo.setBackground(TOP_FOREGROUND_COLOR);
 			undo.setForeground(TOP_BACKGROUND_COLOR);
 			undo.addActionListener(new ActionListener() {
@@ -1308,6 +1359,7 @@ public class LiveModel extends Model {
 			undo.setFocusable(false);
 			topPanel.add(undo);
 			JButton redo = new JButton("Redo");
+			redo.setFont(new Font(redo.getFont().getFontName(), Font.BOLD, BUTTON_FONT_SIZE));
 			redo.setBackground(TOP_FOREGROUND_COLOR);
 			redo.setForeground(TOP_BACKGROUND_COLOR);
 			redo.addActionListener(new ActionListener() {
