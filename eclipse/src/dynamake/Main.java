@@ -208,7 +208,9 @@ public class Main {
 					new ConsTool(),
 					new TellTool(),
 					new ViewTool(),
-					new ScaleTool()
+					new ScaleTool(),
+					new UndoTool(),
+					new RedoTool()
 				}; 
 				
 				@Override

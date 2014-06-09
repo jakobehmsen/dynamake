@@ -12,6 +12,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -471,6 +474,28 @@ public class LiveModel extends Model {
 					setBackground(TOP_BACKGROUND_COLOR);
 				}
 			});
+			
+			// Support for binding a key combination with a tool
+			// It should be possible to both bind a key combination AND a mouse button to the same tool at the same time
+			KeyListener keyListener = new KeyAdapter() {
+				@Override
+				public void keyPressed(KeyEvent e) {
+					// TODO Auto-generated method stub
+//					super.keyPressed(e);
+					System.out.println(e.isControlDown() + ":" + e.getKeyCode());
+				}
+				
+				@Override
+				public void keyTyped(KeyEvent e) {
+//					System.out.println(e.isControlDown() + ":" + e.getKeyCode());
+				}
+			};
+			
+			setFocusable(true);
+			
+			this.addKeyListener(keyListener);
+			labelToolName.addKeyListener(keyListener);
+			labelButton.addKeyListener(keyListener);
 		}
 		
 		private static final Color[] BUTTON_COLORS = new Color[] {
@@ -603,7 +628,7 @@ public class LiveModel extends Model {
 //				branch.close();
 //			}
 //		});
-		buttonTool.setFocusable(false);
+//		buttonTool.setFocusable(false);
 //		group.add(buttonTool);
 //		if(currentTool == tool) {
 //			buttonTool.setSelected(true);
@@ -1383,10 +1408,7 @@ public class LiveModel extends Model {
 			undo.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_UNDO);
-					Location location = getTransactionFactory().getModelLocation();
-					// Indicate this is an undo context
-					getTransactionFactory().undo(propCtx, location);
+					undo();
 				}
 			});
 			undo.setFocusable(false);
@@ -1398,10 +1420,7 @@ public class LiveModel extends Model {
 			redo.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_REDO);
-					Location location = getTransactionFactory().getModelLocation();
-					// Indicate this is an redo context
-					getTransactionFactory().redo(propCtx, location);
+					redo();
 				}
 			});
 			redo.setFocusable(false);
@@ -1589,6 +1608,20 @@ public class LiveModel extends Model {
 			});
 			
 			contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);
+		}
+
+		public void undo() {
+			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_UNDO);
+			Location location = getTransactionFactory().getModelLocation();
+			// Indicate this is an undo context
+			getTransactionFactory().undo(propCtx, location);
+		}
+
+		public void redo() {
+			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_REDO);
+			Location location = getTransactionFactory().getModelLocation();
+			// Indicate this is an undo context
+			getTransactionFactory().redo(propCtx, location);
 		}
 		
 		@Override

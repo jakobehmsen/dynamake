@@ -122,8 +122,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-
-	
 	public static class SetPropertyOnRootTransaction implements Command<Model> {
 		/**
 		 * 
