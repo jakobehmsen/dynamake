@@ -20,4 +20,10 @@ public class CompositeCommand<T> implements Command<T> {
 			command.executeOn(propCtx, prevalentSystem, executionTime, branch);
 		}
 	}
+	
+	@Override
+	public boolean occurredWithin(Location location) {
+		// Assumed that result is the same for all commands in commandSequence
+		return commandSequence[0].occurredWithin(location);
+	}
 }

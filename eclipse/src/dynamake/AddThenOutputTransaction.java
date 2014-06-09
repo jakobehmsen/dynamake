@@ -49,10 +49,9 @@ public class AddThenOutputTransaction implements Command<Model> {
 		canvas.addModel(model, propCtx, 0, branch);
 		liveModel.setOutput(model, propCtx, 0, branch);
 	}
-
-//	@Override
-//	public Command<Model> antagonist() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+	
+	@Override
+	public boolean occurredWithin(Location location) {
+		return true;
+	}
 }

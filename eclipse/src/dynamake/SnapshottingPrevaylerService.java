@@ -111,13 +111,39 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			// One for do
 			// Such command should be called a meta-command?
 			if(transaction instanceof UndoTransaction) {
-				DualCommand<T> transactionToUndo = transactionUndoStack.pop();
+				UndoTransaction<T> undoTransaction = (UndoTransaction<T>)transaction;
+				
+				int i;
+				for(i = transactionUndoStack.size() - 1; i >= 0; i--) {
+					if(transactionUndoStack.get(i).occurredWithin(undoTransaction.location))
+						break;
+				}
+				
+				DualCommand<T> transactionToUndo = transactionUndoStack.get(i);
+				transactionUndoStack.remove(i);
 				transactionToUndo.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
 				transactionRedoStack.push(transactionToUndo);
+				
+//				DualCommand<T> transactionToUndo = transactionUndoStack.pop();
+//				transactionToUndo.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+//				transactionRedoStack.push(transactionToUndo);
 			} else if(transaction instanceof RedoTransaction) {
-				DualCommand<T> transactionToRedo = transactionRedoStack.pop();
+				RedoTransaction<T> redoTransaction = (RedoTransaction<T>)transaction;
+				
+				int i;
+				for(i = transactionRedoStack.size() - 1; i >= 0; i--) {
+					if(transactionRedoStack.get(i).occurredWithin(redoTransaction.location))
+						break;
+				}
+				
+				DualCommand<T> transactionToRedo = transactionRedoStack.get(i);
+				transactionRedoStack.remove(i);
 				transactionToRedo.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
-				transactionUndoStack.push(transactionToRedo);
+				transactionUndoStack.add(transactionToRedo);
+				
+//				DualCommand<T> transactionToRedo = transactionRedoStack.pop();
+//				transactionToRedo.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+//				transactionUndoStack.push(transactionToRedo);
 			} else {
 				transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
 				transactionUndoStack.push(transaction);
@@ -230,6 +256,16 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 	}
 	
+//	private static class OffsetTransaction<T> {
+//		public final int offset;
+//		public final DualCommand<T> command;
+//		
+//		public OffsetTransaction(int offset, DualCommand<T> command) {
+//			this.offset = offset;
+//			this.command = command;
+//		}
+//	}
+	
 	private Stack<DualCommand<T>> transactionUndoStack = new Stack<DualCommand<T>>();
 	private Stack<DualCommand<T>> transactionRedoStack = new Stack<DualCommand<T>>();
 	
@@ -238,12 +274,22 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		public final Location location;
+		
+		public UndoTransaction(Location location) {
+			this.location = location;
+		}
 		
 		@Override
 		public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
 		
 		@Override
 		public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return false;
+		}
 	}
 	
 	private static class RedoTransaction<T> implements DualCommand<T> {
@@ -251,41 +297,79 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		public final Location location;
+		
+		public RedoTransaction(Location location) {
+			this.location = location;
+		}
 		
 		@Override
 		public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
 		
 		@Override
 		public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return false;
+		}
 	}
 	
 	@Override
-	public void undo(final PropogationContext propCtx) {
+	public void undo(final PropogationContext propCtx, final Location location) {
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 				if(transactionUndoStack.size() > 0) {
-					DualCommand<T> transaction = transactionUndoStack.pop();
-					transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
-					transactionRedoStack.push(transaction);
+					int i;
+					for(i = transactionUndoStack.size() - 1; i >= 0; i--) {
+						if(transactionUndoStack.get(i).occurredWithin(location))
+							break;
+					}
 					
-					persistTransaction(propCtx, new UndoTransaction<T>());
+					if(i >= 0) {
+						DualCommand<T> transaction = transactionUndoStack.get(i);
+						transactionUndoStack.remove(i);
+						transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+						transactionRedoStack.push(transaction);
+						
+						persistTransaction(propCtx, new UndoTransaction<T>(location));
+					}
+//					DualCommand<T> transaction = transactionUndoStack.pop();
+//					transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+//					transactionRedoStack.push(transaction);
+//					
+//					persistTransaction(propCtx, new UndoTransaction<T>());
 				}
 			}
 		});
 	}
 
 	@Override
-	public void redo(final PropogationContext propCtx) {
+	public void redo(final PropogationContext propCtx, final Location location) {
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 				if(transactionRedoStack.size() > 0) {
-					DualCommand<T> transaction = transactionRedoStack.pop();
-					transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
-					transactionUndoStack.push(transaction);
+					int i;
+					for(i = transactionRedoStack.size() - 1; i >= 0; i--) {
+						if(transactionRedoStack.get(i).occurredWithin(location))
+							break;
+					}
 					
-					persistTransaction(propCtx, new RedoTransaction<T>());
+					if(i >= 0) {
+						DualCommand<T> offsetTransaction = transactionRedoStack.get(i);
+						transactionRedoStack.remove(i);
+						offsetTransaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+						transactionUndoStack.add(offsetTransaction);
+						persistTransaction(propCtx, new RedoTransaction<T>(location));
+					}
+					
+//					DualCommand<T> transaction = transactionRedoStack.pop();
+//					transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+//					transactionUndoStack.push(transaction);
+//					
+//					persistTransaction(propCtx, new RedoTransaction<T>());
 				}
 			}
 		});

@@ -17,7 +17,7 @@ import dynamake.CanvasModel.MoveModelTransaction;
 import dynamake.CanvasModel.SetOutputMoveModelTransaction;
 import dynamake.LiveModel.ProductionPanel;
 import dynamake.LiveModel.SetOutput;
-import dynamake.Model.SetPropertyOnRootTransaction;
+import dynamake.Model.SetPropertyTransaction;
 
 public class ScaleTool implements Tool {
 	@Override

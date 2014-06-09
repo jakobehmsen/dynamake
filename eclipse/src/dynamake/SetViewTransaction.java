@@ -23,4 +23,9 @@ public class SetViewTransaction implements Command<Model> {
 		Model model = (Model)modelLocation.getChild(prevalentSystem);
 		model.setView(view, propCtx, 0, 0, branch);
 	}
+	
+	@Override
+	public boolean occurredWithin(Location location) {
+		return true;
+	}
 }

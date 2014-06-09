@@ -34,4 +34,9 @@ public class SetOutputThenRemoveObserver implements Command<Model> {
 		
 		observable.removeObserver(observer);
 	}
+	
+	@Override
+	public boolean occurredWithin(Location location) {
+		return true;
+	}
 }

@@ -104,23 +104,23 @@ public class EditTool implements Tool {
 							));
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "X", new Fraction(newBounds.x)), 
-								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "X", selectionModel.getProperty("X"))
+								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "X", new Fraction(newBounds.x)), 
+								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "X", selectionModel.getProperty("X"))
 							));
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "Y", new Fraction(newBounds.y)), 
-								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "Y", selectionModel.getProperty("Y"))
+								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Y", new Fraction(newBounds.y)), 
+								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Y", selectionModel.getProperty("Y"))
 							));
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "Width", new Fraction(newBounds.width)), 
-								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "Width", selectionModel.getProperty("Width"))
+								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Width", new Fraction(newBounds.width)), 
+								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Width", selectionModel.getProperty("Width"))
 							));
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "Height", new Fraction(newBounds.height)), 
-								new Model.SetPropertyOnRootTransaction(selectionTransactionFactory.getModelLocation(), "Height", selectionModel.getProperty("Height"))
+								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Height", new Fraction(newBounds.height)), 
+								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Height", selectionModel.getProperty("Height"))
 							));
 							
 							dualCommands.add(new DualCommandPair<Model>(

@@ -299,7 +299,7 @@ public class Primitive extends Model {
 //		fontSize = fontSize * hChange.floatValue();
 		fontSize = fontSize.multiply(hChange);
 		
-		dualCommands.add(SetPropertyOnRootTransaction.createDual(this, "FontSize", fontSize));
+		dualCommands.add(SetPropertyTransaction.createDual(this, "FontSize", fontSize));
 	}
 	
 	@Override

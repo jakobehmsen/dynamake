@@ -35,4 +35,9 @@ public class SetOutputThenAddObserver implements Command<Model> {
 		
 		observable.addObserver(observer);
 	}
+	
+	@Override
+	public boolean occurredWithin(Location location) {
+		return true;
+	}
 }

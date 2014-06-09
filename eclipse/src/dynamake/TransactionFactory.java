@@ -74,12 +74,12 @@ public class TransactionFactory {
 		}
 	}
 	
-	public void undo(PropogationContext propCtx) {
-		prevaylerService.undo(propCtx);
+	public void undo(PropogationContext propCtx, Location location) {
+		prevaylerService.undo(propCtx, location);
 	}
 
-	public void redo(PropogationContext propCtx) {
-		prevaylerService.redo(propCtx);
+	public void redo(PropogationContext propCtx, Location location) {
+		prevaylerService.redo(propCtx, location);
 	}
 
 	public ModelLocator extendLocator(ModelLocator otherLocator) {

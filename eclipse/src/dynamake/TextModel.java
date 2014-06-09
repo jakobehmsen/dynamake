@@ -22,7 +22,7 @@ import org.prevayler.Transaction;
 
 import dynamake.LiveModel.LivePanel;
 import dynamake.Model.RemovableListener;
-import dynamake.Model.SetPropertyOnRootTransaction;
+import dynamake.Model.SetPropertyTransaction;
 
 public class TextModel extends Model {
 	public static final String PROPERTY_CARET_COLOR = "Caret Color";
@@ -57,7 +57,7 @@ public class TextModel extends Model {
 			fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(hChange);
 		
-		dualCommands.add(SetPropertyOnRootTransaction.createDual(this, "FontSize", fontSize));
+		dualCommands.add(SetPropertyTransaction.createDual(this, "FontSize", fontSize));
 	}
 	
 	public void setText(String text) {
@@ -114,12 +114,11 @@ public class TextModel extends Model {
 			textModel.text.insert(offset, text);
 			textModel.sendChanged(new InsertedText(offset, text), propCtx, 0, 0, branch);
 		}
-
-//		@Override
-//		public Command<FloatingTextModel> antagonist() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
 	}
 	
 	private static class RemoveTransaction implements Command<Model> {
@@ -143,12 +142,11 @@ public class TextModel extends Model {
 			textModel.text.delete(start, end);
 			textModel.sendChanged(new RemovedText(start, end), propCtx, 0, 0, branch);
 		}
-
-//		@Override
-//		public Command<FloatingTextModel> antagonist() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
 	}
 	
 	private static class FloatingTextModelView extends JTextField implements ModelComponent {
@@ -201,8 +199,8 @@ public class TextModel extends Model {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, color),
-								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, currentCaretColor)
+								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, color),
+								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, currentCaretColor)
 							));
 							
 							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, transactionFactory.getModelLocation())); // Absolute location

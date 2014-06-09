@@ -64,4 +64,9 @@ public class Wrap2Transaction implements Command<Model> {
 
 		target.addModel(wrapper, propCtx, 0, branch);
 	}
+	
+	@Override
+	public boolean occurredWithin(Location location) {
+		return true;
+	}
 }

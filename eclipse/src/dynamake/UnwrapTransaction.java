@@ -74,4 +74,9 @@ public class UnwrapTransaction implements Command<Model> {
 			liveModel.setOutput(null, propCtx, 0, branch);
 		}
 	}
+	
+	@Override
+	public boolean occurredWithin(Location location) {
+		return true;
+	}
 }

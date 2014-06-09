@@ -28,4 +28,10 @@ public class DualCommandPair<T> implements DualCommand<T> {
 	public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) {
 		backward.executeOn(propCtx, prevalentSystem, executionTime, branch);
 	}
+	
+	@Override
+	public boolean occurredWithin(Location location) {
+		// Assumsed that forward and backward occurred within the same location
+		return forward.occurredWithin(location);
+	}
 }

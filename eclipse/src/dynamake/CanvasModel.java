@@ -151,6 +151,11 @@ public class CanvasModel extends Model {
 			removeBranch.close();
 			addBranch.close();
 		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
 	}
 	
 	public static class MoveModelTransaction implements Command<Model> {
@@ -190,6 +195,11 @@ public class CanvasModel extends Model {
 			canvasTarget.addModel(model, propCtx, 0, branch);
 			if(setMovedAsOutput)
 				liveModel.setOutput(model, propCtx, 0, branch);
+		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
 		}
 	}
 	
@@ -242,6 +252,11 @@ public class CanvasModel extends Model {
 			model.endUpdate(propCtx, 0, branch);
 			canvasTarget.addModel(indexTarget, model, propCtx, 0, branch);
 		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
 	}
 	
 	/*
@@ -284,6 +299,11 @@ public class CanvasModel extends Model {
 			
 			canvas.addModel(model, new PropogationContext(), 0, branch);
 		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
 	}
 	
 	public static class AddModel2Transaction implements Command<Model> {
@@ -324,6 +344,11 @@ public class CanvasModel extends Model {
 			
 			canvas.addModel(model, new PropogationContext(), 0, branch);
 		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
 	}
 	
 	public static class AddModel2NoCreationBoundsTransaction implements Command<Model> {
@@ -347,6 +372,11 @@ public class CanvasModel extends Model {
 			Model model = (Model)factory.create(rootPrevalentSystem, null, null, propCtx, 0, branch);
 			canvas.addModel(index, model, new PropogationContext(), 0, branch);
 		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
 	}
 	
 	public static class RemoveModelTransaction implements Command<Model> {
@@ -369,12 +399,11 @@ public class CanvasModel extends Model {
 			canvas.removeModel(index, propCtx, 0, branch);
 			modelToRemove.beRemoved();
 		}
-
-//		@Override
-//		public Command<CanvasModel> antagonist() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
 	}
 	
 	public void addModel(Model model, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
@@ -595,13 +624,13 @@ public class CanvasModel extends Model {
 		));
 		
 		dualCommands.add(new DualCommandPair<Model>(
-			new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "X", new Fraction(moveLocation.x)), 
-			new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "X", modelToMove.getModelBehind().getProperty("X"))
+			new Model.SetPropertyTransaction(modelLocationAfterMove, "X", new Fraction(moveLocation.x)), 
+			new Model.SetPropertyTransaction(modelLocationAfterMove, "X", modelToMove.getModelBehind().getProperty("X"))
 		));
 		
 		dualCommands.add(new DualCommandPair<Model>(
-			new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
-			new Model.SetPropertyOnRootTransaction(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
+			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
+			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
 		));
 		
 //		livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(

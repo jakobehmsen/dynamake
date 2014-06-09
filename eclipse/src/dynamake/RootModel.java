@@ -168,25 +168,25 @@ public class RootModel extends Model {
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						if(newLocation != null) {
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", newLocation.x),
-								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "X", rootModel.getProperty("X"))
+								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "X", newLocation.x),
+								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "X", rootModel.getProperty("X"))
 							));
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", newLocation.y),
-								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Y", rootModel.getProperty("Y"))
+								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "Y", newLocation.y),
+								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "Y", rootModel.getProperty("Y"))
 							));
 						}
 						
 						if(newSize != null) {
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", newSize.width),
-								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Width", rootModel.getProperty("Width"))
+								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "Width", newSize.width),
+								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "Width", rootModel.getProperty("Width"))
 							));
 	
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", newSize.height),
-								new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), "Height", rootModel.getProperty("Height"))
+								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "Height", newSize.height),
+								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "Height", rootModel.getProperty("Height"))
 							));
 						}
 					}

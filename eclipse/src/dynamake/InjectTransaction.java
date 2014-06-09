@@ -25,4 +25,9 @@ public class InjectTransaction implements Command<Model> {
 		
 		branch.absorb();
 	}
+	
+	@Override
+	public boolean occurredWithin(Location location) {
+		return true;
+	}
 }

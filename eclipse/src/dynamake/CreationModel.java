@@ -60,12 +60,11 @@ public class CreationModel extends Model {
 //			argument = argument.getMetaModel();
 			creation.setArgument(parameterName, argument, new PropogationContext(), 0, branch);
 		}
-
-//		@Override
-//		public Command<Model> antagonist() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
 	}
 	
 	public CreationModel(Factory factory, String[] parameterNames) {
@@ -331,12 +330,11 @@ public class CreationModel extends Model {
 			canvas.removeModel(creation, propCtx, 0, branch);
 			canvas.addModel(model, propCtx, 0, branch);
 		}
-
-//		@Override
-//		public Command<Model> antagonist() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
 	}
 	
 	@Override

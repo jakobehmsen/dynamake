@@ -187,6 +187,11 @@ public class LiveModel extends Model {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.bindButtonToTool(button, tool, propCtx, 0, branch);
 		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return false;
+		}
 	}
 	
 	public static class RemoveButtonToToolBindingCommand implements Command<Model> {
@@ -208,6 +213,11 @@ public class LiveModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.removeButtonToToolBinding(button, tool, propCtx, 0, branch);
+		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return false;
 		}
 	}
 	
@@ -234,6 +244,11 @@ public class LiveModel extends Model {
 			} else {
 				liveModel.setSelection(null, new PropogationContext(), 0, branch);
 			}
+		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
 		}
 	}
 	
@@ -271,6 +286,11 @@ public class LiveModel extends Model {
 				new SetOutput(livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
 			);
 		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
 	}
 
 	public static class SetTool implements Command<Model> {
@@ -291,6 +311,11 @@ public class LiveModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			LiveModel model = (LiveModel)modelLocation.getChild(prevalentSystem);
 			model.setTool(tool, propCtx, 0, branch);
+		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return false;
 		}
 	}
 	
@@ -1359,8 +1384,9 @@ public class LiveModel extends Model {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_UNDO);
+					Location location = getTransactionFactory().getModelLocation();
 					// Indicate this is an undo context
-					getTransactionFactory().undo(propCtx);
+					getTransactionFactory().undo(propCtx, location);
 				}
 			});
 			undo.setFocusable(false);
@@ -1373,8 +1399,9 @@ public class LiveModel extends Model {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_REDO);
+					Location location = getTransactionFactory().getModelLocation();
 					// Indicate this is an redo context
-					getTransactionFactory().redo(propCtx);
+					getTransactionFactory().redo(propCtx, location);
 				}
 			});
 			redo.setFocusable(false);

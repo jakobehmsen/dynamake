@@ -23,4 +23,9 @@ public class DejectTransaction implements Command<Model> {
 		
 		source.deject(target);
 	}
+	
+	@Override
+	public boolean occurredWithin(Location location) {
+		return true;
+	}
 }

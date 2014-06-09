@@ -30,4 +30,10 @@ public class DualCommandSequence<T> implements DualCommand<T> {
 			t.executeBackwardOn(propCtx, prevalentSystem, executionTime, branch);
 		}
 	}
+	
+	@Override
+	public boolean occurredWithin(Location location) {
+		// Assumed that all transactions occurred within the same location
+		return transactions[0].occurredWithin(location);
+	}
 }

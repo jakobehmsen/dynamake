@@ -57,9 +57,8 @@ public class AddThenBindAndOutputTransaction implements Command<Model> {
 		liveModel.setOutput(primitive, propCtx, 0, branch);
 	}
 
-//	@Override
-//	public Command<Model> antagonist() {
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
+	@Override
+	public boolean occurredWithin(Location location) {
+		return true;
+	}
 }
