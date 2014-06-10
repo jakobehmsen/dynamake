@@ -1402,7 +1402,13 @@ public class LiveModel extends Model {
 				if(selectionBoundsBinding != null)
 					selectionBoundsBinding.releaseBinding();
 				
-				this.remove(selectionFrame);
+				final JPanel localSelectionFrame = selectionFrame;
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						ProductionPanel.this.remove(localSelectionFrame);
+					}
+				});
 				selectionFrame = null;
 			}
 		}
