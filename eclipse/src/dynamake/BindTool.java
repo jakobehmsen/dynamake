@@ -90,6 +90,8 @@ public class BindTool implements Tool {
 				productionPanel.livePanel.repaint();
 			}
 		});
+		
+		mouseDown = null;
 	}
 	
 	private Point mouseDown;

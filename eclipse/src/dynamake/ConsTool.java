@@ -32,15 +32,13 @@ public class ConsTool implements Tool {
 
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		Point releasePoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
-		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(releasePoint);
-		final ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+		final ModelComponent targetModelComponent = modelOver;
 		
 		if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
 			PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 			
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
-				productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, branchStep2);
+				productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
 				branch.close();
 			} else {
 				if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
@@ -95,7 +93,7 @@ public class ConsTool implements Tool {
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
 				final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 				
-				productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, branchStep2);
+				productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
 				branch.close();
 			} else {
 				productionPanel.editPanelMouseAdapter.clearEffectFrame();
@@ -105,8 +103,11 @@ public class ConsTool implements Tool {
 
 		productionPanel.editPanelMouseAdapter.targetOver = null;
 		productionPanel.livePanel.repaint();
+		
+		mouseDown = null;
 	}
 	
+	private Point mouseDown;
 	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
@@ -133,23 +134,22 @@ public class ConsTool implements Tool {
 			});
 		}
 		
-		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
-		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
-		ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+
+		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 			productionPanel.editPanelMouseAdapter.selectFromDefault(targetModelComponent, referencePoint, branchStep1);
 		}
+		
+		mouseDown = e.getPoint();
 		
 		branchStep1.close();
 	}
 
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null) {
-			Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
-			JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
-			ModelComponent newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(newTargetOver);
+		if(mouseDown != null) {
+			ModelComponent newTargetOverComponent = modelOver;
 			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
 				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
 				if(productionPanel.targetFrame != null)
@@ -188,10 +188,10 @@ public class ConsTool implements Tool {
 			final int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
 			final int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
 			
-			Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
+			Point cursorLocationInProductionPanel = e.getPoint();
 			
-			final int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.initialEffectBounds.width / 2;
-			final int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.initialEffectBounds.height / 2;
+			final int x = cursorLocationInProductionPanel.x - width / 2;
+			final int y = cursorLocationInProductionPanel.y - height / 2;
 
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
