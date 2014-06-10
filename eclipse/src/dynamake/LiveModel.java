@@ -771,6 +771,7 @@ public class LiveModel extends Model {
 //				}
 //			}
 			
+			// TODO: Calls to this should be replaced by a changeEffectFrameDirect(int x, int y) where only the location changes
 			public void changeEffectFrameDirect(final Rectangle newBounds) {
 				productionPanel.effectFrame.setBounds(newBounds);
 			}

@@ -83,7 +83,6 @@ public class EditTool implements Tool {
 					});
 				} else {
 					// Changing bounds within the same canvas
-					
 					JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
 					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), parent);
 					

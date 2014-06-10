@@ -28,7 +28,7 @@ public class ScaleTool implements Tool {
 	@Override
 	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
-			Point point = e.getPoint();
+			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
 			
 			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(point, productionPanel.selectionFrame.getSize());
 			
@@ -47,17 +47,15 @@ public class ScaleTool implements Tool {
 
 	@Override
 	public void mouseExited(ProductionPanel productionPanel, MouseEvent e) {
-		if(productionPanel.editPanelMouseAdapter.selectionMouseDown == null) {
+		if(mouseDown == null) {
 			productionPanel.selectionFrame.setCursor(null);
 		}
 	}
 
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-//		if(e.getButton() == MouseEvent.BUTTON1 && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 		if(viewPressedOn != null) {
 			viewPressedOn = null;
-			productionPanel.editPanelMouseAdapter.selectionMouseDown = null;
 			
 			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 			branch.close();
@@ -84,7 +82,6 @@ public class ScaleTool implements Tool {
 					});
 				} else {
 					// Changing bounds within the same canvas
-					
 					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
 					
 					JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
@@ -108,67 +105,65 @@ public class ScaleTool implements Tool {
 			
 			productionPanel.editPanelMouseAdapter.clearEffectFrame();
 			branchStep2.close();
+			
+			mouseDown = null;
 		}
 	}
-	
+
+	private Point mouseDown;
 	private ModelComponent viewPressedOn;
 	private PrevaylerServiceBranch<Model> branch;
 	
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
-		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
-		ModelComponent targetModelComponent =  productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+		ModelComponent targetModelComponent = modelOver;
 		
 		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
-			if(targetModelComponent != null) {
-				viewPressedOn = targetModelComponent;
-				branch = productionPanel.livePanel.getTransactionFactory().createBranch();
-//				connection = productionPanel.livePanel.getTransactionFactory().createConnection();
-				PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+			viewPressedOn = targetModelComponent;
+			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+			PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+			
+			if(productionPanel.editPanelMouseAdapter.output != null) {
+				PropogationContext propCtx = new PropogationContext();
 				
-				if(productionPanel.editPanelMouseAdapter.output != null) {
-					PropogationContext propCtx = new PropogationContext();
+				branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
+					public DualCommand<Model> createDualCommand() {
+						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+						return new DualCommandPair<Model>(
+							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
+							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+						);
+					}
 					
-					branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
-						public DualCommand<Model> createDualCommand() {
-							ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-							return new DualCommandPair<Model>(
-								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-								new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-							);
-						}
-						
-						@Override
-						public void createDualCommands(
-								List<DualCommand<Model>> dualCommands) {
-							dualCommands.add(createDualCommand());
-						}
-					});
-				}
-				
-				Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-				productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
-				productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(referencePoint, ((JComponent)targetModelComponent).getSize());
-				if(productionPanel.selectionFrame != null)
-					productionPanel.editPanelMouseAdapter.setEffectFrameCursor(productionPanel.selectionFrame.getCursor());
-				
-				branchStep1.close();
+					@Override
+					public void createDualCommands(
+							List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(createDualCommand());
+					}
+				});
 			}
+			
+			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
+			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(referencePoint, ((JComponent)targetModelComponent).getSize());
+			if(productionPanel.selectionFrame != null)
+				productionPanel.editPanelMouseAdapter.setEffectFrameCursor(productionPanel.selectionFrame.getCursor());
+			
+			branchStep1.close();
+			
+			mouseDown = e.getPoint();
 		}
 	}
 
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
+		if(mouseDown != null && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			ModelComponent newTargetOverComponent;
 			
 			if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
 			   productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER) {
 				// Moving
-				Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
-				JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
-				newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(newTargetOver);
+				newTargetOverComponent = modelOver;
 				
 				if(((JComponent)productionPanel.editPanelMouseAdapter.selection).isAncestorOf((JComponent)newTargetOverComponent))
 					newTargetOverComponent = productionPanel.editPanelMouseAdapter.selection;
@@ -219,21 +214,21 @@ public class ScaleTool implements Tool {
 			switch(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition) {
 			case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_WEST: {
 				int currentX = x;
-				x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.selectionMouseDown.x;
+				x = cursorLocationInProductionPanel.x - mouseDown.x;
 				width += currentX - x;
 				
 				break;
 			}
 			case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_EAST: {
-				width = productionPanel.editPanelMouseAdapter.selectionFrameSize.width + e.getX() - productionPanel.editPanelMouseAdapter.selectionMouseDown.x;
+				width = productionPanel.editPanelMouseAdapter.selectionFrameSize.width + e.getX() - mouseDown.x;
 				
 				break;
 			}
 			case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_CENTER:
 				switch(productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition) {
 				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER:
-					x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.selectionMouseDown.x;
-					y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.selectionMouseDown.y;
+					x = cursorLocationInProductionPanel.x - mouseDown.x;
+					y = cursorLocationInProductionPanel.y - mouseDown.y;
 					break;
 				}
 				break;
@@ -242,20 +237,20 @@ public class ScaleTool implements Tool {
 			switch(productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition) {
 			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH: {
 				int currentY = y;
-				y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.selectionMouseDown.y;
+				y = cursorLocationInProductionPanel.y - mouseDown.y;
 				height += currentY - y;
 				
 				break;
 			}
 			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH: {
-				height = productionPanel.editPanelMouseAdapter.selectionFrameSize.height + e.getY() - productionPanel.editPanelMouseAdapter.selectionMouseDown.y;
+				height = productionPanel.editPanelMouseAdapter.selectionFrameSize.height + e.getY() - mouseDown.y;
 				
 				break;
 			}
 			}
-		
+			
 			final Rectangle newEffectBounds = new Rectangle(x, y, width, height);
-
+			
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
