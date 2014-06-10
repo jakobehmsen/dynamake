@@ -183,7 +183,7 @@ public class Main {
 				}
 				
 				@Override
-				public void clearFocus(PropogationContext propCtx) {
+				public void clearFocus(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
 					// TODO Auto-generated method stub
 					
 				}

@@ -4,7 +4,7 @@ import javax.swing.JComponent;
 
 public interface ViewManager {
 	void setFocus(JComponent component);
-	void clearFocus(PropogationContext propCtx);
+	void clearFocus(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch);
 	int getState();
 	Factory[] getFactories();
 	void selectAndActive(ModelComponent view, int x, int y);

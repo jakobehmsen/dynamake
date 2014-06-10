@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import dynamake.LiveModel.LivePanel;
 import dynamake.LiveModel.ProductionPanel;
 import dynamake.LiveModel.SetOutput;
 
@@ -54,6 +55,8 @@ public class PlotTool implements Tool {
 			}
 			
 			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+			
+			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			if(componentsWithinBounds.size() > 0) {
 				JMenuItem factoryMenuItem = new JMenuItem();
@@ -94,16 +97,24 @@ public class PlotTool implements Tool {
 								}
 							});
 							
+							branchStep2.onFinished(new Runnable() {
+								@Override
+								public void run() {
+									productionPanel.editPanelMouseAdapter.clearEffectFrameDirect();
+//									productionPanel.livePanel.repaint();
+								}
+							});
+							
 							branchStep2.close();
 							branch.close();
 
-							SwingUtilities.invokeLater(new Runnable() {
-								@Override
-								public void run() {
-									productionPanel.editPanelMouseAdapter.clearEffectFrame();
-									productionPanel.livePanel.repaint();
-								}
-							});
+//							SwingUtilities.invokeLater(new Runnable() {
+//								@Override
+//								public void run() {
+//									productionPanel.editPanelMouseAdapter.clearEffectFrameDirect();
+//									productionPanel.livePanel.repaint();
+//								}
+//							});
 						}
 					}
 				});
@@ -149,7 +160,7 @@ public class PlotTool implements Tool {
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
-									productionPanel.editPanelMouseAdapter.clearEffectFrame();
+									productionPanel.editPanelMouseAdapter.clearEffectFrameDirect();
 									productionPanel.livePanel.repaint();
 								}
 							});
@@ -168,14 +179,14 @@ public class PlotTool implements Tool {
 				
 				@Override
 				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-					if(mouseDown != null) {
-						productionPanel.livePanel.repaint();
-					}
+//					if(mouseDown != null) {
+//						productionPanel.livePanel.repaint();
+//					}
 				}
 				
 				@Override
 				public void popupMenuCanceled(PopupMenuEvent e) {
-					productionPanel.editPanelMouseAdapter.clearEffectFrame();
+					productionPanel.editPanelMouseAdapter.clearEffectFrameDirect();
 					branch.reject();
 				}
 			});
@@ -196,6 +207,8 @@ public class PlotTool implements Tool {
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
 		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+		
+		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		if(productionPanel.editPanelMouseAdapter.output != null) {
 			branchStep1.execute(propCtx, new DualCommandFactory<Model>() {

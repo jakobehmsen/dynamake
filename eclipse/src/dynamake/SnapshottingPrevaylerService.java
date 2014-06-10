@@ -254,6 +254,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public PrevaylerServiceBranch<T> isolatedBranch() {
 			return branch();
 		}
+		
+		@Override
+		public void onFinished(Runnable runnable) { }
+		
+		@Override
+		public void setOnFinishedBuilder(RunBuilder absorbBuilder) { }
 	}
 	
 //	private static class OffsetTransaction<T> {
@@ -512,8 +518,15 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						// Every effect has been absorbed
 						commit(null);
 					}
+					
+					sendFinished();
 				}
 			});
+		}
+		
+		private void sendFinished() {
+			if(finishBuilder != null)
+				finishBuilder.execute();
 		}
 		
 		private void absorbBranch(final Branch<T> branch) {
@@ -534,6 +547,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					// Every effect has been absorbed
 					commit(null);
 				}
+				
+				sendFinished();
 			}
 		}
 
@@ -614,6 +629,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						flushBranches();
 						
 						isClosed = true;
+//						sendFinished();
 					}
 				}
 			});
@@ -645,6 +661,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 									// Branch may have been absorbed at this point
 									if(!b.isAbsorbed) {
 										b.checkAbsorbed();
+//										b.sendFinished();
 //										System.out.println("absorb b");
 									}
 								}
@@ -661,6 +678,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 							// Is there a scenario where branch is absorbed before this point?
 							// Shouldn't be possible, since the branch isn't closed
 							branch.checkAbsorbed();
+//							branch.sendFinished();
 						}
 					});
 				}
@@ -700,6 +718,37 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		@Override
 		public PrevaylerServiceBranch<T> isolatedBranch() {
 			return new IsolatedBranch<T>();
+		}
+		
+		@Override
+		public void onFinished(final Runnable runnable) {
+			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					doOnFinished(runnable);
+				}
+			});
+		}
+		
+		private void doOnFinished(final Runnable runnable) {
+			if(finishBuilder != null)
+				finishBuilder.addRunnable(runnable);
+			else {
+				if(parent != null)
+					parent.doOnFinished(runnable);
+			}
+		}
+		
+		private RunBuilder finishBuilder;
+
+		@Override
+		public void setOnFinishedBuilder(final RunBuilder finishedBuilder) {
+			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					Branch.this.finishBuilder = finishedBuilder;
+				}
+			});
 		}
 	}
 	
