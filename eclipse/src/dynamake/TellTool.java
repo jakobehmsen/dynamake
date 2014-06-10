@@ -30,7 +30,7 @@ public class TellTool implements Tool {
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 		
-		productionPanel.editPanelMouseAdapter.showPopupForSelectionTell(productionPanel.selectionFrame, e.getPoint(), null, branchStep2);
+		productionPanel.editPanelMouseAdapter.showPopupForSelectionTell(productionPanel, e.getPoint(), null, branchStep2);
 		
 		branch.close();
 
@@ -45,10 +45,8 @@ public class TellTool implements Tool {
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
 		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
-		
-		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
-		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
-		ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+
+		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
 			if(productionPanel.editPanelMouseAdapter.output != null) {
 				PropogationContext propCtx = new PropogationContext();
