@@ -102,9 +102,14 @@ public class ConsTool implements Tool {
 		}
 
 		productionPanel.editPanelMouseAdapter.targetOver = null;
-		productionPanel.livePanel.repaint();
-		
 		mouseDown = null;
+		
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				productionPanel.livePanel.repaint();
+			}
+		});
 	}
 	
 	private Point mouseDown;

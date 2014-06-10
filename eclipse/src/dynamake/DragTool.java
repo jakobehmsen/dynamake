@@ -32,21 +32,23 @@ public class DragTool implements Tool {
 
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		Point releasePoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
-		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(releasePoint);
-		ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+//		Point releasePoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
+//		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(releasePoint);
+//		ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+		ModelComponent targetModelComponent = modelOver;
 		
 		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 		
 		if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
-			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel.selectionFrame, e.getPoint(), targetModelComponent, branchStep2);
+			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
 		} else {
-			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel.selectionFrame, e.getPoint(), null, branchStep2);
+			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), null, branchStep2);
 		}
 		
 		branch.close();
 
 		productionPanel.editPanelMouseAdapter.targetOver = null;
+		mouseDown = null;
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -56,6 +58,7 @@ public class DragTool implements Tool {
 		});
 	}
 	
+	private Point mouseDown;
 	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
@@ -92,14 +95,17 @@ public class DragTool implements Tool {
 		}
 		
 		branchStep1.close();
+		
+		mouseDown = e.getPoint();
 	}
 
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null) {
-			Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
-			JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
-			ModelComponent newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(newTargetOver);
+		if(mouseDown != null) {
+//			Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
+//			JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
+//			ModelComponent newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(newTargetOver);
+			ModelComponent newTargetOverComponent = modelOver;
 			
 			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
 				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
@@ -133,10 +139,10 @@ public class DragTool implements Tool {
 			final int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
 			final int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
 
-			Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
+			Point cursorLocationInProductionPanel = e.getPoint();
 			
-			final int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.selectionMouseDown.x;
-			final int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.selectionMouseDown.y;
+			final int x = productionPanel.selectionFrame.getX() + (cursorLocationInProductionPanel.x - mouseDown.x);
+			final int y = productionPanel.selectionFrame.getY() + (cursorLocationInProductionPanel.y - mouseDown.y);
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
