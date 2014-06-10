@@ -17,7 +17,7 @@ public class ViewTool implements Tool {
 	}
 
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 
 	}
 
@@ -27,7 +27,7 @@ public class ViewTool implements Tool {
 	}
 
 	@Override
-	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 		
 		productionPanel.editPanelMouseAdapter.showPopupForSelectionView(productionPanel.selectionFrame, e.getPoint(), null, branchStep2);
@@ -41,7 +41,7 @@ public class ViewTool implements Tool {
 	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
+	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
 		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
@@ -79,7 +79,7 @@ public class ViewTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 
 	}
 }

@@ -26,7 +26,7 @@ public class ScaleTool implements Tool {
 	}
 	
 	@Override
-	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			Point point = e.getPoint();
 			
@@ -53,7 +53,7 @@ public class ScaleTool implements Tool {
 	}
 
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 //		if(e.getButton() == MouseEvent.BUTTON1 && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 		if(viewPressedOn != null) {
 			viewPressedOn = null;
@@ -115,7 +115,7 @@ public class ScaleTool implements Tool {
 	private PrevaylerServiceBranch<Model> branch;
 	
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e) {
+	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 		ModelComponent targetModelComponent =  productionPanel.editPanelMouseAdapter.closestModelComponent(target);
@@ -159,7 +159,7 @@ public class ScaleTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			ModelComponent newTargetOverComponent;
 			

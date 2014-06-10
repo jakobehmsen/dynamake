@@ -26,7 +26,7 @@ public class PlotTool implements Tool {
 	}
 
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 
 	}
 
@@ -36,24 +36,17 @@ public class PlotTool implements Tool {
 	}
 
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e) {
-		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+		if(mouseDown != null) {
 			JPopupMenu factoryPopopMenu = new JPopupMenu();
 			
-			Point selectionReleasePoint = SwingUtilities.convertPoint(((JComponent)(e.getSource())).getParent(), e.getPoint(), productionPanel);
-			final Rectangle creationBounds = productionPanel.editPanelMouseAdapter.getPlotBounds(productionPanel.editPanelMouseAdapter.selectionMouseDown, selectionReleasePoint);
+			final Rectangle creationBoundsInProductionPanel = productionPanel.editPanelMouseAdapter.getPlotBounds(mouseDown, e.getPoint());
+			final Rectangle creationBoundsInSelection = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, productionPanel.selectionFrame);
 			
-			final Rectangle selectionCreationBounds = SwingUtilities.convertRectangle(productionPanel, creationBounds, ((JComponent)(e.getSource())).getParent());
-			
-			// Find target model component
-			Point releasePoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
-			JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(releasePoint);
-			ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
-			
-			// Find components within the creation bounds
+			// Find components within the creation bounds of the selection
 			final ArrayList<ModelComponent> componentsWithinBounds = new ArrayList<ModelComponent>();
-			for(Component c: ((JComponent)targetModelComponent).getComponents()) {
-				if(selectionCreationBounds.contains(c.getBounds())) {
+			for(Component c: ((JComponent)productionPanel.editPanelMouseAdapter.selection).getComponents()) {
+				if(creationBoundsInSelection.contains(c.getBounds())) {
 					// Add in reverse order because views are positioned in the reverse order in the CanvasModel
 					// This way, the views are sorted ascending index-wise
 					componentsWithinBounds.add(0, (ModelComponent)c);
@@ -93,8 +86,8 @@ public class PlotTool implements Tool {
 									}
 									
 									dualCommands.add(new DualCommandPair<Model>(
-										new Wrap2Transaction(targetLocation, selectionCreationBounds, modelLocations), 
-										new Unwrap2Transaction(targetLocation, wrapperLocationInTarget, modelIndexes, selectionCreationBounds)
+										new Wrap2Transaction(targetLocation, creationBoundsInSelection, modelLocations), 
+										new Unwrap2Transaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
 									));
 									
 									dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, wrapperLocation));
@@ -142,7 +135,7 @@ public class PlotTool implements Tool {
 									// The location for Output depends on the side effect of add
 									
 									dualCommands.add(new DualCommandPair<Model>(
-										new CanvasModel.AddModel2Transaction(canvasModelLocation, creationBounds, factory), 
+										new CanvasModel.AddModel2Transaction(canvasModelLocation, creationBoundsInSelection, factory), 
 										new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
 									));
 									
@@ -175,7 +168,7 @@ public class PlotTool implements Tool {
 				
 				@Override
 				public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-					if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null) {
+					if(mouseDown != null) {
 						productionPanel.livePanel.repaint();
 					}
 				}
@@ -189,13 +182,16 @@ public class PlotTool implements Tool {
 			
 			Point selectionReleasePointInSelection = SwingUtilities.convertPoint(((JComponent)(e.getSource())), e.getPoint(), productionPanel);
 			factoryPopopMenu.show(productionPanel, selectionReleasePointInSelection.x + 10, selectionReleasePointInSelection.y);
+			
+			mouseDown = null;
 		}
 	}
 	
 	private PrevaylerServiceBranch<Model> branch;
+	private Point mouseDown;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e) {
+	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver) {
 		PropogationContext propCtx = new PropogationContext();
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
@@ -216,28 +212,21 @@ public class PlotTool implements Tool {
 				}
 			});
 		}
-
-		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
-		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
-		ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
-		if(targetModelComponent != null && targetModelComponent.getModelBehind() instanceof CanvasModel) {
-			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-			productionPanel.editPanelMouseAdapter.selectFromEmpty(targetModelComponent, referencePoint, branchStep1);
-		} else {
-			productionPanel.editPanelMouseAdapter.selectionMouseDown = e.getPoint();
+		
+		if(modelOver.getModelBehind() instanceof CanvasModel) {
+			mouseDown = e.getPoint();
+			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)modelOver);
+			productionPanel.editPanelMouseAdapter.selectFromEmpty(modelOver, referencePoint, branchStep1);
 		}
 		
 		branchStep1.close();
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, final MouseEvent e) {
-		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null) {
-			Point selectionDragPoint = SwingUtilities.convertPoint(((JComponent)(e.getSource())).getParent(), e.getPoint(), productionPanel);
-			Rectangle plotBoundsInSelection = productionPanel.editPanelMouseAdapter.getPlotBounds(productionPanel.editPanelMouseAdapter.selectionMouseDown, selectionDragPoint);
-			final Rectangle plotBoundsInProductionPanel = SwingUtilities.convertRectangle((JComponent)productionPanel.editPanelMouseAdapter.selection, plotBoundsInSelection, productionPanel);
+	public void mouseDragged(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver) {
+		if(mouseDown != null) {
+			final Rectangle plotBoundsInProductionPanel = productionPanel.editPanelMouseAdapter.getPlotBounds(mouseDown, e.getPoint());
 
-//			productionPanel.editPanelMouseAdapter.changeEffectFrame(plotBoundsInProductionPanel);
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {

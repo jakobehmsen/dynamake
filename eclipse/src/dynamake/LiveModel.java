@@ -696,19 +696,19 @@ public class LiveModel extends Model {
 				} else {
 					return new Tool() {
 						@Override
-						public void mouseReleased(ProductionPanel productionPanel, MouseEvent e) { }
+						public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
 						
 						@Override
-						public void mousePressed(ProductionPanel productionPanel, MouseEvent e) { }
+						public void mousePressed(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
 						
 						@Override
-						public void mouseMoved(ProductionPanel productionPanel, MouseEvent e) { }
+						public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
 						
 						@Override
 						public void mouseExited(ProductionPanel productionPanel, MouseEvent e) { }
 						
 						@Override
-						public void mouseDragged(ProductionPanel productionPanel, MouseEvent e) { }
+						public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
 						
 						@Override
 						public String getName() { return null; }
@@ -991,29 +991,78 @@ public class LiveModel extends Model {
 							@Override
 							public void mouseMoved(MouseEvent e) {
 								// The tool associated to button 1 it used here
-								getTool(1).mouseMoved(productionPanel, e);
+//								getTool(1).mouseMoved(productionPanel, e, modelOver);
+								
+								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+								e.setSource(productionPanel);
+								
+								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners()) {
+									l.mouseMoved(e);
+								}
+								
+//								productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+//								@Override
+//								public void run() {
+//									e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
+//									e.setSource(productionPanel.selectionFrame);
+//									for(MouseMotionListener l: productionPanel.selectionFrame.getMouseMotionListeners()) {
+//										l.mouseDragged(e);
+//									}
+//								}
+//							});
 							}
 
 							public void mouseExited(MouseEvent e) {
-								// The tool associated to button 1 it used here
-								getTool(1).mouseExited(productionPanel, e);
+//								// The tool associated to button 1 it used here
+//								getTool(1).mouseExited(productionPanel, e);
+								
+								// TODO: Consider: Instead of exited, there should be a model over changed event?
+								
+								
+//								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+//								e.setSource(productionPanel);
+//								
+//								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners()) {
+//									l.mouseExited(e);
+//								}
 							}
 
 							@Override
 							public void mousePressed(MouseEvent e) {
-								productionPanel.editPanelMouseAdapter.buttonPressed = e.getButton();
-								getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mousePressed(productionPanel, e);
+//								productionPanel.editPanelMouseAdapter.buttonPressed = e.getButton();
+//								getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mousePressed(productionPanel, e, modelOver);
+								
+								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+								e.setSource(productionPanel);
+								
+								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners()) {
+									l.mousePressed(e);
+								}
 							}
 
 							@Override
 							public void mouseDragged(MouseEvent e) {
-								getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseDragged(productionPanel, e);
+//								getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseDragged(productionPanel, e, modelOver);
+								
+								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+								e.setSource(productionPanel);
+								
+								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners()) {
+									l.mouseDragged(e);
+								}
 							}
 
 							@Override
 							public void mouseReleased(MouseEvent e) {
-								getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseReleased(productionPanel, e);
-								productionPanel.editPanelMouseAdapter.buttonPressed = -1;
+//								getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseReleased(productionPanel, e, modelOver);
+//								productionPanel.editPanelMouseAdapter.buttonPressed = -1;
+								
+								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+								e.setSource(productionPanel);
+								
+								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners()) {
+									l.mouseReleased(e);
+								}
 							}
 						};
 						
@@ -1182,6 +1231,12 @@ public class LiveModel extends Model {
 				return new Rectangle(left, top, right - left, bottom - top);
 			}
 			
+			private ModelComponent getModelOver(MouseEvent e) {
+				Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
+				JComponent componentOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
+				return productionPanel.editPanelMouseAdapter.closestModelComponent(componentOver);
+			}
+			
 			public void mousePressed(final MouseEvent e) {
 				/*
 				
@@ -1196,42 +1251,84 @@ public class LiveModel extends Model {
 				
 				*/
 				
+				/*
+				
+				Instead of being dependent on the setting of selection frame from within tools, have a dedicated
+				field for the model over. Pass this model to the tool.
+				
+				Further, it should be the responsibility of each tool to relate from the model over, e.g. when 
+				deriving coordinates.
+				
+				When the selected component receives events, these events are forwarded to this EditPanelMouseAdapter
+				with points translated accordingly.
+				
+				*/
+
+				final ModelComponent modelOver = getModelOver(e);
+				
 				final int button = e.getButton();
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
 					public void run() {
 						productionPanel.editPanelMouseAdapter.buttonPressed = button;
-						getTool(button).mousePressed(productionPanel, e);
+						
+						getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mousePressed(productionPanel, e, modelOver);
 					}
 				});
 			}
 
 			public void mouseDragged(final MouseEvent e) {
+//				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+//					@Override
+//					public void run() {
+//						e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
+//						e.setSource(productionPanel.selectionFrame);
+//						for(MouseMotionListener l: productionPanel.selectionFrame.getMouseMotionListeners()) {
+//							l.mouseDragged(e);
+//						}
+//					}
+//				});
+				
+				final ModelComponent modelOver = getModelOver(e);
+				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
 					public void run() {
-						e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
-						e.setSource(productionPanel.selectionFrame);
-						for(MouseMotionListener l: productionPanel.selectionFrame.getMouseMotionListeners()) {
-							l.mouseDragged(e);
-						}
+						getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseDragged(productionPanel, e, modelOver);
 					}
 				});
 			}
 
-			public void mouseReleased(MouseEvent e) {
-				if(productionPanel.selectionFrame != null) {
-					e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
-					e.setSource(productionPanel.selectionFrame);
-					for(MouseListener l: productionPanel.selectionFrame.getMouseListeners()) {
-						l.mouseReleased(e);
+			public void mouseReleased(final MouseEvent e) {
+//				if(productionPanel.selectionFrame != null) {
+//					e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
+//					e.setSource(productionPanel.selectionFrame);
+//					for(MouseListener l: productionPanel.selectionFrame.getMouseListeners()) {
+//						l.mouseReleased(e);
+//					}
+//				}
+				final ModelComponent modelOver = getModelOver(e);
+				
+				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+					@Override
+					public void run() {
+						getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseReleased(productionPanel, e, modelOver);
 					}
-				}
+				});
 			}
 			
 			@Override
-			public void mouseMoved(MouseEvent e) {
+			public void mouseMoved(final MouseEvent e) {
 //				getTool().mouseMoved(productionPanel, e);
+				
+				final ModelComponent modelOver = getModelOver(e);
+				
+				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+					@Override
+					public void run() {
+						getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseMoved(productionPanel, e, modelOver);
+					}
+				});
 			}
 
 			public void setOutput(ModelComponent view) {
