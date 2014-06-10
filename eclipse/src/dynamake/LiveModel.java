@@ -666,7 +666,6 @@ public class LiveModel extends Model {
 			public ProductionPanel productionPanel;
 			
 			public ModelComponent selection;
-			public Point selectionMouseDown;
 			public Rectangle initialEffectBounds;
 			public Dimension selectionFrameSize;
 			public int selectionFrameHorizontalPosition;
@@ -716,7 +715,7 @@ public class LiveModel extends Model {
 				}
 			}
 			
-			public void createEffectFrame(Rectangle creationBounds, Point initialMouseDown) {
+			public void createEffectFrame(Rectangle creationBounds) {
 				if(productionPanel.effectFrame == null) {
 					final JPanel localEffectFrame = new JPanel();
 					localEffectFrame.setBackground(new Color(0, 0, 0, 0));
@@ -731,7 +730,6 @@ public class LiveModel extends Model {
 					));
 					
 					productionPanel.effectFrame = localEffectFrame;
-					selectionMouseDown = initialMouseDown;
 					initialEffectBounds = creationBounds;
 					
 					// Ensure effect frame is shown in front of selection frame
@@ -780,7 +778,6 @@ public class LiveModel extends Model {
 				if(productionPanel.effectFrame != null) {
 					final JPanel localEffectFrame = productionPanel.effectFrame;
 					productionPanel.effectFrame = null;
-					selectionMouseDown = null;
 					initialEffectBounds = null;
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
@@ -914,7 +911,7 @@ public class LiveModel extends Model {
 			public void selectFromView(final ModelComponent view, final Point initialMouseDown, PrevaylerServiceBranch<Model> branch) {
 				Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 				requestSelect(view, effectBounds, branch);
-				createEffectFrame(effectBounds, initialMouseDown);
+				createEffectFrame(effectBounds);
 			}
 			
 			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, PrevaylerServiceBranch<Model> branch) {
@@ -923,12 +920,12 @@ public class LiveModel extends Model {
 				Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
 				Rectangle selectionBounds = SwingUtilities.convertRectangle((JComponent)view, sourceBounds, productionPanel);
 				requestSelect(view, selectionBounds, branch);
-				createEffectFrame(selectionBounds, initialMouseDown);
+				createEffectFrame(selectionBounds);
 			}
 			
 			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, PrevaylerServiceBranch<Model> branch) {
 				requestSelect(view, new Rectangle(0, 0, 0, 0), branch);
-				createEffectFrame(new Rectangle(0, 0, 0, 0), initialMouseDown);
+				createEffectFrame(new Rectangle(0, 0, 0, 0));
 			}
 			
 			private void requestSelect(final ModelComponent view, final Rectangle effectBounds, PrevaylerServiceBranch<Model> branch) {
