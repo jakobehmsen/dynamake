@@ -32,9 +32,7 @@ public class BindTool implements Tool {
 
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		Point releasePoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
-		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(releasePoint);
-		final ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+		final ModelComponent targetModelComponent = modelOver;
 		
 		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 		branch.close();
@@ -94,6 +92,7 @@ public class BindTool implements Tool {
 		});
 	}
 	
+	private Point mouseDown;
 	private PrevaylerServiceBranch<Model> branch;
 
 	@Override
@@ -121,24 +120,22 @@ public class BindTool implements Tool {
 				}
 			});
 		}
-		
-		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
-		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
-		ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+
+		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
 		}
+		
+		mouseDown = e.getPoint();
 		
 		branchStep1.close();
 	}
 
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		if(productionPanel.editPanelMouseAdapter.selectionMouseDown != null) {
-			Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
-			JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
-			final ModelComponent newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(newTargetOver);
+		if(mouseDown != null) {
+			final ModelComponent newTargetOverComponent = modelOver;
 			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
 				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
 				if(productionPanel.targetFrame != null) {
@@ -183,10 +180,10 @@ public class BindTool implements Tool {
 			final int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
 			final int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
 
-			Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
+			Point cursorLocationInProductionPanel = e.getPoint();
 			
-			final int x = cursorLocationInProductionPanel.x - productionPanel.editPanelMouseAdapter.selectionMouseDown.x;
-			final int y = cursorLocationInProductionPanel.y - productionPanel.editPanelMouseAdapter.selectionMouseDown.y;
+			final int x = productionPanel.selectionFrame.getX() + (cursorLocationInProductionPanel.x - mouseDown.x);
+			final int y = productionPanel.selectionFrame.getY() + (cursorLocationInProductionPanel.y - mouseDown.y);
 			
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
