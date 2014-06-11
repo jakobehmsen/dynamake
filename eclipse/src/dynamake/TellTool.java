@@ -29,6 +29,7 @@ public class TellTool implements Tool {
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		productionPanel.editPanelMouseAdapter.showPopupForSelectionTell(productionPanel, e.getPoint(), null, branchStep2);
 		
@@ -45,6 +46,7 @@ public class TellTool implements Tool {
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
 		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 
 		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
