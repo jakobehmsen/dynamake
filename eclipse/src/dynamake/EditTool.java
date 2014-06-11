@@ -101,10 +101,10 @@ public class EditTool implements Tool {
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Model selectionModel = selection.getModelBehind();
 							
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.BeganUpdateTransaction(selectionTransactionFactory.getModelLocation()), 
-								new Model.EndedUpdateTransaction(selectionTransactionFactory.getModelLocation())
-							));
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new Model.BeganUpdateTransaction(selectionTransactionFactory.getModelLocation()), 
+//								new Model.EndedUpdateTransaction(selectionTransactionFactory.getModelLocation())
+//							));
 							
 							dualCommands.add(new DualCommandPair<Model>(
 								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "X", new Fraction(newBounds.x)), 
@@ -126,10 +126,12 @@ public class EditTool implements Tool {
 								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Height", selectionModel.getProperty("Height"))
 							));
 							
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.EndedUpdateTransaction(selectionTransactionFactory.getModelLocation()), 
-								new Model.BeganUpdateTransaction(selectionTransactionFactory.getModelLocation())
-							));
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new Model.EndedUpdateTransaction(selectionTransactionFactory.getModelLocation()), 
+//								new Model.BeganUpdateTransaction(selectionTransactionFactory.getModelLocation())
+//							));
+							
+							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, selectionTransactionFactory.getModelLocation()));
 						}
 					});
 				}

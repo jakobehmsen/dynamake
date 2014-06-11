@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
+
 
 public abstract class Model implements Serializable, Observer {
 	public static class GenericChange {
@@ -187,61 +187,61 @@ public abstract class Model implements Serializable, Observer {
 		return null;
 	}
 	
-	public static class BeganUpdate {
-		
-	}
+//	public static class BeganUpdate {
+//		
+//	}
 	
-	public static class BeganUpdateTransaction implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		
-		private Location modelLocation;
-		
-		public BeganUpdateTransaction(Location modelLocation) {
-			this.modelLocation = modelLocation;
-		}
-
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-			Model model = (Model)modelLocation.getChild(prevalentSystem);
-			model.beginUpdate(propCtx, 0, branch);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
-	}
+//	public static class BeganUpdateTransaction implements Command<Model> {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//		
+//		private Location modelLocation;
+//		
+//		public BeganUpdateTransaction(Location modelLocation) {
+//			this.modelLocation = modelLocation;
+//		}
+//
+//		@Override
+//		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+//			Model model = (Model)modelLocation.getChild(prevalentSystem);
+//			model.beginUpdate(propCtx, 0, branch);
+//		}
+//		
+//		@Override
+//		public boolean occurredWithin(Location location) {
+//			return true;
+//		}
+//	}
 	
-	public static class EndedUpdate {
-		
-	}
+//	public static class EndedUpdate {
+//		
+//	}
 	
-	public static class EndedUpdateTransaction implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
-		private Location modelLocation;
-		
-		public EndedUpdateTransaction(Location modelLocation) {
-			this.modelLocation = modelLocation;
-		}
-
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-			Model model = (Model)modelLocation.getChild(prevalentSystem);
-			model.endUpdate(propCtx, 0, branch);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
-	}
+//	public static class EndedUpdateTransaction implements Command<Model> {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//
+//		private Location modelLocation;
+//		
+//		public EndedUpdateTransaction(Location modelLocation) {
+//			this.modelLocation = modelLocation;
+//		}
+//
+//		@Override
+//		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+//			Model model = (Model)modelLocation.getChild(prevalentSystem);
+//			model.endUpdate(propCtx, 0, branch);
+//		}
+//		
+//		@Override
+//		public boolean occurredWithin(Location location) {
+//			return true;
+//		}
+//	}
 	
 	public static class AddObserver implements Command<Model> {
 		/**
@@ -369,13 +369,13 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void beginUpdate(PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
-		sendChanged(new BeganUpdate(), propCtx, propDistance, 0, branch);
-	}
+//	public void beginUpdate(PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+//		sendChanged(new BeganUpdate(), propCtx, propDistance, 0, branch);
+//	}
 	
-	public void endUpdate(PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
-		sendChanged(new EndedUpdate(), propCtx, propDistance, 0, branch);
-	}
+//	public void endUpdate(PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+//		sendChanged(new EndedUpdate(), propCtx, propDistance, 0, branch);
+//	}
 	
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
@@ -426,31 +426,31 @@ public abstract class Model implements Serializable, Observer {
 		innerBranch.absorb();
 	}
 	
-	public static class CompositeTransaction implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		
-		private Command<Model>[] transactions;
-		
-		public CompositeTransaction(Command<Model>[] transactions) {
-			this.transactions = transactions;
-		}
-
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-			prevalentSystem.beginUpdate(propCtx, 0, branch);
-			for(Command<Model> t: transactions)
-				t.executeOn(propCtx, prevalentSystem, executionTime, branch);
-			prevalentSystem.endUpdate(propCtx, 0, branch);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
-	}
+//	public static class CompositeTransaction implements Command<Model> {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//		
+//		private Command<Model>[] transactions;
+//		
+//		public CompositeTransaction(Command<Model>[] transactions) {
+//			this.transactions = transactions;
+//		}
+//
+//		@Override
+//		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+////			prevalentSystem.beginUpdate(propCtx, 0, branch);
+//			for(Command<Model> t: transactions)
+//				t.executeOn(propCtx, prevalentSystem, executionTime, branch);
+////			prevalentSystem.endUpdate(propCtx, 0, branch);
+//		}
+//		
+//		@Override
+//		public boolean occurredWithin(Location location) {
+//			return true;
+//		}
+//	}
 	
 	public static class RemovableListener implements Binding<Model> {
 		private Observer listener;
@@ -691,8 +691,8 @@ public abstract class Model implements Serializable, Observer {
 	
 	public static RemovableListener wrapForBoundsChanges(final Model model, final ModelComponent target, final ViewManager viewManager) {
 		return RemovableListener.addObserver(model, new ObserverAdapter() {
-			boolean isUpdating;
-			boolean madeChanges;
+//			boolean isUpdating;
+//			boolean madeChanges;
 			
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
@@ -708,7 +708,7 @@ public abstract class Model implements Serializable, Observer {
 							}
 						});
 //						targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
-						madeChanges = true;
+//						madeChanges = true;
 					} else if(propertyChanged.name.equals("Y")) {
 						branch.onFinished(new Runnable() {
 							@Override
@@ -717,7 +717,7 @@ public abstract class Model implements Serializable, Observer {
 							}
 						});
 //						targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
-						madeChanges = true;
+//						madeChanges = true;
 					} else if(propertyChanged.name.equals("Width")) {
 						branch.onFinished(new Runnable() {
 							@Override
@@ -726,7 +726,7 @@ public abstract class Model implements Serializable, Observer {
 							}
 						});
 //						targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
-						madeChanges = true;
+//						madeChanges = true;
 					} else if(propertyChanged.name.equals("Height")) {
 						branch.onFinished(new Runnable() {
 							@Override
@@ -735,9 +735,9 @@ public abstract class Model implements Serializable, Observer {
 							}
 						});
 //						targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
-						madeChanges = true;
+//						madeChanges = true;
 					}
-				} else if(change instanceof BeganUpdate) {
+				}/* else if(change instanceof BeganUpdate) {
 					isUpdating = true;
 				} else if(change instanceof EndedUpdate) {
 					isUpdating = false;
@@ -752,19 +752,19 @@ public abstract class Model implements Serializable, Observer {
 //						});
 						madeChanges = false;
 					}
-				}
+				}*/
 				
-				if(!isUpdating) {
-					if(madeChanges) {
-//						SwingUtilities.invokeLater(new Runnable() {
-//							@Override
-//							public void run() {
-//								viewManager.refresh(target);
-//							}
-//						});
-						madeChanges = false;
-					}
-				}
+//				if(!isUpdating) {
+//					if(madeChanges) {
+////						SwingUtilities.invokeLater(new Runnable() {
+////							@Override
+////							public void run() {
+////								viewManager.refresh(target);
+////							}
+////						});
+//						madeChanges = false;
+//					}
+//				}
 			}
 		});
 	}

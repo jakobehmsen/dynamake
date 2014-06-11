@@ -188,10 +188,10 @@ public class CanvasModel extends Model {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 
 			canvasSource.removeModel(model, propCtx, 0, branch);
-			model.beginUpdate(propCtx, 0, branch);
+//			model.beginUpdate(propCtx, 0, branch);
 			model.setProperty("X", new Fraction(point.x), propCtx, 0, branch);
 			model.setProperty("Y", new Fraction(point.y), propCtx, 0, branch);
-			model.endUpdate(propCtx, 0, branch);
+//			model.endUpdate(propCtx, 0, branch);
 			canvasTarget.addModel(model, propCtx, 0, branch);
 			if(setMovedAsOutput)
 				liveModel.setOutput(model, propCtx, 0, branch);
@@ -246,10 +246,10 @@ public class CanvasModel extends Model {
 			Model model = canvasSource.getModel(indexSource);
 
 			canvasSource.removeModel(indexSource, propCtx, 0, branch);
-			model.beginUpdate(propCtx, 0, branch);
+//			model.beginUpdate(propCtx, 0, branch);
 			model.setProperty("X", x, propCtx, 0, branch);
 			model.setProperty("Y", y, propCtx, 0, branch);
-			model.endUpdate(propCtx, 0, branch);
+//			model.endUpdate(propCtx, 0, branch);
 			canvasTarget.addModel(indexTarget, model, propCtx, 0, branch);
 		}
 		

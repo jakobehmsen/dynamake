@@ -1149,7 +1149,7 @@ public class LiveModel extends Model {
 					
 					selectionFrameSize = ((JComponent)view).getSize();
 					
-					final Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+//					final Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 
 					final JPanel selectionFrame = productionPanel.selectionFrame; 
 //					SwingUtilities.invokeLater(new Runnable() {
@@ -1161,6 +1161,7 @@ public class LiveModel extends Model {
 					branch.onFinished(new Runnable() {
 						@Override
 						public void run() {
+							final Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 							selectionFrame.setBounds(selectionBounds);
 						}
 					});
