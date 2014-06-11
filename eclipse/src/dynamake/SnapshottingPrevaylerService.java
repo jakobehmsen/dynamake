@@ -580,6 +580,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			
 			if(transaction != null)
 				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, isolatedBranch());
+			
+			sendFinished();
 		}
 		
 		@Override

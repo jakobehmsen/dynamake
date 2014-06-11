@@ -790,12 +790,42 @@ public class LiveModel extends Model {
 				productionPanel.effectFrame.setBounds(newBounds);
 			}
 			
+			public void changeEffectFrameDirect2(final Rectangle newBounds, RunBuilder runBuilder) {
+				if(productionPanel.effectFrame != null) {
+					final JPanel localEffectFrame = productionPanel.effectFrame;
+					
+					runBuilder.addRunnable(new Runnable() {
+						
+						@Override
+						public void run() {
+							localEffectFrame.setBounds(newBounds);
+						}
+					});
+				}
+			}
+			
 			public void clearEffectFrame() {
 				if(productionPanel.effectFrame != null) {
 					final JPanel localEffectFrame = productionPanel.effectFrame;
 					productionPanel.effectFrame = null;
 					initialEffectBounds = null;
 					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							productionPanel.remove(localEffectFrame);
+						}
+					});
+				} else {
+					System.out.println("Attempted to clear effect frame when it hasn't been created.");
+				}
+			}
+			
+			public void clearEffectFrameOnBranch(PrevaylerServiceBranch<Model> branch) {
+				if(productionPanel.effectFrame != null) {
+					final JPanel localEffectFrame = productionPanel.effectFrame;
+					productionPanel.effectFrame = null;
+					initialEffectBounds = null;
+					branch.onFinished(new Runnable() {
 						@Override
 						public void run() {
 							productionPanel.remove(localEffectFrame);

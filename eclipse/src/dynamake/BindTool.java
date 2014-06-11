@@ -35,7 +35,22 @@ public class BindTool implements Tool {
 		final ModelComponent targetModelComponent = modelOver;
 		
 		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+		
 		branch.close();
+		
+		final JPanel targetFrame = productionPanel.targetFrame;
+		if(targetFrame != null) {
+			branchStep2.onFinished(new Runnable() {
+				@Override
+				public void run() {
+					productionPanel.remove(targetFrame);
+				}
+			});
+		}
+
+		productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
+		productionPanel.editPanelMouseAdapter.targetOver = null;
 		
 		if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
 			if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
@@ -76,20 +91,6 @@ public class BindTool implements Tool {
 		} else {
 			branchStep2.reject();
 		}
-
-		productionPanel.editPanelMouseAdapter.clearEffectFrame();
-		productionPanel.editPanelMouseAdapter.targetOver = null;
-
-		final JPanel targetFrame = productionPanel.targetFrame;
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				if(targetFrame != null)
-					productionPanel.remove(targetFrame);
-				
-				productionPanel.livePanel.repaint();
-			}
-		});
 		
 		mouseDown = null;
 	}
@@ -102,6 +103,8 @@ public class BindTool implements Tool {
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
 		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+		
+		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		if(productionPanel.editPanelMouseAdapter.output != null) {
 			PropogationContext propCtx = new PropogationContext();
@@ -137,12 +140,14 @@ public class BindTool implements Tool {
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(mouseDown != null) {
+			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+			
 			final ModelComponent newTargetOverComponent = modelOver;
 			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
 				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
 				if(productionPanel.targetFrame != null) {
 					final JPanel oldTargetFrame = productionPanel.targetFrame;
-					SwingUtilities.invokeLater(new Runnable() {
+					runBuilder.addRunnable(new Runnable() {
 						@Override
 						public void run() {
 							productionPanel.remove(oldTargetFrame);
@@ -156,7 +161,7 @@ public class BindTool implements Tool {
 						productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(newTargetOverComponent.getModelBehind()) ? ProductionPanel.UNBIND_COLOR
 						: ProductionPanel.BIND_COLOR;
 
-					SwingUtilities.invokeLater(new Runnable() {
+					runBuilder.addRunnable(new Runnable() {
 						@Override
 						public void run() {
 							productionPanel.targetFrame.setBorder(
@@ -187,13 +192,9 @@ public class BindTool implements Tool {
 			final int x = productionPanel.selectionFrame.getX() + (cursorLocationInProductionPanel.x - mouseDown.x);
 			final int y = productionPanel.selectionFrame.getY() + (cursorLocationInProductionPanel.y - mouseDown.y);
 			
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					productionPanel.editPanelMouseAdapter.changeEffectFrameDirect(new Rectangle(x, y, width, height));
-					productionPanel.livePanel.repaint();
-				}
-			});
+			productionPanel.editPanelMouseAdapter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), runBuilder);
+			
+			runBuilder.execute();
 		}
 	}
 }

@@ -97,24 +97,10 @@ public class PlotTool implements Tool {
 								}
 							});
 							
-							branchStep2.onFinished(new Runnable() {
-								@Override
-								public void run() {
-									productionPanel.editPanelMouseAdapter.clearEffectFrameDirect();
-//									productionPanel.livePanel.repaint();
-								}
-							});
+							productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 							
 							branchStep2.close();
 							branch.close();
-
-//							SwingUtilities.invokeLater(new Runnable() {
-//								@Override
-//								public void run() {
-//									productionPanel.editPanelMouseAdapter.clearEffectFrameDirect();
-//									productionPanel.livePanel.repaint();
-//								}
-//							});
 						}
 					}
 				});
@@ -154,16 +140,9 @@ public class PlotTool implements Tool {
 								}
 							});
 							
+							productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 							branchStep2.close();
 							branch.close();
-
-							SwingUtilities.invokeLater(new Runnable() {
-								@Override
-								public void run() {
-									productionPanel.editPanelMouseAdapter.clearEffectFrameDirect();
-									productionPanel.livePanel.repaint();
-								}
-							});
 						}
 					}
 				});
@@ -239,14 +218,10 @@ public class PlotTool implements Tool {
 	public void mouseDragged(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver) {
 		if(mouseDown != null) {
 			final Rectangle plotBoundsInProductionPanel = productionPanel.editPanelMouseAdapter.getPlotBounds(mouseDown, e.getPoint());
-
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					productionPanel.editPanelMouseAdapter.changeEffectFrameDirect(plotBoundsInProductionPanel);
-					productionPanel.livePanel.repaint();
-				}
-			});
+			
+			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+			productionPanel.editPanelMouseAdapter.changeEffectFrameDirect2(plotBoundsInProductionPanel, runBuilder);
+			runBuilder.execute();
 		}
 	}
 }
