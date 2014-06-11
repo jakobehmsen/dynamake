@@ -121,7 +121,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				
 				DualCommand<T> transactionToUndo = transactionUndoStack.get(i);
 				transactionUndoStack.remove(i);
-				transactionToUndo.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+				transactionToUndo.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>(null));
 				transactionRedoStack.push(transactionToUndo);
 				
 //				DualCommand<T> transactionToUndo = transactionUndoStack.pop();
@@ -138,14 +138,14 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				
 				DualCommand<T> transactionToRedo = transactionRedoStack.get(i);
 				transactionRedoStack.remove(i);
-				transactionToRedo.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+				transactionToRedo.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>(null));
 				transactionUndoStack.add(transactionToRedo);
 				
 //				DualCommand<T> transactionToRedo = transactionRedoStack.pop();
 //				transactionToRedo.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
 //				transactionUndoStack.push(transactionToRedo);
 			} else {
-				transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+				transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>(null));
 				transactionUndoStack.push(transaction);
 				transactionRedoStack.clear();
 			}
@@ -219,6 +219,15 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	}
 	
 	private static class IsolatedBranch<T> implements PrevaylerServiceBranch<T> {
+		private PrevaylerServiceBranch<T> parent;
+		private RunBuilder finishedBuilder;
+		
+		public IsolatedBranch() { }
+		
+		public IsolatedBranch(PrevaylerServiceBranch<T> parent) {
+			this.parent = parent;
+		}
+
 		@Override
 		public void absorb() { }
 
@@ -227,7 +236,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 
 		@Override
 		public PrevaylerServiceBranch<T> branch() {
-			return new IsolatedBranch<T>();
+			return new IsolatedBranch<T>(this);
 		}
 
 		@Override
@@ -256,10 +265,19 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		@Override
-		public void onFinished(Runnable runnable) { }
+		public void onFinished(Runnable runnable) {
+			if(finishedBuilder != null)
+				finishedBuilder.addRunnable(runnable);
+			else {
+				if(parent != null)
+					parent.onFinished(runnable);
+			}
+		}
 		
 		@Override
-		public void setOnFinishedBuilder(RunBuilder absorbBuilder) { }
+		public void setOnFinishedBuilder(RunBuilder finishedBuilder) { 
+			this.finishedBuilder = finishedBuilder;
+		}
 	}
 	
 //	private static class OffsetTransaction<T> {
@@ -322,7 +340,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	}
 	
 	@Override
-	public void undo(final PropogationContext propCtx, final Location location) {
+	public void undo(final PropogationContext propCtx, final Location location, final RunBuilder finishedBuilder) {
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -336,10 +354,14 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					if(i >= 0) {
 						DualCommand<T> transaction = transactionUndoStack.get(i);
 						transactionUndoStack.remove(i);
-						transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+						IsolatedBranch<T> isolatedBranch = new IsolatedBranch<T>();
+						isolatedBranch.setOnFinishedBuilder(finishedBuilder);
+						transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatedBranch);
 						transactionRedoStack.push(transaction);
 						
 						persistTransaction(propCtx, new UndoTransaction<T>(location));
+						
+						finishedBuilder.execute();
 					}
 //					DualCommand<T> transaction = transactionUndoStack.pop();
 //					transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
@@ -352,7 +374,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	}
 
 	@Override
-	public void redo(final PropogationContext propCtx, final Location location) {
+	public void redo(final PropogationContext propCtx, final Location location, final RunBuilder finishedBuilder) {
 		transactionExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -366,9 +388,13 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					if(i >= 0) {
 						DualCommand<T> offsetTransaction = transactionRedoStack.get(i);
 						transactionRedoStack.remove(i);
-						offsetTransaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
+						IsolatedBranch<T> isolatedBranch = new IsolatedBranch<T>();
+						isolatedBranch.setOnFinishedBuilder(finishedBuilder);
+						offsetTransaction.executeForwardOn(propCtx, prevalentSystem, null, isolatedBranch);
 						transactionUndoStack.add(offsetTransaction);
 						persistTransaction(propCtx, new RedoTransaction<T>(location));
+						
+						finishedBuilder.execute();
 					}
 					
 //					DualCommand<T> transaction = transactionRedoStack.pop();
@@ -719,7 +745,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		
 		@Override
 		public PrevaylerServiceBranch<T> isolatedBranch() {
-			return new IsolatedBranch<T>();
+			return new IsolatedBranch<T>(this);
 		}
 		
 		@Override

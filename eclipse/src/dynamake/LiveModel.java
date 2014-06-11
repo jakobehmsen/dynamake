@@ -1773,12 +1773,12 @@ public class LiveModel extends Model {
 							productionPanel.editPanelMouseAdapter.setOutput(view, branch);
 						}
 						
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								productionPanel.livePanel.repaint();
-							}
-						});
+//						SwingUtilities.invokeLater(new Runnable() {
+//							@Override
+//							public void run() {
+//								productionPanel.livePanel.repaint();
+//							}
+//						});
 					} else if(change instanceof LiveModel.SelectionChanged) {
 						if(LivePanel.this.model.selection != null) {
 							// TODO: Consider whether this is a safe manner in which location of selection if derived.
@@ -1816,14 +1816,16 @@ public class LiveModel extends Model {
 			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_UNDO);
 			Location location = getTransactionFactory().getModelLocation();
 			// Indicate this is an undo context
-			getTransactionFactory().undo(propCtx, location);
+			RepaintRunBuilder finishedBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+			getTransactionFactory().undo(propCtx, location, finishedBuilder);
 		}
 
 		public void redo() {
 			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_REDO);
 			Location location = getTransactionFactory().getModelLocation();
 			// Indicate this is an undo context
-			getTransactionFactory().redo(propCtx, location);
+			RepaintRunBuilder finishedBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+			getTransactionFactory().redo(propCtx, location, finishedBuilder);
 		}
 		
 		@Override
