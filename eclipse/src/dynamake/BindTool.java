@@ -160,25 +160,26 @@ public class BindTool implements Tool {
 					final Color color = 
 						productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(newTargetOverComponent.getModelBehind()) ? ProductionPanel.UNBIND_COLOR
 						: ProductionPanel.BIND_COLOR;
+					productionPanel.targetFrame.setBorder(
+						BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(Color.BLACK, 1), 
+							BorderFactory.createCompoundBorder(
+								BorderFactory.createLineBorder(color, 3), 
+								BorderFactory.createLineBorder(Color.BLACK, 1)
+							)
+						)
+					);
+					
+					Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
+						((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), productionPanel);
+					productionPanel.targetFrame.setBounds(targetFrameBounds);
+					productionPanel.targetFrame.setBackground(new Color(0, 0, 0, 0));
 
+					final JPanel localTargetFrame = productionPanel.targetFrame;
 					runBuilder.addRunnable(new Runnable() {
 						@Override
 						public void run() {
-							productionPanel.targetFrame.setBorder(
-								BorderFactory.createCompoundBorder(
-									BorderFactory.createLineBorder(Color.BLACK, 1), 
-									BorderFactory.createCompoundBorder(
-										BorderFactory.createLineBorder(color, 3), 
-										BorderFactory.createLineBorder(Color.BLACK, 1)
-									)
-								)
-							);
-							
-							Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
-								((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), productionPanel);
-							productionPanel.targetFrame.setBounds(targetFrameBounds);
-							productionPanel.targetFrame.setBackground(new Color(0, 0, 0, 0));
-							productionPanel.add(productionPanel.targetFrame);
+							productionPanel.add(localTargetFrame);
 						}
 					});
 				}

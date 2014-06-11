@@ -1158,6 +1158,7 @@ public class LiveModel extends Model {
 //							selectionFrame.setBounds(selectionBounds);
 //						}
 //					});
+					// Wait deriving the Swing based bounds because the adding of the component is postponed to the next repaint sync
 					branch.onFinished(new Runnable() {
 						@Override
 						public void run() {

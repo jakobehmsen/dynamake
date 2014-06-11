@@ -691,9 +691,6 @@ public abstract class Model implements Serializable, Observer {
 	
 	public static RemovableListener wrapForBoundsChanges(final Model model, final ModelComponent target, final ViewManager viewManager) {
 		return RemovableListener.addObserver(model, new ObserverAdapter() {
-//			boolean isUpdating;
-//			boolean madeChanges;
-			
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 				if(change instanceof Model.PropertyChanged
@@ -707,8 +704,6 @@ public abstract class Model implements Serializable, Observer {
 								targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
 							}
 						});
-//						targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
-//						madeChanges = true;
 					} else if(propertyChanged.name.equals("Y")) {
 						branch.onFinished(new Runnable() {
 							@Override
@@ -716,8 +711,6 @@ public abstract class Model implements Serializable, Observer {
 								targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
 							}
 						});
-//						targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
-//						madeChanges = true;
 					} else if(propertyChanged.name.equals("Width")) {
 						branch.onFinished(new Runnable() {
 							@Override
@@ -725,8 +718,6 @@ public abstract class Model implements Serializable, Observer {
 								targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
 							}
 						});
-//						targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
-//						madeChanges = true;
 					} else if(propertyChanged.name.equals("Height")) {
 						branch.onFinished(new Runnable() {
 							@Override
@@ -734,37 +725,8 @@ public abstract class Model implements Serializable, Observer {
 								targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
 							}
 						});
-//						targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
-//						madeChanges = true;
 					}
-				}/* else if(change instanceof BeganUpdate) {
-					isUpdating = true;
-				} else if(change instanceof EndedUpdate) {
-					isUpdating = false;
-					
-					if(madeChanges) {
-//						SwingUtilities.invokeLater(new Runnable() {
-//							@Override
-//							public void run() {
-//								((JComponent)target).validate();
-//								viewManager.refresh(target);
-//							}
-//						});
-						madeChanges = false;
-					}
-				}*/
-				
-//				if(!isUpdating) {
-//					if(madeChanges) {
-////						SwingUtilities.invokeLater(new Runnable() {
-////							@Override
-////							public void run() {
-////								viewManager.refresh(target);
-////							}
-////						});
-//						madeChanges = false;
-//					}
-//				}
+				}
 			}
 		});
 	}
@@ -777,19 +739,25 @@ public abstract class Model implements Serializable, Observer {
 			@Override
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 				if(change instanceof Model.PropertyChanged) {
-					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
+					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 
 					if(propertyChanged.name.equals(PROPERTY_COLOR)) {
 						switch(componentColor) {
 						case COMPONENT_COLOR_BACKGROUND: {
-							targetComponent.setBackground((Color)propertyChanged.value);
-							targetComponent.validate();
-							viewManager.refresh(view);
+							branch.onFinished(new Runnable() {
+								@Override
+								public void run() {
+									targetComponent.setBackground((Color)propertyChanged.value);
+								}
+							});
 						}
 						case COMPONENT_COLOR_FOREGROUND: {
-							targetComponent.setForeground((Color)propertyChanged.value);
-							targetComponent.validate();
-							viewManager.repaint(targetComponent);
+							branch.onFinished(new Runnable() {
+								@Override
+								public void run() {
+									targetComponent.setForeground((Color)propertyChanged.value);
+								}
+							});
 						}
 						}
 					}

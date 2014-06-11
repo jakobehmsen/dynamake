@@ -87,18 +87,6 @@ public class ConsTool implements Tool {
 				}
 				
 				productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
-				
-//				if(productionPanel.targetFrame != null) 
-//					productionPanel.remove(productionPanel.targetFrame);
-				
-//				productionPanel.editPanelMouseAdapter.clearEffectFrame();
-//				
-//				SwingUtilities.invokeLater(new Runnable() {
-//					@Override
-//					public void run() {
-//						productionPanel.livePanel.repaint();
-//					}
-//				});
 
 				branchStep2.close();
 			}
@@ -118,13 +106,6 @@ public class ConsTool implements Tool {
 
 		productionPanel.editPanelMouseAdapter.targetOver = null;
 		mouseDown = null;
-		
-//		SwingUtilities.invokeLater(new Runnable() {
-//			@Override
-//			public void run() {
-//				productionPanel.livePanel.repaint();
-//			}
-//		});
 	}
 	
 	private Point mouseDown;
@@ -198,23 +179,23 @@ public class ConsTool implements Tool {
 					
 					final Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
 						((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), productionPanel);
+					productionPanel.targetFrame.setBorder(
+						BorderFactory.createCompoundBorder(
+							BorderFactory.createLineBorder(Color.BLACK, 1), 
+							BorderFactory.createCompoundBorder(
+								BorderFactory.createLineBorder(color, 3), 
+								BorderFactory.createLineBorder(Color.BLACK, 1)
+							)
+						)
+					);
+
+					productionPanel.targetFrame.setBounds(targetFrameBounds);
+					productionPanel.targetFrame.setBackground(new Color(0, 0, 0, 0));
 
 					final JPanel localTargetFrame = productionPanel.targetFrame;
 					runBuilder.addRunnable(new Runnable() {
 						@Override
 						public void run() {
-							localTargetFrame.setBorder(
-								BorderFactory.createCompoundBorder(
-									BorderFactory.createLineBorder(Color.BLACK, 1), 
-									BorderFactory.createCompoundBorder(
-										BorderFactory.createLineBorder(color, 3), 
-										BorderFactory.createLineBorder(Color.BLACK, 1)
-									)
-								)
-							);
-
-							localTargetFrame.setBounds(targetFrameBounds);
-							localTargetFrame.setBackground(new Color(0, 0, 0, 0));
 							productionPanel.add(localTargetFrame);
 						}
 					});

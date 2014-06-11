@@ -32,12 +32,10 @@ public class DragTool implements Tool {
 
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-//		Point releasePoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
-//		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(releasePoint);
-//		ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
 		ModelComponent targetModelComponent = modelOver;
 		
 		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
 			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
@@ -49,13 +47,6 @@ public class DragTool implements Tool {
 
 		productionPanel.editPanelMouseAdapter.targetOver = null;
 		mouseDown = null;
-		
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				productionPanel.livePanel.repaint();
-			}
-		});
 	}
 	
 	private Point mouseDown;
@@ -66,6 +57,7 @@ public class DragTool implements Tool {
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
 		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		if(productionPanel.editPanelMouseAdapter.output != null) {
 			PropogationContext propCtx = new PropogationContext();
@@ -102,16 +94,21 @@ public class DragTool implements Tool {
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(mouseDown != null) {
-//			Point mouseOverPoint = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
-//			JComponent newTargetOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(mouseOverPoint);
-//			ModelComponent newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(newTargetOver);
+			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			ModelComponent newTargetOverComponent = modelOver;
 			
 			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
 				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
 				
-				if(productionPanel.targetFrame != null)
-					productionPanel.remove(productionPanel.targetFrame);
+				if(productionPanel.targetFrame != null) {
+					final JPanel localTargetFrame = productionPanel.targetFrame;
+					runBuilder.addRunnable(new Runnable() {
+						@Override
+						public void run() {
+							productionPanel.remove(localTargetFrame);
+						}
+					});
+				}
 				
 				if(newTargetOverComponent != null && newTargetOverComponent != productionPanel.editPanelMouseAdapter.selection) {
 					productionPanel.targetFrame = new JPanel();
@@ -132,7 +129,14 @@ public class DragTool implements Tool {
 						((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), productionPanel);
 					productionPanel.targetFrame.setBounds(targetFrameBounds);
 					productionPanel.targetFrame.setBackground(new Color(0, 0, 0, 0));
-					productionPanel.add(productionPanel.targetFrame);
+
+					final JPanel localTargetFrame = productionPanel.targetFrame;
+					runBuilder.addRunnable(new Runnable() {
+						@Override
+						public void run() {
+							productionPanel.add(localTargetFrame);
+						}
+					});
 				}
 			}
 			
@@ -144,13 +148,9 @@ public class DragTool implements Tool {
 			final int x = productionPanel.selectionFrame.getX() + (cursorLocationInProductionPanel.x - mouseDown.x);
 			final int y = productionPanel.selectionFrame.getY() + (cursorLocationInProductionPanel.y - mouseDown.y);
 			
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					productionPanel.editPanelMouseAdapter.changeEffectFrameDirect(new Rectangle(x, y, width, height));
-					productionPanel.livePanel.repaint();
-				}
-			});
+			productionPanel.editPanelMouseAdapter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), runBuilder);
+			
+			runBuilder.execute();
 		}
 	}
 }
