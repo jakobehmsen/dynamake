@@ -24,8 +24,6 @@ public class EditTool implements Tool {
 	@Override
 	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(productionPanel.editPanelMouseAdapter.selection == modelOver && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
-//			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.selectionFrame);
-			
 			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
 			
 			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(point, productionPanel.selectionFrame.getSize());
@@ -33,30 +31,12 @@ public class EditTool implements Tool {
 			final Cursor cursor = productionPanel.editPanelMouseAdapter.getCursorFromRelativePosition();
 			
 			productionPanel.selectionFrame.setCursor(cursor);
-			
-//			if(productionPanel.selectionFrame.getCursor() != cursor) {
-//				runBuilder.addRunnable(new Runnable() {
-//					@Override
-//					public void run() {
-//						productionPanel.selectionFrame.setCursor(cursor);
-//					}
-//				});
-//			}
-//			
-//			runBuilder.execute();
 		}
 	}
 
 	@Override
 	public void mouseExited(final ProductionPanel productionPanel, MouseEvent e) {
-//		if(mouseDown == null) {
-//			SwingUtilities.invokeLater(new Runnable() {
-//				@Override
-//				public void run() {
-//					productionPanel.selectionFrame.setCursor(null);
-//				}
-//			});
-//		}
+
 	}
 
 	@Override
@@ -101,11 +81,6 @@ public class EditTool implements Tool {
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Model selectionModel = selection.getModelBehind();
 							
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new Model.BeganUpdateTransaction(selectionTransactionFactory.getModelLocation()), 
-//								new Model.EndedUpdateTransaction(selectionTransactionFactory.getModelLocation())
-//							));
-							
 							dualCommands.add(new DualCommandPair<Model>(
 								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "X", new Fraction(newBounds.x)), 
 								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "X", selectionModel.getProperty("X"))
@@ -125,11 +100,6 @@ public class EditTool implements Tool {
 								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Height", new Fraction(newBounds.height)), 
 								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Height", selectionModel.getProperty("Height"))
 							));
-							
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new Model.EndedUpdateTransaction(selectionTransactionFactory.getModelLocation()), 
-//								new Model.BeganUpdateTransaction(selectionTransactionFactory.getModelLocation())
-//							));
 							
 							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, selectionTransactionFactory.getModelLocation()));
 						}
@@ -303,14 +273,6 @@ public class EditTool implements Tool {
 			productionPanel.editPanelMouseAdapter.changeEffectFrameDirect2(newEffectBounds, runBuilder);
 			
 			runBuilder.execute();
-			
-//			SwingUtilities.invokeLater(new Runnable() {
-//				@Override
-//				public void run() {
-//					productionPanel.editPanelMouseAdapter.changeEffectFrameDirect(newEffectBounds);
-//					productionPanel.livePanel.repaint();
-//				}
-//			});
 		}
 	}
 }
