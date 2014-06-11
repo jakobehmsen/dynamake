@@ -10,14 +10,14 @@ public class RepaintRunBuilder implements RunBuilder {
 	
 	public RepaintRunBuilder(JComponent componentToRepaint) {
 		this.componentToRepaint = componentToRepaint;
-		System.out.println("Created RepaintRunBuilder " + this);
+//		System.out.println("Created RepaintRunBuilder " + this);
 	}
 
 	private ArrayList<Runnable> runnables = new ArrayList<Runnable>();
 	
 	@Override
 	public void execute() {
-		System.out.println("execute " + this);
+//		System.out.println("execute " + this);
 		if(runnables.size() > 0) {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
@@ -33,7 +33,7 @@ public class RepaintRunBuilder implements RunBuilder {
 	
 	@Override
 	public void addRunnable(Runnable runnable) {
-		System.out.println("add runnable to " + this);
+//		System.out.println("add runnable to " + this);
 		runnables.add(runnable);
 	}
 }

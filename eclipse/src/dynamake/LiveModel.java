@@ -37,6 +37,7 @@ import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
@@ -400,7 +401,7 @@ public class LiveModel extends Model {
 			buttonTool.setForeground(TOP_FOREGROUND_COLOR);
 			*/
 			
-			setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+//			setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 			setLayout(new BorderLayout());
 			setBackground(TOP_BACKGROUND_COLOR);
 			labelToolName = new JLabel();
@@ -513,14 +514,23 @@ public class LiveModel extends Model {
 		
 		private void update() {
 			labelToolName.setText(text);
+			
+			Border innerBorder = BorderFactory.createEmptyBorder(0, 5, 0, 5);
+			Border outerBorder;
+			
 			if(button != -1) {
 				labelButton.setText("" + button);
-//				label.setText(text + "(" + button + ")");
 				labelButton.setForeground(getColorForButton(button));
+				
+				outerBorder = BorderFactory.createLoweredSoftBevelBorder();
 			} else {
 				labelButton.setText("");
 				labelButton.setForeground(null);
+
+				outerBorder = BorderFactory.createRaisedSoftBevelBorder();
 			}
+			
+			setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
 		}
 		
 		public void setButton(int button) {
@@ -1851,12 +1861,9 @@ public class LiveModel extends Model {
 				int button = model.getButtonForTool(i + 1);
 				buttonTools[i + 1] = createToolButton(model, transactionFactory, group, button, this.model.getTool(), i + 1, tool.getName());
 			}
+			
 			for(JComponent buttonTool: buttonTools) {
-				JPanel buttonToolWrapper = new JPanel();
-				buttonToolWrapper.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-				buttonToolWrapper.setLayout(new BorderLayout());
-				buttonToolWrapper.add(buttonTool, BorderLayout.CENTER);
-				topPanel.add(buttonToolWrapper);
+				topPanel.add(buttonTool);
 			}
 			
 			if(LivePanel.this.model.selection != null) {
