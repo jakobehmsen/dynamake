@@ -12,7 +12,7 @@ public class RepaintRunBuilder implements RunBuilder {
 		this.componentToRepaint = componentToRepaint;
 	}
 
-	ArrayList<Runnable> runnables = new ArrayList<Runnable>();
+	private ArrayList<Runnable> runnables = new ArrayList<Runnable>();
 	
 	@Override
 	public void execute() {

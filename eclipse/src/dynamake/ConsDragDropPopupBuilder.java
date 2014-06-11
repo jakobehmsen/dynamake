@@ -24,7 +24,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run(Runnable runnable) {
 				runnable.run();
 
-				((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.clearEffectFrame();
+				((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branch);
 				branch.close();
 			}
 		};
@@ -34,7 +34,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 		if(implicitDropAction != null) {
 			branch.execute(new PropogationContext(), implicitDropAction);
 
-			((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.clearEffectFrame();
+			((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branch);
 			branch.close();
 		} else {
 			TransactionMapBuilder transactionTargetContentMapBuilder = new TransactionMapBuilder();
@@ -125,7 +125,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
-		livePanel.productionPanel.editPanelMouseAdapter.clearEffectFrame();
+		livePanel.productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branch);
 		branch.reject();
 	}
 }
