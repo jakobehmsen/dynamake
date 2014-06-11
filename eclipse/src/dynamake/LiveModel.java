@@ -785,10 +785,10 @@ public class LiveModel extends Model {
 //				}
 //			}
 			
-			// TODO: Calls to this should be replaced by a changeEffectFrameDirect(int x, int y) where only the location changes
-			public void changeEffectFrameDirect(final Rectangle newBounds) {
-				productionPanel.effectFrame.setBounds(newBounds);
-			}
+//			// TODO: Calls to this should be replaced by a changeEffectFrameDirect(int x, int y) where only the location changes
+//			public void changeEffectFrameDirect(final Rectangle newBounds) {
+//				productionPanel.effectFrame.setBounds(newBounds);
+//			}
 			
 			public void changeEffectFrameDirect2(final Rectangle newBounds, RunBuilder runBuilder) {
 				if(productionPanel.effectFrame != null) {
@@ -804,21 +804,21 @@ public class LiveModel extends Model {
 				}
 			}
 			
-			public void clearEffectFrame() {
-				if(productionPanel.effectFrame != null) {
-					final JPanel localEffectFrame = productionPanel.effectFrame;
-					productionPanel.effectFrame = null;
-					initialEffectBounds = null;
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.remove(localEffectFrame);
-						}
-					});
-				} else {
-					System.out.println("Attempted to clear effect frame when it hasn't been created.");
-				}
-			}
+//			public void clearEffectFrame() {
+//				if(productionPanel.effectFrame != null) {
+//					final JPanel localEffectFrame = productionPanel.effectFrame;
+//					productionPanel.effectFrame = null;
+//					initialEffectBounds = null;
+//					SwingUtilities.invokeLater(new Runnable() {
+//						@Override
+//						public void run() {
+//							productionPanel.remove(localEffectFrame);
+//						}
+//					});
+//				} else {
+//					System.out.println("Attempted to clear effect frame when it hasn't been created.");
+//				}
+//			}
 			
 			public void clearEffectFrameOnBranch(PrevaylerServiceBranch<Model> branch) {
 				if(productionPanel.effectFrame != null) {
@@ -836,14 +836,14 @@ public class LiveModel extends Model {
 				}
 			}
 			
-			public void clearEffectFrameDirect() {
-				if(productionPanel.effectFrame != null) {
-					productionPanel.remove(productionPanel.effectFrame);
-					productionPanel.effectFrame = null;
-				} else {
-					System.out.println("Attempted to clear effect frame when it hasn't been created.");
-				}
-			}
+//			public void clearEffectFrameDirect() {
+//				if(productionPanel.effectFrame != null) {
+//					productionPanel.remove(productionPanel.effectFrame);
+//					productionPanel.effectFrame = null;
+//				} else {
+//					System.out.println("Attempted to clear effect frame when it hasn't been created.");
+//				}
+//			}
 
 			public int getEffectFrameX() {
 				return productionPanel.effectFrame.getX();

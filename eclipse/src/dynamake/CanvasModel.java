@@ -746,14 +746,15 @@ public class CanvasModel extends Model {
 								view.shownModels.add(sender);
 //								view.add((JComponent)modelView.getBindingTarget());
 								
-								viewChangeRunner.run(new Runnable() {
+								branch.onFinished(new Runnable() {
 									@Override
 									public void run() {
 										view.add((JComponent)modelView.getBindingTarget());
 									}
 								});
 								
-								int zOrder = view.getComponentCount();
+//								int zOrder = view.getComponentCount();
+								int zOrder = view.shownModels.size();
 								for(int i = 0; i < models.size(); i++) {
 									Model m = models.get(i);
 									
@@ -766,7 +767,7 @@ public class CanvasModel extends Model {
 
 //								view.setComponentZOrder((JComponent)modelView.getBindingTarget(), zOrder);
 								final int localZOrder = zOrder;
-								viewChangeRunner.run(new Runnable() {
+								branch.onFinished(new Runnable() {
 									@Override
 									public void run() {
 										view.setComponentZOrder((JComponent)modelView.getBindingTarget(), localZOrder);
@@ -783,7 +784,7 @@ public class CanvasModel extends Model {
 								view.shownModels.remove(sender);
 //								view.remove((JComponent)modelView.getBindingTarget());
 								
-								viewChangeRunner.run(new Runnable() {
+								branch.onFinished(new Runnable() {
 									@Override
 									public void run() {
 										view.remove((JComponent)modelView.getBindingTarget());
@@ -850,13 +851,6 @@ public class CanvasModel extends Model {
 							}
 						}
 					);
-					
-//					SwingUtilities.invokeLater(new Runnable() {
-//						@Override
-//						public void run() {
-//							viewManager.refresh(view);
-//						}
-//					});
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
 					// It could be possible to have map mapping from model to model component as follows:
 					Model removedModel = ((CanvasModel.RemovedModelChange)change).model;
@@ -868,18 +862,7 @@ public class CanvasModel extends Model {
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
 					removableListener.releaseBinding();
 					
-//					viewManager.becameInvisible(propCtx, removedMC);
 					viewManager.unFocus(propCtx, removedMC, branch);
-					
-//					SwingUtilities.invokeLater(new Runnable() {
-//						@Override
-//						public void run() {
-//							view.remove((JComponent)removedMC);
-//							view.validate();
-//							view.repaint();
-//							viewManager.repaint(view);
-//						}
-//					});
 					
 					branch.onFinished(new Runnable() {
 						@Override
@@ -936,8 +919,12 @@ public class CanvasModel extends Model {
 						
 						Object[] visibles = new Object[view.model.models.size()];
 						for(Component mc: view.getComponents()) {
-							int indexOfVisible = view.model.indexOfModel(((ModelComponent)mc).getModelBehind());
-							visibles[indexOfVisible] = mc;
+							boolean isVisible = shownModels.contains(mc);
+
+							if(isVisible) {
+								int indexOfVisible = view.model.indexOfModel(((ModelComponent)mc).getModelBehind());
+								visibles[indexOfVisible] = mc;
+							}
 						}
 						
 						// Add the new visibles at each their respective index at model into visibles
@@ -966,7 +953,8 @@ public class CanvasModel extends Model {
 							}
 						}
 						
-						int zOrder = view.getComponentCount();
+//						int zOrder = view.getComponentCount();'
+						int zOrder = shownModels.size();
 						for(int i = 0; i < visibles.length; i++) {
 							Object visible = visibles[i];
 							if(visible != null) {

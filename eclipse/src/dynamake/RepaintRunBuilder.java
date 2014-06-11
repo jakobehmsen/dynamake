@@ -10,6 +10,7 @@ public class RepaintRunBuilder implements RunBuilder {
 	
 	public RepaintRunBuilder(JComponent componentToRepaint) {
 		this.componentToRepaint = componentToRepaint;
+		System.out.println("Created RepaintRunBuilder " + this);
 	}
 
 	private ArrayList<Runnable> runnables = new ArrayList<Runnable>();

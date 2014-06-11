@@ -29,13 +29,14 @@ public class ViewTool implements Tool {
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		productionPanel.editPanelMouseAdapter.showPopupForSelectionView(productionPanel, e.getPoint(), null, branchStep2);
 		
 		branch.close();
 
 		productionPanel.editPanelMouseAdapter.targetOver = null;
-		productionPanel.livePanel.repaint();
+//		productionPanel.livePanel.repaint();
 	}
 	
 	private PrevaylerServiceBranch<Model> branch;
@@ -45,6 +46,7 @@ public class ViewTool implements Tool {
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
 		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
@@ -70,7 +72,7 @@ public class ViewTool implements Tool {
 			
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
-			productionPanel.livePanel.repaint();
+//			productionPanel.livePanel.repaint();
 		}
 		
 		branchStep1.close();
