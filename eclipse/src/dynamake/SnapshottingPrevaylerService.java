@@ -657,6 +657,10 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						flushBranches();
 						
 						isClosed = true;
+						
+						if(branches.size() == 0) {
+							sendFinished();
+						}
 //						sendFinished();
 					}
 				}

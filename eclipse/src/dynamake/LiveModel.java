@@ -1403,7 +1403,7 @@ public class LiveModel extends Model {
 				});
 			}
 
-			public void setOutput(ModelComponent view, PrevaylerServiceBranch<Model> branch) {
+			public void setOutput(final ModelComponent view, PrevaylerServiceBranch<Model> branch) {
 				this.output = view;
 				if(view != null) {
 					if(productionPanel.outputFrame == null) {
@@ -1432,7 +1432,13 @@ public class LiveModel extends Model {
 						});
 					}
 					
-					final Rectangle outputBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+//					Rectangle viewBounds = new Rectangle(
+//						((Fraction)view.getModelBehind().getProperty("X")).intValue(),
+//						((Fraction)view.getModelBehind().getProperty("Y")).intValue(),
+//						((Fraction)view.getModelBehind().getProperty("Width")).intValue(),
+//						((Fraction)view.getModelBehind().getProperty("Height")).intValue()
+//					);
+//					final Rectangle outputBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), viewBounds, productionPanel);
 					final JPanel outputFrame = productionPanel.outputFrame;
 //					SwingUtilities.invokeLater(new Runnable() {
 //						@Override
@@ -1440,10 +1446,12 @@ public class LiveModel extends Model {
 //							outputFrame.setBounds(outputBounds);
 //						}
 //					});
-					
+
+					// Wait deriving the Swing based bounds because the adding of the component is postponed to the next repaint sync
 					branch.onFinished(new Runnable() {
 						@Override
 						public void run() {
+							final Rectangle outputBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 							outputFrame.setBounds(outputBounds);
 						}
 					});

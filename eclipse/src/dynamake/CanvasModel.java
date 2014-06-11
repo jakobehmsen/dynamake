@@ -706,7 +706,8 @@ public class CanvasModel extends Model {
 			final ModelComponent rootView, 
 			final CanvasPanel view, final TransactionFactory transactionFactory, 
 			final ViewManager viewManager, 
-			Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap, final Model model) {
+			Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap, final Model model,
+			final Runner viewChangeRunner) {
 		Integer viewModel2 = (Integer)model.getProperty(Model.PROPERTY_VIEW);
 		if(viewModel2 == null)
 			viewModel2 = 1;
@@ -714,11 +715,16 @@ public class CanvasModel extends Model {
 		if(view.model.conformsToView(viewModel2)) {
 			view.shownModels.add(model);
 			
-			Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
+			final Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 
-			view.add((JComponent)modelView.getBindingTarget());
-			view.setComponentZOrder((JComponent)modelView.getBindingTarget(), 0);
-			viewManager.becameVisible(modelView.getBindingTarget());
+			viewChangeRunner.run(new Runnable() {
+				@Override
+				public void run() {
+					view.add((JComponent)modelView.getBindingTarget());
+					view.setComponentZOrder((JComponent)modelView.getBindingTarget(), 0);
+				}
+			});
+//			viewManager.becameVisible(modelView.getBindingTarget());
 		}
 		
 		Model.RemovableListener removableListener = Model.RemovableListener.addObserver(model, new Observer() {
@@ -735,10 +741,18 @@ public class CanvasModel extends Model {
 						if(view.model.conformsToView(modelView2)) {
 							// Should be shown
 							if(!view.shownModels.contains(sender)) {
-								Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
+								final Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 								
 								view.shownModels.add(sender);
-								view.add((JComponent)modelView.getBindingTarget());
+//								view.add((JComponent)modelView.getBindingTarget());
+								
+								viewChangeRunner.run(new Runnable() {
+									@Override
+									public void run() {
+										view.add((JComponent)modelView.getBindingTarget());
+									}
+								});
+								
 								int zOrder = view.getComponentCount();
 								for(int i = 0; i < models.size(); i++) {
 									Model m = models.get(i);
@@ -749,21 +763,36 @@ public class CanvasModel extends Model {
 									if(m == sender)
 										break;
 								}
-								
-								view.setComponentZOrder((JComponent)modelView.getBindingTarget(), zOrder);
-								viewManager.becameVisible(modelView.getBindingTarget());
-								viewManager.refresh(view);
+
+//								view.setComponentZOrder((JComponent)modelView.getBindingTarget(), zOrder);
+								final int localZOrder = zOrder;
+								viewChangeRunner.run(new Runnable() {
+									@Override
+									public void run() {
+										view.setComponentZOrder((JComponent)modelView.getBindingTarget(), localZOrder);
+									}
+								});
+//								viewManager.becameVisible(modelView.getBindingTarget());
+//								viewManager.refresh(view);
 							}
 						} else {
 							// Should be hidden
 							if(view.shownModels.contains(sender)) {
-								Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
+								final Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 								
 								view.shownModels.remove(sender);
-								view.remove((JComponent)modelView.getBindingTarget());
+//								view.remove((JComponent)modelView.getBindingTarget());
+								
+								viewChangeRunner.run(new Runnable() {
+									@Override
+									public void run() {
+										view.remove((JComponent)modelView.getBindingTarget());
+									}
+								});
+								
 								viewManager.unFocus(propCtx, modelView.getBindingTarget(), branch);
-								viewManager.becameInvisible(propCtx, modelView.getBindingTarget());
-								viewManager.refresh(view);
+//								viewManager.becameInvisible(propCtx, modelView.getBindingTarget());
+//								viewManager.refresh(view);
 							}
 						}
 					}
@@ -794,28 +823,40 @@ public class CanvasModel extends Model {
 		for(final Model model: models) {
 			addModelComponent(
 				rootView, view, transactionFactory, viewManager, 
-				modelToRemovableListenerMap, model
+				modelToRemovableListenerMap, model,
+				new Runner() {
+					@Override
+					public void run(Runnable runnable) {
+						runnable.run();
+					}
+				}
 			);
 		}
 		
 		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+			public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, final PrevaylerServiceBranch<Model> branch) {
 				if(change instanceof CanvasModel.AddedModelChange) {
 					CanvasModel.AddedModelChange addedChange = (CanvasModel.AddedModelChange)change;
 					final Model model = addedChange.model;
 					
 					addModelComponent(
 						rootView, view, transactionFactory, viewManager, 
-						modelToRemovableListenerMap, model
+						modelToRemovableListenerMap, model,
+						new Runner() {
+							@Override
+							public void run(Runnable runnable) {
+								branch.onFinished(runnable);
+							}
+						}
 					);
 					
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							viewManager.refresh(view);
-						}
-					});
+//					SwingUtilities.invokeLater(new Runnable() {
+//						@Override
+//						public void run() {
+//							viewManager.refresh(view);
+//						}
+//					});
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
 					// It could be possible to have map mapping from model to model component as follows:
 					Model removedModel = ((CanvasModel.RemovedModelChange)change).model;
@@ -827,16 +868,23 @@ public class CanvasModel extends Model {
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
 					removableListener.releaseBinding();
 					
-					viewManager.becameInvisible(propCtx, removedMC);
+//					viewManager.becameInvisible(propCtx, removedMC);
 					viewManager.unFocus(propCtx, removedMC, branch);
 					
-					SwingUtilities.invokeLater(new Runnable() {
+//					SwingUtilities.invokeLater(new Runnable() {
+//						@Override
+//						public void run() {
+//							view.remove((JComponent)removedMC);
+//							view.validate();
+//							view.repaint();
+//							viewManager.repaint(view);
+//						}
+//					});
+					
+					branch.onFinished(new Runnable() {
 						@Override
 						public void run() {
 							view.remove((JComponent)removedMC);
-							view.validate();
-							view.repaint();
-							viewManager.repaint(view);
 						}
 					});
 				} else if(change instanceof Model.PropertyChanged && propDistance == 1) {
@@ -873,10 +921,17 @@ public class CanvasModel extends Model {
 							}
 						}
 						
-						for(Component newInvisible: newInvisibles) {
+						for(final Component newInvisible: newInvisibles) {
 							shownModels.remove(((ModelComponent)newInvisible).getModelBehind());
-							view.remove(newInvisible);
-							viewManager.becameInvisible(propCtx, (ModelComponent)newInvisible);
+//							view.remove(newInvisible);
+							
+							branch.onFinished(new Runnable() {
+								@Override
+								public void run() {
+									view.remove(newInvisible);
+								}
+							});
+//							viewManager.becameInvisible(propCtx, (ModelComponent)newInvisible);
 						}
 						
 						Object[] visibles = new Object[view.model.models.size()];
@@ -897,10 +952,16 @@ public class CanvasModel extends Model {
 									// Model to add
 									Model model = (Model)visible;
 									shownModels.add(model);
-									Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
+									final Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 
-									view.add((JComponent)modelView.getBindingTarget());
-									viewManager.becameVisible(modelView.getBindingTarget());
+//									view.add((JComponent)modelView.getBindingTarget());
+									branch.onFinished(new Runnable() {
+										@Override
+										public void run() {
+											view.add((JComponent)modelView.getBindingTarget());
+										}
+									});
+//									viewManager.becameVisible(modelView.getBindingTarget());
 								}
 							}
 						}
@@ -913,17 +974,31 @@ public class CanvasModel extends Model {
 								if(visible instanceof Model) {
 									// Model to add
 									Model model = (Model)visible;
-									Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
+									final Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 									
-									view.setComponentZOrder((JComponent)modelView.getBindingTarget(), zOrder);
+//									view.setComponentZOrder((JComponent)modelView.getBindingTarget(), zOrder);
+									final int localZOrder = zOrder;
+									branch.onFinished(new Runnable() {
+										@Override
+										public void run() {
+											view.setComponentZOrder((JComponent)modelView.getBindingTarget(), localZOrder);
+										}
+									});
 								} else {
-									JComponent component = (JComponent)visibles[i];
-									view.setComponentZOrder(component, zOrder);
+									final JComponent component = (JComponent)visibles[i];
+//									view.setComponentZOrder(component, zOrder);
+									final int localZOrder = zOrder;
+									branch.onFinished(new Runnable() {
+										@Override
+										public void run() {
+											view.setComponentZOrder(component, localZOrder);
+										}
+									});
 								}
 							}
 						}
 						
-						viewManager.refresh(view);
+//						viewManager.refresh(view);
 					}
 				}
 			}

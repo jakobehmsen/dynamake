@@ -8,6 +8,8 @@ public interface PrevaylerServiceBranch<T> {
 	PrevaylerServiceBranch<T> branch();
 	void execute(PropogationContext propCtx, DualCommandFactory<T> transactionFactory);
 	void close();
+	// TODO: Consider: 
+	// It should probably be possible to supply a backward runnable in case of rejects?
 	void onFinished(Runnable runnable);
 	void setOnFinishedBuilder(RunBuilder finishedBuilder);
 

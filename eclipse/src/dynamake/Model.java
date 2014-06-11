@@ -698,19 +698,43 @@ public abstract class Model implements Serializable, Observer {
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 				if(change instanceof Model.PropertyChanged
 						&& changeDistance == 1 /* And not a forwarded change */) {
-					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
-					Component targetComponent = ((Component)target);
+					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
+					final Component targetComponent = ((Component)target);
 					if(propertyChanged.name.equals("X")) {
-						targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
+						branch.onFinished(new Runnable() {
+							@Override
+							public void run() {
+								targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
+							}
+						});
+//						targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
 						madeChanges = true;
 					} else if(propertyChanged.name.equals("Y")) {
-						targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
+						branch.onFinished(new Runnable() {
+							@Override
+							public void run() {
+								targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
+							}
+						});
+//						targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
 						madeChanges = true;
 					} else if(propertyChanged.name.equals("Width")) {
-						targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
+						branch.onFinished(new Runnable() {
+							@Override
+							public void run() {
+								targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
+							}
+						});
+//						targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
 						madeChanges = true;
 					} else if(propertyChanged.name.equals("Height")) {
-						targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
+						branch.onFinished(new Runnable() {
+							@Override
+							public void run() {
+								targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
+							}
+						});
+//						targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
 						madeChanges = true;
 					}
 				} else if(change instanceof BeganUpdate) {
@@ -719,25 +743,25 @@ public abstract class Model implements Serializable, Observer {
 					isUpdating = false;
 					
 					if(madeChanges) {
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								((JComponent)target).validate();
-								viewManager.refresh(target);
-							}
-						});
+//						SwingUtilities.invokeLater(new Runnable() {
+//							@Override
+//							public void run() {
+//								((JComponent)target).validate();
+//								viewManager.refresh(target);
+//							}
+//						});
 						madeChanges = false;
 					}
 				}
 				
 				if(!isUpdating) {
 					if(madeChanges) {
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								viewManager.refresh(target);
-							}
-						});
+//						SwingUtilities.invokeLater(new Runnable() {
+//							@Override
+//							public void run() {
+//								viewManager.refresh(target);
+//							}
+//						});
 						madeChanges = false;
 					}
 				}
