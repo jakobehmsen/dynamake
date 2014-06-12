@@ -889,6 +889,19 @@ public class LiveModel extends Model {
 //					}
 //				});
 			}
+
+			public void setEffectFrameCursor2(final Cursor cursor, PrevaylerServiceBranch<Model> branch) {
+				if(productionPanel.effectFrame != null) {
+					final JPanel localEffectFrame = productionPanel.effectFrame;
+					
+					branch.onFinished(new Runnable() {
+						@Override
+						public void run() {
+							localEffectFrame.setCursor(cursor);
+						}
+					});
+				}
+			}
 			
 			public void updateRelativeCursorPosition(Point point, Dimension size) {
 				int resizeWidth = 5;
@@ -915,6 +928,34 @@ public class LiveModel extends Model {
 					selectionFrameVerticalPosition = VERTICAL_REGION_CENTER;
 				else
 					selectionFrameVerticalPosition = VERTICAL_REGION_SOUTH;
+			}
+			
+			public static int getRelativeHorizontalPosition(Point point, Dimension size) {
+				int resizeWidth = 5;
+				
+				int leftPositionEnd = resizeWidth;
+				int rightPositionStart = size.width - resizeWidth;
+				
+				if(point.x <= leftPositionEnd)
+					return HORIZONTAL_REGION_WEST;
+				else if(point.x < rightPositionStart)
+					return HORIZONTAL_REGION_CENTER;
+				else
+					return HORIZONTAL_REGION_EAST;
+			}
+			
+			public static int getRelativeVerticalPosition(Point point, Dimension size) {
+				int resizeWidth = 5;
+
+				int topPositionEnd = resizeWidth;
+				int bottomPositionStart = size.height - resizeWidth;
+				
+				if(point.y <= topPositionEnd)
+					return VERTICAL_REGION_NORTH;
+				else if(point.y < bottomPositionStart)
+					return VERTICAL_REGION_CENTER;
+				else
+					return VERTICAL_REGION_SOUTH;
 			}
 			
 			public Cursor getCursorFromRelativePosition() {
@@ -1299,6 +1340,19 @@ public class LiveModel extends Model {
 						@Override
 						public void run() {
 							productionPanel.remove(targetFrame);
+						}
+					});
+					productionPanel.targetFrame = null;
+				}
+			}
+
+			public void clearTarget2(PrevaylerServiceBranch<Model> branch) {
+				if(productionPanel.targetFrame != null) {
+					final JPanel LocalTargetFrame = productionPanel.targetFrame;
+					branch.onFinished(new Runnable() {
+						@Override
+						public void run() {
+							productionPanel.remove(LocalTargetFrame);
 						}
 					});
 					productionPanel.targetFrame = null;
