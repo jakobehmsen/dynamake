@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -367,7 +368,10 @@ public class LiveModel extends Model {
 	}
 	
 	private static final int BUTTON_FONT_SIZE = 13;
-	private static final Color TOP_BACKGROUND_COLOR = Color.GRAY;
+//	private static final Color TOP_BACKGROUND_COLOR = Color.DARK_GRAY;
+	private static final Color TOP_BACKGROUND_COLOR = new Color(90, 90, 90);
+//	private static final Color TOP_BACKGROUND_COLOR = new Color(60, 60, 55);
+	private static final Color TOP_BUTTON_BACKGROUND_COLOR = TOP_BACKGROUND_COLOR;
 	private static final Color TOP_FOREGROUND_COLOR = Color.WHITE;
 	
 	public static final int TAG_CAUSED_BY_UNDO = 0;
@@ -403,7 +407,7 @@ public class LiveModel extends Model {
 			
 //			setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 			setLayout(new BorderLayout());
-			setBackground(TOP_BACKGROUND_COLOR);
+			setBackground(TOP_BUTTON_BACKGROUND_COLOR);
 			labelToolName = new JLabel();
 			labelToolName.setAlignmentY(JLabel.CENTER_ALIGNMENT);
 			labelToolName.setForeground(TOP_FOREGROUND_COLOR);
@@ -413,7 +417,7 @@ public class LiveModel extends Model {
 			add(labelButton, BorderLayout.EAST);
 			labelButton.setFont(new Font(labelButton.getFont().getFontName(), Font.ITALIC | Font.BOLD, 18));
 			labelButton.setAlignmentY(JLabel.CENTER_ALIGNMENT);
-			this.setPreferredSize(new Dimension(60, 25));
+			this.setPreferredSize(new Dimension(65, 26));
 			
 			update();
 			
@@ -431,7 +435,7 @@ public class LiveModel extends Model {
 					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							setBackground(TOP_BACKGROUND_COLOR.brighter());
+							setBackground(TOP_BUTTON_BACKGROUND_COLOR.brighter());
 							
 							int currentButton = ToolButton.this.button;
 							
@@ -472,7 +476,7 @@ public class LiveModel extends Model {
 				
 				@Override
 				public void mouseReleased(MouseEvent e) {
-					setBackground(TOP_BACKGROUND_COLOR);
+					setBackground(TOP_BUTTON_BACKGROUND_COLOR);
 				}
 			});
 			
@@ -500,7 +504,7 @@ public class LiveModel extends Model {
 		}
 		
 		private static final Color[] BUTTON_COLORS = new Color[] {
-			new Color(220, 10, 10),//Color.RED,
+			new Color(255, 120, 10),//Color.RED,
 			new Color(10, 220, 10), //Color.GREEN,
 			new Color(10, 10, 220), //Color.BLUE,
 			new Color(10, 220, 220), //Color.CYAN,
