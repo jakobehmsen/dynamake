@@ -1320,9 +1320,9 @@ public class LiveModel extends Model {
 						
 						@Override
 						public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
-							clearTarget();
+//							clearTarget();
 
-							productionPanel.livePanel.repaint();
+//							productionPanel.livePanel.repaint();
 						}
 						
 						@Override
@@ -1333,18 +1333,18 @@ public class LiveModel extends Model {
 				}
 			}
 
-			public void clearTarget() {
-				if(productionPanel.targetFrame != null) {
-					final JPanel targetFrame = productionPanel.targetFrame;
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.remove(targetFrame);
-						}
-					});
-					productionPanel.targetFrame = null;
-				}
-			}
+//			public void clearTarget() {
+//				if(productionPanel.targetFrame != null) {
+//					final JPanel targetFrame = productionPanel.targetFrame;
+//					SwingUtilities.invokeLater(new Runnable() {
+//						@Override
+//						public void run() {
+//							productionPanel.remove(targetFrame);
+//						}
+//					});
+//					productionPanel.targetFrame = null;
+//				}
+//			}
 
 			public void clearTarget2(PrevaylerServiceBranch<Model> branch) {
 				if(productionPanel.targetFrame != null) {
