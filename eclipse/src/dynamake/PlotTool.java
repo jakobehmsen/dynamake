@@ -89,8 +89,8 @@ public class PlotTool implements Tool {
 									}
 									
 									dualCommands.add(new DualCommandPair<Model>(
-										new Wrap2Transaction(targetLocation, creationBoundsInSelection, modelLocations), 
-										new Unwrap2Transaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
+										new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations), 
+										new UnwrapTransaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
 									));
 									
 									dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, wrapperLocation));

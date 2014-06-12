@@ -3,20 +3,16 @@ package dynamake;
 import java.awt.Rectangle;
 import java.util.Date;
 
-import org.prevayler.Transaction;
-
 public class WrapTransaction implements Command<Model> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Location liveModelLocation;
 	private Location targetLocation;
 	private Rectangle creationBounds;
 	private Location[] modelLocations;
 	
-	public WrapTransaction(Location liveModelLocation, Location canvasLocation, Rectangle creationBounds, Location[] modelLocations) {
-		this.liveModelLocation = liveModelLocation;
+	public WrapTransaction(Location canvasLocation, Rectangle creationBounds, Location[] modelLocations) {
 		this.targetLocation = canvasLocation;
 		this.creationBounds = creationBounds;
 		this.modelLocations = modelLocations;
@@ -24,15 +20,15 @@ public class WrapTransaction implements Command<Model> {
 
 	@Override
 	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
-		
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
 		CanvasModel wrapper = new CanvasModel();
 		
-		wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, branch);
-		wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, branch);
-		wrapper.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, branch);
-		wrapper.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, branch);
+		PrevaylerServiceBranch<Model> propertyBranch = branch.isolatedBranch();
+		
+		wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, propertyBranch);
+		wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, propertyBranch);
+		wrapper.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, propertyBranch);
+		wrapper.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, propertyBranch);
 		
 		Model[] models = new Model[modelLocations.length];
 		for(int i = 0; i < modelLocations.length; i++) {
@@ -42,20 +38,31 @@ public class WrapTransaction implements Command<Model> {
 		}
 		
 		for(Model model: models) {
-			target.removeModel(model, propCtx, 0, branch);
-			wrapper.addModel(model, propCtx, 0, branch);
+			PrevaylerServiceBranch<Model> removeBranch = branch.branch();
+			PrevaylerServiceBranch<Model> addBranch = branch.branch();
+			
+			target.removeModel(model, propCtx, 0, removeBranch);
+			wrapper.addModel(model, propCtx, 0, addBranch);
+			
+			removeBranch.close();
+			addBranch.close();
 		}
 		
 		for(Model model: models) {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
+
+			PrevaylerServiceBranch<Model> setXBranch = branch.branch();
+			PrevaylerServiceBranch<Model> setYBranch = branch.branch();
 			
-			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, branch);
-			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, branch);
+			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, setXBranch);
+			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, setYBranch);
+			
+			setXBranch.close();
+			setYBranch.close();
 		}
 
 		target.addModel(wrapper, propCtx, 0, branch);
-		liveModel.setOutput(wrapper, propCtx, 0, branch);
 	}
 	
 	@Override

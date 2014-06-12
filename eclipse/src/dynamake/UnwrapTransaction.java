@@ -8,28 +8,22 @@ public class UnwrapTransaction implements Command<Model> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Location liveModelLocation;
 	private Location targetLocation;
-	private Location wrapperLocation;
+	private Location wrapperLocationInTarget;
 	private int[] modelIndexes;
 	private Rectangle creationBounds;
-	private Location outputLocation;
 	
-	public UnwrapTransaction(Location liveModelLocation, Location canvasLocation, Location wrapperLocation, int[] modelIndexes, Rectangle creationBounds, Location outputLocation) {
-		this.liveModelLocation = liveModelLocation;
-		this.targetLocation = canvasLocation;
-		this.wrapperLocation = wrapperLocation;
+	public UnwrapTransaction(Location targetLocation, Location wrapperLocationInTarget, int[] modelIndexes, Rectangle creationBounds) {
+		this.targetLocation = targetLocation;
+		this.wrapperLocationInTarget = wrapperLocationInTarget;
 		this.modelIndexes = modelIndexes;
 		this.creationBounds = creationBounds;
-		this.outputLocation = outputLocation;
 	}
 
 	@Override
 	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-		LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
-		
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
-		CanvasModel wrapper = (CanvasModel)wrapperLocation.getChild(target);
+		CanvasModel wrapper = (CanvasModel)wrapperLocationInTarget.getChild(target);
 		
 		Model[] models = new Model[wrapper.getModelCount()];
 		for(int i = 0; i <  wrapper.getModelCount(); i++) {
@@ -40,10 +34,12 @@ public class UnwrapTransaction implements Command<Model> {
 
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
+			PrevaylerServiceBranch<Model> removeBranch = branch.branch();
+			
 			Model model = models[i];
-//			int modelIndex = modelIndexes[i];
-			wrapper.removeModel(model, propCtx, 0, branch);
-//			target.addModel(modelIndex, model, propCtx, 0);
+			wrapper.removeModel(model, propCtx, 0, removeBranch);
+			
+			removeBranch.close();
 		}
 
 		// Removed wrapper from target
@@ -53,25 +49,26 @@ public class UnwrapTransaction implements Command<Model> {
 		for(Model model: models) {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
+
+			PrevaylerServiceBranch<Model> setXBranch = branch.branch();
+			PrevaylerServiceBranch<Model> setYBranch = branch.branch();
 			
-			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, branch);
-			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, branch);
+			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, setXBranch);
+			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, setYBranch);
+			
+			setXBranch.close();
+			setYBranch.close();
 		}
 		
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
+			PrevaylerServiceBranch<Model> addBranch = branch.branch();
+			
 			Model model = models[i];
 			int modelIndex = modelIndexes[i];
-//			wrapper.removeModel(model, propCtx, 0);
-			target.addModel(modelIndex, model, propCtx, 0, branch);
-		}
-		
-		// Set output
-		if(outputLocation != null) {
-			Model output = (Model)outputLocation.getChild(prevalentSystem);
-			liveModel.setOutput(output, propCtx, 0, branch);
-		} else {
-			liveModel.setOutput(null, propCtx, 0, branch);
+			target.addModel(modelIndex, model, propCtx, 0, addBranch);
+			
+			addBranch.close();
 		}
 	}
 	
