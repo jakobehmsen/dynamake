@@ -1456,6 +1456,7 @@ public class LiveModel extends Model {
 					@Override
 					public void run() {
 						getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseReleased(productionPanel, e, modelOver);
+						productionPanel.editPanelMouseAdapter.buttonPressed = 0;
 					}
 				});
 			}
@@ -1469,7 +1470,8 @@ public class LiveModel extends Model {
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
 					public void run() {
-						getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseMoved(productionPanel, e, modelOver);
+						int button = 1;
+						getTool(button).mouseMoved(productionPanel, e, modelOver);
 					}
 				});
 			}

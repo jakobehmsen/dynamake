@@ -25,7 +25,7 @@ public class ScaleTool implements Tool {
 	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(productionPanel.editPanelMouseAdapter.selection == modelOver && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
-			relativePosition = new RelativePosition(point, productionPanel.selectionFrame.getSize());
+			relativePosition = new RelativePosition(point, ((JComponent)modelOver).getSize());
 			productionPanel.selectionFrame.setCursor(relativePosition.getCursor());
 		}
 	}
