@@ -104,8 +104,6 @@ public class EditTool implements Tool {
 				productionPanel.editPanelMouseAdapter.clearTarget2(branchStep2);
 			}
 			
-			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
-			relativePosition = new RelativePosition(point, productionPanel.selectionFrame.getSize());
 			final Cursor cursor = relativePosition.getCursor();
 			final JPanel localSelectionFrame = productionPanel.selectionFrame;
 			
