@@ -25,12 +25,8 @@ public class ScaleTool implements Tool {
 	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(productionPanel.editPanelMouseAdapter.selection == modelOver && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
-			
-			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(point, productionPanel.selectionFrame.getSize());
-			
-			final Cursor cursor = productionPanel.editPanelMouseAdapter.getCursorFromRelativePosition();
-			
-			productionPanel.selectionFrame.setCursor(cursor);
+			relativePosition = new RelativePosition(point, productionPanel.selectionFrame.getSize());
+			productionPanel.selectionFrame.setCursor(relativePosition.getCursor());
 		}
 	}
 
@@ -50,11 +46,9 @@ public class ScaleTool implements Tool {
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.editPanelMouseAdapter.getEffectFrameBounds())) {
 				final TransactionFactory selectionTransactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
-				if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
-				   productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
+				if(relativePosition.isInCenter() &&
 				   productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory() != productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent()) {
 					// Moving to other canvas
-
 					final Rectangle droppedBounds = SwingUtilities.convertRectangle(
 						productionPanel, productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), (JComponent)productionPanel.editPanelMouseAdapter.targetOver);
 
@@ -87,8 +81,22 @@ public class ScaleTool implements Tool {
 				}
 				
 				productionPanel.editPanelMouseAdapter.targetOver = null;
-				productionPanel.editPanelMouseAdapter.clearTarget();
+				productionPanel.editPanelMouseAdapter.clearTarget2(branchStep2);
 			}
+			
+			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
+			relativePosition = new RelativePosition(point, productionPanel.selectionFrame.getSize());
+			final Cursor cursor = relativePosition.getCursor();
+			final JPanel localSelectionFrame = productionPanel.selectionFrame;
+			
+			branchStep2.onFinished(new Runnable() {
+				@Override
+				public void run() {
+					localSelectionFrame.setCursor(cursor);
+				}
+			});
+			
+			productionPanel.editPanelMouseAdapter.setEffectFrameCursor2(null, branchStep2);
 			
 			productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 			branchStep2.close();
@@ -100,6 +108,7 @@ public class ScaleTool implements Tool {
 	private Point mouseDown;
 	private ModelComponent viewPressedOn;
 	private PrevaylerServiceBranch<Model> branch;
+	private RelativePosition relativePosition;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -128,9 +137,16 @@ public class ScaleTool implements Tool {
 			
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
-			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(referencePoint, ((JComponent)targetModelComponent).getSize());
-			if(productionPanel.selectionFrame != null)
-				productionPanel.editPanelMouseAdapter.setEffectFrameCursor(productionPanel.selectionFrame.getCursor());
+			relativePosition = new RelativePosition(referencePoint, ((JComponent)targetModelComponent).getSize());
+			final Cursor cursor = relativePosition.getCursor();
+			
+			branchStep1.onFinished(new Runnable() {
+				@Override
+				public void run() {
+					productionPanel.selectionFrame.setCursor(cursor);
+					productionPanel.editPanelMouseAdapter.setEffectFrameCursor(cursor);
+				}
+			});
 			
 			branchStep1.close();
 			
@@ -144,17 +160,15 @@ public class ScaleTool implements Tool {
 			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			ModelComponent newTargetOverComponent;
 			
-			if(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER &&
-			   productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition == ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER) {
+			if(relativePosition.isInCenter()) {
 				// Moving
 				newTargetOverComponent = modelOver;
 				
 				if(((JComponent)productionPanel.editPanelMouseAdapter.selection).isAncestorOf((JComponent)newTargetOverComponent))
 					newTargetOverComponent = productionPanel.editPanelMouseAdapter.selection;
 				
-				if(newTargetOverComponent == productionPanel.editPanelMouseAdapter.selection) {
+				if(newTargetOverComponent == productionPanel.editPanelMouseAdapter.selection)
 					newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)newTargetOverComponent).getParent());
-				}
 			} else {
 				// Scaling
 				newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent());
@@ -202,53 +216,13 @@ public class ScaleTool implements Tool {
 					});
 				}
 			}
-
-			int x = productionPanel.editPanelMouseAdapter.getEffectFrameX();
-			int y = productionPanel.editPanelMouseAdapter.getEffectFrameY();
-			int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
-			int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
 			
-			Point cursorLocationInProductionPanel = SwingUtilities.convertPoint(productionPanel.selectionFrame, e.getPoint(), productionPanel);
-			
-			switch(productionPanel.editPanelMouseAdapter.selectionFrameHorizontalPosition) {
-			case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_WEST: {
-				int currentX = x;
-				x = cursorLocationInProductionPanel.x - mouseDown.x;
-				width += currentX - x;
-				
-				break;
-			}
-			case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_EAST: {
-				width = productionPanel.editPanelMouseAdapter.selectionFrameSize.width + e.getX() - mouseDown.x;
-				
-				break;
-			}
-			case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_CENTER:
-				switch(productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition) {
-				case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER:
-					x = cursorLocationInProductionPanel.x - mouseDown.x;
-					y = cursorLocationInProductionPanel.y - mouseDown.y;
-					break;
-				}
-				break;
-			}
-			
-			switch(productionPanel.editPanelMouseAdapter.selectionFrameVerticalPosition) {
-			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH: {
-				int currentY = y;
-				y = cursorLocationInProductionPanel.y - mouseDown.y;
-				height += currentY - y;
-				
-				break;
-			}
-			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH: {
-				height = productionPanel.editPanelMouseAdapter.selectionFrameSize.height + e.getY() - mouseDown.y;
-				
-				break;
-			}
-			}
-			
-			final Rectangle newEffectBounds = new Rectangle(x, y, width, height);
+			Rectangle newEffectBounds = relativePosition.resize(
+				productionPanel.selectionFrame.getLocation(), 
+				productionPanel.editPanelMouseAdapter.selectionFrameSize, 
+				mouseDown, 
+				productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), 
+				e.getPoint());
 			
 			productionPanel.editPanelMouseAdapter.changeEffectFrameDirect2(newEffectBounds, runBuilder);
 			
