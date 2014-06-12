@@ -880,13 +880,14 @@ public class LiveModel extends Model {
 			}
 
 			public void setEffectFrameCursor(final Cursor cursor) {
-				final JPanel localEffectFrame = productionPanel.effectFrame;
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						localEffectFrame.setCursor(cursor);
-					}
-				});
+				productionPanel.effectFrame.setCursor(cursor);
+//				final JPanel localEffectFrame = productionPanel.effectFrame;
+//				SwingUtilities.invokeLater(new Runnable() {
+//					@Override
+//					public void run() {
+//						localEffectFrame.setCursor(cursor);
+//					}
+//				});
 			}
 			
 			public void updateRelativeCursorPosition(Point point, Dimension size) {

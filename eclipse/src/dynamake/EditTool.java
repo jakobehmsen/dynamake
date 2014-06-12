@@ -25,11 +25,8 @@ public class EditTool implements Tool {
 	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(productionPanel.editPanelMouseAdapter.selection == modelOver && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
-			
 			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(point, productionPanel.selectionFrame.getSize());
-			
 			final Cursor cursor = productionPanel.editPanelMouseAdapter.getCursorFromRelativePosition();
-			
 			productionPanel.selectionFrame.setCursor(cursor);
 		}
 	}
@@ -43,6 +40,14 @@ public class EditTool implements Tool {
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(viewPressedOn != null) {
 			viewPressedOn = null;
+
+			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
+			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(point, productionPanel.selectionFrame.getSize());
+			final Cursor cursor = productionPanel.editPanelMouseAdapter.getCursorFromRelativePosition();
+			productionPanel.selectionFrame.setCursor(cursor);
+			
+			if(productionPanel.selectionFrame != null)
+				productionPanel.editPanelMouseAdapter.setEffectFrameCursor(null);
 			
 			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
@@ -148,9 +153,20 @@ public class EditTool implements Tool {
 			
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
-			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(referencePoint, ((JComponent)targetModelComponent).getSize());
-			if(productionPanel.selectionFrame != null)
-				productionPanel.editPanelMouseAdapter.setEffectFrameCursor(productionPanel.selectionFrame.getCursor());
+//			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(referencePoint, ((JComponent)targetModelComponent).getSize());
+			
+			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+			productionPanel.editPanelMouseAdapter.updateRelativeCursorPosition(point, ((JComponent)targetModelComponent).getSize());
+			final Cursor cursor = productionPanel.editPanelMouseAdapter.getCursorFromRelativePosition();
+			
+			branchStep1.onFinished(new Runnable() {
+				@Override
+				public void run() {
+					System.out.println("New cursor: " + cursor);
+					productionPanel.selectionFrame.setCursor(cursor);
+					productionPanel.editPanelMouseAdapter.setEffectFrameCursor(cursor);
+				}
+			});
 			
 			branchStep1.close();
 			
