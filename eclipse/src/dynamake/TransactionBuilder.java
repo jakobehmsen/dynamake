@@ -47,7 +47,6 @@ public abstract class TransactionBuilder {
 			@Override
 			public void execute(Runnable action) {
 				runner.run(action);
-//				action.run();
 			}
 		}, menuItems, name);
 		
