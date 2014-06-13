@@ -11,8 +11,6 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.JLabel;
 
-import org.prevayler.Transaction;
-
 import dynamake.LiveModel.LivePanel;
 
 public class Primitive extends Model {
@@ -280,23 +278,12 @@ public class Primitive extends Model {
 		this.implementation = implementation;
 	}
 	
-//	@Override
-//	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-//		Fraction fontSize = (Fraction)getProperty("FontSize");
-//		if(fontSize == null)
-//			fontSize = new Fraction(12);
-////		fontSize = fontSize * hChange.floatValue();
-//		fontSize = fontSize.multiply(hChange);
-//		setProperty("FontSize", fontSize, propCtx, propDistance, connection, branch);
-//	}
-	
 	@Override
 	protected void modelAppendScale(Fraction hChange, Fraction vChange,
 			List<DualCommand<Model>> dualCommands) {
 		Fraction fontSize = (Fraction)getProperty("FontSize");
 		if(fontSize == null)
 			fontSize = new Fraction(12);
-//		fontSize = fontSize * hChange.floatValue();
 		fontSize = fontSize.multiply(hChange);
 		
 		dualCommands.add(SetPropertyTransaction.createDual(this, "FontSize", fontSize));
@@ -372,7 +359,6 @@ public class Primitive extends Model {
 
 		@Override
 		public void initialize() {
-			// TODO Auto-generated method stub
 			
 		}
 		
