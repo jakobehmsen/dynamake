@@ -19,12 +19,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -35,7 +33,6 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
-import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
@@ -77,7 +74,6 @@ public class LiveModel extends Model {
 	private Model output;
 	
 	private Hashtable<Integer, Integer> buttonToToolMap = new Hashtable<Integer, Integer>();
-//	private Hashtable<Integer, Integer> toolToButtonMap = new Hashtable<Integer, Integer>();
 	
 	public LiveModel(Model content) {
 		this.content = content;
@@ -126,49 +122,15 @@ public class LiveModel extends Model {
 		}
 		
 		return -1;
-		
-//		Integer button = toolToButtonMap.get(tool);
-//		return button != null ? button : -1;
 	}
-	
-//	public int[] getButtonsForTool(int tool) {
-//		ArrayList<Integer> toolButtons = toolToButtonsMap.get(tool);
-//		if(toolButtons == null)
-//			return new int[0];
-//		
-//		int[] toolButtonsArray = new int[toolButtons.size()];
-//		for(int i = 0; i < toolButtons.size(); i++)
-//			toolButtonsArray[i] = toolButtons.get(i);
-//		
-//		return toolButtonsArray;
-//	}
 	
 	public void removeButtonToToolBinding(int button, int tool, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 		buttonToToolMap.remove(button);
-//		System.out.println("Removed binding from button " + button + " and tool " + tool);
-//		System.out.println("buttonToToolMap: " + buttonToToolMap);
-		
 		sendChanged(new ButtonToolBindingChanged(-1, tool), propCtx, propDistance, 0, branch);
 	}
 	
 	public void bindButtonToTool(int button, int tool, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
-//		ArrayList<Integer> toolButtons = toolToButtonsMap.get(button);
-//		if(toolButtons == null) {
-//			toolButtons = new ArrayList<Integer>();
-//			toolButtons.add(button);
-//		}
-//		
-//		Integer currentToolForButton = buttonToToolMap.get(button);
-//		if(currentToolForButton != null) {
-//			ArrayList<Integer> currentToolButtons = toolToButtonsMap.get(tool);
-//			currentToolButtons.remove((Integer)button);
-//		}
-		
 		buttonToToolMap.put(button, tool);
-//		System.out.println("Bound button " + button + " to tool " + tool);
-//			
-//		System.out.println("buttonToToolMap: " + buttonToToolMap);
-//		toolToButtonMap.put(tool, button);
 		sendChanged(new ButtonToolBindingChanged(button, tool), propCtx, propDistance, 0, branch);
 	}
 	
@@ -241,7 +203,6 @@ public class LiveModel extends Model {
 		
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-//			System.out.println("SetSelection");
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
@@ -349,7 +310,6 @@ public class LiveModel extends Model {
 
 		@Override
 		public Location getModelComponentLocation() {
-			// TODO Auto-generated method stub
 			return new ViewFieldContentLocation();
 		}
 	}
@@ -361,16 +321,11 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void setChild(Object holder, Object child) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void setChild(Object holder, Object child) { }
 	}
 	
 	private static final int BUTTON_FONT_SIZE = 13;
-//	private static final Color TOP_BACKGROUND_COLOR = Color.DARK_GRAY;
 	private static final Color TOP_BACKGROUND_COLOR = new Color(90, 90, 90);
-//	private static final Color TOP_BACKGROUND_COLOR = new Color(60, 60, 55);
 	private static final Color TOP_BUTTON_BACKGROUND_COLOR = TOP_BACKGROUND_COLOR;
 	private static final Color TOP_FOREGROUND_COLOR = Color.WHITE;
 	
@@ -400,12 +355,6 @@ public class LiveModel extends Model {
 			this.liveModel = liveModel;
 			this.transactionFactory = transactionFactory;
 
-			/*
-			buttonTool.setBackground(TOP_BACKGROUND_COLOR);
-			buttonTool.setForeground(TOP_FOREGROUND_COLOR);
-			*/
-			
-//			setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 			setLayout(new BorderLayout());
 			setBackground(TOP_BUTTON_BACKGROUND_COLOR);
 			labelToolName = new JLabel();
@@ -424,8 +373,6 @@ public class LiveModel extends Model {
 			this.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
-//					System.out.println("Mouse button:" + e.getButton());
-					
 					final int newButton = e.getButton();
 					
 					PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
@@ -485,9 +432,7 @@ public class LiveModel extends Model {
 			KeyListener keyListener = new KeyAdapter() {
 				@Override
 				public void keyPressed(KeyEvent e) {
-					// TODO Auto-generated method stub
-//					super.keyPressed(e);
-					System.out.println(e.isControlDown() + ":" + e.getKeyCode());
+//					System.out.println(e.isControlDown() + ":" + e.getKeyCode());
 				}
 				
 				@Override
@@ -544,110 +489,7 @@ public class LiveModel extends Model {
 	}
 	
 	private static JComponent createToolButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int button, int currentTool, final int tool, final String text) {
-		final ToolButton buttonTool = new ToolButton(tool, button, text, model, transactionFactory);
-		
-//		buttonTool.setBackground(TOP_BACKGROUND_COLOR);
-//		buttonTool.setForeground(TOP_FOREGROUND_COLOR);
-//		buttonTool.setBorderPainted(false);
-		
-		/*
-		Somehow, when clicking on a button, the mouse button which was used to click on the button
-		should be associated to the particular tool the clicked button represent.
-		
-		This means that, then a mouse button is used to click on the production panel, then tool, associated
-		to the button, should be looked up and used.
-		
-		If the button is already associated to a tool, this associated is removed.
-		*/
-		
-//		buttonTool.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseClicked(MouseEvent e) {
-//				System.out.println("Mouse button:" + e.getButton());
-//			}
-//		});
-		
-//		buttonTool.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mousePressed(MouseEvent e) {
-////				System.out.println("Mouse button:" + e.getButton());
-//				
-//				final int newButton = e.getButton();
-//				
-//				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
-//				
-//				PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
-//				
-//				branch.execute(propCtx, new DualCommandFactory<Model>() {
-//					@Override
-//					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//						int currentButton = buttonTool.button;
-//						
-//						Location modelLocation = transactionFactory.getModelLocation();
-//						
-//						int previousToolForNewButton = model.getToolForButton(newButton);
-//						
-//						if(previousToolForNewButton != -1) {
-//							// If the new button is associated to another tool, then remove that binding
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new RemoveButtonToToolBindingCommand(modelLocation, newButton, previousToolForNewButton), 
-//								new BindButtonToToolCommand(modelLocation, newButton, previousToolForNewButton))
-//							);
-//						}
-//						
-//						if(currentButton != -1) {
-//							// If this tool is associated to button, then remove that binding before
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new RemoveButtonToToolBindingCommand(modelLocation, currentButton, tool), 
-//								new BindButtonToToolCommand(modelLocation, currentButton, tool))
-//							);
-//							
-//							// adding the replacement binding
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new BindButtonToToolCommand(modelLocation, newButton, tool), 
-//								new RemoveButtonToToolBindingCommand(modelLocation, newButton, tool))
-//							);
-//						} else {
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new BindButtonToToolCommand(modelLocation, newButton, tool), 
-//								new RemoveButtonToToolBindingCommand(modelLocation, newButton, tool)
-//							));
-//						}
-//					}
-//				});
-//				branch.close();
-//			}
-//		});
-		
-//		buttonTool.addActionListener(new ActionListener() {
-//			@Override
-//			public void actionPerformed(ActionEvent arg0) {
-//				System.out.println("Change tool to " + text);
-//				// Indicate this is an radio button toggle context
-//				PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
-//				
-//				PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
-//				
-//				branch.execute(propCtx, new DualCommandFactory<Model>() {
-//					@Override
-//					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//						Location modelLocation = transactionFactory.getModelLocation();
-//						int previousTool = model.getTool();
-//						
-//						dualCommands.add(
-//							new DualCommandPair<Model>(new SetTool(modelLocation, tool), new SetTool(modelLocation, previousTool))
-//						);
-//					}
-//				});
-//				branch.close();
-//			}
-//		});
-//		buttonTool.setFocusable(false);
-//		group.add(buttonTool);
-//		if(currentTool == tool) {
-//			buttonTool.setSelected(true);
-//		}
-		return buttonTool;
+		return new ToolButton(tool, button, text, model, transactionFactory);
 	}
 	
 	private static void updateToolButton(JComponent toolButton, int button) {
@@ -735,7 +577,6 @@ public class LiveModel extends Model {
 					localEffectFrame.setBackground(new Color(0, 0, 0, 0));
 					localEffectFrame.setBounds(creationBounds);
 					
-//					Color effectColor = Color.BLACK;
 					Color effectColor = ToolButton.getColorForButton(buttonPressed);
 					effectColor = effectColor.darker();
 					localEffectFrame.setBorder(BorderFactory.createCompoundBorder(
@@ -748,15 +589,6 @@ public class LiveModel extends Model {
 					
 					// Ensure effect frame is shown in front of selection frame
 					if(productionPanel.selectionFrame != null) {
-//						SwingUtilities.invokeLater(new Runnable() {
-//							@Override
-//							public void run() {
-//								productionPanel.remove(productionPanel.selectionFrame);
-//								productionPanel.add(localEffectFrame);
-//								productionPanel.add(productionPanel.selectionFrame);
-//							}
-//						});
-						
 						branch.onFinished(new Runnable() {
 							@Override
 							public void run() {
@@ -766,13 +598,6 @@ public class LiveModel extends Model {
 							}
 						});
 					} else {
-//						SwingUtilities.invokeLater(new Runnable() {
-//							@Override
-//							public void run() {
-//								productionPanel.add(localEffectFrame);
-//							}
-//						});
-						
 						branch.onFinished(new Runnable() {
 							@Override
 							public void run() {
@@ -784,25 +609,6 @@ public class LiveModel extends Model {
 					System.out.println("Attempted to created an effect frame when it has already been created.");
 				}
 			}
-			
-//			public void changeEffectFrame(final Rectangle newBounds) {
-//				if(productionPanel.effectFrame != null) {
-//					final JPanel localEffectFrame = productionPanel.effectFrame;
-//					SwingUtilities.invokeLater(new Runnable() {
-//						@Override
-//						public void run() {
-//							localEffectFrame.setBounds(newBounds);
-//						}
-//					});
-//				} else {
-//					System.out.println("Attempted to change effect frame when it hasn't been created.");
-//				}
-//			}
-			
-//			// TODO: Calls to this should be replaced by a changeEffectFrameDirect(int x, int y) where only the location changes
-//			public void changeEffectFrameDirect(final Rectangle newBounds) {
-//				productionPanel.effectFrame.setBounds(newBounds);
-//			}
 			
 			public void changeEffectFrameDirect2(final Rectangle newBounds, RunBuilder runBuilder) {
 				if(productionPanel.effectFrame != null) {
@@ -817,22 +623,6 @@ public class LiveModel extends Model {
 					});
 				}
 			}
-			
-//			public void clearEffectFrame() {
-//				if(productionPanel.effectFrame != null) {
-//					final JPanel localEffectFrame = productionPanel.effectFrame;
-//					productionPanel.effectFrame = null;
-//					initialEffectBounds = null;
-//					SwingUtilities.invokeLater(new Runnable() {
-//						@Override
-//						public void run() {
-//							productionPanel.remove(localEffectFrame);
-//						}
-//					});
-//				} else {
-//					System.out.println("Attempted to clear effect frame when it hasn't been created.");
-//				}
-//			}
 			
 			public void clearEffectFrameOnBranch(PrevaylerServiceBranch<Model> branch) {
 				if(productionPanel.effectFrame != null) {
@@ -849,15 +639,6 @@ public class LiveModel extends Model {
 					System.out.println("Attempted to clear effect frame when it hasn't been created.");
 				}
 			}
-			
-//			public void clearEffectFrameDirect() {
-//				if(productionPanel.effectFrame != null) {
-//					productionPanel.remove(productionPanel.effectFrame);
-//					productionPanel.effectFrame = null;
-//				} else {
-//					System.out.println("Attempted to clear effect frame when it hasn't been created.");
-//				}
-//			}
 
 			public int getEffectFrameX() {
 				return productionPanel.effectFrame.getX();
@@ -881,13 +662,6 @@ public class LiveModel extends Model {
 
 			public void setEffectFrameCursor(final Cursor cursor) {
 				productionPanel.effectFrame.setCursor(cursor);
-//				final JPanel localEffectFrame = productionPanel.effectFrame;
-//				SwingUtilities.invokeLater(new Runnable() {
-//					@Override
-//					public void run() {
-//						localEffectFrame.setCursor(cursor);
-//					}
-//				});
 			}
 
 			public void setEffectFrameCursor2(final Cursor cursor, PrevaylerServiceBranch<Model> branch) {
@@ -1036,13 +810,6 @@ public class LiveModel extends Model {
 			
 			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, PrevaylerServiceBranch<Model> branch) {
 				requestSelect(view, new Rectangle(0, 0, 0, 0), branch);
-				
-//				branch.onAbsorbed(new Runnable() {
-//					@Override
-//					public void run() {
-//						createEffectFrame(new Rectangle(0, 0, 0, 0));
-//					}
-//				});
 				createEffectFrame(new Rectangle(0, 0, 0, 0), branch);
 			}
 			
@@ -1076,7 +843,6 @@ public class LiveModel extends Model {
 			}
 			
 			private void select(final ModelComponent view, PrevaylerServiceBranch<Model> branch) {
-//				System.out.println("in select method");
 				// <Don't remove>
 				// Whether the following check is necessary or not has not been decided yet, so don't remove the code
 //				if(this.selection == view)
@@ -1106,48 +872,20 @@ public class LiveModel extends Model {
 						MouseAdapter mouseAdapter = new MouseAdapter() {
 							@Override
 							public void mouseMoved(MouseEvent e) {
-								// The tool associated to button 1 it used here
-//								getTool(1).mouseMoved(productionPanel, e, modelOver);
-								
 								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
 								e.setSource(productionPanel);
 								
 								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners()) {
 									l.mouseMoved(e);
 								}
-								
-//								productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
-//								@Override
-//								public void run() {
-//									e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
-//									e.setSource(productionPanel.selectionFrame);
-//									for(MouseMotionListener l: productionPanel.selectionFrame.getMouseMotionListeners()) {
-//										l.mouseDragged(e);
-//									}
-//								}
-//							});
 							}
 
 							public void mouseExited(MouseEvent e) {
-//								// The tool associated to button 1 it used here
-//								getTool(1).mouseExited(productionPanel, e);
-								
-								// TODO: Consider: Instead of exited, there should be a model over changed event?
-								
-								
-//								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-//								e.setSource(productionPanel);
-//								
-//								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners()) {
-//									l.mouseExited(e);
-//								}
+
 							}
 
 							@Override
 							public void mousePressed(MouseEvent e) {
-//								productionPanel.editPanelMouseAdapter.buttonPressed = e.getButton();
-//								getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mousePressed(productionPanel, e, modelOver);
-								
 								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
 								e.setSource(productionPanel);
 								
@@ -1158,8 +896,6 @@ public class LiveModel extends Model {
 
 							@Override
 							public void mouseDragged(MouseEvent e) {
-//								getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseDragged(productionPanel, e, modelOver);
-								
 								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
 								e.setSource(productionPanel);
 								
@@ -1170,9 +906,6 @@ public class LiveModel extends Model {
 
 							@Override
 							public void mouseReleased(MouseEvent e) {
-//								getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseReleased(productionPanel, e, modelOver);
-//								productionPanel.editPanelMouseAdapter.buttonPressed = -1;
-								
 								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
 								e.setSource(productionPanel);
 								
@@ -1189,12 +922,7 @@ public class LiveModel extends Model {
 						
 						if(productionPanel.effectFrame != null)
 							System.out.println("Effect frame was there before selection was added");
-//						SwingUtilities.invokeLater(new Runnable() {
-//							@Override
-//							public void run() {
-//								productionPanel.add(selectionFrame);
-//							}
-//						});
+
 						branch.onFinished(new Runnable() {
 							@Override
 							public void run() {
@@ -1204,16 +932,9 @@ public class LiveModel extends Model {
 					}
 					
 					selectionFrameSize = ((JComponent)view).getSize();
-					
-//					final Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 
-					final JPanel selectionFrame = productionPanel.selectionFrame; 
-//					SwingUtilities.invokeLater(new Runnable() {
-//						@Override
-//						public void run() {
-//							selectionFrame.setBounds(selectionBounds);
-//						}
-//					});
+					final JPanel selectionFrame = productionPanel.selectionFrame;
+					
 					// Wait deriving the Swing based bounds because the adding of the component is postponed to the next repaint sync
 					branch.onFinished(new Runnable() {
 						@Override
@@ -1320,9 +1041,7 @@ public class LiveModel extends Model {
 						
 						@Override
 						public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
-//							clearTarget();
 
-//							productionPanel.livePanel.repaint();
 						}
 						
 						@Override
@@ -1332,19 +1051,6 @@ public class LiveModel extends Model {
 					});
 				}
 			}
-
-//			public void clearTarget() {
-//				if(productionPanel.targetFrame != null) {
-//					final JPanel targetFrame = productionPanel.targetFrame;
-//					SwingUtilities.invokeLater(new Runnable() {
-//						@Override
-//						public void run() {
-//							productionPanel.remove(targetFrame);
-//						}
-//					});
-//					productionPanel.targetFrame = null;
-//				}
-//			}
 
 			public void clearTarget2(PrevaylerServiceBranch<Model> branch) {
 				if(productionPanel.targetFrame != null) {
@@ -1381,32 +1087,6 @@ public class LiveModel extends Model {
 			}
 			
 			public void mousePressed(final MouseEvent e) {
-				/*
-				
-				For further implementations of tools, when branches are used in all tools:
-				
-				Create a branch here, through which executions are scheduled and flushed immediately, such that
-				it is ensured that selections have been made before drag and release events.
-				This branch is then provided to the respective tool.
-				
-				NOTICE: This requires that each tool must ensure selecting a model during each press event.
-				- NOTICE FURTHER: In some cases, this guarantee may not make sense.
-				
-				*/
-				
-				/*
-				
-				Instead of being dependent on the setting of selection frame from within tools, have a dedicated
-				field for the model over. Pass this model to the tool.
-				
-				Further, it should be the responsibility of each tool to relate from the model over, e.g. when 
-				deriving coordinates.
-				
-				When the selected component receives events, these events are forwarded to this EditPanelMouseAdapter
-				with points translated accordingly.
-				
-				*/
-
 				final ModelComponent modelOver = getModelOver(e);
 				
 				final int button = e.getButton();
@@ -1421,17 +1101,6 @@ public class LiveModel extends Model {
 			}
 
 			public void mouseDragged(final MouseEvent e) {
-//				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
-//					@Override
-//					public void run() {
-//						e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
-//						e.setSource(productionPanel.selectionFrame);
-//						for(MouseMotionListener l: productionPanel.selectionFrame.getMouseMotionListeners()) {
-//							l.mouseDragged(e);
-//						}
-//					}
-//				});
-				
 				final ModelComponent modelOver = getModelOver(e);
 				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
@@ -1443,13 +1112,6 @@ public class LiveModel extends Model {
 			}
 
 			public void mouseReleased(final MouseEvent e) {
-//				if(productionPanel.selectionFrame != null) {
-//					e.translatePoint(-productionPanel.selectionFrame.getX(), -productionPanel.selectionFrame.getY());
-//					e.setSource(productionPanel.selectionFrame);
-//					for(MouseListener l: productionPanel.selectionFrame.getMouseListeners()) {
-//						l.mouseReleased(e);
-//					}
-//				}
 				final ModelComponent modelOver = getModelOver(e);
 				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
@@ -1463,13 +1125,12 @@ public class LiveModel extends Model {
 			
 			@Override
 			public void mouseMoved(final MouseEvent e) {
-//				getTool().mouseMoved(productionPanel, e);
-				
 				final ModelComponent modelOver = getModelOver(e);
 				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
 					public void run() {
+						// The tool associated to button 1 is used as a "master" tool
 						int button = 1;
 						getTool(button).mouseMoved(productionPanel, e, modelOver);
 					}
@@ -1490,13 +1151,6 @@ public class LiveModel extends Model {
 						
 						final JPanel outputFrame = productionPanel.outputFrame;
 						
-//						SwingUtilities.invokeLater(new Runnable() {
-//							@Override
-//							public void run() {
-//								productionPanel.add(outputFrame);
-//							}
-//						});
-						
 						branch.onFinished(new Runnable() {
 							@Override
 							public void run() {
@@ -1504,21 +1158,8 @@ public class LiveModel extends Model {
 							}
 						});
 					}
-					
-//					Rectangle viewBounds = new Rectangle(
-//						((Fraction)view.getModelBehind().getProperty("X")).intValue(),
-//						((Fraction)view.getModelBehind().getProperty("Y")).intValue(),
-//						((Fraction)view.getModelBehind().getProperty("Width")).intValue(),
-//						((Fraction)view.getModelBehind().getProperty("Height")).intValue()
-//					);
-//					final Rectangle outputBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), viewBounds, productionPanel);
+
 					final JPanel outputFrame = productionPanel.outputFrame;
-//					SwingUtilities.invokeLater(new Runnable() {
-//						@Override
-//						public void run() {
-//							outputFrame.setBounds(outputBounds);
-//						}
-//					});
 
 					// Wait deriving the Swing based bounds because the adding of the component is postponed to the next repaint sync
 					branch.onFinished(new Runnable() {
@@ -1531,13 +1172,6 @@ public class LiveModel extends Model {
 				} else {
 					if(productionPanel.outputFrame != null) {
 						final JPanel outputFrame = productionPanel.outputFrame;
-//						SwingUtilities.invokeLater(new Runnable() {
-//							@Override
-//							public void run() {
-//								productionPanel.remove(outputFrame);
-//							}
-//						});
-						
 						branch.onFinished(new Runnable() {
 							@Override
 							public void run() {
@@ -1577,12 +1211,6 @@ public class LiveModel extends Model {
 					selectionBoundsBinding.releaseBinding();
 				
 				final JPanel localSelectionFrame = selectionFrame;
-//				SwingUtilities.invokeLater(new Runnable() {
-//					@Override
-//					public void run() {
-//						ProductionPanel.this.remove(localSelectionFrame);
-//					}
-//				});
 				branch.onFinished(new Runnable() {
 					@Override
 					public void run() {
@@ -1711,25 +1339,6 @@ public class LiveModel extends Model {
 			
 			topPanel.add(new JSeparator(JSeparator.VERTICAL));
 			topPanel.add(new JSeparator(JSeparator.VERTICAL));
-
-//			Tool[] tools = viewManager.getTools();
-//			buttonTools = new JComponent[1 + tools.length];
-//			ButtonGroup group = new ButtonGroup();
-//			
-//			buttonTools[0] = createToolButton(model, transactionFactory, group, -1, this.model.getTool(), STATE_USE, "Use");
-//
-//			for(int i = 0; i < tools.length; i++) {
-//				Tool tool = tools[i];
-//				int button = model.getButtonForTool(i);
-//				buttonTools[i + 1] = createToolButton(model, transactionFactory, group, button, this.model.getTool(), i + 1, tool.getName());
-//			}
-//			for(JComponent buttonTool: buttonTools) {
-//				JPanel buttonToolWrapper = new JPanel();
-//				buttonToolWrapper.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-//				buttonToolWrapper.setLayout(new BorderLayout());
-//				buttonToolWrapper.add(buttonTool, BorderLayout.CENTER);
-//				topPanel.add(buttonToolWrapper);
-//			}
 			
 			topPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			
@@ -1761,8 +1370,6 @@ public class LiveModel extends Model {
 			this.add(contentPane, BorderLayout.CENTER);
 			
 			removableListener = Model.RemovableListener.addObserver(model, new ObserverAdapter() {
-				int previousState;
-				
 				{
 					initializeObserverAdapter();
 				}
@@ -1774,7 +1381,6 @@ public class LiveModel extends Model {
 						contentPane.revalidate();
 						contentPane.repaint();
 					}
-					previousState = state;
 				}
 				
 				@Override
@@ -1782,68 +1388,11 @@ public class LiveModel extends Model {
 					if(change instanceof LiveModel.ButtonToolBindingChanged) {
 						LiveModel.ButtonToolBindingChanged bindButtonChanged = (LiveModel.ButtonToolBindingChanged)change;
 						
-//						if(!propCtx.isTagged(TAG_CAUSED_BY_TOGGLE_BUTTON)) {
-//							JComponent buttonNewTool = buttonTools[bindButtonChanged.tool];
-//							updateToolButton(buttonNewTool, bindButtonChanged.button);
-////							buttonNewTool.setSelected(true);
-//						}
-						
 						if(bindButtonChanged.tool != -1) {
 							JComponent buttonNewTool = buttonTools[bindButtonChanged.tool];
 							updateToolButton(buttonNewTool, bindButtonChanged.button);
 						}
-						
-//						if(previousState == LiveModel.STATE_USE && LivePanel.this.model.getTool() != LiveModel.STATE_USE) {
-//							SwingUtilities.invokeLater(new Runnable() {
-//								@Override
-//								public void run() {
-//									contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);
-//									contentPane.revalidate();
-//									contentPane.repaint();
-//								}
-//							});
-//						} else if(previousState != LiveModel.STATE_USE && LivePanel.this.model.getTool() == LiveModel.STATE_USE) {
-//							SwingUtilities.invokeLater(new Runnable() {
-//								@Override
-//								public void run() {
-//									contentPane.remove(productionPanel);
-//									contentPane.revalidate();
-//									contentPane.repaint();
-//								}
-//							});
-//						}
-//						
-//						previousState = LivePanel.this.model.getTool();
-					}
-					
-					/*if(change instanceof LiveModel.StateChanged) {
-						if(!propCtx.isTagged(TAG_CAUSED_BY_TOGGLE_BUTTON)) {
-							JComponent buttonNewTool = buttonTools[LivePanel.this.model.getTool()];
-//							buttonNewTool.setSelected(true);
-						}
-						
-						if(previousState == LiveModel.STATE_USE && LivePanel.this.model.getTool() != LiveModel.STATE_USE) {
-							SwingUtilities.invokeLater(new Runnable() {
-								@Override
-								public void run() {
-									contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);
-									contentPane.revalidate();
-									contentPane.repaint();
-								}
-							});
-						} else if(previousState != LiveModel.STATE_USE && LivePanel.this.model.getTool() == LiveModel.STATE_USE) {
-							SwingUtilities.invokeLater(new Runnable() {
-								@Override
-								public void run() {
-									contentPane.remove(productionPanel);
-									contentPane.revalidate();
-									contentPane.repaint();
-								}
-							});
-						}
-						
-						previousState = LivePanel.this.model.getTool();
-					}*/ else if(change instanceof LiveModel.OutputChanged) {
+					} else if(change instanceof LiveModel.OutputChanged) {
 						if(LivePanel.this.model.output == null) {
 							productionPanel.editPanelMouseAdapter.setOutput(null, branch);
 						} else {
@@ -1853,13 +1402,6 @@ public class LiveModel extends Model {
 							ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
 							productionPanel.editPanelMouseAdapter.setOutput(view, branch);
 						}
-						
-//						SwingUtilities.invokeLater(new Runnable() {
-//							@Override
-//							public void run() {
-//								productionPanel.livePanel.repaint();
-//							}
-//						});
 					} else if(change instanceof LiveModel.SelectionChanged) {
 						if(LivePanel.this.model.selection != null) {
 							// TODO: Consider whether this is a safe manner in which location of selection if derived.
@@ -1869,22 +1411,8 @@ public class LiveModel extends Model {
 							final ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
 
 							productionPanel.editPanelMouseAdapter.select(view, branch);
-							
-//							SwingUtilities.invokeLater(new Runnable() {
-//								@Override
-//								public void run() {
-//									productionPanel.livePanel.repaint();
-//								}
-//							});
 						} else {
 							productionPanel.editPanelMouseAdapter.select(null, branch);
-							
-//							SwingUtilities.invokeLater(new Runnable() {
-//								@Override
-//								public void run() {
-//									productionPanel.livePanel.repaint();
-//								}
-//							});
 						}
 					}
 				}
@@ -1948,16 +1476,13 @@ public class LiveModel extends Model {
 		}
 
 		@Override
-		public void appendContainerTransactions(
-				LivePanel livePanel, TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
-			// TODO Auto-generated method stub
-			
+		public void appendContainerTransactions(LivePanel livePanel, TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
+
 		}
 
 		@Override
 		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
-			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -1966,10 +1491,9 @@ public class LiveModel extends Model {
 		}
 
 		@Override
-		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
-			// TODO Auto-generated method stub
-			
+		public void appendDropTargetTransactions(
+			ModelComponent livePanel, ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
+
 		}
 
 		@Override
@@ -1983,7 +1507,6 @@ public class LiveModel extends Model {
 
 		@Override
 		public DualCommandFactory<Model> getImplicitDropAction(ModelComponent target) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 		
