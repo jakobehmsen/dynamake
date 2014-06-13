@@ -17,7 +17,6 @@ public class ResourceManager {
 		int cores = Runtime.getRuntime().availableProcessors();
 		cores = Math.max(cores / 2, 1);
 		exeService = Executors.newFixedThreadPool(cores);
-//		exeService = Executors.newSingleThreadExecutor();
 		resourceFutures = new Hashtable<String, Future<?>>();
 	}
 	
