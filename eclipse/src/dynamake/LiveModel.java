@@ -584,17 +584,28 @@ public class LiveModel extends Model {
 						BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
 					));
 					
+//					addFocusMouseListener(productionPanel, localEffectFrame, "effectFrame");
+					
 					productionPanel.effectFrame = localEffectFrame;
 					initialEffectBounds = creationBounds;
 					
 					// Ensure effect frame is shown in front of selection frame
 					if(productionPanel.selectionFrame != null) {
+						final JPanel localSelectionFrame = productionPanel.selectionFrame; 
 						branch.onFinished(new Runnable() {
 							@Override
 							public void run() {
-								productionPanel.remove(productionPanel.selectionFrame);
-								productionPanel.add(localEffectFrame);
-								productionPanel.add(productionPanel.selectionFrame);
+//								productionPanel.remove(localSelectionFrame);
+//								productionPanel.add(localEffectFrame);
+//								productionPanel.add(localSelectionFrame);
+//								System.out.println("Created effect frame (after reordering).");
+								int indexOfSelectionFrame = 0;
+								for(int i = 0; i < productionPanel.getComponents().length; i++) {
+									if(productionPanel.getComponents()[i] == localSelectionFrame)
+										indexOfSelectionFrame = i;
+								}
+								productionPanel.add(localEffectFrame, indexOfSelectionFrame);
+								System.out.println("Created effect frame (after reordering).");
 							}
 						});
 					} else {
@@ -602,6 +613,7 @@ public class LiveModel extends Model {
 							@Override
 							public void run() {
 								productionPanel.add(localEffectFrame);
+								System.out.println("Created effect frame.");
 							}
 						});
 					}
@@ -633,6 +645,7 @@ public class LiveModel extends Model {
 						@Override
 						public void run() {
 							productionPanel.remove(localEffectFrame);
+							System.out.println("Removed effect frame");
 						}
 					});
 				} else {
@@ -842,6 +855,61 @@ public class LiveModel extends Model {
 				));
 			}
 			
+			private static void addFocusMouseListener(final ProductionPanel productionPanel, JComponent focusComponent, final String focusName) {
+				MouseAdapter mouseAdapter = new MouseAdapter() {
+					@Override
+					public void mouseMoved(MouseEvent e) {
+						System.out.println("mouseMoved@" + focusName);
+						e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+						e.setSource(productionPanel);
+						
+						for(MouseMotionListener l: productionPanel.getMouseMotionListeners()) {
+							l.mouseMoved(e);
+						}
+					}
+
+					public void mouseExited(MouseEvent e) {
+
+					}
+
+					@Override
+					public void mousePressed(MouseEvent e) {
+						System.out.println("mousePressed@" + focusName);
+						e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+						e.setSource(productionPanel);
+						
+						for(MouseListener l: productionPanel.getMouseListeners()) {
+							l.mousePressed(e);
+						}
+					}
+
+					@Override
+					public void mouseDragged(MouseEvent e) {
+						System.out.println("mouseDragged@" + focusName);
+						e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+						e.setSource(productionPanel);
+						
+						for(MouseMotionListener l: productionPanel.getMouseMotionListeners()) {
+							l.mouseDragged(e);
+						}
+					}
+
+					@Override
+					public void mouseReleased(MouseEvent e) {
+						System.out.println("mouseReleased@" + focusName);
+						e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+						e.setSource(productionPanel);
+						
+						for(MouseListener l: productionPanel.getMouseListeners()) {
+							l.mouseReleased(e);
+						}
+					}
+				};
+				
+				focusComponent.addMouseListener(mouseAdapter);
+				focusComponent.addMouseMotionListener(mouseAdapter);
+			}
+			
 			private void select(final ModelComponent view, PrevaylerServiceBranch<Model> branch) {
 				// <Don't remove>
 				// Whether the following check is necessary or not has not been decided yet, so don't remove the code
@@ -869,54 +937,59 @@ public class LiveModel extends Model {
 							)
 						);
 						
-						MouseAdapter mouseAdapter = new MouseAdapter() {
-							@Override
-							public void mouseMoved(MouseEvent e) {
-								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-								e.setSource(productionPanel);
-								
-								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners()) {
-									l.mouseMoved(e);
-								}
-							}
-
-							public void mouseExited(MouseEvent e) {
-
-							}
-
-							@Override
-							public void mousePressed(MouseEvent e) {
-								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-								e.setSource(productionPanel);
-								
-								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners()) {
-									l.mousePressed(e);
-								}
-							}
-
-							@Override
-							public void mouseDragged(MouseEvent e) {
-								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-								e.setSource(productionPanel);
-								
-								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners()) {
-									l.mouseDragged(e);
-								}
-							}
-
-							@Override
-							public void mouseReleased(MouseEvent e) {
-								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-								e.setSource(productionPanel);
-								
-								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners()) {
-									l.mouseReleased(e);
-								}
-							}
-						};
+//						MouseAdapter mouseAdapter = new MouseAdapter() {
+//							@Override
+//							public void mouseMoved(MouseEvent e) {
+//								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+//								e.setSource(productionPanel);
+//								
+//								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners()) {
+//									l.mouseMoved(e);
+//								}
+//							}
+//
+//							public void mouseExited(MouseEvent e) {
+//
+//							}
+//
+//							@Override
+//							public void mousePressed(MouseEvent e) {
+//								System.out.println("mousePressed@selection");
+//								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+//								e.setSource(productionPanel);
+//								
+//								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners()) {
+//									l.mousePressed(e);
+//								}
+//							}
+//
+//							@Override
+//							public void mouseDragged(MouseEvent e) {
+//								System.out.println("mouseDragged@selection");
+//								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+//								e.setSource(productionPanel);
+//								
+//								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners()) {
+//									l.mouseDragged(e);
+//								}
+//							}
+//
+//							@Override
+//							public void mouseReleased(MouseEvent e) {
+//								System.out.println("mouseReleased@selection");
+//								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+//								e.setSource(productionPanel);
+//								
+//								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners()) {
+//									l.mouseReleased(e);
+//								}
+//							}
+//						};
+//						
+//						productionPanel.selectionFrame.addMouseListener(mouseAdapter);
+//						productionPanel.selectionFrame.addMouseMotionListener(mouseAdapter);
 						
-						productionPanel.selectionFrame.addMouseListener(mouseAdapter);
-						productionPanel.selectionFrame.addMouseMotionListener(mouseAdapter);
+						addFocusMouseListener(productionPanel, productionPanel.selectionFrame, "selectionFrame");
 
 						final JPanel selectionFrame = productionPanel.selectionFrame; 
 						
@@ -927,6 +1000,7 @@ public class LiveModel extends Model {
 							@Override
 							public void run() {
 								productionPanel.add(selectionFrame);
+								System.out.println("Added selectionFrame");
 							}
 						});
 					}
@@ -941,6 +1015,7 @@ public class LiveModel extends Model {
 						public void run() {
 							final Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 							selectionFrame.setBounds(selectionBounds);
+							System.out.println("Changed selection bounds");
 						}
 					});
 					
@@ -1215,6 +1290,7 @@ public class LiveModel extends Model {
 					@Override
 					public void run() {
 						ProductionPanel.this.remove(localSelectionFrame);
+						System.out.println("Removed selectionFrame");
 					}
 				});
 				selectionFrame = null;
@@ -1455,15 +1531,20 @@ public class LiveModel extends Model {
 				topPanel.add(buttonTool);
 			}
 			
+			PrevaylerServiceBranch<Model> initializationBranch = getTransactionFactory().createBranch();
+			initializationBranch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+			
 			if(LivePanel.this.model.selection != null) {
 				ModelComponent selectionView = (ModelComponent)LivePanel.this.model.selection.getLocator().locate().getModelComponentLocation().getChild(rootView);
-				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectionView, getTransactionFactory().createBranch().isolatedBranch());
+				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectionView, initializationBranch.isolatedBranch());
 			}
 			
 			if(LivePanel.this.model.output != null) {
 				ModelComponent outputView = (ModelComponent)LivePanel.this.model.output.getLocator().locate().getModelComponentLocation().getChild(rootView);
-				LivePanel.this.productionPanel.editPanelMouseAdapter.setOutput(outputView, getTransactionFactory().createBranch().isolatedBranch());
+				LivePanel.this.productionPanel.editPanelMouseAdapter.setOutput(outputView, initializationBranch.isolatedBranch());
 			}
+			
+			initializationBranch.close();
 		}
 		
 		public Factory[] getFactories() {

@@ -22,10 +22,14 @@ public class RepaintRunBuilder implements RunBuilder {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
+					System.out.println("start execute");
 					for(Runnable runnable: runnables)
 						runnable.run();
 					
+					System.out.println("repaint");
+					
 					componentToRepaint.repaint();
+					System.out.println("end execute");
 				}
 			});
 		}
