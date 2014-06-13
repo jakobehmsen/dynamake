@@ -5,24 +5,15 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.List;
 
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.PlainDocument;
 
-import org.prevayler.Transaction;
-
 import dynamake.LiveModel.LivePanel;
-import dynamake.Model.RemovableListener;
-import dynamake.Model.SetPropertyTransaction;
 
 public class TextModel extends Model {
 	public static final String PROPERTY_CARET_COLOR = "Caret Color";
@@ -39,15 +30,6 @@ public class TextModel extends Model {
 		clone.text.append(this.text);
 		return clone;
 	}
-	
-//	@Override
-//	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-//		Fraction fontSize = (Fraction)getProperty("FontSize");
-//		if(fontSize == null)
-//			fontSize = new Fraction(12);
-//		fontSize = fontSize.multiply(hChange);
-//		setProperty("FontSize", fontSize, propCtx, propDistance, connection, branch);
-//	}
 	
 	@Override
 	protected void modelAppendScale(Fraction hChange, Fraction vChange,
@@ -156,7 +138,6 @@ public class TextModel extends Model {
 		private static final long serialVersionUID = 1L;
 		private TextModel model;
 		private TransactionFactory transactionFactory;
-		private JTextPane view;
 
 		public FloatingTextModelView(TextModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
 			this.model = model;
@@ -194,7 +175,6 @@ public class TextModel extends Model {
 				public void run(final Color color) {
 					PropogationContext propCtx = new PropogationContext();
 					
-//					PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
 					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -206,7 +186,6 @@ public class TextModel extends Model {
 							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, transactionFactory.getModelLocation())); // Absolute location
 						}
 					});
-//					connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
 				}
 			}));
 		}
@@ -214,38 +193,21 @@ public class TextModel extends Model {
 		@Override
 		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, branch);
-			
-//			if(target.getModelBehind() instanceof CanvasModel) {
-//				transactions.addTransaction("For new button", new Runnable() {
-//					@Override
-//					public void run() {
-//						Rectangle creationBounds = droppedBounds;
-//						Hashtable<String, Object> creationArgs = new Hashtable<String, Object>();
-//						creationArgs.put("Text", model.text.toString());
-//						getTransactionFactory().executeOnRoot(
-//							new CanvasModel.AddModelTransaction(target.getTransactionFactory().getLocation(), creationBounds, creationArgs, new ButtonModelFactory())
-//						);
-//					}
-//				});
-//			}
 		}
 
 		@Override
-		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
-			// TODO Auto-generated method stub
-			
+		public void appendDropTargetTransactions(
+			ModelComponent livePanel,ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
+
 		}
 
 		@Override
 		public DualCommandFactory<Model> getImplicitDropAction(ModelComponent target) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public void initialize() {
-			// TODO Auto-generated method stub
 			
 		}
 		
@@ -278,17 +240,6 @@ public class TextModel extends Model {
 			documentInsert(offs, str, a);
 			
 			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_VIEW);
-//			PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
-//			connection.execute(propCtx, new DualCommandFactory<Model>() {
-//				@Override
-//				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//					dualCommands.add(new DualCommandPair<Model>(
-//						new InsertTransaction(transactionFactory.getModelLocation(), offs, str), 
-//						new RemoveTransaction(transactionFactory.getModelLocation(), offs, offs + str.length())
-//					));
-//				}
-//			});
-//			connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
 			
 			PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
 			branch.execute(propCtx, new DualCommandFactory<Model>() {
@@ -315,18 +266,6 @@ public class TextModel extends Model {
 			final int end = offs + len;
 			
 			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_VIEW);
-//			PrevaylerServiceConnection<Model> connection = transactionFactory.createConnection();
-//			connection.execute(propCtx, new DualCommandFactory<Model>() {
-//				@Override
-//				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//					String removedText = model.text.substring(start, end);
-//					dualCommands.add(new DualCommandPair<Model>(
-//						new RemoveTransaction(transactionFactory.getModelLocation(), start, end), 
-//						new InsertTransaction(transactionFactory.getModelLocation(), start, removedText)
-//					));
-//				}
-//			});
-//			connection.commit(new PropogationContext(LiveModel.TAG_CAUSED_BY_COMMIT));
 			
 			PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
 			branch.execute(propCtx, new DualCommandFactory<Model>() {
@@ -353,7 +292,6 @@ public class TextModel extends Model {
 		
 		final FloatingTextModelView view = new FloatingTextModelView(this, transactionFactory, viewManager);
 		
-		// TODO: Investigate: Is caret color loaded anywhere?
 		final RemovableListener removeListenerForCaretColor = Model.bindProperty(this, PROPERTY_CARET_COLOR, new Action1<Color>() {
 			@Override
 			public void run(Color value) {
