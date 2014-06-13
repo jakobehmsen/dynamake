@@ -988,7 +988,7 @@ public abstract class Model implements Serializable, Observer {
 							Location targetCanvasLocation = target.getTransactionFactory().getModelLocation();
 							Factory factory = new CloneIsolatedFactory(dropped.getTransactionFactory().getModelLocation());
 							dualCommands.add(new DualCommandPair<Model>(
-								new CanvasModel.AddModel2Transaction(targetCanvasLocation, creationBounds, factory),
+								new CanvasModel.AddModelTransaction(targetCanvasLocation, creationBounds, factory),
 								new CanvasModel.RemoveModelTransaction(targetCanvasLocation, cloneIndex)
 							));
 							
@@ -1011,7 +1011,7 @@ public abstract class Model implements Serializable, Observer {
 							Location targetCanvasLocation = target.getTransactionFactory().getModelLocation();
 							Factory factory = new CloneDeepFactory(dropped.getTransactionFactory().getModelLocation());
 							dualCommands.add(new DualCommandPair<Model>(
-								new CanvasModel.AddModel2Transaction(targetCanvasLocation, creationBounds, factory),
+								new CanvasModel.AddModelTransaction(targetCanvasLocation, creationBounds, factory),
 								new CanvasModel.RemoveModelTransaction(targetCanvasLocation, cloneIndex)
 							));
 							

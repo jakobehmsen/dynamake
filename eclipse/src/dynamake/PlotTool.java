@@ -132,7 +132,7 @@ public class PlotTool implements Tool {
 									// The location for Output depends on the side effect of add
 									
 									dualCommands.add(new DualCommandPair<Model>(
-										new CanvasModel.AddModel2Transaction(canvasModelLocation, creationBoundsInSelection, factory), 
+										new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInSelection, factory), 
 										new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
 									));
 									

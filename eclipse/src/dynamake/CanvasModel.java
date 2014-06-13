@@ -16,7 +16,6 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
-import javax.swing.SwingUtilities;
 
 import dynamake.LiveModel.LivePanel;
 
@@ -44,13 +43,6 @@ public class CanvasModel extends Model {
 			this.model = model;
 		}
 	}
-	
-//	@Override
-//	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-//		for(Model model: models) {
-//			model.scale(hChange, vChange, propCtx, propDistance, connection, branch);
-//		}
-//	}
 	
 	@Override
 	protected void modelAppendScale(Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
@@ -115,7 +107,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class MoveModel2Transaction implements Command<Model> {
+	public static class MoveModelTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -126,8 +118,7 @@ public class CanvasModel extends Model {
 		private int indexInSource;
 		private int indexInTarget;
 
-		public MoveModel2Transaction(Location canvasSourceLocation,
-				Location canvasTargetLocation, int indexInSource, int indexInTarget) {
+		public MoveModelTransaction(Location canvasSourceLocation, Location canvasTargetLocation, int indexInSource, int indexInTarget) {
 			this.canvasSourceLocation = canvasSourceLocation;
 			this.canvasTargetLocation = canvasTargetLocation;
 			this.indexInSource = indexInSource;
@@ -158,110 +149,6 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class MoveModelTransaction implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location liveModelLocation;
-		private Location canvasSourceLocation;
-		private Location canvasTargetLocation;
-		private Location modelLocation;
-		private Point point;
-		private boolean setMovedAsOutput;
-		
-		public MoveModelTransaction(Location liveModelLocation, Location canvasSourceLocation, Location canvasTargetLocation, Location modelLocation, Point point, boolean setMovedAsOutput) {
-			this.liveModelLocation = liveModelLocation;
-			this.canvasSourceLocation = canvasSourceLocation;
-			this.canvasTargetLocation = canvasTargetLocation;
-			this.modelLocation = modelLocation;
-			this.point = point;
-			this.setMovedAsOutput = setMovedAsOutput;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
-			
-			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(rootPrevalentSystem);
-			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
-
-			canvasSource.removeModel(model, propCtx, 0, branch);
-//			model.beginUpdate(propCtx, 0, branch);
-			model.setProperty("X", new Fraction(point.x), propCtx, 0, branch);
-			model.setProperty("Y", new Fraction(point.y), propCtx, 0, branch);
-//			model.endUpdate(propCtx, 0, branch);
-			canvasTarget.addModel(model, propCtx, 0, branch);
-			if(setMovedAsOutput)
-				liveModel.setOutput(model, propCtx, 0, branch);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
-	}
-	
-	public static class SetOutputMoveModelTransaction implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location liveModelLocation;
-//		private Location outputLocation;
-		private Location canvasSourceLocation;
-		private Location canvasTargetLocation;
-//		private Location modelLocation;
-		private int indexSource;
-		private int indexTarget;
-		private Fraction x;
-		private Fraction y;
-		
-		public SetOutputMoveModelTransaction(Location liveModelLocation, /*Location outputLocation, */Location canvasSourceLocation, Location canvasTargetLocation, int indexSource, int indexTarget, Fraction x, Fraction y) {
-			this.liveModelLocation = liveModelLocation;
-//			this.outputLocation = outputLocation;
-			this.canvasSourceLocation = canvasSourceLocation;
-			this.canvasTargetLocation = canvasTargetLocation;
-			this.indexSource = indexSource;
-			this.indexTarget = indexTarget;
-			this.x = x;
-			this.y = y;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
-//			if(outputLocation != null) {
-//				Model output = (Model)outputLocation.getChild(rootPrevalentSystem);
-//				liveModel.setOutput(output, propCtx, 0);
-//			} else {
-//				liveModel.setOutput(null, propCtx, 0);
-//			}
-			
-			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(rootPrevalentSystem);
-			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(rootPrevalentSystem);
-//			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
-			
-			Model model = canvasSource.getModel(indexSource);
-
-			canvasSource.removeModel(indexSource, propCtx, 0, branch);
-//			model.beginUpdate(propCtx, 0, branch);
-			model.setProperty("X", x, propCtx, 0, branch);
-			model.setProperty("Y", y, propCtx, 0, branch);
-//			model.endUpdate(propCtx, 0, branch);
-			canvasTarget.addModel(indexTarget, model, propCtx, 0, branch);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
-	}
-	
-	/*
-	Obsolete: replace by AddModel2Transaction
-	*/
 	public static class AddModelTransaction implements Command<Model> {
 		/**
 		 * 
@@ -288,51 +175,6 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-//			PropogationContext propCtx = new PropogationContext();
-			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, branch);
-
-			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, branch);
-			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, branch);
-			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, branch);
-			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, branch);
-			
-			canvas.addModel(model, new PropogationContext(), 0, branch);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
-	}
-	
-	public static class AddModel2Transaction implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location canvasLocation;
-		private Rectangle creationBounds;
-		Hashtable<String, Object> creationArgs;
-		private Factory factory;
-		
-		public AddModel2Transaction(Location canvasLocation, Rectangle creationBounds, Factory factory) {
-			this.canvasLocation = canvasLocation;
-			this.creationBounds = creationBounds;
-			this.factory = factory;
-			this.creationArgs = new Hashtable<String, Object>();
-		}
-		
-		public AddModel2Transaction(Location canvasLocation, Rectangle creationBounds, Hashtable<String, Object> creationArgs, Factory factory) {
-			this.canvasLocation = canvasLocation;
-			this.creationBounds = creationBounds;
-			this.creationArgs = creationArgs;
-			this.factory = factory;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-//			PropogationContext propCtx = new PropogationContext();
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, branch);
 
@@ -351,7 +193,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class AddModel2NoCreationBoundsTransaction implements Command<Model> {
+	public static class AddModelNoCreationBoundsTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -360,7 +202,7 @@ public class CanvasModel extends Model {
 		private int index;
 		private Factory factory;
 		
-		public AddModel2NoCreationBoundsTransaction(Location canvasLocation, int index, Factory factory) {
+		public AddModelNoCreationBoundsTransaction(Location canvasLocation, int index, Factory factory) {
 			this.canvasLocation = canvasLocation;
 			this.index = index;
 			this.factory = factory;
@@ -451,7 +293,6 @@ public class CanvasModel extends Model {
 		private TransactionFactory transactionFactory;
 		private HashSet<Model> shownModels = new HashSet<Model>();
 		private Memoizer1<Model, Binding<ModelComponent>> modelToModelComponentMap;
-//		private ArrayList<ModelComponent> viewsInSequence = new ArrayList<ModelComponent>();
 		
 		public CanvasPanel(final ModelComponent rootView, CanvasModel model, final TransactionFactory transactionFactory, final ViewManager viewManager) {
 			this.model = model;
@@ -513,7 +354,7 @@ public class CanvasModel extends Model {
 							// The direct structure (clone isolated) (without observers and observees) could probably be used
 							// where this direct structure should, afterwards, be decorated with any missing relations to observers and observees
 							Model childClone = child.getModelBehind().cloneDeep(); // TODO: Fix this: Not a perfect clone
-							Command<Model> backward = new AddModel2NoCreationBoundsTransaction(canvasLocation, indexOfModel, new AsIsFactory(childClone));
+							Command<Model> backward = new AddModelNoCreationBoundsTransaction(canvasLocation, indexOfModel, new AsIsFactory(childClone));
 							
 							dualCommands.add(new DualCommandPair<Model>(
 								new RemoveModelTransaction(canvasLocation, indexOfModel),
@@ -575,13 +416,12 @@ public class CanvasModel extends Model {
 
 		@Override
 		public DualCommandFactory<Model> getImplicitDropAction(ModelComponent target) {
-			// TODO Auto-generated method stub
 			return null;
 		}
 		
 		@Override
 		public void initialize() {
-			// TODO Auto-generated method stub
+
 		}
 		
 		@Override
@@ -619,8 +459,8 @@ public class CanvasModel extends Model {
 		livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
 		
 		dualCommands.add(new DualCommandPair<Model>(
-			new CanvasModel.MoveModel2Transaction(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
-			new CanvasModel.MoveModel2Transaction(canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource)
+			new CanvasModel.MoveModelTransaction(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
+			new CanvasModel.MoveModelTransaction(canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource)
 		));
 		
 		dualCommands.add(new DualCommandPair<Model>(
@@ -632,9 +472,6 @@ public class CanvasModel extends Model {
 			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
 			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
 		));
-		
-//		livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(
-//			selection, livePanel.productionPanel.editPanelMouseAdapter.selectionMouseDown, false, new Rectangle(0, 0, 0, 0), dualCommands);
 		
 		dualCommands.add(LiveModel.SetOutput.createDual(livePanel, modelLocationAfterMove));
 	}
@@ -724,7 +561,6 @@ public class CanvasModel extends Model {
 					view.setComponentZOrder((JComponent)modelView.getBindingTarget(), 0);
 				}
 			});
-//			viewManager.becameVisible(modelView.getBindingTarget());
 		}
 		
 		Model.RemovableListener removableListener = Model.RemovableListener.addObserver(model, new Observer() {
@@ -744,7 +580,6 @@ public class CanvasModel extends Model {
 								final Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 								
 								view.shownModels.add(sender);
-//								view.add((JComponent)modelView.getBindingTarget());
 								
 								branch.onFinished(new Runnable() {
 									@Override
@@ -753,7 +588,6 @@ public class CanvasModel extends Model {
 									}
 								});
 								
-//								int zOrder = view.getComponentCount();
 								int zOrder = view.shownModels.size();
 								for(int i = 0; i < models.size(); i++) {
 									Model m = models.get(i);
@@ -765,7 +599,6 @@ public class CanvasModel extends Model {
 										break;
 								}
 
-//								view.setComponentZOrder((JComponent)modelView.getBindingTarget(), zOrder);
 								final int localZOrder = zOrder;
 								branch.onFinished(new Runnable() {
 									@Override
@@ -773,8 +606,6 @@ public class CanvasModel extends Model {
 										view.setComponentZOrder((JComponent)modelView.getBindingTarget(), localZOrder);
 									}
 								});
-//								viewManager.becameVisible(modelView.getBindingTarget());
-//								viewManager.refresh(view);
 							}
 						} else {
 							// Should be hidden
@@ -782,7 +613,6 @@ public class CanvasModel extends Model {
 								final Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 								
 								view.shownModels.remove(sender);
-//								view.remove((JComponent)modelView.getBindingTarget());
 								
 								branch.onFinished(new Runnable() {
 									@Override
@@ -792,8 +622,6 @@ public class CanvasModel extends Model {
 								});
 								
 								viewManager.unFocus(propCtx, modelView.getBindingTarget(), branch);
-//								viewManager.becameInvisible(propCtx, modelView.getBindingTarget());
-//								viewManager.refresh(view);
 							}
 						}
 					}
@@ -906,7 +734,6 @@ public class CanvasModel extends Model {
 						
 						for(final Component newInvisible: newInvisibles) {
 							shownModels.remove(((ModelComponent)newInvisible).getModelBehind());
-//							view.remove(newInvisible);
 							
 							branch.onFinished(new Runnable() {
 								@Override
@@ -914,7 +741,6 @@ public class CanvasModel extends Model {
 									view.remove(newInvisible);
 								}
 							});
-//							viewManager.becameInvisible(propCtx, (ModelComponent)newInvisible);
 						}
 						
 						Object[] visibles = new Object[view.model.models.size()];
@@ -941,19 +767,16 @@ public class CanvasModel extends Model {
 									shownModels.add(model);
 									final Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 
-//									view.add((JComponent)modelView.getBindingTarget());
 									branch.onFinished(new Runnable() {
 										@Override
 										public void run() {
 											view.add((JComponent)modelView.getBindingTarget());
 										}
 									});
-//									viewManager.becameVisible(modelView.getBindingTarget());
 								}
 							}
 						}
 						
-//						int zOrder = view.getComponentCount();'
 						int zOrder = shownModels.size();
 						for(int i = 0; i < visibles.length; i++) {
 							Object visible = visibles[i];
@@ -964,7 +787,6 @@ public class CanvasModel extends Model {
 									Model model = (Model)visible;
 									final Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 									
-//									view.setComponentZOrder((JComponent)modelView.getBindingTarget(), zOrder);
 									final int localZOrder = zOrder;
 									branch.onFinished(new Runnable() {
 										@Override
@@ -974,7 +796,6 @@ public class CanvasModel extends Model {
 									});
 								} else {
 									final JComponent component = (JComponent)visibles[i];
-//									view.setComponentZOrder(component, zOrder);
 									final int localZOrder = zOrder;
 									branch.onFinished(new Runnable() {
 										@Override
@@ -985,8 +806,6 @@ public class CanvasModel extends Model {
 								}
 							}
 						}
-						
-//						viewManager.refresh(view);
 					}
 				}
 			}
