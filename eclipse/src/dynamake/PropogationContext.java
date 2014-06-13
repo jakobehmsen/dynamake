@@ -3,7 +3,6 @@ package dynamake;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 public class PropogationContext {
@@ -13,7 +12,6 @@ public class PropogationContext {
 	private Map<String, Object> definitions = new Hashtable<String, Object>();
 	
 	private HashSet<Integer> tags = new HashSet<Integer>();
-//	private List<Command<Model>> backwardTransactions = new ArrayList<Command<Model>>();
 	
 	public PropogationContext() { }
 	
@@ -71,14 +69,6 @@ public class PropogationContext {
 			return parent.isOrDerivesFrom(propCtx);
 		return false;
 	}
-	
-//	public void collectBackwardTransaction(Command<Model> backwardTransaction) {
-//		backwardTransactions.add(backwardTransaction);
-//	}
-	
-//	public List<Command<Model>> getBackwardTransactions() {
-//		return backwardTransactions;
-//	}
 	
 	public PropogationContext getParent() {
 		return parent;
