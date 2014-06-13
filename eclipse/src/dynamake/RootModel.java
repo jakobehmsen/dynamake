@@ -16,8 +16,6 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import org.prevayler.Transaction;
-
 import dynamake.LiveModel.LivePanel;
 
 public class RootModel extends Model {
@@ -138,8 +136,7 @@ public class RootModel extends Model {
 		
 		@Override
 		public void setChild(Object holder, Object child) {
-			// TODO Auto-generated method stub
-			
+
 		}
 	}
 	
@@ -205,7 +202,7 @@ public class RootModel extends Model {
 		
 		@Override
 		public void mouseClicked(MouseEvent arg0) {
-//			System.out.println("mouseClicked on frame");
+
 		}
 		
 		@Override
@@ -235,59 +232,6 @@ public class RootModel extends Model {
 		
 		Model.loadComponentBounds(this, view);
 		final RemovableListener removableListenerForBoundsChanges =  Model.wrapForBoundsChanges(this, view, viewManager);
-		
-//		view.addMouseListener(new MouseListener() {
-//			
-//			@Override
-//			public void mouseReleased(MouseEvent arg0) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//			
-//			@Override
-//			public void mousePressed(MouseEvent arg0) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//			
-//			@Override
-//			public void mouseExited(MouseEvent arg0) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//			
-//			@Override
-//			public void mouseEntered(MouseEvent arg0) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//			
-//			@Override
-//			public void mouseClicked(MouseEvent arg0) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//		});
-//		
-//		view.addComponentListener(new ComponentListener() {
-//			@Override
-//			public void componentShown(ComponentEvent e) { }
-//			
-//			@Override
-//			public void componentResized(ComponentEvent e) {
-//				transactionFactory.execute(new SetPropertyTransaction("Width", e.getComponent().getWidth()));
-//				transactionFactory.execute(new SetPropertyTransaction("Height", e.getComponent().getHeight()));
-//			}
-//			
-//			@Override
-//			public void componentMoved(ComponentEvent e) {
-//				transactionFactory.execute(new SetPropertyTransaction("X", e.getComponent().getX()));
-//				transactionFactory.execute(new SetPropertyTransaction("Y", e.getComponent().getY()));
-//			}
-//			
-//			@Override
-//			public void componentHidden(ComponentEvent e) { }
-//		});
 		
 		BoundsChangeHandler boundsChangeHandler = new BoundsChangeHandler(this, transactionFactory);
 		view.addMouseListener(boundsChangeHandler);
