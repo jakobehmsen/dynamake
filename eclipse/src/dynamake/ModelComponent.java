@@ -4,8 +4,6 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import org.prevayler.Transaction;
-
 import dynamake.LiveModel.LivePanel;
 
 /**
