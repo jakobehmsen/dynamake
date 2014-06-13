@@ -54,7 +54,7 @@ public class TransactionFactory {
 		}
 	}
 	
-	static class CompositeLocation<T> implements Location {
+	public static class CompositeLocation<T> implements Location {
 		private Location head;
 		private Location tail;
 		
@@ -66,11 +66,6 @@ public class TransactionFactory {
 		@Override
 		public Object getChild(Object holder) {
 			return tail.getChild(head.getChild(holder));
-		}
-
-		@Override
-		public void setChild(Object holder, Object child) {
-
 		}
 	}
 	

@@ -118,11 +118,6 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public void setChild(Object holder, Object child) {
-
-		}
-
-		@Override
 		public Location getModelComponentLocation() {
 			return new ViewFieldContentLocation();
 		}
@@ -132,11 +127,6 @@ public class RootModel extends Model {
 		@Override
 		public Object getChild(Object holder) {
 			return ((FrameModel)holder).getContentPane().getComponent(0);
-		}
-		
-		@Override
-		public void setChild(Object holder, Object child) {
-
 		}
 	}
 	

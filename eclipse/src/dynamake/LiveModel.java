@@ -304,11 +304,6 @@ public class LiveModel extends Model {
 		}
 
 		@Override
-		public void setChild(Object holder, Object child) {
-			((LiveModel)holder).content = (Model)child;
-		}
-
-		@Override
 		public Location getModelComponentLocation() {
 			return new ViewFieldContentLocation();
 		}
@@ -319,9 +314,6 @@ public class LiveModel extends Model {
 		public Object getChild(Object holder) {
 			return ((LivePanel)holder).contentView.getBindingTarget();
 		}
-		
-		@Override
-		public void setChild(Object holder, Object child) { }
 	}
 	
 	private static final int BUTTON_FONT_SIZE = 13;

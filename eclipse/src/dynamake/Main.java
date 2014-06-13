@@ -31,9 +31,6 @@ public class Main {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-
-		@Override
-		public void setChild(Object holder, Object child) { }
 		
 		@Override
 		public Object getChild(Object holder) {
@@ -47,9 +44,6 @@ public class Main {
 	}
 	
 	private static class ViewRootLocation implements Location {
-		@Override
-		public void setChild(Object holder, Object child) { }
-		
 		@Override
 		public Object getChild(Object holder) {
 			return holder;
@@ -77,47 +71,11 @@ public class Main {
 			loadIndicator.setUndecorated(true);
 			loadIndicator.setSize(320, 240);
 			loadIndicator.setLocationRelativeTo(null);
-			loadIndicator.addWindowListener(new WindowListener() {
+			loadIndicator.addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowOpened(WindowEvent arg0) {
 					loadIndicatorLabel.repaint();
 					loadResources();
-				}
-				
-				@Override
-				public void windowIconified(WindowEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void windowDeiconified(WindowEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void windowDeactivated(WindowEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void windowClosing(WindowEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void windowClosed(WindowEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void windowActivated(WindowEvent arg0) {
-					// TODO Auto-generated method stub
-					
 				}
 			});
 			loadIndicator.setVisible(true);

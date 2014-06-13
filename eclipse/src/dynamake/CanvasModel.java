@@ -509,11 +509,6 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void setChild(Object holder, Object child) {
-			
-		}
-
-		@Override
 		public Location getModelComponentLocation() {
 			return new ViewIndexLocation(index);
 		}
@@ -531,11 +526,6 @@ public class CanvasModel extends Model {
 			// Is the model at index visible? If so, then return the corresponding model. If not, then return null.
 			Model model = ((CanvasPanel)holder).model.models.get(index);
 			return ((CanvasPanel)holder).modelToModelComponentMap.get(model).getBindingTarget();
-		}
-
-		@Override
-		public void setChild(Object holder, Object child) {
-			
 		}
 	}
 
