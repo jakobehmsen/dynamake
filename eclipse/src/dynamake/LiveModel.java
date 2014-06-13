@@ -1142,21 +1142,10 @@ public class LiveModel extends Model {
 			
 			ViewManager newViewManager = new ViewManager() {
 				@Override
-				public void setFocus(JComponent component) { }
-				
-				@Override
 				public void unFocus(PropogationContext propCtx, ModelComponent view, PrevaylerServiceBranch<Model> branch) {
 					if(productionPanel.editPanelMouseAdapter.selection == view) {
 						productionPanel.editPanelMouseAdapter.requestSelect(null, null, branch);
 					}
-				}
-				
-				@Override
-				public void selectAndActive(ModelComponent view, int x, int y) { }
-				
-				@Override
-				public int getState() {
-					return LivePanel.this.model.getTool();
 				}
 				
 				@Override
@@ -1165,33 +1154,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void clearFocus(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-					productionPanel.clearFocus(branch);
-				}
-				
-				@Override
-				public void repaint(JComponent view) {
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							LivePanel.this.repaint();
-						}
-					});
-				}
-				
-				@Override
-				public void refresh(ModelComponent view) {
-					LivePanel.this.repaint();
-				}
-				
-				@Override
 				public void wasCreated(ModelComponent view) { }
-				
-				@Override
-				public void becameVisible(ModelComponent view) { }
-				
-				@Override
-				public void becameInvisible(PropogationContext propCtx, ModelComponent view) { }
 				
 				@Override
 				public Tool[] getTools() {

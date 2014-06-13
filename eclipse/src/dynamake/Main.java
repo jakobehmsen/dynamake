@@ -112,44 +112,8 @@ public class Main {
 			});
 			ViewManager rootViewManager = new ViewManager() {
 				@Override
-				public void setFocus(JComponent component) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void selectAndActive(ModelComponent view, int x, int y) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void repaint(JComponent view) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public int getState() {
-					// TODO Auto-generated method stub
-					return 0;
-				}
-				
-				@Override
 				public Factory[] getFactories() {
 					return factories;
-				}
-				
-				@Override
-				public void clearFocus(PropogationContext propCtx, PrevaylerServiceBranch<Model> branch) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void refresh(ModelComponent view) {
-					// TODO Auto-generated method stub
-					
 				}
 				
 				@Override
@@ -178,18 +142,6 @@ public class Main {
 
 				@Override
 				public void unFocus(PropogationContext propCtx, ModelComponent view, PrevaylerServiceBranch<Model> branch) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void becameVisible(ModelComponent view) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public void becameInvisible(PropogationContext propCtx, ModelComponent view) {
 					// TODO Auto-generated method stub
 					
 				}

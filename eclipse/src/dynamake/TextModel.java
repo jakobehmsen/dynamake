@@ -295,7 +295,6 @@ public class TextModel extends Model {
 			@Override
 			public void run(Color value) {
 				view.setCaretColor(value);
-				viewManager.repaint(view);
 			}
 		});
 		
@@ -308,7 +307,6 @@ public class TextModel extends Model {
 				public void run(Fraction value) {
 					Font font = view.getFont();
 					view.setFont(new Font(font.getFamily(), font.getStyle(), value.intValue()));
-					viewManager.refresh(view);
 				}
 			}),
 			RemovableListener.addObserver(this, new Observer() {

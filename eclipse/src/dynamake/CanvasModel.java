@@ -318,14 +318,6 @@ public class CanvasModel extends Model {
 					return modelView;
 				}
 			});
-			
-			addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseClicked(MouseEvent e) {
-					if(e.getButton() == 3)
-						viewManager.selectAndActive(CanvasPanel.this, e.getX(), e.getY());
-				}
-			});
 		}
 
 		@Override

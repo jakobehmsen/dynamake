@@ -376,23 +376,15 @@ public class Primitive extends Model {
 		final PrimitiveView view = new PrimitiveView(this, transactionFactory);
 		
 		final Binding<Model> removableListener = RemovableListener.addAll(this, 
-			bindProperty(this, "Background", new Action1<Color>() {
+			bindProperty(this, Model.PROPERTY_COLOR, new Action1<Color>() {
 				public void run(Color value) {
 					view.setBackground(value);
-					viewManager.refresh(view);
-				}
-			}),
-			bindProperty(this, "Foreground", new Action1<Color>() {
-				public void run(Color value) {
-					view.setForeground(value);
-					viewManager.refresh(view);
 				}
 			}),
 			bindProperty(this, "FontSize", new Action1<Fraction>() {
 				public void run(Fraction value) {
 					Font font = view.getFont();
 					view.setFont(new Font(font.getFamily(), font.getStyle(), value.intValue()));
-					viewManager.refresh(view);
 				}
 			})
 		);

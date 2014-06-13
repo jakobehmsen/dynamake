@@ -744,9 +744,15 @@ public abstract class Model implements Serializable, Observer {
 			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 				if(change instanceof Model.PropertyChanged 
 					&& changeDistance == 1 /* And not a forwarded change */) {
-					Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
-					if(propertyChanged.name.equals(modelPropertyName))
-						propertySetter.run((T)propertyChanged.value);
+					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
+					if(propertyChanged.name.equals(modelPropertyName)) {
+						branch.onFinished(new Runnable() {
+							@Override
+							public void run() {
+								propertySetter.run((T)propertyChanged.value);
+							}
+						});
+					}
 				}
 			}
 		});
