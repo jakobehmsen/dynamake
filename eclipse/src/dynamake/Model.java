@@ -21,16 +21,7 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 
-
 public abstract class Model implements Serializable, Observer {
-	public static class GenericChange {
-		public final String name;
-		
-		public GenericChange(String name) {
-			this.name = name;
-		}
-	}
-	
 	public static class TellProperty {
 		public final String name;
 
@@ -39,13 +30,9 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 
-	public static class MouseDown {
-
-	}
+	public static class MouseDown { }
 	
-	public static class MouseUp {
-
-	}
+	public static class MouseUp { }
 
 	public static final String PROPERTY_COLOR = "Color";
 	public static final String PROPERTY_VIEW = "View";
@@ -187,62 +174,6 @@ public abstract class Model implements Serializable, Observer {
 		return null;
 	}
 	
-//	public static class BeganUpdate {
-//		
-//	}
-	
-//	public static class BeganUpdateTransaction implements Command<Model> {
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//		
-//		private Location modelLocation;
-//		
-//		public BeganUpdateTransaction(Location modelLocation) {
-//			this.modelLocation = modelLocation;
-//		}
-//
-//		@Override
-//		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-//			Model model = (Model)modelLocation.getChild(prevalentSystem);
-//			model.beginUpdate(propCtx, 0, branch);
-//		}
-//		
-//		@Override
-//		public boolean occurredWithin(Location location) {
-//			return true;
-//		}
-//	}
-	
-//	public static class EndedUpdate {
-//		
-//	}
-	
-//	public static class EndedUpdateTransaction implements Command<Model> {
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//
-//		private Location modelLocation;
-//		
-//		public EndedUpdateTransaction(Location modelLocation) {
-//			this.modelLocation = modelLocation;
-//		}
-//
-//		@Override
-//		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-//			Model model = (Model)modelLocation.getChild(prevalentSystem);
-//			model.endUpdate(propCtx, 0, branch);
-//		}
-//		
-//		@Override
-//		public boolean occurredWithin(Location location) {
-//			return true;
-//		}
-//	}
-	
 	public static class AddObserver implements Command<Model> {
 		/**
 		 * 
@@ -264,40 +195,11 @@ public abstract class Model implements Serializable, Observer {
 			observable.addObserver(observer);
 			
 			// No side effect may be provoked in addObserver, thus no implicit absorbtion of branch occurs
-			// Absorb branch here
+			// Absorb branch explicitly here
 			branch.absorb();
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
-	}
-	
-	public static class AddObserverThenOutputObserver implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location liveModelLocation;
-		private Location observableLocation;
-		private Location observerLocation;
-		
-		public AddObserverThenOutputObserver(Location liveModelLocation, Location observableLocation, Location observerLocation) {
-			this.liveModelLocation = liveModelLocation;
-			this.observableLocation = observableLocation;
-			this.observerLocation = observerLocation;
-		}
-
-		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
 			
-			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
-			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
-			
-			observable.addObserver(observer);
-			liveModel.setOutput(observer, propCtx, 0, branch);
+			// TODO: Consider whether a change should be sent out here
+			// If so, then the explicit absorbtion here must be removed
 		}
 		
 		@Override
@@ -329,6 +231,9 @@ public abstract class Model implements Serializable, Observer {
 			// No side effect may be provoked in addObserver, thus no implicit absorbtion of branch occurs
 			// Absorb branch here
 			branch.absorb();
+			
+			// TODO: Consider whether a change should be sent out here
+			// If so, then the explicit absorbtion here must be removed
 		}
 		
 		@Override
@@ -336,46 +241,6 @@ public abstract class Model implements Serializable, Observer {
 			return true;
 		}
 	}
-	
-	public static class RemoveObserverThenOutputObserver implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location liveModelLocation;
-		private Location observableLocation;
-		private Location observerLocation;
-		
-		public RemoveObserverThenOutputObserver(Location liveModelLocation, Location observableLocation, Location observerLocation) {
-			this.liveModelLocation = liveModelLocation;
-			this.observableLocation = observableLocation;
-			this.observerLocation = observerLocation;
-		}
-
-		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(rootPrevalentSystem);
-			
-			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
-			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
-			
-			observable.removeObserver(observer);
-			liveModel.setOutput(observer, propCtx, 0, branch);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
-	}
-	
-//	public void beginUpdate(PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
-//		sendChanged(new BeganUpdate(), propCtx, propDistance, 0, branch);
-//	}
-	
-//	public void endUpdate(PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
-//		sendChanged(new EndedUpdate(), propCtx, propDistance, 0, branch);
-//	}
 	
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
@@ -416,7 +281,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
-//		branch.absorb();
 		absorbChange(branch);
 	}
 	
@@ -425,32 +289,6 @@ public abstract class Model implements Serializable, Observer {
 		innerBranch.close();
 		innerBranch.absorb();
 	}
-	
-//	public static class CompositeTransaction implements Command<Model> {
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//		
-//		private Command<Model>[] transactions;
-//		
-//		public CompositeTransaction(Command<Model>[] transactions) {
-//			this.transactions = transactions;
-//		}
-//
-//		@Override
-//		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
-////			prevalentSystem.beginUpdate(propCtx, 0, branch);
-//			for(Command<Model> t: transactions)
-//				t.executeOn(propCtx, prevalentSystem, executionTime, branch);
-////			prevalentSystem.endUpdate(propCtx, 0, branch);
-//		}
-//		
-//		@Override
-//		public boolean occurredWithin(Location location) {
-//			return true;
-//		}
-//	}
 	
 	public static class RemovableListener implements Binding<Model> {
 		private Observer listener;
@@ -565,8 +403,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
-//		boolean isolateSideEffects = connection == null && branch == null; // If true, then performing replay, undo, or redo.
-		
 		int nextChangeDistance = changeDistance + 1;
 		int nextPropDistance = propDistance + 1;
 		observersToAdd = new ArrayList<Observer>();
@@ -850,20 +686,17 @@ public abstract class Model implements Serializable, Observer {
 			
 			@Override
 			public void mouseExited(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+
 			}
 			
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+
 			}
 			
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+
 			}
 		});
 	}
@@ -924,19 +757,6 @@ public abstract class Model implements Serializable, Observer {
 			@Override
 			public void run(final Color color) {
 				PropogationContext propCtx = new PropogationContext();
-//				connection.execute(propCtx, new DualCommandFactory<Model>() {
-//					@Override
-//					public void createDualCommands(
-//							List<DualCommand<Model>> dualCommands) {
-//						Color currentColor = (Color)model.getProperty("PROPERTY_COLOR");
-//						dualCommands.add(new DualCommandPair<Model>(
-//							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, color),
-//							new Model.SetPropertyOnRootTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, currentColor)
-//						));
-//						
-//						dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, transactionFactory.getModelLocation())); // Absolute location
-//					}
-//				});
 				
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
@@ -1121,45 +941,7 @@ public abstract class Model implements Serializable, Observer {
 
 		return view >= value;
 	}
-	
-//	public void scale(Rectangle newBounds, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-//		Fraction currentWidth = (Fraction)getProperty("Width");
-//		Fraction currentHeight = (Fraction)getProperty("Height");
-//		
-//		setProperty("X", new Fraction(newBounds.x), propCtx, propDistance, connection, branch);
-//		setProperty("Y", new Fraction(newBounds.y), propCtx, propDistance, connection, branch);
-//		setProperty("Width", new Fraction(newBounds.width), propCtx, propDistance, connection, branch);
-//		setProperty("Height", new Fraction(newBounds.height), propCtx, propDistance, connection, branch);
-//		
-//		Fraction hChange = new Fraction(newBounds.width).divide(currentWidth);
-//		Fraction vChange = new Fraction(newBounds.height).divide(currentHeight);
-//
-//		modelScale(hChange, vChange, propCtx, propDistance, connection, branch);
-//	}
-//
-//	public void scale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-//		Fraction currentX = (Fraction)getProperty("X");
-//		Fraction currentY = (Fraction)getProperty("Y");
-//		Fraction currentWidth = (Fraction)getProperty("Width");
-//		Fraction currentHeight = (Fraction)getProperty("Height");
-//		
-//		Fraction newX = currentX.multiply(hChange);
-//		Fraction newY = currentY.multiply(vChange);
-//		Fraction newWidth = currentWidth.multiply(hChange);
-//		Fraction newHeight = currentHeight.multiply(vChange);
-//
-//		setProperty("X", newX, propCtx, propDistance, connection, branch);
-//		setProperty("Y", newY, propCtx, propDistance, connection, branch);
-//		setProperty("Width", newWidth, propCtx, propDistance, connection, branch);
-//		setProperty("Height", newHeight, propCtx, propDistance, connection, branch);
-//		
-//		modelScale(hChange, vChange, propCtx, propDistance, connection, branch);
-//	}
-//	
-//	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, PrevaylerServiceConnection<Model> connection, PrevaylerServiceBranch<Model> branch) {
-//		
-//	}
-	
+
 	public void appendScale(final Rectangle newBounds, List<DualCommand<Model>> dualCommands) {
 		Fraction currentWidth = (Fraction)getProperty("Width");
 		Fraction currentHeight = (Fraction)getProperty("Height");
@@ -1168,10 +950,6 @@ public abstract class Model implements Serializable, Observer {
 		dualCommands.add(SetPropertyTransaction.createDual(Model.this, "Y", new Fraction(newBounds.y)));
 		dualCommands.add(SetPropertyTransaction.createDual(Model.this, "Width", new Fraction(newBounds.width)));
 		dualCommands.add(SetPropertyTransaction.createDual(Model.this, "Height", new Fraction(newBounds.height)));
-//		setProperty("X", new Fraction(newBounds.x), propCtx, propDistance, connection, branch);
-//		setProperty("Y", new Fraction(newBounds.y), propCtx, propDistance, connection, branch);
-//		setProperty("Width", new Fraction(newBounds.width), propCtx, propDistance, connection, branch);
-//		setProperty("Height", new Fraction(newBounds.height), propCtx, propDistance, connection, branch);
 		
 		Fraction hChange = new Fraction(newBounds.width).divide(currentWidth);
 		Fraction vChange = new Fraction(newBounds.height).divide(currentHeight);
@@ -1180,11 +958,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public void appendScale(final Fraction hChange, final Fraction vChange, List<DualCommand<Model>> dualCommands) {
-//		setProperty("X", newX, propCtx, propDistance, connection, branch);
-//		setProperty("Y", newY, propCtx, propDistance, connection, branch);
-//		setProperty("Width", newWidth, propCtx, propDistance, connection, branch);
-//		setProperty("Height", newHeight, propCtx, propDistance, connection, branch);
-		
 		Fraction currentX = (Fraction)getProperty("X");
 		Fraction currentY = (Fraction)getProperty("Y");
 		Fraction currentWidth = (Fraction)getProperty("Width");
