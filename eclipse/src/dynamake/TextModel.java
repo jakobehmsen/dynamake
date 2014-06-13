@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
