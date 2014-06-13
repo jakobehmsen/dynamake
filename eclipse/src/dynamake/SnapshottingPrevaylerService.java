@@ -280,16 +280,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 	}
 	
-//	private static class OffsetTransaction<T> {
-//		public final int offset;
-//		public final DualCommand<T> command;
-//		
-//		public OffsetTransaction(int offset, DualCommand<T> command) {
-//			this.offset = offset;
-//			this.command = command;
-//		}
-//	}
-	
 	private Stack<DualCommand<T>> transactionUndoStack = new Stack<DualCommand<T>>();
 	private Stack<DualCommand<T>> transactionRedoStack = new Stack<DualCommand<T>>();
 	
@@ -363,11 +353,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						
 						finishedBuilder.execute();
 					}
-//					DualCommand<T> transaction = transactionUndoStack.pop();
-//					transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
-//					transactionRedoStack.push(transaction);
-//					
-//					persistTransaction(propCtx, new UndoTransaction<T>());
 				}
 			}
 		});
@@ -396,12 +381,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						
 						finishedBuilder.execute();
 					}
-					
-//					DualCommand<T> transaction = transactionRedoStack.pop();
-//					transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
-//					transactionUndoStack.push(transaction);
-//					
-//					persistTransaction(propCtx, new RedoTransaction<T>());
 				}
 			}
 		});
@@ -486,8 +465,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		private void commit(final PropogationContext propCtx) {
-//			System.out.println("Commit branch");
-			
 			prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -503,7 +480,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				connection.prevaylerService.registerTransaction(reduction);
 				connection.prevaylerService.persistTransaction(propCtx, reduction);
 			}
-//			System.out.println("Commit");
 		}
 		
 		private DualCommand<T> reduce() {
@@ -558,11 +534,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		private void absorbBranch(final Branch<T> branch) {
 			absorbedBranches.add(branch);
 
-			if(isClosed) {
-//				System.out.println("checkAbsorbed@absorbBranch");
+			if(isClosed)
 				checkAbsorbed();
-			}
-//			System.out.println("Absorb branch performed");
 		}
 		
 		private void checkAbsorbed() {
@@ -580,11 +553,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 
 		@Override
 		public void reject() {
-//			System.out.println("reject enqueue");
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-//					System.out.println("reject do");
 					rejectSync();
 				}
 			});
@@ -658,10 +629,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						
 						isClosed = true;
 						
-						if(branches.size() == 0) {
+						if(branches.size() == 0)
 							sendFinished();
-						}
-//						sendFinished();
 					}
 				}
 			});
@@ -693,8 +662,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 									// Branch may have been absorbed at this point
 									if(!b.isAbsorbed) {
 										b.checkAbsorbed();
-//										b.sendFinished();
-//										System.out.println("absorb b");
 									}
 								}
 							}
@@ -710,7 +677,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 							// Is there a scenario where branch is absorbed before this point?
 							// Shouldn't be possible, since the branch isn't closed
 							branch.checkAbsorbed();
-//							branch.sendFinished();
 						}
 					});
 				}
@@ -731,20 +697,13 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			for(int i = 0; i < observers.size(); i++) {
 				Observer observer = observers.get(i);
 				PropogationContext propCtxBranch = propCtx.branch();
+				@SuppressWarnings("unchecked")
 				PrevaylerServiceBranch<Model> innerBranch = (PrevaylerServiceBranch<Model>)this;
-//				PrevaylerServiceBranch<Model> innerBranch;
-//				if(observer instanceof Model)
-//					innerBranch = (PrevaylerServiceBranch<Model>)this.branch();
-//				else
-//					innerBranch = (PrevaylerServiceBranch<Model>)this;
 				observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, innerBranch);
-//				if(observer instanceof Model)
-//					innerBranch.close();
 			}
 			
-			if(branchCount == 0) {
+			if(branchCount == 0)
 				this.absorb();
-			}
 		}
 		
 		@Override
