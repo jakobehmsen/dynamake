@@ -595,17 +595,24 @@ public class LiveModel extends Model {
 						branch.onFinished(new Runnable() {
 							@Override
 							public void run() {
+								// NOTICE: DON'T REMOVE THE COMMENTED FOLLOWING CODE
+								// IF THE BELOW CODE IS UNCOMMENTED TO REPLACE THE
+								// APPROACH BELOW TO INSERT THE EFFECT FRAME, THEN
+								// mouseReleased IS NEVER INVOKED ON selectionFrame
+								// ON JAR RELEASES.
+								
 //								productionPanel.remove(localSelectionFrame);
 //								productionPanel.add(localEffectFrame);
 //								productionPanel.add(localSelectionFrame);
 //								System.out.println("Created effect frame (after reordering).");
+								
 								int indexOfSelectionFrame = 0;
 								for(int i = 0; i < productionPanel.getComponents().length; i++) {
 									if(productionPanel.getComponents()[i] == localSelectionFrame)
 										indexOfSelectionFrame = i;
 								}
 								productionPanel.add(localEffectFrame, indexOfSelectionFrame);
-								System.out.println("Created effect frame (after reordering).");
+//								System.out.println("Created effect frame (after reordering).");
 							}
 						});
 					} else {
@@ -613,7 +620,7 @@ public class LiveModel extends Model {
 							@Override
 							public void run() {
 								productionPanel.add(localEffectFrame);
-								System.out.println("Created effect frame.");
+//								System.out.println("Created effect frame.");
 							}
 						});
 					}
@@ -645,7 +652,7 @@ public class LiveModel extends Model {
 						@Override
 						public void run() {
 							productionPanel.remove(localEffectFrame);
-							System.out.println("Removed effect frame");
+//							System.out.println("Removed effect frame");
 						}
 					});
 				} else {
@@ -688,122 +695,6 @@ public class LiveModel extends Model {
 						}
 					});
 				}
-			}
-			
-			public void updateRelativeCursorPosition(Point point, Dimension size) {
-				int resizeWidth = 5;
-				
-				int leftPositionEnd = resizeWidth;
-				int rightPositionStart = size.width - resizeWidth;
-
-				int topPositionEnd = resizeWidth;
-				int bottomPositionStart = size.height - resizeWidth;
-				
-				selectionFrameHorizontalPosition = 1;
-				selectionFrameVerticalPosition = 1;
-				
-				if(point.x <= leftPositionEnd)
-					selectionFrameHorizontalPosition = HORIZONTAL_REGION_WEST;
-				else if(point.x < rightPositionStart)
-					selectionFrameHorizontalPosition = HORIZONTAL_REGION_CENTER;
-				else
-					selectionFrameHorizontalPosition = HORIZONTAL_REGION_EAST;
-				
-				if(point.y <= topPositionEnd)
-					selectionFrameVerticalPosition = VERTICAL_REGION_NORTH;
-				else if(point.y < bottomPositionStart)
-					selectionFrameVerticalPosition = VERTICAL_REGION_CENTER;
-				else
-					selectionFrameVerticalPosition = VERTICAL_REGION_SOUTH;
-			}
-			
-			public static int getRelativeHorizontalPosition(Point point, Dimension size) {
-				int resizeWidth = 5;
-				
-				int leftPositionEnd = resizeWidth;
-				int rightPositionStart = size.width - resizeWidth;
-				
-				if(point.x <= leftPositionEnd)
-					return HORIZONTAL_REGION_WEST;
-				else if(point.x < rightPositionStart)
-					return HORIZONTAL_REGION_CENTER;
-				else
-					return HORIZONTAL_REGION_EAST;
-			}
-			
-			public static int getRelativeVerticalPosition(Point point, Dimension size) {
-				int resizeWidth = 5;
-
-				int topPositionEnd = resizeWidth;
-				int bottomPositionStart = size.height - resizeWidth;
-				
-				if(point.y <= topPositionEnd)
-					return VERTICAL_REGION_NORTH;
-				else if(point.y < bottomPositionStart)
-					return VERTICAL_REGION_CENTER;
-				else
-					return VERTICAL_REGION_SOUTH;
-			}
-			
-			public Cursor getCursorFromRelativePosition() {
-				return getCursorFromRelativePosition(selectionFrameHorizontalPosition, selectionFrameVerticalPosition);
-			}
-			
-			public static Cursor getCursorFromRelativePosition(int horizontalPosition, int verticalPosition) {
-				final Cursor cursor;
-				
-				switch(horizontalPosition) {
-				case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_WEST:
-					switch(verticalPosition) {
-					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH:
-						cursor = Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
-						break;
-					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER:
-						cursor = Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
-						break;
-					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
-						cursor = Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);
-						break;
-					default:
-						cursor = null;
-						break;
-					}
-					break;
-				case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_CENTER:
-					switch(verticalPosition) {
-					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH:
-						cursor = Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
-						break;
-					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
-						cursor = Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
-						break;
-					default:
-						cursor = null;
-						break;
-					}
-					break;
-				case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_EAST:
-					switch(verticalPosition) {
-					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH:
-						cursor = Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
-						break;
-					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER:
-						cursor = Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
-						break;
-					case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
-						cursor = Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);
-						break;
-					default:
-						cursor = null;
-						break;
-					}
-					break;
-				default:
-					cursor = null;
-					break;
-				}
-				
-				return cursor;
 			}
 			
 			public void selectFromView(final ModelComponent view, final Point initialMouseDown, PrevaylerServiceBranch<Model> branch) {
@@ -855,61 +746,6 @@ public class LiveModel extends Model {
 				));
 			}
 			
-			private static void addFocusMouseListener(final ProductionPanel productionPanel, JComponent focusComponent, final String focusName) {
-				MouseAdapter mouseAdapter = new MouseAdapter() {
-					@Override
-					public void mouseMoved(MouseEvent e) {
-						System.out.println("mouseMoved@" + focusName);
-						e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-						e.setSource(productionPanel);
-						
-						for(MouseMotionListener l: productionPanel.getMouseMotionListeners()) {
-							l.mouseMoved(e);
-						}
-					}
-
-					public void mouseExited(MouseEvent e) {
-
-					}
-
-					@Override
-					public void mousePressed(MouseEvent e) {
-						System.out.println("mousePressed@" + focusName);
-						e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-						e.setSource(productionPanel);
-						
-						for(MouseListener l: productionPanel.getMouseListeners()) {
-							l.mousePressed(e);
-						}
-					}
-
-					@Override
-					public void mouseDragged(MouseEvent e) {
-						System.out.println("mouseDragged@" + focusName);
-						e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-						e.setSource(productionPanel);
-						
-						for(MouseMotionListener l: productionPanel.getMouseMotionListeners()) {
-							l.mouseDragged(e);
-						}
-					}
-
-					@Override
-					public void mouseReleased(MouseEvent e) {
-						System.out.println("mouseReleased@" + focusName);
-						e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-						e.setSource(productionPanel);
-						
-						for(MouseListener l: productionPanel.getMouseListeners()) {
-							l.mouseReleased(e);
-						}
-					}
-				};
-				
-				focusComponent.addMouseListener(mouseAdapter);
-				focusComponent.addMouseMotionListener(mouseAdapter);
-			}
-			
 			private void select(final ModelComponent view, PrevaylerServiceBranch<Model> branch) {
 				// <Don't remove>
 				// Whether the following check is necessary or not has not been decided yet, so don't remove the code
@@ -937,59 +773,50 @@ public class LiveModel extends Model {
 							)
 						);
 						
-//						MouseAdapter mouseAdapter = new MouseAdapter() {
-//							@Override
-//							public void mouseMoved(MouseEvent e) {
-//								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-//								e.setSource(productionPanel);
-//								
-//								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners()) {
-//									l.mouseMoved(e);
-//								}
-//							}
-//
-//							public void mouseExited(MouseEvent e) {
-//
-//							}
-//
-//							@Override
-//							public void mousePressed(MouseEvent e) {
-//								System.out.println("mousePressed@selection");
-//								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-//								e.setSource(productionPanel);
-//								
-//								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners()) {
-//									l.mousePressed(e);
-//								}
-//							}
-//
-//							@Override
-//							public void mouseDragged(MouseEvent e) {
-//								System.out.println("mouseDragged@selection");
-//								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-//								e.setSource(productionPanel);
-//								
-//								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners()) {
-//									l.mouseDragged(e);
-//								}
-//							}
-//
-//							@Override
-//							public void mouseReleased(MouseEvent e) {
-//								System.out.println("mouseReleased@selection");
-//								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
-//								e.setSource(productionPanel);
-//								
-//								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners()) {
-//									l.mouseReleased(e);
-//								}
-//							}
-//						};
-//						
-//						productionPanel.selectionFrame.addMouseListener(mouseAdapter);
-//						productionPanel.selectionFrame.addMouseMotionListener(mouseAdapter);
+						MouseAdapter mouseAdapter = new MouseAdapter() {
+							@Override
+							public void mouseMoved(MouseEvent e) {
+								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+								e.setSource(productionPanel);
+								
+								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners())
+									l.mouseMoved(e);
+							}
+
+							public void mouseExited(MouseEvent e) {
+
+							}
+
+							@Override
+							public void mousePressed(MouseEvent e) {
+								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+								e.setSource(productionPanel);
+								
+								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners())
+									l.mousePressed(e);
+							}
+
+							@Override
+							public void mouseDragged(MouseEvent e) {
+								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+								e.setSource(productionPanel);
+								
+								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners())
+									l.mouseDragged(e);
+							}
+
+							@Override
+							public void mouseReleased(MouseEvent e) {
+								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+								e.setSource(productionPanel);
+								
+								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners())
+									l.mouseReleased(e);
+							}
+						};
 						
-						addFocusMouseListener(productionPanel, productionPanel.selectionFrame, "selectionFrame");
+						productionPanel.selectionFrame.addMouseListener(mouseAdapter);
+						productionPanel.selectionFrame.addMouseMotionListener(mouseAdapter);
 
 						final JPanel selectionFrame = productionPanel.selectionFrame; 
 						
@@ -1000,7 +827,7 @@ public class LiveModel extends Model {
 							@Override
 							public void run() {
 								productionPanel.add(selectionFrame);
-								System.out.println("Added selectionFrame");
+//								System.out.println("Added selectionFrame");
 							}
 						});
 					}
@@ -1015,7 +842,7 @@ public class LiveModel extends Model {
 						public void run() {
 							final Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 							selectionFrame.setBounds(selectionBounds);
-							System.out.println("Changed selection bounds");
+//							System.out.println("Changed selection bounds");
 						}
 					});
 					
@@ -1290,7 +1117,7 @@ public class LiveModel extends Model {
 					@Override
 					public void run() {
 						ProductionPanel.this.remove(localSelectionFrame);
-						System.out.println("Removed selectionFrame");
+//						System.out.println("Removed selectionFrame");
 					}
 				});
 				selectionFrame = null;
