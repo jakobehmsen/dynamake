@@ -525,9 +525,15 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			});
 		}
 		
+		private boolean hasSentFinished;
+		
 		private void sendFinished() {
-			if(finishBuilder != null)
-				finishBuilder.execute();
+			if(finishBuilder != null) {
+				if(!hasSentFinished) {
+					finishBuilder.execute();
+					hasSentFinished = true;
+				}
+			}
 		}
 		
 		private void doAbsorb() {
@@ -587,6 +593,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			if(transaction != null)
 				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, isolatedBranch());
 			
+			// TODO: Consider:
+			// What if finished has already been sent?
+			// Send a "rejected after finished" message?
+			// What finished has not been sent?
+			// Send a "rejected before finished" message?
 			sendFinished();
 		}
 		

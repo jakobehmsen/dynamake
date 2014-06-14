@@ -6,9 +6,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dynamake.LiveModel.ProductionPanel;
