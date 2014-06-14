@@ -198,7 +198,7 @@ public abstract class Model implements Serializable, Observer {
 			// Absorb branch explicitly here
 			PrevaylerServiceBranch<Model> innerBranch = branch.branch();
 			innerBranch.close();
-			innerBranch.absorb();
+//			innerBranch.absorb();
 			
 			// TODO: Consider whether a change should be sent out here
 			// If so, then the explicit absorbtion here must be removed
@@ -234,7 +234,7 @@ public abstract class Model implements Serializable, Observer {
 			// Absorb branch here
 			PrevaylerServiceBranch<Model> innerBranch = branch.branch();
 			innerBranch.close();
-			innerBranch.absorb();
+//			innerBranch.absorb();
 			
 			// TODO: Consider whether a change should be sent out here
 			// If so, then the explicit absorbtion here must be removed
@@ -277,9 +277,9 @@ public abstract class Model implements Serializable, Observer {
 
 			innerBranch.close();
 			
-			if(value == null) {
-				innerBranch.absorb();
-			}
+//			if(value == null) {
+//				innerBranch.absorb();
+//			}
 		} else {
 			modelChanged(sender, change, propCtx, propDistance, changeDistance, branch);
 		}
@@ -292,7 +292,7 @@ public abstract class Model implements Serializable, Observer {
 	public void absorbBranch(PrevaylerServiceBranch<Model> branch) {
 		PrevaylerServiceBranch<Model> innerBranch = branch.branch();
 		innerBranch.close();
-		innerBranch.absorb();
+//		innerBranch.absorb();
 	}
 	
 	public static class RemovableListener implements Binding<Model> {

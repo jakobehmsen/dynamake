@@ -49,7 +49,7 @@ public class ScaleTool implements Tool {
 			targetPresenter.reset(branchStep2);
 			targetPresenter = null;
 			
-			boolean absorbBranch = false;
+//			boolean absorbBranch = false;
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.editPanelMouseAdapter.getEffectFrameBounds())) {
 				final TransactionFactory selectionTransactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
@@ -86,9 +86,9 @@ public class ScaleTool implements Tool {
 						}
 					});
 				}
-			} else {
+			}/* else {
 				absorbBranch = true;
-			}
+			}*/
 			
 			final Cursor cursor = relativePosition.getCursor();
 			final JPanel localSelectionFrame = productionPanel.selectionFrame;
@@ -105,8 +105,8 @@ public class ScaleTool implements Tool {
 			productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 			branchStep2.close();
 			
-			if(absorbBranch)
-				branchStep2.absorb();
+//			if(absorbBranch)
+//				branchStep2.absorb();
 			
 			mouseDown = null;
 		}

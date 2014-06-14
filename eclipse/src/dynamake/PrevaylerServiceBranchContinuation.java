@@ -8,7 +8,7 @@ public interface PrevaylerServiceBranchContinuation<T> {
 			return new PrevaylerServiceBranchContinuation<T>() {
 				@Override
 				public void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<T> branch) {
-					branch.absorb();
+//					branch.absorb();
 				}
 			};
 		}

@@ -3,7 +3,7 @@ package dynamake;
 import java.util.ArrayList;
 
 public interface PrevaylerServiceBranch<T> {
-	void absorb();
+//	void absorb();
 	void reject();
 	PrevaylerServiceBranch<T> branch();
 	void execute(PropogationContext propCtx, DualCommandFactory<T> transactionFactory);

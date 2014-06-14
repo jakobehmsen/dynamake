@@ -228,8 +228,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			this.parent = parent;
 		}
 
-		@Override
-		public void absorb() { }
+//		@Override
+//		public void absorb() { }
 
 		@Override
 		public void reject() { }
@@ -509,23 +509,25 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		
 		private boolean isAbsorbed;
 
-		@Override
-		public void absorb() {
-//			System.out.println("Request absorb for " + this);
-			this.prevaylerService.transactionExecutor.execute(new Runnable() {
-				@Override
-				public void run() {
-//					System.out.println("Performing absorb for " + Branch.this);
-					if(isClosed) {
-						doAbsorb();
-						
-						sendFinished();
-					} else {
-						System.out.println("Attempted to explicitly absorb unclosed branch.");
-					}
-				}
-			});
-		}
+//		@Override
+//		public void absorb() {
+//			System.out.println("explicit absorb was called on " + this);
+//			
+////			System.out.println("Request absorb for " + this);
+////			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+////				@Override
+////				public void run() {
+//////					System.out.println("Performing absorb for " + Branch.this);
+////					if(isClosed) {
+////						doAbsorb();
+////						
+////						sendFinished();
+////					} else {
+////						System.out.println("Attempted to explicitly absorb unclosed branch.");
+////					}
+////				}
+////			});
+//		}
 		
 		private boolean hasSentFinished;
 		
@@ -539,12 +541,17 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		private void doAbsorb() {
-			if(parent != null) {
-				parent.absorbBranch(Branch.this);
+			if(!isAbsorbed) {
+				if(parent != null) {
+					parent.absorbBranch(Branch.this);
+				} else {
+					// Every effect has been absorbed
+					commit(null);
+				}
+			
 				isAbsorbed = true;
 			} else {
-				// Every effect has been absorbed
-				commit(null);
+				System.out.println("Attempted to absorb absorbed branch");
 			}
 		}
 		
@@ -648,15 +655,24 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				@Override
 				public void run() {
 					if(!rejected) {
-						flushBranches();
-						
-						isClosed = true;
-						
-						if(branches.size() == 0)
-							sendFinished();
-						else {
-							checkAbsorbed();
+						if(!isClosed) {
+							flushBranches();
+							
+							isClosed = true;
+							
+							if(branches.size() == 0) {
+								// Branch is leaf
+								doAbsorb();
+								System.out.println("implicit absorb was called on " + this);
+								sendFinished();
+							} else {
+								checkAbsorbed();
+							}
+						} else {
+							System.out.println("Attempted to close closed branch");
 						}
+					} else {
+						System.out.println("Attempted to close rejected branch");
 					}
 				}
 			});
@@ -732,7 +748,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 //				this.absorb();
 				PrevaylerServiceBranch<T> innerBranch = this.branch();
 				innerBranch.close();
-				innerBranch.absorb();
+//				innerBranch.absorb();
 			}
 		}
 		
