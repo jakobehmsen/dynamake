@@ -57,9 +57,6 @@ public class TargetPresenter {
 			
 			if(newTargetOver != null && behavior.acceptsTarget(newTargetOver)) {
 				targetFrame = new JPanel();
-//				final Color color = 
-//					selection.getModelBehind().isObservedBy(newTargetOverComponent.getModelBehind()) ? ProductionPanel.UNBIND_COLOR
-//					: ProductionPanel.BIND_COLOR;
 				final Color color = behavior.getColorForTarget(newTargetOver);
 				targetFrame.setBorder(
 					BorderFactory.createCompoundBorder(

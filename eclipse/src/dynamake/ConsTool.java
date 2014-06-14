@@ -38,6 +38,9 @@ public class ConsTool implements Tool {
 			PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			branch.close();
+
+			targetPresenter.reset(branchStep2);
+			targetPresenter = null;
 			
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
 				productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
@@ -75,16 +78,6 @@ public class ConsTool implements Tool {
 						}
 					});
 				}
-
-				if(productionPanel.targetFrame != null) {
-					final JPanel localTargetFrame = productionPanel.targetFrame; 
-					branchStep2.onFinished(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.remove(localTargetFrame);
-						}
-					});
-				}
 				
 				productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 
@@ -94,22 +87,26 @@ public class ConsTool implements Tool {
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
 				final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 				branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+				targetPresenter.reset(branchStep2);
+				targetPresenter = null;
 				productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
 				branch.close();
 			} else {
 				final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 				branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+				targetPresenter.reset(branchStep2);
+				targetPresenter = null;
 				productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 				branch.reject();
 			}
 		}
 
-		productionPanel.editPanelMouseAdapter.targetOver = null;
 		mouseDown = null;
 	}
 	
 	private Point mouseDown;
 	private PrevaylerServiceBranch<Model> branch;
+	private TargetPresenter targetPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -142,6 +139,29 @@ public class ConsTool implements Tool {
 			productionPanel.editPanelMouseAdapter.selectFromDefault(targetModelComponent, referencePoint, branchStep1);
 		}
 		
+		targetPresenter = new TargetPresenter(
+			productionPanel,
+			new TargetPresenter.Behavior() {
+				@Override
+				public Color getColorForTarget(ModelComponent target) {
+					if(target.getModelBehind() instanceof CanvasModel) {
+						return ProductionPanel.TARGET_OVER_COLOR;
+					} else {
+						return productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(target.getModelBehind()) 
+							? ProductionPanel.UNBIND_COLOR
+							: ProductionPanel.BIND_COLOR;
+					}
+				}
+				
+				@Override
+				public boolean acceptsTarget(ModelComponent target) {
+					return target != productionPanel.editPanelMouseAdapter.selection;
+				}
+			}
+		);
+		
+		targetPresenter.update(modelOver, branchStep1);
+		
 		mouseDown = e.getPoint();
 		
 		branchStep1.close();
@@ -152,55 +172,7 @@ public class ConsTool implements Tool {
 		if(mouseDown != null) {
 			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			
-			ModelComponent newTargetOverComponent = modelOver;
-			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
-				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
-				if(productionPanel.targetFrame != null) {
-					final JPanel localTargetFrame = productionPanel.targetFrame;
-					runBuilder.addRunnable(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.remove(localTargetFrame);
-						}
-					});
-				}
-				
-				if(newTargetOverComponent != null && newTargetOverComponent != productionPanel.editPanelMouseAdapter.selection) {
-					productionPanel.targetFrame = new JPanel();
-					final Color color;
-					
-					if(newTargetOverComponent.getModelBehind() instanceof CanvasModel) {
-						color = ProductionPanel.TARGET_OVER_COLOR;
-					} else {
-						color = 
-							productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(newTargetOverComponent.getModelBehind()) ? ProductionPanel.UNBIND_COLOR
-							: ProductionPanel.BIND_COLOR;
-					}
-					
-					final Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
-						((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), productionPanel);
-					productionPanel.targetFrame.setBorder(
-						BorderFactory.createCompoundBorder(
-							BorderFactory.createLineBorder(Color.BLACK, 1), 
-							BorderFactory.createCompoundBorder(
-								BorderFactory.createLineBorder(color, 3), 
-								BorderFactory.createLineBorder(Color.BLACK, 1)
-							)
-						)
-					);
-
-					productionPanel.targetFrame.setBounds(targetFrameBounds);
-					productionPanel.targetFrame.setBackground(new Color(0, 0, 0, 0));
-
-					final JPanel localTargetFrame = productionPanel.targetFrame;
-					runBuilder.addRunnable(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.add(localTargetFrame);
-						}
-					});
-				}
-			}
+			targetPresenter.update(modelOver, runBuilder);
 			
 			final int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
 			final int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
@@ -209,14 +181,6 @@ public class ConsTool implements Tool {
 			
 			final int x = cursorLocationInProductionPanel.x - width / 2;
 			final int y = cursorLocationInProductionPanel.y - height / 2;
-
-//			SwingUtilities.invokeLater(new Runnable() {
-//				@Override
-//				public void run() {
-//					productionPanel.editPanelMouseAdapter.changeEffectFrameDirect(new Rectangle(x, y, width, height));
-//					productionPanel.livePanel.repaint();
-//				}
-//			});
 			
 			productionPanel.editPanelMouseAdapter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), runBuilder);
 			
