@@ -34,9 +34,6 @@ public class TellTool implements Tool {
 		productionPanel.editPanelMouseAdapter.showPopupForSelectionTell(productionPanel, e.getPoint(), null, branchStep2);
 		
 		branch.close();
-
-		productionPanel.editPanelMouseAdapter.targetOver = null;
-//		productionPanel.livePanel.repaint();
 	}
 	
 	private PrevaylerServiceBranch<Model> branch;

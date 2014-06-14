@@ -34,8 +34,6 @@ public class ViewTool implements Tool {
 		productionPanel.editPanelMouseAdapter.showPopupForSelectionView(productionPanel, e.getPoint(), null, branchStep2);
 		
 		branch.close();
-
-		productionPanel.editPanelMouseAdapter.targetOver = null;
 	}
 	
 	private PrevaylerServiceBranch<Model> branch;
