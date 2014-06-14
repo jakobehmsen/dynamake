@@ -496,7 +496,6 @@ public class LiveModel extends Model {
 		
 		// Temporary frames
 		private JPanel effectFrame;
-		public JPanel targetFrame;
 		
 		// Persistent frames
 		public JPanel selectionFrame;
@@ -518,7 +517,6 @@ public class LiveModel extends Model {
 			public Dimension selectionFrameSize;
 			public int selectionFrameHorizontalPosition;
 			public int selectionFrameVerticalPosition;
-			public ModelComponent targetOver;
 			
 			public ModelComponent output;
 
@@ -943,19 +941,6 @@ public class LiveModel extends Model {
 							popupBuilder.cancelPopup(productionPanel.livePanel);
 						}
 					});
-				}
-			}
-
-			public void clearTarget2(PrevaylerServiceBranch<Model> branch) {
-				if(productionPanel.targetFrame != null) {
-					final JPanel LocalTargetFrame = productionPanel.targetFrame;
-					branch.onFinished(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.remove(LocalTargetFrame);
-						}
-					});
-					productionPanel.targetFrame = null;
 				}
 			}
 			
