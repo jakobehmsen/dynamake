@@ -477,6 +477,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			DualCommand<T> reduction = connection.reduce();
 			
 			if(reduction != null) {
+				System.out.println("Committed: " + reduction);
 				connection.prevaylerService.registerTransaction(reduction);
 				connection.prevaylerService.persistTransaction(propCtx, reduction);
 			}
@@ -513,15 +514,13 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					if(parent != null) {
-						parent.absorbBranch(Branch.this);
-						isAbsorbed = true;
+					if(!isClosed) {
+						doAbsorb();
+						
+						sendFinished();
 					} else {
-						// Every effect has been absorbed
-						commit(null);
+						System.out.println("Attempted to explicitly absorb closed branch.");
 					}
-					
-					sendFinished();
 				}
 			});
 		}
@@ -529,6 +528,16 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		private void sendFinished() {
 			if(finishBuilder != null)
 				finishBuilder.execute();
+		}
+		
+		private void doAbsorb() {
+			if(parent != null) {
+				parent.absorbBranch(Branch.this);
+				isAbsorbed = true;
+			} else {
+				// Every effect has been absorbed
+				commit(null);
+			}
 		}
 		
 		private void absorbBranch(final Branch<T> branch) {
