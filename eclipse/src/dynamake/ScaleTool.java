@@ -43,17 +43,24 @@ public class ScaleTool implements Tool {
 			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			branch.close();
+
+			ModelComponent newTargetOver = targetPresenter.getTargetOver();
+			
+			targetPresenter.reset(branchStep2);
+			targetPresenter = null;
+			
+			boolean absorbBranch = false;
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.editPanelMouseAdapter.getEffectFrameBounds())) {
 				final TransactionFactory selectionTransactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
 				if(relativePosition.isInCenter() &&
-				   productionPanel.editPanelMouseAdapter.targetOver.getTransactionFactory() != productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent()) {
+					newTargetOver.getTransactionFactory() != productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent()) {
 					// Moving to other canvas
 					final Rectangle droppedBounds = SwingUtilities.convertRectangle(
-						productionPanel, productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), (JComponent)productionPanel.editPanelMouseAdapter.targetOver);
+						productionPanel, productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), (JComponent)newTargetOver);
 
 					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
-					final ModelComponent targetOver = productionPanel.editPanelMouseAdapter.targetOver;
+					final ModelComponent targetOver = newTargetOver;
 					
 					branchStep2.execute(new PropogationContext(), new DualCommandFactory<Model>() {
 						@Override
@@ -79,11 +86,8 @@ public class ScaleTool implements Tool {
 						}
 					});
 				}
-				
-				productionPanel.editPanelMouseAdapter.targetOver = null;
-				productionPanel.editPanelMouseAdapter.clearTarget2(branchStep2);
 			} else {
-				branchStep2.absorb();
+				absorbBranch = true;
 			}
 			
 			final Cursor cursor = relativePosition.getCursor();
@@ -101,6 +105,9 @@ public class ScaleTool implements Tool {
 			productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 			branchStep2.close();
 			
+			if(absorbBranch)
+				branchStep2.absorb();
+			
 			mouseDown = null;
 		}
 	}
@@ -109,6 +116,7 @@ public class ScaleTool implements Tool {
 	private ModelComponent viewPressedOn;
 	private PrevaylerServiceBranch<Model> branch;
 	private RelativePosition relativePosition;
+	private TargetPresenter targetPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -148,6 +156,24 @@ public class ScaleTool implements Tool {
 				}
 			});
 			
+			targetPresenter = new TargetPresenter(
+				productionPanel,
+				new TargetPresenter.Behavior() {
+					@Override
+					public Color getColorForTarget(ModelComponent target) {
+						return ProductionPanel.TARGET_OVER_COLOR;
+					}
+					
+					@Override
+					public boolean acceptsTarget(ModelComponent target) {
+						return true;
+					}
+				}
+			);
+
+			ModelComponent newTargetOver = getTargetOver(productionPanel, modelOver, modelOver);
+			targetPresenter.update(newTargetOver, branchStep1);
+			
 			branchStep1.close();
 			
 			mouseDown = e.getPoint();
@@ -158,64 +184,9 @@ public class ScaleTool implements Tool {
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(mouseDown != null && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
-			ModelComponent newTargetOverComponent;
 			
-			if(relativePosition.isInCenter()) {
-				// Moving
-				newTargetOverComponent = modelOver;
-				
-				if(((JComponent)productionPanel.editPanelMouseAdapter.selection).isAncestorOf((JComponent)newTargetOverComponent))
-					newTargetOverComponent = productionPanel.editPanelMouseAdapter.selection;
-				
-				if(newTargetOverComponent == productionPanel.editPanelMouseAdapter.selection)
-					newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)newTargetOverComponent).getParent());
-			} else {
-				// Scaling
-				newTargetOverComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent());
-			}
-			
-			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
-				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
-				if(productionPanel.targetFrame != null) {
-					final JPanel localTargetFrame = productionPanel.targetFrame;
-					
-					runBuilder.addRunnable(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.remove(localTargetFrame);
-						}
-					});
-				}
-				
-				if(newTargetOverComponent != null && newTargetOverComponent != productionPanel.editPanelMouseAdapter.selection) {
-					productionPanel.targetFrame = new JPanel();
-					
-					final Color color = ProductionPanel.TARGET_OVER_COLOR;
-					final Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
-						((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), productionPanel);
-					productionPanel.targetFrame.setBorder(
-						BorderFactory.createCompoundBorder(
-							BorderFactory.createLineBorder(Color.BLACK, 1), 
-							BorderFactory.createCompoundBorder(
-								BorderFactory.createLineBorder(color, 3), 
-								BorderFactory.createLineBorder(Color.BLACK, 1)
-							)
-						)
-					);
-					
-					productionPanel.targetFrame.setBounds(targetFrameBounds);
-					productionPanel.targetFrame.setBackground(new Color(0, 0, 0, 0));
-
-					final JPanel localTargetFrame = productionPanel.targetFrame;
-					
-					runBuilder.addRunnable(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.add(localTargetFrame);
-						}
-					});
-				}
-			}
+			ModelComponent newTargetOver = getTargetOver(productionPanel, modelOver, productionPanel.editPanelMouseAdapter.selection);
+			targetPresenter.update(newTargetOver, runBuilder);
 			
 			Rectangle newEffectBounds = relativePosition.resize(
 				productionPanel.selectionFrame.getLocation(), 
@@ -228,5 +199,25 @@ public class ScaleTool implements Tool {
 			
 			runBuilder.execute();
 		}
+	}
+	
+	private ModelComponent getTargetOver(ProductionPanel productionPanel, ModelComponent modelOver, ModelComponent selection) {
+		ModelComponent newTargetOver;
+		
+		if(relativePosition.isInCenter()) {
+			// Moving
+			newTargetOver = modelOver;
+			
+			if(((JComponent)selection).isAncestorOf((JComponent)newTargetOver))
+				newTargetOver = selection;
+			
+			if(newTargetOver == selection)
+				newTargetOver = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)newTargetOver).getParent());
+		} else {
+			// Scaling
+			newTargetOver = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)selection).getParent());
+		}
+		
+		return newTargetOver;
 	}
 }
