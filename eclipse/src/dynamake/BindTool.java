@@ -6,9 +6,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dynamake.LiveModel.ProductionPanel;
@@ -39,18 +37,10 @@ public class BindTool implements Tool {
 		
 		branch.close();
 		
-		final JPanel targetFrame = productionPanel.targetFrame;
-		if(targetFrame != null) {
-			branchStep2.onFinished(new Runnable() {
-				@Override
-				public void run() {
-					productionPanel.remove(targetFrame);
-				}
-			});
-		}
+		targetPresenter.reset(branchStep2);
+		targetPresenter = null;
 
 		productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
-		productionPanel.editPanelMouseAdapter.targetOver = null;
 		
 		if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
 			if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
@@ -97,12 +87,13 @@ public class BindTool implements Tool {
 	
 	private Point mouseDown;
 	private PrevaylerServiceBranch<Model> branch;
+	private TargetPresenter targetPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
-		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+		final PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 		
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
@@ -132,6 +123,25 @@ public class BindTool implements Tool {
 			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
 		}
 		
+		targetPresenter = new TargetPresenter(
+			productionPanel,
+			new TargetPresenter.Behavior() {
+				@Override
+				public Color getColorForTarget(ModelComponent target) {
+					return productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(target.getModelBehind()) 
+						? ProductionPanel.UNBIND_COLOR 
+						: ProductionPanel.BIND_COLOR;
+				}
+				
+				@Override
+				public boolean acceptsTarget(ModelComponent target) {
+					return target != productionPanel.editPanelMouseAdapter.selection;
+				}
+			}
+		);
+		
+		targetPresenter.update(modelOver, branchStep1);
+		
 		mouseDown = e.getPoint();
 		
 		branchStep1.close();
@@ -140,50 +150,9 @@ public class BindTool implements Tool {
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(mouseDown != null) {
-			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+			final RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			
-			final ModelComponent newTargetOverComponent = modelOver;
-			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
-				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
-				if(productionPanel.targetFrame != null) {
-					final JPanel oldTargetFrame = productionPanel.targetFrame;
-					runBuilder.addRunnable(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.remove(oldTargetFrame);
-						}
-					});
-				}
-				
-				if(newTargetOverComponent != null && newTargetOverComponent != productionPanel.editPanelMouseAdapter.selection) {
-					productionPanel.targetFrame = new JPanel();
-					final Color color = 
-						productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(newTargetOverComponent.getModelBehind()) ? ProductionPanel.UNBIND_COLOR
-						: ProductionPanel.BIND_COLOR;
-					productionPanel.targetFrame.setBorder(
-						BorderFactory.createCompoundBorder(
-							BorderFactory.createLineBorder(Color.BLACK, 1), 
-							BorderFactory.createCompoundBorder(
-								BorderFactory.createLineBorder(color, 3), 
-								BorderFactory.createLineBorder(Color.BLACK, 1)
-							)
-						)
-					);
-					
-					Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
-						((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), productionPanel);
-					productionPanel.targetFrame.setBounds(targetFrameBounds);
-					productionPanel.targetFrame.setBackground(new Color(0, 0, 0, 0));
-
-					final JPanel localTargetFrame = productionPanel.targetFrame;
-					runBuilder.addRunnable(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.add(localTargetFrame);
-						}
-					});
-				}
-			}
+			targetPresenter.update(modelOver, runBuilder);
 			
 			final int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
 			final int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
