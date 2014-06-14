@@ -196,7 +196,9 @@ public abstract class Model implements Serializable, Observer {
 			
 			// No side effect may be provoked in addObserver, thus no implicit absorbtion of branch occurs
 			// Absorb branch explicitly here
-			branch.absorb();
+			PrevaylerServiceBranch<Model> innerBranch = branch.branch();
+			innerBranch.close();
+			innerBranch.absorb();
 			
 			// TODO: Consider whether a change should be sent out here
 			// If so, then the explicit absorbtion here must be removed
@@ -230,7 +232,9 @@ public abstract class Model implements Serializable, Observer {
 			
 			// No side effect may be provoked in addObserver, thus no implicit absorbtion of branch occurs
 			// Absorb branch here
-			branch.absorb();
+			PrevaylerServiceBranch<Model> innerBranch = branch.branch();
+			innerBranch.close();
+			innerBranch.absorb();
 			
 			// TODO: Consider whether a change should be sent out here
 			// If so, then the explicit absorbtion here must be removed
@@ -273,18 +277,19 @@ public abstract class Model implements Serializable, Observer {
 
 			innerBranch.close();
 			
-			if(value == null)
+			if(value == null) {
 				innerBranch.absorb();
+			}
 		} else {
 			modelChanged(sender, change, propCtx, propDistance, changeDistance, branch);
 		}
 	}
 	
 	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
-		absorbChange(branch);
+		absorbBranch(branch);
 	}
 	
-	public void absorbChange(PrevaylerServiceBranch<Model> branch) {
+	public void absorbBranch(PrevaylerServiceBranch<Model> branch) {
 		PrevaylerServiceBranch<Model> innerBranch = branch.branch();
 		innerBranch.close();
 		innerBranch.absorb();

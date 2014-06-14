@@ -104,4 +104,8 @@ public class TargetPresenter {
 			});
 		}
 	}
+
+	public ModelComponent getTargetOver() {
+		return currentTargetOver;
+	}
 }

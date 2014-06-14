@@ -38,7 +38,7 @@ public class Primitive extends Model {
 						Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance, 0, branch);
 					} else {
-						receiver.absorbChange(branch);
+						receiver.absorbBranch(branch);
 					}
 				}
 			},
@@ -60,7 +60,7 @@ public class Primitive extends Model {
 						Model.SetProperty setProperty = new Model.SetProperty(Model.PROPERTY_COLOR, atom.value);
 						receiver.sendChanged(setProperty, propCtx, propDistance, 0, branch);
 					} else {
-						receiver.absorbChange(branch);
+						receiver.absorbBranch(branch);
 					}
 				}
 			},
@@ -82,7 +82,7 @@ public class Primitive extends Model {
 						Color darkenedColor = ((Color)atom.value).darker();
 						receiver.sendChanged(new Model.Atom(darkenedColor), propCtx, propDistance, 0, branch);
 					} else {
-						receiver.absorbChange(branch);
+						receiver.absorbBranch(branch);
 					}
 				}
 			},
@@ -104,7 +104,7 @@ public class Primitive extends Model {
 						Color brightenedColor = ((Color)atom.value).brighter();
 						receiver.sendChanged(new Model.Atom(brightenedColor), propCtx, propDistance, 0, branch);
 					} else {
-						receiver.absorbChange(branch);
+						receiver.absorbBranch(branch);
 					}
 				}
 			},
@@ -124,7 +124,7 @@ public class Primitive extends Model {
 					if(propDistance == 1)
 						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch);
 					else {
-						receiver.absorbChange(branch);
+						receiver.absorbBranch(branch);
 					}
 				}
 			},
@@ -144,7 +144,7 @@ public class Primitive extends Model {
 					if(propDistance > 1)
 						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch);
 					else {
-						receiver.absorbChange(branch);
+						receiver.absorbBranch(branch);
 					}
 				}
 			},
@@ -164,7 +164,7 @@ public class Primitive extends Model {
 					if(change instanceof Model.PropertyChanged)
 						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch);
 					else {
-						receiver.absorbChange(branch);
+						receiver.absorbBranch(branch);
 					}
 				}
 			}
@@ -186,7 +186,7 @@ public class Primitive extends Model {
 					if(change instanceof Model.MouseDown) {
 						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch);
 					} else {
-						receiver.absorbChange(branch);
+						receiver.absorbBranch(branch);
 					}
 				}
 			},
@@ -206,7 +206,7 @@ public class Primitive extends Model {
 					if(change instanceof Model.MouseUp) {
 						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch);
 					} else {
-						receiver.absorbChange(branch);
+						receiver.absorbBranch(branch);
 					}
 				}
 			},

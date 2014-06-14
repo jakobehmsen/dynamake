@@ -511,15 +511,17 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 
 		@Override
 		public void absorb() {
+//			System.out.println("Request absorb for " + this);
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					if(!isClosed) {
+//					System.out.println("Performing absorb for " + Branch.this);
+					if(isClosed) {
 						doAbsorb();
 						
 						sendFinished();
 					} else {
-						System.out.println("Attempted to explicitly absorb closed branch.");
+						System.out.println("Attempted to explicitly absorb unclosed branch.");
 					}
 				}
 			});
@@ -555,12 +557,13 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		
 		private void checkAbsorbed() {
 			if(absorbedBranches.size() == branches.size()) {
-				if(parent != null) {
-					parent.absorbBranch(Branch.this);
-				} else {
-					// Every effect has been absorbed
-					commit(null);
-				}
+				doAbsorb();
+//				if(parent != null) {
+//					parent.absorbBranch(Branch.this);
+//				} else {
+//					// Every effect has been absorbed
+//					commit(null);
+//				}
 				
 				sendFinished();
 			}
@@ -651,6 +654,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 						
 						if(branches.size() == 0)
 							sendFinished();
+						else {
+							checkAbsorbed();
+						}
 					}
 				}
 			});
@@ -680,9 +686,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 								
 								if(b.branches.size() > 0) {
 									// Branch may have been absorbed at this point
-									if(!b.isAbsorbed) {
+//									if(!b.isAbsorbed) {
 										b.checkAbsorbed();
-									}
+//									}
 								}
 							}
 						});
@@ -722,8 +728,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, innerBranch);
 			}
 			
-			if(branchCount == 0)
-				this.absorb();
+			if(branchCount == 0) {
+//				this.absorb();
+				PrevaylerServiceBranch<T> innerBranch = this.branch();
+				innerBranch.close();
+				innerBranch.absorb();
+			}
 		}
 		
 		@Override
