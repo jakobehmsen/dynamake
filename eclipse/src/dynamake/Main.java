@@ -116,12 +116,6 @@ public class Main {
 					return factories;
 				}
 				
-				@Override
-				public void wasCreated(ModelComponent view) {
-					// TODO Auto-generated method stub
-					
-				}
-				
 				private Tool[] tools = new Tool[] {
 					new EditTool(),
 					new PlotTool(),
@@ -138,12 +132,6 @@ public class Main {
 				@Override
 				public Tool[] getTools() {
 					return tools;
-				}
-
-				@Override
-				public void unFocus(PropogationContext propCtx, ModelComponent view, PrevaylerServiceBranch<Model> branch) {
-					// TODO Auto-generated method stub
-					
 				}
 			};
 			TransactionFactory rootTransactionFactory = new TransactionFactory(prevaylerService, new ModelRootLocator());

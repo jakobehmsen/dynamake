@@ -391,8 +391,6 @@ public class Primitive extends Model {
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		
-		viewManager.wasCreated(view);
-		
 		return new Binding<ModelComponent>() {
 			@Override
 			public void releaseBinding() {

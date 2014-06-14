@@ -1142,19 +1142,9 @@ public class LiveModel extends Model {
 			
 			ViewManager newViewManager = new ViewManager() {
 				@Override
-				public void unFocus(PropogationContext propCtx, ModelComponent view, PrevaylerServiceBranch<Model> branch) {
-					if(productionPanel.editPanelMouseAdapter.selection == view) {
-						productionPanel.editPanelMouseAdapter.requestSelect(null, null, branch);
-					}
-				}
-				
-				@Override
 				public Factory[] getFactories() {
 					return viewManager.getFactories();
 				}
-				
-				@Override
-				public void wasCreated(ModelComponent view) { }
 				
 				@Override
 				public Tool[] getTools() {
@@ -1384,8 +1374,6 @@ public class LiveModel extends Model {
 		this.setLocation(transactionFactory.getModelLocator());
 		
 		final LivePanel view = new LivePanel(rootView, this, transactionFactory, viewManager);
-		
-		viewManager.wasCreated(view);
 		
 		return new Binding<ModelComponent>() {
 			

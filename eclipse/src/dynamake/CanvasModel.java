@@ -602,8 +602,6 @@ public class CanvasModel extends Model {
 										view.remove((JComponent)modelView.getBindingTarget());
 									}
 								});
-								
-								viewManager.unFocus(propCtx, modelView.getBindingTarget(), branch);
 							}
 						}
 					}
@@ -671,8 +669,6 @@ public class CanvasModel extends Model {
 					
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
 					removableListener.releaseBinding();
-					
-					viewManager.unFocus(propCtx, removedMC, branch);
 					
 					branch.onFinished(new Runnable() {
 						@Override
@@ -792,8 +788,6 @@ public class CanvasModel extends Model {
 				}
 			}
 		});
-		
-		viewManager.wasCreated(view);
 
 		return new Binding<ModelComponent>() {
 			

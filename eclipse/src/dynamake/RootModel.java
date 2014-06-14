@@ -267,8 +267,6 @@ public class RootModel extends Model {
 			}
 		});
 		
-		viewManager.wasCreated(view);
-		
 		return new Binding<ModelComponent>() {
 			@Override
 			public void releaseBinding() {

@@ -349,8 +349,6 @@ public class TextModel extends Model {
 			e.printStackTrace();
 		}
 		view.setDocument(document);
-		
-		viewManager.wasCreated(view);
 
 		return new Binding<ModelComponent>() {
 			@Override
