@@ -6,9 +6,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dynamake.LiveModel.ProductionPanel;
@@ -36,6 +34,9 @@ public class DragTool implements Tool {
 		
 		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+
+		targetPresenter.reset(branchStep2);
+		targetPresenter = null;
 		
 		if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
 			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
@@ -45,12 +46,12 @@ public class DragTool implements Tool {
 		
 		branch.close();
 
-		productionPanel.editPanelMouseAdapter.targetOver = null;
 		mouseDown = null;
 	}
 	
 	private Point mouseDown;
 	private PrevaylerServiceBranch<Model> branch;
+	private TargetPresenter targetPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -86,6 +87,23 @@ public class DragTool implements Tool {
 			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
 		}
 		
+		targetPresenter = new TargetPresenter(
+			productionPanel,
+			new TargetPresenter.Behavior() {
+				@Override
+				public Color getColorForTarget(ModelComponent target) {
+					return ProductionPanel.TARGET_OVER_COLOR;
+				}
+				
+				@Override
+				public boolean acceptsTarget(ModelComponent target) {
+					return target != productionPanel.editPanelMouseAdapter.selection;
+				}
+			}
+		);
+		
+		targetPresenter.update(modelOver, branchStep1);
+		
 		branchStep1.close();
 		
 		mouseDown = e.getPoint();
@@ -95,50 +113,8 @@ public class DragTool implements Tool {
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		if(mouseDown != null) {
 			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
-			ModelComponent newTargetOverComponent = modelOver;
 			
-			if(newTargetOverComponent != productionPanel.editPanelMouseAdapter.targetOver) {
-				productionPanel.editPanelMouseAdapter.targetOver = newTargetOverComponent;
-				
-				if(productionPanel.targetFrame != null) {
-					final JPanel localTargetFrame = productionPanel.targetFrame;
-					runBuilder.addRunnable(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.remove(localTargetFrame);
-						}
-					});
-				}
-				
-				if(newTargetOverComponent != null && newTargetOverComponent != productionPanel.editPanelMouseAdapter.selection) {
-					productionPanel.targetFrame = new JPanel();
-					
-					Color color = ProductionPanel.TARGET_OVER_COLOR;
-
-					productionPanel.targetFrame.setBorder(
-						BorderFactory.createCompoundBorder(
-							BorderFactory.createLineBorder(Color.BLACK, 1), 
-							BorderFactory.createCompoundBorder(
-								BorderFactory.createLineBorder(color, 3), 
-								BorderFactory.createLineBorder(Color.BLACK, 1)
-							)
-						)
-					);
-					
-					Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
-						((JComponent)newTargetOverComponent).getParent(), ((JComponent)newTargetOverComponent).getBounds(), productionPanel);
-					productionPanel.targetFrame.setBounds(targetFrameBounds);
-					productionPanel.targetFrame.setBackground(new Color(0, 0, 0, 0));
-
-					final JPanel localTargetFrame = productionPanel.targetFrame;
-					runBuilder.addRunnable(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.add(localTargetFrame);
-						}
-					});
-				}
-			}
+			targetPresenter.update(modelOver, runBuilder);
 			
 			final int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
 			final int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
