@@ -82,6 +82,8 @@ public class ScaleTool implements Tool {
 				
 				productionPanel.editPanelMouseAdapter.targetOver = null;
 				productionPanel.editPanelMouseAdapter.clearTarget2(branchStep2);
+			} else {
+				branchStep2.absorb();
 			}
 			
 			final Cursor cursor = relativePosition.getCursor();
