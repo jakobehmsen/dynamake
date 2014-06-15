@@ -514,7 +514,6 @@ public class LiveModel extends Model {
 			
 			public ModelComponent selection;
 			public Rectangle initialEffectBounds;
-			public Dimension selectionFrameSize;
 			public int selectionFrameHorizontalPosition;
 			public int selectionFrameVerticalPosition;
 			
@@ -822,8 +821,6 @@ public class LiveModel extends Model {
 							}
 						});
 					}
-					
-					selectionFrameSize = ((JComponent)view).getSize();
 
 					final JPanel selectionFrame = productionPanel.selectionFrame;
 					

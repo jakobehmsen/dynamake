@@ -202,7 +202,7 @@ public class EditTool implements Tool {
 			
 			Rectangle newEffectBounds = relativePosition.resize(
 				productionPanel.selectionFrame.getLocation(), 
-				productionPanel.editPanelMouseAdapter.selectionFrameSize, 
+				productionPanel.selectionFrame.getSize(), 
 				mouseDown, 
 				productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), 
 				e.getPoint());
