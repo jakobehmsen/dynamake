@@ -72,8 +72,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		} else
 			prevalentSystem = prevalentSystemFunc.call();
 		
-		if(journalExisted)
-			replay(new PropogationContext(), prevalentSystem, prevalanceDirectory + "/" + journalFile, transactionUndoStack, transactionRedoStack);
+		if(journalExisted) {
+			ArrayList<DualCommand<T>> transactions = readJournal(prevalanceDirectory + "/" + journalFile);
+			replay(transactions, new PropogationContext(), prevalentSystem, transactionUndoStack, transactionRedoStack);
+			// Update the number of enlisted transactions which is used in the snapshotting logic
+			transactionEnlistingCount += transactions.size();
+		}
 	}
 	
 	private static <T> Snapshot<T> loadAndReplay(PropogationContext propCtx, Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath) throws ClassNotFoundException, IOException {
@@ -94,17 +98,30 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		return snapshot;
 	}
 	
-	private static <T> void replay(PropogationContext propCtx, T prevalentSystem, String journalPath, Stack<DualCommand<T>> transactionUndoStack, Stack<DualCommand<T>> transactionRedoStack) throws ClassNotFoundException, IOException {
+	private static <T> ArrayList<DualCommand<T>> readJournal(String journalPath) throws ClassNotFoundException, IOException {
+		ArrayList<DualCommand<T>> transactions = new ArrayList<DualCommand<T>>();
+		
 		FileInputStream fileOutput = new FileInputStream(journalPath);
 		BufferedInputStream bufferedOutput = new BufferedInputStream(fileOutput);
 		
-		while(bufferedOutput.available() != 0) {
-			// Should be read in chunks
-			@SuppressWarnings("resource")
-			ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
-			@SuppressWarnings("unchecked")
-			DualCommand<T> transaction = (DualCommand<T>)objectOutput.readObject();
-			
+		try {
+			while(bufferedOutput.available() != 0) {
+				// Should be read in chunks
+				ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
+				@SuppressWarnings("unchecked")
+				DualCommand<T> transaction = (DualCommand<T>)objectOutput.readObject();
+					
+				transactions.add(transaction);
+			}
+		} finally {
+			bufferedOutput.close();
+		}
+		
+		return transactions;
+	}
+	
+	private static <T> void replay(ArrayList<DualCommand<T>> transactions, PropogationContext propCtx, T prevalentSystem, Stack<DualCommand<T>> transactionUndoStack, Stack<DualCommand<T>> transactionRedoStack) {
+		for(DualCommand<T> transaction: transactions) {
 			// Probably, there should an extra layer of interface here, where there are three implementations:
 			// One for undo
 			// One for redo
@@ -123,10 +140,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				transactionUndoStack.remove(i);
 				transactionToUndo.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>(null));
 				transactionRedoStack.push(transactionToUndo);
-				
-//				DualCommand<T> transactionToUndo = transactionUndoStack.pop();
-//				transactionToUndo.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
-//				transactionRedoStack.push(transactionToUndo);
 			} else if(transaction instanceof RedoTransaction) {
 				RedoTransaction<T> redoTransaction = (RedoTransaction<T>)transaction;
 				
@@ -140,18 +153,17 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				transactionRedoStack.remove(i);
 				transactionToRedo.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>(null));
 				transactionUndoStack.add(transactionToRedo);
-				
-//				DualCommand<T> transactionToRedo = transactionRedoStack.pop();
-//				transactionToRedo.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>());
-//				transactionUndoStack.push(transactionToRedo);
 			} else {
 				transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>(null));
 				transactionUndoStack.push(transaction);
 				transactionRedoStack.clear();
 			}
 		}
-		
-		bufferedOutput.close();
+	}
+	
+	private static <T> void replay(PropogationContext propCtx, T prevalentSystem, String journalPath, Stack<DualCommand<T>> transactionUndoStack, Stack<DualCommand<T>> transactionRedoStack) throws ClassNotFoundException, IOException {
+		ArrayList<DualCommand<T>> transactions = readJournal(journalPath);
+		replay(transactions, new PropogationContext(), prevalentSystem, transactionUndoStack, transactionRedoStack);
 	}
 	
 	private static class Snapshot<T> implements Serializable {
@@ -669,7 +681,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 									b.doAbsorb();
 									
 									b.sendFinished();
-									System.out.println("b is leaf and was implicitly absorbed");
+//									System.out.println("b is leaf and was implicitly absorbed");
 								}
 							}
 						});
