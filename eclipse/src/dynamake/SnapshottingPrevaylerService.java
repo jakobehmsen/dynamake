@@ -508,26 +508,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		private boolean isAbsorbed;
-
-//		@Override
-//		public void absorb() {
-//			System.out.println("explicit absorb was called on " + this);
-//			
-////			System.out.println("Request absorb for " + this);
-////			this.prevaylerService.transactionExecutor.execute(new Runnable() {
-////				@Override
-////				public void run() {
-//////					System.out.println("Performing absorb for " + Branch.this);
-////					if(isClosed) {
-////						doAbsorb();
-////						
-////						sendFinished();
-////					} else {
-////						System.out.println("Attempted to explicitly absorb unclosed branch.");
-////					}
-////				}
-////			});
-//		}
 		
 		private boolean hasSentFinished;
 		
@@ -565,12 +545,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		private void checkAbsorbed() {
 			if(absorbedBranches.size() == branches.size()) {
 				doAbsorb();
-//				if(parent != null) {
-//					parent.absorbBranch(Branch.this);
-//				} else {
-//					// Every effect has been absorbed
-//					commit(null);
-//				}
 				
 				sendFinished();
 			}
@@ -663,7 +637,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 							if(branches.size() == 0) {
 								// Branch is leaf
 								doAbsorb();
-								System.out.println("implicit absorb was called on " + this);
+//								System.out.println("implicit absorb was called on " + this);
 								sendFinished();
 							} else {
 								checkAbsorbed();
@@ -701,10 +675,13 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 								b.isClosed = true;
 								
 								if(b.branches.size() > 0) {
-									// Branch may have been absorbed at this point
-//									if(!b.isAbsorbed) {
-										b.checkAbsorbed();
-//									}
+									b.checkAbsorbed();
+								} else {
+									// If b is leaf
+									b.doAbsorb();
+									
+									b.sendFinished();
+									System.out.println("b is leaf and was implicitly absorbed");
 								}
 							}
 						});
@@ -730,25 +707,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				ArrayList<Observer> observers, Object change,
 				PropogationContext propCtx, int nextPropDistance,
 				int nextChangeDistance) {
-			int branchCount = 0;
-			for(Observer observer: observers) {
-				if(observer instanceof Model)
-					branchCount++;
-			}
-			
 			for(int i = 0; i < observers.size(); i++) {
 				Observer observer = observers.get(i);
 				PropogationContext propCtxBranch = propCtx.branch();
 				@SuppressWarnings("unchecked")
 				PrevaylerServiceBranch<Model> innerBranch = (PrevaylerServiceBranch<Model>)this;
 				observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, innerBranch);
-			}
-			
-			if(branchCount == 0) {
-//				this.absorb();
-				PrevaylerServiceBranch<T> innerBranch = this.branch();
-				innerBranch.close();
-//				innerBranch.absorb();
 			}
 		}
 		

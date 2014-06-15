@@ -22,6 +22,8 @@ public class DejectTransaction implements Command<Model> {
 		Model target = (Model)targetLocation.getChild(prevalentSystem);
 		
 		source.deject(target);
+		
+		// TODO: Consider whether a change should be sent out here
 	}
 	
 	@Override

@@ -194,14 +194,7 @@ public abstract class Model implements Serializable, Observer {
 			
 			observable.addObserver(observer);
 			
-			// No side effect may be provoked in addObserver, thus no implicit absorbtion of branch occurs
-			// Absorb branch explicitly here
-			PrevaylerServiceBranch<Model> innerBranch = branch.branch();
-			innerBranch.close();
-//			innerBranch.absorb();
-			
 			// TODO: Consider whether a change should be sent out here
-			// If so, then the explicit absorbtion here must be removed
 		}
 		
 		@Override
@@ -230,14 +223,7 @@ public abstract class Model implements Serializable, Observer {
 			
 			observable.removeObserver(observer);
 			
-			// No side effect may be provoked in addObserver, thus no implicit absorbtion of branch occurs
-			// Absorb branch here
-			PrevaylerServiceBranch<Model> innerBranch = branch.branch();
-			innerBranch.close();
-//			innerBranch.absorb();
-			
 			// TODO: Consider whether a change should be sent out here
-			// If so, then the explicit absorbtion here must be removed
 		}
 		
 		@Override
@@ -250,7 +236,6 @@ public abstract class Model implements Serializable, Observer {
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
 		if(change instanceof SetProperty && changeDistance == 1) {
 			// Side-effect
-			
 			PrevaylerServiceBranch<Model> innerBranch = branch.branch();
 			final SetProperty setProperty = (SetProperty)change;
 			
@@ -268,6 +253,7 @@ public abstract class Model implements Serializable, Observer {
 			});
 			innerBranch.close();
 		} else if(change instanceof TellProperty && changeDistance == 1) {
+			// Side-effect
 			PrevaylerServiceBranch<Model> innerBranch = branch.branch();
 			
 			TellProperty tellProperty = (TellProperty)change;
@@ -276,23 +262,13 @@ public abstract class Model implements Serializable, Observer {
 				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0, innerBranch);
 
 			innerBranch.close();
-			
-//			if(value == null) {
-//				innerBranch.absorb();
-//			}
 		} else {
 			modelChanged(sender, change, propCtx, propDistance, changeDistance, branch);
 		}
 	}
 	
 	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
-		absorbBranch(branch);
-	}
-	
-	public void absorbBranch(PrevaylerServiceBranch<Model> branch) {
-		PrevaylerServiceBranch<Model> innerBranch = branch.branch();
-		innerBranch.close();
-//		innerBranch.absorb();
+
 	}
 	
 	public static class RemovableListener implements Binding<Model> {

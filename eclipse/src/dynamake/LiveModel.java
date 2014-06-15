@@ -766,6 +766,7 @@ public class LiveModel extends Model {
 						MouseAdapter mouseAdapter = new MouseAdapter() {
 							@Override
 							public void mouseMoved(MouseEvent e) {
+								// Should be e.getSource() instead of productionPanel.selectionFrame?
 								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
 								e.setSource(productionPanel);
 								

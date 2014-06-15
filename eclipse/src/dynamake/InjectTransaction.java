@@ -23,9 +23,7 @@ public class InjectTransaction implements Command<Model> {
 		
 		source.inject(target);
 		
-		PrevaylerServiceBranch<Model> innerBranch = branch.branch();
-		innerBranch.close();
-//		innerBranch.absorb();
+		// TODO: Consider whether a change should be sent out here
 	}
 	
 	@Override
