@@ -5,7 +5,6 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.Serializable;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -205,45 +204,6 @@ public class Primitive extends Model {
 					receiver.sendChanged(new Model.TellProperty(Model.PROPERTY_COLOR), propCtx, propDistance, 0, branch);
 				}
 			},
-		};
-	}
-	
-	public static Factory[] getImplementationsFromModels(final Location modelLocation) {
-		return new Factory[] {
-			new Factory() {
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public String getName() {
-					return "Mark Visit";
-				}
-				
-				@Override
-				public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
-					final Model model = (Model)modelLocation.getChild(rootModel);
-					
-					return new Implementation() {
-						/**
-						 * 
-						 */
-						private static final long serialVersionUID = 1L;
-
-						@Override
-						public String getName() {
-							return "Mark Visit";
-						}
-						
-						@Override
-						public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
-							propCtx.markVisitedBy(model);
-							receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch);
-						}
-					};
-				}
-			}
 		};
 	}
 	
