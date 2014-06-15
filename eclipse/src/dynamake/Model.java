@@ -388,81 +388,20 @@ public abstract class Model implements Serializable, Observer {
 		int nextPropDistance = propDistance + 1;
 		observersToAdd = new ArrayList<Observer>();
 		observersToRemove = new ArrayList<Observer>();
-
-		// Possible improvement: Only create branches if having multiple observers which may create side effects to the prop. ctx
 		
-		/**
-		
-		How to recognize dead-ends?
-		Should each observer tell back, somehow, whether the change was (or will be) absorbed?
-		- Proactive or reactive?
-		
-		- Proactive: something like:
-		observer.absorbsOnly(change) => boolean
-		
-		- Reactive: something like:
-		
-		observer.changed(..., new Action1<Boolean>() {
-			void call(Boolean wasAbsorbed) {
-				...
+		if(!branch.isIsolated()) {
+			for(Observer observer: observers) {
+				PropogationContext propCtxBranch = propCtx.branch();
+				observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch);
 			}
-		});
-		
-		or, in the observer.changed method:
-		
-		propCtx.absorb()
-		
-		Should the logic of recognizing dead-end propogations be here? 
-		- Or perhaps in PrevaylerService? - implicitly through PropogationContext
-		
-		Doesn't matter in the long run, because it is just refactored if found unsatisfactory
-		So, what requires the fewest steps right now?
-		-  Probably propCtx.absorb()
-		
-		*/
-		
-		branch.sendChangeToObservers(this, observers, change, propCtx, nextPropDistance, nextChangeDistance);
-
-//		if(isolateSideEffects) {
-//			for(Observer observer: observers) {
-//				if(!(observer instanceof Model)) {
-//					PropogationContext propCtxBranch = propCtx.branch();
-//					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connection, branch);
-//				}
-//			}
-//		} else {
-//			int branchCount = 0;
-//			for(Observer observer: observers) {
-//				if(observer instanceof Model)
-//					branchCount++;
-//			}
-//			
-//			if(connection != null) {
-//				for(int i = 0; i < observers.size(); i++) {
-//					Observer observer = observers.get(i);
-//					PrevaylerServiceConnection<Model> connectionBranch;
-//					connectionBranch = connection;
-//					PropogationContext propCtxBranch = propCtx.branch();
-//					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, branch);
-//				}
-//			} else if(branch != null) {
-//				for(int i = 0; i < observers.size(); i++) {
-//					Observer observer = observers.get(i);
-//					PrevaylerServiceConnection<Model> connectionBranch;
-//					connectionBranch = connection;
-//					PropogationContext propCtxBranch = propCtx.branch();
-//					PrevaylerServiceBranch<Model> innerBranch;
-//					if(observer instanceof Model)
-//						innerBranch = branch.branch();
-//					else
-//						innerBranch = branch;
-//					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, connectionBranch, innerBranch);
-//				}
-//				if(branchCount == 0) {
-//					branch.absorb();
-//				}
-//			}
-//		}
+		} else {
+			for(Observer observer: observers) {
+				if(!(observer instanceof Model)) {
+					PropogationContext propCtxBranch = propCtx.branch();
+					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch);
+				}
+			}
+		}
 		
 		for(Observer observerToAdd: observersToAdd) {
 			observers.add(observerToAdd);

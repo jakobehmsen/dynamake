@@ -227,10 +227,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public IsolatedBranch(PrevaylerServiceBranch<T> parent) {
 			this.parent = parent;
 		}
-
-//		@Override
-//		public void absorb() { }
-
+		
 		@Override
 		public void reject() { }
 
@@ -244,20 +241,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 
 		@Override
 		public void close() { }
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void sendChangeToObservers(Model sender,
-				ArrayList<Observer> observers, Object change,
-				PropogationContext propCtx, int nextPropDistance,
-				int nextChangeDistance) {
-			for(Observer observer: observers) {
-				if(!(observer instanceof Model)) {
-					PropogationContext propCtxBranch = propCtx.branch();
-					observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, (PrevaylerServiceBranch<Model>)this);
-				}
-			}
-		}
 		
 		@Override
 		public PrevaylerServiceBranch<T> isolatedBranch() {
@@ -277,6 +260,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		@Override
 		public void setOnFinishedBuilder(RunBuilder finishedBuilder) { 
 			this.finishedBuilder = finishedBuilder;
+		}
+		
+		@Override
+		public boolean isIsolated() {
+			return true;
 		}
 	}
 	
@@ -703,20 +691,6 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		@Override
-		public void sendChangeToObservers(Model sender,
-				ArrayList<Observer> observers, Object change,
-				PropogationContext propCtx, int nextPropDistance,
-				int nextChangeDistance) {
-			for(int i = 0; i < observers.size(); i++) {
-				Observer observer = observers.get(i);
-				PropogationContext propCtxBranch = propCtx.branch();
-				@SuppressWarnings("unchecked")
-				PrevaylerServiceBranch<Model> innerBranch = (PrevaylerServiceBranch<Model>)this;
-				observer.changed(sender, change, propCtxBranch, nextPropDistance, nextChangeDistance, innerBranch);
-			}
-		}
-		
-		@Override
 		public PrevaylerServiceBranch<T> isolatedBranch() {
 			return new IsolatedBranch<T>(this);
 		}
@@ -750,6 +724,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					Branch.this.finishBuilder = finishedBuilder;
 				}
 			});
+		}
+
+		@Override
+		public boolean isIsolated() {
+			return false;
 		}
 	}
 	
