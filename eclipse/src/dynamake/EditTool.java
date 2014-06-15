@@ -48,8 +48,6 @@ public class EditTool implements Tool {
 			targetPresenter.reset(branchStep2);
 			targetPresenter = null;
 			
-//			boolean absorbBranch = false;
-			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.editPanelMouseAdapter.getEffectFrameBounds())) {
 				final TransactionFactory selectionTransactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
 				if(relativePosition.isInCenter() &&
@@ -105,9 +103,7 @@ public class EditTool implements Tool {
 						}
 					});
 				}
-			}/* else {
-				absorbBranch = true;
-			}*/
+			}
 			
 			final Cursor cursor = relativePosition.getCursor();
 			final JPanel localSelectionFrame = productionPanel.selectionFrame;
@@ -123,9 +119,6 @@ public class EditTool implements Tool {
 			
 			productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 			branchStep2.close();
-			
-//			if(absorbBranch)
-//				branchStep2.absorb();
 			
 			mouseDown = null;
 		}
