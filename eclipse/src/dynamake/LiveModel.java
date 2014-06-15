@@ -750,10 +750,11 @@ public class LiveModel extends Model {
 				
 				if(this.selection != null) {
 					if(productionPanel.selectionFrame == null) {
-						productionPanel.selectionFrame = new JPanel();
-						productionPanel.selectionFrame.setBackground(new Color(0, 0, 0, 0));
+						final JPanel localSelectionFrame = new JPanel();
+						
+						localSelectionFrame.setBackground(new Color(0, 0, 0, 0));
 
-						productionPanel.selectionFrame.setBorder(
+						localSelectionFrame.setBorder(
 							BorderFactory.createCompoundBorder(
 								BorderFactory.createLineBorder(Color.BLACK, 1), 
 								BorderFactory.createCompoundBorder(
@@ -766,11 +767,10 @@ public class LiveModel extends Model {
 						MouseAdapter mouseAdapter = new MouseAdapter() {
 							@Override
 							public void mouseMoved(MouseEvent e) {
-								// Should be e.getSource() instead of productionPanel.selectionFrame?
-								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
 								e.setSource(productionPanel);
 								
-								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners())
+								for(MouseMotionListener l: productionPanel.getMouseMotionListeners())
 									l.mouseMoved(e);
 							}
 
@@ -780,44 +780,44 @@ public class LiveModel extends Model {
 
 							@Override
 							public void mousePressed(MouseEvent e) {
-								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
 								e.setSource(productionPanel);
 								
-								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners())
+								for(MouseListener l: productionPanel.getMouseListeners())
 									l.mousePressed(e);
 							}
 
 							@Override
 							public void mouseDragged(MouseEvent e) {
-								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
 								e.setSource(productionPanel);
 								
-								for(MouseMotionListener l: EditPanelMouseAdapter.this.productionPanel.getMouseMotionListeners())
+								for(MouseMotionListener l: productionPanel.getMouseMotionListeners())
 									l.mouseDragged(e);
 							}
 
 							@Override
 							public void mouseReleased(MouseEvent e) {
-								e.translatePoint(productionPanel.selectionFrame.getX(), productionPanel.selectionFrame.getY());
+								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
 								e.setSource(productionPanel);
 								
-								for(MouseListener l: EditPanelMouseAdapter.this.productionPanel.getMouseListeners())
+								for(MouseListener l: productionPanel.getMouseListeners())
 									l.mouseReleased(e);
 							}
 						};
 						
-						productionPanel.selectionFrame.addMouseListener(mouseAdapter);
-						productionPanel.selectionFrame.addMouseMotionListener(mouseAdapter);
-
-						final JPanel selectionFrame = productionPanel.selectionFrame; 
+						localSelectionFrame.addMouseListener(mouseAdapter);
+						localSelectionFrame.addMouseMotionListener(mouseAdapter);
 						
 						if(productionPanel.effectFrame != null)
 							System.out.println("Effect frame was there before selection was added");
 
+						productionPanel.selectionFrame = localSelectionFrame;
+						
 						branch.onFinished(new Runnable() {
 							@Override
 							public void run() {
-								productionPanel.add(selectionFrame);
+								productionPanel.add(localSelectionFrame);
 //								System.out.println("Added selectionFrame");
 							}
 						});
