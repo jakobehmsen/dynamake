@@ -47,29 +47,8 @@ public class TellTool implements Tool {
 
 		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
-			if(productionPanel.editPanelMouseAdapter.output != null) {
-				PropogationContext propCtx = new PropogationContext();
-				
-				branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
-					public DualCommand<Model> createDualCommand() {
-						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-						return new DualCommandPair<Model>(
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-						);
-					}
-					
-					@Override
-					public void createDualCommands(
-							List<DualCommand<Model>> dualCommands) {
-						dualCommands.add(createDualCommand());
-					}
-				});
-			}
-			
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
-//			productionPanel.livePanel.repaint();
 		}
 		
 		branchStep1.close();
