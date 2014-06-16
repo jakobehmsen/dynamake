@@ -253,6 +253,24 @@ public class LiveModel extends Model {
 			);
 		}
 		
+		public static DualCommand<Model> createDualForward(LiveModel.LivePanel livePanel, Location outputLocation) {
+			return new DualCommandPair<Model>(
+				new SetOutput(livePanel.getTransactionFactory().getModelLocation(), outputLocation), 
+				new Command.Null<Model>()
+			);
+		}
+		
+		public static DualCommand<Model> createDualBackward(LiveModel.LivePanel livePanel) {
+			Location currentOutputLocation = null;
+			if(livePanel.productionPanel.editPanelMouseAdapter.output != null)
+				currentOutputLocation = livePanel.productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
+			
+			return new DualCommandPair<Model>(
+				new Command.Null<Model>(), 
+				new SetOutput(livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
+			);
+		}
+		
 		@Override
 		public boolean occurredWithin(Location location) {
 			return true;

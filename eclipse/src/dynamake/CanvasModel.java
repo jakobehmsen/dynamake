@@ -336,6 +336,8 @@ public class CanvasModel extends Model {
 							// Clear the current selection which is, here, assumed to the child
 							livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
 							
+							dualCommands.add(LiveModel.SetOutput.createDual(livePanel, null));
+							
 							int indexOfModel = model.indexOfModel(child.getModelBehind());
 							Location canvasLocation = transactionFactory.getModelLocation();
 							

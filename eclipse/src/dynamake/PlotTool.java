@@ -72,6 +72,8 @@ public class PlotTool implements Tool {
 							branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 								@Override
 								public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+									dualCommands.add(LiveModel.SetOutput.createDualBackward(productionPanel.livePanel));
+									
 									CanvasModel target = (CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind();
 									Location targetLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
 									int indexOfWrapper = target.getModelCount() - componentsWithinBounds.size();
@@ -92,7 +94,7 @@ public class PlotTool implements Tool {
 										new UnwrapTransaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
 									));
 									
-									dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, wrapperLocation));
+									dualCommands.add(LiveModel.SetOutput.createDualForward(productionPanel.livePanel, wrapperLocation));
 								}
 							});
 							
@@ -181,22 +183,6 @@ public class PlotTool implements Tool {
 		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 		
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		
-		if(productionPanel.editPanelMouseAdapter.output != null) {
-			branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
-				@Override
-				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-					ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-					
-					dualCommands.add(
-						new DualCommandPair<Model>(
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-						)
-					);
-				}
-			});
-		}
 		
 		if(modelOver.getModelBehind() instanceof CanvasModel) {
 			mouseDown = e.getPoint();
