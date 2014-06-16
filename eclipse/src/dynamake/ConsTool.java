@@ -112,24 +112,6 @@ public class ConsTool implements Tool {
 		
 		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		
-		if(productionPanel.editPanelMouseAdapter.output != null) {
-			PropogationContext propCtx = new PropogationContext();
-
-			branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
-				@Override
-				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-					ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-					
-					dualCommands.add(
-						new DualCommandPair<Model>(
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-						)
-					);
-				}
-			});
-		}
 
 		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
