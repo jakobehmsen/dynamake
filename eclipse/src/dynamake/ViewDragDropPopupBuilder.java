@@ -71,6 +71,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 						ModelComponent container = ModelComponent.Util.getParent(selection);
 						if(!container.getModelBehind().conformsToView(Model.VIEW_ENGINEERING)) {
 							((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
+							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, null)); // Absolute location
 						}
 						
 						dualCommands.add(new DualCommandPair<Model>(

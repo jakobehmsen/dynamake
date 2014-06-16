@@ -570,12 +570,20 @@ public class CanvasModel extends Model {
 									}
 								});
 								
-								int zOrder = view.shownModels.size();
+								ArrayList<Model> shownModelsSequence = new ArrayList<Model>();
+								
 								for(int i = 0; i < models.size(); i++) {
 									Model m = models.get(i);
 									
 									if(view.shownModels.contains(m))
-										zOrder--;
+										shownModelsSequence.add(m);
+								}
+								
+								int zOrder = shownModelsSequence.size();
+								for(int i = 0; i < shownModelsSequence.size(); i++) {
+									zOrder--;
+									
+									Model m = shownModelsSequence.get(i);
 									
 									if(m == sender)
 										break;
