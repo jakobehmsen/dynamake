@@ -120,21 +120,6 @@ public class ScaleTool implements Tool {
 			PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 			branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
-			if(productionPanel.editPanelMouseAdapter.output != null) {
-				PropogationContext propCtx = new PropogationContext();
-				
-				branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
-					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-						dualCommands.add(new DualCommandPair<Model>(
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-							new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-						));
-					}
-				});
-			}
-			
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
 			relativePosition = new RelativePosition(referencePoint, ((JComponent)targetModelComponent).getSize());
