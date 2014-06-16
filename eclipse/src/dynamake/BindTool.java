@@ -96,26 +96,6 @@ public class BindTool implements Tool {
 		final PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 		
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		
-		if(productionPanel.editPanelMouseAdapter.output != null) {
-			PropogationContext propCtx = new PropogationContext();
-
-			branchStep1.execute(propCtx, new DualCommandFactory<Model>() {
-				public DualCommand<Model> createDualCommand() {
-					ModelLocation currentOutputLocation = productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-					return new DualCommandPair<Model>(
-						new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), null),
-						new SetOutput(productionPanel.livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-					);
-				}
-				
-				@Override
-				public void createDualCommands(
-						List<DualCommand<Model>> dualCommands) {
-					dualCommands.add(createDualCommand());
-				}
-			});
-		}
 
 		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
