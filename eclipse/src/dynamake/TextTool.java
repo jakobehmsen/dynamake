@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -95,5 +96,11 @@ public class TextTool implements Tool {
 			
 			branch.close();
 		}
+	}
+
+	@Override
+	public void paint(Graphics g) {
+		// TODO Auto-generated method stub
+		
 	}
 }

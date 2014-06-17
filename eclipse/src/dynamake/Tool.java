@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 
 public interface Tool {
@@ -14,4 +15,6 @@ public interface Tool {
 	void mousePressed(LiveModel.ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver);
 
 	void mouseDragged(LiveModel.ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver);
+
+	void paint(Graphics g);
 }

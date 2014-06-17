@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -57,5 +58,11 @@ public class ViewTool implements Tool {
 	@Override
 	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 
+	}
+
+	@Override
+	public void paint(Graphics g) {
+		// TODO Auto-generated method stub
+		
 	}
 }

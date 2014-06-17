@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 
 import dynamake.LiveModel.ProductionPanel;
@@ -26,4 +27,10 @@ public class RedoTool implements Tool {
 
 	@Override
 	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
+
+	@Override
+	public void paint(Graphics g) {
+		// TODO Auto-generated method stub
+		
+	}
 }

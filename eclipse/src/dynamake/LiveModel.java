@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -574,6 +575,9 @@ public class LiveModel extends Model {
 						
 						@Override
 						public String getName() { return null; }
+						
+						@Override
+						public void paint(Graphics g) { }
 					};
 				}
 			}
@@ -1099,7 +1103,12 @@ public class LiveModel extends Model {
 			this.setOpaque(true);
 			this.setBackground(new Color(0, 0, 0, 0));
 		}
-
+		
+		@Override
+		public void paintComponent(Graphics g) {
+			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonPressed).paint(g);
+		}
+		
 		public void clearFocus(PrevaylerServiceBranch<Model> branch) {
 			if(selectionFrame != null) {
 				if(selectionBoundsBinding != null)
