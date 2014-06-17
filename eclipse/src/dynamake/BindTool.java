@@ -103,6 +103,11 @@ public class BindTool implements Tool {
 			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
 		}
 		
+		// TODO: Consider whether to do the following:
+		// Clear the output here on branchStep1
+		// The same for all other tools
+		// Create code to be reused across all tools for this
+		
 		targetPresenter = new TargetPresenter(
 			productionPanel,
 			new TargetPresenter.Behavior() {

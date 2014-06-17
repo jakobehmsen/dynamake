@@ -103,6 +103,17 @@ public class EditTool implements Tool {
 						}
 					});
 				}
+			} else {
+				PropogationContext propCtx = new PropogationContext();
+				
+				final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
+				
+				branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+					@Override
+					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, selection.getTransactionFactory().getModelLocation()));
+					}
+				});
 			}
 			
 			final Cursor cursor = relativePosition.getCursor();
