@@ -123,6 +123,7 @@ public class Main {
 					new TellTool(),
 					new ViewTool(),
 					new ScaleTool(),
+					new TextTool(),
 					new UndoTool(),
 					new RedoTool()
 				}; 
