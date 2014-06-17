@@ -66,6 +66,11 @@ public class TextTool implements Tool {
 				}
 			});
 			
+			/*
+			Select modelOver
+			Change the selected  
+			*/
+			
 			branch.close();
 		}
 	}
