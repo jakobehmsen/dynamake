@@ -3,13 +3,11 @@ package dynamake;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import dynamake.LiveModel.ProductionPanel;
-import dynamake.LiveModel.SetOutput;
 
 public class ViewTool implements Tool {
 	@Override

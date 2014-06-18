@@ -18,7 +18,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import dynamake.LiveModel.ProductionPanel;
-import dynamake.LiveModel.SetOutput;
 
 public class PlotTool implements Tool {
 	@Override
@@ -178,7 +177,6 @@ public class PlotTool implements Tool {
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver) {
-		PropogationContext propCtx = new PropogationContext();
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
 		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();

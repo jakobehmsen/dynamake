@@ -13,7 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dynamake.LiveModel.ProductionPanel;
-import dynamake.LiveModel.SetOutput;
 
 public class ScaleTool implements Tool {
 	@Override

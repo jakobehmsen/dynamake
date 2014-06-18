@@ -5,13 +5,11 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import dynamake.LiveModel.ProductionPanel;
-import dynamake.LiveModel.SetOutput;
 
 public class DragTool implements Tool {
 	@Override

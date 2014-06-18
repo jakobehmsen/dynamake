@@ -11,7 +11,6 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import dynamake.LiveModel.ProductionPanel;
-import dynamake.LiveModel.SetOutput;
 
 public class BindTool implements Tool {
 	@Override
