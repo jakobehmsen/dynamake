@@ -1104,10 +1104,23 @@ public class LiveModel extends Model {
 			this.setBackground(new Color(0, 0, 0, 0));
 		}
 		
-		@Override
-		public void paintComponent(Graphics g) {
-			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonPressed).paint(g);
-		}
+//		@Override
+//		public void paintComponent(Graphics g) {
+//			super.paintComponent(g);
+//			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonPressed).paint(g);
+//		}
+//		
+//		@Override
+//		public void paintComponents(Graphics g) {
+//			super.paintComponents(g);
+//			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonPressed).paint(g);
+//		}
+		
+//		@Override
+//		public void paint(Graphics g) {
+//			super.paint(g);
+//			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonPressed).paint(g);
+//		}
 		
 		public void clearFocus(PrevaylerServiceBranch<Model> branch) {
 			if(selectionFrame != null) {
