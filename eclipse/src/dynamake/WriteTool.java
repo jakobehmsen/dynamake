@@ -3,11 +3,11 @@ package dynamake;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -20,7 +20,8 @@ public class WriteTool implements Tool {
 		return "Write";
 	}
 	
-//	private ArrayList<Point> shape;
+	private ModelComponent targetModel;
+	private ArrayList<Point> points;
 	private Path2D.Double shape;
 
 	@Override
@@ -34,11 +35,53 @@ public class WriteTool implements Tool {
 	}
 
 	@Override
-	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+		final ArrayList<Point> pointsForCreation = points;
+		final Rectangle creationBoundsInProductionPanelSource = shape.getBounds();
+		final Rectangle creationBoundsInProductionPanel = 
+			new Rectangle(creationBoundsInProductionPanelSource.x, creationBoundsInProductionPanelSource.y, creationBoundsInProductionPanelSource.width + 1, creationBoundsInProductionPanelSource.height + 1);
+		
+		for(int i = 0; i < pointsForCreation.size(); i++) {
+			Point p = pointsForCreation.get(i);
+			p = new Point(p.x - creationBoundsInProductionPanel.x, p.y - creationBoundsInProductionPanel.y);
+			pointsForCreation.set(i, p);
+		}
+		
+		points = null;
 		shape = null;
 		
+		final Rectangle creationBoundsInSelection = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)targetModel);
+		
+		final ModelComponent target = targetModel;
+		targetModel = null;
+		
 		PrevaylerServiceBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+		
+		PropogationContext propCtx = new PropogationContext();
+		
+		if(target.getModelBehind() instanceof CanvasModel) {
+			branch.execute(propCtx, new DualCommandFactory<Model>() {
+				@Override
+				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
+					Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
+					int index = canvasModel.getModelCount();
+					Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
+					Factory factory = new ShapeModelFactory(pointsForCreation);
+					// The location for Output depends on the side effect of add
+					
+					dualCommands.add(new DualCommandPair<Model>(
+						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInSelection, factory), 
+						new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+					));
+					
+					dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
+				}
+			});
+		} else if(target.getModelBehind() instanceof ShapeModel) {
+			// ????
+		}
 		
 		branch.onFinished(new Runnable() {
 			@Override
@@ -51,39 +94,33 @@ public class WriteTool implements Tool {
 	}
 
 	@Override
-	public void mousePressed(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		shape = new Path2D.Double();
+	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+		targetModel = modelOver;
 		
+		points = new ArrayList<Point>();
+		shape = new Path2D.Double();
+		points.add(e.getPoint());
 		shape.moveTo(e.getX(), e.getY());
 		
-		PrevaylerServiceBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
-		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		
-		branch.onFinished(new Runnable() {
+		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-
+				productionPanel.livePanel.repaint();
 			}
 		});
-		
-		branch.close();
 	}
 
 	@Override
-	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+		points.add(e.getPoint());
 		shape.lineTo(e.getX(), e.getY());
 		
-		PrevaylerServiceBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
-		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		
-		branch.onFinished(new Runnable() {
+		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-
+				productionPanel.livePanel.repaint();
 			}
 		});
-		
-		branch.close();
 	}
 
 	@Override

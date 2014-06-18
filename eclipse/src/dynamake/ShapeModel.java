@@ -17,8 +17,12 @@ public class ShapeModel extends Model {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private ArrayList<Point> points = new ArrayList<Point>();
+	private ArrayList<Point> points;
 	
+	public ShapeModel(ArrayList<Point> points) {
+		this.points = points;
+	}
+
 	private static class ShapeView extends JComponent implements ModelComponent {
 		/**
 		 * 
@@ -111,6 +115,8 @@ public class ShapeModel extends Model {
 
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, TransactionFactory transactionFactory) {
+		this.setLocation(transactionFactory.getModelLocator());
+		
 		final ShapeView view = new ShapeView(this, transactionFactory);
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
@@ -130,8 +136,6 @@ public class ShapeModel extends Model {
 
 	@Override
 	public Model modelCloneIsolated() {
-		ShapeModel clone = new ShapeModel();
-		clone.points.addAll(this.points);
-		return clone;
+		return new ShapeModel(new ArrayList<>(this.points));
 	}
 }
