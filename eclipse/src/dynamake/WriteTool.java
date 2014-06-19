@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -23,6 +24,7 @@ public class WriteTool implements Tool {
 	private ModelComponent targetModel;
 	private ArrayList<Point> points;
 	private Path2D.Double shape;
+	private TargetPresenter targetPresenter;
 
 	@Override
 	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -57,6 +59,9 @@ public class WriteTool implements Tool {
 		
 		PrevaylerServiceBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+		
+		targetPresenter.reset(branch);
+		targetPresenter = null;
 		
 		PropogationContext propCtx = new PropogationContext();
 		
@@ -102,12 +107,30 @@ public class WriteTool implements Tool {
 		points.add(e.getPoint());
 		shape.moveTo(e.getX(), e.getY());
 		
-		SwingUtilities.invokeLater(new Runnable() {
+		RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+		
+		runBuilder.addRunnable(new Runnable() {
 			@Override
-			public void run() {
-				productionPanel.livePanel.repaint();
-			}
+			public void run() { }
 		});
+		targetPresenter = new TargetPresenter(
+			productionPanel,
+			new TargetPresenter.Behavior() {
+				@Override
+				public Color getColorForTarget(ModelComponent target) {
+					return ProductionPanel.TARGET_OVER_COLOR;
+				}
+				
+				@Override
+				public boolean acceptsTarget(ModelComponent target) {
+					return true;
+				}
+			}
+		);
+		
+		targetPresenter.update(targetModel, runBuilder);
+		
+		runBuilder.execute();
 	}
 
 	@Override
@@ -115,12 +138,16 @@ public class WriteTool implements Tool {
 		points.add(e.getPoint());
 		shape.lineTo(e.getX(), e.getY());
 		
-		SwingUtilities.invokeLater(new Runnable() {
+		RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+		
+		runBuilder.addRunnable(new Runnable() {
 			@Override
-			public void run() {
-				productionPanel.livePanel.repaint();
-			}
+			public void run() { }
 		});
+		
+//		targetPresenter.update(modelOver, runBuilder);
+		
+		runBuilder.execute();
 	}
 
 	@Override
