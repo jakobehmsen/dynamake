@@ -31,6 +31,13 @@ public interface ModelComponent {
 				component = component.getParent();
 			return (ModelComponent)component;
 		}
+
+		public static ModelComponent closestCanvasModelComponent(ModelComponent view) {
+			Component parent = ((Component)view).getParent();
+			while(parent != null && !(parent instanceof ModelComponent) && !(((ModelComponent)parent).getModelBehind() instanceof CanvasModel))
+				parent = parent.getParent();
+			return (ModelComponent)parent;
+		}
 	}
 
 	DualCommandFactory<Model> getImplicitDropAction(ModelComponent target);

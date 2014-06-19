@@ -16,11 +16,11 @@ public class ShapeModel extends Model {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	public final ArrayList<ArrayList<Point>> pointsList;
 	
-	private ArrayList<Point> points;
-	
-	public ShapeModel(ArrayList<Point> points) {
-		this.points = points;
+	public ShapeModel(ArrayList<ArrayList<Point>> pointsList) {
+		this.pointsList = pointsList;
 	}
 
 	private static class ShapeView extends JComponent implements ModelComponent {
@@ -31,18 +31,23 @@ public class ShapeModel extends Model {
 		
 		private ShapeModel model;
 		private TransactionFactory transactionFactory;
-		private Path2D.Double viewShape;
+		private ArrayList<Path2D.Double> viewShapes;
 
 		public ShapeView(ShapeModel model, TransactionFactory transactionFactory) {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
 			
-			viewShape = new Path2D.Double();
+			viewShapes = new ArrayList<Path2D.Double>();
 			
-			viewShape.moveTo(model.points.get(0).x, model.points.get(0).y);
-			
-			for(int i = 1; i < model.points.size(); i++)
-				viewShape.lineTo(model.points.get(i).x, model.points.get(i).y);
+			for(ArrayList<Point> points: model.pointsList) {
+				Path2D.Double viewShape = new Path2D.Double();
+				viewShape.moveTo(points.get(0).x, points.get(0).y);
+				
+				for(int i = 1; i < points.size(); i++)
+					viewShape.lineTo(points.get(i).x, points.get(i).y);
+				
+				viewShapes.add(viewShape);
+			}
 		}
 
 		@Override
@@ -109,7 +114,8 @@ public class ShapeModel extends Model {
 		
 		@Override
 		protected void paintComponent(Graphics g) {
-			((Graphics2D)g).draw(viewShape);
+			for(Path2D.Double viewShape: viewShapes)
+				((Graphics2D)g).draw(viewShape);
 		}
 	}
 
@@ -136,6 +142,6 @@ public class ShapeModel extends Model {
 
 	@Override
 	public Model modelCloneIsolated() {
-		return new ShapeModel(new ArrayList<>(this.points));
+		return new ShapeModel(new ArrayList<>(this.pointsList));
 	}
 }

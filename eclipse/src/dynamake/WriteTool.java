@@ -43,6 +43,7 @@ public class WriteTool implements Tool {
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		final ArrayList<Point> pointsForCreation = points;
+		// Deriving bounds for shape composition is different than the below:
 		final Rectangle creationBoundsInProductionPanelSource = shape.getBounds();
 		final Rectangle creationBoundsInProductionPanel = 
 			new Rectangle(creationBoundsInProductionPanelSource.x, creationBoundsInProductionPanelSource.y, creationBoundsInProductionPanelSource.width + 1, creationBoundsInProductionPanelSource.height + 1);
@@ -80,7 +81,9 @@ public class WriteTool implements Tool {
 					Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
 					int index = canvasModel.getModelCount();
 					Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
-					Factory factory = new ShapeModelFactory(pointsForCreation);
+					ArrayList<ArrayList<Point>> pointsList = new ArrayList<ArrayList<Point>>();
+					pointsList.add(pointsForCreation);
+					Factory factory = new ShapeModelFactory(pointsList);
 					// The location for Output depends on the side effect of add
 					
 					dualCommands.add(new DualCommandPair<Model>(
@@ -93,6 +96,31 @@ public class WriteTool implements Tool {
 			});
 		} else if(target.getModelBehind() instanceof ShapeModel) {
 			// ????
+			
+			ShapeModel targetShape = (ShapeModel)target.getModelBehind();
+			final ArrayList<ArrayList<Point>> pointsList = new ArrayList<ArrayList<Point>>();
+			pointsList.addAll(targetShape.pointsList);
+			pointsList.add(pointsForCreation);
+			
+			branch.execute(propCtx, new DualCommandFactory<Model>() {
+				@Override
+				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					ModelComponent canvasModelComponent = ModelComponent.Util.closestCanvasModelComponent(target);
+					CanvasModel canvasModel = (CanvasModel)canvasModelComponent.getModelBehind();
+					Location canvasModelLocation = canvasModelComponent.getTransactionFactory().getModelLocation();
+					int index = canvasModel.getModelCount();
+					Location addedModelLocation = canvasModelComponent.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
+					Factory factory = new ShapeModelFactory(pointsList);
+					// The location for Output depends on the side effect of add
+					
+					dualCommands.add(new DualCommandPair<Model>(
+						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInSelection, factory), 
+						new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+					));
+					
+					dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
+				}
+			});
 		}
 		
 		branch.onFinished(new Runnable() {
