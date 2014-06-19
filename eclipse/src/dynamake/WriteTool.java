@@ -80,7 +80,9 @@ public class WriteTool implements Tool {
 					Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
 					int index = canvasModel.getModelCount();
 					Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
-					Factory factory = new ShapeModelFactory(pointsForCreation);
+					ArrayList<ArrayList<Point>> pointsList = new ArrayList<ArrayList<Point>>();
+					pointsList.add(pointsForCreation);
+					Factory factory = new ShapeModelFactory(pointsList);
 					// The location for Output depends on the side effect of add
 					
 					dualCommands.add(new DualCommandPair<Model>(
@@ -93,6 +95,25 @@ public class WriteTool implements Tool {
 			});
 		} else if(target.getModelBehind() instanceof ShapeModel) {
 			// ????
+			
+//			branch.execute(propCtx, new DualCommandFactory<Model>() {
+//				@Override
+//				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//					CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
+//					Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
+//					int index = canvasModel.getModelCount();
+//					Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
+//					Factory factory = new ShapeModelFactory(pointsForCreation);
+//					// The location for Output depends on the side effect of add
+//					
+//					dualCommands.add(new DualCommandPair<Model>(
+//						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInSelection, factory), 
+//						new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+//					));
+//					
+//					dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
+//				}
+//			});
 		}
 		
 		branch.onFinished(new Runnable() {
