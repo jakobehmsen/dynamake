@@ -8,6 +8,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -25,6 +26,9 @@ public class WriteTool implements Tool {
 	private ArrayList<Point> points;
 	private Path2D.Double shape;
 	private TargetPresenter targetPresenter;
+	
+	private int maxPointCount;
+	private Hashtable<ModelComponent, Integer> targetToPointCountMap;
 
 	@Override
 	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -54,8 +58,11 @@ public class WriteTool implements Tool {
 		
 		final Rectangle creationBoundsInSelection = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)targetModel);
 		
-		final ModelComponent target = targetModel;
+//		final ModelComponent target = targetModel;
+		final ModelComponent target = targetMaxPoints;
 		targetModel = null;
+		
+		disposeTargetPointCounts();
 		
 		PrevaylerServiceBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
@@ -97,10 +104,45 @@ public class WriteTool implements Tool {
 		
 		branch.close();
 	}
+	
+	private ModelComponent targetMaxPoints;
+	
+	private void initializeTargetPointCounts() {
+		targetToPointCountMap = new Hashtable<ModelComponent, Integer>();
+		maxPointCount = 0;
+		targetMaxPoints = null;
+	}
+	
+	private void disposeTargetPointCounts() {
+		targetToPointCountMap = null;
+		targetMaxPoints = null;
+	}
+	
+	private void incrementTargetPointCount(ModelComponent target) {
+		Integer targetPointCount = targetToPointCountMap.get(target);
+		
+		if(targetPointCount == null)
+			targetPointCount = 1;
+		else
+			targetPointCount++;
+		
+		targetToPointCountMap.put(target, targetPointCount);
+		
+		if(targetPointCount > maxPointCount) {
+			maxPointCount = targetPointCount;
+			
+			if(target != targetMaxPoints ) {
+				targetMaxPoints = target;
+			}
+		}
+	}
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		targetModel = modelOver;
+
+		initializeTargetPointCounts();
+		incrementTargetPointCount(modelOver);
 		
 		points = new ArrayList<Point>();
 		shape = new Path2D.Double();
@@ -128,7 +170,7 @@ public class WriteTool implements Tool {
 			}
 		);
 		
-		targetPresenter.update(targetModel, runBuilder);
+		targetPresenter.update(targetMaxPoints, runBuilder);
 		
 		runBuilder.execute();
 	}
@@ -145,7 +187,9 @@ public class WriteTool implements Tool {
 			public void run() { }
 		});
 		
-//		targetPresenter.update(modelOver, runBuilder);
+		incrementTargetPointCount(modelOver);
+		
+		targetPresenter.update(targetMaxPoints, runBuilder);
 		
 		runBuilder.execute();
 	}
