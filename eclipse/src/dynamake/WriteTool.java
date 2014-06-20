@@ -138,14 +138,26 @@ public class WriteTool implements Tool {
 					int yDelta = creationBoundsInProductionPanel.y - creationBoundsInContainerBoth.y;
 					Point newOffset = new Point(creationBoundsInProductionPanel.x - xDelta, creationBoundsInProductionPanel.y - yDelta);
 					shapes.add(new ShapeModel.ShapeInfo(newOffset, pointsForCreation));
-//					pointsList.addAll(targetShape.pointsList);
 					
 					CanvasModel canvasModel = (CanvasModel)canvasModelComponent.getModelBehind();
 					Location canvasModelLocation = canvasModelComponent.getTransactionFactory().getModelLocation();
-					int index = canvasModel.getModelCount();
+					int index = canvasModel.getModelCount() - 1;
 					Location addedModelLocation = canvasModelComponent.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
 					Factory factory = new ShapeModelFactory(shapes);
 					// The location for Output depends on the side effect of add
+
+					int targetShapeIndex = canvasModel.indexOfModel(targetShape);
+					Rectangle targetShapeBounds = new Rectangle(
+						((Number)targetShape.getProperty("X")).intValue(),
+						((Number)targetShape.getProperty("Y")).intValue(),
+						((Number)targetShape.getProperty("Width")).intValue(),
+						((Number)targetShape.getProperty("Height")).intValue()
+					);
+
+					dualCommands.add(new DualCommandPair<Model>(
+						new CanvasModel.RemoveModelTransaction(canvasModelLocation, targetShapeIndex), // Relative location
+						new CanvasModel.AddModelTransaction(canvasModelLocation, targetShapeBounds, new ShapeModelFactory(targetShape.shapes))
+					));
 					
 					dualCommands.add(new DualCommandPair<Model>(
 						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInContainerBoth, factory), 
