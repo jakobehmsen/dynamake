@@ -52,7 +52,12 @@ public class WriteTool implements Tool {
 		// Deriving bounds for shape composition is different than the below:
 		final Rectangle creationBoundsInProductionPanelSource = shape.getBounds();
 		final Rectangle creationBoundsInProductionPanel = 
-			new Rectangle(creationBoundsInProductionPanelSource.x, creationBoundsInProductionPanelSource.y, creationBoundsInProductionPanelSource.width + 1, creationBoundsInProductionPanelSource.height + 1);
+			new Rectangle(
+				creationBoundsInProductionPanelSource.x - ShapeModel.STROKE_SIZE, 
+				creationBoundsInProductionPanelSource.y - ShapeModel.STROKE_SIZE, 
+				creationBoundsInProductionPanelSource.width + ShapeModel.STROKE_SIZE * 2, 
+				creationBoundsInProductionPanelSource.height + ShapeModel.STROKE_SIZE * 2
+		);
 		
 //		for(int i = 0; i < pointsForCreation.size(); i++) {
 //			Point p = pointsForCreation.get(i);
@@ -426,6 +431,7 @@ public class WriteTool implements Tool {
 	public void paint(Graphics g) {
 //		System.out.println("Print write: " + shape);
 		
+		ShapeModel.setupGraphics(g);
 		((Graphics2D)g).draw(shape);
 	}
 }
