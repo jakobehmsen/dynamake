@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Path2D;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.swing.JComponent;
@@ -16,11 +17,26 @@ public class ShapeModel extends Model {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	public final ArrayList<ArrayList<Point>> pointsList;
 	
-	public ShapeModel(ArrayList<ArrayList<Point>> pointsList) {
-		this.pointsList = pointsList;
+	public static class ShapeInfo implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		public final Point offset; // Offset relative to immediate container
+		public final ArrayList<Point> points; // All points are relative to sketching in live panel
+		
+		public ShapeInfo(Point offset, ArrayList<Point> points) {
+			this.offset = offset;
+			this.points = points;
+		}
+	}
+
+	public final ArrayList<ShapeInfo> shapes;
+	
+	public ShapeModel(ArrayList<ShapeInfo> shapes) {
+		this.shapes = shapes;
 	}
 
 	private static class ShapeView extends JComponent implements ModelComponent {
@@ -39,12 +55,16 @@ public class ShapeModel extends Model {
 			
 			viewShapes = new ArrayList<Path2D.Double>();
 			
-			for(ArrayList<Point> points: model.pointsList) {
+			for(ShapeInfo shape: model.shapes) {
 				Path2D.Double viewShape = new Path2D.Double();
-				viewShape.moveTo(points.get(0).x, points.get(0).y);
 				
-				for(int i = 1; i < points.size(); i++)
-					viewShape.lineTo(points.get(i).x, points.get(i).y);
+				Point p = shape.points.get(0);
+				viewShape.moveTo(p.x - shape.offset.x, p.y - shape.offset.y);
+				
+				for(int i = 1; i < shape.points.size(); i++) {
+					p = shape.points.get(i);
+					viewShape.lineTo(p.x - shape.offset.x, p.y - shape.offset.y);
+				}
 				
 				viewShapes.add(viewShape);
 			}
@@ -142,6 +162,6 @@ public class ShapeModel extends Model {
 
 	@Override
 	public Model modelCloneIsolated() {
-		return new ShapeModel(new ArrayList<>(this.pointsList));
+		return new ShapeModel(new ArrayList<ShapeInfo>(this.shapes));
 	}
 }

@@ -16,14 +16,14 @@ public class ShapeModelFactory implements Factory {
 		return "Shape";
 	}
 	
-	private ArrayList<ArrayList<Point>> pointsList;
+	private ArrayList<ShapeModel.ShapeInfo> shapes;
 
-	public ShapeModelFactory(ArrayList<ArrayList<Point>> pointsList) {
-		this.pointsList = pointsList;
+	public ShapeModelFactory(ArrayList<ShapeModel.ShapeInfo> shapes) {
+		this.shapes = shapes;
 	}
 
 	@Override
 	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
-		return new ShapeModel(pointsList);
+		return new ShapeModel(shapes);
 	}
 }

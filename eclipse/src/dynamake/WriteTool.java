@@ -48,16 +48,14 @@ public class WriteTool implements Tool {
 		final Rectangle creationBoundsInProductionPanel = 
 			new Rectangle(creationBoundsInProductionPanelSource.x, creationBoundsInProductionPanelSource.y, creationBoundsInProductionPanelSource.width + 1, creationBoundsInProductionPanelSource.height + 1);
 		
-		for(int i = 0; i < pointsForCreation.size(); i++) {
-			Point p = pointsForCreation.get(i);
-			p = new Point(p.x - creationBoundsInProductionPanel.x, p.y - creationBoundsInProductionPanel.y);
-			pointsForCreation.set(i, p);
-		}
+//		for(int i = 0; i < pointsForCreation.size(); i++) {
+//			Point p = pointsForCreation.get(i);
+//			p = new Point(p.x - creationBoundsInProductionPanel.x, p.y - creationBoundsInProductionPanel.y);
+//			pointsForCreation.set(i, p);
+//		}
 		
 		points = null;
 		shape = null;
-		
-		final Rectangle creationBoundsInSelection = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)targetModel);
 		
 //		final ModelComponent target = targetModel;
 		final ModelComponent target = targetMaxPoints;
@@ -74,6 +72,8 @@ public class WriteTool implements Tool {
 		PropogationContext propCtx = new PropogationContext();
 		
 		if(target.getModelBehind() instanceof CanvasModel) {
+			final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)target);
+			
 			branch.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -81,13 +81,14 @@ public class WriteTool implements Tool {
 					Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
 					int index = canvasModel.getModelCount();
 					Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
-					ArrayList<ArrayList<Point>> pointsList = new ArrayList<ArrayList<Point>>();
-					pointsList.add(pointsForCreation);
-					Factory factory = new ShapeModelFactory(pointsList);
+					ArrayList<ShapeModel.ShapeInfo> shapes = new ArrayList<ShapeModel.ShapeInfo>();
+//					shapes.add(pointsForCreation);
+					shapes.add(new ShapeModel.ShapeInfo(creationBoundsInProductionPanel.getLocation(), pointsForCreation));
+					Factory factory = new ShapeModelFactory(shapes);
 					// The location for Output depends on the side effect of add
 					
 					dualCommands.add(new DualCommandPair<Model>(
-						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInSelection, factory), 
+						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInContainer, factory), 
 						new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
 					));
 					
@@ -96,31 +97,38 @@ public class WriteTool implements Tool {
 			});
 		} else if(target.getModelBehind() instanceof ShapeModel) {
 			// ????
+//			for(int i = 0; i < pointsForCreation.size(); i++) {
+//				Point p = pointsForCreation.get(i);
+//				p = new Point(p.x - creationBoundsInSelection.x, p.y - creationBoundsInSelection.y);
+//				pointsForCreation.set(i, p);
+//			}
 			
-			ShapeModel targetShape = (ShapeModel)target.getModelBehind();
-			final ArrayList<ArrayList<Point>> pointsList = new ArrayList<ArrayList<Point>>();
-			pointsList.addAll(targetShape.pointsList);
-			pointsList.add(pointsForCreation);
-			
-			branch.execute(propCtx, new DualCommandFactory<Model>() {
-				@Override
-				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-					ModelComponent canvasModelComponent = ModelComponent.Util.closestCanvasModelComponent(target);
-					CanvasModel canvasModel = (CanvasModel)canvasModelComponent.getModelBehind();
-					Location canvasModelLocation = canvasModelComponent.getTransactionFactory().getModelLocation();
-					int index = canvasModel.getModelCount();
-					Location addedModelLocation = canvasModelComponent.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
-					Factory factory = new ShapeModelFactory(pointsList);
-					// The location for Output depends on the side effect of add
-					
-					dualCommands.add(new DualCommandPair<Model>(
-						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInSelection, factory), 
-						new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
-					));
-					
-					dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
-				}
-			});
+//			final ModelComponent canvasModelComponent = ModelComponent.Util.closestCanvasModelComponent(target);
+//			final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)canvasModelComponent);
+//			
+//			ShapeModel targetShape = (ShapeModel)target.getModelBehind();
+//			final ArrayList<ArrayList<Point>> pointsList = new ArrayList<ArrayList<Point>>();
+//			pointsList.addAll(targetShape.pointsList);
+//			pointsList.add(pointsForCreation);
+//			
+//			branch.execute(propCtx, new DualCommandFactory<Model>() {
+//				@Override
+//				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//					CanvasModel canvasModel = (CanvasModel)canvasModelComponent.getModelBehind();
+//					Location canvasModelLocation = canvasModelComponent.getTransactionFactory().getModelLocation();
+//					int index = canvasModel.getModelCount();
+//					Location addedModelLocation = canvasModelComponent.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
+//					Factory factory = new ShapeModelFactory(pointsList);
+//					// The location for Output depends on the side effect of add
+//					
+//					dualCommands.add(new DualCommandPair<Model>(
+//						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInContainer, factory), 
+//						new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+//					));
+//					
+//					dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
+//				}
+//			});
 		}
 		
 		branch.onFinished(new Runnable() {
