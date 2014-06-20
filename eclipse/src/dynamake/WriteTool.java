@@ -82,7 +82,6 @@ public class WriteTool implements Tool {
 					int index = canvasModel.getModelCount();
 					Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
 					ArrayList<ShapeModel.ShapeInfo> shapes = new ArrayList<ShapeModel.ShapeInfo>();
-//					shapes.add(pointsForCreation);
 					shapes.add(new ShapeModel.ShapeInfo(creationBoundsInProductionPanel.getLocation(), pointsForCreation));
 					Factory factory = new ShapeModelFactory(shapes);
 					// The location for Output depends on the side effect of add
@@ -102,33 +101,60 @@ public class WriteTool implements Tool {
 //				p = new Point(p.x - creationBoundsInSelection.x, p.y - creationBoundsInSelection.y);
 //				pointsForCreation.set(i, p);
 //			}
+			final ShapeModel targetShape = (ShapeModel)target.getModelBehind();
 			
-//			final ModelComponent canvasModelComponent = ModelComponent.Util.closestCanvasModelComponent(target);
-//			final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)canvasModelComponent);
-//			
-//			ShapeModel targetShape = (ShapeModel)target.getModelBehind();
-//			final ArrayList<ArrayList<Point>> pointsList = new ArrayList<ArrayList<Point>>();
-//			pointsList.addAll(targetShape.pointsList);
-//			pointsList.add(pointsForCreation);
-//			
-//			branch.execute(propCtx, new DualCommandFactory<Model>() {
-//				@Override
-//				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//					CanvasModel canvasModel = (CanvasModel)canvasModelComponent.getModelBehind();
-//					Location canvasModelLocation = canvasModelComponent.getTransactionFactory().getModelLocation();
-//					int index = canvasModel.getModelCount();
-//					Location addedModelLocation = canvasModelComponent.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
-//					Factory factory = new ShapeModelFactory(pointsList);
-//					// The location for Output depends on the side effect of add
-//					
-//					dualCommands.add(new DualCommandPair<Model>(
-//						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInContainer, factory), 
-//						new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
-//					));
-//					
-//					dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
-//				}
-//			});
+			branch.execute(propCtx, new DualCommandFactory<Model>() {
+				@Override
+				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					
+					final ModelComponent canvasModelComponent = ModelComponent.Util.closestCanvasModelComponent(target);
+					final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)canvasModelComponent);
+					
+					int minX = Math.min(creationBoundsInContainer.x, ((Number)targetShape.getProperty("X")).intValue());
+					int minY = Math.min(creationBoundsInContainer.y, ((Number)targetShape.getProperty("Y")).intValue());
+					int maxRight = Math.max(
+						creationBoundsInContainer.x + creationBoundsInContainer.width, 
+						((Number)targetShape.getProperty("X")).intValue() + ((Number)targetShape.getProperty("Width")).intValue()
+					);
+					int maxBottom = Math.max(
+						creationBoundsInContainer.y + creationBoundsInContainer.height, 
+						((Number)targetShape.getProperty("Y")).intValue() + ((Number)targetShape.getProperty("Height")).intValue()
+					);
+					final Rectangle creationBoundsInContainerBoth = new Rectangle(
+						minX, minY, maxRight - minX, maxBottom - minY
+					);
+					
+
+					ArrayList<ShapeModel.ShapeInfo> shapes = new ArrayList<ShapeModel.ShapeInfo>();
+					for(int i = 0; i < targetShape.shapes.size(); i++) {
+						ShapeModel.ShapeInfo sourceShape = targetShape.shapes.get(i);
+						int xDelta = sourceShape.offset.x - creationBoundsInContainerBoth.x;
+						int yDelta = sourceShape.offset.y - creationBoundsInContainerBoth.y;
+						Point newOffset = new Point(sourceShape.offset.x - xDelta, sourceShape.offset.y - yDelta);
+						ShapeModel.ShapeInfo shape = new ShapeModel.ShapeInfo(newOffset, sourceShape.points);
+						shapes.add(shape);
+					}
+					int xDelta = creationBoundsInProductionPanel.x - creationBoundsInContainerBoth.x;
+					int yDelta = creationBoundsInProductionPanel.y - creationBoundsInContainerBoth.y;
+					Point newOffset = new Point(creationBoundsInProductionPanel.x - xDelta, creationBoundsInProductionPanel.y - yDelta);
+					shapes.add(new ShapeModel.ShapeInfo(newOffset, pointsForCreation));
+//					pointsList.addAll(targetShape.pointsList);
+					
+					CanvasModel canvasModel = (CanvasModel)canvasModelComponent.getModelBehind();
+					Location canvasModelLocation = canvasModelComponent.getTransactionFactory().getModelLocation();
+					int index = canvasModel.getModelCount();
+					Location addedModelLocation = canvasModelComponent.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
+					Factory factory = new ShapeModelFactory(shapes);
+					// The location for Output depends on the side effect of add
+					
+					dualCommands.add(new DualCommandPair<Model>(
+						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInContainerBoth, factory), 
+						new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+					));
+					
+					dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
+				}
+			});
 		}
 		
 		branch.onFinished(new Runnable() {
