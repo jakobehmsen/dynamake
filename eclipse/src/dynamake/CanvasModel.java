@@ -154,7 +154,7 @@ public class CanvasModel extends Model {
 		private static final long serialVersionUID = 1L;
 		private Location canvasLocation;
 		private Rectangle creationBounds;
-		Hashtable<String, Object> creationArgs;
+		private Hashtable<String, Object> creationArgs;
 		private Factory factory;
 		
 		public AddModelTransaction(Location canvasLocation, Rectangle creationBounds, Factory factory) {
@@ -183,6 +183,53 @@ public class CanvasModel extends Model {
 			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, setPropertyBranch);
 			
 			canvas.addModel(model, new PropogationContext(), 0, branch);
+		}
+		
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
+	}
+	
+	public static class AddModelAtTransaction implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location canvasLocation;
+		private Rectangle creationBounds;
+		private Hashtable<String, Object> creationArgs;
+		private Factory factory;
+		private int index;
+		
+		public AddModelAtTransaction(Location canvasLocation, Rectangle creationBounds, Factory factory, int index) {
+			this.canvasLocation = canvasLocation;
+			this.creationBounds = creationBounds;
+			this.factory = factory;
+			this.creationArgs = new Hashtable<String, Object>();
+			this.index = index;
+		}
+		
+		public AddModelAtTransaction(Location canvasLocation, Rectangle creationBounds, Hashtable<String, Object> creationArgs, Factory factory, int index) {
+			this.canvasLocation = canvasLocation;
+			this.creationBounds = creationBounds;
+			this.creationArgs = creationArgs;
+			this.factory = factory;
+			this.index = index;
+		}
+		
+		@Override
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, branch);
+
+			PrevaylerServiceBranch<Model> setPropertyBranch = branch.isolatedBranch();
+			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, setPropertyBranch);
+			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, setPropertyBranch);
+			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, setPropertyBranch);
+			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, setPropertyBranch);
+			
+			canvas.addModel(index, model, new PropogationContext(), 0, branch);
 		}
 		
 		@Override

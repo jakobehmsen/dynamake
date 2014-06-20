@@ -8,10 +8,16 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dynamake.LiveModel.ProductionPanel;
@@ -58,25 +64,30 @@ public class WriteTool implements Tool {
 		shape = null;
 		
 //		final ModelComponent target = targetModel;
-		final ModelComponent target = targetMaxPoints;
+//		final ModelComponent target = targetMaxPoints;
+//		final ModelComponent target = getTargets().iterator().next();
 		targetModel = null;
 		
-		disposeTargetPointCounts();
+//		disposeTargetPointCounts();
 		
-		PrevaylerServiceBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+		final PrevaylerServiceBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
-		targetPresenter.reset(branch);
-		targetPresenter = null;
+//		targetPresenter.reset(branch);
+//		targetPresenter = null;
 		
 		PropogationContext propCtx = new PropogationContext();
 		
-		if(target.getModelBehind() instanceof CanvasModel) {
+		if(targetIsCanvas()) {
+			final ModelComponent target = getTargets().iterator().next();
 			final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)target);
 			
 			branch.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					productionPanel.livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
+					dualCommands.add(LiveModel.SetOutput.createDualBackward(productionPanel.livePanel));
+					
 					CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 					Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
 					int index = canvasModel.getModelCount();
@@ -91,83 +102,104 @@ public class WriteTool implements Tool {
 						new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
 					));
 					
-					dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
+					dualCommands.add(LiveModel.SetOutput.createDualForward(productionPanel.livePanel, addedModelLocation));
 				}
 			});
-		} else if(target.getModelBehind() instanceof ShapeModel) {
-			// ????
-//			for(int i = 0; i < pointsForCreation.size(); i++) {
-//				Point p = pointsForCreation.get(i);
-//				p = new Point(p.x - creationBoundsInSelection.x, p.y - creationBoundsInSelection.y);
-//				pointsForCreation.set(i, p);
-//			}
-			final ShapeModel targetShape = (ShapeModel)target.getModelBehind();
+		} else if(getTargets().size() > 0) {
+			final ModelComponent canvasModelComponent = canvas;
+			final Collection<ModelComponent> targets = getTargets();
 			
 			branch.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					productionPanel.livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
+					dualCommands.add(LiveModel.SetOutput.createDualBackward(productionPanel.livePanel));
+
+					ArrayList<Rectangle> bounds = new ArrayList<Rectangle>();
 					
-					final ModelComponent canvasModelComponent = ModelComponent.Util.closestCanvasModelComponent(target);
-					final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)canvasModelComponent);
-					
-					int minX = Math.min(creationBoundsInContainer.x, ((Number)targetShape.getProperty("X")).intValue());
-					int minY = Math.min(creationBoundsInContainer.y, ((Number)targetShape.getProperty("Y")).intValue());
-					int maxRight = Math.max(
-						creationBoundsInContainer.x + creationBoundsInContainer.width, 
-						((Number)targetShape.getProperty("X")).intValue() + ((Number)targetShape.getProperty("Width")).intValue()
-					);
-					int maxBottom = Math.max(
-						creationBoundsInContainer.y + creationBoundsInContainer.height, 
-						((Number)targetShape.getProperty("Y")).intValue() + ((Number)targetShape.getProperty("Height")).intValue()
-					);
-					final Rectangle creationBoundsInContainerBoth = new Rectangle(
-						minX, minY, maxRight - minX, maxBottom - minY
-					);
-					
+					for(ModelComponent target: targets) {
+						ShapeModel targetShape = (ShapeModel)target.getModelBehind();
+						Rectangle targetShapeBoundsInContainer = new Rectangle(
+							((Number)targetShape.getProperty("X")).intValue(),
+							((Number)targetShape.getProperty("Y")).intValue(),
+							((Number)targetShape.getProperty("Width")).intValue(),
+							((Number)targetShape.getProperty("Height")).intValue()
+						);
+						Rectangle targetShapeBoundsInProductionPanel = SwingUtilities.convertRectangle((JComponent)canvasModelComponent, targetShapeBoundsInContainer, productionPanel);
+						bounds.add(targetShapeBoundsInProductionPanel);
+					}
+					bounds.add(creationBoundsInProductionPanel);
+					final Rectangle creationBoundsAllInProductionPanel = getBoundsForAll(bounds);
 
 					ArrayList<ShapeModel.ShapeInfo> shapes = new ArrayList<ShapeModel.ShapeInfo>();
-					for(int i = 0; i < targetShape.shapes.size(); i++) {
-						ShapeModel.ShapeInfo sourceShape = targetShape.shapes.get(i);
-						int xDelta = sourceShape.offset.x - creationBoundsInContainerBoth.x;
-						int yDelta = sourceShape.offset.y - creationBoundsInContainerBoth.y;
-						Point newOffset = new Point(sourceShape.offset.x - xDelta, sourceShape.offset.y - yDelta);
-						ShapeModel.ShapeInfo shape = new ShapeModel.ShapeInfo(newOffset, sourceShape.points);
-						shapes.add(shape);
+					
+					for(ModelComponent target: targets) {
+						ShapeModel targetShape = (ShapeModel)target.getModelBehind();
+						for(int i = 0; i < targetShape.shapes.size(); i++) {
+							ShapeModel.ShapeInfo sourceShape = targetShape.shapes.get(i);
+							int xDelta = sourceShape.offset.x - creationBoundsAllInProductionPanel.x;
+							int yDelta = sourceShape.offset.y - creationBoundsAllInProductionPanel.y;
+							Point newOffset = new Point(sourceShape.offset.x - xDelta, sourceShape.offset.y - yDelta);
+							ShapeModel.ShapeInfo shape = new ShapeModel.ShapeInfo(newOffset, sourceShape.points);
+							shapes.add(shape);
+						}
 					}
-					int xDelta = creationBoundsInProductionPanel.x - creationBoundsInContainerBoth.x;
-					int yDelta = creationBoundsInProductionPanel.y - creationBoundsInContainerBoth.y;
+					
+					int xDelta = creationBoundsInProductionPanel.x - creationBoundsAllInProductionPanel.x;
+					int yDelta = creationBoundsInProductionPanel.y - creationBoundsAllInProductionPanel.y;
 					Point newOffset = new Point(creationBoundsInProductionPanel.x - xDelta, creationBoundsInProductionPanel.y - yDelta);
 					shapes.add(new ShapeModel.ShapeInfo(newOffset, pointsForCreation));
 					
+					final Rectangle creationBoundsAllInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsAllInProductionPanel, (JComponent)canvasModelComponent);
+					
 					CanvasModel canvasModel = (CanvasModel)canvasModelComponent.getModelBehind();
 					Location canvasModelLocation = canvasModelComponent.getTransactionFactory().getModelLocation();
-					int index = canvasModel.getModelCount() - 1;
+					int index = canvasModel.getModelCount() - targets.size();
 					Location addedModelLocation = canvasModelComponent.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
 					Factory factory = new ShapeModelFactory(shapes);
 					// The location for Output depends on the side effect of add
+					
+					TreeMap<Integer, ModelComponent> targetsToRemove = new TreeMap<Integer, ModelComponent>();
 
-					int targetShapeIndex = canvasModel.indexOfModel(targetShape);
-					Rectangle targetShapeBounds = new Rectangle(
-						((Number)targetShape.getProperty("X")).intValue(),
-						((Number)targetShape.getProperty("Y")).intValue(),
-						((Number)targetShape.getProperty("Width")).intValue(),
-						((Number)targetShape.getProperty("Height")).intValue()
-					);
+					for(ModelComponent target: targets) {
+						int targetShapeIndex = canvasModel.indexOfModel(target.getModelBehind());
+						targetsToRemove.put(targetShapeIndex, target);
+					}
 
-					dualCommands.add(new DualCommandPair<Model>(
-						new CanvasModel.RemoveModelTransaction(canvasModelLocation, targetShapeIndex), // Relative location
-						new CanvasModel.AddModelTransaction(canvasModelLocation, targetShapeBounds, new ShapeModelFactory(targetShape.shapes))
-					));
+					for(int targetShapeIndex: targetsToRemove.descendingKeySet()) {
+						ModelComponent target = targetsToRemove.get(targetShapeIndex);
+						
+						ShapeModel targetShape = (ShapeModel)target.getModelBehind();
+						
+						Rectangle targetShapeBoundsInContainer = new Rectangle(
+							((Number)targetShape.getProperty("X")).intValue(),
+							((Number)targetShape.getProperty("Y")).intValue(),
+							((Number)targetShape.getProperty("Width")).intValue(),
+							((Number)targetShape.getProperty("Height")).intValue()
+						);
+	
+						dualCommands.add(new DualCommandPair<Model>(
+							new CanvasModel.RemoveModelTransaction(canvasModelLocation, targetShapeIndex), // Relative location
+							new CanvasModel.AddModelAtTransaction(canvasModelLocation, targetShapeBoundsInContainer, new ShapeModelFactory(targetShape.shapes), targetShapeIndex)
+						));
+					}
 					
 					dualCommands.add(new DualCommandPair<Model>(
-						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInContainerBoth, factory), 
+						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsAllInContainer, factory), 
 						new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
 					));
 					
-					dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
+					dualCommands.add(LiveModel.SetOutput.createDualForward(productionPanel.livePanel, addedModelLocation));
 				}
 			});
 		}
+		
+		endMoveOver(productionPanel, new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				branch.onFinished(runnable);
+			}
+		});
 		
 		branch.onFinished(new Runnable() {
 			@Override
@@ -179,44 +211,162 @@ public class WriteTool implements Tool {
 		branch.close();
 	}
 	
-	private ModelComponent targetMaxPoints;
-	
-	private void initializeTargetPointCounts() {
-		targetToPointCountMap = new Hashtable<ModelComponent, Integer>();
-		maxPointCount = 0;
-		targetMaxPoints = null;
-	}
-	
-	private void disposeTargetPointCounts() {
-		targetToPointCountMap = null;
-		targetMaxPoints = null;
-	}
-	
-	private void incrementTargetPointCount(ModelComponent target) {
-		Integer targetPointCount = targetToPointCountMap.get(target);
+	private Rectangle getBoundsForAll(ArrayList<Rectangle> bounds) {
+		int minX = bounds.get(0).x;
+		int minY = bounds.get(0).y;
+		int maxRight = bounds.get(0).x + bounds.get(0).width;
+		int maxBottom = bounds.get(0).y + bounds.get(0).height;
 		
-		if(targetPointCount == null)
-			targetPointCount = 1;
-		else
-			targetPointCount++;
-		
-		targetToPointCountMap.put(target, targetPointCount);
-		
-		if(targetPointCount > maxPointCount) {
-			maxPointCount = targetPointCount;
+		for(Rectangle b: bounds) {
+			int currentMinX = b.x;
+			int currentMinY = b.y;
+			int currentMaxRight = b.x + b.width;
+			int currentMaxBottom = b.y + b.height;
 			
-			if(target != targetMaxPoints ) {
-				targetMaxPoints = target;
+			minX = Math.min(minX, currentMinX);
+			minY = Math.min(minY, currentMinY);
+			maxRight = Math.max(maxRight, currentMaxRight);
+			maxBottom = Math.max(maxBottom, currentMaxBottom);
+		}
+		
+		return new Rectangle(minX, minY, maxRight - minX, maxBottom - minY);
+	}
+
+//	private ModelComponent targetMaxPoints;
+//	
+//	private void initializeTargetPointCounts() {
+//		targetToPointCountMap = new Hashtable<ModelComponent, Integer>();
+//		maxPointCount = 0;
+//		targetMaxPoints = null;
+//	}
+//	
+//	private void disposeTargetPointCounts() {
+//		targetToPointCountMap = null;
+//		targetMaxPoints = null;
+//	}
+//	
+//	private void incrementTargetPointCount(ModelComponent target) {
+//		Integer targetPointCount = targetToPointCountMap.get(target);
+//		
+//		if(targetPointCount == null)
+//			targetPointCount = 1;
+//		else
+//			targetPointCount++;
+//		
+//		targetToPointCountMap.put(target, targetPointCount);
+//		
+//		if(targetPointCount > maxPointCount) {
+//			maxPointCount = targetPointCount;
+//			
+//			if(target != targetMaxPoints ) {
+//				targetMaxPoints = target;
+//			}
+//		}
+//	}
+	
+	private ModelComponent canvas;
+	private HashSet<ModelComponent> targets;
+	private Hashtable<ModelComponent, JComponent> targetToTargetFrameMap;
+	private boolean onlyCanvas;
+	
+	private Collection<ModelComponent> getTargets() {
+		return targets;
+	}
+	
+	private boolean targetIsCanvas() {
+		return onlyCanvas;
+	}
+	
+	private void initializeModelOver(ModelComponent canvas) {
+		this.canvas = canvas;
+		targets = new HashSet<ModelComponent>();
+		targetToTargetFrameMap = new Hashtable<ModelComponent, JComponent>();
+		onlyCanvas = false;
+	}
+	
+	private void updateMoveOver(ModelComponent modelOver, final JComponent container, RunBuilder runBuilder) {
+		if(modelOver.getModelBehind() instanceof CanvasModel) {
+			if(targets.size() == 0) {
+				onlyCanvas = true;
+				addTargetFrame(modelOver, container, runBuilder);
+			}
+		} else if(modelOver.getModelBehind() instanceof ShapeModel) {
+			if(onlyCanvas) {
+				targets.clear();
+				onlyCanvas = false;
+				
+				for(final Map.Entry<ModelComponent, JComponent> entry: targetToTargetFrameMap.entrySet()) {
+					runBuilder.addRunnable(new Runnable() {
+						@Override
+						public void run() {
+							container.remove(entry.getValue());
+						}
+					});
+				}
+				targetToTargetFrameMap.clear();
+			}
+			
+			if(!targets.contains(modelOver) /*and contained in the same immediate container*/) {
+				ModelComponent modelOverCanvas = ModelComponent.Util.closestCanvasModelComponent(modelOver);
+				if(modelOverCanvas == canvas) {
+					targets.add(modelOver);
+					addTargetFrame(modelOver, container, runBuilder);
+				}
 			}
 		}
+	}
+	
+	private void addTargetFrame(ModelComponent modelOver, final JComponent container, RunBuilder runBuilder) {
+		targets.add(modelOver);
+		
+		final JPanel targetFrame = new JPanel();
+		final Color color = ProductionPanel.TARGET_OVER_COLOR;
+		targetFrame.setBorder(
+			BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(Color.BLACK, 1), 
+				BorderFactory.createCompoundBorder(
+					BorderFactory.createLineBorder(color, 3), 
+					BorderFactory.createLineBorder(Color.BLACK, 1)
+				)
+			)
+		);
+		
+		Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
+			((JComponent)modelOver).getParent(), ((JComponent)modelOver).getBounds(), container);
+		targetFrame.setBounds(targetFrameBounds);
+		targetFrame.setBackground(new Color(0, 0, 0, 0));
+
+		runBuilder.addRunnable(new Runnable() {
+			@Override
+			public void run() {
+				container.add(targetFrame);
+			}
+		});
+		
+		targetToTargetFrameMap.put(modelOver, targetFrame);
+	}
+	
+	private void endMoveOver(final JComponent container, Runner runner) {
+		canvas = null;
+		targets = null;
+		
+		for(final Map.Entry<ModelComponent, JComponent> entry: targetToTargetFrameMap.entrySet()) {
+			runner.run(new Runnable() {
+				@Override
+				public void run() {
+					container.remove(entry.getValue());
+				}
+			});
+		}
+		targetToTargetFrameMap = null;
 	}
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		targetModel = modelOver;
 
-		initializeTargetPointCounts();
-		incrementTargetPointCount(modelOver);
+//		initializeTargetPointCounts();
+//		incrementTargetPointCount(modelOver);
 		
 		points = new ArrayList<Point>();
 		shape = new Path2D.Double();
@@ -229,22 +379,25 @@ public class WriteTool implements Tool {
 			@Override
 			public void run() { }
 		});
-		targetPresenter = new TargetPresenter(
-			productionPanel,
-			new TargetPresenter.Behavior() {
-				@Override
-				public Color getColorForTarget(ModelComponent target) {
-					return ProductionPanel.TARGET_OVER_COLOR;
-				}
-				
-				@Override
-				public boolean acceptsTarget(ModelComponent target) {
-					return true;
-				}
-			}
-		);
 		
-		targetPresenter.update(targetMaxPoints, runBuilder);
+		initializeModelOver(ModelComponent.Util.closestCanvasModelComponent(modelOver));
+		updateMoveOver(modelOver, productionPanel, runBuilder);
+//		targetPresenter = new TargetPresenter(
+//			productionPanel,
+//			new TargetPresenter.Behavior() {
+//				@Override
+//				public Color getColorForTarget(ModelComponent target) {
+//					return ProductionPanel.TARGET_OVER_COLOR;
+//				}
+//				
+//				@Override
+//				public boolean acceptsTarget(ModelComponent target) {
+//					return true;
+//				}
+//			}
+//		);
+//		
+//		targetPresenter.update(targetMaxPoints, runBuilder);
 		
 		runBuilder.execute();
 	}
@@ -261,9 +414,10 @@ public class WriteTool implements Tool {
 			public void run() { }
 		});
 		
-		incrementTargetPointCount(modelOver);
-		
-		targetPresenter.update(targetMaxPoints, runBuilder);
+//		incrementTargetPointCount(modelOver);
+//		
+//		targetPresenter.update(targetMaxPoints, runBuilder);
+		updateMoveOver(modelOver, productionPanel, runBuilder);
 		
 		runBuilder.execute();
 	}

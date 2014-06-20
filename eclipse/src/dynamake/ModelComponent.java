@@ -33,10 +33,9 @@ public interface ModelComponent {
 		}
 
 		public static ModelComponent closestCanvasModelComponent(ModelComponent view) {
-			Component parent = ((Component)view).getParent();
-			while(parent != null && !(parent instanceof ModelComponent) && !(((ModelComponent)parent).getModelBehind() instanceof CanvasModel))
-				parent = parent.getParent();
-			return (ModelComponent)parent;
+			while(!(((ModelComponent)view).getModelBehind() instanceof CanvasModel))
+				view = closestModelComponent(((Component)view).getParent());
+			return (ModelComponent)view;
 		}
 	}
 
