@@ -20,21 +20,6 @@ public class StrokeModel extends Model {
 	 */
 	private static final long serialVersionUID = 1L;
 	public static final int STROKE_SIZE = 3;
-	
-	public static class ShapeInfo implements Serializable {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		
-		public final Point offset; // Offset relative to immediate container
-		public final ArrayList<Point> points; // All points are relative to sketching in live panel
-		
-		public ShapeInfo(Point offset, ArrayList<Point> points) {
-			this.offset = offset;
-			this.points = points;
-		}
-	}
 
 	public final Point offset;
 	public final ArrayList<Point> points;
@@ -43,8 +28,6 @@ public class StrokeModel extends Model {
 		this.offset = offset;
 		this.points = points;
 	}
-	
-	
 
 	private static class ShapeView extends JComponent implements ModelComponent {
 		/**
@@ -60,7 +43,7 @@ public class StrokeModel extends Model {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
 
-			Path2D.Double viewShape = new Path2D.Double();
+			viewShape = new Path2D.Double();
 			
 			Point p = model.points.get(0);
 			viewShape.moveTo(p.x - model.offset.x, p.y - model.offset.y);
