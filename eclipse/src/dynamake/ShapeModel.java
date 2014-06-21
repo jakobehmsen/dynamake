@@ -41,6 +41,8 @@ public class ShapeModel extends Model {
 	public ShapeModel(ArrayList<ShapeInfo> shapes) {
 		this.shapes = shapes;
 	}
+	
+	
 
 	private static class ShapeView extends JComponent implements ModelComponent {
 		/**

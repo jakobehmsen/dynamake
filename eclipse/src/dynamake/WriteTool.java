@@ -28,13 +28,8 @@ public class WriteTool implements Tool {
 		return "Write";
 	}
 	
-	private ModelComponent targetModel;
 	private ArrayList<Point> points;
 	private Path2D.Double shape;
-	private TargetPresenter targetPresenter;
-	
-	private int maxPointCount;
-	private Hashtable<ModelComponent, Integer> targetToPointCountMap;
 
 	@Override
 	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -59,27 +54,11 @@ public class WriteTool implements Tool {
 				creationBoundsInProductionPanelSource.height + ShapeModel.STROKE_SIZE * 2
 		);
 		
-//		for(int i = 0; i < pointsForCreation.size(); i++) {
-//			Point p = pointsForCreation.get(i);
-//			p = new Point(p.x - creationBoundsInProductionPanel.x, p.y - creationBoundsInProductionPanel.y);
-//			pointsForCreation.set(i, p);
-//		}
-		
 		points = null;
 		shape = null;
 		
-//		final ModelComponent target = targetModel;
-//		final ModelComponent target = targetMaxPoints;
-//		final ModelComponent target = getTargets().iterator().next();
-		targetModel = null;
-		
-//		disposeTargetPointCounts();
-		
 		final PrevaylerServiceBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		
-//		targetPresenter.reset(branch);
-//		targetPresenter = null;
 		
 		PropogationContext propCtx = new PropogationContext();
 		
@@ -236,38 +215,6 @@ public class WriteTool implements Tool {
 		
 		return new Rectangle(minX, minY, maxRight - minX, maxBottom - minY);
 	}
-
-//	private ModelComponent targetMaxPoints;
-//	
-//	private void initializeTargetPointCounts() {
-//		targetToPointCountMap = new Hashtable<ModelComponent, Integer>();
-//		maxPointCount = 0;
-//		targetMaxPoints = null;
-//	}
-//	
-//	private void disposeTargetPointCounts() {
-//		targetToPointCountMap = null;
-//		targetMaxPoints = null;
-//	}
-//	
-//	private void incrementTargetPointCount(ModelComponent target) {
-//		Integer targetPointCount = targetToPointCountMap.get(target);
-//		
-//		if(targetPointCount == null)
-//			targetPointCount = 1;
-//		else
-//			targetPointCount++;
-//		
-//		targetToPointCountMap.put(target, targetPointCount);
-//		
-//		if(targetPointCount > maxPointCount) {
-//			maxPointCount = targetPointCount;
-//			
-//			if(target != targetMaxPoints ) {
-//				targetMaxPoints = target;
-//			}
-//		}
-//	}
 	
 	private ModelComponent canvas;
 	private HashSet<ModelComponent> targets;
@@ -368,11 +315,6 @@ public class WriteTool implements Tool {
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		targetModel = modelOver;
-
-//		initializeTargetPointCounts();
-//		incrementTargetPointCount(modelOver);
-		
 		points = new ArrayList<Point>();
 		shape = new Path2D.Double();
 		points.add(e.getPoint());
@@ -387,22 +329,6 @@ public class WriteTool implements Tool {
 		
 		initializeModelOver(ModelComponent.Util.closestCanvasModelComponent(modelOver));
 		updateMoveOver(modelOver, productionPanel, runBuilder);
-//		targetPresenter = new TargetPresenter(
-//			productionPanel,
-//			new TargetPresenter.Behavior() {
-//				@Override
-//				public Color getColorForTarget(ModelComponent target) {
-//					return ProductionPanel.TARGET_OVER_COLOR;
-//				}
-//				
-//				@Override
-//				public boolean acceptsTarget(ModelComponent target) {
-//					return true;
-//				}
-//			}
-//		);
-//		
-//		targetPresenter.update(targetMaxPoints, runBuilder);
 		
 		runBuilder.execute();
 	}
@@ -418,10 +344,7 @@ public class WriteTool implements Tool {
 			@Override
 			public void run() { }
 		});
-		
-//		incrementTargetPointCount(modelOver);
-//		
-//		targetPresenter.update(targetMaxPoints, runBuilder);
+
 		updateMoveOver(modelOver, productionPanel, runBuilder);
 		
 		runBuilder.execute();
@@ -429,8 +352,6 @@ public class WriteTool implements Tool {
 
 	@Override
 	public void paint(Graphics g) {
-//		System.out.println("Print write: " + shape);
-		
 		ShapeModel.setupGraphics(g);
 		((Graphics2D)g).draw(shape);
 	}

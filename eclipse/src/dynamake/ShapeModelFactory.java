@@ -1,6 +1,5 @@
 package dynamake;
 
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Hashtable;
