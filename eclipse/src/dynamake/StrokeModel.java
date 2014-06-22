@@ -2,17 +2,14 @@ package dynamake;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javax.swing.JComponent;
@@ -47,7 +44,7 @@ public class StrokeModel extends Model {
 		private Path2D.Double viewShape;
 		private float strokeSize;
 		private Path2D.Double viewShapeSource;
-		private Image image;
+//		private Image image;
 		private boolean shouldRefreshViewShape;
 
 		public ShapeView(StrokeModel model, TransactionFactory transactionFactory) {
