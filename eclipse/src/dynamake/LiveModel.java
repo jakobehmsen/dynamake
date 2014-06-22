@@ -988,24 +988,26 @@ public class LiveModel extends Model {
 			public void mousePressed(final MouseEvent e) {
 				final ModelComponent modelOver = getModelOver(e);
 				
-				final int button = e.getButton();
+				productionPanel.editPanelMouseAdapter.buttonPressed = e.getButton();
+				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
+				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
 					public void run() {
-						productionPanel.editPanelMouseAdapter.buttonPressed = button;
-						
-						getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mousePressed(productionPanel, e, modelOver);
+						getTool(localButtonPressed).mousePressed(productionPanel, e, modelOver);
 					}
 				});
 			}
 
 			public void mouseDragged(final MouseEvent e) {
 				final ModelComponent modelOver = getModelOver(e);
+
+				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
 				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
 					public void run() {
-						getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseDragged(productionPanel, e, modelOver);
+						getTool(localButtonPressed).mouseDragged(productionPanel, e, modelOver);
 					}
 				});
 			}
@@ -1013,11 +1015,13 @@ public class LiveModel extends Model {
 			public void mouseReleased(final MouseEvent e) {
 				final ModelComponent modelOver = getModelOver(e);
 				
+				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
+				productionPanel.editPanelMouseAdapter.buttonPressed = 0;
+				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
 					public void run() {
-						getTool(productionPanel.editPanelMouseAdapter.buttonPressed).mouseReleased(productionPanel, e, modelOver);
-						productionPanel.editPanelMouseAdapter.buttonPressed = 0;
+						getTool(localButtonPressed).mouseReleased(productionPanel, e, modelOver);
 					}
 				});
 			}

@@ -26,6 +26,6 @@ public class StrokeModelFactory implements Factory {
 
 	@Override
 	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
-		return new StrokeModel(offset, points);
+		return new StrokeModel(creationBounds.getSize(), offset, points);
 	}
 }

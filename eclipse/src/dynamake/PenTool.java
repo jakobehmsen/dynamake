@@ -43,10 +43,10 @@ public class PenTool implements Tool {
 		final Rectangle creationBoundsInProductionPanelSource = shape.getBounds();
 		final Rectangle creationBoundsInProductionPanel = 
 			new Rectangle(
-				creationBoundsInProductionPanelSource.x - StrokeModel.STROKE_SIZE, 
-				creationBoundsInProductionPanelSource.y - StrokeModel.STROKE_SIZE, 
-				creationBoundsInProductionPanelSource.width + StrokeModel.STROKE_SIZE * 2, 
-				creationBoundsInProductionPanelSource.height + StrokeModel.STROKE_SIZE * 2
+				creationBoundsInProductionPanelSource.x - (int)StrokeModel.STROKE_SIZE, 
+				creationBoundsInProductionPanelSource.y - (int)StrokeModel.STROKE_SIZE, 
+				creationBoundsInProductionPanelSource.width + (int)StrokeModel.STROKE_SIZE * 2, 
+				creationBoundsInProductionPanelSource.height + (int)StrokeModel.STROKE_SIZE * 2
 		);
 		
 		points = null;

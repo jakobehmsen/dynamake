@@ -1,13 +1,16 @@
 package dynamake;
 
 import java.awt.BasicStroke;
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.swing.JComponent;
@@ -19,12 +22,14 @@ public class StrokeModel extends Model {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static final int STROKE_SIZE = 3;
+	public static final float STROKE_SIZE = 3;
 
+	public final Dimension creationSize;
 	public final Point offset;
 	public final ArrayList<Point> points;
 	
-	public StrokeModel(Point offset, ArrayList<Point> points) {
+	public StrokeModel(Dimension creationSize, Point offset, ArrayList<Point> points) {
+		this.creationSize = creationSize;
 		this.offset = offset;
 		this.points = points;
 	}
@@ -38,20 +43,37 @@ public class StrokeModel extends Model {
 		private StrokeModel model;
 		private TransactionFactory transactionFactory;
 		private Path2D.Double viewShape;
+		private float strokeSize;
+		private Path2D.Double viewShapeSource;
+		private Image image;
+		private boolean shouldRefreshViewShape;
 
 		public ShapeView(StrokeModel model, TransactionFactory transactionFactory) {
 			this.model = model;
 			this.transactionFactory = transactionFactory;
 
-			viewShape = new Path2D.Double();
+			viewShapeSource = new Path2D.Double();
 			
 			Point p = model.points.get(0);
-			viewShape.moveTo(p.x - model.offset.x, p.y - model.offset.y);
+			viewShapeSource.moveTo(p.x - model.offset.x, p.y - model.offset.y);
 			
 			for(int i = 1; i < model.points.size(); i++) {
 				p = model.points.get(i);
-				viewShape.lineTo(p.x - model.offset.x, p.y - model.offset.y);
+				viewShapeSource.lineTo(p.x - model.offset.x, p.y - model.offset.y);
 			}
+			
+			shouldRefreshViewShape = true;
+		}
+
+		private void refreshViewShape() {
+			Fraction currentWidth = (Fraction)model.getProperty("Width");
+			Fraction currentHeight = (Fraction)model.getProperty("Height");
+			Fraction scaleWidth = currentWidth.divide(new Fraction(model.creationSize.width));
+			Fraction scaleHeight = currentHeight.divide(new Fraction(model.creationSize.height));
+			viewShape = (Path2D.Double)viewShapeSource.clone();
+			viewShape.transform(AffineTransform.getScaleInstance(scaleWidth.doubleValue(), scaleHeight.doubleValue()));
+			
+			strokeSize = scaleWidth.add(scaleHeight).divide(new Fraction(2)).floatValue() * STROKE_SIZE;
 		}
 
 		@Override
@@ -118,15 +140,22 @@ public class StrokeModel extends Model {
 		
 		@Override
 		protected void paintComponent(Graphics g) {
-			setupGraphics(g);
+			if(shouldRefreshViewShape)
+				refreshViewShape();
+			
+			setupGraphics(g, strokeSize);
 			
 			((Graphics2D)g).draw(viewShape);
 		}
 	}
 	
 	public static void setupGraphics(Graphics g) {
+        setupGraphics(g, STROKE_SIZE);
+	}
+	
+	public static void setupGraphics(Graphics g, float strokeSize) {
 		Graphics2D g2 = (Graphics2D) g;
-        g2.setStroke(new BasicStroke(STROKE_SIZE));
+        g2.setStroke(new BasicStroke(strokeSize));
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 	}
@@ -139,10 +168,29 @@ public class StrokeModel extends Model {
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		
+		final RemovableListener removableListenerForSizeChanges = RemovableListener.addObserver(this, new ObserverAdapter() {
+			@Override
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+				if(change instanceof Model.PropertyChanged
+						&& changeDistance == 1 /* And not a forwarded change */) {
+					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
+					if(propertyChanged.name.equals("Width") || propertyChanged.name.equals("Height")) {
+						branch.onFinished(new Runnable() {
+							@Override
+							public void run() {
+								view.shouldRefreshViewShape = true;
+							}
+						});
+					}
+				}
+			}
+		});
+		
 		return new Binding<ModelComponent>() {
 			@Override
 			public void releaseBinding() {
 				removableListenerForBoundChanges.releaseBinding();
+				removableListenerForSizeChanges.releaseBinding();
 			}
 			
 			@Override
@@ -154,6 +202,6 @@ public class StrokeModel extends Model {
 
 	@Override
 	public Model modelCloneIsolated() {
-		return new StrokeModel(this.offset, new ArrayList<Point>(this.points));
+		return new StrokeModel(this.creationSize, this.offset, new ArrayList<Point>(this.points));
 	}
 }
