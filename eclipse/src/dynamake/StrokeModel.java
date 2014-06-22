@@ -1,6 +1,7 @@
 package dynamake;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -11,6 +12,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javax.swing.JComponent;
@@ -74,6 +76,12 @@ public class StrokeModel extends Model {
 			viewShape.transform(AffineTransform.getScaleInstance(scaleWidth.doubleValue(), scaleHeight.doubleValue()));
 			
 			strokeSize = scaleWidth.add(scaleHeight).divide(new Fraction(2)).floatValue() * STROKE_SIZE;
+			
+//			image = new BufferedImage(currentWidth.intValue(), currentHeight.intValue(), BufferedImage.TYPE_INT_ARGB);
+//			Graphics2D g = (Graphics2D)image.getGraphics();
+//			setupGraphics(g, strokeSize);
+//			g.draw(viewShape);
+//			g.dispose();
 		}
 
 		@Override
@@ -146,6 +154,7 @@ public class StrokeModel extends Model {
 			setupGraphics(g, strokeSize);
 			
 			((Graphics2D)g).draw(viewShape);
+//			g.drawImage(image, 0, 0, null);
 		}
 	}
 	
@@ -156,8 +165,9 @@ public class StrokeModel extends Model {
 	public static void setupGraphics(Graphics g, float strokeSize) {
 		Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(strokeSize));
+        g2.setColor(Color.BLACK);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+//        g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 	}
 
 	@Override

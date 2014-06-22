@@ -182,7 +182,7 @@ public class PenTool implements Tool {
 
 	@Override
 	public void paint(Graphics g) {
-		ShapeModel.setupGraphics(g);
+		StrokeModel.setupGraphics(g);
 		((Graphics2D)g).draw(shape);
 	}
 }
