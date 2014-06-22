@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 
 import javax.swing.JComponent;
@@ -10,6 +11,7 @@ public class RepaintRunBuilder implements RunBuilder {
 	
 	public RepaintRunBuilder(JComponent componentToRepaint) {
 		this.componentToRepaint = componentToRepaint;
+		boundsToRepaint = new Rectangle();
 	}
 
 	private ArrayList<Runnable> runnables = new ArrayList<Runnable>();
@@ -23,14 +25,31 @@ public class RepaintRunBuilder implements RunBuilder {
 					for(Runnable runnable: runnables)
 						runnable.run();
 					
-					componentToRepaint.repaint();
+					componentToRepaint.repaint(boundsToRepaint);
 				}
 			});
 		}
 	}
 	
+	private Rectangle boundsToRepaint;
+	
 	@Override
 	public void addRunnable(Runnable runnable) {
+//		runnables.add(runnable);
+//		boundsToRepaint = componentToRepaint.getBounds();
+		addRunnable(runnable, componentToRepaint.getBounds());
+	}
+	
+	public void addRunnable(Runnable runnable, Rectangle bounds) {
+		int minX = Math.min(boundsToRepaint.x, bounds.x);
+		int minY = Math.min(boundsToRepaint.y, bounds.y);
+		int maxRight = Math.max(boundsToRepaint.x + boundsToRepaint.width, bounds.x + bounds.width);
+		int maxBottom = Math.max(boundsToRepaint.y + boundsToRepaint.height, bounds.y + bounds.height);
+		
+		boundsToRepaint = new Rectangle(
+			minX, minY, maxRight, maxBottom
+		);
+		
 		runnables.add(runnable);
 	}
 }
