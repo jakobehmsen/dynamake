@@ -574,8 +574,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			for(Branch<T> branch: branches)
 				branch.rejectDownwards();
 			
-			if(transaction != null)
-				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, isolatedBranch());
+			if(transaction != null) {
+				// In some cases, there are onFinished registrations made during rejects
+				// These are not handled properly.
+				IsolatedBranch<T> backwardsBranch = (IsolatedBranch<T> )isolatedBranch();
+				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, backwardsBranch);
+			}
 			
 			// TODO: Consider:
 			// What if finished has already been sent?
