@@ -37,18 +37,18 @@ public class RepaintRunBuilder implements RunBuilder {
 	public void addRunnable(Runnable runnable) {
 //		runnables.add(runnable);
 //		boundsToRepaint = componentToRepaint.getBounds();
-		addRunnable(runnable, componentToRepaint.getBounds());
+		addRunnable(runnable, componentToRepaint, componentToRepaint.getBounds());
 	}
 	
-	public void addRunnable(Runnable runnable, Rectangle bounds) {
+	public void addRunnable(Runnable runnable, JComponent referenceComponent, Rectangle bounds) {
+		bounds = SwingUtilities.convertRectangle(referenceComponent, bounds, componentToRepaint);
+		
 		int minX = Math.min(boundsToRepaint.x, bounds.x);
 		int minY = Math.min(boundsToRepaint.y, bounds.y);
 		int maxRight = Math.max(boundsToRepaint.x + boundsToRepaint.width, bounds.x + bounds.width);
 		int maxBottom = Math.max(boundsToRepaint.y + boundsToRepaint.height, bounds.y + bounds.height);
 		
-		boundsToRepaint = new Rectangle(
-			minX, minY, maxRight, maxBottom
-		);
+		boundsToRepaint = new Rectangle(minX, minY, maxRight, maxBottom);
 		
 		runnables.add(runnable);
 	}
