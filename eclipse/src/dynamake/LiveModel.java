@@ -1114,6 +1114,12 @@ public class LiveModel extends Model {
 			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonPressed).paint(g);
 		}
 		
+		@Override
+		public void paintComponent(Graphics g) {
+//			super.paintComponent(g);
+//			System.out.println("paintComponent");
+		}
+		
 		public void clearFocus(PrevaylerServiceBranch<Model> branch) {
 			if(selectionFrame != null) {
 				if(selectionBoundsBinding != null)
@@ -1131,6 +1137,30 @@ public class LiveModel extends Model {
 			}
 		}
 	}
+	
+//	private static class ContentPanel extends JPanel {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//		
+//		private ModelComponent content;
+//		
+//		public ContentPanel(ModelComponent content) {
+//			this.setLayout(new BorderLayout());
+//			
+//			this.content = content;
+//			
+//			this.add((JComponent)content, BorderLayout.CENTER);
+//		}
+//		
+////		@Override
+////		public void paint(Graphics g) {
+////			super.paint(g);
+////			
+//////			super.paintComponent(g);
+////		}
+//	}
 	
 	public static class LivePanel extends JPanel implements ModelComponent {
 		/**
@@ -1228,6 +1258,7 @@ public class LiveModel extends Model {
 			});
 			
 			contentPane.add((JComponent)contentView.getBindingTarget(), JLayeredPane.DEFAULT_LAYER);
+//			contentPane.add(new ContentPanel(contentView.getBindingTarget()), JLayeredPane.DEFAULT_LAYER);
 			
 			this.add(topPanel, BorderLayout.NORTH);
 			this.add(contentPane, BorderLayout.CENTER);

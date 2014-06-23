@@ -145,6 +145,8 @@ public class PenTool implements Tool {
 		
 		canvas = null;
 	}
+	
+	private int i = 0;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -167,15 +169,26 @@ public class PenTool implements Tool {
 
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+		i++;
+		System.out.println(i);
 		points.add(e.getPoint());
 		shape.lineTo(e.getX(), e.getY());
 		
 		RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 		
+		// TODO: Only repaint the area necessary here!!!
+//		final Rectangle creationBoundsInProductionPanelSource = shape.getBounds();
+//		final Rectangle creationBoundsInProductionPanel = 
+//			new Rectangle(
+//				creationBoundsInProductionPanelSource.x - (int)StrokeModel.STROKE_SIZE, 
+//				creationBoundsInProductionPanelSource.y - (int)StrokeModel.STROKE_SIZE, 
+//				creationBoundsInProductionPanelSource.width + (int)StrokeModel.STROKE_SIZE * 2, 
+//				creationBoundsInProductionPanelSource.height + (int)StrokeModel.STROKE_SIZE * 2
+//		);
 		runBuilder.addRunnable(new Runnable() {
 			@Override
 			public void run() { }
-		});
+		});//, productionPanel, creationBoundsInProductionPanel);
 		
 		runBuilder.execute();
 	}

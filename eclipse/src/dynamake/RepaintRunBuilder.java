@@ -26,6 +26,7 @@ public class RepaintRunBuilder implements RunBuilder {
 						runnable.run();
 					
 					componentToRepaint.repaint(boundsToRepaint);
+					System.out.println("boundsToRepaint=" + boundsToRepaint);
 				}
 			});
 		}
@@ -41,14 +42,18 @@ public class RepaintRunBuilder implements RunBuilder {
 	}
 	
 	public void addRunnable(Runnable runnable, JComponent referenceComponent, Rectangle bounds) {
+		int currentX = !boundsToRepaint.isEmpty() ? boundsToRepaint.x : Integer.MAX_VALUE;
+		int currentY = !boundsToRepaint.isEmpty() ? boundsToRepaint.y : Integer.MAX_VALUE;
+		int currentWidth = !boundsToRepaint.isEmpty() ? boundsToRepaint.width : Integer.MIN_VALUE;
+		int currentHeight = !boundsToRepaint.isEmpty() ? boundsToRepaint.height : Integer.MIN_VALUE;
+		
 		bounds = SwingUtilities.convertRectangle(referenceComponent, bounds, componentToRepaint);
+		int minX = Math.min(currentX, bounds.x);
+		int minY = Math.min(currentY, bounds.y);
+		int maxRight = Math.max(currentX + currentWidth, bounds.x + bounds.width);
+		int maxBottom = Math.max(currentY + currentHeight, bounds.y + bounds.height);
 		
-		int minX = Math.min(boundsToRepaint.x, bounds.x);
-		int minY = Math.min(boundsToRepaint.y, bounds.y);
-		int maxRight = Math.max(boundsToRepaint.x + boundsToRepaint.width, bounds.x + bounds.width);
-		int maxBottom = Math.max(boundsToRepaint.y + boundsToRepaint.height, bounds.y + bounds.height);
-		
-		boundsToRepaint = new Rectangle(minX, minY, maxRight, maxBottom);
+		boundsToRepaint = new Rectangle(minX, minY, maxRight - minX, maxBottom - minY);
 		
 		runnables.add(runnable);
 	}
