@@ -19,10 +19,11 @@ public class RepaintRunBuilder implements RunBuilder {
 	@Override
 	public void execute() {
 		if(runnables.size() > 0) {
+			final ArrayList<Runnable> runnablesCopy = new ArrayList<Runnable>(runnables);
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					for(Runnable runnable: runnables)
+					for(Runnable runnable: runnablesCopy)
 						runnable.run();
 					
 					componentToRepaint.repaint(boundsToRepaint);
@@ -56,5 +57,10 @@ public class RepaintRunBuilder implements RunBuilder {
 		boundsToRepaint = new Rectangle(minX, minY, maxRight - minX, maxBottom - minY);
 		
 		runnables.add(runnable);
+	}
+
+	@Override
+	public void clear() {
+		runnables.clear();
 	}
 }

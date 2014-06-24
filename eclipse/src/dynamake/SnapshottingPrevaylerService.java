@@ -230,13 +230,17 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		saveSnapshot(propCtx, prevalentSystemFunc, prevalanceDirectory + "/" + journalFile, prevalanceDirectory + "/" + snapshotFile);
 	}
 	
-	private static class IsolatedBranch<T> implements PrevaylerServiceBranch<T> {
-		private PrevaylerServiceBranch<T> parent;
+	private static interface BranchParent {
+		void doOnFinished(Runnable runnable);
+	}
+	
+	private static class IsolatedBranch<T> implements PrevaylerServiceBranch<T>, BranchParent {
+		private BranchParent parent;
 		private RunBuilder finishedBuilder;
 		
 		public IsolatedBranch() { }
 		
-		public IsolatedBranch(PrevaylerServiceBranch<T> parent) {
+		public IsolatedBranch(BranchParent parent) {
 			this.parent = parent;
 		}
 		
@@ -265,7 +269,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				finishedBuilder.addRunnable(runnable);
 			else {
 				if(parent != null)
-					parent.onFinished(runnable);
+					parent.doOnFinished(runnable);
 			}
 		}
 		
@@ -277,6 +281,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		@Override
 		public boolean isIsolated() {
 			return true;
+		}
+		
+		@Override
+		public void doOnFinished(Runnable runnable) {
+			onFinished(runnable);
 		}
 	}
 	
@@ -449,7 +458,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		return prevalentSystem;
 	}
 	
-	private static class Branch<T> implements PrevaylerServiceBranch<T> {
+	private static class Branch<T> implements PrevaylerServiceBranch<T>, BranchParent {
 		private Branch<T> parent;
 		private SnapshottingPrevaylerService<T> prevaylerService;
 		private DualCommand<T> transaction;
@@ -563,12 +572,24 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		private void rejectSync() {
 			if(parent != null)
 				parent.rejectSync();
-			else
+			else {
 				rejectDownwards();
+			}
 		}
 		
 		private void rejectDownwards() {
 			rejected = true;
+			
+			if(finishBuilder != null) {
+				if(!hasSentFinished) {
+					System.out.println("Sending finished before reject");
+					finishBuilder.execute();
+				}
+				
+				finishBuilder.clear();
+			}
+			
+			hasSentFinished = false;
 			
 			// Reject in reverse order, i.e. start with the branches first
 			for(Branch<T> branch: branches)
@@ -577,7 +598,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			if(transaction != null) {
 				// In some cases, there are onFinished registrations made during rejects
 				// These are not handled properly.
-				IsolatedBranch<T> backwardsBranch = (IsolatedBranch<T> )isolatedBranch();
+				IsolatedBranch<T> backwardsBranch = new IsolatedBranch<T>(new BranchParent() {
+					@Override
+					public void doOnFinished(Runnable runnable) {
+						Branch.this.doOnFinishedDirect(runnable);
+					}
+				});
 				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, backwardsBranch);
 			}
 			
@@ -586,7 +612,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			// Send a "rejected after finished" message?
 			// What finished has not been sent?
 			// Send a "rejected before finished" message?
-			sendFinished();
+			if(finishBuilder != null) {
+				System.out.println("Sending finished after reject");
+				finishBuilder.execute();
+				hasSentFinished = true;
+			}
 		}
 		
 		@Override
@@ -716,17 +746,17 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					doOnFinished(runnable);
+					doOnFinishedDirect(runnable);
 				}
 			});
 		}
 		
-		private void doOnFinished(final Runnable runnable) {
+		private void doOnFinishedDirect(final Runnable runnable) {
 			if(finishBuilder != null)
 				finishBuilder.addRunnable(runnable);
 			else {
 				if(parent != null)
-					parent.doOnFinished(runnable);
+					parent.doOnFinishedDirect(runnable);
 			}
 		}
 		
@@ -745,6 +775,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		@Override
 		public boolean isIsolated() {
 			return false;
+		}
+		
+		@Override
+		public void doOnFinished(final Runnable runnable) {
+			onFinished(runnable);
 		}
 	}
 	
