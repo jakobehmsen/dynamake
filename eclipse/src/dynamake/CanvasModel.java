@@ -473,6 +473,8 @@ public class CanvasModel extends Model {
 	}
 	
 	public static void appendMoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent modelToMove, ModelComponent target, final Point moveLocation) {
+		dualCommands.add(LiveModel.SetOutput.createDualBackward(livePanel));
+		
 		Location canvasSourceLocation = modelToMove.getTransactionFactory().getParent().getModelLocation();
 		ModelLocation canvasTargetLocation = target.getTransactionFactory().getModelLocation();
 		
@@ -512,7 +514,9 @@ public class CanvasModel extends Model {
 			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
 		));
 		
-		dualCommands.add(LiveModel.SetOutput.createDual(livePanel, modelLocationAfterMove));
+//		dualCommands.add(LiveModel.SetOutput.createDual(livePanel, modelLocationAfterMove));
+		
+		dualCommands.add(LiveModel.SetOutput.createDualForward(livePanel, modelLocationAfterMove));
 	}
 	
 	public static class IndexLocator implements ModelLocator {
