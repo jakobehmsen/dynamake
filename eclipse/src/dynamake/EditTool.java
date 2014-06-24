@@ -226,6 +226,8 @@ public class EditTool implements Tool {
 			newTargetOver = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)selection).getParent());
 		}
 		
+		newTargetOver = ModelComponent.Util.closestCanvasModelComponent(newTargetOver);
+		
 		return newTargetOver;
 	}
 
