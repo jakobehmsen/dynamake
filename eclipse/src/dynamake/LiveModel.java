@@ -205,7 +205,7 @@ public class LiveModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
-			System.out.println("set selection to " + modelLocation);
+//			System.out.println("set selection to " + modelLocation);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
 				liveModel.setSelection(selection, new PropogationContext(), 0, branch);
@@ -1298,7 +1298,7 @@ public class LiveModel extends Model {
 							productionPanel.editPanelMouseAdapter.setOutput(view, branch);
 						}
 					} else if(change instanceof LiveModel.SelectionChanged) {
-						System.out.println("Update view selection to " + LivePanel.this.model.selection);
+//						System.out.println("Update view selection to " + LivePanel.this.model.selection);
 						if(LivePanel.this.model.selection != null) {
 							// TODO: Consider whether this is a safe manner in which location of selection if derived.
 							ModelLocator locator = LivePanel.this.model.selection.getLocator();

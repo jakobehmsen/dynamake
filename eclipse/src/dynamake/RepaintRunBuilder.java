@@ -27,7 +27,7 @@ public class RepaintRunBuilder implements RunBuilder {
 						runnable.run();
 					
 					componentToRepaint.repaint(boundsToRepaint);
-					System.out.println("boundsToRepaint=" + boundsToRepaint);
+//					System.out.println("boundsToRepaint=" + boundsToRepaint);
 				}
 			});
 		}

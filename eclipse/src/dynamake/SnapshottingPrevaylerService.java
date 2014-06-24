@@ -486,7 +486,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			DualCommand<T> reduction = connection.reduce();
 			
 			if(reduction != null) {
-				System.out.println("Committed: " + reduction);
+//				System.out.println("Committed: " + reduction);
 				connection.prevaylerService.registerTransaction(reduction);
 				connection.prevaylerService.persistTransaction(propCtx, reduction);
 			}
