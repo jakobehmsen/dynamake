@@ -789,6 +789,8 @@ public class LiveModel extends Model {
 						MouseAdapter mouseAdapter = new MouseAdapter() {
 							@Override
 							public void mouseMoved(MouseEvent e) {
+//								System.out.println("Selection forwarding moved");
+								
 								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
 								e.setSource(productionPanel);
 								
@@ -802,6 +804,8 @@ public class LiveModel extends Model {
 
 							@Override
 							public void mousePressed(MouseEvent e) {
+								System.out.println("Selection forwarding pressed");
+								
 								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
 								e.setSource(productionPanel);
 								
@@ -811,6 +815,8 @@ public class LiveModel extends Model {
 
 							@Override
 							public void mouseDragged(MouseEvent e) {
+								System.out.println("Selection forwarding dragged");
+								
 								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
 								e.setSource(productionPanel);
 								
@@ -820,6 +826,8 @@ public class LiveModel extends Model {
 
 							@Override
 							public void mouseReleased(MouseEvent e) {
+								System.out.println("Selection forwarding released");
+								
 								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
 								e.setSource(productionPanel);
 								
@@ -921,6 +929,7 @@ public class LiveModel extends Model {
 			
 			private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, final DragDropPopupBuilder popupBuilder) {
 				if(selection != null) {
+					System.out.println("Here@popup");
 					JPopupMenu transactionsPopupMenu = new JPopupMenu() {
 						/**
 						 * 
@@ -985,6 +994,7 @@ public class LiveModel extends Model {
 				
 				productionPanel.editPanelMouseAdapter.buttonPressed = e.getButton();
 				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
+				System.out.println("Pressed button " + localButtonPressed);
 				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
@@ -999,6 +1009,8 @@ public class LiveModel extends Model {
 
 				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
 				
+				System.out.println("Dragged button " + localButtonPressed);
+				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
 					public void run() {
@@ -1012,6 +1024,8 @@ public class LiveModel extends Model {
 				
 				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
 				productionPanel.editPanelMouseAdapter.buttonPressed = 0;
+				
+				System.out.println("Released button " + localButtonPressed);
 				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override

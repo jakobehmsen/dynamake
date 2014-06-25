@@ -19,6 +19,7 @@ public class RepaintRunBuilder implements RunBuilder {
 	@Override
 	public void execute() {
 		if(runnables.size() > 0) {
+//			System.out.println("runnables.size()=" + runnables.size());
 			final ArrayList<Runnable> runnablesCopy = new ArrayList<Runnable>(runnables);
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
@@ -27,7 +28,6 @@ public class RepaintRunBuilder implements RunBuilder {
 						runnable.run();
 					
 					componentToRepaint.repaint(boundsToRepaint);
-//					System.out.println("boundsToRepaint=" + boundsToRepaint);
 				}
 			});
 		}

@@ -95,10 +95,13 @@ public class TargetPresenter {
 
 	public void reset(Runner runner) {
 		if(this.targetFrame != null) {
+			final JComponent container = this.container;
 			final JPanel targetFrame = this.targetFrame;
+//			System.out.println("Registered reset target presenter");
 			runner.run(new Runnable() {
 				@Override
 				public void run() {
+//					System.out.println("Running reset target presenter");
 					container.remove(targetFrame);
 				}
 			});

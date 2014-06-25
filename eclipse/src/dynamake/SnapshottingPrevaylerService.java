@@ -582,22 +582,20 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			
 			if(finishBuilder != null) {
 				if(!hasSentFinished) {
-					System.out.println("Sending finished before reject");
+//					System.out.println("Sending finished before reject");
 					finishBuilder.execute();
+					hasSentFinished = false;
 				}
 				
 				finishBuilder.clear();
 			}
 			
-			hasSentFinished = false;
-			
-			// Reject in reverse order, i.e. start with the branches first
+			// Reject in reverse order, i.e. start with the last branch first
 			for(Branch<T> branch: branches)
 				branch.rejectDownwards();
 			
 			if(transaction != null) {
 				// In some cases, there are onFinished registrations made during rejects
-				// These are not handled properly.
 				IsolatedBranch<T> backwardsBranch = new IsolatedBranch<T>(new BranchParent() {
 					@Override
 					public void doOnFinished(Runnable runnable) {
@@ -613,7 +611,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			// What finished has not been sent?
 			// Send a "rejected before finished" message?
 			if(finishBuilder != null) {
-				System.out.println("Sending finished after reject");
+//				System.out.println("Sending finished after reject");
 				finishBuilder.execute();
 				hasSentFinished = true;
 			}
@@ -752,9 +750,10 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		private void doOnFinishedDirect(final Runnable runnable) {
-			if(finishBuilder != null)
+			if(finishBuilder != null) {
 				finishBuilder.addRunnable(runnable);
-			else {
+//				System.out.println("Registered onFinished: " + runnable);
+			} else {
 				if(parent != null)
 					parent.doOnFinishedDirect(runnable);
 			}
