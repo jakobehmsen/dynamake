@@ -220,10 +220,10 @@ public class EditTool implements Tool {
 				newTargetOver = selection;
 			
 			if(newTargetOver == selection)
-				newTargetOver = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)newTargetOver).getParent());
+				newTargetOver = ModelComponent.Util.closestModelComponent(((JComponent)newTargetOver).getParent());
 		} else {
 			// Resizing
-			newTargetOver = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)selection).getParent());
+			newTargetOver = ModelComponent.Util.closestModelComponent(((JComponent)selection).getParent());
 		}
 		
 		newTargetOver = ModelComponent.Util.closestCanvasModelComponent(newTargetOver);

@@ -189,10 +189,10 @@ public class ScaleTool implements Tool {
 				newTargetOver = selection;
 			
 			if(newTargetOver == selection)
-				newTargetOver = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)newTargetOver).getParent());
+				newTargetOver = ModelComponent.Util.closestModelComponent(((JComponent)newTargetOver).getParent());
 		} else {
 			// Scaling
-			newTargetOver = productionPanel.editPanelMouseAdapter.closestModelComponent(((JComponent)selection).getParent());
+			newTargetOver = ModelComponent.Util.closestModelComponent(((JComponent)selection).getParent());
 		}
 		
 		newTargetOver = ModelComponent.Util.closestCanvasModelComponent(newTargetOver);

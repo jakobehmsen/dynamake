@@ -61,7 +61,7 @@ public class DragTool implements Tool {
 		
 		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
-		ModelComponent targetModelComponent = productionPanel.editPanelMouseAdapter.closestModelComponent(target);
+		ModelComponent targetModelComponent = ModelComponent.Util.closestModelComponent(target);
 		
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);

@@ -965,12 +965,6 @@ public class LiveModel extends Model {
 				}
 			}
 			
-			public ModelComponent closestModelComponent(Component component) {
-				while(component != null && !(component instanceof ModelComponent))
-					component = component.getParent();
-				return (ModelComponent)component;
-			}
-			
 			public Rectangle getPlotBounds(Point firstPoint, Point secondPoint) {
 				int left = Math.min(firstPoint.x, secondPoint.x);
 				int right = Math.max(firstPoint.x, secondPoint.x);
@@ -983,7 +977,7 @@ public class LiveModel extends Model {
 			private ModelComponent getModelOver(MouseEvent e) {
 				Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 				JComponent componentOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
-				return productionPanel.editPanelMouseAdapter.closestModelComponent(componentOver);
+				return ModelComponent.Util.closestModelComponent(componentOver);
 			}
 			
 			public void mousePressed(final MouseEvent e) {
