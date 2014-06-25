@@ -102,6 +102,7 @@ public class PenTool implements Tool {
 	}
 	
 	private ModelComponent canvas;
+	private JPanel targetFrame;
 	
 	private void initializeModelOver(ModelComponent canvas, final JComponent container, RunBuilder runBuilder) {
 		this.canvas = canvas;
@@ -109,7 +110,7 @@ public class PenTool implements Tool {
 	}
 	
 	private void addTargetFrame(ModelComponent modelOver, final JComponent container, RunBuilder runBuilder) {
-		final JPanel targetFrame = new JPanel();
+		targetFrame = new JPanel();
 		final Color color = ProductionPanel.TARGET_OVER_COLOR;
 		targetFrame.setBorder(
 			BorderFactory.createCompoundBorder(
@@ -135,7 +136,7 @@ public class PenTool implements Tool {
 	}
 	
 	private void endMoveOver(final JComponent container, Runner runner) {
-		final JComponent localCanvas = (JComponent)canvas;
+		final JComponent localCanvas = (JComponent)targetFrame;
 		runner.run(new Runnable() {
 			@Override
 			public void run() {
@@ -144,9 +145,10 @@ public class PenTool implements Tool {
 		});
 		
 		canvas = null;
+		targetFrame = null;
 	}
 	
-	private int i = 0;
+//	private int i = 0;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -169,8 +171,8 @@ public class PenTool implements Tool {
 
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		i++;
-		System.out.println(i);
+//		i++;
+//		System.out.println(i);
 		points.add(e.getPoint());
 		shape.lineTo(e.getX(), e.getY());
 		
