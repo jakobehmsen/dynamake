@@ -1013,44 +1013,50 @@ public class LiveModel extends Model {
 			public void mouseDragged(final MouseEvent e) {
 				final ModelComponent modelOver = getModelOver(e);
 
-				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
-//				System.out.println("Dragged button " + localButtonPressed);
-				
-				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
-					@Override
-					public void run() {
-						getTool(localButtonPressed).mouseDragged(productionPanel, e, modelOver);
-					}
-				});
+				if(modelOver != null) {
+					final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
+	//				System.out.println("Dragged button " + localButtonPressed);
+					
+					productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+						@Override
+						public void run() {
+							getTool(localButtonPressed).mouseDragged(productionPanel, e, modelOver);
+						}
+					});
+				}
 			}
 
 			public void mouseReleased(final MouseEvent e) {
 				final ModelComponent modelOver = getModelOver(e);
-				
-				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
-				productionPanel.editPanelMouseAdapter.buttonPressed = 0;
-//				System.out.println("Released button " + localButtonPressed);
-				
-				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
-					@Override
-					public void run() {
-						getTool(localButtonPressed).mouseReleased(productionPanel, e, modelOver);
-					}
-				});
+
+				if(modelOver != null) {
+					final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
+					productionPanel.editPanelMouseAdapter.buttonPressed = 0;
+	//				System.out.println("Released button " + localButtonPressed);
+					
+					productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+						@Override
+						public void run() {
+							getTool(localButtonPressed).mouseReleased(productionPanel, e, modelOver);
+						}
+					});
+				}
 			}
 			
 			@Override
 			public void mouseMoved(final MouseEvent e) {
 				final ModelComponent modelOver = getModelOver(e);
-				
-				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
-					@Override
-					public void run() {
-						// The tool associated to button 1 is used as a "master" tool
-						int button = 1;
-						getTool(button).mouseMoved(productionPanel, e, modelOver);
-					}
-				});
+
+				if(modelOver != null) {
+					productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+						@Override
+						public void run() {
+							// The tool associated to button 1 is used as a "master" tool
+							int button = 1;
+							getTool(button).mouseMoved(productionPanel, e, modelOver);
+						}
+					});
+				}
 			}
 
 			public void setOutput(final ModelComponent view, PrevaylerServiceBranch<Model> branch) {
