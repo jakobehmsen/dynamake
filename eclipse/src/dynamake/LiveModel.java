@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -9,6 +10,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -786,58 +789,61 @@ public class LiveModel extends Model {
 							)
 						);
 						
-						MouseAdapter mouseAdapter = new MouseAdapter() {
-							@Override
-							public void mouseMoved(MouseEvent e) {
-//								System.out.println("Selection forwarding moved");
-								
-								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
-								e.setSource(productionPanel);
-								
-								for(MouseMotionListener l: productionPanel.getMouseMotionListeners())
-									l.mouseMoved(e);
-							}
-
-							public void mouseExited(MouseEvent e) {
-
-							}
-
-							@Override
-							public void mousePressed(MouseEvent e) {
-								System.out.println("Selection forwarding pressed");
-								
-								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
-								e.setSource(productionPanel);
-								
-								for(MouseListener l: productionPanel.getMouseListeners())
-									l.mousePressed(e);
-							}
-
-							@Override
-							public void mouseDragged(MouseEvent e) {
-								System.out.println("Selection forwarding dragged");
-								
-								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
-								e.setSource(productionPanel);
-								
-								for(MouseMotionListener l: productionPanel.getMouseMotionListeners())
-									l.mouseDragged(e);
-							}
-
-							@Override
-							public void mouseReleased(MouseEvent e) {
-								System.out.println("Selection forwarding released");
-								
-								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
-								e.setSource(productionPanel);
-								
-								for(MouseListener l: productionPanel.getMouseListeners())
-									l.mouseReleased(e);
-							}
-						};
+						// DON'T ADD MOUSE ADAPTER, SINCE MOUSE EVENTS WILL THEN BUBBLE UP TO THE PRODUCTION PANEL
+						// AND WILL BE HANDLED THERE (SENT TO THE TOOL).
 						
-						localSelectionFrame.addMouseListener(mouseAdapter);
-						localSelectionFrame.addMouseMotionListener(mouseAdapter);
+//						MouseAdapter mouseAdapter = new MouseAdapter() {
+//							@Override
+//							public void mouseMoved(MouseEvent e) {
+////								System.out.println("Selection forwarding moved");
+//								
+//								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
+//								e.setSource(productionPanel);
+//								
+//								for(MouseMotionListener l: productionPanel.getMouseMotionListeners())
+//									l.mouseMoved(e);
+//							}
+//
+//							public void mouseExited(MouseEvent e) {
+//
+//							}
+//
+//							@Override
+//							public void mousePressed(MouseEvent e) {
+//								System.out.println("Selection forwarding pressed");
+//								
+//								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
+//								e.setSource(productionPanel);
+//								
+//								for(MouseListener l: productionPanel.getMouseListeners())
+//									l.mousePressed(e);
+//							}
+//
+//							@Override
+//							public void mouseDragged(MouseEvent e) {
+//								System.out.println("Selection forwarding dragged");
+//								
+//								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
+//								e.setSource(productionPanel);
+//								
+//								for(MouseMotionListener l: productionPanel.getMouseMotionListeners())
+//									l.mouseDragged(e);
+//							}
+//
+//							@Override
+//							public void mouseReleased(MouseEvent e) {
+//								System.out.println("Selection forwarding released");
+//								
+//								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
+//								e.setSource(productionPanel);
+//								
+//								for(MouseListener l: productionPanel.getMouseListeners())
+//									l.mouseReleased(e);
+//							}
+//						};
+//						
+//						localSelectionFrame.addMouseListener(mouseAdapter);
+//						localSelectionFrame.addMouseMotionListener(mouseAdapter);
 						
 						if(productionPanel.effectFrame != null)
 							System.out.println("Effect frame was there before selection was added");
@@ -1121,12 +1127,6 @@ public class LiveModel extends Model {
 		public void paint(Graphics g) {
 			super.paint(g);
 			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonPressed).paint(g);
-		}
-		
-		@Override
-		public void paintComponent(Graphics g) {
-//			super.paintComponent(g);
-//			System.out.println("paintComponent");
 		}
 		
 		public void clearFocus(PrevaylerServiceBranch<Model> branch) {
