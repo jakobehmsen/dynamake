@@ -3,8 +3,8 @@ package dynamake;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
-import dynamake.LiveModel.LivePanel;
 import dynamake.LiveModel.ProductionPanel;
 
 public class TrimTool implements Tool {
@@ -26,21 +26,27 @@ public class TrimTool implements Tool {
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		canvas = null;
+
+		final PrevaylerServiceBranch<Model> branchReset = branch.branch();
+		branchReset.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
-		RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
-		
-		targetPresenter.reset(runBuilder);
-		
-		runBuilder.execute();
-		
+		targetPresenter.reset(branchReset);
 		targetPresenter = null;
+		
+		branchReset.close();
+		
+		branch.close();
+		branch = null;
 	}
 	
+	private PrevaylerServiceBranch<Model> branch;
 	private ModelComponent canvas;
 	private TargetPresenter targetPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+		
 		canvas = ModelComponent.Util.closestCanvasModelComponent(modelOver);
 		
 		targetPresenter = new TargetPresenter(
@@ -48,9 +54,7 @@ public class TrimTool implements Tool {
 			new TargetPresenter.Behavior() {
 				@Override
 				public Color getColorForTarget(ModelComponent target) {
-					return productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(target.getModelBehind()) 
-						? ProductionPanel.UNBIND_COLOR 
-						: ProductionPanel.BIND_COLOR;
+					return ProductionPanel.TARGET_OVER_COLOR;
 				}
 				
 				@Override
@@ -68,12 +72,23 @@ public class TrimTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver) {
 		if(modelOver != canvas) {
 			ModelComponent modelOverParent = ModelComponent.Util.getParent(modelOver);
 			
 			if(modelOverParent == canvas) {
-				System.out.println("Should be deleted");
+//				System.out.println("Should be deleted");
+				final PrevaylerServiceBranch<Model> branchDelete = branch.branch();
+				branchDelete.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+				
+				branchDelete.execute(new PropogationContext(), new DualCommandFactory<Model>() {
+					@Override
+					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						CanvasModel.appendRemoveTransaction(dualCommands, productionPanel.livePanel, modelOver, canvas.getTransactionFactory().getModelLocation(), (CanvasModel)canvas.getModelBehind());
+					}
+				});
+				
+				branchDelete.close();
 			}
 		}
 	}
