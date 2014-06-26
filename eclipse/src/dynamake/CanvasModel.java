@@ -380,25 +380,9 @@ public class CanvasModel extends Model {
 					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							// Clear the current selection which is, here, assumed to the child
-							livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
-							
-							dualCommands.add(LiveModel.SetOutput.createDual(livePanel, null));
-							
-							int indexOfModel = model.indexOfModel(child.getModelBehind());
 							Location canvasLocation = transactionFactory.getModelLocation();
 							
-							// TODO: Make the backward transaction
-							// The removed model should probably be reconstructed
-							// The direct structure (clone isolated) (without observers and observees) could probably be used
-							// where this direct structure should, afterwards, be decorated with any missing relations to observers and observees
-							Model childClone = child.getModelBehind().cloneDeep(); // TODO: Fix this: Not a perfect clone
-							Command<Model> backward = new AddModelNoCreationBoundsTransaction(canvasLocation, indexOfModel, new AsIsFactory(childClone));
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new RemoveModelTransaction(canvasLocation, indexOfModel),
-								backward
-							));
+							CanvasModel.appendRemoveTransaction(dualCommands, livePanel, child, canvasLocation, model);
 						}
 					});
 				}
@@ -470,6 +454,27 @@ public class CanvasModel extends Model {
 			
 			visitAction.run(this);
 		}
+	}
+	
+	public static void appendRemoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent child, Location canvasLocation, CanvasModel model) {
+		// Clear the current selection which is, here, assumed to the child
+		livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
+		
+		dualCommands.add(LiveModel.SetOutput.createDual(livePanel, null));
+		
+		int indexOfModel = model.indexOfModel(child.getModelBehind());
+		
+		// TODO: Make the backward transaction
+		// The removed model should probably be reconstructed
+		// The direct structure (clone isolated) (without observers and observees) could probably be used
+		// where this direct structure should, afterwards, be decorated with any missing relations to observers and observees
+		Model childClone = child.getModelBehind().cloneDeep(); // TODO: Fix this: Not a perfect clone
+		Command<Model> backward = new AddModelNoCreationBoundsTransaction(canvasLocation, indexOfModel, new AsIsFactory(childClone));
+		
+		dualCommands.add(new DualCommandPair<Model>(
+			new RemoveModelTransaction(canvasLocation, indexOfModel),
+			backward
+		));
 	}
 	
 	public static void appendMoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent modelToMove, ModelComponent target, final Point moveLocation) {
