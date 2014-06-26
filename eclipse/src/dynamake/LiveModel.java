@@ -1000,7 +1000,7 @@ public class LiveModel extends Model {
 				
 				productionPanel.editPanelMouseAdapter.buttonPressed = e.getButton();
 				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
-				System.out.println("Pressed button " + localButtonPressed);
+//				System.out.println("Pressed button " + localButtonPressed);
 				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
@@ -1014,8 +1014,7 @@ public class LiveModel extends Model {
 				final ModelComponent modelOver = getModelOver(e);
 
 				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
-				
-				System.out.println("Dragged button " + localButtonPressed);
+//				System.out.println("Dragged button " + localButtonPressed);
 				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
@@ -1030,8 +1029,7 @@ public class LiveModel extends Model {
 				
 				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
 				productionPanel.editPanelMouseAdapter.buttonPressed = 0;
-				
-				System.out.println("Released button " + localButtonPressed);
+//				System.out.println("Released button " + localButtonPressed);
 				
 				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
 					@Override
