@@ -123,7 +123,7 @@ public class Main {
 					new TellTool(),
 					new ViewTool(),
 					new ScaleTool(),
-					new TextTool(),
+//					new TextTool(),
 //					new WriteTool(),
 					new PenTool(),
 					new UndoTool(),
