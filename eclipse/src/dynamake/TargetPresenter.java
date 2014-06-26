@@ -83,6 +83,15 @@ public class TargetPresenter {
 			}
 		}
 	}
+	
+	public void reset(final RunBuilder runBuilder) {
+		reset(new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				runBuilder.addRunnable(runnable);
+			}
+		});
+	}
 
 	public void reset(final PrevaylerServiceBranch<Model> branch) {
 		reset(new Runner() {

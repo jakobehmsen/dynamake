@@ -989,7 +989,7 @@ public class LiveModel extends Model {
 				return new Rectangle(left, top, right - left, bottom - top);
 			}
 			
-			private ModelComponent getModelOver(MouseEvent e) {
+			public ModelComponent getModelOver(MouseEvent e) {
 				Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 				JComponent componentOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 				return ModelComponent.Util.closestModelComponent(componentOver);

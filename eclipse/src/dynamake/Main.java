@@ -126,6 +126,7 @@ public class Main {
 //					new TextTool(),
 //					new WriteTool(),
 					new PenTool(),
+					new TrimTool(),
 					new UndoTool(),
 					new RedoTool()
 				}; 
