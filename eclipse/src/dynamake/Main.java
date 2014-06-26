@@ -124,7 +124,7 @@ public class Main {
 					new ViewTool(),
 					new ScaleTool(),
 					new TextTool(),
-					new WriteTool(),
+//					new WriteTool(),
 					new PenTool(),
 					new UndoTool(),
 					new RedoTool()
