@@ -165,6 +165,8 @@ public abstract class Model implements Serializable, Observer {
 			properties.put(name, value);
 		else
 			properties.remove(name);
+		
+		branch.registerAffectedModel(this);
 		sendChanged(new PropertyChanged(name, value), propCtx, propDistance, 0, branch);
 	}
 	

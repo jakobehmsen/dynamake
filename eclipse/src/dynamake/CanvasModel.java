@@ -303,11 +303,13 @@ public class CanvasModel extends Model {
 
 	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 		models.add(index, model);
+		branch.registerAffectedModel(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, branch);
 	}
 	
 	public void removeModel(Model model, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
 		int indexOfModel = indexOfModel(model);
+		branch.registerAffectedModel(this);
 		removeModel(indexOfModel, propCtx, propDistance, branch);
 	}
 	

@@ -93,6 +93,7 @@ public class TextModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.insert(offset, text);
+			branch.registerAffectedModel(textModel);
 			textModel.sendChanged(new InsertedText(offset, text), propCtx, 0, 0, branch);
 		}
 		
@@ -121,6 +122,7 @@ public class TextModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.delete(start, end);
+			branch.registerAffectedModel(textModel);
 			textModel.sendChanged(new RemovedText(start, end), propCtx, 0, 0, branch);
 		}
 		
