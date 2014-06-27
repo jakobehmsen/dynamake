@@ -1,5 +1,7 @@
 package dynamake;
 
+import java.util.HashSet;
+
 public interface PrevaylerServiceBranch<T> {
 //	void absorb();
 	void reject();
@@ -13,5 +15,8 @@ public interface PrevaylerServiceBranch<T> {
 
 	boolean isIsolated();
 	PrevaylerServiceBranch<T> isolatedBranch();
-	void registerAffectedModel(Model model);
+	
+	void registerAffectedModel(T model);
+	// Callable after being closed
+	void addRegisteredAffectedModels(HashSet<T> allAffectedModels);
 }

@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import javax.swing.JComponent;
 
@@ -144,6 +145,13 @@ public abstract class Model implements Serializable, Observer {
 		public boolean occurredWithin(Location location) {
 			return false;
 		}
+	}
+	
+	private Stack<ContextualTransaction<Model>> undoStack = new Stack<ContextualTransaction<Model>>();
+	private Stack<ContextualTransaction<Model>> redoStack = new Stack<ContextualTransaction<Model>>();
+	
+	public void log(ContextualTransaction<Model> ctxTransaction) {
+		undoStack.add(ctxTransaction);
 	}
 	
 	private ModelLocator locator;
