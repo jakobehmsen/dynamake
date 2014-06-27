@@ -287,6 +287,11 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void doOnFinished(Runnable runnable) {
 			onFinished(runnable);
 		}
+
+		@Override
+		public void registerAffectedModel(Model model) {
+
+		}
 	}
 	
 	private Stack<DualCommand<T>> transactionUndoStack = new Stack<DualCommand<T>>();
@@ -779,6 +784,12 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		@Override
 		public void doOnFinished(final Runnable runnable) {
 			onFinished(runnable);
+		}
+
+		@Override
+		public void registerAffectedModel(Model model) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	

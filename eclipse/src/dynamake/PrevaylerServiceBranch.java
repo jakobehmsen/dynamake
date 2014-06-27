@@ -13,4 +13,5 @@ public interface PrevaylerServiceBranch<T> {
 
 	boolean isIsolated();
 	PrevaylerServiceBranch<T> isolatedBranch();
+	void registerAffectedModel(Model model);
 }
