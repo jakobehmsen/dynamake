@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -476,6 +477,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			this.parent = parent;
 			this.prevaylerService = prevaylerService;
 			this.propCtx = propCtx;
+			
+			if(parent == null)
+				System.out.println("Started branch: " + this);
 		}
 		
 		private void commit(final PropogationContext propCtx) {
@@ -487,14 +491,22 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			});
 		}
 		
-		private static <T> void commit(final PropogationContext propCtx, SnapshottingPrevaylerService.Branch<T> connection) {
-			DualCommand<T> reduction = connection.reduce();
+		private static <T> void commit(final PropogationContext propCtx, SnapshottingPrevaylerService.Branch<T> branch) {
+			DualCommand<T> reduction = branch.reduce();
 			
+			// Reduction is null if no transactions were performed that were to be persisted.
+			// For instance, in the case of executing a transaction on an isolated branch.
 			if(reduction != null) {
-//				System.out.println("Committed: " + reduction);
-				connection.prevaylerService.registerTransaction(reduction);
-				connection.prevaylerService.persistTransaction(propCtx, reduction);
+				System.out.println("Committed branch: " + branch);
+				branch.prevaylerService.registerTransaction(reduction);
+				branch.prevaylerService.persistTransaction(propCtx, reduction);
 			}
+			
+			HashSet<Model> allAffectedModels = new HashSet<Model>();
+			
+			branch.addRegisteredAffectedModels(allAffectedModels);
+			
+			System.out.println("Affected models: " + allAffectedModels);
 		}
 		
 		private DualCommand<T> reduce() {
@@ -519,6 +531,13 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			} else if(transactionList.size() == 1)
 				return transactionList.get(0);
 			return null;
+		}
+		
+		private void addRegisteredAffectedModels(HashSet<Model> allAffectedModels) {
+			allAffectedModels.addAll(this.affectedModels);
+			
+			for(SnapshottingPrevaylerService.Branch<T> branch: absorbedBranches)
+				branch.addRegisteredAffectedModels(allAffectedModels);
 		}
 		
 		private boolean isAbsorbed;
@@ -702,6 +721,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					
 					for(DualCommand<T> t: dualCommands) {
 						final Branch<T> b = (Branch<T>)branch.branch();
+						// Initialize affectedModels to support registration of affected models on b
+						b.affectedModels = affectedModels;
 						t.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, b);
 						
 						b.prevaylerService.transactionExecutor.execute(new Runnable() {
@@ -785,11 +806,17 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void doOnFinished(final Runnable runnable) {
 			onFinished(runnable);
 		}
+		
+		private HashSet<Model> affectedModels = new HashSet<Model>();
 
 		@Override
-		public void registerAffectedModel(Model model) {
-			// TODO Auto-generated method stub
-			
+		public void registerAffectedModel(final Model model) {
+			this.prevaylerService.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					affectedModels.add(model);
+				}
+			});
 		}
 	}
 	
