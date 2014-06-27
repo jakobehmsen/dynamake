@@ -66,7 +66,7 @@ public class TrimTool implements Tool {
 		
 		RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 		
-		targetPresenter.update(modelOver, runBuilder);
+		targetPresenter.update(canvas, runBuilder);
 		
 		runBuilder.execute();
 	}
@@ -77,7 +77,6 @@ public class TrimTool implements Tool {
 			ModelComponent modelOverParent = ModelComponent.Util.getParent(modelOver);
 			
 			if(modelOverParent == canvas) {
-//				System.out.println("Should be deleted");
 				final PrevaylerServiceBranch<Model> branchDelete = branch.branch();
 				branchDelete.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 				
