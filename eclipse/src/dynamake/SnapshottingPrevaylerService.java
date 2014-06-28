@@ -13,7 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Stack;
 import java.util.concurrent.ExecutorService;
@@ -131,44 +130,55 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			// Such command should be called a meta-command?
 			DualCommand<T> transaction = ctxTransaction.transaction;
 			
-			if(transaction instanceof UndoTransaction) {
-				UndoTransaction<T> undoTransaction = (UndoTransaction<T>)transaction;
-				
-				int i;
-				for(i = transactionUndoStack.size() - 1; i >= 0; i--) {
-					if(transactionUndoStack.get(i).transaction.occurredWithin(undoTransaction.location))
-						break;
-				}
-				
-				ContextualTransaction<T> transactionToUndo = transactionUndoStack.get(i);
-				transactionUndoStack.remove(i);
-				transactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>(null));
-				transactionRedoStack.push(transactionToUndo);
-			} else if(transaction instanceof RedoTransaction) {
-				RedoTransaction<T> redoTransaction = (RedoTransaction<T>)transaction;
-				
-				int i;
-				for(i = transactionRedoStack.size() - 1; i >= 0; i--) {
-					if(transactionRedoStack.get(i).transaction.occurredWithin(redoTransaction.location))
-						break;
-				}
-				
-				ContextualTransaction<T> transactionToRedo = transactionRedoStack.get(i);
-				transactionRedoStack.remove(i);
-				transactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>(null));
-				transactionUndoStack.add(transactionToRedo);
-			} else {
-				IsolatedBranch<T> branch = new IsolatedBranch<T>();
-				transaction.executeForwardOn(propCtx, prevalentSystem, null, branch);
-				transactionUndoStack.push(ctxTransaction);
-				transactionRedoStack.clear();
-				
-				for(Location affectedModelLocation: ctxTransaction.affectedModelLocations) {
-					// TODO: Abstracted the following code to reduce coupling to models.
-					// What kind of interface could be applicable here?
-					Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
-					affectedModel.log((ContextualTransaction<Model>)ctxTransaction);
-				}
+//			if(transaction instanceof UndoTransaction) {
+//				UndoTransaction<T> undoTransaction = (UndoTransaction<T>)transaction;
+//				
+//				int i;
+//				for(i = transactionUndoStack.size() - 1; i >= 0; i--) {
+//					if(transactionUndoStack.get(i).transaction.occurredWithin(undoTransaction.location))
+//						break;
+//				}
+//				
+//				ContextualTransaction<T> transactionToUndo = transactionUndoStack.get(i);
+//				transactionUndoStack.remove(i);
+//				transactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>(null));
+//				transactionRedoStack.push(transactionToUndo);
+//			} else if(transaction instanceof RedoTransaction) {
+//				RedoTransaction<T> redoTransaction = (RedoTransaction<T>)transaction;
+//				
+//				int i;
+//				for(i = transactionRedoStack.size() - 1; i >= 0; i--) {
+//					if(transactionRedoStack.get(i).transaction.occurredWithin(redoTransaction.location))
+//						break;
+//				}
+//				
+//				ContextualTransaction<T> transactionToRedo = transactionRedoStack.get(i);
+//				transactionRedoStack.remove(i);
+//				transactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, new IsolatedBranch<T>(null));
+//				transactionUndoStack.add(transactionToRedo);
+//			} else {
+//				IsolatedBranch<T> branch = new IsolatedBranch<T>();
+//				transaction.executeForwardOn(propCtx, prevalentSystem, null, branch);
+//				transactionUndoStack.push(ctxTransaction);
+//				transactionRedoStack.clear();
+//				
+//				for(Location affectedModelLocation: ctxTransaction.affectedModelLocations) {
+//					// TODO: Abstracted the following code to reduce coupling to models.
+//					// What kind of interface could be applicable here?
+//					Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
+//					affectedModel.log((ContextualTransaction<Model>)ctxTransaction);
+//				}
+//			}
+			IsolatedBranch<T> branch = new IsolatedBranch<T>();
+			transaction.executeForwardOn(propCtx, prevalentSystem, null, branch);
+			transactionUndoStack.push(ctxTransaction);
+			transactionRedoStack.clear();
+			
+			for(Location affectedModelLocation: ctxTransaction.affectedModelLocations) {
+				// TODO: Abstracted the following code to reduce coupling to models.
+				// What kind of interface could be applicable here?
+				Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
+				affectedModel.log((ContextualTransaction<Model>)ctxTransaction);
 			}
 		}
 	}
@@ -322,51 +332,51 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	private Stack<ContextualTransaction<T>> transactionUndoStack = new Stack<ContextualTransaction<T>>();
 	private Stack<ContextualTransaction<T>> transactionRedoStack = new Stack<ContextualTransaction<T>>();
 	
-	private static class UndoTransaction<T> implements DualCommand<T> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		public final Location location;
-		
-		public UndoTransaction(Location location) {
-			this.location = location;
-		}
-		
-		@Override
-		public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
-		
-		@Override
-		public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return false;
-		}
-	}
-	
-	private static class RedoTransaction<T> implements DualCommand<T> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		public final Location location;
-		
-		public RedoTransaction(Location location) {
-			this.location = location;
-		}
-		
-		@Override
-		public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
-		
-		@Override
-		public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return false;
-		}
-	}
+//	private static class UndoTransaction<T> implements DualCommand<T> {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//		public final Location location;
+//		
+//		public UndoTransaction(Location location) {
+//			this.location = location;
+//		}
+//		
+//		@Override
+//		public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
+//		
+//		@Override
+//		public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
+//		
+//		@Override
+//		public boolean occurredWithin(Location location) {
+//			return false;
+//		}
+//	}
+//	
+//	private static class RedoTransaction<T> implements DualCommand<T> {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//		public final Location location;
+//		
+//		public RedoTransaction(Location location) {
+//			this.location = location;
+//		}
+//		
+//		@Override
+//		public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
+//		
+//		@Override
+//		public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) { }
+//		
+//		@Override
+//		public boolean occurredWithin(Location location) {
+//			return false;
+//		}
+//	}
 	
 	@Override
 	public void undo(final PropogationContext propCtx, final Location location, final RunBuilder finishedBuilder) {
@@ -429,10 +439,10 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		transactionExecutor.execute(runnable);
 	}
 	
-	private void registerTransaction(final ContextualTransaction<T> transaction) {
-		transactionUndoStack.push(transaction);
-		transactionRedoStack.clear();
-	}
+//	private void registerTransaction(final ContextualTransaction<T> transaction) {
+//		transactionUndoStack.push(transaction);
+//		transactionRedoStack.clear();
+//	}
 	
 	public void persistTransaction(final PropogationContext propCtx, final ContextualTransaction<T> transaction) {
 		journalLogger.execute(new Runnable() {
