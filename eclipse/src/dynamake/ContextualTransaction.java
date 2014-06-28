@@ -12,10 +12,10 @@ public class ContextualTransaction<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public final DualCommand<T> transaction;
-	public final ArrayList<Location> affectedModels;
+	public final ArrayList<Location> affectedModelLocations;
 	
 	public ContextualTransaction(DualCommand<T> transaction, ArrayList<Location> affectedModels) {
 		this.transaction = transaction;
-		this.affectedModels = affectedModels;
+		this.affectedModelLocations = affectedModels;
 	}
 }

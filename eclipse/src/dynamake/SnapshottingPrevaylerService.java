@@ -163,7 +163,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				transactionUndoStack.push(ctxTransaction);
 				transactionRedoStack.clear();
 				
-				for(Location affectedModelLocation: ctxTransaction.affectedModels) {
+				for(Location affectedModelLocation: ctxTransaction.affectedModelLocations) {
 					// TODO: Abstracted the following code to reduce coupling to models.
 					// What kind of interface could be applicable here?
 					Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
@@ -452,6 +452,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				System.out.println("Persisted transaction.");
 				
 				transactionEnlistingCount++;
 				if(transactionEnlistingCount >= snapshotThreshold) {
@@ -496,6 +497,17 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		private ArrayList<SnapshottingPrevaylerService.Branch<T>> absorbedBranches = new ArrayList<SnapshottingPrevaylerService.Branch<T>>();
 		private PropogationContext propCtx;
 		private boolean rejected;
+		
+		private PrevaylerServiceBranchBehavior<T> behavior;
+		
+		private Branch(PrevaylerServiceBranchBehavior<T> behavior, SnapshottingPrevaylerService<T> prevaylerService, final PropogationContext propCtx) {
+			this.behavior = behavior;
+			this.prevaylerService = prevaylerService;
+			this.propCtx = propCtx;
+			
+			if(parent == null)
+				System.out.println("Started branch: " + this);
+		}
 		
 		private Branch(Branch<T> parent, SnapshottingPrevaylerService<T> prevaylerService, final PropogationContext propCtx) {
 			this.parent = parent;
@@ -543,14 +555,13 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 					Model affectedModelAsModel = (Model)affectedModel;
 					affectedModelAsModel.log((ContextualTransaction<Model>)ctxTransaction);
 				}
-				
+
 				System.out.println("Committed branch: " + branch);
-				branch.prevaylerService.registerTransaction(ctxTransaction);
-				branch.prevaylerService.persistTransaction(propCtx, ctxTransaction);
+				branch.behavior.commit(propCtx, ctxTransaction);
+				
+//				branch.prevaylerService.registerTransaction(ctxTransaction);
+//				branch.prevaylerService.persistTransaction(propCtx, ctxTransaction);
 			}
-			
-			// Append reduction to the history of each of the affected models? 
-//			System.out.println("Affected models: " + allAffectedModels);
 		}
 		
 		private DualCommand<T> reduce() {
@@ -873,6 +884,13 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	
 	@Override
 	public PrevaylerServiceBranch<T> createBranch() {
-		return new SnapshottingPrevaylerService.Branch<T>(null, this, null);
+		PrevaylerServiceBranchBehavior<T> branchBehavior = new PrevaylerServiceBranchBehavior<T>() {
+			@Override
+			public void commit(PropogationContext propCtx, ContextualTransaction<T> ctxTransaction) {
+//				registerTransaction(ctxTransaction);
+				persistTransaction(propCtx, ctxTransaction);
+			}
+		};
+		return new SnapshottingPrevaylerService.Branch<T>(branchBehavior, this, null);
 	}
 }
