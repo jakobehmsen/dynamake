@@ -11,4 +11,5 @@ public interface PrevaylerService<T> {
 	void executeTransient(Runnable runnable);
 	
 	PrevaylerServiceBranch<T> createBranch();
+	PrevaylerServiceBranch<T> createBranch(PrevaylerServiceBranchBehavior<T> branchBehavior);
 }

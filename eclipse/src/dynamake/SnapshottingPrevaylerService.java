@@ -893,4 +893,9 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		};
 		return new SnapshottingPrevaylerService.Branch<T>(branchBehavior, this, null);
 	}
+	
+	@Override
+	public PrevaylerServiceBranch<T> createBranch(PrevaylerServiceBranchBehavior<T> branchBehavior) {
+		return new SnapshottingPrevaylerService.Branch<T>(branchBehavior, this, null);
+	}
 }
