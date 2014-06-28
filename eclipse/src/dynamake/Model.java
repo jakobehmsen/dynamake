@@ -152,8 +152,123 @@ public abstract class Model implements Serializable, Observer {
 	
 	public void log(ContextualTransaction<Model> ctxTransaction) {
 		undoStack.add(ctxTransaction);
+		redoStack.clear();
 	}
 	
+	private static class UndoTransaction implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location modelLocation;
+
+		public UndoTransaction(Location modelLocation) {
+			this.modelLocation = modelLocation;
+		}
+
+		@Override
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+			Model model = (Model)modelLocation.getChild(prevalentSystem);
+			
+//			model.undo(propCtx, prevalentSystem, prevaylerService);
+		}
+
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
+	}
+	
+	private static class RedoTransaction implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location modelLocation;
+
+		public RedoTransaction(Location modelLocation) {
+			this.modelLocation = modelLocation;
+		}
+
+		@Override
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+			Model model = (Model)modelLocation.getChild(prevalentSystem);
+			
+//			model.redo(propCtx, prevalentSystem, prevaylerService);
+		}
+
+		@Override
+		public boolean occurredWithin(Location location) {
+			return true;
+		}
+	}
+	
+	public void undo(PropogationContext propCtx, Model prevalentSystem, PrevaylerService<Model> prevaylerService) {
+		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
+		
+		// Could probably be cached somehow; perhaps during application load?
+		final ArrayList<Model> affectedModels = new ArrayList<Model>();
+		for(Location affectedModelLocation: ctxTransactionToUndo.affectedModelLocations) {
+			Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
+			affectedModels.add(affectedModel);
+		}
+		
+		PrevaylerServiceBranch<Model> branch = prevaylerService.createBranch(new PrevaylerServiceBranchBehavior<Model>() {
+			@Override
+			public void commit(PropogationContext propCtx, ContextualTransaction<Model> ctxTransaction) {
+				for(Model affectedModel: affectedModels)
+					affectedModel.redoStack.push(ctxTransaction);
+			}
+		});
+		
+		for(Model affectedModel: affectedModels)
+			affectedModel.undoTill(propCtx, prevalentSystem, branch, ctxTransactionToUndo);
+		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, branch);
+		
+		branch.close();
+	}
+	
+	private void undoTill(PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToUndoTill) {
+		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
+		while(ctxTransactionToUndo != ctxTransactionToUndoTill) {
+			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, branch);
+			undoStack.pop();
+		}
+	}
+	
+	public void redo(PropogationContext propCtx, Model prevalentSystem, PrevaylerService<Model> prevaylerService) {
+		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
+		
+		// Could probably be cached somehow; perhaps during application load?
+		final ArrayList<Model> affectedModels = new ArrayList<Model>();
+		for(Location affectedModelLocation: ctxTransactionToRedo.affectedModelLocations) {
+			Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
+			affectedModels.add(affectedModel);
+		}
+		
+		PrevaylerServiceBranch<Model> branch = prevaylerService.createBranch(new PrevaylerServiceBranchBehavior<Model>() {
+			@Override
+			public void commit(PropogationContext propCtx, ContextualTransaction<Model> ctxTransaction) {
+				for(Model affectedModel: affectedModels)
+					affectedModel.redoStack.pop();
+			}
+		});
+		
+		for(Model affectedModel: affectedModels)
+			affectedModel.redoTill(propCtx, prevalentSystem, branch, ctxTransactionToRedo);
+		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, branch);
+		
+		branch.close();
+	}
+	
+	private void redoTill(PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToRedoTillæ) {
+		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
+		while(ctxTransactionToRedo != ctxTransactionToRedoTillæ) {
+			ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, branch);
+			redoStack.pop();
+		}
+	}
+
 	private ModelLocator locator;
 	
 	public void setLocation(ModelLocator locator) {
