@@ -15,9 +15,9 @@ import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.LivePanel;
 
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
-	private PrevaylerServiceBranch<Model> branch;
+	private TranscriberBranch<Model> branch;
 	
-	public DragDragDropPopupBuilder(PrevaylerServiceBranch<Model> branch) {
+	public DragDragDropPopupBuilder(TranscriberBranch<Model> branch) {
 		this.branch = branch;
 	}
 

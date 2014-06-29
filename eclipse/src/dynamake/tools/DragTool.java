@@ -9,7 +9,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
 import dynamake.models.Model;
@@ -38,7 +38,7 @@ public class DragTool implements Tool {
 		
 		ModelComponent targetModelComponent = modelOver;
 		
-		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+		final TranscriberBranch<Model> branchStep2 = branch.branch();
 		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 
 		targetPresenter.reset(branchStep2);
@@ -56,7 +56,7 @@ public class DragTool implements Tool {
 	}
 	
 	private Point mouseDown;
-	private PrevaylerServiceBranch<Model> branch;
+	private TranscriberBranch<Model> branch;
 	private TargetPresenter targetPresenter;
 
 	@Override
@@ -65,7 +65,7 @@ public class DragTool implements Tool {
 		
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
-		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+		TranscriberBranch<Model> branchStep1 = branch.branch();
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());

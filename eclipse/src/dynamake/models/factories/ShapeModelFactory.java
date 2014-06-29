@@ -4,7 +4,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.ShapeModel;
@@ -27,7 +27,7 @@ public class ShapeModelFactory implements Factory {
 	}
 
 	@Override
-	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		return new ShapeModel(shapes);
 	}
 }

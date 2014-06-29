@@ -8,7 +8,7 @@ import dynamake.Command;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -31,7 +31,7 @@ public class RedoTool implements Tool {
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver) {
 //		productionPanel.livePanel.redo();
 		
-		PrevaylerServiceBranch<Model> branch = modelOver.getTransactionFactory().createBranch();
+		TranscriberBranch<Model> branch = modelOver.getTransactionFactory().createBranch();
 		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		branch.execute(new PropogationContext(), new DualCommandFactory<Model>() {
 			@Override

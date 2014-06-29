@@ -4,7 +4,7 @@ import java.awt.Rectangle;
 import java.util.Hashtable;
 
 import dynamake.Fraction;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.models.Model;
 import dynamake.models.Primitive;
 import dynamake.models.PropogationContext;
@@ -27,11 +27,11 @@ public class PrimitiveSingletonFactory implements Factory {
 	}
 	
 	@Override
-	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		Primitive model = new Primitive(implementationSingleton);
 		Fraction fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(new Fraction(creationBounds.height, 35));
-		PrevaylerServiceBranch<Model> setPropertyBranch = branch.isolatedBranch();
+		TranscriberBranch<Model> setPropertyBranch = branch.isolatedBranch();
 //		Fraction fontSize = 12 * 40 creationBounds.height;
 		model.setProperty("FontSize", fontSize, propCtx, propDistance, setPropertyBranch);
 		return model;

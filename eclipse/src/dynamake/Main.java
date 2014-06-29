@@ -125,7 +125,7 @@ public class Main {
 //			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
 //			
 //			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(pModel);
-			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(new Func0<Model>() {
+			final Transcriber<Model> prevaylerService = new SnapshottingTranscriber<Model>(new Func0<Model>() {
 				@Override
 				public Model call() {
 					// TODO Auto-generated method stub

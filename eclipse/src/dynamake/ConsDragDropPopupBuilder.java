@@ -17,9 +17,9 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.PrimitiveSingletonFactory;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
-	private PrevaylerServiceBranch<Model> branch;
+	private TranscriberBranch<Model> branch;
 	
-	public ConsDragDropPopupBuilder(PrevaylerServiceBranch<Model> branch) {
+	public ConsDragDropPopupBuilder(TranscriberBranch<Model> branch) {
 		this.branch = branch;
 	}
 

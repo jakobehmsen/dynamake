@@ -26,7 +26,7 @@ public class UnwrapTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
 		CanvasModel wrapper = (CanvasModel)wrapperLocationInTarget.getChild(target);
 		
@@ -39,7 +39,7 @@ public class UnwrapTransaction implements Command<Model> {
 
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
-			PrevaylerServiceBranch<Model> removeBranch = branch.branch();
+			TranscriberBranch<Model> removeBranch = branch.branch();
 			
 			Model model = models[i];
 			wrapper.removeModel(model, propCtx, 0, removeBranch);
@@ -55,8 +55,8 @@ public class UnwrapTransaction implements Command<Model> {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
 
-			PrevaylerServiceBranch<Model> setXBranch = branch.branch();
-			PrevaylerServiceBranch<Model> setYBranch = branch.branch();
+			TranscriberBranch<Model> setXBranch = branch.branch();
+			TranscriberBranch<Model> setYBranch = branch.branch();
 			
 			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, setXBranch);
 			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, setYBranch);
@@ -67,7 +67,7 @@ public class UnwrapTransaction implements Command<Model> {
 		
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
-			PrevaylerServiceBranch<Model> addBranch = branch.branch();
+			TranscriberBranch<Model> addBranch = branch.branch();
 			
 			Model model = models[i];
 			int modelIndex = modelIndexes[i];

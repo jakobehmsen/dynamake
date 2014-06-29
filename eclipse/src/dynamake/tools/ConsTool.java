@@ -13,7 +13,7 @@ import javax.swing.SwingUtilities;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
 import dynamake.models.CanvasModel;
@@ -45,7 +45,7 @@ public class ConsTool implements Tool {
 		final ModelComponent targetModelComponent = modelOver;
 		
 		if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
-			PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+			TranscriberBranch<Model> branchStep2 = branch.branch();
 			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			branch.close();
 
@@ -95,14 +95,14 @@ public class ConsTool implements Tool {
 			}
 		} else {
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
-				final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+				final TranscriberBranch<Model> branchStep2 = branch.branch();
 				branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 				targetPresenter.reset(branchStep2);
 				targetPresenter = null;
 				productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
 				branch.close();
 			} else {
-				final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+				final TranscriberBranch<Model> branchStep2 = branch.branch();
 				branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 				targetPresenter.reset(branchStep2);
 				targetPresenter = null;
@@ -115,14 +115,14 @@ public class ConsTool implements Tool {
 	}
 	
 	private Point mouseDown;
-	private PrevaylerServiceBranch<Model> branch;
+	private TranscriberBranch<Model> branch;
 	private TargetPresenter targetPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
-		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+		TranscriberBranch<Model> branchStep1 = branch.branch();
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 
 		ModelComponent targetModelComponent = modelOver;

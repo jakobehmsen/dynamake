@@ -9,7 +9,7 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -35,7 +35,7 @@ public class TextTool implements Tool {
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, final MouseEvent e, final ModelComponent modelOver) {
 		if(modelOver.getModelBehind() instanceof TextModel) {
-			PrevaylerServiceBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+			TranscriberBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 			branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			branch.onFinished(new Runnable() {
@@ -57,7 +57,7 @@ public class TextTool implements Tool {
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, final ModelComponent modelOver) {
 		if(modelOver.getModelBehind() instanceof TextModel) {
-			PrevaylerServiceBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+			TranscriberBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 			branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			branch.onFinished(new Runnable() {
@@ -84,7 +84,7 @@ public class TextTool implements Tool {
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, final MouseEvent e, final ModelComponent modelOver) {
 		if(modelOver.getModelBehind() instanceof TextModel) {
-			PrevaylerServiceBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+			TranscriberBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 			branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			branch.onFinished(new Runnable() {

@@ -4,10 +4,10 @@ import java.util.HashSet;
 
 import dynamake.models.PropogationContext;
 
-public interface PrevaylerServiceBranch<T> {
+public interface TranscriberBranch<T> {
 //	void absorb();
 	void reject();
-	PrevaylerServiceBranch<T> branch();
+	TranscriberBranch<T> branch();
 	void execute(PropogationContext propCtx, DualCommandFactory<T> transactionFactory);
 	void close();
 	// TODO: Consider: 
@@ -16,7 +16,7 @@ public interface PrevaylerServiceBranch<T> {
 	void setOnFinishedBuilder(RunBuilder finishedBuilder);
 
 	boolean isIsolated();
-	PrevaylerServiceBranch<T> isolatedBranch();
+	TranscriberBranch<T> isolatedBranch();
 	
 	void registerAffectedModel(T model);
 	// Callable after being closed

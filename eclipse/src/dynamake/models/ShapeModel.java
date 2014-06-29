@@ -14,7 +14,7 @@ import javax.swing.JComponent;
 
 import dynamake.Action1;
 import dynamake.DualCommandFactory;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
@@ -93,7 +93,7 @@ public class ShapeModel extends Model {
 		@Override
 		public void appendContainerTransactions(LivePanel livePanel,
 				CompositeMenuBuilder menuBuilder, ModelComponent child,
-				PrevaylerServiceBranch<Model> branch) {
+				TranscriberBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -101,7 +101,7 @@ public class ShapeModel extends Model {
 		@Override
 		public void appendTransactions(ModelComponent livePanel,
 				CompositeMenuBuilder menuBuilder,
-				PrevaylerServiceBranch<Model> branch) {
+				TranscriberBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -110,7 +110,7 @@ public class ShapeModel extends Model {
 		public void appendDroppedTransactions(ModelComponent livePanel,
 				ModelComponent target, Rectangle droppedBounds,
 				CompositeMenuBuilder menuBuilder,
-				PrevaylerServiceBranch<Model> branch) {
+				TranscriberBranch<Model> branch) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, branch);
 		}
 
@@ -118,7 +118,7 @@ public class ShapeModel extends Model {
 		public void appendDropTargetTransactions(ModelComponent livePanel,
 				ModelComponent dropped, Rectangle droppedBounds,
 				Point dropPoint, CompositeMenuBuilder menuBuilder,
-				PrevaylerServiceBranch<Model> branch) {
+				TranscriberBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}

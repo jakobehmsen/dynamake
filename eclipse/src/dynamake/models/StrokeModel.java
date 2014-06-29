@@ -16,7 +16,7 @@ import javax.swing.JComponent;
 import dynamake.Action1;
 import dynamake.DualCommandFactory;
 import dynamake.Fraction;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
@@ -99,7 +99,7 @@ public class StrokeModel extends Model {
 		@Override
 		public void appendContainerTransactions(LivePanel livePanel,
 				CompositeMenuBuilder menuBuilder, ModelComponent child,
-				PrevaylerServiceBranch<Model> branch) {
+				TranscriberBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -107,7 +107,7 @@ public class StrokeModel extends Model {
 		@Override
 		public void appendTransactions(ModelComponent livePanel,
 				CompositeMenuBuilder menuBuilder,
-				PrevaylerServiceBranch<Model> branch) {
+				TranscriberBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -116,7 +116,7 @@ public class StrokeModel extends Model {
 		public void appendDroppedTransactions(ModelComponent livePanel,
 				ModelComponent target, Rectangle droppedBounds,
 				CompositeMenuBuilder menuBuilder,
-				PrevaylerServiceBranch<Model> branch) {
+				TranscriberBranch<Model> branch) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, branch);
 		}
 
@@ -124,7 +124,7 @@ public class StrokeModel extends Model {
 		public void appendDropTargetTransactions(ModelComponent livePanel,
 				ModelComponent dropped, Rectangle droppedBounds,
 				Point dropPoint, CompositeMenuBuilder menuBuilder,
-				PrevaylerServiceBranch<Model> branch) {
+				TranscriberBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -182,7 +182,7 @@ public class StrokeModel extends Model {
 		
 		final RemovableListener removableListenerForSizeChanges = RemovableListener.addObserver(this, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
 				if(change instanceof Model.PropertyChanged
 						&& changeDistance == 1 /* And not a forwarded change */) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;

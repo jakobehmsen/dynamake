@@ -42,7 +42,7 @@ import dynamake.DragDropPopupBuilder;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.RunBuilder;
 import dynamake.TellDragDropPopupBuilder;
@@ -102,13 +102,13 @@ public class LiveModel extends Model {
 		return clone;
 	}
 	
-	public void setSelection(Model selection, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+	public void setSelection(Model selection, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		this.selection = selection;
 
 		sendChanged(new SelectionChanged(), propCtx, propDistance, 0, branch);
 	}
 
-	public void setOutput(Model output, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+	public void setOutput(Model output, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		this.output = output;
 		
 		sendChanged(new OutputChanged(), propCtx, propDistance, 0, branch);
@@ -118,7 +118,7 @@ public class LiveModel extends Model {
 		return tool;
 	}
 	
-	public void setTool(int tool, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+	public void setTool(int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		this.tool = tool;
 		sendChanged(new StateChanged(), propCtx, propDistance, 0, branch);
 	}
@@ -137,12 +137,12 @@ public class LiveModel extends Model {
 		return -1;
 	}
 	
-	public void removeButtonToToolBinding(int button, int tool, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+	public void removeButtonToToolBinding(int button, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		buttonToToolMap.remove(button);
 		sendChanged(new ButtonToolBindingChanged(-1, tool), propCtx, propDistance, 0, branch);
 	}
 	
-	public void bindButtonToTool(int button, int tool, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+	public void bindButtonToTool(int button, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		buttonToToolMap.put(button, tool);
 		sendChanged(new ButtonToolBindingChanged(button, tool), propCtx, propDistance, 0, branch);
 	}
@@ -163,7 +163,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.bindButtonToTool(button, tool, propCtx, 0, branch);
 		}
@@ -190,7 +190,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.removeButtonToToolBinding(button, tool, propCtx, 0, branch);
 		}
@@ -215,7 +215,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 //			System.out.println("set selection to " + modelLocation);
 			if(modelLocation != null) {
@@ -246,7 +246,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
 			if(modelLocation != null) {
 				Model selection = (Model)modelLocation.getChild(prevalentSystem);
@@ -306,7 +306,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			LiveModel model = (LiveModel)modelLocation.getChild(prevalentSystem);
 			model.setTool(tool, propCtx, 0, branch);
 		}
@@ -401,7 +401,7 @@ public class LiveModel extends Model {
 					
 					PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
 					
-					PrevaylerServiceBranch<Model> branch = ToolButton.this.transactionFactory.createBranch();
+					TranscriberBranch<Model> branch = ToolButton.this.transactionFactory.createBranch();
 					
 					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
@@ -595,7 +595,7 @@ public class LiveModel extends Model {
 				}
 			}
 			
-			public void createEffectFrame(Rectangle creationBounds, PrevaylerServiceBranch<Model> branch) {
+			public void createEffectFrame(Rectangle creationBounds, TranscriberBranch<Model> branch) {
 				if(productionPanel.effectFrame == null) {
 					final JPanel localEffectFrame = new JPanel();
 					localEffectFrame.setBackground(new Color(0, 0, 0, 0));
@@ -667,7 +667,7 @@ public class LiveModel extends Model {
 				}
 			}
 			
-			public void clearEffectFrameOnBranch(PrevaylerServiceBranch<Model> branch) {
+			public void clearEffectFrameOnBranch(TranscriberBranch<Model> branch) {
 				if(productionPanel.effectFrame != null) {
 					final JPanel localEffectFrame = productionPanel.effectFrame;
 					productionPanel.effectFrame = null;
@@ -708,7 +708,7 @@ public class LiveModel extends Model {
 				productionPanel.effectFrame.setCursor(cursor);
 			}
 
-			public void setEffectFrameCursor2(final Cursor cursor, PrevaylerServiceBranch<Model> branch) {
+			public void setEffectFrameCursor2(final Cursor cursor, TranscriberBranch<Model> branch) {
 				if(productionPanel.effectFrame != null) {
 					final JPanel localEffectFrame = productionPanel.effectFrame;
 					
@@ -721,13 +721,13 @@ public class LiveModel extends Model {
 				}
 			}
 			
-			public void selectFromView(final ModelComponent view, final Point initialMouseDown, PrevaylerServiceBranch<Model> branch) {
+			public void selectFromView(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
 				Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 				requestSelect(view, effectBounds, branch);
 				createEffectFrame(effectBounds, branch);
 			}
 			
-			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, PrevaylerServiceBranch<Model> branch) {
+			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
 				Dimension sourceBoundsSize = new Dimension(125, 33);
 				Point sourceBoundsLocation = new Point(initialMouseDown.x - sourceBoundsSize.width / 2, initialMouseDown.y - sourceBoundsSize.height / 2);
 				Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
@@ -736,12 +736,12 @@ public class LiveModel extends Model {
 				createEffectFrame(selectionBounds, branch);
 			}
 			
-			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, PrevaylerServiceBranch<Model> branch) {
+			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
 				requestSelect(view, new Rectangle(0, 0, 0, 0), branch);
 				createEffectFrame(new Rectangle(0, 0, 0, 0), branch);
 			}
 			
-			private void requestSelect(final ModelComponent view, final Rectangle effectBounds, PrevaylerServiceBranch<Model> branch) {
+			private void requestSelect(final ModelComponent view, final Rectangle effectBounds, TranscriberBranch<Model> branch) {
 				// Notice: executes a transaction
 				PropogationContext propCtx = new PropogationContext();
 				
@@ -770,7 +770,7 @@ public class LiveModel extends Model {
 				));
 			}
 			
-			private void select(final ModelComponent view, PrevaylerServiceBranch<Model> branch) {
+			private void select(final ModelComponent view, TranscriberBranch<Model> branch) {
 				// <Don't remove>
 				// Whether the following check is necessary or not has not been decided yet, so don't remove the code
 //				if(this.selection == view)
@@ -926,19 +926,19 @@ public class LiveModel extends Model {
 				}
 			}
 			
-			public void showPopupForSelectionObject(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceBranch<Model> branch) {
+			public void showPopupForSelectionObject(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
 				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(branch));
 			}
 			
-			public void showPopupForSelectionCons(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceBranch<Model> branch) {
+			public void showPopupForSelectionCons(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
 				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(branch));
 			}
 			
-			public void showPopupForSelectionTell(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceBranch<Model> branch) {
+			public void showPopupForSelectionTell(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
 				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new TellDragDropPopupBuilder(branch));
 			}
 
-			public void showPopupForSelectionView(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, PrevaylerServiceBranch<Model> branch) {
+			public void showPopupForSelectionView(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
 				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ViewDragDropPopupBuilder(branch));
 			}
 			
@@ -1068,7 +1068,7 @@ public class LiveModel extends Model {
 				}
 			}
 
-			public void setOutput(final ModelComponent view, PrevaylerServiceBranch<Model> branch) {
+			public void setOutput(final ModelComponent view, TranscriberBranch<Model> branch) {
 				this.output = view;
 				if(view != null) {
 					if(productionPanel.outputFrame == null) {
@@ -1142,7 +1142,7 @@ public class LiveModel extends Model {
 			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonPressed).paint(g);
 		}
 		
-		public void clearFocus(PrevaylerServiceBranch<Model> branch) {
+		public void clearFocus(TranscriberBranch<Model> branch) {
 			if(selectionFrame != null) {
 				if(selectionBoundsBinding != null)
 					selectionBoundsBinding.releaseBinding();
@@ -1272,7 +1272,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
 					if(change instanceof LiveModel.ButtonToolBindingChanged) {
 						LiveModel.ButtonToolBindingChanged bindButtonChanged = (LiveModel.ButtonToolBindingChanged)change;
 						
@@ -1328,7 +1328,7 @@ public class LiveModel extends Model {
 				topPanel.add(buttonTool);
 			}
 			
-			PrevaylerServiceBranch<Model> initializationBranch = getTransactionFactory().createBranch();
+			TranscriberBranch<Model> initializationBranch = getTransactionFactory().createBranch();
 			initializationBranch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			if(LivePanel.this.model.selection != null) {
@@ -1354,23 +1354,23 @@ public class LiveModel extends Model {
 		}
 
 		@Override
-		public void appendContainerTransactions(LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
+		public void appendContainerTransactions(LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child, TranscriberBranch<Model> branch) {
 
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, PrevaylerServiceBranch<Model> branch) {
+		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
 
 		}
 
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, PrevaylerServiceBranch<Model> branch) {
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, branch);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(
-			ModelComponent livePanel, ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder, PrevaylerServiceBranch<Model> branch) {
+			ModelComponent livePanel, ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
 
 		}
 

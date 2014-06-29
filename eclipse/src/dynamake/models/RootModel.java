@@ -20,7 +20,7 @@ import dynamake.Action1;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
@@ -78,23 +78,23 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public void appendContainerTransactions(LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
+		public void appendContainerTransactions(LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child, TranscriberBranch<Model> branch) {
 
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, PrevaylerServiceBranch<Model> branch) {
+		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
 
 		}
 
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, PrevaylerServiceBranch<Model> branch) {
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, branch);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-			ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder, PrevaylerServiceBranch<Model> branch) {
+			ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
 		}
 
 		@Override
@@ -155,7 +155,7 @@ public class RootModel extends Model {
 
 			if(newLocation != null && newSize != null) {
 				PropogationContext propCtx = new PropogationContext();
-				PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
+				TranscriberBranch<Model> branch = transactionFactory.createBranch();
 				
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
@@ -253,7 +253,7 @@ public class RootModel extends Model {
 				PropogationContext propCtx = new PropogationContext();
 
 				final int newState = e.getNewState();
-				PrevaylerServiceBranch<Model> branch = view.getTransactionFactory().createBranch();
+				TranscriberBranch<Model> branch = view.getTransactionFactory().createBranch();
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
 						Location modelLocation = transactionFactory.getModelLocation();

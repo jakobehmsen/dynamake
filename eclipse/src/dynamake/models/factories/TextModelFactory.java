@@ -4,7 +4,7 @@ import java.awt.Rectangle;
 import java.util.Hashtable;
 
 import dynamake.Fraction;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.TextModel;
@@ -21,12 +21,12 @@ public class TextModelFactory implements Factory {
 	}
 
 	@Override
-	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		TextModel model = new TextModel();
 		Fraction fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(new Fraction(creationBounds.height, 20));
 //		Fraction fontSize = 12 * 40 creationBounds.height;
-		PrevaylerServiceBranch<Model> setFontSizeBranch = branch.isolatedBranch();
+		TranscriberBranch<Model> setFontSizeBranch = branch.isolatedBranch();
 		model.setProperty("FontSize", fontSize, propCtx, propDistance, setFontSizeBranch);
 		return model;
 	}

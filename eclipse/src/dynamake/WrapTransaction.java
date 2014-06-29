@@ -24,11 +24,11 @@ public class WrapTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
 		CanvasModel wrapper = new CanvasModel();
 		
-		PrevaylerServiceBranch<Model> propertyBranch = branch.isolatedBranch();
+		TranscriberBranch<Model> propertyBranch = branch.isolatedBranch();
 		
 		wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, propertyBranch);
 		wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, propertyBranch);
@@ -43,8 +43,8 @@ public class WrapTransaction implements Command<Model> {
 		}
 		
 		for(Model model: models) {
-			PrevaylerServiceBranch<Model> removeBranch = branch.branch();
-			PrevaylerServiceBranch<Model> addBranch = branch.branch();
+			TranscriberBranch<Model> removeBranch = branch.branch();
+			TranscriberBranch<Model> addBranch = branch.branch();
 			
 			target.removeModel(model, propCtx, 0, removeBranch);
 			wrapper.addModel(model, propCtx, 0, addBranch);
@@ -57,8 +57,8 @@ public class WrapTransaction implements Command<Model> {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
 
-			PrevaylerServiceBranch<Model> setXBranch = branch.branch();
-			PrevaylerServiceBranch<Model> setYBranch = branch.branch();
+			TranscriberBranch<Model> setXBranch = branch.branch();
+			TranscriberBranch<Model> setYBranch = branch.branch();
 			
 			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, setXBranch);
 			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, setYBranch);

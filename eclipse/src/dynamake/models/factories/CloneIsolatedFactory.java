@@ -3,7 +3,7 @@ package dynamake.models.factories;
 import java.awt.Rectangle;
 import java.util.Hashtable;
 
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -25,7 +25,7 @@ public class CloneIsolatedFactory implements Factory {
 	}
 
 	@Override
-	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 //		PropogationContext propCtx = new PropogationContext();
 		
 		Model model = (Model)modelLocation.getChild(rootModel);

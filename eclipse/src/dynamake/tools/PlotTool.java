@@ -20,7 +20,7 @@ import javax.swing.event.PopupMenuListener;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.UnwrapTransaction;
 import dynamake.WrapTransaction;
@@ -68,7 +68,7 @@ public class PlotTool implements Tool {
 				}
 			}
 			
-			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+			final TranscriberBranch<Model> branchStep2 = branch.branch();
 			
 			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
@@ -187,14 +187,14 @@ public class PlotTool implements Tool {
 		}
 	}
 	
-	private PrevaylerServiceBranch<Model> branch;
+	private TranscriberBranch<Model> branch;
 	private Point mouseDown;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver) {
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
-		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+		TranscriberBranch<Model> branchStep1 = branch.branch();
 		
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		

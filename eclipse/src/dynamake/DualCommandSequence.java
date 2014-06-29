@@ -25,14 +25,14 @@ public class DualCommandSequence<T> implements DualCommand<T> {
 
 	@Override
 	public void executeForwardOn(PropogationContext propCtx, T prevalentSystem,
-			Date executionTime, PrevaylerServiceBranch<T> branch) {
+			Date executionTime, TranscriberBranch<T> branch) {
 		for(DualCommand<T> t: transactions)
 			t.executeForwardOn(propCtx, prevalentSystem, executionTime, branch);
 	}
 
 	@Override
 	public void executeBackwardOn(PropogationContext propCtx,
-			T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch) {
+			T prevalentSystem, Date executionTime, TranscriberBranch<T> branch) {
 		// Reverse the sequence
 		for(int i = transactions.length - 1; i >= 0; i--) {
 			DualCommand<T> t = transactions[i];

@@ -6,11 +6,11 @@ import dynamake.models.ModelLocation;
 import dynamake.models.ModelLocator;
 
 public class TransactionFactory {
-	private PrevaylerService<Model> prevaylerService;
+	private Transcriber<Model> prevaylerService;
 	private TransactionFactory parent;
 	private ModelLocator locator;
 	
-	public TransactionFactory(PrevaylerService<Model> prevaylerService, ModelLocator locator) {
+	public TransactionFactory(Transcriber<Model> prevaylerService, ModelLocator locator) {
 		this.prevaylerService = prevaylerService;
 		this.locator = locator;
 	}
@@ -82,7 +82,7 @@ public class TransactionFactory {
 		return new CompositeModelLocation(getModelLocation(), otherLocation);
 	}
 
-	public PrevaylerServiceBranch<Model> createBranch() {
+	public TranscriberBranch<Model> createBranch() {
 		return prevaylerService.createBranch();
 	}
 }

@@ -36,7 +36,7 @@ public class TargetPresenter {
 		});
 	}
 	
-	public void update(ModelComponent newTargetOver, final PrevaylerServiceBranch<Model> branch) {
+	public void update(ModelComponent newTargetOver, final TranscriberBranch<Model> branch) {
 		update(newTargetOver, new Runner() {
 			@Override
 			public void run(Runnable runnable) {
@@ -96,7 +96,7 @@ public class TargetPresenter {
 		});
 	}
 
-	public void reset(final PrevaylerServiceBranch<Model> branch) {
+	public void reset(final TranscriberBranch<Model> branch) {
 		reset(new Runner() {
 			@Override
 			public void run(Runnable runnable) {

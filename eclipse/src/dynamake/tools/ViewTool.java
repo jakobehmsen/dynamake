@@ -7,7 +7,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -31,7 +31,7 @@ public class ViewTool implements Tool {
 
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+		final TranscriberBranch<Model> branchStep2 = branch.branch();
 		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		productionPanel.editPanelMouseAdapter.showPopupForSelectionView(productionPanel, e.getPoint(), null, branchStep2);
@@ -39,13 +39,13 @@ public class ViewTool implements Tool {
 		branch.close();
 	}
 	
-	private PrevaylerServiceBranch<Model> branch;
+	private TranscriberBranch<Model> branch;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
-		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+		TranscriberBranch<Model> branchStep1 = branch.branch();
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		ModelComponent targetModelComponent = modelOver;

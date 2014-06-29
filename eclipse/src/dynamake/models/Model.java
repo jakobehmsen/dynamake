@@ -30,7 +30,7 @@ import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
 import dynamake.Fraction;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
 import dynamake.models.factories.CloneDeepFactory;
@@ -105,7 +105,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
 			model.setProperty(name, value, propCtx, 0, branch);
@@ -142,7 +142,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
 			model.setProperty(name, value, propCtx, 0, branch);
@@ -182,10 +182,10 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-			PrevaylerServiceBranch<Model> undoBranch = branch.isolatedBranch();
+			TranscriberBranch<Model> undoBranch = branch.isolatedBranch();
 			model.undo(propCtx, prevalentSystem, undoBranch);
 			undoBranch.close();
 		}
@@ -208,10 +208,10 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-			PrevaylerServiceBranch<Model> undoBranch = branch.isolatedBranch();
+			TranscriberBranch<Model> undoBranch = branch.isolatedBranch();
 			model.redo(propCtx, prevalentSystem, undoBranch);
 			undoBranch.close();
 		}
@@ -222,7 +222,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void undo(PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> isolatedBranch) {
+	public void undo(PropogationContext propCtx, Model prevalentSystem, TranscriberBranch<Model> isolatedBranch) {
 		if(undoStack.isEmpty())
 			return;
 		
@@ -246,7 +246,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	private void undoTill(
-		PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToUndoTill) {
+		PropogationContext propCtx, Model prevalentSystem, TranscriberBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToUndoTill) {
 		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
 		while(ctxTransactionToUndo != ctxTransactionToUndoTill) {
 			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, branch);
@@ -254,7 +254,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void redo(PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> isolatedBranch) {
+	public void redo(PropogationContext propCtx, Model prevalentSystem, TranscriberBranch<Model> isolatedBranch) {
 		if(redoStack.isEmpty())
 			return;
 		
@@ -277,7 +277,7 @@ public abstract class Model implements Serializable, Observer {
 			affectedModel.undoStack.push(ctxTransactionToRedo);
 	}
 	
-	private void redoTill(PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToRedoTillæ) {
+	private void redoTill(PropogationContext propCtx, Model prevalentSystem, TranscriberBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToRedoTillæ) {
 		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
 		while(ctxTransactionToRedo != ctxTransactionToRedoTillæ) {
 			ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, branch);
@@ -297,7 +297,7 @@ public abstract class Model implements Serializable, Observer {
 	
 	protected Hashtable<String, Object> properties;
 	
-	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
+	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		if(properties == null)
 			properties = new Hashtable<String, Object>();
 		if(value != null)
@@ -329,7 +329,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
@@ -358,7 +358,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
@@ -374,10 +374,10 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	@Override
-	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
 		if(change instanceof SetProperty && changeDistance == 1) {
 			// Side-effect
-			PrevaylerServiceBranch<Model> innerBranch = branch.branch();
+			TranscriberBranch<Model> innerBranch = branch.branch();
 			final SetProperty setProperty = (SetProperty)change;
 			
 			innerBranch.execute(propCtx, new DualCommandFactory<Model>() {
@@ -395,7 +395,7 @@ public abstract class Model implements Serializable, Observer {
 			innerBranch.close();
 		} else if(change instanceof TellProperty && changeDistance == 1) {
 			// Side-effect
-			PrevaylerServiceBranch<Model> innerBranch = branch.branch();
+			TranscriberBranch<Model> innerBranch = branch.branch();
 			
 			TellProperty tellProperty = (TellProperty)change;
 			Object value = getProperty(tellProperty.name);
@@ -408,7 +408,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
 
 	}
 	
@@ -503,11 +503,11 @@ public abstract class Model implements Serializable, Observer {
 		properties = (Hashtable<String, Object>)ois.readObject();
 	}
 
-	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
 		setProperty(Model.PROPERTY_VIEW, view, propCtx, propDistance, branch);
 	}
 	
-	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
 		if(changeQueue != null) {
 			changeQueue.add(new ChangeHolder(change, propCtx, propDistance, changeDistance));
 			return;
@@ -524,7 +524,7 @@ public abstract class Model implements Serializable, Observer {
 		changeQueue = null;
 	}
 	
-	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
 		int nextChangeDistance = changeDistance + 1;
 		int nextPropDistance = propDistance + 1;
 		observersToAdd = new ArrayList<Observer>();
@@ -589,7 +589,7 @@ public abstract class Model implements Serializable, Observer {
 	public static RemovableListener wrapForBoundsChanges(final Model model, final ModelComponent target, final ViewManager viewManager) {
 		return RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
 				if(change instanceof Model.PropertyChanged
 						&& changeDistance == 1 /* And not a forwarded change */) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
@@ -634,7 +634,7 @@ public abstract class Model implements Serializable, Observer {
 	public static RemovableListener wrapForComponentColorChanges(Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager, final int componentColor) {
 		return RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
 				if(change instanceof Model.PropertyChanged) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 
@@ -676,7 +676,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 			model.sendChanged(new MouseUp(), propCtx, 0, 0, branch);
 		}
@@ -700,7 +700,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 			model.sendChanged(new MouseDown(), propCtx, 0, 0, branch);
 		}
@@ -716,7 +716,7 @@ public abstract class Model implements Serializable, Observer {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 				PropogationContext propCtx = new PropogationContext();
-				PrevaylerServiceBranch<Model> branch = view.getTransactionFactory().createBranch();
+				TranscriberBranch<Model> branch = view.getTransactionFactory().createBranch();
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -732,7 +732,7 @@ public abstract class Model implements Serializable, Observer {
 			@Override
 			public void mousePressed(MouseEvent arg0) {
 				PropogationContext propCtx = new PropogationContext();
-				PrevaylerServiceBranch<Model> branch = view.getTransactionFactory().createBranch();
+				TranscriberBranch<Model> branch = view.getTransactionFactory().createBranch();
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -802,7 +802,7 @@ public abstract class Model implements Serializable, Observer {
 			propertySetter.run((T)value);
 		return Model.RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
 				if(change instanceof Model.PropertyChanged 
 					&& changeDistance == 1 /* And not a forwarded change */) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
@@ -819,7 +819,7 @@ public abstract class Model implements Serializable, Observer {
 		});
 	}
 	
-	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final TransactionFactory transactionFactory, CompositeMenuBuilder transactions, final PrevaylerServiceBranch<Model> branch) {
+	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final TransactionFactory transactionFactory, CompositeMenuBuilder transactions, final TranscriberBranch<Model> branch) {
 		transactions.addMenudBuilder("Set " + PROPERTY_COLOR, new ColorMenuBuilder((Color)model.getProperty(PROPERTY_COLOR), new Action1<Color>() {
 			@Override
 			public void run(final Color color) {
@@ -859,7 +859,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void appendGeneralDroppedTransactions(final ModelComponent livePanel,
-			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, CompositeMenuBuilder transactions, final PrevaylerServiceBranch<Model> branch) {
+			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, CompositeMenuBuilder transactions, final TranscriberBranch<Model> branch) {
 		if(target.getModelBehind() instanceof CanvasModel) {
 			transactions.addMenuBuilder("Clone Isolated", new Runnable() {
 				@Override

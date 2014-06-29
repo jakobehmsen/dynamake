@@ -7,7 +7,7 @@ import java.util.List;
 
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
 import dynamake.models.CanvasModel;
@@ -36,7 +36,7 @@ public class TrimTool implements Tool {
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		canvas = null;
 
-		final PrevaylerServiceBranch<Model> branchReset = branch.branch();
+		final TranscriberBranch<Model> branchReset = branch.branch();
 		branchReset.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		targetPresenter.reset(branchReset);
@@ -48,7 +48,7 @@ public class TrimTool implements Tool {
 		branch = null;
 	}
 	
-	private PrevaylerServiceBranch<Model> branch;
+	private TranscriberBranch<Model> branch;
 	private ModelComponent canvas;
 	private TargetPresenter targetPresenter;
 
@@ -86,7 +86,7 @@ public class TrimTool implements Tool {
 			ModelComponent modelOverParent = ModelComponent.Util.getParent(modelOver);
 			
 			if(modelOverParent == canvas) {
-				final PrevaylerServiceBranch<Model> branchDelete = branch.branch();
+				final TranscriberBranch<Model> branchDelete = branch.branch();
 				branchDelete.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 				
 				branchDelete.execute(new PropogationContext(), new DualCommandFactory<Model>() {

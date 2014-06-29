@@ -13,7 +13,7 @@ import javax.swing.SwingUtilities;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
 import dynamake.models.LiveModel;
@@ -43,7 +43,7 @@ public class BindTool implements Tool {
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		final ModelComponent targetModelComponent = modelOver;
 		
-		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+		final TranscriberBranch<Model> branchStep2 = branch.branch();
 		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		branch.close();
@@ -97,14 +97,14 @@ public class BindTool implements Tool {
 	}
 	
 	private Point mouseDown;
-	private PrevaylerServiceBranch<Model> branch;
+	private TranscriberBranch<Model> branch;
 	private TargetPresenter targetPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
-		final PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+		final TranscriberBranch<Model> branchStep1 = branch.branch();
 		
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 

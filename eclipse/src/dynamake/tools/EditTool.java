@@ -16,7 +16,7 @@ import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
 import dynamake.Fraction;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
 import dynamake.TransactionFactory;
@@ -52,7 +52,7 @@ public class EditTool implements Tool {
 		if(viewPressedOn != null) {
 			viewPressedOn = null;
 			
-			final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
+			final TranscriberBranch<Model> branchStep2 = branch.branch();
 			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			branch.close();
 
@@ -150,7 +150,7 @@ public class EditTool implements Tool {
 	
 	private Point mouseDown;
 	private ModelComponent viewPressedOn;
-	private PrevaylerServiceBranch<Model> branch;
+	private TranscriberBranch<Model> branch;
 	private RelativePosition relativePosition;
 	private TargetPresenter targetPresenter;
 
@@ -161,7 +161,7 @@ public class EditTool implements Tool {
 		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			viewPressedOn = targetModelComponent;
 			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
-			PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
+			TranscriberBranch<Model> branchStep1 = branch.branch();
 			branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);

@@ -1,6 +1,6 @@
 package dynamake.models;
 
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 
 // TODO: Consider renaming to Peer
 public interface Observer {
@@ -11,7 +11,7 @@ public interface Observer {
 	 * @param branch TODO
 	
 	 */
-	void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch);
+	void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch);
 	void addObservee(Observer observee);
 	void removeObservee(Observer observee);
 }

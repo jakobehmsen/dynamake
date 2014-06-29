@@ -19,7 +19,7 @@ import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
 import dynamake.Fraction;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
@@ -100,7 +100,7 @@ public class TextModel extends Model {
 			this.text = text;
 		}
 
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.insert(offset, text);
 			branch.registerAffectedModel(textModel);
@@ -129,7 +129,7 @@ public class TextModel extends Model {
 			this.end = end;
 		}
 
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			TextModel textModel = (TextModel)textLocation.getChild(prevalentSystem);
 			textModel.text.delete(start, end);
 			branch.registerAffectedModel(textModel);
@@ -170,11 +170,11 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-			LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
+			LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child, TranscriberBranch<Model> branch) {
 		}
 
 		@Override
-		public void appendTransactions(final ModelComponent livePanel, CompositeMenuBuilder menuBuilder, final PrevaylerServiceBranch<Model> branch) {
+		public void appendTransactions(final ModelComponent livePanel, CompositeMenuBuilder menuBuilder, final TranscriberBranch<Model> branch) {
 			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, menuBuilder, branch);
 			
 			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
@@ -202,13 +202,13 @@ public class TextModel extends Model {
 		}
 		
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, PrevaylerServiceBranch<Model> branch) {
+		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
 			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, branch);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(
-			ModelComponent livePanel,ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder, PrevaylerServiceBranch<Model> branch) {
+			ModelComponent livePanel,ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
 
 		}
 
@@ -252,7 +252,7 @@ public class TextModel extends Model {
 			
 			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_VIEW);
 			
-			PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
+			TranscriberBranch<Model> branch = transactionFactory.createBranch();
 			branch.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -278,7 +278,7 @@ public class TextModel extends Model {
 			
 			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_VIEW);
 			
-			PrevaylerServiceBranch<Model> branch = transactionFactory.createBranch();
+			TranscriberBranch<Model> branch = transactionFactory.createBranch();
 			branch.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -329,7 +329,7 @@ public class TextModel extends Model {
 				public void addObservee(Observer observee) { }
 				
 				@Override
-				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, PrevaylerServiceBranch<Model> branch) {
+				public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
 					if(!propCtx.isTagged(TAG_CAUSED_BY_VIEW)) {
 						if(change instanceof InsertedText) {
 							InsertedText insertText = (InsertedText)change;

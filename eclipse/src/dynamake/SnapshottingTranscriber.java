@@ -21,7 +21,7 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 
-public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
+public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private Func0<T> prevalentSystemFunc;
 	private T prevalentSystem;
 	private int transactionEnlistingCount = 0;
@@ -34,7 +34,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	private static String snapshotFile = "snap.shot";
 	private ExecutorService journalLogger;
 	
-	public SnapshottingPrevaylerService(Func0<T> prevalentSystemFunc) throws Exception {
+	public SnapshottingTranscriber(Func0<T> prevalentSystemFunc) throws Exception {
 		this.prevalentSystemFunc = prevalentSystemFunc; 
 		transactionExecutor = Executors.newSingleThreadExecutor();
 		
@@ -207,7 +207,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		void doOnFinished(Runnable runnable);
 	}
 	
-	private static class IsolatedBranch<T> implements PrevaylerServiceBranch<T>, BranchParent {
+	private static class IsolatedBranch<T> implements TranscriberBranch<T>, BranchParent {
 		private BranchParent parent;
 		private RunBuilder finishedBuilder;
 		
@@ -223,7 +223,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		private ArrayList<IsolatedBranch<T>> branches = new ArrayList<IsolatedBranch<T>>();
 
 		@Override
-		public PrevaylerServiceBranch<T> branch() {
+		public TranscriberBranch<T> branch() {
 			IsolatedBranch<T> branch = new IsolatedBranch<T>(this);
 			branches.add(branch);
 			return branch;
@@ -236,7 +236,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void close() { }
 		
 		@Override
-		public PrevaylerServiceBranch<T> isolatedBranch() {
+		public TranscriberBranch<T> isolatedBranch() {
 			return branch();
 		}
 		
@@ -339,18 +339,18 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		return prevalentSystem;
 	}
 	
-	private static class Branch<T> implements PrevaylerServiceBranch<T>, BranchParent {
+	private static class Branch<T> implements TranscriberBranch<T>, BranchParent {
 		private Branch<T> parent;
-		private SnapshottingPrevaylerService<T> prevaylerService;
+		private SnapshottingTranscriber<T> prevaylerService;
 		private DualCommand<T> transaction;
-		private ArrayList<SnapshottingPrevaylerService.Branch<T>> branches = new ArrayList<SnapshottingPrevaylerService.Branch<T>>();
-		private ArrayList<SnapshottingPrevaylerService.Branch<T>> absorbedBranches = new ArrayList<SnapshottingPrevaylerService.Branch<T>>();
+		private ArrayList<SnapshottingTranscriber.Branch<T>> branches = new ArrayList<SnapshottingTranscriber.Branch<T>>();
+		private ArrayList<SnapshottingTranscriber.Branch<T>> absorbedBranches = new ArrayList<SnapshottingTranscriber.Branch<T>>();
 		private PropogationContext propCtx;
 		private boolean rejected;
 		
-		private PrevaylerServiceBranchBehavior<T> behavior;
+		private TranscriberBranchBehavior<T> behavior;
 		
-		private Branch(PrevaylerServiceBranchBehavior<T> behavior, SnapshottingPrevaylerService<T> prevaylerService, final PropogationContext propCtx) {
+		private Branch(TranscriberBranchBehavior<T> behavior, SnapshottingTranscriber<T> prevaylerService, final PropogationContext propCtx) {
 			this.behavior = behavior;
 			this.prevaylerService = prevaylerService;
 			this.propCtx = propCtx;
@@ -359,7 +359,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 				System.out.println("Started branch: " + this);
 		}
 		
-		private Branch(Branch<T> parent, SnapshottingPrevaylerService<T> prevaylerService, final PropogationContext propCtx) {
+		private Branch(Branch<T> parent, SnapshottingTranscriber<T> prevaylerService, final PropogationContext propCtx) {
 			this.parent = parent;
 			this.prevaylerService = prevaylerService;
 			this.propCtx = propCtx;
@@ -372,13 +372,13 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-					commit(propCtx, SnapshottingPrevaylerService.Branch.this);
+					commit(propCtx, SnapshottingTranscriber.Branch.this);
 				}
 			});
 		}
 		
 		@SuppressWarnings("unchecked")
-		private static <T> void commit(final PropogationContext propCtx, SnapshottingPrevaylerService.Branch<T> branch) {
+		private static <T> void commit(final PropogationContext propCtx, SnapshottingTranscriber.Branch<T> branch) {
 			DualCommand<T> reduction = branch.reduce();
 			
 			// Reduction is null if no transactions were performed that were to be persisted.
@@ -417,7 +417,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 			if(transaction != null)
 				transactionList.add(transaction);
 			
-			for(SnapshottingPrevaylerService.Branch<T> branch: absorbedBranches) {
+			for(SnapshottingTranscriber.Branch<T> branch: absorbedBranches) {
 				DualCommand<T> reduction = branch.reduce();
 				
 				if(reduction != null)
@@ -537,8 +537,8 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		@Override
-		public PrevaylerServiceBranch<T> branch() {
-			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx);
+		public TranscriberBranch<T> branch() {
+			final SnapshottingTranscriber.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx);
 			
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
 				@Override
@@ -561,7 +561,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		
 		@Override
 		public void execute(final PropogationContext propCtx, final DualCommandFactory<T> transactionFactory) {
-			final SnapshottingPrevaylerService.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx);
+			final SnapshottingTranscriber.Branch<T> branch = new Branch<T>(this, prevaylerService, propCtx);
 			branch.transactionFactory = transactionFactory;
 			
 			this.prevaylerService.transactionExecutor.execute(new Runnable() {
@@ -656,7 +656,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		}
 		
 		@Override
-		public PrevaylerServiceBranch<T> isolatedBranch() {
+		public TranscriberBranch<T> isolatedBranch() {
 			return new IsolatedBranch<T>(this);
 		}
 		
@@ -718,7 +718,7 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 		public void addRegisteredAffectedModels(HashSet<T> allAffectedModels) {
 			allAffectedModels.addAll(this.affectedModels);
 			
-			for(SnapshottingPrevaylerService.Branch<T> branch: absorbedBranches) {
+			for(SnapshottingTranscriber.Branch<T> branch: absorbedBranches) {
 				if(!branch.isIsolated())
 					branch.addRegisteredAffectedModels(allAffectedModels);
 				else {
@@ -730,19 +730,19 @@ public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	}
 	
 	@Override
-	public PrevaylerServiceBranch<T> createBranch() {
-		PrevaylerServiceBranchBehavior<T> branchBehavior = new PrevaylerServiceBranchBehavior<T>() {
+	public TranscriberBranch<T> createBranch() {
+		TranscriberBranchBehavior<T> branchBehavior = new TranscriberBranchBehavior<T>() {
 			@Override
 			public void commit(PropogationContext propCtx, ContextualTransaction<T> ctxTransaction) {
 //				registerTransaction(ctxTransaction);
 				persistTransaction(propCtx, ctxTransaction);
 			}
 		};
-		return new SnapshottingPrevaylerService.Branch<T>(branchBehavior, this, null);
+		return new SnapshottingTranscriber.Branch<T>(branchBehavior, this, null);
 	}
 	
 	@Override
-	public PrevaylerServiceBranch<T> createBranch(PrevaylerServiceBranchBehavior<T> branchBehavior) {
-		return new SnapshottingPrevaylerService.Branch<T>(branchBehavior, this, null);
+	public TranscriberBranch<T> createBranch(TranscriberBranchBehavior<T> branchBehavior) {
+		return new SnapshottingTranscriber.Branch<T>(branchBehavior, this, null);
 	}
 }

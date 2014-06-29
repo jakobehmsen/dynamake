@@ -23,7 +23,7 @@ import javax.swing.SwingUtilities;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.PrevaylerServiceBranch;
+import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.RunBuilder;
 import dynamake.Runner;
@@ -73,7 +73,7 @@ public class WriteTool implements Tool {
 		points = null;
 		shape = null;
 		
-		final PrevaylerServiceBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+		final TranscriberBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		PropogationContext propCtx = new PropogationContext();
