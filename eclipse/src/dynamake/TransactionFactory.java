@@ -68,14 +68,6 @@ public class TransactionFactory {
 			return tail.getChild(head.getChild(holder));
 		}
 	}
-	
-	public void undo(PropogationContext propCtx, Location location, RunBuilder finishedBuilder) {
-		prevaylerService.undo(propCtx, location, finishedBuilder);
-	}
-
-	public void redo(PropogationContext propCtx, Location location, RunBuilder finishedBuilder) {
-		prevaylerService.redo(propCtx, location, finishedBuilder);
-	}
 
 	public ModelLocator extendLocator(ModelLocator otherLocator) {
 		return new CompositeModelLocator(getModelLocator(), otherLocator); 

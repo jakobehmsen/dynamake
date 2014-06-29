@@ -1213,34 +1213,6 @@ public class LiveModel extends Model {
 			
 			topPanel.setBackground(TOP_BACKGROUND_COLOR);
 			
-			JButton undo = new JButton("Undo");
-			undo.setFont(new Font(undo.getFont().getFontName(), Font.BOLD, BUTTON_FONT_SIZE));
-			undo.setBackground(TOP_FOREGROUND_COLOR);
-			undo.setForeground(TOP_BACKGROUND_COLOR);
-			undo.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					undo();
-				}
-			});
-			undo.setFocusable(false);
-			topPanel.add(undo);
-			JButton redo = new JButton("Redo");
-			redo.setFont(new Font(redo.getFont().getFontName(), Font.BOLD, BUTTON_FONT_SIZE));
-			redo.setBackground(TOP_FOREGROUND_COLOR);
-			redo.setForeground(TOP_BACKGROUND_COLOR);
-			redo.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					redo();
-				}
-			});
-			redo.setFocusable(false);
-			topPanel.add(redo);
-			
-			topPanel.add(new JSeparator(JSeparator.VERTICAL));
-			topPanel.add(new JSeparator(JSeparator.VERTICAL));
-			
 			topPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			
 			contentPane = new JLayeredPane();
@@ -1322,22 +1294,6 @@ public class LiveModel extends Model {
 			});
 			
 			contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);
-		}
-
-		public void undo() {
-			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_UNDO);
-			Location location = getTransactionFactory().getModelLocation();
-			// Indicate this is an undo context
-			RepaintRunBuilder finishedBuilder = new RepaintRunBuilder(productionPanel.livePanel);
-			getTransactionFactory().undo(propCtx, location, finishedBuilder);
-		}
-
-		public void redo() {
-			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_REDO);
-			Location location = getTransactionFactory().getModelLocation();
-			// Indicate this is an undo context
-			RepaintRunBuilder finishedBuilder = new RepaintRunBuilder(productionPanel.livePanel);
-			getTransactionFactory().redo(propCtx, location, finishedBuilder);
 		}
 		
 		@Override
