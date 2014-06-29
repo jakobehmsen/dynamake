@@ -2,7 +2,6 @@ package dynamake.models.factories;
 
 import java.awt.Rectangle;
 import java.io.Serializable;
-import java.util.Hashtable;
 
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -15,7 +14,7 @@ public interface Factory extends Serializable {
 	// With such parameters (and constraints, in general), it would be possible to implicitly support creation of an intermediate CreationModel
 	
 	String getName();
-	Model create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch);
+	Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch);
 	
 	public static class Constant implements Factory {
 		/**
@@ -37,7 +36,7 @@ public interface Factory extends Serializable {
 		}
 
 		@Override
-		public Model create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
+		public Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 			return value;
 		}
 	}

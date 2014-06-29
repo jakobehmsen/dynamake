@@ -1,7 +1,6 @@
 package dynamake.models.factories;
 
 import java.awt.Rectangle;
-import java.util.Hashtable;
 
 import dynamake.Fraction;
 import dynamake.models.Model;
@@ -27,7 +26,7 @@ public class PrimitiveSingletonFactory implements Factory {
 	}
 	
 	@Override
-	public Model create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
+	public Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		Primitive model = new Primitive(implementationSingleton);
 		Fraction fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(new Fraction(creationBounds.height, 35));

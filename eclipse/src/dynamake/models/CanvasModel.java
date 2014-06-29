@@ -187,7 +187,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, branch);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, branch);
 
 			TranscriberBranch<Model> setPropertyBranch = branch.isolatedBranch();
 			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, setPropertyBranch);
@@ -234,7 +234,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, creationArgs, propCtx, 0, branch);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, branch);
 
 			TranscriberBranch<Model> setPropertyBranch = branch.isolatedBranch();
 			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, setPropertyBranch);
@@ -269,7 +269,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, null, null, propCtx, 0, branch);
+			Model model = (Model)factory.create(rootPrevalentSystem, null, propCtx, 0, branch);
 			canvas.addModel(index, model, new PropogationContext(), 0, branch);
 		}
 		
