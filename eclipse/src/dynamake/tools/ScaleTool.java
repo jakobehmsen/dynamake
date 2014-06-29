@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.tools;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -12,6 +12,18 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import dynamake.CanvasModel;
+import dynamake.DualCommand;
+import dynamake.DualCommandFactory;
+import dynamake.LiveModel;
+import dynamake.Model;
+import dynamake.ModelComponent;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.PropogationContext;
+import dynamake.RelativePosition;
+import dynamake.RepaintRunBuilder;
+import dynamake.TargetPresenter;
+import dynamake.TransactionFactory;
 import dynamake.LiveModel.ProductionPanel;
 
 public class ScaleTool implements Tool {

@@ -1,10 +1,19 @@
-package dynamake;
+package dynamake.tools;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import dynamake.CanvasModel;
+import dynamake.DualCommand;
+import dynamake.DualCommandFactory;
+import dynamake.Model;
+import dynamake.ModelComponent;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.PropogationContext;
+import dynamake.RepaintRunBuilder;
+import dynamake.TargetPresenter;
 import dynamake.LiveModel.ProductionPanel;
 
 public class TrimTool implements Tool {

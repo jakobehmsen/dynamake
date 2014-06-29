@@ -1,15 +1,24 @@
-package dynamake;
+package dynamake.tools;
 
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import dynamake.Command;
+import dynamake.DualCommand;
+import dynamake.DualCommandFactory;
+import dynamake.DualCommandPair;
+import dynamake.Model;
+import dynamake.ModelComponent;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.PropogationContext;
+import dynamake.RepaintRunBuilder;
 import dynamake.LiveModel.ProductionPanel;
 
-public class RedoTool implements Tool {
+public class UndoTool implements Tool {
 @Override
 	public String getName() {
-		return "Redo";
+		return "Undo";
 	}
 
 	@Override
@@ -20,7 +29,7 @@ public class RedoTool implements Tool {
 
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver) {
-//		productionPanel.livePanel.redo();
+//		productionPanel.livePanel.undo();
 		
 		PrevaylerServiceBranch<Model> branch = modelOver.getTransactionFactory().createBranch();
 		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
@@ -29,7 +38,7 @@ public class RedoTool implements Tool {
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				dualCommands.add(
 					new DualCommandPair<Model>(
-						new Model.RedoTransaction(modelOver.getTransactionFactory().getModelLocation()),
+						new Model.UndoTransaction(modelOver.getTransactionFactory().getModelLocation()),
 						new Command.Null<Model>()
 					)
 				);

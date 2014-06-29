@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.tools;
 
 import java.awt.Component;
 import java.awt.Graphics;
@@ -17,6 +17,21 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import dynamake.CanvasModel;
+import dynamake.DualCommand;
+import dynamake.DualCommandFactory;
+import dynamake.DualCommandPair;
+import dynamake.Factory;
+import dynamake.LiveModel;
+import dynamake.Location;
+import dynamake.Model;
+import dynamake.ModelComponent;
+import dynamake.ModelLocation;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.PropogationContext;
+import dynamake.RepaintRunBuilder;
+import dynamake.UnwrapTransaction;
+import dynamake.WrapTransaction;
 import dynamake.LiveModel.ProductionPanel;
 
 public class PlotTool implements Tool {

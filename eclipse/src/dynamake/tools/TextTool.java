@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.tools;
 
 import java.awt.Graphics;
 import java.awt.Point;
@@ -9,6 +9,11 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
+import dynamake.Model;
+import dynamake.ModelComponent;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.RepaintRunBuilder;
+import dynamake.TextModel;
 import dynamake.LiveModel.ProductionPanel;
 
 public class TextTool implements Tool {

@@ -16,6 +16,20 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 
+import dynamake.tools.BindTool;
+import dynamake.tools.ConsTool;
+import dynamake.tools.DragTool;
+import dynamake.tools.EditTool;
+import dynamake.tools.PenTool;
+import dynamake.tools.PlotTool;
+import dynamake.tools.RedoTool;
+import dynamake.tools.ScaleTool;
+import dynamake.tools.TellTool;
+import dynamake.tools.Tool;
+import dynamake.tools.TrimTool;
+import dynamake.tools.UndoTool;
+import dynamake.tools.ViewTool;
+
 public class Main {
 	private static class ModelRootLocator implements ModelLocator {
 		@Override

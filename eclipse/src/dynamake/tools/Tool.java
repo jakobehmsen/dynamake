@@ -1,7 +1,10 @@
-package dynamake;
+package dynamake.tools;
 
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
+
+import dynamake.LiveModel;
+import dynamake.ModelComponent;
 
 public interface Tool {
 	String getName();

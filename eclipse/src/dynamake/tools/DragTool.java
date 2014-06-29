@@ -1,21 +1,25 @@
-package dynamake;
+package dynamake.tools;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
+import dynamake.Model;
+import dynamake.ModelComponent;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.RepaintRunBuilder;
+import dynamake.TargetPresenter;
 import dynamake.LiveModel.ProductionPanel;
 
-public class BindTool implements Tool {
+public class DragTool implements Tool {
 	@Override
 	public String getName() {
-		return "Bind";
+		return "Drag";
 	}
 
 	@Override
@@ -30,58 +34,24 @@ public class BindTool implements Tool {
 
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		final ModelComponent targetModelComponent = modelOver;
+		System.out.println("Drag tool mouseReleased");
+		
+		ModelComponent targetModelComponent = modelOver;
 		
 		final PrevaylerServiceBranch<Model> branchStep2 = branch.branch();
 		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		
-		branch.close();
-		
+
 		targetPresenter.reset(branchStep2);
 		targetPresenter = null;
-
-		productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 		
 		if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
-			if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
-				PropogationContext propCtx = new PropogationContext();
-				branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
-					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
-						Location observerLocation = targetModelComponent.getTransactionFactory().getModelLocation();
-						
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
-							new Model.AddObserver(observableLocation, observerLocation) // Absolute location
-						));
-						
-						dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, observerLocation)); // Absolute location
-					}
-				});
-			} else {
-				PropogationContext propCtx = new PropogationContext();
-				branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
-					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
-						Location observerLocation = targetModelComponent.getTransactionFactory().getModelLocation();
-						
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.AddObserver(observableLocation, observerLocation), // Absolute location
-							new Model.RemoveObserver(observableLocation, observerLocation) // Absolute location
-						));
-						
-						dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, observerLocation)); // Absolute location
-					}
-				});
-			}
-			
-			branchStep2.close();
+			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
 		} else {
-			branchStep2.reject();
+			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), null, branchStep2);
 		}
 		
+		branch.close();
+
 		mouseDown = null;
 	}
 	
@@ -91,31 +61,28 @@ public class BindTool implements Tool {
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+		System.out.println("Drag tool mousePressed");
+		
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
-		final PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
-		
+		PrevaylerServiceBranch<Model> branchStep1 = branch.branch();
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-
-		ModelComponent targetModelComponent = modelOver;
+		
+		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
+		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
+		ModelComponent targetModelComponent = ModelComponent.Util.closestModelComponent(target);
+		
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
 		}
-		
-		// TODO: Consider whether to do the following:
-		// Clear the output here on branchStep1
-		// The same for all other tools
-		// Create code to be reused across all tools for this
 		
 		targetPresenter = new TargetPresenter(
 			productionPanel,
 			new TargetPresenter.Behavior() {
 				@Override
 				public Color getColorForTarget(ModelComponent target) {
-					return productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(target.getModelBehind()) 
-						? ProductionPanel.UNBIND_COLOR 
-						: ProductionPanel.BIND_COLOR;
+					return ProductionPanel.TARGET_OVER_COLOR;
 				}
 				
 				@Override
@@ -127,15 +94,17 @@ public class BindTool implements Tool {
 		
 		targetPresenter.update(modelOver, branchStep1);
 		
-		mouseDown = e.getPoint();
-		
 		branchStep1.close();
+		
+		mouseDown = e.getPoint();
 	}
 
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+		System.out.println("Drag tool mouseDragged (mouseDown=" + mouseDown + ")");
+		
 		if(mouseDown != null) {
-			final RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			
 			targetPresenter.update(modelOver, runBuilder);
 			
