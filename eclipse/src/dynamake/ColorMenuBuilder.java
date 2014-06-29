@@ -12,11 +12,11 @@ import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-public class ColorTransactionBuilder extends TransactionBuilder {
+public class ColorMenuBuilder extends MenuBuilder {
 	private Color initialColor;
 	private Action1<Color> action;
 
-	public ColorTransactionBuilder(Color initialColor, Action1<Color> action) {
+	public ColorMenuBuilder(Color initialColor, Action1<Color> action) {
 		this.initialColor = initialColor;
 		this.action = action;
 	}

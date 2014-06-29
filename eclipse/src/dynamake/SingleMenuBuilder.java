@@ -6,10 +6,10 @@ import java.util.ArrayList;
 
 import javax.swing.JMenuItem;
 
-public class SingleTransactionBuilder extends TransactionBuilder {
+public class SingleMenuBuilder extends MenuBuilder {
 	private Runnable action;
 
-	public SingleTransactionBuilder(Runnable action) {
+	public SingleMenuBuilder(Runnable action) {
 		this.action = action;
 	}
 	

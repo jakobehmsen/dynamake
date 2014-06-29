@@ -23,7 +23,7 @@ import java.util.Stack;
 import javax.swing.JComponent;
 
 import dynamake.Action1;
-import dynamake.ColorTransactionBuilder;
+import dynamake.ColorMenuBuilder;
 import dynamake.Command;
 import dynamake.ContextualTransaction;
 import dynamake.DualCommand;
@@ -32,7 +32,7 @@ import dynamake.DualCommandPair;
 import dynamake.Fraction;
 import dynamake.PrevaylerServiceBranch;
 import dynamake.TransactionFactory;
-import dynamake.TransactionMapBuilder;
+import dynamake.CompositeMenuBuilder;
 import dynamake.models.factories.CloneDeepFactory;
 import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.Factory;
@@ -819,8 +819,8 @@ public abstract class Model implements Serializable, Observer {
 		});
 	}
 	
-	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final TransactionFactory transactionFactory, TransactionMapBuilder transactions, final PrevaylerServiceBranch<Model> branch) {
-		transactions.addTransaction("Set " + PROPERTY_COLOR, new ColorTransactionBuilder((Color)model.getProperty(PROPERTY_COLOR), new Action1<Color>() {
+	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final TransactionFactory transactionFactory, CompositeMenuBuilder transactions, final PrevaylerServiceBranch<Model> branch) {
+		transactions.addMenudBuilder("Set " + PROPERTY_COLOR, new ColorMenuBuilder((Color)model.getProperty(PROPERTY_COLOR), new Action1<Color>() {
 			@Override
 			public void run(final Color color) {
 				PropogationContext propCtx = new PropogationContext();
@@ -859,9 +859,9 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void appendGeneralDroppedTransactions(final ModelComponent livePanel,
-			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, final PrevaylerServiceBranch<Model> branch) {
+			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, CompositeMenuBuilder transactions, final PrevaylerServiceBranch<Model> branch) {
 		if(target.getModelBehind() instanceof CanvasModel) {
-			transactions.addTransaction("Clone Isolated", new Runnable() {
+			transactions.addMenuBuilder("Clone Isolated", new Runnable() {
 				@Override
 				public void run() {
 					final Rectangle creationBounds = droppedBounds;
@@ -884,7 +884,7 @@ public abstract class Model implements Serializable, Observer {
 					});
 				}
 			});
-			transactions.addTransaction("Clone Deep", new Runnable() {
+			transactions.addMenuBuilder("Clone Deep", new Runnable() {
 				@Override
 				public void run() {
 					final Rectangle creationBounds = droppedBounds;

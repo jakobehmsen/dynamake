@@ -45,10 +45,10 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branch);
 			branch.close();
 		} else {
-			TransactionMapBuilder transactionTargetContentMapBuilder = new TransactionMapBuilder();
+			CompositeMenuBuilder transactionTargetContentMapBuilder = new CompositeMenuBuilder();
 			
 			if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
-				transactionTargetContentMapBuilder.addTransaction("Unforward to", new Runnable() {
+				transactionTargetContentMapBuilder.addMenuBuilder("Unforward to", new Runnable() {
 					@Override
 					public void run() {
 						PropogationContext propCtx = new PropogationContext();
@@ -68,7 +68,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					}
 				});
 			} else {
-				transactionTargetContentMapBuilder.addTransaction("Forward to", new Runnable() {
+				transactionTargetContentMapBuilder.addMenuBuilder("Forward to", new Runnable() {
 					@Override
 					public void run() {
 						PropogationContext propCtx = new PropogationContext();
@@ -91,10 +91,10 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionTargetContentMapBuilder.appendTo(popup, runner, "Selection to target");
 			popup.addSeparator();
 			
-			TransactionMapBuilder transactionObserverContentMapBuilder = new TransactionMapBuilder();
+			CompositeMenuBuilder transactionObserverContentMapBuilder = new CompositeMenuBuilder();
 			for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
 				final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
-				transactionObserverContentMapBuilder.addTransaction(primImpl.getName(), new Runnable() {
+				transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new Runnable() {
 					@Override
 					public void run() {
 						final PropogationContext propCtx = new PropogationContext();

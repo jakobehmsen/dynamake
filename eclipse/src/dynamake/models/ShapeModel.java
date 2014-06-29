@@ -16,7 +16,7 @@ import dynamake.Action1;
 import dynamake.DualCommandFactory;
 import dynamake.PrevaylerServiceBranch;
 import dynamake.TransactionFactory;
-import dynamake.TransactionMapBuilder;
+import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 
 public class ShapeModel extends Model {
@@ -92,7 +92,7 @@ public class ShapeModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(LivePanel livePanel,
-				TransactionMapBuilder transactions, ModelComponent child,
+				CompositeMenuBuilder menuBuilder, ModelComponent child,
 				PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
@@ -100,7 +100,7 @@ public class ShapeModel extends Model {
 
 		@Override
 		public void appendTransactions(ModelComponent livePanel,
-				TransactionMapBuilder transactions,
+				CompositeMenuBuilder menuBuilder,
 				PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			
@@ -109,15 +109,15 @@ public class ShapeModel extends Model {
 		@Override
 		public void appendDroppedTransactions(ModelComponent livePanel,
 				ModelComponent target, Rectangle droppedBounds,
-				TransactionMapBuilder transactions,
+				CompositeMenuBuilder menuBuilder,
 				PrevaylerServiceBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, branch);
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, branch);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
 				ModelComponent dropped, Rectangle droppedBounds,
-				Point dropPoint, TransactionMapBuilder transactions,
+				Point dropPoint, CompositeMenuBuilder menuBuilder,
 				PrevaylerServiceBranch<Model> branch) {
 			// TODO Auto-generated method stub
 			

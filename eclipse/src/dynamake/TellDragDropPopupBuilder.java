@@ -33,9 +33,9 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 			}
 		};
 		
-		TransactionMapBuilder transactionTargetContentMapBuilder = new TransactionMapBuilder();
+		CompositeMenuBuilder transactionTargetContentMapBuilder = new CompositeMenuBuilder();
 		
-		transactionTargetContentMapBuilder.addTransaction("Tell Color", new Runnable() {
+		transactionTargetContentMapBuilder.addMenuBuilder("Tell Color", new Runnable() {
 			@Override
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();

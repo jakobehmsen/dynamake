@@ -27,7 +27,7 @@ import dynamake.Memoizer1;
 import dynamake.PrevaylerServiceBranch;
 import dynamake.Runner;
 import dynamake.TransactionFactory;
-import dynamake.TransactionMapBuilder;
+import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.AsIsFactory;
 import dynamake.models.factories.Factory;
@@ -389,8 +389,8 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void appendContainerTransactions(
-				final LivePanel livePanel, TransactionMapBuilder transactions, final ModelComponent child, final PrevaylerServiceBranch<Model> branch) {
-			transactions.addTransaction("Remove", new Runnable() {
+				final LivePanel livePanel, CompositeMenuBuilder menuBuilder, final ModelComponent child, final PrevaylerServiceBranch<Model> branch) {
+			menuBuilder.addMenuBuilder("Remove", new Runnable() {
 				@Override
 				public void run() {
 					PropogationContext propCtx = new PropogationContext();
@@ -407,21 +407,21 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, branch);
+		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, PrevaylerServiceBranch<Model> branch) {
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, menuBuilder, branch);
 		}
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, branch);
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, PrevaylerServiceBranch<Model> branch) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, branch);
 		}
 		
 		@Override
 		public void appendDropTargetTransactions(final ModelComponent livePanel,
-				final ModelComponent dropped, final Rectangle droppedBounds, final Point dropPoint, TransactionMapBuilder transactions, final PrevaylerServiceBranch<Model> branch) {
+				final ModelComponent dropped, final Rectangle droppedBounds, final Point dropPoint, CompositeMenuBuilder menuBuilder, final PrevaylerServiceBranch<Model> branch) {
 			if(dropped.getTransactionFactory().getParent() != null && 
 				dropped.getTransactionFactory().getParent() != CanvasPanel.this.transactionFactory &&
 				!isContainerOf(dropped.getTransactionFactory(), this.transactionFactory) /*Dropee cannot be child of dropped*/) {
-				transactions.addTransaction("Move", new Runnable() {
+				menuBuilder.addMenuBuilder("Move", new Runnable() {
 					@Override
 					public void run() {
 						PropogationContext propCtx = new PropogationContext();

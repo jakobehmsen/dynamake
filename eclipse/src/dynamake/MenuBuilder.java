@@ -6,7 +6,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-public abstract class TransactionBuilder {
+public abstract class MenuBuilder {
 	public abstract void appendTo(TransactionView view, ArrayList<JMenuItem> menuItems, String name);
 	
 	public abstract boolean isEmpty();

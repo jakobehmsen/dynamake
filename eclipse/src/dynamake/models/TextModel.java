@@ -13,7 +13,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
 import dynamake.Action1;
-import dynamake.ColorTransactionBuilder;
+import dynamake.ColorMenuBuilder;
 import dynamake.Command;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
@@ -21,7 +21,7 @@ import dynamake.DualCommandPair;
 import dynamake.Fraction;
 import dynamake.PrevaylerServiceBranch;
 import dynamake.TransactionFactory;
-import dynamake.TransactionMapBuilder;
+import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 
 public class TextModel extends Model {
@@ -170,18 +170,18 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-			LivePanel livePanel, TransactionMapBuilder transactions, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
+			LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child, PrevaylerServiceBranch<Model> branch) {
 		}
 
 		@Override
-		public void appendTransactions(final ModelComponent livePanel, TransactionMapBuilder transactions, final PrevaylerServiceBranch<Model> branch) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, transactions, branch);
+		public void appendTransactions(final ModelComponent livePanel, CompositeMenuBuilder menuBuilder, final PrevaylerServiceBranch<Model> branch) {
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, menuBuilder, branch);
 			
 			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
 			if(caretColor == null)
 				caretColor = this.getCaretColor();
 			final Color currentCaretColor = caretColor;
-			transactions.addTransaction("Set " + PROPERTY_CARET_COLOR, new ColorTransactionBuilder(caretColor, new Action1<Color>() {
+			menuBuilder.addMenudBuilder("Set " + PROPERTY_CARET_COLOR, new ColorMenuBuilder(caretColor, new Action1<Color>() {
 				@Override
 				public void run(final Color color) {
 					PropogationContext propCtx = new PropogationContext();
@@ -202,13 +202,13 @@ public class TextModel extends Model {
 		}
 		
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, transactions, branch);
+		public void appendDroppedTransactions(ModelComponent livePanel, final ModelComponent target, final Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, PrevaylerServiceBranch<Model> branch) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, branch);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(
-			ModelComponent livePanel,ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, TransactionMapBuilder transactions, PrevaylerServiceBranch<Model> branch) {
+			ModelComponent livePanel,ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder, PrevaylerServiceBranch<Model> branch) {
 
 		}
 

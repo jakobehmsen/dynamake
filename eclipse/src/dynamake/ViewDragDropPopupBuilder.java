@@ -33,9 +33,9 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			}
 		};
 		
-		TransactionMapBuilder transactionTargetContentMapBuilder = new TransactionMapBuilder();
+		CompositeMenuBuilder transactionTargetContentMapBuilder = new CompositeMenuBuilder();
 		
-		transactionTargetContentMapBuilder.addTransaction("Appliance", new Runnable() {
+		transactionTargetContentMapBuilder.addMenuBuilder("Appliance", new Runnable() {
 			@Override
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
@@ -59,7 +59,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			}
 		});
 		
-		transactionTargetContentMapBuilder.addTransaction("Engineering", new Runnable() {
+		transactionTargetContentMapBuilder.addMenuBuilder("Engineering", new Runnable() {
 			@Override
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();

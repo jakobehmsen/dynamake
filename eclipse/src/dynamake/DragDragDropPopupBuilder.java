@@ -47,11 +47,11 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		
 		ModelComponent parentModelComponent = ModelComponent.Util.closestModelComponent(((JComponent)selection).getParent()); 
 		
-		TransactionMapBuilder containerTransactionMapBuilder = new TransactionMapBuilder();
+		CompositeMenuBuilder containerTransactionMapBuilder = new CompositeMenuBuilder();
 		if(parentModelComponent != null)
 			parentModelComponent.appendContainerTransactions((LivePanel)livePanel, containerTransactionMapBuilder, selection, branch);
 
-		TransactionMapBuilder transactionSelectionMapBuilder = new TransactionMapBuilder();
+		CompositeMenuBuilder transactionSelectionMapBuilder = new CompositeMenuBuilder();
 		selection.appendTransactions(livePanel, transactionSelectionMapBuilder, branch);
 
 		containerTransactionMapBuilder.appendTo(popup, runner, "Container");
@@ -71,10 +71,10 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			}
 		};
 		
-		TransactionMapBuilder transactionSelectionGeneralMapBuilder = new TransactionMapBuilder();
+		CompositeMenuBuilder transactionSelectionGeneralMapBuilder = new CompositeMenuBuilder();
 		
 		if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
-			transactionSelectionGeneralMapBuilder.addTransaction("Unforward to", new Runnable() {
+			transactionSelectionGeneralMapBuilder.addMenuBuilder("Unforward to", new Runnable() {
 				@Override
 				public void run() {
 					PropogationContext propCtx = new PropogationContext();
@@ -95,7 +95,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				}
 			});
 		} else {
-			transactionSelectionGeneralMapBuilder.addTransaction("Forward to", new Runnable() {
+			transactionSelectionGeneralMapBuilder.addMenuBuilder("Forward to", new Runnable() {
 				@Override
 				public void run() {
 					PropogationContext propCtx = new PropogationContext();
@@ -117,7 +117,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			});
 		}
 		
-		transactionSelectionGeneralMapBuilder.addTransaction("Inject", new Runnable() {
+		transactionSelectionGeneralMapBuilder.addMenuBuilder("Inject", new Runnable() {
 			@Override
 			public void run() {
 				PropogationContext propCtx = new PropogationContext();
@@ -136,7 +136,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			}
 		});
 
-		TransactionMapBuilder transactionTargetMapBuilder = new TransactionMapBuilder();
+		CompositeMenuBuilder transactionTargetMapBuilder = new CompositeMenuBuilder();
 		target.appendDropTargetTransactions(livePanel, selection, dropBoundsOnTarget, dropPointOnTarget, transactionTargetMapBuilder, branch);
 		
 		transactionSelectionGeneralMapBuilder.appendTo(popup, runner, "General");
@@ -144,7 +144,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			popup.addSeparator();
 		transactionTargetMapBuilder.appendTo(popup, runner, "Target");
 
-		TransactionMapBuilder transactionDroppedMapBuilder = new TransactionMapBuilder();
+		CompositeMenuBuilder transactionDroppedMapBuilder = new CompositeMenuBuilder();
 		selection.appendDroppedTransactions(livePanel, target, dropBoundsOnTarget, transactionDroppedMapBuilder, branch);
 		if(!transactionTargetMapBuilder.isEmpty() && !transactionDroppedMapBuilder.isEmpty())
 			popup.addSeparator();
