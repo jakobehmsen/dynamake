@@ -20,11 +20,9 @@ import dynamake.delegates.Func0;
 import dynamake.models.Binding;
 import dynamake.models.CanvasModel;
 import dynamake.models.LiveModel;
-import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.ModelLocation;
-import dynamake.models.ModelLocator;
+import dynamake.models.ModelRootLocator;
 import dynamake.models.RootModel;
 import dynamake.models.TextModel;
 import dynamake.models.ViewManager;
@@ -48,37 +46,6 @@ import dynamake.transcription.SnapshottingTranscriber;
 import dynamake.transcription.Transcriber;
 
 public class Main {
-	private static class ModelRootLocator implements ModelLocator {
-		@Override
-		public ModelLocation locate() {
-			return new ModelRootLocation();
-		}
-	}
-	
-	private static class ModelRootLocation implements ModelLocation {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		
-		@Override
-		public Object getChild(Object holder) {
-			return holder;
-		}
-
-		@Override
-		public Location getModelComponentLocation() {
-			return new ViewRootLocation();
-		}
-	}
-	
-	private static class ViewRootLocation implements Location {
-		@Override
-		public Object getChild(Object holder) {
-			return holder;
-		}
-	}
-	
 	public static void main(String[] args) {
 		try {
 //			Fraction f = new Fraction(1, 9);
