@@ -4,10 +4,10 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-import dynamake.TranscriberBranch;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.ShapeModel;
+import dynamake.transcription.TranscriberBranch;
 
 public class ShapeModelFactory implements Factory {
 	/**

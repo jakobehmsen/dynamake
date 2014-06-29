@@ -23,7 +23,6 @@ import javax.swing.SwingUtilities;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.RunBuilder;
 import dynamake.Runner;
@@ -37,6 +36,7 @@ import dynamake.models.ShapeModel;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.factories.Factory;
 import dynamake.models.factories.ShapeModelFactory;
+import dynamake.transcription.TranscriberBranch;
 
 public class WriteTool implements Tool {
 	@Override

@@ -20,10 +20,10 @@ import dynamake.Action1;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.TranscriberBranch;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.transcription.TranscriberBranch;
 
 public class RootModel extends Model {
 	/**

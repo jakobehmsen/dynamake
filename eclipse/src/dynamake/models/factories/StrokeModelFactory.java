@@ -5,10 +5,10 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-import dynamake.TranscriberBranch;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.StrokeModel;
+import dynamake.transcription.TranscriberBranch;
 
 public class StrokeModelFactory implements Factory {
 	/**

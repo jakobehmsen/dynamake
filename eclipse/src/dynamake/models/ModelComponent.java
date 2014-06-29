@@ -6,10 +6,10 @@ import java.awt.Rectangle;
 
 import dynamake.Action1;
 import dynamake.DualCommandFactory;
-import dynamake.TranscriberBranch;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.transcription.TranscriberBranch;
 
 /**
  * Assumed only to be implemented by JComponent (or JFrame) class extensions.

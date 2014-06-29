@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.transcription;
 
 public interface TranscriberBranchCreator<T> {
 	void create(TranscriberBranchCreation<T> branchCreation);

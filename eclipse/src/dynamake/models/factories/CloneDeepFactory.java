@@ -3,10 +3,10 @@ package dynamake.models.factories;
 import java.awt.Rectangle;
 import java.util.Hashtable;
 
-import dynamake.TranscriberBranch;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
+import dynamake.transcription.TranscriberBranch;
 
 public class CloneDeepFactory implements Factory {
 	/**

@@ -7,7 +7,6 @@ import java.util.List;
 
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
-import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
 import dynamake.models.CanvasModel;
@@ -15,6 +14,7 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.transcription.TranscriberBranch;
 
 public class TrimTool implements Tool {
 	@Override

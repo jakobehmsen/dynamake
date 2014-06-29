@@ -4,9 +4,9 @@ import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.Hashtable;
 
-import dynamake.TranscriberBranch;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
+import dynamake.transcription.TranscriberBranch;
 
 public interface Factory extends Serializable {
 	// Should provide parametric information?

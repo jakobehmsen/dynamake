@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.transcription;
 
 import dynamake.models.PropogationContext;
 

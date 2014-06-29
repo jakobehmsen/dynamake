@@ -1,5 +1,6 @@
-package dynamake;
+package dynamake.transcription;
 
+import dynamake.ContextualTransaction;
 import dynamake.models.PropogationContext;
 
 public interface TranscriberBranchBehavior<T> {

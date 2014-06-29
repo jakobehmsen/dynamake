@@ -14,7 +14,6 @@ import javax.swing.SwingUtilities;
 
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
-import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
 import dynamake.TransactionFactory;
@@ -24,6 +23,7 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.transcription.TranscriberBranch;
 
 public class ScaleTool implements Tool {
 	@Override

@@ -11,6 +11,7 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.transcription.TranscriberBranch;
 
 public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 	private TranscriberBranch<Model> branch;

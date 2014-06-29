@@ -5,6 +5,7 @@ import java.util.Date;
 
 import dynamake.models.Location;
 import dynamake.models.PropogationContext;
+import dynamake.transcription.TranscriberBranch;
 
 public interface DualCommand<T> extends Serializable {
 	public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberBranch<T> branch);

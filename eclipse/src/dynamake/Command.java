@@ -5,6 +5,7 @@ import java.util.Date;
 
 import dynamake.models.Location;
 import dynamake.models.PropogationContext;
+import dynamake.transcription.TranscriberBranch;
 
 public interface Command<T> extends Serializable {
 	void executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberBranch<T> branch);

@@ -24,13 +24,13 @@ import dynamake.DualCommandPair;
 import dynamake.Fraction;
 import dynamake.Func1;
 import dynamake.Memoizer1;
-import dynamake.TranscriberBranch;
 import dynamake.Runner;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.AsIsFactory;
 import dynamake.models.factories.Factory;
+import dynamake.transcription.TranscriberBranch;
 
 public class CanvasModel extends Model {
 	/**

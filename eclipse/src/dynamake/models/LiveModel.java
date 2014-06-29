@@ -42,7 +42,6 @@ import dynamake.DragDropPopupBuilder;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.TranscriberBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.RunBuilder;
 import dynamake.TellDragDropPopupBuilder;
@@ -51,6 +50,7 @@ import dynamake.CompositeMenuBuilder;
 import dynamake.ViewDragDropPopupBuilder;
 import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
+import dynamake.transcription.TranscriberBranch;
 
 public class LiveModel extends Model {
 	/**

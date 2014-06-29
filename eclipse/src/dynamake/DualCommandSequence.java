@@ -5,6 +5,7 @@ import java.util.Date;
 
 import dynamake.models.Location;
 import dynamake.models.PropogationContext;
+import dynamake.transcription.TranscriberBranch;
 
 public class DualCommandSequence<T> implements DualCommand<T> {
 	/**

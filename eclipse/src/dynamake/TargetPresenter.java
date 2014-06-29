@@ -10,6 +10,7 @@ import javax.swing.SwingUtilities;
 
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
+import dynamake.transcription.TranscriberBranch;
 
 public class TargetPresenter {
 	public interface Behavior {

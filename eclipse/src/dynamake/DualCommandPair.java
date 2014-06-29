@@ -4,6 +4,7 @@ import java.util.Date;
 
 import dynamake.models.Location;
 import dynamake.models.PropogationContext;
+import dynamake.transcription.TranscriberBranch;
 
 public class DualCommandPair<T> implements DualCommand<T> {
 	/**

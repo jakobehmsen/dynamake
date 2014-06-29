@@ -7,6 +7,7 @@ import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
+import dynamake.transcription.TranscriberBranch;
 
 public class WrapTransaction implements Command<Model> {
 	/**

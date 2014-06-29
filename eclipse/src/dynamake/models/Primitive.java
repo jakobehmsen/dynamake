@@ -14,11 +14,11 @@ import dynamake.Action1;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.Fraction;
-import dynamake.TranscriberBranch;
 import dynamake.ResourceManager;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.transcription.TranscriberBranch;
 
 public class Primitive extends Model {
 	public interface Implementation extends Serializable {

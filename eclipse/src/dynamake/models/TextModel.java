@@ -19,10 +19,10 @@ import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
 import dynamake.Fraction;
-import dynamake.TranscriberBranch;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.transcription.TranscriberBranch;
 
 public class TextModel extends Model {
 	public static final String PROPERTY_CARET_COLOR = "Caret Color";

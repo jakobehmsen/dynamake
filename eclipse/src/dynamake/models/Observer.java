@@ -1,6 +1,6 @@
 package dynamake.models;
 
-import dynamake.TranscriberBranch;
+import dynamake.transcription.TranscriberBranch;
 
 // TODO: Consider renaming to Peer
 public interface Observer {

@@ -4,11 +4,11 @@ import java.awt.Rectangle;
 import java.util.Hashtable;
 
 import dynamake.Fraction;
-import dynamake.TranscriberBranch;
 import dynamake.models.Model;
 import dynamake.models.Primitive;
 import dynamake.models.PropogationContext;
 import dynamake.models.Primitive.Implementation;
+import dynamake.transcription.TranscriberBranch;
 
 public class PrimitiveSingletonFactory implements Factory {
 	/**

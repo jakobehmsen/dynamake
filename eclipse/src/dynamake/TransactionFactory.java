@@ -4,6 +4,8 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelLocation;
 import dynamake.models.ModelLocator;
+import dynamake.transcription.Transcriber;
+import dynamake.transcription.TranscriberBranch;
 
 public class TransactionFactory {
 	private Transcriber<Model> prevaylerService;

@@ -16,10 +16,10 @@ import javax.swing.JComponent;
 import dynamake.Action1;
 import dynamake.DualCommandFactory;
 import dynamake.Fraction;
-import dynamake.TranscriberBranch;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.transcription.TranscriberBranch;
 
 public class StrokeModel extends Model {
 	/**

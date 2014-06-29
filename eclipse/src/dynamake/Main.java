@@ -43,6 +43,8 @@ import dynamake.tools.Tool;
 import dynamake.tools.TrimTool;
 import dynamake.tools.UndoTool;
 import dynamake.tools.ViewTool;
+import dynamake.transcription.SnapshottingTranscriber;
+import dynamake.transcription.Transcriber;
 
 public class Main {
 	private static class ModelRootLocator implements ModelLocator {

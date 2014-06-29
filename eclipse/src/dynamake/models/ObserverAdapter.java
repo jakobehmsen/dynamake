@@ -1,6 +1,6 @@
 package dynamake.models;
 
-import dynamake.TranscriberBranch;
+import dynamake.transcription.TranscriberBranch;
 
 public class ObserverAdapter implements Observer {
 	@Override

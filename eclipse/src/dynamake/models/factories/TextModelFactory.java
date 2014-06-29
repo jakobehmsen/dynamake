@@ -4,10 +4,10 @@ import java.awt.Rectangle;
 import java.util.Hashtable;
 
 import dynamake.Fraction;
-import dynamake.TranscriberBranch;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.TextModel;
+import dynamake.transcription.TranscriberBranch;
 
 public class TextModelFactory implements Factory {
 	/**
