@@ -12,7 +12,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import dynamake.DualCommandFactory;
 import dynamake.Fraction;
 import dynamake.RepaintRunBuilder;
 import dynamake.commands.DualCommand;
@@ -24,6 +23,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
 import dynamake.models.TransactionFactory;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 
 public class EditTool implements Tool {

@@ -10,13 +10,13 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.JLabel;
 
-import dynamake.DualCommandFactory;
 import dynamake.Fraction;
 import dynamake.ResourceManager;
 import dynamake.commands.DualCommand;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 
 public class Primitive extends Model {

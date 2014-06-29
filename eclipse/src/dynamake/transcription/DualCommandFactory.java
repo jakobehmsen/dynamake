@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.transcription;
 
 import java.util.List;
 

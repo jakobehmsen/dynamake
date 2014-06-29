@@ -4,10 +4,10 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import dynamake.DualCommandFactory;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 
 /**

@@ -15,7 +15,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import dynamake.DualCommandFactory;
 import dynamake.RepaintRunBuilder;
 import dynamake.RunBuilder;
 import dynamake.Runner;
@@ -31,6 +30,7 @@ import dynamake.models.StrokeModel;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.factories.Factory;
 import dynamake.models.factories.StrokeModelFactory;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 
 public class PenTool implements Tool {

@@ -18,6 +18,7 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {

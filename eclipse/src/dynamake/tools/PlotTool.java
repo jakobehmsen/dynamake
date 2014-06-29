@@ -17,7 +17,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import dynamake.DualCommandFactory;
 import dynamake.RepaintRunBuilder;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
@@ -32,6 +31,7 @@ import dynamake.models.ModelLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.factories.Factory;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 
 public class PlotTool implements Tool {

@@ -12,10 +12,10 @@ import java.util.ArrayList;
 
 import javax.swing.JComponent;
 
-import dynamake.DualCommandFactory;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 
 public class ShapeModel extends Model {

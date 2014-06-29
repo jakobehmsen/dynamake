@@ -37,7 +37,6 @@ import javax.swing.event.PopupMenuListener;
 import dynamake.ConsDragDropPopupBuilder;
 import dynamake.DragDragDropPopupBuilder;
 import dynamake.DragDropPopupBuilder;
-import dynamake.DualCommandFactory;
 import dynamake.RepaintRunBuilder;
 import dynamake.RunBuilder;
 import dynamake.TellDragDropPopupBuilder;
@@ -49,6 +48,7 @@ import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 
 public class LiveModel extends Model {

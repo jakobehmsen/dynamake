@@ -16,12 +16,12 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import dynamake.DualCommandFactory;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 
 public class RootModel extends Model {

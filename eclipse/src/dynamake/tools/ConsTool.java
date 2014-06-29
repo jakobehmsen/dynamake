@@ -10,7 +10,6 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.DualCommandFactory;
 import dynamake.RepaintRunBuilder;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
@@ -21,6 +20,7 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 
 public class ConsTool implements Tool {
