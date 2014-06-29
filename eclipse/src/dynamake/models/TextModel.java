@@ -12,7 +12,6 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import dynamake.Action1;
 import dynamake.ColorMenuBuilder;
 import dynamake.Command;
 import dynamake.DualCommand;
@@ -21,6 +20,7 @@ import dynamake.DualCommandPair;
 import dynamake.Fraction;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
+import dynamake.delegates.Action1;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.TranscriberBranch;
 

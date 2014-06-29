@@ -12,6 +12,8 @@ import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import dynamake.delegates.Action1;
+
 public class ColorMenuBuilder extends MenuBuilder {
 	private Color initialColor;
 	private Action1<Color> action;

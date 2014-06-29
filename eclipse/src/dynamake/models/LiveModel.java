@@ -34,7 +34,6 @@ import javax.swing.border.Border;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import dynamake.Action1;
 import dynamake.Command;
 import dynamake.ConsDragDropPopupBuilder;
 import dynamake.DragDragDropPopupBuilder;
@@ -48,6 +47,7 @@ import dynamake.TellDragDropPopupBuilder;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
 import dynamake.ViewDragDropPopupBuilder;
+import dynamake.delegates.Action1;
 import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
 import dynamake.transcription.TranscriberBranch;

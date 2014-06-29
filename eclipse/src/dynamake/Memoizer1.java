@@ -2,6 +2,8 @@ package dynamake;
 
 import java.util.Hashtable;
 
+import dynamake.delegates.Func1;
+
 public class Memoizer1<A0, R> implements Func1<A0, R> {
 	private Hashtable<A0, R> valueCache = new Hashtable<A0, R>();
 	private Func1<A0, R> valueGetter;

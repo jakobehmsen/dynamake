@@ -10,13 +10,13 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.JLabel;
 
-import dynamake.Action1;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.Fraction;
 import dynamake.ResourceManager;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
+import dynamake.delegates.Action1;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.TranscriberBranch;
 

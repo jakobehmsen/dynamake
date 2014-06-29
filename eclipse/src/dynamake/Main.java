@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 
+import dynamake.delegates.Func0;
 import dynamake.models.Binding;
 import dynamake.models.CanvasModel;
 import dynamake.models.LiveModel;

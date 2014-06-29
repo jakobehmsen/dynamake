@@ -22,7 +22,6 @@ import java.util.Stack;
 
 import javax.swing.JComponent;
 
-import dynamake.Action1;
 import dynamake.ColorMenuBuilder;
 import dynamake.Command;
 import dynamake.ContextualTransaction;
@@ -32,6 +31,7 @@ import dynamake.DualCommandPair;
 import dynamake.Fraction;
 import dynamake.TransactionFactory;
 import dynamake.CompositeMenuBuilder;
+import dynamake.delegates.Action1;
 import dynamake.models.factories.CloneDeepFactory;
 import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.Factory;
