@@ -1,8 +1,9 @@
-package dynamake;
+package dynamake.models.factories;
 
 import java.awt.Rectangle;
 import java.util.Hashtable;
 
+import dynamake.PrevaylerServiceBranch;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;

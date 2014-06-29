@@ -1,32 +1,31 @@
-package dynamake;
+package dynamake.models.factories;
 
 import java.awt.Rectangle;
-import java.util.ArrayList;
 import java.util.Hashtable;
 
+import dynamake.PrevaylerServiceBranch;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
-import dynamake.models.ShapeModel;
 
-public class ShapeModelFactory implements Factory {
+public class AsIsFactory implements Factory {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private Model model;
+
+	public AsIsFactory(Model model) {
+		this.model = model;
+	}
 
 	@Override
 	public String getName() {
-		return "Shape";
-	}
-	
-	private ArrayList<ShapeModel.ShapeInfo> shapes;
-
-	public ShapeModelFactory(ArrayList<ShapeModel.ShapeInfo> shapes) {
-		this.shapes = shapes;
+		return "As is";
 	}
 
 	@Override
 	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
-		return new ShapeModel(shapes);
+		return model;
 	}
 }

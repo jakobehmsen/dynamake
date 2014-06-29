@@ -1,6 +1,6 @@
 package dynamake.models;
 
-import dynamake.Factory;
+import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
 
 public interface ViewManager {

@@ -23,19 +23,19 @@ import java.util.Stack;
 import javax.swing.JComponent;
 
 import dynamake.Action1;
-import dynamake.CloneDeepFactory;
-import dynamake.CloneIsolatedFactory;
 import dynamake.ColorTransactionBuilder;
 import dynamake.Command;
 import dynamake.ContextualTransaction;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.Factory;
 import dynamake.Fraction;
 import dynamake.PrevaylerServiceBranch;
 import dynamake.TransactionFactory;
 import dynamake.TransactionMapBuilder;
+import dynamake.models.factories.CloneDeepFactory;
+import dynamake.models.factories.CloneIsolatedFactory;
+import dynamake.models.factories.Factory;
 
 public abstract class Model implements Serializable, Observer {
 	public static class TellProperty {

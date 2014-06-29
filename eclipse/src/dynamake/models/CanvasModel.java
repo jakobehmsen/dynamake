@@ -16,13 +16,11 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 
 import dynamake.Action1;
-import dynamake.AsIsFactory;
 import dynamake.Command;
 import dynamake.CompositeModelLocation;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.Factory;
 import dynamake.Fraction;
 import dynamake.Func1;
 import dynamake.Memoizer1;
@@ -31,6 +29,8 @@ import dynamake.Runner;
 import dynamake.TransactionFactory;
 import dynamake.TransactionMapBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.models.factories.AsIsFactory;
+import dynamake.models.factories.Factory;
 
 public class CanvasModel extends Model {
 	/**

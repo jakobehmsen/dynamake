@@ -1,13 +1,15 @@
-package dynamake;
+package dynamake.models.factories;
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Hashtable;
 
-import dynamake.models.CanvasModel;
+import dynamake.PrevaylerServiceBranch;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
+import dynamake.models.ShapeModel;
 
-public class CanvasModelFactory implements Factory {
+public class ShapeModelFactory implements Factory {
 	/**
 	 * 
 	 */
@@ -15,11 +17,17 @@ public class CanvasModelFactory implements Factory {
 
 	@Override
 	public String getName() {
-		return "Canvas";
+		return "Shape";
+	}
+	
+	private ArrayList<ShapeModel.ShapeInfo> shapes;
+
+	public ShapeModelFactory(ArrayList<ShapeModel.ShapeInfo> shapes) {
+		this.shapes = shapes;
 	}
 
 	@Override
 	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, PrevaylerServiceBranch<Model> branch) {
-		return new CanvasModel();
+		return new ShapeModel(shapes);
 	}
 }

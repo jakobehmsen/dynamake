@@ -14,6 +14,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.Primitive;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.models.factories.PrimitiveSingletonFactory;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	private PrevaylerServiceBranch<Model> branch;

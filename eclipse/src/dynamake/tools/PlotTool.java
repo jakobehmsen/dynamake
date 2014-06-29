@@ -20,7 +20,6 @@ import javax.swing.event.PopupMenuListener;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.Factory;
 import dynamake.PrevaylerServiceBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.UnwrapTransaction;
@@ -33,6 +32,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.ModelLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.models.factories.Factory;
 
 public class PlotTool implements Tool {
 	@Override
