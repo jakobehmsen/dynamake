@@ -15,12 +15,12 @@ import javax.swing.SwingUtilities;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.RepaintRunBuilder;
-import dynamake.TransactionFactory;
 import dynamake.models.CanvasModel;
 import dynamake.models.LiveModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
+import dynamake.models.TransactionFactory;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.TranscriberBranch;
 

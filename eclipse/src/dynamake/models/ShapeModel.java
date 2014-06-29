@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import javax.swing.JComponent;
 
 import dynamake.DualCommandFactory;
-import dynamake.TransactionFactory;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;

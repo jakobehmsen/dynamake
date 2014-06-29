@@ -25,6 +25,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.ModelRootLocator;
 import dynamake.models.RootModel;
 import dynamake.models.TextModel;
+import dynamake.models.TransactionFactory;
 import dynamake.models.ViewManager;
 import dynamake.models.factories.CanvasModelFactory;
 import dynamake.models.factories.Factory;

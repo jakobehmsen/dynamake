@@ -22,7 +22,6 @@ import dynamake.DualCommandPair;
 import dynamake.Fraction;
 import dynamake.Memoizer1;
 import dynamake.Runner;
-import dynamake.TransactionFactory;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.menubuilders.CompositeMenuBuilder;

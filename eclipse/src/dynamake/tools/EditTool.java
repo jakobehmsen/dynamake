@@ -17,12 +17,12 @@ import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
 import dynamake.Fraction;
 import dynamake.RepaintRunBuilder;
-import dynamake.TransactionFactory;
 import dynamake.models.CanvasModel;
 import dynamake.models.LiveModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
+import dynamake.models.TransactionFactory;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.TranscriberBranch;
 

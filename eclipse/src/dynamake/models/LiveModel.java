@@ -44,7 +44,6 @@ import dynamake.DualCommandPair;
 import dynamake.RepaintRunBuilder;
 import dynamake.RunBuilder;
 import dynamake.TellDragDropPopupBuilder;
-import dynamake.TransactionFactory;
 import dynamake.ViewDragDropPopupBuilder;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
