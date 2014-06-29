@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.models;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -13,7 +13,13 @@ import java.util.ArrayList;
 
 import javax.swing.JComponent;
 
-import dynamake.LiveModel.LivePanel;
+import dynamake.Action1;
+import dynamake.DualCommandFactory;
+import dynamake.Fraction;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.TransactionFactory;
+import dynamake.TransactionMapBuilder;
+import dynamake.models.LiveModel.LivePanel;
 
 public class StrokeModel extends Model {
 	/**

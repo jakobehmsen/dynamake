@@ -3,6 +3,10 @@ package dynamake;
 import java.awt.Rectangle;
 import java.util.Hashtable;
 
+import dynamake.models.Model;
+import dynamake.models.PropogationContext;
+import dynamake.models.TextModel;
+
 public class TextModelFactory implements Factory {
 	/**
 	 * 

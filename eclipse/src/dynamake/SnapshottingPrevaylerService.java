@@ -17,6 +17,10 @@ import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import dynamake.models.Location;
+import dynamake.models.Model;
+import dynamake.models.PropogationContext;
+
 public class SnapshottingPrevaylerService<T> implements PrevaylerService<T> {
 	private Func0<T> prevalentSystemFunc;
 	private T prevalentSystem;

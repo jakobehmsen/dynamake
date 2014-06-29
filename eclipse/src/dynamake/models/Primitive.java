@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.models;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -10,7 +10,15 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.JLabel;
 
-import dynamake.LiveModel.LivePanel;
+import dynamake.Action1;
+import dynamake.DualCommand;
+import dynamake.DualCommandFactory;
+import dynamake.Fraction;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.ResourceManager;
+import dynamake.TransactionFactory;
+import dynamake.TransactionMapBuilder;
+import dynamake.models.LiveModel.LivePanel;
 
 public class Primitive extends Model {
 	public interface Implementation extends Serializable {

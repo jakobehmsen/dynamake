@@ -10,19 +10,19 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.CanvasModel;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
-import dynamake.LiveModel;
-import dynamake.Location;
-import dynamake.Model;
-import dynamake.ModelComponent;
 import dynamake.PrevaylerServiceBranch;
-import dynamake.PropogationContext;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
-import dynamake.LiveModel.ProductionPanel;
+import dynamake.models.CanvasModel;
+import dynamake.models.LiveModel;
+import dynamake.models.Location;
+import dynamake.models.Model;
+import dynamake.models.ModelComponent;
+import dynamake.models.PropogationContext;
+import dynamake.models.LiveModel.ProductionPanel;
 
 public class ConsTool implements Tool {
 	@Override

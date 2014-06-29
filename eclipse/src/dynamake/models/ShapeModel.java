@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.models;
 
 import java.awt.BasicStroke;
 import java.awt.Graphics;
@@ -12,7 +12,12 @@ import java.util.ArrayList;
 
 import javax.swing.JComponent;
 
-import dynamake.LiveModel.LivePanel;
+import dynamake.Action1;
+import dynamake.DualCommandFactory;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.TransactionFactory;
+import dynamake.TransactionMapBuilder;
+import dynamake.models.LiveModel.LivePanel;
 
 public class ShapeModel extends Model {
 	/**

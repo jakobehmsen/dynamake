@@ -6,7 +6,11 @@ import java.util.List;
 
 import javax.swing.JPopupMenu;
 
-import dynamake.LiveModel.LivePanel;
+import dynamake.models.LiveModel;
+import dynamake.models.Model;
+import dynamake.models.ModelComponent;
+import dynamake.models.PropogationContext;
+import dynamake.models.LiveModel.LivePanel;
 
 public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 	private PrevaylerServiceBranch<Model> branch;

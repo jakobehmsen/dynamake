@@ -1,5 +1,10 @@
 package dynamake;
 
+import dynamake.models.Location;
+import dynamake.models.Model;
+import dynamake.models.ModelLocation;
+import dynamake.models.ModelLocator;
+
 public class TransactionFactory {
 	private PrevaylerService<Model> prevaylerService;
 	private TransactionFactory parent;

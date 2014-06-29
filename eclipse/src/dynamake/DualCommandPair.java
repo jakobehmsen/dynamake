@@ -2,6 +2,9 @@ package dynamake;
 
 import java.util.Date;
 
+import dynamake.models.Location;
+import dynamake.models.PropogationContext;
+
 public class DualCommandPair<T> implements DualCommand<T> {
 	/**
 	 * 

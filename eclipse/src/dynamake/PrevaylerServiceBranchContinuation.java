@@ -1,5 +1,7 @@
 package dynamake;
 
+import dynamake.models.PropogationContext;
+
 public interface PrevaylerServiceBranchContinuation<T> {
 	void doContinue(PropogationContext propCtx, PrevaylerServiceBranch<T> branch);
 	

@@ -2,6 +2,10 @@ package dynamake;
 
 import java.util.Date;
 
+import dynamake.models.Location;
+import dynamake.models.Model;
+import dynamake.models.PropogationContext;
+
 public class TellPropertyTransaction implements Command<Model> {
 	/**
 	 * 

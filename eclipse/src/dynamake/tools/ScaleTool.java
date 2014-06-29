@@ -12,19 +12,19 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import dynamake.CanvasModel;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
-import dynamake.LiveModel;
-import dynamake.Model;
-import dynamake.ModelComponent;
 import dynamake.PrevaylerServiceBranch;
-import dynamake.PropogationContext;
 import dynamake.RelativePosition;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
 import dynamake.TransactionFactory;
-import dynamake.LiveModel.ProductionPanel;
+import dynamake.models.CanvasModel;
+import dynamake.models.LiveModel;
+import dynamake.models.Model;
+import dynamake.models.ModelComponent;
+import dynamake.models.PropogationContext;
+import dynamake.models.LiveModel.ProductionPanel;
 
 public class ScaleTool implements Tool {
 	@Override

@@ -15,23 +15,23 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import dynamake.CanvasModel;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
 import dynamake.Factory;
-import dynamake.LiveModel;
-import dynamake.Location;
-import dynamake.Model;
-import dynamake.ModelComponent;
 import dynamake.PrevaylerServiceBranch;
-import dynamake.PropogationContext;
 import dynamake.RepaintRunBuilder;
 import dynamake.RunBuilder;
 import dynamake.Runner;
-import dynamake.StrokeModel;
 import dynamake.StrokeModelFactory;
-import dynamake.LiveModel.ProductionPanel;
+import dynamake.models.CanvasModel;
+import dynamake.models.LiveModel;
+import dynamake.models.Location;
+import dynamake.models.Model;
+import dynamake.models.ModelComponent;
+import dynamake.models.PropogationContext;
+import dynamake.models.StrokeModel;
+import dynamake.models.LiveModel.ProductionPanel;
 
 public class PenTool implements Tool {
 	@Override

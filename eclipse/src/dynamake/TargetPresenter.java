@@ -8,6 +8,9 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import dynamake.models.Model;
+import dynamake.models.ModelComponent;
+
 public class TargetPresenter {
 	public interface Behavior {
 		boolean acceptsTarget(ModelComponent target);

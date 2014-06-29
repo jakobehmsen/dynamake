@@ -4,6 +4,9 @@ import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.Hashtable;
 
+import dynamake.models.Model;
+import dynamake.models.PropogationContext;
+
 public interface Factory extends Serializable {
 	// Should provide parametric information?
 	// - In general, constraints?

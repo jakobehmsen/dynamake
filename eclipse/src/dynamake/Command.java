@@ -3,6 +3,9 @@ package dynamake;
 import java.io.Serializable;
 import java.util.Date;
 
+import dynamake.models.Location;
+import dynamake.models.PropogationContext;
+
 public interface Command<T> extends Serializable {
 	void executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, PrevaylerServiceBranch<T> branch);
 	boolean occurredWithin(Location location);

@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.models;
 
 import java.util.ArrayList;
 import java.util.HashSet;

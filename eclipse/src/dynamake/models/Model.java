@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.models;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -22,6 +22,21 @@ import java.util.Stack;
 
 import javax.swing.JComponent;
 
+import dynamake.Action1;
+import dynamake.CloneDeepFactory;
+import dynamake.CloneIsolatedFactory;
+import dynamake.ColorTransactionBuilder;
+import dynamake.Command;
+import dynamake.ContextualTransaction;
+import dynamake.DualCommand;
+import dynamake.DualCommandFactory;
+import dynamake.DualCommandPair;
+import dynamake.Factory;
+import dynamake.Fraction;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.TransactionFactory;
+import dynamake.TransactionMapBuilder;
+
 public abstract class Model implements Serializable, Observer {
 	public static class TellProperty {
 		public final String name;
@@ -42,8 +57,8 @@ public abstract class Model implements Serializable, Observer {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected static final int VIEW_APPLIANCE = 1;
-	protected static final int VIEW_ENGINEERING = 0;
+	public static final int VIEW_APPLIANCE = 1;
+	public static final int VIEW_ENGINEERING = 0;
 	
 	public static class Atom {
 		public final Object value;

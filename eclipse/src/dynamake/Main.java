@@ -16,6 +16,17 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 
+import dynamake.models.Binding;
+import dynamake.models.CanvasModel;
+import dynamake.models.LiveModel;
+import dynamake.models.Location;
+import dynamake.models.Model;
+import dynamake.models.ModelComponent;
+import dynamake.models.ModelLocation;
+import dynamake.models.ModelLocator;
+import dynamake.models.RootModel;
+import dynamake.models.TextModel;
+import dynamake.models.ViewManager;
 import dynamake.tools.BindTool;
 import dynamake.tools.ConsTool;
 import dynamake.tools.DragTool;

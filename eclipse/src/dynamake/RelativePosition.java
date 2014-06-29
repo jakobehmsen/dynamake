@@ -5,7 +5,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import dynamake.LiveModel.ProductionPanel;
+import dynamake.models.LiveModel.ProductionPanel;
 
 public class RelativePosition {
 	public static final int HORIZONTAL_REGION_WEST = 0;

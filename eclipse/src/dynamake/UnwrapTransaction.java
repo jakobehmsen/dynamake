@@ -3,6 +3,11 @@ package dynamake;
 import java.awt.Rectangle;
 import java.util.Date;
 
+import dynamake.models.CanvasModel;
+import dynamake.models.Location;
+import dynamake.models.Model;
+import dynamake.models.PropogationContext;
+
 public class UnwrapTransaction implements Command<Model> {
 	/**
 	 * 

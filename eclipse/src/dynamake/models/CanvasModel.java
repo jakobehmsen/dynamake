@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.models;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -15,7 +15,22 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 
-import dynamake.LiveModel.LivePanel;
+import dynamake.Action1;
+import dynamake.AsIsFactory;
+import dynamake.Command;
+import dynamake.CompositeModelLocation;
+import dynamake.DualCommand;
+import dynamake.DualCommandFactory;
+import dynamake.DualCommandPair;
+import dynamake.Factory;
+import dynamake.Fraction;
+import dynamake.Func1;
+import dynamake.Memoizer1;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.Runner;
+import dynamake.TransactionFactory;
+import dynamake.TransactionMapBuilder;
+import dynamake.models.LiveModel.LivePanel;
 
 public class CanvasModel extends Model {
 	/**

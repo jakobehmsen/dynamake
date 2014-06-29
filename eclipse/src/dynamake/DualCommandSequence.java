@@ -3,6 +3,9 @@ package dynamake;
 import java.util.ArrayList;
 import java.util.Date;
 
+import dynamake.models.Location;
+import dynamake.models.PropogationContext;
+
 public class DualCommandSequence<T> implements DualCommand<T> {
 	/**
 	 * 

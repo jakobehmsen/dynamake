@@ -5,16 +5,16 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-import dynamake.CanvasModel;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
-import dynamake.Model;
-import dynamake.ModelComponent;
 import dynamake.PrevaylerServiceBranch;
-import dynamake.PropogationContext;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
-import dynamake.LiveModel.ProductionPanel;
+import dynamake.models.CanvasModel;
+import dynamake.models.Model;
+import dynamake.models.ModelComponent;
+import dynamake.models.PropogationContext;
+import dynamake.models.LiveModel.ProductionPanel;
 
 public class TrimTool implements Tool {
 	@Override

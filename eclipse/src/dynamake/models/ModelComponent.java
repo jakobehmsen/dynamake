@@ -1,10 +1,15 @@
-package dynamake;
+package dynamake.models;
 
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import dynamake.LiveModel.LivePanel;
+import dynamake.Action1;
+import dynamake.DualCommandFactory;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.TransactionFactory;
+import dynamake.TransactionMapBuilder;
+import dynamake.models.LiveModel.LivePanel;
 
 /**
  * Assumed only to be implemented by JComponent (or JFrame) class extensions.

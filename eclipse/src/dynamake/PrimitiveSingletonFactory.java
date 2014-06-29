@@ -3,7 +3,10 @@ package dynamake;
 import java.awt.Rectangle;
 import java.util.Hashtable;
 
-import dynamake.Primitive.Implementation;
+import dynamake.models.Model;
+import dynamake.models.Primitive;
+import dynamake.models.PropogationContext;
+import dynamake.models.Primitive.Implementation;
 
 public class PrimitiveSingletonFactory implements Factory {
 	/**

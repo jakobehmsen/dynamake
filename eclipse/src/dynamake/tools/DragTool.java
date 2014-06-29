@@ -9,12 +9,12 @@ import java.awt.event.MouseEvent;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.Model;
-import dynamake.ModelComponent;
 import dynamake.PrevaylerServiceBranch;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
-import dynamake.LiveModel.ProductionPanel;
+import dynamake.models.Model;
+import dynamake.models.ModelComponent;
+import dynamake.models.LiveModel.ProductionPanel;
 
 public class DragTool implements Tool {
 	@Override

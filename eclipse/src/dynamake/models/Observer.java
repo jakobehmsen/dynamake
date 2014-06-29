@@ -1,4 +1,6 @@
-package dynamake;
+package dynamake.models;
+
+import dynamake.PrevaylerServiceBranch;
 
 // TODO: Consider renaming to Peer
 public interface Observer {

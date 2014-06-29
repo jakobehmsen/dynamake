@@ -5,7 +5,8 @@ import java.awt.Rectangle;
 
 import javax.swing.JPopupMenu;
 
-import dynamake.LiveModel.LivePanel;
+import dynamake.models.ModelComponent;
+import dynamake.models.LiveModel.LivePanel;
 
 public interface DragDropPopupBuilder {
 	void buildFromSelectionAndTarget(

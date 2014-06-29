@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.models;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -16,7 +16,14 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import dynamake.LiveModel.LivePanel;
+import dynamake.Action1;
+import dynamake.DualCommand;
+import dynamake.DualCommandFactory;
+import dynamake.DualCommandPair;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.TransactionFactory;
+import dynamake.TransactionMapBuilder;
+import dynamake.models.LiveModel.LivePanel;
 
 public class RootModel extends Model {
 	/**

@@ -3,6 +3,8 @@ package dynamake;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import dynamake.models.Location;
+
 // Instances each represents a pairing of a transaction and the models, which were affected
 // during the original forward execution of the transaction.
 public class ContextualTransaction<T> implements Serializable {

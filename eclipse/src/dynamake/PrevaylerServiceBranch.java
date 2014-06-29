@@ -2,6 +2,8 @@ package dynamake;
 
 import java.util.HashSet;
 
+import dynamake.models.PropogationContext;
+
 public interface PrevaylerServiceBranch<T> {
 //	void absorb();
 	void reject();

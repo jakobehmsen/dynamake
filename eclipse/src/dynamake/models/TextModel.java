@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.models;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -12,7 +12,17 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import dynamake.LiveModel.LivePanel;
+import dynamake.Action1;
+import dynamake.ColorTransactionBuilder;
+import dynamake.Command;
+import dynamake.DualCommand;
+import dynamake.DualCommandFactory;
+import dynamake.DualCommandPair;
+import dynamake.Fraction;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.TransactionFactory;
+import dynamake.TransactionMapBuilder;
+import dynamake.models.LiveModel.LivePanel;
 
 public class TextModel extends Model {
 	public static final String PROPERTY_CARET_COLOR = "Caret Color";

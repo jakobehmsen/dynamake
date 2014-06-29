@@ -9,12 +9,12 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.Model;
-import dynamake.ModelComponent;
 import dynamake.PrevaylerServiceBranch;
 import dynamake.RepaintRunBuilder;
-import dynamake.TextModel;
-import dynamake.LiveModel.ProductionPanel;
+import dynamake.models.Model;
+import dynamake.models.ModelComponent;
+import dynamake.models.TextModel;
+import dynamake.models.LiveModel.ProductionPanel;
 
 public class TextTool implements Tool {
 	@Override

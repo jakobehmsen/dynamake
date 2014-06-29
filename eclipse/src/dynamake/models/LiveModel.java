@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.models;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -34,6 +34,22 @@ import javax.swing.border.Border;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import dynamake.Action1;
+import dynamake.Command;
+import dynamake.ConsDragDropPopupBuilder;
+import dynamake.DragDragDropPopupBuilder;
+import dynamake.DragDropPopupBuilder;
+import dynamake.DualCommand;
+import dynamake.DualCommandFactory;
+import dynamake.DualCommandPair;
+import dynamake.Factory;
+import dynamake.PrevaylerServiceBranch;
+import dynamake.RepaintRunBuilder;
+import dynamake.RunBuilder;
+import dynamake.TellDragDropPopupBuilder;
+import dynamake.TransactionFactory;
+import dynamake.TransactionMapBuilder;
+import dynamake.ViewDragDropPopupBuilder;
 import dynamake.tools.Tool;
 
 public class LiveModel extends Model {
@@ -301,7 +317,7 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	public static class ContentLocator implements dynamake.ModelLocator {
+	public static class ContentLocator implements dynamake.models.ModelLocator {
 		@Override
 		public ModelLocation locate() {
 			return new FieldContentLocation();

@@ -3,8 +3,8 @@ package dynamake.tools;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 
-import dynamake.LiveModel;
-import dynamake.ModelComponent;
+import dynamake.models.LiveModel;
+import dynamake.models.ModelComponent;
 
 public interface Tool {
 	String getName();

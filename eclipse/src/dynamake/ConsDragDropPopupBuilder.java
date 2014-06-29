@@ -6,7 +6,14 @@ import java.util.List;
 
 import javax.swing.JPopupMenu;
 
-import dynamake.LiveModel.LivePanel;
+import dynamake.models.CanvasModel;
+import dynamake.models.LiveModel;
+import dynamake.models.Location;
+import dynamake.models.Model;
+import dynamake.models.ModelComponent;
+import dynamake.models.Primitive;
+import dynamake.models.PropogationContext;
+import dynamake.models.LiveModel.LivePanel;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	private PrevaylerServiceBranch<Model> branch;

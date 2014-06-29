@@ -3,6 +3,9 @@ package dynamake;
 import java.awt.Rectangle;
 import java.util.Hashtable;
 
+import dynamake.models.Model;
+import dynamake.models.PropogationContext;
+
 public class AsIsFactory implements Factory {
 	/**
 	 * 

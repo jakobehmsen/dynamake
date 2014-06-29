@@ -1,4 +1,6 @@
-package dynamake;
+package dynamake.models;
+
+import dynamake.PrevaylerServiceBranch;
 
 public class ObserverAdapter implements Observer {
 	@Override
