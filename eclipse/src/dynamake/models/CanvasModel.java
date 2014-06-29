@@ -16,7 +16,6 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 
 import dynamake.Command;
-import dynamake.CompositeModelLocation;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;

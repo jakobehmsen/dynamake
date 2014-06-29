@@ -1,5 +1,6 @@
 package dynamake;
 
+import dynamake.models.CompositeModelLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelLocation;
