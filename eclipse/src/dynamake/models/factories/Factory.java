@@ -15,7 +15,7 @@ public interface Factory extends Serializable {
 	// With such parameters (and constraints, in general), it would be possible to implicitly support creation of an intermediate CreationModel
 	
 	String getName();
-	Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch);
+	Model create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch);
 	
 	public static class Constant implements Factory {
 		/**
@@ -23,9 +23,9 @@ public interface Factory extends Serializable {
 		 */
 		private static final long serialVersionUID = 1L;
 		private String name;
-		private Object value;
+		private Model value;
 
-		public Constant(String name, Object value) {
+		public Constant(String name, Model value) {
 			super();
 			this.name = name;
 			this.value = value;
@@ -37,7 +37,7 @@ public interface Factory extends Serializable {
 		}
 
 		@Override
-		public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
+		public Model create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 			return value;
 		}
 	}

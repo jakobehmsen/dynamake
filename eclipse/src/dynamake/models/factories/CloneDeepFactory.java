@@ -25,7 +25,7 @@ public class CloneDeepFactory implements Factory {
 	}
 
 	@Override
-	public Object create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
+	public Model create(Model rootModel, Rectangle creationBounds, Hashtable<String, Object> arguments, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 //		PropogationContext propCtx = new PropogationContext();
 		
 		Model model = (Model)modelLocation.getChild(rootModel);
