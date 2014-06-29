@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.tools;
 
 import java.awt.Color;
 import java.awt.Rectangle;
@@ -8,6 +8,8 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import dynamake.RunBuilder;
+import dynamake.Runner;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.transcription.TranscriberBranch;

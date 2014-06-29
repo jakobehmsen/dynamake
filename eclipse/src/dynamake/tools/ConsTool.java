@@ -14,7 +14,6 @@ import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
 import dynamake.RepaintRunBuilder;
-import dynamake.TargetPresenter;
 import dynamake.models.CanvasModel;
 import dynamake.models.LiveModel;
 import dynamake.models.Location;

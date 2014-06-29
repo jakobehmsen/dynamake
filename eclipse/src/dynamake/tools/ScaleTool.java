@@ -15,7 +15,6 @@ import javax.swing.SwingUtilities;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.RepaintRunBuilder;
-import dynamake.TargetPresenter;
 import dynamake.TransactionFactory;
 import dynamake.models.CanvasModel;
 import dynamake.models.LiveModel;
