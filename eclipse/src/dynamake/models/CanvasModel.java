@@ -167,20 +167,11 @@ public class CanvasModel extends Model {
 		private static final long serialVersionUID = 1L;
 		private Location canvasLocation;
 		private Rectangle creationBounds;
-		private Hashtable<String, Object> creationArgs;
 		private Factory factory;
 		
 		public AddModelTransaction(Location canvasLocation, Rectangle creationBounds, Factory factory) {
 			this.canvasLocation = canvasLocation;
 			this.creationBounds = creationBounds;
-			this.factory = factory;
-			this.creationArgs = new Hashtable<String, Object>();
-		}
-		
-		public AddModelTransaction(Location canvasLocation, Rectangle creationBounds, Hashtable<String, Object> creationArgs, Factory factory) {
-			this.canvasLocation = canvasLocation;
-			this.creationBounds = creationBounds;
-			this.creationArgs = creationArgs;
 			this.factory = factory;
 		}
 		
@@ -211,22 +202,12 @@ public class CanvasModel extends Model {
 		private static final long serialVersionUID = 1L;
 		private Location canvasLocation;
 		private Rectangle creationBounds;
-		private Hashtable<String, Object> creationArgs;
 		private Factory factory;
 		private int index;
 		
 		public AddModelAtTransaction(Location canvasLocation, Rectangle creationBounds, Factory factory, int index) {
 			this.canvasLocation = canvasLocation;
 			this.creationBounds = creationBounds;
-			this.factory = factory;
-			this.creationArgs = new Hashtable<String, Object>();
-			this.index = index;
-		}
-		
-		public AddModelAtTransaction(Location canvasLocation, Rectangle creationBounds, Hashtable<String, Object> creationArgs, Factory factory, int index) {
-			this.canvasLocation = canvasLocation;
-			this.creationBounds = creationBounds;
-			this.creationArgs = creationArgs;
 			this.factory = factory;
 			this.index = index;
 		}
