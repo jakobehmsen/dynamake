@@ -15,7 +15,6 @@ import javax.swing.SwingUtilities;
 import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.PrevaylerServiceBranch;
-import dynamake.RelativePosition;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
 import dynamake.TransactionFactory;

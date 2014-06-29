@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.tools;
 
 import java.awt.Cursor;
 import java.awt.Dimension;

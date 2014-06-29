@@ -17,7 +17,6 @@ import dynamake.DualCommandFactory;
 import dynamake.DualCommandPair;
 import dynamake.Fraction;
 import dynamake.PrevaylerServiceBranch;
-import dynamake.RelativePosition;
 import dynamake.RepaintRunBuilder;
 import dynamake.TargetPresenter;
 import dynamake.TransactionFactory;
