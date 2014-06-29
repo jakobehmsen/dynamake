@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.menubuilders;
 
 public interface MenuView {
 	void hide();

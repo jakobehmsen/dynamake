@@ -1,10 +1,12 @@
-package dynamake;
+package dynamake.menubuilders;
 
 import java.util.ArrayList;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+
+import dynamake.Runner;
 
 public abstract class MenuBuilder {
 	public abstract void appendTo(MenuView view, ArrayList<JMenuItem> menuItems, String name);

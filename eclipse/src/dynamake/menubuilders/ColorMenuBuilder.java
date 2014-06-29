@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.menubuilders;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -12,6 +12,7 @@ import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import dynamake.ResourceManager;
 import dynamake.delegates.Action1;
 
 public class ColorMenuBuilder extends MenuBuilder {

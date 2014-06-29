@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.menubuilders;
 
 import java.util.ArrayList;
 

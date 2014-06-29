@@ -15,8 +15,8 @@ import dynamake.DualCommandFactory;
 import dynamake.Fraction;
 import dynamake.ResourceManager;
 import dynamake.TransactionFactory;
-import dynamake.CompositeMenuBuilder;
 import dynamake.delegates.Action1;
+import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.TranscriberBranch;
 

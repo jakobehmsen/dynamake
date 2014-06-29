@@ -7,6 +7,7 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 
+import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
