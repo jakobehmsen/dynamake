@@ -155,7 +155,7 @@ public abstract class Model implements Serializable, Observer {
 		redoStack.clear();
 	}
 	
-	private static class UndoTransaction implements Command<Model> {
+	public static class UndoTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -181,7 +181,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	private static class RedoTransaction implements Command<Model> {
+	public static class RedoTransaction implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -208,6 +208,9 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public void undo(PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> isolatedBranch) {
+		if(undoStack.isEmpty())
+			return;
+		
 		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
 		
 		// Could probably be cached somehow; perhaps during application load?
@@ -225,8 +228,10 @@ public abstract class Model implements Serializable, Observer {
 //			}
 //		});
 		
-		for(Model affectedModel: affectedModels)
+		for(Model affectedModel: affectedModels) {
 			affectedModel.undoTill(propCtx, prevalentSystem, isolatedBranch, ctxTransactionToUndo);
+			affectedModel.undoStack.pop();
+		}
 		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatedBranch);
 
 		for(Model affectedModel: affectedModels)
@@ -245,6 +250,9 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public void redo(PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> isolatedBranch) {
+		if(redoStack.isEmpty())
+			return;
+		
 		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
 		
 		// Could probably be cached somehow; perhaps during application load?
@@ -262,8 +270,10 @@ public abstract class Model implements Serializable, Observer {
 //			}
 //		});
 		
-		for(Model affectedModel: affectedModels)
+		for(Model affectedModel: affectedModels) {
 			affectedModel.redoTill(propCtx, prevalentSystem, isolatedBranch, ctxTransactionToRedo);
+			affectedModel.redoStack.pop();
+		}
 		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatedBranch);
 
 		for(Model affectedModel: affectedModels)
