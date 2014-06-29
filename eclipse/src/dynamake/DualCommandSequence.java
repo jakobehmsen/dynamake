@@ -1,5 +1,6 @@
 package dynamake;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class DualCommandSequence<T> implements DualCommand<T> {
@@ -9,6 +10,11 @@ public class DualCommandSequence<T> implements DualCommand<T> {
 	private static final long serialVersionUID = 1L;
 	
 	private DualCommand<T>[] transactions;
+	
+	@SuppressWarnings("unchecked")
+	public DualCommandSequence(ArrayList<DualCommand<T>> transactionList) {
+		this.transactions = transactionList.toArray((DualCommand<T>[])new DualCommand[transactionList.size()]);
+	}
 	
 	public DualCommandSequence(DualCommand<T>[] transactions) {
 		this.transactions = transactions;

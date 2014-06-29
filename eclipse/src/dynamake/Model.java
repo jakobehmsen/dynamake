@@ -170,7 +170,9 @@ public abstract class Model implements Serializable, Observer {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-//			model.undo(propCtx, prevalentSystem, prevaylerService);
+			PrevaylerServiceBranch<Model> undoBranch = branch.isolatedBranch();
+			model.undo(propCtx, prevalentSystem, undoBranch);
+			undoBranch.close();
 		}
 
 		@Override
@@ -194,7 +196,9 @@ public abstract class Model implements Serializable, Observer {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, PrevaylerServiceBranch<Model> branch) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-//			model.redo(propCtx, prevalentSystem, prevaylerService);
+			PrevaylerServiceBranch<Model> undoBranch = branch.isolatedBranch();
+			model.redo(propCtx, prevalentSystem, undoBranch);
+			undoBranch.close();
 		}
 
 		@Override
@@ -203,7 +207,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void undo(PropogationContext propCtx, Model prevalentSystem, PrevaylerService<Model> prevaylerService) {
+	public void undo(PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> isolatedBranch) {
 		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
 		
 		// Could probably be cached somehow; perhaps during application load?
@@ -213,22 +217,26 @@ public abstract class Model implements Serializable, Observer {
 			affectedModels.add(affectedModel);
 		}
 		
-		PrevaylerServiceBranch<Model> branch = prevaylerService.createBranch(new PrevaylerServiceBranchBehavior<Model>() {
-			@Override
-			public void commit(PropogationContext propCtx, ContextualTransaction<Model> ctxTransaction) {
-				for(Model affectedModel: affectedModels)
-					affectedModel.redoStack.push(ctxTransaction);
-			}
-		});
+//		PrevaylerServiceBranch<Model> branch = prevaylerService.createBranch(new PrevaylerServiceBranchBehavior<Model>() {
+//			@Override
+//			public void commit(PropogationContext propCtx, ContextualTransaction<Model> ctxTransaction) {
+//				for(Model affectedModel: affectedModels)
+//					affectedModel.redoStack.push(ctxTransaction);
+//			}
+//		});
 		
 		for(Model affectedModel: affectedModels)
-			affectedModel.undoTill(propCtx, prevalentSystem, branch, ctxTransactionToUndo);
-		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, branch);
+			affectedModel.undoTill(propCtx, prevalentSystem, isolatedBranch, ctxTransactionToUndo);
+		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatedBranch);
+
+		for(Model affectedModel: affectedModels)
+			affectedModel.redoStack.push(ctxTransactionToUndo);
 		
-		branch.close();
+//		branch.close();
 	}
 	
-	private void undoTill(PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToUndoTill) {
+	private void undoTill(
+		PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToUndoTill) {
 		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
 		while(ctxTransactionToUndo != ctxTransactionToUndoTill) {
 			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, branch);
@@ -236,7 +244,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void redo(PropogationContext propCtx, Model prevalentSystem, PrevaylerService<Model> prevaylerService) {
+	public void redo(PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> isolatedBranch) {
 		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
 		
 		// Could probably be cached somehow; perhaps during application load?
@@ -246,19 +254,22 @@ public abstract class Model implements Serializable, Observer {
 			affectedModels.add(affectedModel);
 		}
 		
-		PrevaylerServiceBranch<Model> branch = prevaylerService.createBranch(new PrevaylerServiceBranchBehavior<Model>() {
-			@Override
-			public void commit(PropogationContext propCtx, ContextualTransaction<Model> ctxTransaction) {
-				for(Model affectedModel: affectedModels)
-					affectedModel.redoStack.pop();
-			}
-		});
+//		PrevaylerServiceBranch<Model> branch = prevaylerService.createBranch(new PrevaylerServiceBranchBehavior<Model>() {
+//			@Override
+//			public void commit(PropogationContext propCtx, ContextualTransaction<Model> ctxTransaction) {
+//				for(Model affectedModel: affectedModels)
+//					affectedModel.redoStack.pop();
+//			}
+//		});
 		
 		for(Model affectedModel: affectedModels)
-			affectedModel.redoTill(propCtx, prevalentSystem, branch, ctxTransactionToRedo);
-		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, branch);
+			affectedModel.redoTill(propCtx, prevalentSystem, isolatedBranch, ctxTransactionToRedo);
+		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatedBranch);
+
+		for(Model affectedModel: affectedModels)
+			affectedModel.undoStack.push(ctxTransactionToRedo);
 		
-		branch.close();
+//		branch.close();
 	}
 	
 	private void redoTill(PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToRedoTillæ) {
