@@ -1,8 +1,9 @@
-package dynamake;
+package dynamake.commands;
 
 import java.awt.Rectangle;
 import java.util.Date;
 
+import dynamake.Fraction;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;

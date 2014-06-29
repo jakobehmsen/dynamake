@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.commands;
 
 import java.io.Serializable;
 import java.util.Date;

@@ -2,6 +2,8 @@ package dynamake;
 
 import java.util.List;
 
+import dynamake.commands.DualCommand;
+
 public interface DualCommandFactory<T> {
 //	DualCommand<T> createDualCommand();
 	

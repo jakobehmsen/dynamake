@@ -17,12 +17,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
-import dynamake.DualCommandPair;
 import dynamake.RepaintRunBuilder;
-import dynamake.UnwrapTransaction;
-import dynamake.WrapTransaction;
+import dynamake.commands.DualCommand;
+import dynamake.commands.DualCommandPair;
+import dynamake.commands.UnwrapTransaction;
+import dynamake.commands.WrapTransaction;
 import dynamake.models.CanvasModel;
 import dynamake.models.LiveModel;
 import dynamake.models.Location;

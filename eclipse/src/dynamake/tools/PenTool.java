@@ -15,12 +15,12 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
-import dynamake.DualCommandPair;
 import dynamake.RepaintRunBuilder;
 import dynamake.RunBuilder;
 import dynamake.Runner;
+import dynamake.commands.DualCommand;
+import dynamake.commands.DualCommandPair;
 import dynamake.models.CanvasModel;
 import dynamake.models.LiveModel;
 import dynamake.models.Location;

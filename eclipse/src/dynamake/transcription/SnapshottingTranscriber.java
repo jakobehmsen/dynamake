@@ -17,11 +17,11 @@ import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import dynamake.ContextualTransaction;
-import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
-import dynamake.DualCommandSequence;
 import dynamake.RunBuilder;
+import dynamake.commands.ContextualTransaction;
+import dynamake.commands.DualCommand;
+import dynamake.commands.DualCommandSequence;
 import dynamake.delegates.Func0;
 import dynamake.models.Location;
 import dynamake.models.Model;

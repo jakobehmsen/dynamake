@@ -4,11 +4,11 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-import dynamake.Command;
-import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
-import dynamake.DualCommandPair;
 import dynamake.RepaintRunBuilder;
+import dynamake.commands.Command;
+import dynamake.commands.DualCommand;
+import dynamake.commands.DualCommandPair;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;

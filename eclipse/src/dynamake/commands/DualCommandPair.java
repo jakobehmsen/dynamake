@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.commands;
 
 import java.util.Date;
 

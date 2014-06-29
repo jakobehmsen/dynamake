@@ -16,9 +16,9 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
-import dynamake.DualCommandPair;
+import dynamake.commands.DualCommand;
+import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;

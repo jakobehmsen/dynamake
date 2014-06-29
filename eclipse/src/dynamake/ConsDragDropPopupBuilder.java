@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.swing.JPopupMenu;
 
+import dynamake.commands.DualCommand;
+import dynamake.commands.DualCommandPair;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.CanvasModel;
 import dynamake.models.LiveModel;

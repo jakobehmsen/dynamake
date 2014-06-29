@@ -15,13 +15,13 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 
-import dynamake.Command;
-import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
-import dynamake.DualCommandPair;
 import dynamake.Fraction;
 import dynamake.Memoizer1;
 import dynamake.Runner;
+import dynamake.commands.Command;
+import dynamake.commands.DualCommand;
+import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.menubuilders.CompositeMenuBuilder;

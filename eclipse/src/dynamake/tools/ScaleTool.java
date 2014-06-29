@@ -12,9 +12,9 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
 import dynamake.RepaintRunBuilder;
+import dynamake.commands.DualCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.LiveModel;
 import dynamake.models.Model;

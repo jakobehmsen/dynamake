@@ -12,11 +12,11 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import dynamake.Command;
-import dynamake.DualCommand;
 import dynamake.DualCommandFactory;
-import dynamake.DualCommandPair;
 import dynamake.Fraction;
+import dynamake.commands.Command;
+import dynamake.commands.DualCommand;
+import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.ColorMenuBuilder;
 import dynamake.menubuilders.CompositeMenuBuilder;
