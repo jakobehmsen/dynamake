@@ -220,14 +220,6 @@ public abstract class Model implements Serializable, Observer {
 			affectedModels.add(affectedModel);
 		}
 		
-//		PrevaylerServiceBranch<Model> branch = prevaylerService.createBranch(new PrevaylerServiceBranchBehavior<Model>() {
-//			@Override
-//			public void commit(PropogationContext propCtx, ContextualTransaction<Model> ctxTransaction) {
-//				for(Model affectedModel: affectedModels)
-//					affectedModel.redoStack.push(ctxTransaction);
-//			}
-//		});
-		
 		for(Model affectedModel: affectedModels) {
 			affectedModel.undoTill(propCtx, prevalentSystem, isolatedBranch, ctxTransactionToUndo);
 			affectedModel.undoStack.pop();
@@ -236,8 +228,6 @@ public abstract class Model implements Serializable, Observer {
 
 		for(Model affectedModel: affectedModels)
 			affectedModel.redoStack.push(ctxTransactionToUndo);
-		
-//		branch.close();
 	}
 	
 	private void undoTill(
@@ -261,15 +251,7 @@ public abstract class Model implements Serializable, Observer {
 			Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
 			affectedModels.add(affectedModel);
 		}
-		
-//		PrevaylerServiceBranch<Model> branch = prevaylerService.createBranch(new PrevaylerServiceBranchBehavior<Model>() {
-//			@Override
-//			public void commit(PropogationContext propCtx, ContextualTransaction<Model> ctxTransaction) {
-//				for(Model affectedModel: affectedModels)
-//					affectedModel.redoStack.pop();
-//			}
-//		});
-		
+
 		for(Model affectedModel: affectedModels) {
 			affectedModel.redoTill(propCtx, prevalentSystem, isolatedBranch, ctxTransactionToRedo);
 			affectedModel.redoStack.pop();
@@ -278,8 +260,6 @@ public abstract class Model implements Serializable, Observer {
 
 		for(Model affectedModel: affectedModels)
 			affectedModel.undoStack.push(ctxTransactionToRedo);
-		
-//		branch.close();
 	}
 	
 	private void redoTill(PropogationContext propCtx, Model prevalentSystem, PrevaylerServiceBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToRedoTillæ) {
