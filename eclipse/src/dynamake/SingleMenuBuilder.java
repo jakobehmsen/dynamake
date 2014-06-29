@@ -14,7 +14,7 @@ public class SingleMenuBuilder extends MenuBuilder {
 	}
 	
 	@Override
-	public void appendTo(final TransactionView view, ArrayList<JMenuItem> menuItems, String name) {
+	public void appendTo(final MenuView view, ArrayList<JMenuItem> menuItems, String name) {
 		JMenuItem menuItem = new JMenuItem();
 		menuItem.addActionListener(new ActionListener() {
 			@Override

@@ -26,7 +26,7 @@ public class CompositeMenuBuilder extends MenuBuilder {
 	}
 	
 	@Override
-	public void appendTo(TransactionView view, ArrayList<JMenuItem> menuItems, String name) {
+	public void appendTo(MenuView view, ArrayList<JMenuItem> menuItems, String name) {
 		for(final CompositeMenuBuilder.MenuInfo tInfo: menuInfos) {
 			JMenuItem menuItem = tInfo.builder.toMenu(view, tInfo.name);
 			menuItem.setText(tInfo.name);

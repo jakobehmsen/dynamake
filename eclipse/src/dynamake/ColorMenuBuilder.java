@@ -30,7 +30,7 @@ public class ColorMenuBuilder extends MenuBuilder {
 	}
 	
 	@Override
-	public void appendTo(final TransactionView view, ArrayList<JMenuItem> menuItems, String name) {
+	public void appendTo(final MenuView view, ArrayList<JMenuItem> menuItems, String name) {
 		JMenu menuItem = new JMenu();
 		JColorChooser colorChooser = getColorChooser(name);
 		colorChooser.setSelectionModel(new javax.swing.colorchooser.DefaultColorSelectionModel());

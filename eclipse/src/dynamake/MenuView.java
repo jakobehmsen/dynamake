@@ -1,6 +1,6 @@
 package dynamake;
 
-public interface TransactionView {
+public interface MenuView {
 	void hide();
 
 	void execute(Runnable action);

@@ -7,11 +7,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 public abstract class MenuBuilder {
-	public abstract void appendTo(TransactionView view, ArrayList<JMenuItem> menuItems, String name);
+	public abstract void appendTo(MenuView view, ArrayList<JMenuItem> menuItems, String name);
 	
 	public abstract boolean isEmpty();
 
-	public JMenuItem toMenu(TransactionView view, String name) {
+	public JMenuItem toMenu(MenuView view, String name) {
 		ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
 		appendTo(view, menuItems, name);
 		
@@ -38,7 +38,7 @@ public abstract class MenuBuilder {
 	
 	public void appendTo(final JPopupMenu popupMenu, final Runner runner, String name) {
 		ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
-		appendTo(new TransactionView() {
+		appendTo(new MenuView() {
 			@Override
 			public void hide() {
 				popupMenu.setVisible(false);
