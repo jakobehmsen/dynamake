@@ -722,7 +722,8 @@ public class LiveModel extends Model {
 			}
 			
 			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
-				requestSelect(view, new Rectangle(0, 0, 0, 0), branch);
+//				requestSelect(view, new Rectangle(0, 0, 0, 0), branch);
+				productionPanel.editPanelMouseAdapter.select(view, branch);
 				createEffectFrame(new Rectangle(0, 0, 0, 0), branch);
 			}
 			

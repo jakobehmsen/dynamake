@@ -76,6 +76,8 @@ public class PlotTool implements Tool {
 				JMenuItem factoryMenuItem = new JMenuItem();
 				factoryMenuItem.setText("Wrap");
 				
+				final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
+				
 				factoryMenuItem.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
@@ -89,11 +91,11 @@ public class PlotTool implements Tool {
 								public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 									dualCommands.add(LiveModel.SetOutput.createDualBackward(productionPanel.livePanel));
 									
-									CanvasModel target = (CanvasModel)productionPanel.editPanelMouseAdapter.selection.getModelBehind();
-									Location targetLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
+									CanvasModel target = (CanvasModel)selection.getModelBehind();
+									Location targetLocation = selection.getTransactionFactory().getModelLocation();
 									int indexOfWrapper = target.getModelCount() - componentsWithinBounds.size();
 									ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
-									ModelLocation wrapperLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().extendLocation(wrapperLocationInTarget);
+									ModelLocation wrapperLocation = selection.getTransactionFactory().extendLocation(wrapperLocationInTarget);
 									
 									// Each of the model locations should be moved from target to wrapper
 									Location[] modelLocations = new Location[componentsWithinBounds.size()];
@@ -113,6 +115,7 @@ public class PlotTool implements Tool {
 								}
 							});
 							
+							productionPanel.editPanelMouseAdapter.select(null, branchStep2);
 							productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 							
 							branchStep2.close();
@@ -136,10 +139,12 @@ public class PlotTool implements Tool {
 						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
 							PropogationContext propCtx = new PropogationContext();
 							
+							final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
+							
 							branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 								@Override
 								public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-									ModelComponent target = productionPanel.editPanelMouseAdapter.selection;
+									ModelComponent target = selection;
 									
 									CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 									Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
@@ -155,7 +160,8 @@ public class PlotTool implements Tool {
 									dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
 								}
 							});
-							
+
+							productionPanel.editPanelMouseAdapter.select(null, branchStep2);
 							productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 							branchStep2.close();
 							branch.close();
