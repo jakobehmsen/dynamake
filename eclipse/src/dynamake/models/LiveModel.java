@@ -566,8 +566,7 @@ public class LiveModel extends Model {
 			private Tool getTool(int button) {
 				int toolForButton = productionPanel.livePanel.model.getToolForButton(button);
 				if(toolForButton != -1) {
-//					return productionPanel.livePanel.viewManager.getTools()[productionPanel.livePanel.model.tool - 1];
-					return productionPanel.livePanel.viewManager.getTools()[toolForButton - 1];
+					return productionPanel.livePanel.viewManager.getTools()[toolForButton];
 				} else {
 					return new Tool() {
 						@Override
@@ -1312,15 +1311,15 @@ public class LiveModel extends Model {
 		@Override
 		public void initialize() {
 			Tool[] tools = viewManager.getTools();
-			buttonTools = new JComponent[1 + tools.length];
+			buttonTools = new JComponent[tools.length];
 			ButtonGroup group = new ButtonGroup();
 			
-			buttonTools[0] = createToolButton(model, transactionFactory, group, -1, this.model.getTool(), STATE_USE, "Use");
+//			buttonTools[0] = createToolButton(model, transactionFactory, group, -1, this.model.getTool(), STATE_USE, "Use");
 
 			for(int i = 0; i < tools.length; i++) {
 				Tool tool = tools[i];
-				int button = model.getButtonForTool(i + 1);
-				buttonTools[i + 1] = createToolButton(model, transactionFactory, group, button, this.model.getTool(), i + 1, tool.getName());
+				int button = model.getButtonForTool(i);
+				buttonTools[i] = createToolButton(model, transactionFactory, group, button, this.model.getTool(), i, tool.getName());
 			}
 			
 			for(JComponent buttonTool: buttonTools) {
