@@ -42,7 +42,7 @@ public class ConsTool implements Tool {
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 		final ModelComponent targetModelComponent = modelOver;
 		
-		if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
+		if(targetModelComponent != null && interactionPresenter.getSelection() != targetModelComponent) {
 			TranscriberBranch<Model> branchStep2 = branch.branch();
 			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			branch.close();
@@ -51,14 +51,18 @@ public class ConsTool implements Tool {
 			targetPresenter = null;
 			
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
-				productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
+				interactionPresenter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
+				
+				interactionPresenter.reset(branchStep2);
+				interactionPresenter = null;
 			} else {
-				if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
+				if(interactionPresenter.getSelection().getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
+					final ModelComponent selection = interactionPresenter.getSelection();
 					PropogationContext propCtx = new PropogationContext();
 					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getModelTranscriber().getModelLocation();
+							Location observableLocation = selection.getModelTranscriber().getModelLocation();
 							Location observerLocation = targetModelComponent.getModelTranscriber().getModelLocation();
 							
 							dualCommands.add(new DualCommandPair<Model>(
@@ -69,10 +73,11 @@ public class ConsTool implements Tool {
 					});
 				} else {
 					PropogationContext propCtx = new PropogationContext();
+					final ModelComponent selection = interactionPresenter.getSelection();
 					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getModelTranscriber().getModelLocation();
+							Location observableLocation = selection.getModelTranscriber().getModelLocation();
 							Location observerLocation = targetModelComponent.getModelTranscriber().getModelLocation();
 							
 							dualCommands.add(new DualCommandPair<Model>(
@@ -83,8 +88,8 @@ public class ConsTool implements Tool {
 					});
 				}
 				
-				productionPanel.editPanelMouseAdapter.select(null, branchStep2);
-				productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
+				interactionPresenter.reset(branchStep2);
+				interactionPresenter = null;
 
 				branchStep2.close();
 			}
@@ -94,15 +99,17 @@ public class ConsTool implements Tool {
 				branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 				targetPresenter.reset(branchStep2);
 				targetPresenter = null;
-				productionPanel.editPanelMouseAdapter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
+				interactionPresenter.reset(branchStep2);
+				interactionPresenter = null;
+				interactionPresenter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
 				branch.close();
 			} else {
 				final TranscriberBranch<Model> branchStep2 = branch.branch();
 				branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 				targetPresenter.reset(branchStep2);
 				targetPresenter = null;
-				productionPanel.editPanelMouseAdapter.select(null, branchStep2);
-				productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
+				interactionPresenter.reset(branchStep2);
+				interactionPresenter = null;
 				branch.reject();
 			}
 		}
@@ -113,6 +120,7 @@ public class ConsTool implements Tool {
 	private Point mouseDown;
 	private TranscriberBranch<Model> branch;
 	private TargetPresenter targetPresenter;
+	private InteractionPresenter interactionPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -124,7 +132,9 @@ public class ConsTool implements Tool {
 		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-			productionPanel.editPanelMouseAdapter.selectFromDefault(targetModelComponent, referencePoint, branchStep1);
+			
+			interactionPresenter = new InteractionPresenter(productionPanel);
+			interactionPresenter.selectFromDefault(targetModelComponent, referencePoint, branchStep1);
 		}
 		
 		targetPresenter = new TargetPresenter(
@@ -135,7 +145,7 @@ public class ConsTool implements Tool {
 					if(target.getModelBehind() instanceof CanvasModel) {
 						return ProductionPanel.TARGET_OVER_COLOR;
 					} else {
-						return productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(target.getModelBehind()) 
+						return interactionPresenter.getSelection().getModelBehind().isObservedBy(target.getModelBehind()) 
 							? ProductionPanel.UNBIND_COLOR
 							: ProductionPanel.BIND_COLOR;
 					}
@@ -143,7 +153,7 @@ public class ConsTool implements Tool {
 				
 				@Override
 				public boolean acceptsTarget(ModelComponent target) {
-					return target != productionPanel.editPanelMouseAdapter.selection;
+					return target != interactionPresenter.getSelection();
 				}
 			}
 		);
@@ -162,15 +172,15 @@ public class ConsTool implements Tool {
 			
 			targetPresenter.update(modelOver, runBuilder);
 			
-			final int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
-			final int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
+			final int width = interactionPresenter.getEffectFrameWidth();
+			final int height = interactionPresenter.getEffectFrameHeight();
 			
 			Point cursorLocationInProductionPanel = e.getPoint();
 			
 			final int x = cursorLocationInProductionPanel.x - width / 2;
 			final int y = cursorLocationInProductionPanel.y - height / 2;
 			
-			productionPanel.editPanelMouseAdapter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), runBuilder);
+			interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), runBuilder);
 			
 			runBuilder.execute();
 		}
@@ -178,7 +188,6 @@ public class ConsTool implements Tool {
 
 	@Override
 	public void paint(Graphics g) {
-		// TODO Auto-generated method stub
-		
+
 	}
 }

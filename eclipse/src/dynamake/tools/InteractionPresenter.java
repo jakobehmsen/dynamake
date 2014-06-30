@@ -12,8 +12,13 @@ import java.awt.event.ComponentListener;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
+import dynamake.dragndrop.ConsDragDropPopupBuilder;
+import dynamake.dragndrop.DragDropPopupBuilder;
 import dynamake.models.Binding;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.LiveModel;
@@ -44,6 +49,15 @@ public class InteractionPresenter {
 		Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 		select(view, branch);
 		createEffectFrame(effectBounds, branch);
+	}
+	
+	public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
+		Dimension sourceBoundsSize = new Dimension(125, 33);
+		Point sourceBoundsLocation = new Point(initialMouseDown.x - sourceBoundsSize.width / 2, initialMouseDown.y - sourceBoundsSize.height / 2);
+		Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
+		Rectangle selectionBounds = SwingUtilities.convertRectangle((JComponent)view, sourceBounds, productionPanel);
+		select(view, branch);
+		createEffectFrame(selectionBounds, branch);
 	}
 	
 	private void select(final ModelComponent view, TranscriberBranch<Model> branch) {
@@ -342,5 +356,56 @@ public class InteractionPresenter {
 
 	public int getEffectFrameHeight() {
 		return effectFrame.getHeight();
+	}
+
+	public void showPopupForSelectionCons(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
+		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(branch));
+	}
+	
+	private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, final DragDropPopupBuilder popupBuilder) {
+		if(selection != null) {
+//			System.out.println("Here@popup");
+			JPopupMenu transactionsPopupMenu = new JPopupMenu() {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+				private boolean ignoreNextPaint;
+				
+				public void paint(java.awt.Graphics g) {
+					super.paint(g);
+					if(!ignoreNextPaint) {
+						productionPanel.livePanel.repaint();
+						ignoreNextPaint = true;
+					} else {
+						ignoreNextPaint = false;
+					}
+				}
+			};
+
+			Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
+			Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, effectFrame.getBounds(), (JComponent)targetOver);
+			popupBuilder.buildFromSelectionAndTarget(productionPanel.livePanel, transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
+
+			transactionsPopupMenu.show(popupMenuInvoker, pointOnInvoker.x, pointOnInvoker.y);
+			productionPanel.livePanel.repaint();
+			
+			transactionsPopupMenu.addPopupMenuListener(new PopupMenuListener() {
+				@Override
+				public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
+					
+				}
+				
+				@Override
+				public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
+
+				}
+				
+				@Override
+				public void popupMenuCanceled(PopupMenuEvent arg0) {
+					popupBuilder.cancelPopup(productionPanel.livePanel);
+				}
+			});
+		}
 	}
 }
