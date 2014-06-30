@@ -33,7 +33,7 @@ public class DragTool implements Tool {
 
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		System.out.println("Drag tool mouseReleased");
+//		System.out.println("Drag tool mouseReleased");
 		
 		ModelComponent targetModelComponent = modelOver;
 		
@@ -60,7 +60,7 @@ public class DragTool implements Tool {
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		System.out.println("Drag tool mousePressed");
+//		System.out.println("Drag tool mousePressed");
 		
 		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
 		
@@ -100,7 +100,7 @@ public class DragTool implements Tool {
 
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		System.out.println("Drag tool mouseDragged (mouseDown=" + mouseDown + ")");
+//		System.out.println("Drag tool mouseDragged (mouseDown=" + mouseDown + ")");
 		
 		if(mouseDown != null) {
 			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
