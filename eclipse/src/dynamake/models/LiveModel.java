@@ -198,7 +198,7 @@ public class LiveModel extends Model {
 	private static final Color TOP_BUTTON_BACKGROUND_COLOR = TOP_BACKGROUND_COLOR;
 	private static final Color TOP_FOREGROUND_COLOR = Color.WHITE;
 	
-	private static class ToolButton extends JPanel {
+	public static class ToolButton extends JPanel {
 		/**
 		 * 
 		 */
@@ -387,7 +387,7 @@ public class LiveModel extends Model {
 			
 			public ModelComponent output;
 
-			protected int buttonPressed;
+			public int buttonPressed;
 			
 			public static final int HORIZONTAL_REGION_WEST = 0;
 			public static final int HORIZONTAL_REGION_CENTER = 1;
