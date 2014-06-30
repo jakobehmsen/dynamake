@@ -6,9 +6,9 @@ import java.util.List;
 
 import javax.swing.JPopupMenu;
 
-import dynamake.Runner;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel;
 import dynamake.models.Model;

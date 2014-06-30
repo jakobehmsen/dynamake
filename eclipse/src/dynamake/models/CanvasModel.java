@@ -17,12 +17,12 @@ import javax.swing.JLayeredPane;
 
 import dynamake.Fraction;
 import dynamake.Memoizer1;
-import dynamake.Runner;
 import dynamake.commands.Command;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
+import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.AsIsFactory;

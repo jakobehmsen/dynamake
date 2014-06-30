@@ -22,9 +22,9 @@ import javax.swing.SwingUtilities;
 
 import dynamake.RepaintRunBuilder;
 import dynamake.RunBuilder;
-import dynamake.Runner;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.delegates.Runner;
 import dynamake.models.CanvasModel;
 import dynamake.models.LiveModel;
 import dynamake.models.Location;

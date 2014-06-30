@@ -6,7 +6,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import dynamake.Runner;
+import dynamake.delegates.Runner;
 
 public abstract class MenuBuilder {
 	public abstract void appendTo(MenuView view, ArrayList<JMenuItem> menuItems, String name);

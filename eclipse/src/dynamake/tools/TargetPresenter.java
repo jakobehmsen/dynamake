@@ -9,7 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dynamake.RunBuilder;
-import dynamake.Runner;
+import dynamake.delegates.Runner;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.transcription.TranscriberBranch;
