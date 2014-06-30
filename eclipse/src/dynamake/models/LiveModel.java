@@ -367,8 +367,6 @@ public class LiveModel extends Model {
 		
 		// Temporary frames
 		private JPanel effectFrame;
-		
-		// Persistent frames
 		public JPanel selectionFrame;
 		public JPanel outputFrame;
 		
@@ -378,7 +376,6 @@ public class LiveModel extends Model {
 		public static final Color BIND_COLOR = new Color(25, 209, 89);
 		public static final Color UNBIND_COLOR = new Color(240, 34, 54);
 		public static final Color SELECTION_COLOR = Color.GRAY;
-		public static final Color OUTPUT_COLOR = new Color(54, 240, 17);
 		
 		public static class EditPanelMouseAdapter extends MouseAdapter {
 			public ProductionPanel productionPanel;
@@ -874,52 +871,6 @@ public class LiveModel extends Model {
 							getTool(button).mouseMoved(productionPanel, e, modelOver);
 						}
 					});
-				}
-			}
-
-			public void setOutput(final ModelComponent view, TranscriberBranch<Model> branch) {
-				this.output = view;
-				if(view != null) {
-					if(productionPanel.outputFrame == null) {
-						productionPanel.outputFrame = new JPanel();
-						productionPanel.outputFrame.setBackground(new Color(0, 0, 0, 0));
-						
-						productionPanel.outputFrame.setBorder(
-							BorderFactory.createBevelBorder(
-								BevelBorder.RAISED, OUTPUT_COLOR.darker().darker(), OUTPUT_COLOR.darker(), OUTPUT_COLOR.darker().darker().darker(), OUTPUT_COLOR.darker().darker())
-						);
-						
-						final JPanel outputFrame = productionPanel.outputFrame;
-						
-						branch.onFinished(new Runnable() {
-							@Override
-							public void run() {
-								productionPanel.add(outputFrame);
-							}
-						});
-					}
-
-					final JPanel outputFrame = productionPanel.outputFrame;
-
-					// Wait deriving the Swing based bounds because the adding of the component is postponed to the next repaint sync
-					branch.onFinished(new Runnable() {
-						@Override
-						public void run() {
-							final Rectangle outputBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-							outputFrame.setBounds(outputBounds);
-						}
-					});
-				} else {
-					if(productionPanel.outputFrame != null) {
-						final JPanel outputFrame = productionPanel.outputFrame;
-						branch.onFinished(new Runnable() {
-							@Override
-							public void run() {
-								productionPanel.remove(outputFrame);
-							}
-						});
-						productionPanel.outputFrame = null;
-					}
 				}
 			}
 		}
