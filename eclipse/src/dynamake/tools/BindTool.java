@@ -50,15 +50,17 @@ public class BindTool implements Tool {
 		targetPresenter.reset(branchStep2);
 		targetPresenter = null;
 
+		final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
+		productionPanel.editPanelMouseAdapter.select(null, branchStep2);
 		productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 		
-		if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
-			if(productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
+		if(targetModelComponent != null && selection != targetModelComponent) {
+			if(selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 				PropogationContext propCtx = new PropogationContext();
 				branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
+						Location observableLocation = selection.getTransactionFactory().getModelLocation();
 						Location observerLocation = targetModelComponent.getTransactionFactory().getModelLocation();
 						
 						dualCommands.add(new DualCommandPair<Model>(
@@ -74,7 +76,7 @@ public class BindTool implements Tool {
 				branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
+						Location observableLocation = selection.getTransactionFactory().getModelLocation();
 						Location observerLocation = targetModelComponent.getTransactionFactory().getModelLocation();
 						
 						dualCommands.add(new DualCommandPair<Model>(
@@ -110,7 +112,7 @@ public class BindTool implements Tool {
 		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
+			productionPanel.editPanelMouseAdapter.selectFromView2(targetModelComponent, referencePoint, branchStep1);
 		}
 		
 		// TODO: Consider whether to do the following:
