@@ -706,6 +706,13 @@ public class LiveModel extends Model {
 				}
 			}
 			
+			public void selectFromView2(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
+				Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+//				requestSelect(view, effectBounds, branch);
+				productionPanel.editPanelMouseAdapter.select(view, branch);
+				createEffectFrame(effectBounds, branch);
+			}
+			
 			public void selectFromView(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
 				Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 				requestSelect(view, effectBounds, branch);
@@ -755,7 +762,7 @@ public class LiveModel extends Model {
 				));
 			}
 			
-			private void select(final ModelComponent view, TranscriberBranch<Model> branch) {
+			public void select(final ModelComponent view, TranscriberBranch<Model> branch) {
 				// <Don't remove>
 				// Whether the following check is necessary or not has not been decided yet, so don't remove the code
 //				if(this.selection == view)
