@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.caching;
 
 import java.util.Hashtable;
 
