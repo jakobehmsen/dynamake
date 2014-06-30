@@ -78,8 +78,6 @@ public class PenTool implements Tool {
 		branch.execute(propCtx, new DualCommandFactory<Model>() {
 			@Override
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-				productionPanel.livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
-				
 				CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 				Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
 				int index = canvasModel.getModelCount();

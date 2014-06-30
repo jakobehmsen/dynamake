@@ -184,37 +184,6 @@ public class LiveModel extends Model {
 			return false;
 		}
 	}
-	
-	public static class SetSelection implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-//		private Location liveModelLocation;
-//		private Location modelLocation;
-
-		public SetSelection(Location liveModelLocation, Location modelLocation) {
-//			this.liveModelLocation = liveModelLocation;
-//			this.modelLocation = modelLocation;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
-//			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
-////			System.out.println("set selection to " + modelLocation);
-//			if(modelLocation != null) {
-//				Model selection = (Model)modelLocation.getChild(prevalentSystem);
-//				liveModel.setSelection(selection, new PropogationContext(), 0, branch);
-//			} else {
-//				liveModel.setSelection(null, new PropogationContext(), 0, branch);
-//			}
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
-	}
 
 	public static class SetTool implements Command<Model> {
 		/**
@@ -657,23 +626,6 @@ public class LiveModel extends Model {
 			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
 				productionPanel.editPanelMouseAdapter.select(view, branch);
 				createEffectFrame(new Rectangle(0, 0, 0, 0), branch);
-			}
-			
-			public void createSelectCommands(final ModelComponent view, List<DualCommand<Model>> dualCommands) {
-				Location selectionLocation = view != null ? view.getTransactionFactory().getModelLocation() : null;
-				createSelectCommandsFromLocation(selectionLocation, dualCommands);
-			}
-			
-			public void createSelectCommandsFromLocation(final Location selectionLocation, List<DualCommand<Model>> dualCommands) {
-				final Location liveModelLocation = productionPanel.livePanel.getTransactionFactory().getModelLocation();
-				
-				Location currentSelectionLocation = EditPanelMouseAdapter.this.selection != null 
-						? EditPanelMouseAdapter.this.selection.getTransactionFactory().getModelLocation() : null; 
-						
-				dualCommands.add(new DualCommandPair<Model>(
-					new SetSelection(liveModelLocation, selectionLocation), 
-					new SetSelection(liveModelLocation, currentSelectionLocation)
-				));
 			}
 			
 			public void select(final ModelComponent view, TranscriberBranch<Model> branch) {

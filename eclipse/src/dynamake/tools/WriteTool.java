@@ -84,8 +84,6 @@ public class WriteTool implements Tool {
 			branch.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-					productionPanel.livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
-					
 					CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 					Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
 					int index = canvasModel.getModelCount();
@@ -107,8 +105,6 @@ public class WriteTool implements Tool {
 			branch.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-					productionPanel.livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
-
 					ArrayList<Rectangle> bounds = new ArrayList<Rectangle>();
 					
 					for(ModelComponent target: targets) {

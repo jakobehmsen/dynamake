@@ -453,9 +453,6 @@ public class CanvasModel extends Model {
 	}
 	
 	public static void appendRemoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent child, Location canvasLocation, CanvasModel model) {
-		// Clear the current selection which is, here, assumed to the child
-		livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
-		
 		int indexOfModel = model.indexOfModel(child.getModelBehind());
 		
 		// TODO: Make the backward transaction
@@ -493,8 +490,6 @@ public class CanvasModel extends Model {
 		}
 		
 		Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
-		
-		livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
 		
 		dualCommands.add(new DualCommandPair<Model>(
 			new CanvasModel.MoveModelTransaction(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
