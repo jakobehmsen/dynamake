@@ -57,8 +57,6 @@ public class LiveModel extends Model {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static class SelectionChanged { }
-
 	public static class StateChanged { }
 
 	public static class ButtonToolBindingChanged {
@@ -73,8 +71,6 @@ public class LiveModel extends Model {
 	
 	private int tool;
 	private Model content;
-	private Model selection;
-	private Model output;
 	
 	private Hashtable<Integer, Integer> buttonToToolMap = new Hashtable<Integer, Integer>();
 	
@@ -87,15 +83,8 @@ public class LiveModel extends Model {
 		LiveModel clone = new LiveModel(content.cloneIsolated());
 		
 		clone.tool = tool;
-		clone.selection = this.selection.cloneIsolated();
 		
 		return clone;
-	}
-	
-	public void setSelection(Model selection, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
-		this.selection = selection;
-
-		sendChanged(new SelectionChanged(), propCtx, propDistance, 0, branch);
 	}
 
 	public int getTool() {
@@ -1032,10 +1021,8 @@ public class LiveModel extends Model {
 		private TransactionFactory transactionFactory;
 		private JComponent[] buttonTools;
 		private final Binding<ModelComponent> contentView;
-		private ModelComponent rootView;
 		
 		public LivePanel(final ModelComponent rootView, LiveModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
-			this.rootView = rootView;
 			this.setLayout(new BorderLayout());
 			this.model = model;
 			this.viewManager = viewManager;
@@ -1108,19 +1095,6 @@ public class LiveModel extends Model {
 							JComponent buttonNewTool = buttonTools[bindButtonChanged.tool];
 							updateToolButton(buttonNewTool, bindButtonChanged.button);
 						}
-					} else if(change instanceof LiveModel.SelectionChanged) {
-//						System.out.println("Update view selection to " + LivePanel.this.model.selection);
-						if(LivePanel.this.model.selection != null) {
-							// TODO: Consider whether this is a safe manner in which location of selection if derived.
-							ModelLocator locator = LivePanel.this.model.selection.getLocator();
-							ModelLocation modelLocation = locator.locate();
-							Location modelComponentLocation = modelLocation.getModelComponentLocation();
-							final ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
-
-							productionPanel.editPanelMouseAdapter.select(view, branch);
-						} else {
-							productionPanel.editPanelMouseAdapter.select(null, branch);
-						}
 					}
 				}
 			});
@@ -1146,16 +1120,6 @@ public class LiveModel extends Model {
 			
 			TranscriberBranch<Model> initializationBranch = getTransactionFactory().createBranch();
 			initializationBranch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-			
-			if(LivePanel.this.model.selection != null) {
-				ModelComponent selectionView = (ModelComponent)LivePanel.this.model.selection.getLocator().locate().getModelComponentLocation().getChild(rootView);
-				LivePanel.this.productionPanel.editPanelMouseAdapter.select(selectionView, initializationBranch.isolatedBranch());
-			}
-			
-			if(LivePanel.this.model.output != null) {
-				ModelComponent outputView = (ModelComponent)LivePanel.this.model.output.getLocator().locate().getModelComponentLocation().getChild(rootView);
-				LivePanel.this.productionPanel.editPanelMouseAdapter.setOutput(outputView, initializationBranch.isolatedBranch());
-			}
 			
 			initializationBranch.close();
 		}
@@ -1232,9 +1196,5 @@ public class LiveModel extends Model {
 
 	public Model getContent() {
 		return content;
-	}
-
-	public Model getOutput() {
-		return output;
 	}
 }
