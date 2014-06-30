@@ -22,7 +22,6 @@ import java.util.Stack;
 
 import javax.swing.JComponent;
 
-import dynamake.Fraction;
 import dynamake.commands.Command;
 import dynamake.commands.ContextualTransaction;
 import dynamake.commands.DualCommand;
@@ -33,6 +32,7 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.CloneDeepFactory;
 import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.Factory;
+import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 

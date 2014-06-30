@@ -12,11 +12,11 @@ import javax.swing.JLabel;
 
 import resources.ResourceManager;
 
-import dynamake.Fraction;
 import dynamake.commands.DualCommand;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 

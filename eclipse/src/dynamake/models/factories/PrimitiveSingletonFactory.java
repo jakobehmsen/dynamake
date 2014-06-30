@@ -2,11 +2,11 @@ package dynamake.models.factories;
 
 import java.awt.Rectangle;
 
-import dynamake.Fraction;
 import dynamake.models.Model;
 import dynamake.models.Primitive;
 import dynamake.models.PropogationContext;
 import dynamake.models.Primitive.Implementation;
+import dynamake.numbers.Fraction;
 import dynamake.transcription.TranscriberBranch;
 
 public class PrimitiveSingletonFactory implements Factory {

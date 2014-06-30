@@ -12,7 +12,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import dynamake.Fraction;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.models.CanvasModel;
@@ -22,6 +21,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
 import dynamake.models.TransactionFactory;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;

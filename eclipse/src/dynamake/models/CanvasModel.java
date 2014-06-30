@@ -15,7 +15,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 
-import dynamake.Fraction;
 import dynamake.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.DualCommand;
@@ -27,6 +26,7 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.AsIsFactory;
 import dynamake.models.factories.Factory;
+import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 

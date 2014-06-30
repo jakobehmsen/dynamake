@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.numbers;
 
 import java.math.BigInteger;
 

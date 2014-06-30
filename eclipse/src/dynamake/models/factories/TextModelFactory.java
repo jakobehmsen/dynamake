@@ -2,10 +2,10 @@ package dynamake.models.factories;
 
 import java.awt.Rectangle;
 
-import dynamake.Fraction;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.TextModel;
+import dynamake.numbers.Fraction;
 import dynamake.transcription.TranscriberBranch;
 
 public class TextModelFactory implements Factory {
