@@ -34,12 +34,16 @@ public class TellTool implements Tool {
 		final TranscriberBranch<Model> branchStep2 = branch.branch();
 		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
-		productionPanel.editPanelMouseAdapter.showPopupForSelectionTell(productionPanel, e.getPoint(), null, branchStep2);
+		interactionPresenter.showPopupForSelectionTell(productionPanel, e.getPoint(), null, branchStep2);
+		
+		interactionPresenter.reset(branchStep2);
+		interactionPresenter = null;
 		
 		branch.close();
 	}
 	
 	private TranscriberBranch<Model> branch;
+	private InteractionPresenter interactionPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -51,7 +55,8 @@ public class TellTool implements Tool {
 		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
+			interactionPresenter = new InteractionPresenter(productionPanel);
+			interactionPresenter.selectFromView(targetModelComponent, referencePoint, branchStep1);
 		}
 		
 		branchStep1.close();
@@ -64,7 +69,6 @@ public class TellTool implements Tool {
 
 	@Override
 	public void paint(Graphics g) {
-		// TODO Auto-generated method stub
-		
+
 	}
 }
