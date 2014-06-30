@@ -57,8 +57,6 @@ public class LiveModel extends Model {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static class StateChanged { }
-
 	public static class ButtonToolBindingChanged {
 		public final int button;
 		public final int tool;
@@ -68,8 +66,7 @@ public class LiveModel extends Model {
 			this.tool = tool;
 		}
 	}
-	
-	private int tool;
+
 	private Model content;
 	
 	private Hashtable<Integer, Integer> buttonToToolMap = new Hashtable<Integer, Integer>();
@@ -82,18 +79,7 @@ public class LiveModel extends Model {
 	public Model modelCloneIsolated() {
 		LiveModel clone = new LiveModel(content.cloneIsolated());
 		
-		clone.tool = tool;
-		
 		return clone;
-	}
-
-	public int getTool() {
-		return tool;
-	}
-	
-	public void setTool(int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
-		this.tool = tool;
-		sendChanged(new StateChanged(), propCtx, propDistance, 0, branch);
 	}
 	
 	public int getToolForButton(int button) {
@@ -166,32 +152,6 @@ public class LiveModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.removeButtonToToolBinding(button, tool, propCtx, 0, branch);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return false;
-		}
-	}
-
-	public static class SetTool implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		
-		private Location modelLocation;
-		private int tool;
-
-		public SetTool(Location modelLocation, int tool) {
-			this.modelLocation = modelLocation;
-			this.tool = tool;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
-			LiveModel model = (LiveModel)modelLocation.getChild(prevalentSystem);
-			model.setTool(tool, propCtx, 0, branch);
 		}
 		
 		@Override
@@ -389,7 +349,7 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	private static JComponent createToolButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int button, int currentTool, final int tool, final String text) {
+	private static JComponent createToolButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int button, final int tool, final String text) {
 		return new ToolButton(tool, button, text, model, transactionFactory);
 	}
 	
@@ -1111,7 +1071,7 @@ public class LiveModel extends Model {
 			for(int i = 0; i < tools.length; i++) {
 				Tool tool = tools[i];
 				int button = model.getButtonForTool(i);
-				buttonTools[i] = createToolButton(model, transactionFactory, group, button, this.model.getTool(), i, tool.getName());
+				buttonTools[i] = createToolButton(model, transactionFactory, group, button, i, tool.getName());
 			}
 			
 			for(JComponent buttonTool: buttonTools) {
