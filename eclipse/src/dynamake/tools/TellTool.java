@@ -7,10 +7,10 @@ import java.awt.event.MouseEvent;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.RepaintRunBuilder;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
 
 public class TellTool implements Tool {

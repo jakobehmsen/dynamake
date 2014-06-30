@@ -2,7 +2,6 @@ package dynamake.transcription;
 
 import java.util.HashSet;
 
-import dynamake.RunBuilder;
 import dynamake.models.PropogationContext;
 
 public interface TranscriberBranch<T> {

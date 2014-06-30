@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.transcription;
 
 public interface RunBuilder {
 	void addRunnable(Runnable runnable);

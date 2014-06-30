@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-import dynamake.RepaintRunBuilder;
 import dynamake.commands.DualCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.Model;
@@ -13,6 +12,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
+import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
 
 public class TrimTool implements Tool {

@@ -20,8 +20,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import dynamake.RepaintRunBuilder;
-import dynamake.RunBuilder;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Runner;
@@ -36,6 +34,8 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.factories.Factory;
 import dynamake.models.factories.ShapeModelFactory;
 import dynamake.transcription.DualCommandFactory;
+import dynamake.transcription.RepaintRunBuilder;
+import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
 
 public class WriteTool implements Tool {

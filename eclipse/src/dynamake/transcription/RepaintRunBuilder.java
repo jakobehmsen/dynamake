@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.transcription;
 
 import java.awt.Rectangle;
 import java.util.ArrayList;

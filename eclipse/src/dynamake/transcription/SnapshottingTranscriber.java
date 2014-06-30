@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import dynamake.RunBuilder;
 import dynamake.commands.ContextualTransaction;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandSequence;

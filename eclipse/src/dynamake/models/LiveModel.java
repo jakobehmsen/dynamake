@@ -34,8 +34,6 @@ import javax.swing.border.Border;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
-import dynamake.RepaintRunBuilder;
-import dynamake.RunBuilder;
 import dynamake.commands.Command;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
@@ -49,6 +47,8 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
 import dynamake.transcription.DualCommandFactory;
+import dynamake.transcription.RepaintRunBuilder;
+import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
 
 public class LiveModel extends Model {

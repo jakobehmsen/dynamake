@@ -8,10 +8,10 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import dynamake.RunBuilder;
 import dynamake.delegates.Runner;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
+import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
 
 public class TargetPresenter {

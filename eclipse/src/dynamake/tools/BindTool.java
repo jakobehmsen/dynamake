@@ -10,7 +10,6 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.RepaintRunBuilder;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.models.LiveModel;
@@ -20,6 +19,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
+import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
 
 public class BindTool implements Tool {
