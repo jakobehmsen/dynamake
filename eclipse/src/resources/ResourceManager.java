@@ -1,4 +1,4 @@
-package dynamake;
+package resources;
 
 import java.util.Hashtable;
 import java.util.concurrent.Callable;
