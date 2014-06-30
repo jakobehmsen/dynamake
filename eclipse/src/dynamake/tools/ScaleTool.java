@@ -104,7 +104,8 @@ public class ScaleTool implements Tool {
 					localSelectionFrame.setCursor(cursor);
 				}
 			});
-			
+
+			productionPanel.editPanelMouseAdapter.select(null, branchStep2);
 			productionPanel.editPanelMouseAdapter.setEffectFrameCursor2(null, branchStep2);
 			
 			productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
@@ -131,7 +132,7 @@ public class ScaleTool implements Tool {
 			branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
+			productionPanel.editPanelMouseAdapter.selectFromView2(targetModelComponent, referencePoint, branchStep1);
 			relativePosition = new RelativePosition(referencePoint, ((JComponent)targetModelComponent).getSize());
 			final Cursor cursor = relativePosition.getCursor();
 			
