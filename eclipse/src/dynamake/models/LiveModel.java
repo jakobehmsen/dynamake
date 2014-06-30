@@ -59,8 +59,6 @@ public class LiveModel extends Model {
 
 	public static class SelectionChanged { }
 
-	public static class OutputChanged { }
-
 	public static class StateChanged { }
 
 	public static class ButtonToolBindingChanged {
@@ -98,12 +96,6 @@ public class LiveModel extends Model {
 		this.selection = selection;
 
 		sendChanged(new SelectionChanged(), propCtx, propDistance, 0, branch);
-	}
-
-	public void setOutput(Model output, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
-		this.output = output;
-		
-		sendChanged(new OutputChanged(), propCtx, propDistance, 0, branch);
 	}
 
 	public int getTool() {
@@ -1163,16 +1155,6 @@ public class LiveModel extends Model {
 						if(bindButtonChanged.tool != -1) {
 							JComponent buttonNewTool = buttonTools[bindButtonChanged.tool];
 							updateToolButton(buttonNewTool, bindButtonChanged.button);
-						}
-					} else if(change instanceof LiveModel.OutputChanged) {
-						if(LivePanel.this.model.output == null) {
-							productionPanel.editPanelMouseAdapter.setOutput(null, branch);
-						} else {
-							ModelLocator locator = LivePanel.this.model.output.getLocator();
-							ModelLocation modelLocation = locator.locate();
-							Location modelComponentLocation = modelLocation.getModelComponentLocation();
-							ModelComponent view = (ModelComponent)modelComponentLocation.getChild(rootView);
-							productionPanel.editPanelMouseAdapter.setOutput(view, branch);
 						}
 					} else if(change instanceof LiveModel.SelectionChanged) {
 //						System.out.println("Update view selection to " + LivePanel.this.model.selection);
