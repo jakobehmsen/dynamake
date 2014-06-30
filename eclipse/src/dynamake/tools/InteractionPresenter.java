@@ -2,6 +2,8 @@ package dynamake.tools;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
@@ -17,6 +19,8 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.LiveModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
+import dynamake.transcription.RepaintRunBuilder;
+import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
 
 public class InteractionPresenter {
@@ -293,5 +297,42 @@ public class InteractionPresenter {
 	public void reset(TranscriberBranch<Model> branch) {
 		clearFocus(branch);
 		clearEffectFrameOnBranch(branch);
+	}
+
+	public Rectangle getEffectFrameBounds() {
+		return effectFrame.getBounds();
+	}
+	
+	public void changeEffectFrameDirect2(final Rectangle newBounds, RunBuilder runBuilder) {
+		if(effectFrame != null) {
+			final JPanel localEffectFrame = effectFrame;
+			
+			runBuilder.addRunnable(new Runnable() {
+				@Override
+				public void run() {
+					localEffectFrame.setBounds(newBounds);
+				}
+			});
+		}
+	}
+
+	public void setEffectFrameCursor(final Cursor cursor) {
+		effectFrame.setCursor(cursor);
+	}
+
+	public void setSelectionFrameCursor(Cursor cursor) {
+		selectionFrame.setCursor(cursor);
+	}
+
+	public Point getSelectionFrameLocation() {
+		return selectionFrame.getLocation();
+	}
+
+	public Dimension getSelectionFrameSize() {
+		return selectionFrame.getSize();
+	}
+
+	public Rectangle getSelectionFrameBounds() {
+		return selectionFrame.getBounds();
 	}
 }
