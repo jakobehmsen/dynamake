@@ -208,14 +208,14 @@ public class LiveModel extends Model {
 		
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
-			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
-//			System.out.println("set selection to " + modelLocation);
-			if(modelLocation != null) {
-				Model selection = (Model)modelLocation.getChild(prevalentSystem);
-				liveModel.setSelection(selection, new PropogationContext(), 0, branch);
-			} else {
-				liveModel.setSelection(null, new PropogationContext(), 0, branch);
-			}
+//			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
+////			System.out.println("set selection to " + modelLocation);
+//			if(modelLocation != null) {
+//				Model selection = (Model)modelLocation.getChild(prevalentSystem);
+//				liveModel.setSelection(selection, new PropogationContext(), 0, branch);
+//			} else {
+//				liveModel.setSelection(null, new PropogationContext(), 0, branch);
+//			}
 		}
 		
 		@Override
@@ -722,21 +722,8 @@ public class LiveModel extends Model {
 			}
 			
 			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
-//				requestSelect(view, new Rectangle(0, 0, 0, 0), branch);
 				productionPanel.editPanelMouseAdapter.select(view, branch);
 				createEffectFrame(new Rectangle(0, 0, 0, 0), branch);
-			}
-			
-			private void requestSelect(final ModelComponent view, final Rectangle effectBounds, TranscriberBranch<Model> branch) {
-				// Notice: executes a transaction
-				PropogationContext propCtx = new PropogationContext();
-				
-				branch.execute(propCtx, new DualCommandFactory<Model>() {
-					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						createSelectCommands(view, dualCommands);
-					}
-				});
 			}
 			
 			public void createSelectCommands(final ModelComponent view, List<DualCommand<Model>> dualCommands) {
