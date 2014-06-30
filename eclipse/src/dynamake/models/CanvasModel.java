@@ -456,8 +456,6 @@ public class CanvasModel extends Model {
 		// Clear the current selection which is, here, assumed to the child
 		livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
 		
-		dualCommands.add(LiveModel.SetOutput.createDual(livePanel, null));
-		
 		int indexOfModel = model.indexOfModel(child.getModelBehind());
 		
 		// TODO: Make the backward transaction
@@ -474,8 +472,6 @@ public class CanvasModel extends Model {
 	}
 	
 	public static void appendMoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent modelToMove, ModelComponent target, final Point moveLocation) {
-		dualCommands.add(LiveModel.SetOutput.createDualBackward(livePanel));
-		
 		Location canvasSourceLocation = modelToMove.getTransactionFactory().getParent().getModelLocation();
 		ModelLocation canvasTargetLocation = target.getTransactionFactory().getModelLocation();
 		
@@ -514,10 +510,6 @@ public class CanvasModel extends Model {
 			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
 			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
 		));
-		
-//		dualCommands.add(LiveModel.SetOutput.createDual(livePanel, modelLocationAfterMove));
-		
-		dualCommands.add(LiveModel.SetOutput.createDualForward(livePanel, modelLocationAfterMove));
 	}
 	
 	public static class IndexLocator implements ModelLocator {

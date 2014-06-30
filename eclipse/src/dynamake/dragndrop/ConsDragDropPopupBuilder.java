@@ -68,8 +68,6 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
 									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
 								));
-								
-								dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation()));
 							}
 						});
 					}
@@ -88,8 +86,6 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
 									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
 								));
-								
-								dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation()));
 							}
 						});
 					}
@@ -126,9 +122,6 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), addedPrimitiveLocation), // Absolute location
 									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), addedPrimitiveLocation) // Absolute location
 								));
-								
-								// Output
-								dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, addedPrimitiveLocation)); // Absolute location
 							}
 						});
 					}

@@ -66,8 +66,6 @@ public class ConsTool implements Tool {
 								new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
 								new Model.AddObserver(observableLocation, observerLocation) // Absolute location
 							));
-							
-							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, observerLocation)); // Absolute location
 						}
 					});
 				} else {
@@ -82,8 +80,6 @@ public class ConsTool implements Tool {
 								new Model.AddObserver(observableLocation, observerLocation), // Absolute location
 								new Model.RemoveObserver(observableLocation, observerLocation) // Absolute location
 							));
-							
-							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, observerLocation)); // Absolute location
 						}
 					});
 				}

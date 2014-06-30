@@ -88,8 +88,6 @@ public class ScaleTool implements Tool {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							selection.getModelBehind().appendScale(newBounds, dualCommands);
-							
-							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, selectionTransactionFactory.getModelLocation())); // Absolute location
 						}
 					});
 				}

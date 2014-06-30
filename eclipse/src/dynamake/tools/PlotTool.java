@@ -89,8 +89,6 @@ public class PlotTool implements Tool {
 							branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 								@Override
 								public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-									dualCommands.add(LiveModel.SetOutput.createDualBackward(productionPanel.livePanel));
-									
 									CanvasModel target = (CanvasModel)selection.getModelBehind();
 									Location targetLocation = selection.getTransactionFactory().getModelLocation();
 									int indexOfWrapper = target.getModelCount() - componentsWithinBounds.size();
@@ -110,8 +108,6 @@ public class PlotTool implements Tool {
 										new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations), 
 										new UnwrapTransaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
 									));
-									
-									dualCommands.add(LiveModel.SetOutput.createDualForward(productionPanel.livePanel, wrapperLocation));
 								}
 							});
 							
@@ -156,8 +152,6 @@ public class PlotTool implements Tool {
 										new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInSelection, factory), 
 										new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
 									));
-									
-									dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, addedModelLocation));
 								}
 							});
 

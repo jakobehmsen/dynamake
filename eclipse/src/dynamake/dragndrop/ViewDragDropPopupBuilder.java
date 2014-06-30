@@ -57,10 +57,6 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 							new Model.SetPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
 							new Model.SetPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_VIEW, currentView)
 						));
-						
-						ModelComponent container = ModelComponent.Util.getParent(selection);
-						if(container.getModelBehind().conformsToView(Model.VIEW_APPLIANCE))
-							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, selection.getTransactionFactory().getModelLocation())); // Absolute location
 					}
 				});
 			}
@@ -82,16 +78,12 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 						ModelComponent container = ModelComponent.Util.getParent(selection);
 						if(!container.getModelBehind().conformsToView(Model.VIEW_ENGINEERING)) {
 							((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
-							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, null)); // Absolute location
 						}
 						
 						dualCommands.add(new DualCommandPair<Model>(
 							new Model.SetPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
 							new Model.SetPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_VIEW, currentView)
 						));
-
-						if(container.getModelBehind().conformsToView(Model.VIEW_ENGINEERING))
-							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, selection.getTransactionFactory().getModelLocation())); // Absolute location
 					}
 				});
 			}

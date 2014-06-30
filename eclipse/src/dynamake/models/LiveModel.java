@@ -223,65 +223,6 @@ public class LiveModel extends Model {
 			return true;
 		}
 	}
-	
-	public static class SetOutput implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location liveModelLocation;
-		private Location modelLocation;
-
-		public SetOutput(Location liveModelLocation, Location modelLocation) {
-			this.liveModelLocation = liveModelLocation;
-			this.modelLocation = modelLocation;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
-//			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
-//			if(modelLocation != null) {
-//				Model selection = (Model)modelLocation.getChild(prevalentSystem);
-//				liveModel.setOutput(selection, new PropogationContext(), 0, branch);
-//			} else {
-//				liveModel.setOutput(null, new PropogationContext(), 0, branch);
-//			}
-		}
-		
-		public static DualCommand<Model> createDual(LiveModel.LivePanel livePanel, Location outputLocation) {
-			Location currentOutputLocation = null;
-			if(livePanel.productionPanel.editPanelMouseAdapter.output != null)
-				currentOutputLocation = livePanel.productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-			
-			return new DualCommandPair<Model>(
-				new SetOutput(livePanel.getTransactionFactory().getModelLocation(), outputLocation), 
-				new SetOutput(livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-			);
-		}
-		
-		public static DualCommand<Model> createDualForward(LiveModel.LivePanel livePanel, Location outputLocation) {
-			return new DualCommandPair<Model>(
-				new SetOutput(livePanel.getTransactionFactory().getModelLocation(), outputLocation), 
-				new Command.Null<Model>()
-			);
-		}
-		
-		public static DualCommand<Model> createDualBackward(LiveModel.LivePanel livePanel) {
-			Location currentOutputLocation = null;
-			if(livePanel.productionPanel.editPanelMouseAdapter.output != null)
-				currentOutputLocation = livePanel.productionPanel.editPanelMouseAdapter.output.getTransactionFactory().getModelLocation();
-			
-			return new DualCommandPair<Model>(
-				new Command.Null<Model>(), 
-				new SetOutput(livePanel.getTransactionFactory().getModelLocation(), currentOutputLocation)
-			);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
-	}
 
 	public static class SetTool implements Command<Model> {
 		/**

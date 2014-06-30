@@ -80,7 +80,6 @@ public class PenTool implements Tool {
 			@Override
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				productionPanel.livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
-				dualCommands.add(LiveModel.SetOutput.createDualBackward(productionPanel.livePanel));
 				
 				CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 				Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
@@ -95,8 +94,6 @@ public class PenTool implements Tool {
 					new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInContainer, factory), 
 					new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
 				));
-				
-				dualCommands.add(LiveModel.SetOutput.createDualForward(productionPanel.livePanel, addedModelLocation));
 			}
 		});
 		

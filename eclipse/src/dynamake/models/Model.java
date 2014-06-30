@@ -833,8 +833,6 @@ public abstract class Model implements Serializable, Observer {
 							new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, color),
 							new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, currentColor)
 						));
-						
-						dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, transactionFactory.getModelLocation())); // Absolute location
 					}
 				});
 			}
@@ -877,8 +875,6 @@ public abstract class Model implements Serializable, Observer {
 								new CanvasModel.AddModelTransaction(targetCanvasLocation, creationBounds, factory),
 								new CanvasModel.RemoveModelTransaction(targetCanvasLocation, cloneIndex)
 							));
-							
-							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, cloneLocation)); // Absolute location
 						}
 					});
 				}
@@ -900,8 +896,6 @@ public abstract class Model implements Serializable, Observer {
 								new CanvasModel.AddModelTransaction(targetCanvasLocation, creationBounds, factory),
 								new CanvasModel.RemoveModelTransaction(targetCanvasLocation, cloneIndex)
 							));
-							
-							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, cloneLocation)); // Absolute location
 						}
 					});
 				}

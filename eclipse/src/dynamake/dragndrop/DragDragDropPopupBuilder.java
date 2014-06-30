@@ -98,8 +98,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 								new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
 								new Model.AddObserver(observableLocation, observerLocation) // Absolute location
 							));
-							
-							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, observerLocation)); // Absolute location
 						}
 					});
 				}
@@ -119,8 +117,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 								new Model.AddObserver(observableLocation, observerLocation), // Absolute location
 								new Model.RemoveObserver(observableLocation, observerLocation) // Absolute location
 							));
-							
-							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, observerLocation)); // Absolute location
 						}
 					});
 				}
@@ -139,8 +135,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 							new InjectTransaction(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
 							new DejectTransaction(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
 						));
-
-						dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, target.getTransactionFactory().getModelLocation())); // Absolute location
 					}
 				});
 			}

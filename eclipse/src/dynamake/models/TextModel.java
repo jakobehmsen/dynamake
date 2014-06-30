@@ -192,8 +192,6 @@ public class TextModel extends Model {
 								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, color),
 								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, currentCaretColor)
 							));
-							
-							dualCommands.add(LiveModel.SetOutput.createDual((LiveModel.LivePanel)livePanel, transactionFactory.getModelLocation())); // Absolute location
 						}
 					});
 				}

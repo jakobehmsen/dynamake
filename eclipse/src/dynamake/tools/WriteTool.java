@@ -86,7 +86,6 @@ public class WriteTool implements Tool {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 					productionPanel.livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
-					dualCommands.add(LiveModel.SetOutput.createDualBackward(productionPanel.livePanel));
 					
 					CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 					Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
@@ -101,8 +100,6 @@ public class WriteTool implements Tool {
 						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInContainer, factory), 
 						new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
 					));
-					
-					dualCommands.add(LiveModel.SetOutput.createDualForward(productionPanel.livePanel, addedModelLocation));
 				}
 			});
 		} else if(getTargets().size() > 0) {
@@ -113,7 +110,6 @@ public class WriteTool implements Tool {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 					productionPanel.livePanel.productionPanel.editPanelMouseAdapter.createSelectCommands(null, dualCommands);
-					dualCommands.add(LiveModel.SetOutput.createDualBackward(productionPanel.livePanel));
 
 					ArrayList<Rectangle> bounds = new ArrayList<Rectangle>();
 					
@@ -188,8 +184,6 @@ public class WriteTool implements Tool {
 						new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsAllInContainer, factory), 
 						new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
 					));
-					
-					dualCommands.add(LiveModel.SetOutput.createDualForward(productionPanel.livePanel, addedModelLocation));
 				}
 			});
 		}

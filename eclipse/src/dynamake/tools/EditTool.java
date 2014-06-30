@@ -110,22 +110,20 @@ public class EditTool implements Tool {
 								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Height", new Fraction(newBounds.height)), 
 								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Height", selectionModel.getProperty("Height"))
 							));
-							
-							dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, selectionTransactionFactory.getModelLocation()));
 						}
 					});
 				}
 			} else {
-				PropogationContext propCtx = new PropogationContext();
-				
-				final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
-				
-				branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
-					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, selection.getTransactionFactory().getModelLocation()));
-					}
-				});
+//				PropogationContext propCtx = new PropogationContext();
+//				
+//				final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
+//				
+//				branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+//					@Override
+//					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//						dualCommands.add(LiveModel.SetOutput.createDual(productionPanel.livePanel, selection.getTransactionFactory().getModelLocation()));
+//					}
+//				});
 			}
 			
 			final Cursor cursor = relativePosition.getCursor();

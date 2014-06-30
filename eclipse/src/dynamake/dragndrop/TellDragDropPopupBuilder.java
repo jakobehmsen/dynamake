@@ -55,8 +55,6 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 							new TellPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_COLOR),
 							new TellPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_COLOR)
 						));
-						
-						dualCommands.add(LiveModel.SetOutput.createDual((LivePanel)livePanel, selection.getTransactionFactory().getModelLocation()));
 					}
 				});
 			}
