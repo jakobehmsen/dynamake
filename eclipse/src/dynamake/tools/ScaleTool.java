@@ -13,11 +13,14 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dynamake.commands.DualCommand;
+import dynamake.commands.DualCommandPair;
 import dynamake.models.CanvasModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
+import dynamake.models.ModelTranscriber;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
@@ -56,14 +59,16 @@ public class ScaleTool implements Tool {
 			targetPresenter.reset(branchStep2);
 			targetPresenter = null;
 			
-			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.editPanelMouseAdapter.getEffectFrameBounds())) {
+			final ModelComponent selection = interactionPresenter.getSelection();
+			
+			if(!interactionPresenter.getSelectionFrameBounds().equals(interactionPresenter.getEffectFrameBounds())) {
+				final ModelTranscriber selectionModelTranscriber = selection.getModelTranscriber();
 				if(relativePosition.isInCenter() &&
-					newTargetOver.getModelTranscriber() != productionPanel.editPanelMouseAdapter.selection.getModelTranscriber().getParent()) {
+					newTargetOver.getModelTranscriber() != selection.getModelTranscriber().getParent()) {
 					// Moving to other canvas
 					final Rectangle droppedBounds = SwingUtilities.convertRectangle(
-						productionPanel, productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), (JComponent)newTargetOver);
+						productionPanel, interactionPresenter.getEffectFrameBounds(), (JComponent)newTargetOver);
 
-					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
 					final ModelComponent targetOver = newTargetOver;
 					
 					branchStep2.execute(new PropogationContext(), new DualCommandFactory<Model>() {
@@ -74,10 +79,8 @@ public class ScaleTool implements Tool {
 					});
 				} else {
 					// Changing bounds within the same canvas
-					final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
-					
-					JComponent parent = (JComponent)((JComponent)productionPanel.editPanelMouseAdapter.selection).getParent();
-					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), parent);
+					JComponent parent = (JComponent)((JComponent)selection).getParent();
+					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), parent);
 					
 					PropogationContext propCtx = new PropogationContext();
 					
@@ -89,19 +92,8 @@ public class ScaleTool implements Tool {
 					});
 				}
 			}
-			
-			final Cursor cursor = relativePosition.getCursor();
-			final JPanel localSelectionFrame = productionPanel.selectionFrame;
-			
-			branchStep2.onFinished(new Runnable() {
-				@Override
-				public void run() {
-					localSelectionFrame.setCursor(cursor);
-				}
-			});
 
-			productionPanel.editPanelMouseAdapter.select(null, branchStep2);
-			productionPanel.editPanelMouseAdapter.setEffectFrameCursor2(null, branchStep2);
+			interactionPresenter.reset(branchStep2);
 			
 			productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 			branchStep2.close();
@@ -115,6 +107,7 @@ public class ScaleTool implements Tool {
 	private TranscriberBranch<Model> branch;
 	private RelativePosition relativePosition;
 	private TargetPresenter targetPresenter;
+	private InteractionPresenter interactionPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -127,15 +120,18 @@ public class ScaleTool implements Tool {
 			branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
+			
+			interactionPresenter = new InteractionPresenter(productionPanel);
+			interactionPresenter.selectFromView(targetModelComponent, referencePoint, branchStep1);
+			
 			relativePosition = new RelativePosition(referencePoint, ((JComponent)targetModelComponent).getSize());
 			final Cursor cursor = relativePosition.getCursor();
 			
 			branchStep1.onFinished(new Runnable() {
 				@Override
 				public void run() {
-					productionPanel.selectionFrame.setCursor(cursor);
-					productionPanel.editPanelMouseAdapter.setEffectFrameCursor(cursor);
+					interactionPresenter.setSelectionFrameCursor(cursor);
+					interactionPresenter.setEffectFrameCursor(cursor);
 				}
 			});
 			
@@ -168,17 +164,17 @@ public class ScaleTool implements Tool {
 		if(mouseDown != null && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			
-			ModelComponent newTargetOver = getTargetOver(productionPanel, modelOver, productionPanel.editPanelMouseAdapter.selection);
+			ModelComponent newTargetOver = getTargetOver(productionPanel, modelOver, interactionPresenter.getSelection());
 			targetPresenter.update(newTargetOver, runBuilder);
 			
 			Rectangle newEffectBounds = relativePosition.resize(
-				productionPanel.selectionFrame.getLocation(), 
-				productionPanel.selectionFrame.getSize(), 
+				interactionPresenter.getSelectionFrameLocation(), 
+				interactionPresenter.getSelectionFrameSize(), 
 				mouseDown, 
-				productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), 
+				interactionPresenter.getEffectFrameBounds(), 
 				e.getPoint());
 			
-			productionPanel.editPanelMouseAdapter.changeEffectFrameDirect2(newEffectBounds, runBuilder);
+			interactionPresenter.changeEffectFrameDirect2(newEffectBounds, runBuilder);
 			
 			runBuilder.execute();
 		}
@@ -197,7 +193,7 @@ public class ScaleTool implements Tool {
 			if(newTargetOver == selection)
 				newTargetOver = ModelComponent.Util.closestModelComponent(((JComponent)newTargetOver).getParent());
 		} else {
-			// Scaling
+			// Resizing
 			newTargetOver = ModelComponent.Util.closestModelComponent(((JComponent)selection).getParent());
 		}
 		
@@ -208,7 +204,6 @@ public class ScaleTool implements Tool {
 
 	@Override
 	public void paint(Graphics g) {
-		// TODO Auto-generated method stub
-		
+
 	}
 }
