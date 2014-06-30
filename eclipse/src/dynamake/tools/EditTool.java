@@ -18,7 +18,7 @@ import dynamake.models.CanvasModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
-import dynamake.models.TransactionFactory;
+import dynamake.models.ModelTranscriber;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
@@ -60,9 +60,9 @@ public class EditTool implements Tool {
 			targetPresenter = null;
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.editPanelMouseAdapter.getEffectFrameBounds())) {
-				final TransactionFactory selectionTransactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
+				final ModelTranscriber selectionModelTranscriber = productionPanel.editPanelMouseAdapter.selection.getModelTranscriber();
 				if(relativePosition.isInCenter() &&
-					newTargetOver.getTransactionFactory() != productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent()) {
+					newTargetOver.getModelTranscriber() != productionPanel.editPanelMouseAdapter.selection.getModelTranscriber().getParent()) {
 					// Moving to other canvas
 					final Rectangle droppedBounds = SwingUtilities.convertRectangle(
 						productionPanel, productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), (JComponent)newTargetOver);
@@ -91,23 +91,23 @@ public class EditTool implements Tool {
 							Model selectionModel = selection.getModelBehind();
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "X", new Fraction(newBounds.x)), 
-								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "X", selectionModel.getProperty("X"))
+								new Model.SetPropertyTransaction(selectionModelTranscriber.getModelLocation(), "X", new Fraction(newBounds.x)), 
+								new Model.SetPropertyTransaction(selectionModelTranscriber.getModelLocation(), "X", selectionModel.getProperty("X"))
 							));
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Y", new Fraction(newBounds.y)), 
-								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Y", selectionModel.getProperty("Y"))
+								new Model.SetPropertyTransaction(selectionModelTranscriber.getModelLocation(), "Y", new Fraction(newBounds.y)), 
+								new Model.SetPropertyTransaction(selectionModelTranscriber.getModelLocation(), "Y", selectionModel.getProperty("Y"))
 							));
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Width", new Fraction(newBounds.width)), 
-								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Width", selectionModel.getProperty("Width"))
+								new Model.SetPropertyTransaction(selectionModelTranscriber.getModelLocation(), "Width", new Fraction(newBounds.width)), 
+								new Model.SetPropertyTransaction(selectionModelTranscriber.getModelLocation(), "Width", selectionModel.getProperty("Width"))
 							));
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Height", new Fraction(newBounds.height)), 
-								new Model.SetPropertyTransaction(selectionTransactionFactory.getModelLocation(), "Height", selectionModel.getProperty("Height"))
+								new Model.SetPropertyTransaction(selectionModelTranscriber.getModelLocation(), "Height", new Fraction(newBounds.height)), 
+								new Model.SetPropertyTransaction(selectionModelTranscriber.getModelLocation(), "Height", selectionModel.getProperty("Height"))
 							));
 						}
 					});
@@ -157,7 +157,7 @@ public class EditTool implements Tool {
 
 		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			viewPressedOn = targetModelComponent;
-			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+			branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 			TranscriberBranch<Model> branchStep1 = branch.branch();
 			branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			

@@ -53,7 +53,7 @@ public class TrimTool implements Tool {
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 		
 		canvas = ModelComponent.Util.closestCanvasModelComponent(modelOver);
 		
@@ -91,7 +91,7 @@ public class TrimTool implements Tool {
 				branchDelete.execute(new PropogationContext(), new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						CanvasModel.appendRemoveTransaction(dualCommands, productionPanel.livePanel, modelOver, canvas.getTransactionFactory().getModelLocation(), (CanvasModel)canvas.getModelBehind());
+						CanvasModel.appendRemoveTransaction(dualCommands, productionPanel.livePanel, modelOver, canvas.getModelTranscriber().getModelLocation(), (CanvasModel)canvas.getModelBehind());
 					}
 				});
 				

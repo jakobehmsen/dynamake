@@ -451,7 +451,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 
-	public abstract Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, TransactionFactory transactionFactory);
+	public abstract Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, ModelTranscriber modelTranscriber);
 	
 	private static class ChangeHolder {
 		public final Object change;
@@ -715,13 +715,13 @@ public abstract class Model implements Serializable, Observer {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 				PropogationContext propCtx = new PropogationContext();
-				TranscriberBranch<Model> branch = view.getTransactionFactory().createBranch();
+				TranscriberBranch<Model> branch = view.getModelTranscriber().createBranch();
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
-							new MouseUpTransaction(view.getTransactionFactory().getModelLocation()), 
-							new MouseUpTransaction(view.getTransactionFactory().getModelLocation())
+							new MouseUpTransaction(view.getModelTranscriber().getModelLocation()), 
+							new MouseUpTransaction(view.getModelTranscriber().getModelLocation())
 						));
 					}
 				});
@@ -731,13 +731,13 @@ public abstract class Model implements Serializable, Observer {
 			@Override
 			public void mousePressed(MouseEvent arg0) {
 				PropogationContext propCtx = new PropogationContext();
-				TranscriberBranch<Model> branch = view.getTransactionFactory().createBranch();
+				TranscriberBranch<Model> branch = view.getModelTranscriber().createBranch();
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
-							new MouseDownTransaction(view.getTransactionFactory().getModelLocation()), 
-							new MouseDownTransaction(view.getTransactionFactory().getModelLocation())
+							new MouseDownTransaction(view.getModelTranscriber().getModelLocation()), 
+							new MouseDownTransaction(view.getModelTranscriber().getModelLocation())
 						));
 					}
 				});
@@ -818,7 +818,7 @@ public abstract class Model implements Serializable, Observer {
 		});
 	}
 	
-	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final TransactionFactory transactionFactory, CompositeMenuBuilder transactions, final TranscriberBranch<Model> branch) {
+	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final ModelTranscriber modelTranscriber, CompositeMenuBuilder transactions, final TranscriberBranch<Model> branch) {
 		transactions.addMenudBuilder("Set " + PROPERTY_COLOR, new ColorMenuBuilder((Color)model.getProperty(PROPERTY_COLOR), new Action1<Color>() {
 			@Override
 			public void run(final Color color) {
@@ -830,8 +830,8 @@ public abstract class Model implements Serializable, Observer {
 							List<DualCommand<Model>> dualCommands) {
 						Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
 						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, color),
-							new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), PROPERTY_COLOR, currentColor)
+							new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, color),
+							new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, currentColor)
 						));
 					}
 				});
@@ -868,8 +868,8 @@ public abstract class Model implements Serializable, Observer {
 						public void createDualCommands(
 								List<DualCommand<Model>> dualCommands) {
 							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
-							Location targetCanvasLocation = target.getTransactionFactory().getModelLocation();
-							Factory factory = new CloneIsolatedFactory(dropped.getTransactionFactory().getModelLocation());
+							Location targetCanvasLocation = target.getModelTranscriber().getModelLocation();
+							Factory factory = new CloneIsolatedFactory(dropped.getModelTranscriber().getModelLocation());
 							dualCommands.add(new DualCommandPair<Model>(
 								new CanvasModel.AddModelTransaction(targetCanvasLocation, creationBounds, factory),
 								new CanvasModel.RemoveModelTransaction(targetCanvasLocation, cloneIndex)
@@ -888,8 +888,8 @@ public abstract class Model implements Serializable, Observer {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
-							Location targetCanvasLocation = target.getTransactionFactory().getModelLocation();
-							Factory factory = new CloneDeepFactory(dropped.getTransactionFactory().getModelLocation());
+							Location targetCanvasLocation = target.getModelTranscriber().getModelLocation();
+							Factory factory = new CloneDeepFactory(dropped.getModelTranscriber().getModelLocation());
 							dualCommands.add(new DualCommandPair<Model>(
 								new CanvasModel.AddModelTransaction(targetCanvasLocation, creationBounds, factory),
 								new CanvasModel.RemoveModelTransaction(targetCanvasLocation, cloneIndex)

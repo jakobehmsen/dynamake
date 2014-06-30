@@ -58,8 +58,8 @@ public class ConsTool implements Tool {
 					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
-							Location observerLocation = targetModelComponent.getTransactionFactory().getModelLocation();
+							Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getModelTranscriber().getModelLocation();
+							Location observerLocation = targetModelComponent.getModelTranscriber().getModelLocation();
 							
 							dualCommands.add(new DualCommandPair<Model>(
 								new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
@@ -72,8 +72,8 @@ public class ConsTool implements Tool {
 					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getModelLocation();
-							Location observerLocation = targetModelComponent.getTransactionFactory().getModelLocation();
+							Location observableLocation = productionPanel.editPanelMouseAdapter.selection.getModelTranscriber().getModelLocation();
+							Location observerLocation = targetModelComponent.getModelTranscriber().getModelLocation();
 							
 							dualCommands.add(new DualCommandPair<Model>(
 								new Model.AddObserver(observableLocation, observerLocation), // Absolute location
@@ -116,7 +116,7 @@ public class ConsTool implements Tool {
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 		
 		TranscriberBranch<Model> branchStep1 = branch.branch();
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));

@@ -3,17 +3,17 @@ package dynamake.models;
 import dynamake.transcription.Transcriber;
 import dynamake.transcription.TranscriberBranch;
 
-public class TransactionFactory {
+public class ModelTranscriber {
 	private Transcriber<Model> prevaylerService;
-	private TransactionFactory parent;
+	private ModelTranscriber parent;
 	private ModelLocator locator;
 	
-	public TransactionFactory(Transcriber<Model> prevaylerService, ModelLocator locator) {
+	public ModelTranscriber(Transcriber<Model> prevaylerService, ModelLocator locator) {
 		this.prevaylerService = prevaylerService;
 		this.locator = locator;
 	}
 	
-	public TransactionFactory getParent() {
+	public ModelTranscriber getParent() {
 		return parent;
 	}
 	
@@ -29,13 +29,13 @@ public class TransactionFactory {
 		return (ModelLocation)locator.locate();
 	}
 	
-	// TODO: Consider: Could be replaced by a using a PrevaylerServiceConnection without committing?
+	// TODO: Consider: Could be replaced by a using a TranscribtionBranch without committing?
 	public void executeTransient(Runnable runnable) {
 		prevaylerService.executeTransient(runnable);
 	}
 
-	public TransactionFactory extend(final ModelLocator locator) {
-		TransactionFactory extended = new TransactionFactory(prevaylerService, locator);
+	public ModelTranscriber extend(final ModelLocator locator) {
+		ModelTranscriber extended = new ModelTranscriber(prevaylerService, locator);
 		
 		extended.parent = this;
 		

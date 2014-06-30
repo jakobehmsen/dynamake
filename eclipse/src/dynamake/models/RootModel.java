@@ -47,11 +47,11 @@ public class RootModel extends Model {
 		private static final long serialVersionUID = 1L;
 		
 		private RootModel model;
-		private TransactionFactory transactionFactory;
+		private ModelTranscriber modelTranscriber;
 
-		public FrameModel(RootModel model, TransactionFactory transactionFactory) {
+		public FrameModel(RootModel model, ModelTranscriber modelTranscriber) {
 			this.model = model;
-			this.transactionFactory = transactionFactory;
+			this.modelTranscriber = modelTranscriber;
 			
 			this.addWindowFocusListener(new WindowFocusListener() {
 				@Override
@@ -72,8 +72,8 @@ public class RootModel extends Model {
 		}
 
 		@Override
-		public TransactionFactory getTransactionFactory() {
-			return transactionFactory;
+		public ModelTranscriber getModelTranscriber() {
+			return modelTranscriber;
 		}
 
 		@Override
@@ -138,14 +138,14 @@ public class RootModel extends Model {
 	
 	private static class BoundsChangeHandler extends MouseAdapter implements ComponentListener {
 		private RootModel rootModel;
-		private TransactionFactory transactionFactory;
+		private ModelTranscriber modelTranscriber;
 		private boolean mouseIsDown;
 		private Point newLocation;
 		private Dimension newSize;
 		
-		public BoundsChangeHandler(RootModel rootModel, TransactionFactory transactionFactory) {
+		public BoundsChangeHandler(RootModel rootModel, ModelTranscriber modelTranscriber) {
 			this.rootModel = rootModel;
-			this.transactionFactory = transactionFactory;
+			this.modelTranscriber = modelTranscriber;
 		}
 
 		@Override
@@ -154,32 +154,32 @@ public class RootModel extends Model {
 
 			if(newLocation != null && newSize != null) {
 				PropogationContext propCtx = new PropogationContext();
-				TranscriberBranch<Model> branch = transactionFactory.createBranch();
+				TranscriberBranch<Model> branch = modelTranscriber.createBranch();
 				
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						if(newLocation != null) {
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "X", newLocation.x),
-								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "X", rootModel.getProperty("X"))
+								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "X", newLocation.x),
+								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "X", rootModel.getProperty("X"))
 							));
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "Y", newLocation.y),
-								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "Y", rootModel.getProperty("Y"))
+								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Y", newLocation.y),
+								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Y", rootModel.getProperty("Y"))
 							));
 						}
 						
 						if(newSize != null) {
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "Width", newSize.width),
-								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "Width", rootModel.getProperty("Width"))
+								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Width", newSize.width),
+								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Width", rootModel.getProperty("Width"))
 							));
 	
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "Height", newSize.height),
-								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), "Height", rootModel.getProperty("Height"))
+								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Height", newSize.height),
+								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Height", rootModel.getProperty("Height"))
 							));
 						}
 					}
@@ -221,15 +221,15 @@ public class RootModel extends Model {
 	}
 
 	@Override
-	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, final TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocator());
+	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, final ModelTranscriber modelTranscriber) {
+		this.setLocation(modelTranscriber.getModelLocator());
 		
-		final FrameModel view = new FrameModel(this, transactionFactory);
+		final FrameModel view = new FrameModel(this, modelTranscriber);
 		
 		Model.loadComponentBounds(this, view);
 		final RemovableListener removableListenerForBoundsChanges =  Model.wrapForBoundsChanges(this, view, viewManager);
 		
-		BoundsChangeHandler boundsChangeHandler = new BoundsChangeHandler(this, transactionFactory);
+		BoundsChangeHandler boundsChangeHandler = new BoundsChangeHandler(this, modelTranscriber);
 		view.addMouseListener(boundsChangeHandler);
 		view.addComponentListener(boundsChangeHandler);
 		
@@ -238,7 +238,7 @@ public class RootModel extends Model {
 			view.setExtendedState(state);
 		
 		view.getContentPane().setLayout(new BorderLayout());
-		final Binding<ModelComponent> contentView = content.createView(view, viewManager, transactionFactory.extend(new ModelLocator() {
+		final Binding<ModelComponent> contentView = content.createView(view, viewManager, modelTranscriber.extend(new ModelLocator() {
 			@Override
 			public ModelLocation locate() {
 				return new FieldContentLocation();
@@ -252,10 +252,10 @@ public class RootModel extends Model {
 				PropogationContext propCtx = new PropogationContext();
 
 				final int newState = e.getNewState();
-				TranscriberBranch<Model> branch = view.getTransactionFactory().createBranch();
+				TranscriberBranch<Model> branch = view.getModelTranscriber().createBranch();
 				branch.execute(propCtx, new DualCommandFactory<Model>() {
 					public DualCommand<Model> createDualCommand() {
-						Location modelLocation = transactionFactory.getModelLocation();
+						Location modelLocation = modelTranscriber.getModelLocation();
 						Integer currentState = (Integer)RootModel.this.getProperty("State");
 						return new DualCommandPair<Model>(
 							new Model.SetPropertyOnRootTransaction(modelLocation, "State", newState),

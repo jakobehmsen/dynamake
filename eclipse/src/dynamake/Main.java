@@ -27,7 +27,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.ModelRootLocator;
 import dynamake.models.RootModel;
 import dynamake.models.TextModel;
-import dynamake.models.TransactionFactory;
+import dynamake.models.ModelTranscriber;
 import dynamake.models.ViewManager;
 import dynamake.models.factories.CanvasModelFactory;
 import dynamake.models.factories.Factory;
@@ -137,11 +137,11 @@ public class Main {
 					return tools;
 				}
 			};
-			TransactionFactory rootTransactionFactory = new TransactionFactory(prevaylerService, new ModelRootLocator());
+			ModelTranscriber rootModelTranscriber = new ModelTranscriber(prevaylerService, new ModelRootLocator());
 			
 			UIManager.put("ToggleButton.select", Color.DARK_GRAY);
 			
-			final Binding<ModelComponent> rootView = prevaylerService.prevalentSystem().createView(null, rootViewManager, rootTransactionFactory);
+			final Binding<ModelComponent> rootView = prevaylerService.prevalentSystem().createView(null, rootViewManager, rootModelTranscriber);
 			rootView.getBindingTarget().initialize();
 			JFrame frame = (JFrame)rootView.getBindingTarget();
 			

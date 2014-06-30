@@ -331,13 +331,13 @@ public class CanvasModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private CanvasModel model;
-		private TransactionFactory transactionFactory;
+		private ModelTranscriber modelTranscriber;
 		private HashSet<Model> shownModels = new HashSet<Model>();
 		private Memoizer1<Model, Binding<ModelComponent>> modelToModelComponentMap;
 		
-		public CanvasPanel(final ModelComponent rootView, CanvasModel model, final TransactionFactory transactionFactory, final ViewManager viewManager) {
+		public CanvasPanel(final ModelComponent rootView, CanvasModel model, final ModelTranscriber modelTranscriber, final ViewManager viewManager) {
 			this.model = model;
-			this.transactionFactory = transactionFactory;
+			this.modelTranscriber = modelTranscriber;
 			setLayout(null);
 			setBorder(BorderFactory.createLineBorder(Color.BLACK));
 			setOpaque(true);
@@ -345,7 +345,7 @@ public class CanvasModel extends Model {
 			modelToModelComponentMap = new Memoizer1<Model, Binding<ModelComponent>>(new Func1<Model, Binding<ModelComponent>>() {
 				@Override
 				public Binding<ModelComponent> call(Model model) {
-					final Binding<ModelComponent> modelView = model.createView(rootView, viewManager, transactionFactory.extend(new IndexLocator(CanvasPanel.this.model, model)));
+					final Binding<ModelComponent> modelView = model.createView(rootView, viewManager, modelTranscriber.extend(new IndexLocator(CanvasPanel.this.model, model)));
 					
 					Rectangle bounds = new Rectangle(
 						((Fraction)model.getProperty("X")).intValue(),
@@ -376,7 +376,7 @@ public class CanvasModel extends Model {
 					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							Location canvasLocation = transactionFactory.getModelLocation();
+							Location canvasLocation = modelTranscriber.getModelLocation();
 							
 							CanvasModel.appendRemoveTransaction(dualCommands, livePanel, child, canvasLocation, model);
 						}
@@ -387,7 +387,7 @@ public class CanvasModel extends Model {
 
 		@Override
 		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, menuBuilder, branch);
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, modelTranscriber, menuBuilder, branch);
 		}
 		@Override
 		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
@@ -397,9 +397,9 @@ public class CanvasModel extends Model {
 		@Override
 		public void appendDropTargetTransactions(final ModelComponent livePanel,
 				final ModelComponent dropped, final Rectangle droppedBounds, final Point dropPoint, CompositeMenuBuilder menuBuilder, final TranscriberBranch<Model> branch) {
-			if(dropped.getTransactionFactory().getParent() != null && 
-				dropped.getTransactionFactory().getParent() != CanvasPanel.this.transactionFactory &&
-				!isContainerOf(dropped.getTransactionFactory(), this.transactionFactory) /*Dropee cannot be child of dropped*/) {
+			if(dropped.getModelTranscriber().getParent() != null && 
+				dropped.getModelTranscriber().getParent() != CanvasPanel.this.modelTranscriber &&
+				!isContainerOf(dropped.getModelTranscriber(), this.modelTranscriber) /*Dropee cannot be child of dropped*/) {
 				menuBuilder.addMenuBuilder("Move", new Runnable() {
 					@Override
 					public void run() {
@@ -418,8 +418,8 @@ public class CanvasModel extends Model {
 			}
 		}
 		
-		private boolean isContainerOf(TransactionFactory container, TransactionFactory item) {
-			TransactionFactory parent = item.getParent();
+		private boolean isContainerOf(ModelTranscriber container, ModelTranscriber item) {
+			ModelTranscriber parent = item.getParent();
 			if(parent != null) {
 				if(parent == container)
 					return true;
@@ -429,8 +429,8 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public TransactionFactory getTransactionFactory() {
-			return transactionFactory;
+		public ModelTranscriber getModelTranscriber() {
+			return modelTranscriber;
 		}
 
 		@Override
@@ -469,8 +469,8 @@ public class CanvasModel extends Model {
 	}
 	
 	public static void appendMoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent modelToMove, ModelComponent target, final Point moveLocation) {
-		Location canvasSourceLocation = modelToMove.getTransactionFactory().getParent().getModelLocation();
-		ModelLocation canvasTargetLocation = target.getTransactionFactory().getModelLocation();
+		Location canvasSourceLocation = modelToMove.getModelTranscriber().getParent().getModelLocation();
+		ModelLocation canvasTargetLocation = target.getModelTranscriber().getModelLocation();
 		
 		int indexTarget = ((CanvasModel)target.getModelBehind()).getModelCount();
 		CanvasModel sourceCanvas = (CanvasModel)ModelComponent.Util.getParent(modelToMove).getModelBehind();
@@ -484,7 +484,7 @@ public class CanvasModel extends Model {
 			// to predicting the location of target canvas after the move has taken place:
 			// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
 			int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
-			canvasTargetLocationAfter = modelToMove.getTransactionFactory().getParent().extendLocation(new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
+			canvasTargetLocationAfter = modelToMove.getModelTranscriber().getParent().extendLocation(new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
 		} else {
 			canvasTargetLocationAfter = canvasTargetLocation;
 		}
@@ -562,7 +562,7 @@ public class CanvasModel extends Model {
 
 	private void addModelComponent(
 			final ModelComponent rootView, 
-			final CanvasPanel view, final TransactionFactory transactionFactory, 
+			final CanvasPanel view, final ModelTranscriber modelTranscriber, 
 			final ViewManager viewManager, 
 			Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap, final Model model,
 			final Runner viewChangeRunner) {
@@ -663,10 +663,10 @@ public class CanvasModel extends Model {
 	}
 
 	@Override
-	public Binding<ModelComponent> createView(final ModelComponent rootView, final ViewManager viewManager, final TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocator());
+	public Binding<ModelComponent> createView(final ModelComponent rootView, final ViewManager viewManager, final ModelTranscriber modelTranscriber) {
+		this.setLocation(modelTranscriber.getModelLocator());
 		
-		final CanvasPanel view = new CanvasPanel(rootView, this, transactionFactory, viewManager);
+		final CanvasPanel view = new CanvasPanel(rootView, this, modelTranscriber, viewManager);
 		
 		final RemovableListener removableListenerForBoundsChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		Model.loadComponentProperties(this, view, Model.COMPONENT_COLOR_BACKGROUND);
@@ -678,7 +678,7 @@ public class CanvasModel extends Model {
 		final Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap = new Hashtable<Model, Model.RemovableListener>();
 		for(final Model model: models) {
 			addModelComponent(
-				rootView, view, transactionFactory, viewManager, 
+				rootView, view, modelTranscriber, viewManager, 
 				modelToRemovableListenerMap, model,
 				new Runner() {
 					@Override
@@ -697,7 +697,7 @@ public class CanvasModel extends Model {
 					final Model model = addedChange.model;
 					
 					addModelComponent(
-						rootView, view, transactionFactory, viewManager, 
+						rootView, view, modelTranscriber, viewManager, 
 						modelToRemovableListenerMap, model,
 						new Runner() {
 							@Override

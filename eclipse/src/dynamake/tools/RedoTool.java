@@ -31,14 +31,14 @@ public class RedoTool implements Tool {
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver) {
 //		productionPanel.livePanel.redo();
 		
-		TranscriberBranch<Model> branch = modelOver.getTransactionFactory().createBranch();
+		TranscriberBranch<Model> branch = modelOver.getModelTranscriber().createBranch();
 		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		branch.execute(new PropogationContext(), new DualCommandFactory<Model>() {
 			@Override
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				dualCommands.add(
 					new DualCommandPair<Model>(
-						new Model.RedoTransaction(modelOver.getTransactionFactory().getModelLocation()),
+						new Model.RedoTransaction(modelOver.getModelTranscriber().getModelLocation()),
 						new Command.Null<Model>()
 					)
 				);

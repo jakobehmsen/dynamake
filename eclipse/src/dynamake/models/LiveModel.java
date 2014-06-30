@@ -207,16 +207,16 @@ public class LiveModel extends Model {
 		private int button;
 		private String text;
 		private LiveModel liveModel;
-		private TransactionFactory transactionFactory;
+		private ModelTranscriber modelTranscriber;
 		private JLabel labelToolName;
 		private JLabel labelButton;
 		
-		public ToolButton(int tool, int button, String text, LiveModel liveModel, TransactionFactory transactionFactory) {
+		public ToolButton(int tool, int button, String text, LiveModel liveModel, ModelTranscriber modelTranscriber) {
 			this.tool = tool;
 			this.button = button;
 			this.text = text;
 			this.liveModel = liveModel;
-			this.transactionFactory = transactionFactory;
+			this.modelTranscriber = modelTranscriber;
 
 			setLayout(new BorderLayout());
 			setBackground(TOP_BUTTON_BACKGROUND_COLOR);
@@ -240,7 +240,7 @@ public class LiveModel extends Model {
 					
 					PropogationContext propCtx = new PropogationContext();
 					
-					TranscriberBranch<Model> branch = ToolButton.this.transactionFactory.createBranch();
+					TranscriberBranch<Model> branch = ToolButton.this.modelTranscriber.createBranch();
 					
 					branch.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
@@ -249,7 +249,7 @@ public class LiveModel extends Model {
 							
 							int currentButton = ToolButton.this.button;
 							
-							Location modelLocation = ToolButton.this.transactionFactory.getModelLocation();
+							Location modelLocation = ToolButton.this.modelTranscriber.getModelLocation();
 							
 							int previousToolForNewButton = ToolButton.this.liveModel.getToolForButton(newButton);
 							
@@ -351,8 +351,8 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	private static JComponent createToolButton(final LiveModel model, final TransactionFactory transactionFactory, ButtonGroup group, int button, final int tool, final String text) {
-		return new ToolButton(tool, button, text, model, transactionFactory);
+	private static JComponent createToolButton(final LiveModel model, final ModelTranscriber modelTranscriber, ButtonGroup group, int button, final int tool, final String text) {
+		return new ToolButton(tool, button, text, model, modelTranscriber);
 	}
 	
 	private static void updateToolButton(JComponent toolButton, int button) {
@@ -817,7 +817,7 @@ public class LiveModel extends Model {
 				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
 //				System.out.println("Pressed button " + localButtonPressed);
 				
-				productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+				productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
 					@Override
 					public void run() {
 						getTool(localButtonPressed).mousePressed(productionPanel, e, modelOver);
@@ -832,7 +832,7 @@ public class LiveModel extends Model {
 					final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
 	//				System.out.println("Dragged button " + localButtonPressed);
 					
-					productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
 						@Override
 						public void run() {
 							getTool(localButtonPressed).mouseDragged(productionPanel, e, modelOver);
@@ -849,7 +849,7 @@ public class LiveModel extends Model {
 					productionPanel.editPanelMouseAdapter.buttonPressed = 0;
 	//				System.out.println("Released button " + localButtonPressed);
 					
-					productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
 						@Override
 						public void run() {
 							getTool(localButtonPressed).mouseReleased(productionPanel, e, modelOver);
@@ -863,7 +863,7 @@ public class LiveModel extends Model {
 				final ModelComponent modelOver = getModelOver(e);
 
 				if(modelOver != null) {
-					productionPanel.livePanel.getTransactionFactory().executeTransient(new Runnable() {
+					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
 						@Override
 						public void run() {
 							// The tool associated to button 1 is used as a "master" tool
@@ -931,15 +931,15 @@ public class LiveModel extends Model {
 		private RemovableListener removableListener;
 		public ProductionPanel productionPanel;
 		public ViewManager viewManager;
-		private TransactionFactory transactionFactory;
+		private ModelTranscriber modelTranscriber;
 		private JComponent[] buttonTools;
 		private final Binding<ModelComponent> contentView;
 		
-		public LivePanel(final ModelComponent rootView, LiveModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
+		public LivePanel(final ModelComponent rootView, LiveModel model, ModelTranscriber modelTranscriber, final ViewManager viewManager) {
 			this.setLayout(new BorderLayout());
 			this.model = model;
 			this.viewManager = viewManager;
-			this.transactionFactory = transactionFactory;
+			this.modelTranscriber = modelTranscriber;
 			
 			ViewManager newViewManager = new ViewManager() {
 				@Override
@@ -953,7 +953,7 @@ public class LiveModel extends Model {
 				}
 			};
 
-			contentView = model.getContent().createView(rootView, newViewManager, transactionFactory.extend(new ContentLocator()));
+			contentView = model.getContent().createView(rootView, newViewManager, modelTranscriber.extend(new ContentLocator()));
 
 			productionPanel = new ProductionPanel(this, contentView);
 			
@@ -1024,14 +1024,14 @@ public class LiveModel extends Model {
 			for(int i = 0; i < tools.length; i++) {
 				Tool tool = tools[i];
 				int button = model.getButtonForTool(i);
-				buttonTools[i] = createToolButton(model, transactionFactory, group, button, i, tool.getName());
+				buttonTools[i] = createToolButton(model, modelTranscriber, group, button, i, tool.getName());
 			}
 			
 			for(JComponent buttonTool: buttonTools) {
 				topPanel.add(buttonTool);
 			}
 			
-			TranscriberBranch<Model> initializationBranch = getTransactionFactory().createBranch();
+			TranscriberBranch<Model> initializationBranch = getModelTranscriber().createBranch();
 			initializationBranch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			initializationBranch.close();
@@ -1068,8 +1068,8 @@ public class LiveModel extends Model {
 		}
 
 		@Override
-		public TransactionFactory getTransactionFactory() {
-			return transactionFactory;
+		public ModelTranscriber getModelTranscriber() {
+			return modelTranscriber;
 		}
 
 		public void releaseBinding() {
@@ -1088,10 +1088,10 @@ public class LiveModel extends Model {
 	}
 
 	@Override
-	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocator());
+	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, ModelTranscriber modelTranscriber) {
+		this.setLocation(modelTranscriber.getModelLocator());
 		
-		final LivePanel view = new LivePanel(rootView, this, transactionFactory, viewManager);
+		final LivePanel view = new LivePanel(rootView, this, modelTranscriber, viewManager);
 		
 		return new Binding<ModelComponent>() {
 			

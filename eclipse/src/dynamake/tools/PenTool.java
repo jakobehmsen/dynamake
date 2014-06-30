@@ -67,7 +67,7 @@ public class PenTool implements Tool {
 		points = null;
 		shape = null;
 		
-		final TranscriberBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+		final TranscriberBranch<Model> branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		PropogationContext propCtx = new PropogationContext();
@@ -79,7 +79,7 @@ public class PenTool implements Tool {
 			@Override
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-				Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
+				Location canvasModelLocation = target.getModelTranscriber().getModelLocation();
 				int index = canvasModel.getModelCount();
 				Factory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation);
 				

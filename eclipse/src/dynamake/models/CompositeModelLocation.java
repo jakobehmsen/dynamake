@@ -1,6 +1,6 @@
 package dynamake.models;
 
-import dynamake.models.TransactionFactory.CompositeLocation;
+import dynamake.models.ModelTranscriber.CompositeLocation;
 
 public class CompositeModelLocation implements ModelLocation {
 	/**

@@ -89,7 +89,7 @@ public class PlotTool implements Tool {
 								@Override
 								public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 									CanvasModel target = (CanvasModel)selection.getModelBehind();
-									Location targetLocation = selection.getTransactionFactory().getModelLocation();
+									Location targetLocation = selection.getModelTranscriber().getModelLocation();
 									int indexOfWrapper = target.getModelCount() - componentsWithinBounds.size();
 									ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
 									
@@ -98,7 +98,7 @@ public class PlotTool implements Tool {
 									int[] modelIndexes = new int[componentsWithinBounds.size()];
 									for(int i = 0; i < modelLocations.length; i++) {
 										ModelComponent view = componentsWithinBounds.get(i);
-										modelLocations[i] = view.getTransactionFactory().getModelLocation();
+										modelLocations[i] = view.getModelTranscriber().getModelLocation();
 										modelIndexes[i] = target.indexOfModel(view.getModelBehind());
 									}
 									
@@ -141,7 +141,7 @@ public class PlotTool implements Tool {
 									ModelComponent target = selection;
 									
 									CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-									Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
+									Location canvasModelLocation = target.getModelTranscriber().getModelLocation();
 									int index = canvasModel.getModelCount();
 									
 									dualCommands.add(new DualCommandPair<Model>(
@@ -188,7 +188,7 @@ public class PlotTool implements Tool {
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver) {
-		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 		
 		TranscriberBranch<Model> branchStep1 = branch.branch();
 		

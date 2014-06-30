@@ -53,8 +53,8 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;
 						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
-							new Model.SetPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_VIEW, currentView)
+							new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
+							new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), Model.PROPERTY_VIEW, currentView)
 						));
 					}
 				});
@@ -74,8 +74,8 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 							currentView = Model.VIEW_APPLIANCE;
 						
 						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
-							new Model.SetPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_VIEW, currentView)
+							new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
+							new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), Model.PROPERTY_VIEW, currentView)
 						));
 					}
 				});

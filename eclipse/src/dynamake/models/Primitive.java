@@ -252,12 +252,12 @@ public class Primitive extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private Primitive model;
-		private TransactionFactory transactionFactory;
+		private ModelTranscriber modelTranscriber;
 
-		public PrimitiveView(Primitive model, TransactionFactory transactionFactory) {
+		public PrimitiveView(Primitive model, ModelTranscriber modelTranscriber) {
 			super(model.implementation.getName(), JLabel.CENTER);
 			this.model = model;
-			this.transactionFactory = transactionFactory;
+			this.modelTranscriber = modelTranscriber;
 			
 			try {
 				Font font = ResourceManager.INSTANCE.getResource("Primitive Font", Font.class);
@@ -273,8 +273,8 @@ public class Primitive extends Model {
 		}
 
 		@Override
-		public TransactionFactory getTransactionFactory() {
-			return transactionFactory;
+		public ModelTranscriber getModelTranscriber() {
+			return modelTranscriber;
 		}
 
 		@Override
@@ -285,7 +285,7 @@ public class Primitive extends Model {
 
 		@Override
 		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, menuBuilder, branch);
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, modelTranscriber, menuBuilder, branch);
 		}
 
 		@Override
@@ -317,10 +317,10 @@ public class Primitive extends Model {
 
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView,
-			final ViewManager viewManager, TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocator());
+			final ViewManager viewManager, ModelTranscriber modelTranscriber) {
+		this.setLocation(modelTranscriber.getModelLocator());
 		
-		final PrimitiveView view = new PrimitiveView(this, transactionFactory);
+		final PrimitiveView view = new PrimitiveView(this, modelTranscriber);
 		
 		final Binding<Model> removableListener = RemovableListener.addAll(this, 
 			bindProperty(this, Model.PROPERTY_COLOR, new Action1<Color>() {

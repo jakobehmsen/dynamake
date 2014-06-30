@@ -72,7 +72,7 @@ public class WriteTool implements Tool {
 		points = null;
 		shape = null;
 		
-		final TranscriberBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+		final TranscriberBranch<Model> branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		PropogationContext propCtx = new PropogationContext();
@@ -85,7 +85,7 @@ public class WriteTool implements Tool {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 					CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-					Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
+					Location canvasModelLocation = target.getModelTranscriber().getModelLocation();
 					int index = canvasModel.getModelCount();
 					ArrayList<ShapeModel.ShapeInfo> shapes = new ArrayList<ShapeModel.ShapeInfo>();
 					shapes.add(new ShapeModel.ShapeInfo(creationBoundsInProductionPanel.getLocation(), pointsForCreation));
@@ -143,7 +143,7 @@ public class WriteTool implements Tool {
 					final Rectangle creationBoundsAllInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsAllInProductionPanel, (JComponent)canvasModelComponent);
 					
 					CanvasModel canvasModel = (CanvasModel)canvasModelComponent.getModelBehind();
-					Location canvasModelLocation = canvasModelComponent.getTransactionFactory().getModelLocation();
+					Location canvasModelLocation = canvasModelComponent.getModelTranscriber().getModelLocation();
 					int index = canvasModel.getModelCount() - targets.size();
 					Factory factory = new ShapeModelFactory(shapes);
 					// The location for Output depends on the side effect of add

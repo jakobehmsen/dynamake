@@ -147,11 +147,11 @@ public class TextModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private TextModel model;
-		private TransactionFactory transactionFactory;
+		private ModelTranscriber modelTranscriber;
 
-		public FloatingTextModelView(TextModel model, TransactionFactory transactionFactory, final ViewManager viewManager) {
+		public FloatingTextModelView(TextModel model, ModelTranscriber modelTranscriber, final ViewManager viewManager) {
 			this.model = model;
-			this.transactionFactory = transactionFactory;
+			this.modelTranscriber = modelTranscriber;
 			
 			this.setOpaque(false);
 			this.setBorder(null);
@@ -163,8 +163,8 @@ public class TextModel extends Model {
 		}
 
 		@Override
-		public TransactionFactory getTransactionFactory() {
-			return transactionFactory;
+		public ModelTranscriber getModelTranscriber() {
+			return modelTranscriber;
 		}
 
 		@Override
@@ -174,7 +174,7 @@ public class TextModel extends Model {
 
 		@Override
 		public void appendTransactions(final ModelComponent livePanel, CompositeMenuBuilder menuBuilder, final TranscriberBranch<Model> branch) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, transactionFactory, menuBuilder, branch);
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, modelTranscriber, menuBuilder, branch);
 			
 			Color caretColor = (Color)model.getProperty(PROPERTY_CARET_COLOR);
 			if(caretColor == null)
@@ -189,8 +189,8 @@ public class TextModel extends Model {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, color),
-								new Model.SetPropertyTransaction(transactionFactory.getModelLocation(), PROPERTY_CARET_COLOR, currentCaretColor)
+								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_CARET_COLOR, color),
+								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_CARET_COLOR, currentCaretColor)
 							));
 						}
 					});
@@ -235,11 +235,11 @@ public class TextModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private TextModel model;
-		private TransactionFactory transactionFactory;
+		private ModelTranscriber modelTranscriber;
 		
-		public ViewDocument(TextModel model, TransactionFactory transactionFactory) {
+		public ViewDocument(TextModel model, ModelTranscriber modelTranscriber) {
 			this.model = model;
-			this.transactionFactory = transactionFactory;
+			this.modelTranscriber = modelTranscriber;
 		}
 		
 		@Override
@@ -249,13 +249,13 @@ public class TextModel extends Model {
 			
 			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_VIEW);
 			
-			TranscriberBranch<Model> branch = transactionFactory.createBranch();
+			TranscriberBranch<Model> branch = modelTranscriber.createBranch();
 			branch.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 					dualCommands.add(new DualCommandPair<Model>(
-						new InsertTransaction(transactionFactory.getModelLocation(), offs, str), 
-						new RemoveTransaction(transactionFactory.getModelLocation(), offs, offs + str.length())
+						new InsertTransaction(modelTranscriber.getModelLocation(), offs, str), 
+						new RemoveTransaction(modelTranscriber.getModelLocation(), offs, offs + str.length())
 					));
 				}
 			});
@@ -275,14 +275,14 @@ public class TextModel extends Model {
 			
 			PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_VIEW);
 			
-			TranscriberBranch<Model> branch = transactionFactory.createBranch();
+			TranscriberBranch<Model> branch = modelTranscriber.createBranch();
 			branch.execute(propCtx, new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 					String removedText = model.text.substring(start, end);
 					dualCommands.add(new DualCommandPair<Model>(
-						new RemoveTransaction(transactionFactory.getModelLocation(), start, end), 
-						new InsertTransaction(transactionFactory.getModelLocation(), start, removedText)
+						new RemoveTransaction(modelTranscriber.getModelLocation(), start, end), 
+						new InsertTransaction(modelTranscriber.getModelLocation(), start, removedText)
 					));
 				}
 			});
@@ -295,10 +295,10 @@ public class TextModel extends Model {
 	}
 	
 	@Override
-	public Binding<ModelComponent> createView(ModelComponent rootView, final ViewManager viewManager, final TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocator());
+	public Binding<ModelComponent> createView(ModelComponent rootView, final ViewManager viewManager, final ModelTranscriber modelTranscriber) {
+		this.setLocation(modelTranscriber.getModelLocator());
 		
-		final FloatingTextModelView view = new FloatingTextModelView(this, transactionFactory, viewManager);
+		final FloatingTextModelView view = new FloatingTextModelView(this, modelTranscriber, viewManager);
 		
 		final RemovableListener removeListenerForCaretColor = Model.bindProperty(this, PROPERTY_CARET_COLOR, new Action1<Color>() {
 			@Override
@@ -307,7 +307,7 @@ public class TextModel extends Model {
 			}
 		});
 		
-		final ViewDocument document = new ViewDocument(this, transactionFactory);
+		final ViewDocument document = new ViewDocument(this, modelTranscriber);
 		
 		final RemovableListener removeListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		final Model.RemovableListener removeListenerForComponentPropertyChanges = Model.wrapForComponentColorChanges(this, view, view, viewManager, Model.COMPONENT_COLOR_FOREGROUND);

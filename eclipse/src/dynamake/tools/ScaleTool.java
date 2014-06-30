@@ -58,7 +58,7 @@ public class ScaleTool implements Tool {
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.editPanelMouseAdapter.getEffectFrameBounds())) {
 				if(relativePosition.isInCenter() &&
-					newTargetOver.getTransactionFactory() != productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent()) {
+					newTargetOver.getModelTranscriber() != productionPanel.editPanelMouseAdapter.selection.getModelTranscriber().getParent()) {
 					// Moving to other canvas
 					final Rectangle droppedBounds = SwingUtilities.convertRectangle(
 						productionPanel, productionPanel.editPanelMouseAdapter.getEffectFrameBounds(), (JComponent)newTargetOver);
@@ -122,7 +122,7 @@ public class ScaleTool implements Tool {
 
 		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			viewPressedOn = targetModelComponent;
-			branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+			branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 			TranscriberBranch<Model> branchStep1 = branch.branch();
 			branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			

@@ -15,7 +15,7 @@ import dynamake.transcription.TranscriberBranch;
  */
 public interface ModelComponent {
 	Model getModelBehind();
-	TransactionFactory getTransactionFactory();
+	ModelTranscriber getModelTranscriber();
 	void appendContainerTransactions(LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child, TranscriberBranch<Model> branch);
 	void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch);
 	void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch);

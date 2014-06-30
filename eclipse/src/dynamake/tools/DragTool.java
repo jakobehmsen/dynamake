@@ -62,7 +62,7 @@ public class DragTool implements Tool {
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
 //		System.out.println("Drag tool mousePressed");
 		
-		branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 		
 		TranscriberBranch<Model> branchStep1 = branch.branch();
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));

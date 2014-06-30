@@ -35,7 +35,7 @@ public class TextTool implements Tool {
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, final MouseEvent e, final ModelComponent modelOver) {
 		if(modelOver.getModelBehind() instanceof TextModel) {
-			TranscriberBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+			TranscriberBranch<Model> branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 			branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			branch.onFinished(new Runnable() {
@@ -57,7 +57,7 @@ public class TextTool implements Tool {
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, final ModelComponent modelOver) {
 		if(modelOver.getModelBehind() instanceof TextModel) {
-			TranscriberBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+			TranscriberBranch<Model> branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 			branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			branch.onFinished(new Runnable() {
@@ -84,7 +84,7 @@ public class TextTool implements Tool {
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, final MouseEvent e, final ModelComponent modelOver) {
 		if(modelOver.getModelBehind() instanceof TextModel) {
-			TranscriberBranch<Model> branch = productionPanel.livePanel.getTransactionFactory().createBranch();
+			TranscriberBranch<Model> branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 			branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			branch.onFinished(new Runnable() {

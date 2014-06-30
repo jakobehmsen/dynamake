@@ -55,12 +55,12 @@ public class ShapeModel extends Model {
 		private static final long serialVersionUID = 1L;
 		
 		private ShapeModel model;
-		private TransactionFactory transactionFactory;
+		private ModelTranscriber modelTranscriber;
 		private ArrayList<Path2D.Double> viewShapes;
 
-		public ShapeView(ShapeModel model, TransactionFactory transactionFactory) {
+		public ShapeView(ShapeModel model, ModelTranscriber modelTranscriber) {
 			this.model = model;
-			this.transactionFactory = transactionFactory;
+			this.modelTranscriber = modelTranscriber;
 			
 			viewShapes = new ArrayList<Path2D.Double>();
 			
@@ -85,8 +85,8 @@ public class ShapeModel extends Model {
 		}
 
 		@Override
-		public TransactionFactory getTransactionFactory() {
-			return transactionFactory;
+		public ModelTranscriber getModelTranscriber() {
+			return modelTranscriber;
 		}
 
 		@Override
@@ -158,10 +158,10 @@ public class ShapeModel extends Model {
 	}
 
 	@Override
-	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocator());
+	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, ModelTranscriber modelTranscriber) {
+		this.setLocation(modelTranscriber.getModelLocator());
 		
-		final ShapeView view = new ShapeView(this, transactionFactory);
+		final ShapeView view = new ShapeView(this, modelTranscriber);
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		

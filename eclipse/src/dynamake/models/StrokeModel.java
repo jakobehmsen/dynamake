@@ -44,16 +44,16 @@ public class StrokeModel extends Model {
 		private static final long serialVersionUID = 1L;
 		
 		private StrokeModel model;
-		private TransactionFactory transactionFactory;
+		private ModelTranscriber modelTranscriber;
 		private Path2D.Double viewShape;
 		private float strokeSize;
 		private Path2D.Double viewShapeSource;
 //		private Image image;
 		private boolean shouldRefreshViewShape;
 
-		public ShapeView(StrokeModel model, TransactionFactory transactionFactory) {
+		public ShapeView(StrokeModel model, ModelTranscriber modelTranscriber) {
 			this.model = model;
-			this.transactionFactory = transactionFactory;
+			this.modelTranscriber = modelTranscriber;
 
 			viewShapeSource = new Path2D.Double();
 			
@@ -91,8 +91,8 @@ public class StrokeModel extends Model {
 		}
 
 		@Override
-		public TransactionFactory getTransactionFactory() {
-			return transactionFactory;
+		public ModelTranscriber getModelTranscriber() {
+			return modelTranscriber;
 		}
 
 		@Override
@@ -172,10 +172,10 @@ public class StrokeModel extends Model {
 	}
 
 	@Override
-	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, TransactionFactory transactionFactory) {
-		this.setLocation(transactionFactory.getModelLocator());
+	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, ModelTranscriber modelTranscriber) {
+		this.setLocation(modelTranscriber.getModelLocator());
 		
-		final ShapeView view = new ShapeView(this, transactionFactory);
+		final ShapeView view = new ShapeView(this, modelTranscriber);
 		
 		final RemovableListener removableListenerForBoundChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		

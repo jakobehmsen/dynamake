@@ -64,8 +64,8 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							public void createDualCommands(
 									List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
-									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
-									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
+									new Model.RemoveObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation()),
+									new Model.AddObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation())
 								));
 							}
 						});
@@ -82,8 +82,8 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							public void createDualCommands(
 									List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
-									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation()),
-									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), target.getTransactionFactory().getModelLocation())
+									new Model.AddObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation()),
+									new Model.RemoveObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation())
 								));
 							}
 						});
@@ -105,9 +105,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-								Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
+								Location canvasModelLocation = target.getModelTranscriber().getModelLocation();
 								int index = canvasModel.getModelCount();
-								Location addedPrimitiveLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
+								Location addedPrimitiveLocation = target.getModelTranscriber().extendLocation(new CanvasModel.IndexLocation(index));
 								// The location for Bind and Output depends on the side effect of add
 								
 								// Add
@@ -118,8 +118,8 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 
 								// Bind
 								dualCommands.add(new DualCommandPair<Model>(
-									new Model.AddObserver(selection.getTransactionFactory().getModelLocation(), addedPrimitiveLocation), // Absolute location
-									new Model.RemoveObserver(selection.getTransactionFactory().getModelLocation(), addedPrimitiveLocation) // Absolute location
+									new Model.AddObserver(selection.getModelTranscriber().getModelLocation(), addedPrimitiveLocation), // Absolute location
+									new Model.RemoveObserver(selection.getModelTranscriber().getModelLocation(), addedPrimitiveLocation) // Absolute location
 								));
 							}
 						});

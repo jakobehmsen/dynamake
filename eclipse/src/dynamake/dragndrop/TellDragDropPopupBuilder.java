@@ -51,8 +51,8 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
-							new TellPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_COLOR),
-							new TellPropertyTransaction(selection.getTransactionFactory().getModelLocation(), Model.PROPERTY_COLOR)
+							new TellPropertyTransaction(selection.getModelTranscriber().getModelLocation(), Model.PROPERTY_COLOR),
+							new TellPropertyTransaction(selection.getModelTranscriber().getModelLocation(), Model.PROPERTY_COLOR)
 						));
 					}
 				});
