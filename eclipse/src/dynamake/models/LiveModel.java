@@ -73,13 +73,6 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	public static final int STATE_USE = 0;
-	public static final int STATE_EDIT = 1;
-	public static final int STATE_PLOT = 2;
-	public static final int STATE_BIND = 3;
-	public static final int STATE_DRAG = 4;
-	public static final int STATE_CONS = 5;
-	
 	private int tool;
 	private Model content;
 	private Model selection;
@@ -352,12 +345,6 @@ public class LiveModel extends Model {
 	private static final Color TOP_BUTTON_BACKGROUND_COLOR = TOP_BACKGROUND_COLOR;
 	private static final Color TOP_FOREGROUND_COLOR = Color.WHITE;
 	
-	public static final int TAG_CAUSED_BY_UNDO = 0;
-	public static final int TAG_CAUSED_BY_REDO = 1;
-	public static final int TAG_CAUSED_BY_TOGGLE_BUTTON = 2;
-	public static final int TAG_CAUSED_BY_ROLLBACK = 3;
-	public static final int TAG_CAUSED_BY_COMMIT = 4;
-	
 	private static class ToolButton extends JPanel {
 		/**
 		 * 
@@ -398,7 +385,7 @@ public class LiveModel extends Model {
 				public void mousePressed(MouseEvent e) {
 					final int newButton = e.getButton();
 					
-					PropogationContext propCtx = new PropogationContext(TAG_CAUSED_BY_TOGGLE_BUTTON);
+					PropogationContext propCtx = new PropogationContext();
 					
 					TranscriberBranch<Model> branch = ToolButton.this.transactionFactory.createBranch();
 					
@@ -1158,30 +1145,6 @@ public class LiveModel extends Model {
 		}
 	}
 	
-//	private static class ContentPanel extends JPanel {
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//		
-//		private ModelComponent content;
-//		
-//		public ContentPanel(ModelComponent content) {
-//			this.setLayout(new BorderLayout());
-//			
-//			this.content = content;
-//			
-//			this.add((JComponent)content, BorderLayout.CENTER);
-//		}
-//		
-////		@Override
-////		public void paint(Graphics g) {
-////			super.paint(g);
-////			
-//////			super.paintComponent(g);
-////		}
-//	}
-	
 	public static class LivePanel extends JPanel implements ModelComponent {
 		/**
 		 * 
@@ -1250,7 +1213,6 @@ public class LiveModel extends Model {
 			});
 			
 			contentPane.add((JComponent)contentView.getBindingTarget(), JLayeredPane.DEFAULT_LAYER);
-//			contentPane.add(new ContentPanel(contentView.getBindingTarget()), JLayeredPane.DEFAULT_LAYER);
 			
 			this.add(topPanel, BorderLayout.NORTH);
 			this.add(contentPane, BorderLayout.CENTER);
@@ -1261,12 +1223,7 @@ public class LiveModel extends Model {
 				}
 				
 				private void initializeObserverAdapter() {
-					int state = LivePanel.this.model.getTool();
-					if(state != LiveModel.STATE_USE) {
-						contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);
-						contentPane.revalidate();
-						contentPane.repaint();
-					}
+
 				}
 				
 				@Override
@@ -1313,8 +1270,6 @@ public class LiveModel extends Model {
 			Tool[] tools = viewManager.getTools();
 			buttonTools = new JComponent[tools.length];
 			ButtonGroup group = new ButtonGroup();
-			
-//			buttonTools[0] = createToolButton(model, transactionFactory, group, -1, this.model.getTool(), STATE_USE, "Use");
 
 			for(int i = 0; i < tools.length; i++) {
 				Tool tool = tools[i];
