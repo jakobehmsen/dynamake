@@ -20,6 +20,7 @@ import javax.swing.event.PopupMenuListener;
 import dynamake.dragndrop.ConsDragDropPopupBuilder;
 import dynamake.dragndrop.DragDropPopupBuilder;
 import dynamake.dragndrop.TellDragDropPopupBuilder;
+import dynamake.dragndrop.ViewDragDropPopupBuilder;
 import dynamake.models.Binding;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.LiveModel;
@@ -365,6 +366,10 @@ public class InteractionPresenter {
 
 	public void showPopupForSelectionTell(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new TellDragDropPopupBuilder(branch));
+	}
+
+	public void showPopupForSelectionView(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
+		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ViewDragDropPopupBuilder(branch));
 	}
 	
 	private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, final DragDropPopupBuilder popupBuilder) {
