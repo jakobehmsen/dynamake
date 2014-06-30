@@ -335,4 +335,12 @@ public class InteractionPresenter {
 	public Rectangle getSelectionFrameBounds() {
 		return selectionFrame.getBounds();
 	}
+
+	public int getEffectFrameWidth() {
+		return effectFrame.getWidth();
+	}
+
+	public int getEffectFrameHeight() {
+		return effectFrame.getHeight();
+	}
 }

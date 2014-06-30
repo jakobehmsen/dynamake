@@ -49,9 +49,9 @@ public class BindTool implements Tool {
 		targetPresenter.reset(branchStep2);
 		targetPresenter = null;
 
-		final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
-		productionPanel.editPanelMouseAdapter.select(null, branchStep2);
-		productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
+		final ModelComponent selection = interactionPresenter.getSelection();
+		interactionPresenter.reset(branchStep2);
+		interactionPresenter = null;
 		
 		if(targetModelComponent != null && selection != targetModelComponent) {
 			if(selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
@@ -95,6 +95,7 @@ public class BindTool implements Tool {
 	private Point mouseDown;
 	private TranscriberBranch<Model> branch;
 	private TargetPresenter targetPresenter;
+	private InteractionPresenter interactionPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -105,22 +106,17 @@ public class BindTool implements Tool {
 		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 
 		ModelComponent targetModelComponent = modelOver;
-		if(targetModelComponent != null) {
-			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
-		}
-		
-		// TODO: Consider whether to do the following:
-		// Clear the output here on branchStep1
-		// The same for all other tools
-		// Create code to be reused across all tools for this
+
+		Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+		interactionPresenter = new InteractionPresenter(productionPanel);
+		interactionPresenter.selectFromView(targetModelComponent, referencePoint, branchStep1);
 		
 		targetPresenter = new TargetPresenter(
 			productionPanel,
 			new TargetPresenter.Behavior() {
 				@Override
 				public Color getColorForTarget(ModelComponent target) {
-					return productionPanel.editPanelMouseAdapter.selection.getModelBehind().isObservedBy(target.getModelBehind()) 
+					return interactionPresenter.getSelection().getModelBehind().isObservedBy(target.getModelBehind()) 
 						? ProductionPanel.UNBIND_COLOR 
 						: ProductionPanel.BIND_COLOR;
 				}
@@ -146,15 +142,15 @@ public class BindTool implements Tool {
 			
 			targetPresenter.update(modelOver, runBuilder);
 			
-			final int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
-			final int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
+			final int width = interactionPresenter.getEffectFrameWidth();
+			final int height = interactionPresenter.getEffectFrameHeight();
 
 			Point cursorLocationInProductionPanel = e.getPoint();
 			
-			final int x = productionPanel.selectionFrame.getX() + (cursorLocationInProductionPanel.x - mouseDown.x);
-			final int y = productionPanel.selectionFrame.getY() + (cursorLocationInProductionPanel.y - mouseDown.y);
+			final int x = interactionPresenter.getSelectionFrameLocation().x + (cursorLocationInProductionPanel.x - mouseDown.x);
+			final int y = interactionPresenter.getSelectionFrameLocation().y + (cursorLocationInProductionPanel.y - mouseDown.y);
 			
-			productionPanel.editPanelMouseAdapter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), runBuilder);
+			interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), runBuilder);
 			
 			runBuilder.execute();
 		}
@@ -162,7 +158,6 @@ public class BindTool implements Tool {
 
 	@Override
 	public void paint(Graphics g) {
-		// TODO Auto-generated method stub
-		
+
 	}
 }

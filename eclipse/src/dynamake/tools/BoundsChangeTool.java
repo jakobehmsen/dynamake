@@ -24,11 +24,11 @@ import dynamake.transcription.TranscriberBranch;
 public abstract class BoundsChangeTool implements Tool {
 	@Override
 	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		if(productionPanel.editPanelMouseAdapter.selection == modelOver && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
-			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
-			relativePosition = new RelativePosition(point, ((JComponent)modelOver).getSize());
-			productionPanel.selectionFrame.setCursor(relativePosition.getCursor());
-		}
+//		if(productionPanel.editPanelMouseAdapter.selection == modelOver && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
+//			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
+//			relativePosition = new RelativePosition(point, ((JComponent)modelOver).getSize());
+//			productionPanel.selectionFrame.setCursor(relativePosition.getCursor());
+//		}
 	}
 
 	@Override
@@ -84,6 +84,7 @@ public abstract class BoundsChangeTool implements Tool {
 			}
 
 			interactionPresenter.reset(branchStep2);
+			interactionPresenter = null;
 			
 			productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 			branchStep2.close();
