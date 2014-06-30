@@ -79,6 +79,8 @@ public class LiveModel extends Model {
 	public Model modelCloneIsolated() {
 		LiveModel clone = new LiveModel(content.cloneIsolated());
 		
+		clone.buttonToToolMap.putAll(clone.buttonToToolMap);
+		
 		return clone;
 	}
 	
