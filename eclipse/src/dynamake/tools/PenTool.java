@@ -19,7 +19,6 @@ import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Runner;
 import dynamake.models.CanvasModel;
-import dynamake.models.LiveModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -84,11 +83,7 @@ public class PenTool implements Tool {
 				CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 				Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
 				int index = canvasModel.getModelCount();
-				Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
-//				ArrayList<ShapeModel.ShapeInfo> shapes = new ArrayList<ShapeModel.ShapeInfo>();
-//				shapes.add(new ShapeModel.ShapeInfo(creationBoundsInProductionPanel.getLocation(), pointsForCreation));
 				Factory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation);
-				// The location for Output depends on the side effect of add
 				
 				dualCommands.add(new DualCommandPair<Model>(
 					new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInContainer, factory), 

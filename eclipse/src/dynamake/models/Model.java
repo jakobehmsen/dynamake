@@ -868,7 +868,6 @@ public abstract class Model implements Serializable, Observer {
 						public void createDualCommands(
 								List<DualCommand<Model>> dualCommands) {
 							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
-							Location cloneLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(cloneIndex));
 							Location targetCanvasLocation = target.getTransactionFactory().getModelLocation();
 							Factory factory = new CloneIsolatedFactory(dropped.getTransactionFactory().getModelLocation());
 							dualCommands.add(new DualCommandPair<Model>(
@@ -889,7 +888,6 @@ public abstract class Model implements Serializable, Observer {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
-							Location cloneLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(cloneIndex));
 							Location targetCanvasLocation = target.getTransactionFactory().getModelLocation();
 							Factory factory = new CloneDeepFactory(dropped.getTransactionFactory().getModelLocation());
 							dualCommands.add(new DualCommandPair<Model>(

@@ -22,7 +22,6 @@ import dynamake.commands.DualCommandPair;
 import dynamake.commands.UnwrapTransaction;
 import dynamake.commands.WrapTransaction;
 import dynamake.models.CanvasModel;
-import dynamake.models.LiveModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -93,7 +92,6 @@ public class PlotTool implements Tool {
 									Location targetLocation = selection.getTransactionFactory().getModelLocation();
 									int indexOfWrapper = target.getModelCount() - componentsWithinBounds.size();
 									ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
-									ModelLocation wrapperLocation = selection.getTransactionFactory().extendLocation(wrapperLocationInTarget);
 									
 									// Each of the model locations should be moved from target to wrapper
 									Location[] modelLocations = new Location[componentsWithinBounds.size()];
@@ -145,8 +143,6 @@ public class PlotTool implements Tool {
 									CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 									Location canvasModelLocation = target.getTransactionFactory().getModelLocation();
 									int index = canvasModel.getModelCount();
-									Location addedModelLocation = target.getTransactionFactory().extendLocation(new CanvasModel.IndexLocation(index));
-									// The location for Output depends on the side effect of add
 									
 									dualCommands.add(new DualCommandPair<Model>(
 										new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInSelection, factory), 

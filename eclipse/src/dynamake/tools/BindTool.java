@@ -12,7 +12,6 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
-import dynamake.models.LiveModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;

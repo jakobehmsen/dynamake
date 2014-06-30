@@ -11,7 +11,6 @@ import dynamake.commands.DualCommandPair;
 import dynamake.commands.TellPropertyTransaction;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
-import dynamake.models.LiveModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;

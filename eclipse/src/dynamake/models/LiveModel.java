@@ -190,12 +190,12 @@ public class LiveModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private Location liveModelLocation;
-		private Location modelLocation;
+//		private Location liveModelLocation;
+//		private Location modelLocation;
 
 		public SetSelection(Location liveModelLocation, Location modelLocation) {
-			this.liveModelLocation = liveModelLocation;
-			this.modelLocation = modelLocation;
+//			this.liveModelLocation = liveModelLocation;
+//			this.modelLocation = modelLocation;
 		}
 		
 		@Override

@@ -14,11 +14,9 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.DualCommand;
 import dynamake.models.CanvasModel;
-import dynamake.models.LiveModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
-import dynamake.models.TransactionFactory;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
@@ -59,7 +57,6 @@ public class ScaleTool implements Tool {
 			targetPresenter = null;
 			
 			if(!productionPanel.selectionFrame.getBounds().equals(productionPanel.editPanelMouseAdapter.getEffectFrameBounds())) {
-				final TransactionFactory selectionTransactionFactory = productionPanel.editPanelMouseAdapter.selection.getTransactionFactory();
 				if(relativePosition.isInCenter() &&
 					newTargetOver.getTransactionFactory() != productionPanel.editPanelMouseAdapter.selection.getTransactionFactory().getParent()) {
 					// Moving to other canvas
