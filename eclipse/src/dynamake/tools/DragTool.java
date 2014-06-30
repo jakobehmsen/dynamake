@@ -44,10 +44,15 @@ public class DragTool implements Tool {
 		targetPresenter = null;
 		
 		if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
-			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
+//			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
+			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
 		} else {
-			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), null, branchStep2);
+//			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), null, branchStep2);
+			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
 		}
+		
+		interactionPresenter.reset(branchStep2);
+		interactionPresenter = null;
 		
 		branch.close();
 
@@ -57,6 +62,7 @@ public class DragTool implements Tool {
 	private Point mouseDown;
 	private TranscriberBranch<Model> branch;
 	private TargetPresenter targetPresenter;
+	private InteractionPresenter interactionPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -73,7 +79,8 @@ public class DragTool implements Tool {
 		
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
+			interactionPresenter = new InteractionPresenter(productionPanel);
+			interactionPresenter.selectFromView(targetModelComponent, referencePoint, branchStep1);
 		}
 		
 		targetPresenter = new TargetPresenter(
@@ -86,7 +93,7 @@ public class DragTool implements Tool {
 				
 				@Override
 				public boolean acceptsTarget(ModelComponent target) {
-					return target != productionPanel.editPanelMouseAdapter.selection;
+					return target != interactionPresenter.getSelection();
 				}
 			}
 		);
@@ -107,15 +114,15 @@ public class DragTool implements Tool {
 			
 			targetPresenter.update(modelOver, runBuilder);
 			
-			final int width = productionPanel.editPanelMouseAdapter.getEffectFrameWidth();
-			final int height = productionPanel.editPanelMouseAdapter.getEffectFrameHeight();
+			final int width = interactionPresenter.getEffectFrameWidth();
+			final int height = interactionPresenter.getEffectFrameHeight();
 
 			Point cursorLocationInProductionPanel = e.getPoint();
 			
-			final int x = productionPanel.selectionFrame.getX() + (cursorLocationInProductionPanel.x - mouseDown.x);
-			final int y = productionPanel.selectionFrame.getY() + (cursorLocationInProductionPanel.y - mouseDown.y);
+			final int x = interactionPresenter.getSelectionFrameLocation().x + (cursorLocationInProductionPanel.x - mouseDown.x);
+			final int y = interactionPresenter.getSelectionFrameLocation().y + (cursorLocationInProductionPanel.y - mouseDown.y);
 			
-			productionPanel.editPanelMouseAdapter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), runBuilder);
+			interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), runBuilder);
 			
 			runBuilder.execute();
 		}
@@ -123,7 +130,6 @@ public class DragTool implements Tool {
 
 	@Override
 	public void paint(Graphics g) {
-		// TODO Auto-generated method stub
-		
+
 	}
 }

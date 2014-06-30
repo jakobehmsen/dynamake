@@ -18,6 +18,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import dynamake.dragndrop.ConsDragDropPopupBuilder;
+import dynamake.dragndrop.DragDragDropPopupBuilder;
 import dynamake.dragndrop.DragDropPopupBuilder;
 import dynamake.dragndrop.TellDragDropPopupBuilder;
 import dynamake.dragndrop.ViewDragDropPopupBuilder;
@@ -358,6 +359,10 @@ public class InteractionPresenter {
 
 	public int getEffectFrameHeight() {
 		return effectFrame.getHeight();
+	}
+
+	public void showPopupForSelectionObject(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
+		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(branch));
 	}
 
 	public void showPopupForSelectionCons(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
