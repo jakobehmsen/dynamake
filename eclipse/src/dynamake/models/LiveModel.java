@@ -706,16 +706,9 @@ public class LiveModel extends Model {
 				}
 			}
 			
-			public void selectFromView2(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
-				Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-//				requestSelect(view, effectBounds, branch);
-				productionPanel.editPanelMouseAdapter.select(view, branch);
-				createEffectFrame(effectBounds, branch);
-			}
-			
 			public void selectFromView(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
 				Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-				requestSelect(view, effectBounds, branch);
+				productionPanel.editPanelMouseAdapter.select(view, branch);
 				createEffectFrame(effectBounds, branch);
 			}
 			
@@ -724,7 +717,7 @@ public class LiveModel extends Model {
 				Point sourceBoundsLocation = new Point(initialMouseDown.x - sourceBoundsSize.width / 2, initialMouseDown.y - sourceBoundsSize.height / 2);
 				Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
 				Rectangle selectionBounds = SwingUtilities.convertRectangle((JComponent)view, sourceBounds, productionPanel);
-				requestSelect(view, selectionBounds, branch);
+				productionPanel.editPanelMouseAdapter.select(view, branch);
 				createEffectFrame(selectionBounds, branch);
 			}
 			

@@ -51,7 +51,7 @@ public class ViewTool implements Tool {
 		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
-			productionPanel.editPanelMouseAdapter.selectFromView2(targetModelComponent, referencePoint, branchStep1);
+			productionPanel.editPanelMouseAdapter.selectFromView(targetModelComponent, referencePoint, branchStep1);
 		}
 		
 		branchStep1.close();

@@ -88,6 +88,7 @@ public class ConsTool implements Tool {
 					});
 				}
 				
+				productionPanel.editPanelMouseAdapter.select(null, branchStep2);
 				productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 
 				branchStep2.close();
@@ -105,6 +106,7 @@ public class ConsTool implements Tool {
 				branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 				targetPresenter.reset(branchStep2);
 				targetPresenter = null;
+				productionPanel.editPanelMouseAdapter.select(null, branchStep2);
 				productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 				branch.reject();
 			}
