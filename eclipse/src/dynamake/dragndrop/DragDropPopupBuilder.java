@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.dragndrop;
 
 import java.awt.Point;
 import java.awt.Rectangle;

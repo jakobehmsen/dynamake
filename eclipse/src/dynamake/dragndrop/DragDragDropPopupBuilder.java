@@ -1,4 +1,4 @@
-package dynamake;
+package dynamake.dragndrop;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -7,6 +7,7 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 
+import dynamake.Runner;
 import dynamake.commands.DejectTransaction;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
