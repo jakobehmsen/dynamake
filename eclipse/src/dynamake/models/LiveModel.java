@@ -239,13 +239,13 @@ public class LiveModel extends Model {
 		
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
-			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
-			if(modelLocation != null) {
-				Model selection = (Model)modelLocation.getChild(prevalentSystem);
-				liveModel.setOutput(selection, new PropogationContext(), 0, branch);
-			} else {
-				liveModel.setOutput(null, new PropogationContext(), 0, branch);
-			}
+//			LiveModel liveModel = (LiveModel)liveModelLocation.getChild(prevalentSystem);
+//			if(modelLocation != null) {
+//				Model selection = (Model)modelLocation.getChild(prevalentSystem);
+//				liveModel.setOutput(selection, new PropogationContext(), 0, branch);
+//			} else {
+//				liveModel.setOutput(null, new PropogationContext(), 0, branch);
+//			}
 		}
 		
 		public static DualCommand<Model> createDual(LiveModel.LivePanel livePanel, Location outputLocation) {
