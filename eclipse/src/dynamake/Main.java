@@ -98,7 +98,7 @@ public class Main {
 //			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
 //			
 //			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(pModel);
-			final Transcriber<Model> prevaylerService = new SnapshottingTranscriber<Model>(new Func0<Model>() {
+			final Transcriber<Model> transcriber = new SnapshottingTranscriber<Model>(new Func0<Model>() {
 				@Override
 				public Model call() {
 					// TODO Auto-generated method stub
@@ -137,11 +137,11 @@ public class Main {
 					return tools;
 				}
 			};
-			ModelTranscriber rootModelTranscriber = new ModelTranscriber(prevaylerService, new ModelRootLocator());
+			ModelTranscriber rootModelTranscriber = new ModelTranscriber(transcriber, new ModelRootLocator());
 			
 			UIManager.put("ToggleButton.select", Color.DARK_GRAY);
 			
-			final Binding<ModelComponent> rootView = prevaylerService.prevalentSystem().createView(null, rootViewManager, rootModelTranscriber);
+			final Binding<ModelComponent> rootView = transcriber.prevalentSystem().createView(null, rootViewManager, rootModelTranscriber);
 			rootView.getBindingTarget().initialize();
 			JFrame frame = (JFrame)rootView.getBindingTarget();
 			
@@ -171,7 +171,7 @@ public class Main {
 				public void windowClosing(WindowEvent e) {
 					try {
 						rootView.releaseBinding();
-						prevaylerService.close();
+						transcriber.close();
 						ResourceManager.INSTANCE.dispose();
 					} catch (IOException e1) {
 						e1.printStackTrace();

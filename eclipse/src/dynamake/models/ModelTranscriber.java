@@ -4,12 +4,12 @@ import dynamake.transcription.Transcriber;
 import dynamake.transcription.TranscriberBranch;
 
 public class ModelTranscriber {
-	private Transcriber<Model> prevaylerService;
+	private Transcriber<Model> transcriber;
 	private ModelTranscriber parent;
 	private ModelLocator locator;
 	
-	public ModelTranscriber(Transcriber<Model> prevaylerService, ModelLocator locator) {
-		this.prevaylerService = prevaylerService;
+	public ModelTranscriber(Transcriber<Model> transcriber, ModelLocator locator) {
+		this.transcriber = transcriber;
 		this.locator = locator;
 	}
 	
@@ -31,11 +31,11 @@ public class ModelTranscriber {
 	
 	// TODO: Consider: Could be replaced by a using a TranscribtionBranch without committing?
 	public void executeTransient(Runnable runnable) {
-		prevaylerService.executeTransient(runnable);
+		transcriber.executeTransient(runnable);
 	}
 
 	public ModelTranscriber extend(final ModelLocator locator) {
-		ModelTranscriber extended = new ModelTranscriber(prevaylerService, locator);
+		ModelTranscriber extended = new ModelTranscriber(transcriber, locator);
 		
 		extended.parent = this;
 		
@@ -81,6 +81,6 @@ public class ModelTranscriber {
 	}
 
 	public TranscriberBranch<Model> createBranch() {
-		return prevaylerService.createBranch();
+		return transcriber.createBranch();
 	}
 }
