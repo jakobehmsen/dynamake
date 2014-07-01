@@ -105,11 +105,6 @@ public class TextModel extends Model {
 			branch.registerAffectedModel(textModel);
 			textModel.sendChanged(new InsertedText(offset, text), propCtx, 0, 0, branch);
 		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
 	}
 	
 	private static class RemoveTransaction implements Command<Model> {
@@ -133,11 +128,6 @@ public class TextModel extends Model {
 			textModel.text.delete(start, end);
 			branch.registerAffectedModel(textModel);
 			textModel.sendChanged(new RemovedText(start, end), propCtx, 0, 0, branch);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
 		}
 	}
 	

@@ -2,7 +2,6 @@ package dynamake.commands;
 
 import java.util.Date;
 
-import dynamake.models.Location;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.TranscriberBranch;
 
@@ -31,11 +30,5 @@ public class DualCommandPair<T> implements DualCommand<T> {
 	@Override
 	public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberBranch<T> branch) {
 		backward.executeOn(propCtx, prevalentSystem, executionTime, branch);
-	}
-	
-	@Override
-	public boolean occurredWithin(Location location) {
-		// Assumsed that forward and backward occurred within the same location
-		return forward.occurredWithin(location);
 	}
 }

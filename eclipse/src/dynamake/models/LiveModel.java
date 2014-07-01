@@ -116,11 +116,6 @@ public class LiveModel extends Model {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.bindButtonToTool(button, tool, propCtx, 0, branch);
 		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return false;
-		}
 	}
 	
 	public static class RemoveButtonToToolBindingCommand implements Command<Model> {
@@ -142,11 +137,6 @@ public class LiveModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.removeButtonToToolBinding(button, tool, propCtx, 0, branch);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return false;
 		}
 	}
 	

@@ -3,7 +3,6 @@ package dynamake.commands;
 import java.util.ArrayList;
 import java.util.Date;
 
-import dynamake.models.Location;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.TranscriberBranch;
 
@@ -39,11 +38,5 @@ public class DualCommandSequence<T> implements DualCommand<T> {
 			DualCommand<T> t = transactions[i];
 			t.executeBackwardOn(propCtx, prevalentSystem, executionTime, branch);
 		}
-	}
-	
-	@Override
-	public boolean occurredWithin(Location location) {
-		// Assumed that all transactions occurred within the same location
-		return transactions[0].occurredWithin(location);
 	}
 }

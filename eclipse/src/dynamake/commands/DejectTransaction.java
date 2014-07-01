@@ -30,9 +30,4 @@ public class DejectTransaction implements Command<Model> {
 		
 		// TODO: Consider whether a change should be sent out here
 	}
-	
-	@Override
-	public boolean occurredWithin(Location location) {
-		return true;
-	}
 }

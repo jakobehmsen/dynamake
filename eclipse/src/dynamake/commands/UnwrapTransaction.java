@@ -78,9 +78,4 @@ public class UnwrapTransaction implements Command<Model> {
 			addBranch.close();
 		}
 	}
-	
-	@Override
-	public boolean occurredWithin(Location location) {
-		return true;
-	}
 }

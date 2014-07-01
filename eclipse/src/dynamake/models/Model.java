@@ -117,11 +117,6 @@ public abstract class Model implements Serializable, Observer {
 				new SetPropertyTransaction(modelLocation, name, model.getProperty(name))
 			);
 		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
 	}
 	
 	public static class SetPropertyOnRootTransaction implements Command<Model> {
@@ -154,11 +149,6 @@ public abstract class Model implements Serializable, Observer {
 				new SetPropertyOnRootTransaction(modelLocation, name, model.getProperty(name))
 			);
 		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return false;
-		}
 	}
 	
 	private Stack<ContextualTransaction<Model>> undoStack = new Stack<ContextualTransaction<Model>>();
@@ -188,11 +178,6 @@ public abstract class Model implements Serializable, Observer {
 			model.undo(propCtx, prevalentSystem, undoBranch);
 			undoBranch.close();
 		}
-
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
 	}
 	
 	public static class RedoTransaction implements Command<Model> {
@@ -213,11 +198,6 @@ public abstract class Model implements Serializable, Observer {
 			TranscriberBranch<Model> undoBranch = branch.isolatedBranch();
 			model.redo(propCtx, prevalentSystem, undoBranch);
 			undoBranch.close();
-		}
-
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
 		}
 	}
 	
@@ -336,11 +316,6 @@ public abstract class Model implements Serializable, Observer {
 			
 			// TODO: Consider whether a change should be sent out here
 		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
 	}
 	
 	public static class RemoveObserver implements Command<Model> {
@@ -364,11 +339,6 @@ public abstract class Model implements Serializable, Observer {
 			observable.removeObserver(observer);
 			
 			// TODO: Consider whether a change should be sent out here
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
 		}
 	}
 	
@@ -679,11 +649,6 @@ public abstract class Model implements Serializable, Observer {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 			model.sendChanged(new MouseUp(), propCtx, 0, 0, branch);
 		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
 	}
 	
 	private static class MouseDownTransaction implements Command<Model> {
@@ -702,11 +667,6 @@ public abstract class Model implements Serializable, Observer {
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 			model.sendChanged(new MouseDown(), propCtx, 0, 0, branch);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
 		}
 	}
 	

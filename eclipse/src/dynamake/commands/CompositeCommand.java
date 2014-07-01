@@ -2,7 +2,6 @@ package dynamake.commands;
 
 import java.util.Date;
 
-import dynamake.models.Location;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.TranscriberBranch;
 
@@ -23,11 +22,5 @@ public class CompositeCommand<T> implements Command<T> {
 		for(Command<T> command: commandSequence) {
 			command.executeOn(propCtx, prevalentSystem, executionTime, branch);
 		}
-	}
-	
-	@Override
-	public boolean occurredWithin(Location location) {
-		// Assumed that result is the same for all commands in commandSequence
-		return commandSequence[0].occurredWithin(location);
 	}
 }

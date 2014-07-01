@@ -153,11 +153,6 @@ public class CanvasModel extends Model {
 			removeBranch.close();
 			addBranch.close();
 		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
 	}
 	
 	public static class AddModelTransaction implements Command<Model> {
@@ -187,11 +182,6 @@ public class CanvasModel extends Model {
 			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, setPropertyBranch);
 			
 			canvas.addModel(model, new PropogationContext(), 0, branch);
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
 		}
 	}
 	
@@ -225,11 +215,6 @@ public class CanvasModel extends Model {
 			
 			canvas.addModel(index, model, new PropogationContext(), 0, branch);
 		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
 	}
 	
 	public static class AddModelNoCreationBoundsTransaction implements Command<Model> {
@@ -253,11 +238,6 @@ public class CanvasModel extends Model {
 			Model model = (Model)factory.create(rootPrevalentSystem, null, propCtx, 0, branch);
 			canvas.addModel(index, model, new PropogationContext(), 0, branch);
 		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
-		}
 	}
 	
 	public static class RemoveModelTransaction implements Command<Model> {
@@ -279,11 +259,6 @@ public class CanvasModel extends Model {
 			Model modelToRemove = canvas.getModel(index);
 			canvas.removeModel(index, propCtx, 0, branch);
 			modelToRemove.beRemoved();
-		}
-		
-		@Override
-		public boolean occurredWithin(Location location) {
-			return true;
 		}
 	}
 	
