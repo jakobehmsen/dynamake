@@ -26,12 +26,10 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.ModelRootLocator;
 import dynamake.models.RootModel;
-import dynamake.models.TextModel;
 import dynamake.models.ModelTranscriber;
 import dynamake.models.ViewManager;
 import dynamake.models.factories.CanvasModelFactory;
 import dynamake.models.factories.Factory;
-import dynamake.models.factories.TextModelFactory;
 import dynamake.tools.BindTool;
 import dynamake.tools.ConsTool;
 import dynamake.tools.DragTool;
@@ -86,7 +84,7 @@ public class Main {
 //			factoryBuilder.add(new TextModelFactory());
 			factoryBuilder.add(new CanvasModelFactory());
 //			factoryBuilder.add(new ButtonModelFactory());
-			factoryBuilder.add(new TextModelFactory());
+//			factoryBuilder.add(new TextModelFactory());
 			
 //			for(Primitive.Implementation implementationSingleton: Primitive.getImplementationSingletons())
 //				factoryBuilder.add(new PrimitiveSingletonFactory(implementationSingleton));
@@ -187,12 +185,6 @@ public class Main {
 
 	private static void loadResources() {
 		ResourceManager.INSTANCE.setResourceAccessor("Set " + Model.PROPERTY_COLOR, new Callable<JColorChooser>() {
-			@Override
-			public JColorChooser call() throws Exception {
-				return new JColorChooser();
-			}
-		});
-		ResourceManager.INSTANCE.setResourceAccessor("Set " + TextModel.PROPERTY_CARET_COLOR, new Callable<JColorChooser>() {
 			@Override
 			public JColorChooser call() throws Exception {
 				return new JColorChooser();
