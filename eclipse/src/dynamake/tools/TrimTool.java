@@ -67,7 +67,7 @@ public class TrimTool implements Tool {
 				
 				@Override
 				public boolean acceptsTarget(ModelComponent target) {
-					return target != productionPanel.editPanelMouseAdapter.selection;
+					return target != canvas;
 				}
 			}
 		);

@@ -43,7 +43,7 @@ public class DragTool implements Tool {
 		targetPresenter.reset(branchStep2);
 		targetPresenter = null;
 		
-		if(targetModelComponent != null && productionPanel.editPanelMouseAdapter.selection != targetModelComponent) {
+		if(targetModelComponent != null && interactionPresenter.getSelection() != targetModelComponent) {
 //			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
 			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
 		} else {

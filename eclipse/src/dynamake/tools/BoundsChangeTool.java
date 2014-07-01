@@ -86,7 +86,6 @@ public abstract class BoundsChangeTool implements Tool {
 			interactionPresenter.reset(branchStep2);
 			interactionPresenter = null;
 			
-			productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
 			branchStep2.close();
 			
 			mouseDown = null;
@@ -154,7 +153,7 @@ public abstract class BoundsChangeTool implements Tool {
 
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		if(mouseDown != null && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
+		if(mouseDown != null && interactionPresenter.getSelection() != productionPanel.contentView.getBindingTarget()) {
 			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			
 			ModelComponent newTargetOver = getTargetOver(productionPanel, modelOver, interactionPresenter.getSelection());

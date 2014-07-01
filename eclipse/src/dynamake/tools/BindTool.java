@@ -123,7 +123,7 @@ public class BindTool implements Tool {
 				
 				@Override
 				public boolean acceptsTarget(ModelComponent target) {
-					return target != productionPanel.editPanelMouseAdapter.selection;
+					return target != interactionPresenter.getSelection();
 				}
 			}
 		);

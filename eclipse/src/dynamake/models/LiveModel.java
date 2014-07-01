@@ -2,8 +2,6 @@ package dynamake.models;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -27,27 +25,18 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 
 import dynamake.commands.Command;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
-import dynamake.dragndrop.ConsDragDropPopupBuilder;
-import dynamake.dragndrop.DragDragDropPopupBuilder;
-import dynamake.dragndrop.DragDropPopupBuilder;
-import dynamake.dragndrop.TellDragDropPopupBuilder;
-import dynamake.dragndrop.ViewDragDropPopupBuilder;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
-import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
 
 public class LiveModel extends Model {
@@ -363,12 +352,6 @@ public class LiveModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		
-		// Temporary frames
-		private JPanel effectFrame;
-		public JPanel selectionFrame;
-		
-		public Binding<Component> selectionBoundsBinding;
 
 		public static final Color TARGET_OVER_COLOR = new Color(35, 89, 184);
 		public static final Color BIND_COLOR = new Color(25, 209, 89);
@@ -377,13 +360,6 @@ public class LiveModel extends Model {
 		
 		public static class EditPanelMouseAdapter extends MouseAdapter {
 			public ProductionPanel productionPanel;
-			
-			public ModelComponent selection;
-			public Rectangle initialEffectBounds;
-			public int selectionFrameHorizontalPosition;
-			public int selectionFrameVerticalPosition;
-			
-			public ModelComponent output;
 
 			public int buttonPressed;
 			
@@ -426,380 +402,6 @@ public class LiveModel extends Model {
 						public void paint(Graphics g) { }
 					};
 				}
-			}
-			
-			public void createEffectFrame(Rectangle creationBounds, TranscriberBranch<Model> branch) {
-				if(productionPanel.effectFrame == null) {
-					final JPanel localEffectFrame = new JPanel();
-					localEffectFrame.setBackground(new Color(0, 0, 0, 0));
-					localEffectFrame.setBounds(creationBounds);
-					
-					Color effectColor = ToolButton.getColorForButton(buttonPressed);
-					effectColor = effectColor.darker();
-					localEffectFrame.setBorder(BorderFactory.createCompoundBorder(
-						BorderFactory.createDashedBorder(effectColor, 2.0f, 2.0f, 1.5f, false),
-						BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
-					));
-					
-//					addFocusMouseListener(productionPanel, localEffectFrame, "effectFrame");
-					
-					productionPanel.effectFrame = localEffectFrame;
-					initialEffectBounds = creationBounds;
-					
-					// Ensure effect frame is shown in front of selection frame
-					if(productionPanel.selectionFrame != null) {
-						final JPanel localSelectionFrame = productionPanel.selectionFrame; 
-						branch.onFinished(new Runnable() {
-							@Override
-							public void run() {
-								// NOTICE: DON'T REMOVE THE COMMENTED FOLLOWING CODE
-								// IF THE BELOW CODE IS UNCOMMENTED TO REPLACE THE
-								// APPROACH BELOW TO INSERT THE EFFECT FRAME, THEN
-								// mouseReleased IS NEVER INVOKED ON selectionFrame
-								// ON JAR RELEASES.
-								
-//								productionPanel.remove(localSelectionFrame);
-//								productionPanel.add(localEffectFrame);
-//								productionPanel.add(localSelectionFrame);
-//								System.out.println("Created effect frame (after reordering).");
-								
-								int indexOfSelectionFrame = 0;
-								for(int i = 0; i < productionPanel.getComponents().length; i++) {
-									if(productionPanel.getComponents()[i] == localSelectionFrame)
-										indexOfSelectionFrame = i;
-								}
-								productionPanel.add(localEffectFrame, indexOfSelectionFrame);
-//								System.out.println("Created effect frame (after reordering).");
-							}
-						});
-					} else {
-						branch.onFinished(new Runnable() {
-							@Override
-							public void run() {
-								productionPanel.add(localEffectFrame);
-//								System.out.println("Created effect frame.");
-							}
-						});
-					}
-				} else {
-					System.out.println("Attempted to created an effect frame when it has already been created.");
-				}
-			}
-			
-			public void changeEffectFrameDirect2(final Rectangle newBounds, RunBuilder runBuilder) {
-				if(productionPanel.effectFrame != null) {
-					final JPanel localEffectFrame = productionPanel.effectFrame;
-					
-					runBuilder.addRunnable(new Runnable() {
-						
-						@Override
-						public void run() {
-							localEffectFrame.setBounds(newBounds);
-						}
-					});
-				}
-			}
-			
-			public void clearEffectFrameOnBranch(TranscriberBranch<Model> branch) {
-				if(productionPanel.effectFrame != null) {
-					final JPanel localEffectFrame = productionPanel.effectFrame;
-					productionPanel.effectFrame = null;
-					initialEffectBounds = null;
-					branch.onFinished(new Runnable() {
-						@Override
-						public void run() {
-							productionPanel.remove(localEffectFrame);
-//							System.out.println("Removed effect frame");
-						}
-					});
-				} else {
-					System.out.println("Attempted to clear effect frame when it hasn't been created.");
-				}
-			}
-
-			public int getEffectFrameX() {
-				return productionPanel.effectFrame.getX();
-			}
-
-			public int getEffectFrameY() {
-				return productionPanel.effectFrame.getY();
-			}
-
-			public int getEffectFrameWidth() {
-				return productionPanel.effectFrame.getWidth();
-			}
-
-			public int getEffectFrameHeight() {
-				return productionPanel.effectFrame.getHeight();
-			}
-
-			public Rectangle getEffectFrameBounds() {
-				return productionPanel.effectFrame.getBounds();
-			}
-
-			public void setEffectFrameCursor(final Cursor cursor) {
-				productionPanel.effectFrame.setCursor(cursor);
-			}
-
-			public void setEffectFrameCursor2(final Cursor cursor, TranscriberBranch<Model> branch) {
-				if(productionPanel.effectFrame != null) {
-					final JPanel localEffectFrame = productionPanel.effectFrame;
-					
-					branch.onFinished(new Runnable() {
-						@Override
-						public void run() {
-							localEffectFrame.setCursor(cursor);
-						}
-					});
-				}
-			}
-			
-			public void selectFromView(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
-				Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-				productionPanel.editPanelMouseAdapter.select(view, branch);
-				createEffectFrame(effectBounds, branch);
-			}
-			
-			public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
-				Dimension sourceBoundsSize = new Dimension(125, 33);
-				Point sourceBoundsLocation = new Point(initialMouseDown.x - sourceBoundsSize.width / 2, initialMouseDown.y - sourceBoundsSize.height / 2);
-				Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
-				Rectangle selectionBounds = SwingUtilities.convertRectangle((JComponent)view, sourceBounds, productionPanel);
-				productionPanel.editPanelMouseAdapter.select(view, branch);
-				createEffectFrame(selectionBounds, branch);
-			}
-			
-			public void selectFromEmpty(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
-				productionPanel.editPanelMouseAdapter.select(view, branch);
-				createEffectFrame(new Rectangle(0, 0, 0, 0), branch);
-			}
-			
-			public void select(final ModelComponent view, TranscriberBranch<Model> branch) {
-				// <Don't remove>
-				// Whether the following check is necessary or not has not been decided yet, so don't remove the code
-//				if(this.selection == view)
-//					return;
-				// </Don't remove>
-				
-				this.selection = view;
-				
-				if(productionPanel.selectionBoundsBinding != null)
-					productionPanel.selectionBoundsBinding.releaseBinding();
-				
-				if(this.selection != null) {
-					if(productionPanel.selectionFrame == null) {
-						final JPanel localSelectionFrame = new JPanel();
-						
-						localSelectionFrame.setBackground(new Color(0, 0, 0, 0));
-
-						localSelectionFrame.setBorder(
-							BorderFactory.createCompoundBorder(
-								BorderFactory.createLineBorder(Color.BLACK, 1), 
-								BorderFactory.createCompoundBorder(
-									BorderFactory.createLineBorder(SELECTION_COLOR, 3), 
-									BorderFactory.createLineBorder(Color.BLACK, 1)
-								)
-							)
-						);
-						
-						// DON'T ADD MOUSE ADAPTER, SINCE MOUSE EVENTS WILL THEN BUBBLE UP TO THE PRODUCTION PANEL
-						// AND WILL BE HANDLED THERE (SENT TO THE TOOL).
-						
-//						MouseAdapter mouseAdapter = new MouseAdapter() {
-//							@Override
-//							public void mouseMoved(MouseEvent e) {
-////								System.out.println("Selection forwarding moved");
-//								
-//								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
-//								e.setSource(productionPanel);
-//								
-//								for(MouseMotionListener l: productionPanel.getMouseMotionListeners())
-//									l.mouseMoved(e);
-//							}
-//
-//							public void mouseExited(MouseEvent e) {
-//
-//							}
-//
-//							@Override
-//							public void mousePressed(MouseEvent e) {
-//								System.out.println("Selection forwarding pressed");
-//								
-//								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
-//								e.setSource(productionPanel);
-//								
-//								for(MouseListener l: productionPanel.getMouseListeners())
-//									l.mousePressed(e);
-//							}
-//
-//							@Override
-//							public void mouseDragged(MouseEvent e) {
-//								System.out.println("Selection forwarding dragged");
-//								
-//								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
-//								e.setSource(productionPanel);
-//								
-//								for(MouseMotionListener l: productionPanel.getMouseMotionListeners())
-//									l.mouseDragged(e);
-//							}
-//
-//							@Override
-//							public void mouseReleased(MouseEvent e) {
-//								System.out.println("Selection forwarding released");
-//								
-//								e.translatePoint(localSelectionFrame.getX(), localSelectionFrame.getY());
-//								e.setSource(productionPanel);
-//								
-//								for(MouseListener l: productionPanel.getMouseListeners())
-//									l.mouseReleased(e);
-//							}
-//						};
-//						
-//						localSelectionFrame.addMouseListener(mouseAdapter);
-//						localSelectionFrame.addMouseMotionListener(mouseAdapter);
-						
-						if(productionPanel.effectFrame != null)
-							System.out.println("Effect frame was there before selection was added");
-
-						productionPanel.selectionFrame = localSelectionFrame;
-						
-						branch.onFinished(new Runnable() {
-							@Override
-							public void run() {
-								productionPanel.add(localSelectionFrame);
-//								System.out.println("Added selectionFrame");
-							}
-						});
-					}
-
-					final JPanel selectionFrame = productionPanel.selectionFrame;
-					
-					// Wait deriving the Swing based bounds because the adding of the component is postponed to the next repaint sync
-					branch.onFinished(new Runnable() {
-						@Override
-						public void run() {
-							final Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-							selectionFrame.setBounds(selectionBounds);
-//							System.out.println("Changed selection bounds");
-						}
-					});
-					
-					productionPanel.selectionBoundsBinding = new Binding<Component>() {
-						private Component component;
-						private ComponentListener listener;
-						
-						{
-							component = (JComponent)selection;
-							listener = new ComponentListener() {
-								@Override
-								public void componentShown(ComponentEvent arg0) { }
-								
-								@Override
-								public void componentResized(ComponentEvent arg0) {
-									Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-									productionPanel.selectionFrame.setBounds(selectionBounds);
-									productionPanel.livePanel.repaint();
-								}
-								
-								@Override
-								public void componentMoved(ComponentEvent arg0) {
-									Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-									productionPanel.selectionFrame.setBounds(selectionBounds);
-									productionPanel.livePanel.repaint();
-								}
-								
-								@Override
-								public void componentHidden(ComponentEvent arg0) { }
-							};
-							((JComponent)selection).addComponentListener(listener);
-						}
-						
-						@Override
-						public void releaseBinding() {
-							component.removeComponentListener(listener);
-						}
-						
-						@Override
-						public Component getBindingTarget() {
-							return component;
-						}
-					};
-				} else {
-					if(productionPanel.selectionFrame != null)
-						productionPanel.clearFocus(branch);
-				}
-			}
-			
-			public void showPopupForSelectionObject(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
-				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(branch));
-			}
-			
-			public void showPopupForSelectionCons(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
-				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(branch));
-			}
-			
-			public void showPopupForSelectionTell(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
-				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new TellDragDropPopupBuilder(branch));
-			}
-
-			public void showPopupForSelectionView(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
-				showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ViewDragDropPopupBuilder(branch));
-			}
-			
-			private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, final DragDropPopupBuilder popupBuilder) {
-				if(selection != null) {
-					System.out.println("Here@popup");
-					JPopupMenu transactionsPopupMenu = new JPopupMenu() {
-						/**
-						 * 
-						 */
-						private static final long serialVersionUID = 1L;
-						private boolean ignoreNextPaint;
-						
-						public void paint(java.awt.Graphics g) {
-							super.paint(g);
-							if(!ignoreNextPaint) {
-								productionPanel.livePanel.repaint();
-								ignoreNextPaint = true;
-							} else {
-								ignoreNextPaint = false;
-							}
-						}
-					};
-
-					Point pointOnTargetOver = SwingUtilities.convertPoint(popupMenuInvoker, pointOnInvoker, (JComponent)targetOver);
-					Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, productionPanel.effectFrame.getBounds(), (JComponent)targetOver);
-					popupBuilder.buildFromSelectionAndTarget(productionPanel.livePanel, transactionsPopupMenu, selection, targetOver, pointOnTargetOver, droppedBounds);
-
-					transactionsPopupMenu.show(popupMenuInvoker, pointOnInvoker.x, pointOnInvoker.y);
-					productionPanel.livePanel.repaint();
-					
-					transactionsPopupMenu.addPopupMenuListener(new PopupMenuListener() {
-						@Override
-						public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
-							
-						}
-						
-						@Override
-						public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
-
-						}
-						
-						@Override
-						public void popupMenuCanceled(PopupMenuEvent arg0) {
-							popupBuilder.cancelPopup(productionPanel.livePanel);
-						}
-					});
-				}
-			}
-			
-			public Rectangle getPlotBounds(Point firstPoint, Point secondPoint) {
-				int left = Math.min(firstPoint.x, secondPoint.x);
-				int right = Math.max(firstPoint.x, secondPoint.x);
-				int top = Math.min(firstPoint.y, secondPoint.y);
-				int bottom = Math.max(firstPoint.y, secondPoint.y);
-				
-				return new Rectangle(left, top, right - left, bottom - top);
 			}
 			
 			public ModelComponent getModelOver(MouseEvent e) {
@@ -898,23 +500,6 @@ public class LiveModel extends Model {
 		public void paint(Graphics g) {
 			super.paint(g);
 			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonPressed).paint(g);
-		}
-		
-		public void clearFocus(TranscriberBranch<Model> branch) {
-			if(selectionFrame != null) {
-				if(selectionBoundsBinding != null)
-					selectionBoundsBinding.releaseBinding();
-				
-				final JPanel localSelectionFrame = selectionFrame;
-				branch.onFinished(new Runnable() {
-					@Override
-					public void run() {
-						ProductionPanel.this.remove(localSelectionFrame);
-//						System.out.println("Removed selectionFrame");
-					}
-				});
-				selectionFrame = null;
-			}
 		}
 	}
 	

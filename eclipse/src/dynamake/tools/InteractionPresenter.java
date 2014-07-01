@@ -271,8 +271,8 @@ public class InteractionPresenter {
 //			initialEffectBounds = creationBounds;
 			
 			// Ensure effect frame is shown in front of selection frame
-			if(productionPanel.selectionFrame != null) {
-				final JPanel localSelectionFrame = productionPanel.selectionFrame; 
+			if(selectionFrame != null) {
+				final JPanel localSelectionFrame = selectionFrame; 
 				branch.onFinished(new Runnable() {
 					@Override
 					public void run() {
