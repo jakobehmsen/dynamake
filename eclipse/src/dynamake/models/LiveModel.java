@@ -29,7 +29,6 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
@@ -368,7 +367,6 @@ public class LiveModel extends Model {
 		// Temporary frames
 		private JPanel effectFrame;
 		public JPanel selectionFrame;
-		public JPanel outputFrame;
 		
 		public Binding<Component> selectionBoundsBinding;
 

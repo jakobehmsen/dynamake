@@ -27,7 +27,6 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.LiveModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
 
