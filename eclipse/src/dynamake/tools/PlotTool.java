@@ -54,12 +54,12 @@ public class PlotTool implements Tool {
 		if(mouseDown != null) {
 			JPopupMenu factoryPopopMenu = new JPopupMenu();
 			
-			final Rectangle creationBoundsInProductionPanel = productionPanel.editPanelMouseAdapter.getPlotBounds(mouseDown, e.getPoint());
-			final Rectangle creationBoundsInSelection = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, productionPanel.selectionFrame);
+			final Rectangle creationBoundsInProductionPanel = interactionPresenter.getPlotBounds(mouseDown, e.getPoint());
+			final Rectangle creationBoundsInSelection = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, interactionPresenter.getSelectionFrame());
 			
 			// Find components within the creation bounds of the selection
 			final ArrayList<ModelComponent> componentsWithinBounds = new ArrayList<ModelComponent>();
-			for(Component c: ((JComponent)productionPanel.editPanelMouseAdapter.selection).getComponents()) {
+			for(Component c: ((JComponent)interactionPresenter.getSelection()).getComponents()) {
 				if(creationBoundsInSelection.contains(c.getBounds())) {
 					// Add in reverse order because views are positioned in the reverse order in the CanvasModel
 					// This way, the views are sorted ascending index-wise
@@ -75,14 +75,14 @@ public class PlotTool implements Tool {
 				JMenuItem factoryMenuItem = new JMenuItem();
 				factoryMenuItem.setText("Wrap");
 				
-				final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
+				final ModelComponent selection = interactionPresenter.getSelection();
 				
 				factoryMenuItem.addActionListener(new ActionListener() {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						// Find the selected model and attempt an add model transaction
 						// HACK: Models can only be added to canvases
-						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
+						if(selection.getModelBehind() instanceof CanvasModel) {
 							PropogationContext propCtx = new PropogationContext();
 							
 							branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
@@ -108,9 +108,9 @@ public class PlotTool implements Tool {
 									));
 								}
 							});
-							
-							productionPanel.editPanelMouseAdapter.select(null, branchStep2);
-							productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
+
+							interactionPresenter.reset(branchStep2);
+							interactionPresenter = null;
 							
 							branchStep2.close();
 							branch.close();
@@ -130,10 +130,10 @@ public class PlotTool implements Tool {
 					public void actionPerformed(ActionEvent e) {
 						// Find the selected model and attempt an add model transaction
 						// HACK: Models can only be added to canvases
-						if(productionPanel.editPanelMouseAdapter.selection.getModelBehind() instanceof CanvasModel) {
+						if(interactionPresenter.getSelection().getModelBehind() instanceof CanvasModel) {
 							PropogationContext propCtx = new PropogationContext();
 							
-							final ModelComponent selection = productionPanel.editPanelMouseAdapter.selection;
+							final ModelComponent selection = interactionPresenter.getSelection();
 							
 							branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 								@Override
@@ -151,8 +151,9 @@ public class PlotTool implements Tool {
 								}
 							});
 
-							productionPanel.editPanelMouseAdapter.select(null, branchStep2);
-							productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
+							interactionPresenter.reset(branchStep2);
+							interactionPresenter = null;
+							
 							branchStep2.close();
 							branch.close();
 						}
@@ -171,7 +172,8 @@ public class PlotTool implements Tool {
 				
 				@Override
 				public void popupMenuCanceled(PopupMenuEvent e) {
-					productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branchStep2);
+					interactionPresenter.reset(branchStep2);
+					interactionPresenter = null;
 					branch.reject();
 				}
 			});
@@ -185,6 +187,7 @@ public class PlotTool implements Tool {
 	
 	private TranscriberBranch<Model> branch;
 	private Point mouseDown;
+	private InteractionPresenter interactionPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver) {
@@ -197,7 +200,9 @@ public class PlotTool implements Tool {
 		if(modelOver.getModelBehind() instanceof CanvasModel) {
 			mouseDown = e.getPoint();
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)modelOver);
-			productionPanel.editPanelMouseAdapter.selectFromEmpty(modelOver, referencePoint, branchStep1);
+			
+			interactionPresenter = new InteractionPresenter(productionPanel);
+			interactionPresenter.selectFromEmpty(modelOver, referencePoint, branchStep1);
 		}
 		
 		branchStep1.close();
@@ -206,17 +211,16 @@ public class PlotTool implements Tool {
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver) {
 		if(mouseDown != null) {
-			final Rectangle plotBoundsInProductionPanel = productionPanel.editPanelMouseAdapter.getPlotBounds(mouseDown, e.getPoint());
+			final Rectangle plotBoundsInProductionPanel = interactionPresenter.getPlotBounds(mouseDown, e.getPoint());
 			
 			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
-			productionPanel.editPanelMouseAdapter.changeEffectFrameDirect2(plotBoundsInProductionPanel, runBuilder);
+			interactionPresenter.changeEffectFrameDirect2(plotBoundsInProductionPanel, runBuilder);
 			runBuilder.execute();
 		}
 	}
 
 	@Override
 	public void paint(Graphics g) {
-		// TODO Auto-generated method stub
-		
+
 	}
 }

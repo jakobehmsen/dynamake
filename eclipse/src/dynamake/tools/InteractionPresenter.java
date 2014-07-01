@@ -360,20 +360,25 @@ public class InteractionPresenter {
 		return effectFrame.getHeight();
 	}
 
-	public void showPopupForSelectionObject(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
+	public void showPopupForSelectionObject(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberBranch<Model> branch) {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(branch));
 	}
 
-	public void showPopupForSelectionCons(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
+	public void showPopupForSelectionCons(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberBranch<Model> branch) {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(branch));
 	}
 
-	public void showPopupForSelectionTell(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
+	public void showPopupForSelectionTell(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberBranch<Model> branch) {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new TellDragDropPopupBuilder(branch));
 	}
 
-	public void showPopupForSelectionView(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, TranscriberBranch<Model> branch) {
+	public void showPopupForSelectionView(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberBranch<Model> branch) {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ViewDragDropPopupBuilder(branch));
+	}
+
+	public void selectFromEmpty(ModelComponent view, Point initialMouseDown, TranscriberBranch<Model> branch) {
+		select(view, branch);
+		createEffectFrame(new Rectangle(0, 0, 0, 0), branch);
 	}
 	
 	private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, final DragDropPopupBuilder popupBuilder) {
@@ -421,5 +426,18 @@ public class InteractionPresenter {
 				}
 			});
 		}
+	}
+
+	public Rectangle getPlotBounds(Point firstPoint, Point secondPoint) {
+		int left = Math.min(firstPoint.x, secondPoint.x);
+		int right = Math.max(firstPoint.x, secondPoint.x);
+		int top = Math.min(firstPoint.y, secondPoint.y);
+		int bottom = Math.max(firstPoint.y, secondPoint.y);
+		
+		return new Rectangle(left, top, right - left, bottom - top);
+	}
+
+	public JComponent getSelectionFrame() {
+		return selectionFrame;
 	}
 }
