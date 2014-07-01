@@ -151,9 +151,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	private Stack<ContextualTransaction<Model>> undoStack = new Stack<ContextualTransaction<Model>>();
-	private Stack<ContextualTransaction<Model>> redoStack = new Stack<ContextualTransaction<Model>>();
-	
 	public void log(ContextualTransaction<Model> ctxTransaction) {
 		undoStack.add(ctxTransaction);
 		redoStack.clear();
@@ -263,8 +260,6 @@ public abstract class Model implements Serializable, Observer {
 			redoStack.pop();
 		}
 	}
-
-	private ModelLocator locator;
 	
 	public void setLocation(ModelLocator locator) {
 		this.locator = locator;
@@ -274,11 +269,12 @@ public abstract class Model implements Serializable, Observer {
 		return locator;
 	}
 	
-	protected Hashtable<String, Object> properties;
+	private Stack<ContextualTransaction<Model>> undoStack = new Stack<ContextualTransaction<Model>>();
+	private Stack<ContextualTransaction<Model>> redoStack = new Stack<ContextualTransaction<Model>>();
+	private ModelLocator locator;
+	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
 	
 	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
-		if(properties == null)
-			properties = new Hashtable<String, Object>();
 		if(value != null)
 			properties.put(name, value);
 		else
@@ -289,9 +285,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public Object getProperty(String name) {
-		if(properties != null)
-			return properties.get(name);
-		return null;
+		return properties.get(name);
 	}
 	
 	public static class AddObserver implements Command<Model> {
@@ -463,6 +457,8 @@ public abstract class Model implements Serializable, Observer {
 		}
 		ous.writeObject(observeesToSerialize);
 		ous.writeObject(properties);
+		ous.writeObject(undoStack);
+		ous.writeObject(redoStack);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -470,6 +466,8 @@ public abstract class Model implements Serializable, Observer {
 		observers = (ArrayList<Observer>)ois.readObject();
 		observees = (ArrayList<Observer>)ois.readObject();
 		properties = (Hashtable<String, Object>)ois.readObject();
+		undoStack = (Stack<ContextualTransaction<Model>>)ois.readObject();
+		redoStack = (Stack<ContextualTransaction<Model>>)ois.readObject();
 	}
 
 	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
