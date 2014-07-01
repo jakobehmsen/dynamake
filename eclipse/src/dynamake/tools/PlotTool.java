@@ -78,108 +78,142 @@ public class PlotTool implements Tool {
 				
 				final ModelComponent selection = interactionPresenter.getSelection();
 				
-				factoryMenuItemWrap.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						// Find the selected model and attempt an add model transaction
-						// HACK: Models can only be added to canvases
-						if(selection.getModelBehind() instanceof CanvasModel) {
-							PropogationContext propCtx = new PropogationContext();
-							
-							branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
-								@Override
-								public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-									CanvasModel target = (CanvasModel)selection.getModelBehind();
-									Location targetLocation = selection.getModelTranscriber().getModelLocation();
-									int indexOfWrapper = target.getModelCount() - componentsWithinBounds.size();
-									ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
-									
-									// Each of the model locations should be moved from target to wrapper
-									Location[] modelLocations = new Location[componentsWithinBounds.size()];
-									int[] modelIndexes = new int[componentsWithinBounds.size()];
-									for(int i = 0; i < modelLocations.length; i++) {
-										ModelComponent view = componentsWithinBounds.get(i);
-										modelLocations[i] = view.getModelTranscriber().getModelLocation();
-										modelIndexes[i] = target.indexOfModel(view.getModelBehind());
-									}
-									
-									dualCommands.add(new DualCommandPair<Model>(
-										new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations), 
-										new UnwrapTransaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
-									));
-								}
-							});
-
-							interactionPresenter.reset(branchStep2);
-							interactionPresenter = null;
-							
-							branchStep2.close();
-							branch.close();
-						}
-					}
-				});
-				
-				factoryPopopMenu.add(factoryMenuItemWrap);
-				
-				for(final Factory factory: productionPanel.livePanel.getFactories()) {
-					JMenuItem factoryMenuItem = new JMenuItem();
-					factoryMenuItem.setText(factory.getName());
+				if(selection.getModelBehind() instanceof CanvasModel) {
+					PropogationContext propCtx = new PropogationContext();
 					
-					factoryMenuItem.addActionListener(new ActionListener() {
+					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
-						public void actionPerformed(ActionEvent e) {
-							// Find the selected model and attempt an add model transaction
-							// HACK: Models can only be added to canvases
-							if(interactionPresenter.getSelection().getModelBehind() instanceof CanvasModel) {
-								PropogationContext propCtx = new PropogationContext();
-								
-								final ModelComponent selection = interactionPresenter.getSelection();
-								
-								branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
-									@Override
-									public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-										ModelComponent target = selection;
-										
-										CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-										Location canvasModelLocation = target.getModelTranscriber().getModelLocation();
-										int index = canvasModel.getModelCount();
-										
-										dualCommands.add(new DualCommandPair<Model>(
-											new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInSelection, factory), 
-											new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
-										));
-									}
-								});
-
-								interactionPresenter.reset(branchStep2);
-								interactionPresenter = null;
-								
-								branchStep2.close();
-								branch.close();
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							CanvasModel target = (CanvasModel)selection.getModelBehind();
+							Location targetLocation = selection.getModelTranscriber().getModelLocation();
+							int indexOfWrapper = target.getModelCount() - componentsWithinBounds.size();
+							ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
+							
+							// Each of the model locations should be moved from target to wrapper
+							Location[] modelLocations = new Location[componentsWithinBounds.size()];
+							int[] modelIndexes = new int[componentsWithinBounds.size()];
+							for(int i = 0; i < modelLocations.length; i++) {
+								ModelComponent view = componentsWithinBounds.get(i);
+								modelLocations[i] = view.getModelTranscriber().getModelLocation();
+								modelIndexes[i] = target.indexOfModel(view.getModelBehind());
 							}
+							
+							dualCommands.add(new DualCommandPair<Model>(
+								new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations), 
+								new UnwrapTransaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
+							));
 						}
 					});
+
+					interactionPresenter.reset(branchStep2);
+					interactionPresenter = null;
 					
-					factoryPopopMenu.add(factoryMenuItem);
+					branchStep2.close();
+					branch.close();
 				}
 				
-				factoryPopopMenu.addPopupMenuListener(new PopupMenuListener() {
-					@Override
-					public void popupMenuWillBecomeVisible(PopupMenuEvent e) { }
-					
-					@Override
-					public void popupMenuWillBecomeInvisible(PopupMenuEvent e) { }
-					
-					@Override
-					public void popupMenuCanceled(PopupMenuEvent e) {
-						interactionPresenter.reset(branchStep2);
-						interactionPresenter = null;
-						branch.reject();
-					}
-				});
-				
-				Point selectionReleasePointInSelection = SwingUtilities.convertPoint(((JComponent)(e.getSource())), e.getPoint(), productionPanel);
-				factoryPopopMenu.show(productionPanel, selectionReleasePointInSelection.x + 10, selectionReleasePointInSelection.y);
+//				factoryMenuItemWrap.addActionListener(new ActionListener() {
+//					@Override
+//					public void actionPerformed(ActionEvent e) {
+//						// Find the selected model and attempt an add model transaction
+//						// HACK: Models can only be added to canvases
+//						if(selection.getModelBehind() instanceof CanvasModel) {
+//							PropogationContext propCtx = new PropogationContext();
+//							
+//							branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+//								@Override
+//								public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//									CanvasModel target = (CanvasModel)selection.getModelBehind();
+//									Location targetLocation = selection.getModelTranscriber().getModelLocation();
+//									int indexOfWrapper = target.getModelCount() - componentsWithinBounds.size();
+//									ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
+//									
+//									// Each of the model locations should be moved from target to wrapper
+//									Location[] modelLocations = new Location[componentsWithinBounds.size()];
+//									int[] modelIndexes = new int[componentsWithinBounds.size()];
+//									for(int i = 0; i < modelLocations.length; i++) {
+//										ModelComponent view = componentsWithinBounds.get(i);
+//										modelLocations[i] = view.getModelTranscriber().getModelLocation();
+//										modelIndexes[i] = target.indexOfModel(view.getModelBehind());
+//									}
+//									
+//									dualCommands.add(new DualCommandPair<Model>(
+//										new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations), 
+//										new UnwrapTransaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
+//									));
+//								}
+//							});
+//
+//							interactionPresenter.reset(branchStep2);
+//							interactionPresenter = null;
+//							
+//							branchStep2.close();
+//							branch.close();
+//						}
+//					}
+//				});
+//				
+//				factoryPopopMenu.add(factoryMenuItemWrap);
+//				
+//				for(final Factory factory: productionPanel.livePanel.getFactories()) {
+//					JMenuItem factoryMenuItem = new JMenuItem();
+//					factoryMenuItem.setText(factory.getName());
+//					
+//					factoryMenuItem.addActionListener(new ActionListener() {
+//						@Override
+//						public void actionPerformed(ActionEvent e) {
+//							// Find the selected model and attempt an add model transaction
+//							// HACK: Models can only be added to canvases
+//							if(interactionPresenter.getSelection().getModelBehind() instanceof CanvasModel) {
+//								PropogationContext propCtx = new PropogationContext();
+//								
+//								final ModelComponent selection = interactionPresenter.getSelection();
+//								
+//								branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+//									@Override
+//									public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//										ModelComponent target = selection;
+//										
+//										CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
+//										Location canvasModelLocation = target.getModelTranscriber().getModelLocation();
+//										int index = canvasModel.getModelCount();
+//										
+//										dualCommands.add(new DualCommandPair<Model>(
+//											new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInSelection, factory), 
+//											new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+//										));
+//									}
+//								});
+//
+//								interactionPresenter.reset(branchStep2);
+//								interactionPresenter = null;
+//								
+//								branchStep2.close();
+//								branch.close();
+//							}
+//						}
+//					});
+//					
+//					factoryPopopMenu.add(factoryMenuItem);
+//				}
+//				
+//				factoryPopopMenu.addPopupMenuListener(new PopupMenuListener() {
+//					@Override
+//					public void popupMenuWillBecomeVisible(PopupMenuEvent e) { }
+//					
+//					@Override
+//					public void popupMenuWillBecomeInvisible(PopupMenuEvent e) { }
+//					
+//					@Override
+//					public void popupMenuCanceled(PopupMenuEvent e) {
+//						interactionPresenter.reset(branchStep2);
+//						interactionPresenter = null;
+//						branch.reject();
+//					}
+//				});
+//				
+//				Point selectionReleasePointInSelection = SwingUtilities.convertPoint(((JComponent)(e.getSource())), e.getPoint(), productionPanel);
+//				factoryPopopMenu.show(productionPanel, selectionReleasePointInSelection.x + 10, selectionReleasePointInSelection.y);
 			} else {
 				final Factory factory = new CanvasModelFactory();
 				
