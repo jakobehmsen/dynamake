@@ -412,7 +412,6 @@ public class LiveModel extends Model {
 			}
 			
 			private Tool getTool(int button) {
-//				int toolForButton = productionPanel.livePanel.model.getToolForButton(button);
 				int toolForButton = productionPanel.livePanel.model.getToolForButtons(Arrays.asList(button));
 				if(toolForButton != -1) {
 					return productionPanel.livePanel.viewManager.getTools()[toolForButton];
@@ -622,15 +621,6 @@ public class LiveModel extends Model {
 				
 				@Override
 				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
-//					if(change instanceof LiveModel.ButtonToolBindingChanged) {
-//						LiveModel.ButtonToolBindingChanged bindButtonChanged = (LiveModel.ButtonToolBindingChanged)change;
-//						
-//						if(bindButtonChanged.tool != -1) {
-//							JComponent buttonNewTool = buttonTools[bindButtonChanged.tool];
-//							updateToolButton(buttonNewTool, bindButtonChanged.button);
-//						}
-//					}
-					
 					if(change instanceof LiveModel.ButtonsToolBindingChanged) {
 						LiveModel.ButtonsToolBindingChanged bindButtonChanged = (LiveModel.ButtonsToolBindingChanged)change;
 						
@@ -653,9 +643,6 @@ public class LiveModel extends Model {
 
 			for(int i = 0; i < tools.length; i++) {
 				Tool tool = tools[i];
-//				int button = model.getButtonForTool(i);
-//				buttonTools[i] = createToolButton(model, modelTranscriber, group, button, i, tool.getName());
-				
 				List<Integer> buttons = model.getButtonsForTool(i);
 				buttonTools[i] = createToolButton(model, modelTranscriber, group, buttons, i, tool.getName());
 			}
