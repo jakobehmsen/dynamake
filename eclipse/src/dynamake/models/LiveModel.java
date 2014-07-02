@@ -223,8 +223,10 @@ public class LiveModel extends Model {
 					int newButton = e.getButton();
 					
 					buttonsDown++;
-					buttonsPressed.add(newButton);
-					Collections.sort(buttonsPressed);
+					if(!buttonsPressed.contains(newButton)) {
+						buttonsPressed.add(newButton);
+						Collections.sort(buttonsPressed);
+					}
 					
 					if(buttonsDown == 1) {
 						setBackground(TOP_BUTTON_BACKGROUND_COLOR.brighter());
@@ -411,6 +413,36 @@ public class LiveModel extends Model {
 				this.productionPanel = productionPanel;
 			}
 			
+			private Tool getTool(List<Integer> buttons) {
+				int toolForButton = productionPanel.livePanel.model.getToolForButtons(buttons);
+				if(toolForButton != -1) {
+					return productionPanel.livePanel.viewManager.getTools()[toolForButton];
+				} else {
+					return new Tool() {
+						@Override
+						public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
+						
+						@Override
+						public void mousePressed(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
+						
+						@Override
+						public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
+						
+						@Override
+						public void mouseExited(ProductionPanel productionPanel, MouseEvent e) { }
+						
+						@Override
+						public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
+						
+						@Override
+						public String getName() { return null; }
+						
+						@Override
+						public void paint(Graphics g) { }
+					};
+				}
+			}
+			
 			private Tool getTool(int button) {
 				int toolForButton = productionPanel.livePanel.model.getToolForButtons(Arrays.asList(button));
 				if(toolForButton != -1) {
@@ -447,7 +479,27 @@ public class LiveModel extends Model {
 				return ModelComponent.Util.closestModelComponent(componentOver);
 			}
 			
+			private int buttonsDown;
+			private ArrayList<Integer> buttonsPressed = new ArrayList<Integer>();
+			
 			public void mousePressed(final MouseEvent e) {
+				buttonsDown++;
+				
+				int button = e.getButton();
+				
+				if(buttonsPressed.size() > 0) {
+					Tool toolToRollback = getTool(buttonsPressed);
+					System.out.println("Rollback tool " + toolToRollback.getName());
+				}
+				
+				if(!buttonsPressed.contains(button)) {
+					buttonsPressed.add(button);
+					Collections.sort(buttonsPressed);
+				}
+
+				Tool toolToApply = getTool(buttonsPressed);
+				System.out.println("Apply tool " + toolToApply.getName());
+				
 				final ModelComponent modelOver = getModelOver(e);
 				
 				productionPanel.editPanelMouseAdapter.buttonPressed = e.getButton();
@@ -479,6 +531,12 @@ public class LiveModel extends Model {
 			}
 
 			public void mouseReleased(final MouseEvent e) {
+				buttonsDown--;
+				
+				if(buttonsDown == 0) {
+					buttonsPressed.clear();
+				}
+				
 				final ModelComponent modelOver = getModelOver(e);
 
 				if(modelOver != null) {
