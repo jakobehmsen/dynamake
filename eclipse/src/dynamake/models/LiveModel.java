@@ -10,9 +10,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -50,16 +47,6 @@ public class LiveModel extends Model {
 	 */
 	private static final long serialVersionUID = 1L;
 
-//	public static class ButtonToolBindingChanged {
-//		public final int button;
-//		public final int tool;
-//		
-//		public ButtonToolBindingChanged(int button, int tool) {
-//			this.button = button;
-//			this.tool = tool;
-//		}
-//	}
-
 	public static class ButtonsToolBindingChanged {
 		public final List<Integer> buttons;
 		public final int tool;
@@ -71,8 +58,6 @@ public class LiveModel extends Model {
 	}
 
 	private Model content;
-	
-//	private Hashtable<Integer, Integer> buttonToToolMap = new Hashtable<Integer, Integer>();
 	private Hashtable<List<Integer>, Integer> buttonsToToolMap = new Hashtable<List<Integer>, Integer>();
 	
 	public LiveModel(Model content) {
@@ -83,35 +68,10 @@ public class LiveModel extends Model {
 	public Model modelCloneIsolated() {
 		LiveModel clone = new LiveModel(content.cloneIsolated());
 		
-//		clone.buttonToToolMap.putAll(clone.buttonToToolMap);
 		clone.buttonsToToolMap.putAll(clone.buttonsToToolMap);
 		
 		return clone;
 	}
-	
-//	public int getToolForButton(int button) {
-//		Integer tool = buttonToToolMap.get(button);
-//		return tool != null ? tool : -1;
-//	}
-//
-//	public int getButtonForTool(int tool) {
-//		for(Map.Entry<Integer, Integer> entry: buttonToToolMap.entrySet()) {
-//			if(entry.getValue() == tool)
-//				return entry.getKey();
-//		}
-//		
-//		return -1;
-//	}
-//	
-//	public void removeButtonToToolBinding(int button, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
-//		buttonToToolMap.remove(button);
-//		sendChanged(new ButtonToolBindingChanged(-1, tool), propCtx, propDistance, 0, branch);
-//	}
-//	
-//	public void bindButtonToTool(int button, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
-//		buttonToToolMap.put(button, tool);
-//		sendChanged(new ButtonToolBindingChanged(button, tool), propCtx, propDistance, 0, branch);
-//	}
 	
 	public int getToolForButtons(List<Integer> buttons) {
 		Integer tool = buttonsToToolMap.get(buttons);
@@ -126,50 +86,6 @@ public class LiveModel extends Model {
 		
 		return Collections.emptyList();
 	}
-	
-//	public static class BindButtonToToolCommand implements Command<Model> {
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//		private Location modelLocation;
-//		private int button;
-//		private int tool;
-//
-//		public BindButtonToToolCommand(Location modelLocation, int button, int tool) {
-//			this.modelLocation = modelLocation;
-//			this.button = button;
-//			this.tool = tool;
-//		}
-//		
-//		@Override
-//		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
-//			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
-//			liveModel.bindButtonToTool(button, tool, propCtx, 0, branch);
-//		}
-//	}
-//	
-//	public static class RemoveButtonToToolBindingCommand implements Command<Model> {
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//		private Location modelLocation;
-//		private int button;
-//		private int tool;
-//
-//		public RemoveButtonToToolBindingCommand(Location modelLocation, int button, int tool) {
-//			this.modelLocation = modelLocation;
-//			this.button = button;
-//			this.tool = tool;
-//		}
-//		
-//		@Override
-//		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
-//			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
-//			liveModel.removeButtonToToolBinding(button, tool, propCtx, 0, branch);
-//		}
-//	}
 	
 	public void removeButtonsToToolBinding(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		buttonsToToolMap.remove(buttons);
@@ -267,7 +183,6 @@ public class LiveModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private int tool;
-//		private int button;
 		private List<Integer> buttons;
 		private String text;
 		private LiveModel liveModel;
@@ -318,7 +233,6 @@ public class LiveModel extends Model {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							System.out.println("Update");
 							update(buttonsPressed);
 							ToolButton.this.repaint();
 						}
@@ -331,57 +245,25 @@ public class LiveModel extends Model {
 					
 					if(buttonsDown == 0) {
 						setBackground(TOP_BUTTON_BACKGROUND_COLOR);
-						
-						final int newButton = buttonsPressed.get(0);
-						
+
 						PropogationContext propCtx = new PropogationContext();
 						
 						TranscriberBranch<Model> branch = ToolButton.this.modelTranscriber.createBranch();
 						
+						@SuppressWarnings("unchecked")
 						final ArrayList<Integer> localButtonsPressed = (ArrayList<Integer>)buttonsPressed.clone();
 						
 						branch.execute(propCtx, new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//								setBackground(TOP_BUTTON_BACKGROUND_COLOR.brighter());
-								
 								List<Integer> currentButtons = ToolButton.this.buttons;
 								
 								Location modelLocation = ToolButton.this.modelTranscriber.getModelLocation();
-								
-//								int previousToolForNewButton = ToolButton.this.liveModel.getToolForButton(newButton);
-//								
-//								if(previousToolForNewButton != -1) {
-//									// If the new button is associated to another tool, then remove that binding
-//									dualCommands.add(new DualCommandPair<Model>(
-//										new RemoveButtonToToolBindingCommand(modelLocation, newButton, previousToolForNewButton), 
-//										new BindButtonToToolCommand(modelLocation, newButton, previousToolForNewButton))
-//									);
-//								}
-//								
-//								if(currentButton != -1) {
-//									// If this tool is associated to button, then remove that binding before
-//									dualCommands.add(new DualCommandPair<Model>(
-//										new RemoveButtonToToolBindingCommand(modelLocation, currentButton, ToolButton.this.tool), 
-//										new BindButtonToToolCommand(modelLocation, currentButton, ToolButton.this.tool))
-//									);
-//									
-//									// adding the replacement binding
-//									dualCommands.add(new DualCommandPair<Model>(
-//										new BindButtonToToolCommand(modelLocation, newButton, ToolButton.this.tool), 
-//										new RemoveButtonToToolBindingCommand(modelLocation, newButton, ToolButton.this.tool))
-//									);
-//								} else {
-//									dualCommands.add(new DualCommandPair<Model>(
-//										new BindButtonToToolCommand(modelLocation, newButton, ToolButton.this.tool), 
-//										new RemoveButtonToToolBindingCommand(modelLocation, newButton, ToolButton.this.tool)
-//									));
-//								}
-								
+
 								int previousToolForNewButton = ToolButton.this.liveModel.getToolForButtons(localButtonsPressed);
 								
 								if(previousToolForNewButton != -1) {
-									// If the new button is associated to another tool, then remove that binding
+									// If the new buttons are associated to another tool, then remove that binding
 									dualCommands.add(new DualCommandPair<Model>(
 										new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, previousToolForNewButton), 
 										new BindButtonsToToolCommand(modelLocation, localButtonsPressed, previousToolForNewButton))
@@ -389,7 +271,7 @@ public class LiveModel extends Model {
 								}
 								
 								if(currentButtons.size() > 0) {
-									// If this tool is associated to button, then remove that binding before
+									// If this tool is associated to buttons, then remove that binding before
 									dualCommands.add(new DualCommandPair<Model>(
 										new RemoveButtonsToToolBindingCommand(modelLocation, currentButtons, ToolButton.this.tool), 
 										new BindButtonsToToolCommand(modelLocation, currentButtons, ToolButton.this.tool))
@@ -485,7 +367,6 @@ public class LiveModel extends Model {
 		}
 		
 		private void update() {
-//			update(button != -1 ? Arrays.asList(button) : Collections.<Integer>emptyList());
 			update(buttons);
 		}
 		
