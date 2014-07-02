@@ -3,6 +3,7 @@ package dynamake.models;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -14,6 +15,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -25,6 +29,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
@@ -187,7 +192,7 @@ public class LiveModel extends Model {
 		private LiveModel liveModel;
 		private ModelTranscriber modelTranscriber;
 		private JLabel labelToolName;
-		private JLabel labelButton;
+		private JPanel panelButtons;
 		
 		public ToolButton(int tool, int button, String text, LiveModel liveModel, ModelTranscriber modelTranscriber) {
 			this.tool = tool;
@@ -196,97 +201,127 @@ public class LiveModel extends Model {
 			this.liveModel = liveModel;
 			this.modelTranscriber = modelTranscriber;
 
-			setLayout(new BorderLayout());
+			setLayout(new BorderLayout(0, 0));
 			setBackground(TOP_BUTTON_BACKGROUND_COLOR);
 			labelToolName = new JLabel();
-			labelToolName.setAlignmentY(JLabel.CENTER_ALIGNMENT);
+			labelToolName.setHorizontalAlignment(SwingConstants.CENTER);
 			labelToolName.setForeground(TOP_FOREGROUND_COLOR);
 			labelToolName.setFont(new Font(labelToolName.getFont().getFontName(), Font.BOLD, BUTTON_FONT_SIZE));
 			add(labelToolName, BorderLayout.CENTER);
-			labelButton = new JLabel();
-			add(labelButton, BorderLayout.EAST);
-			labelButton.setFont(new Font(labelButton.getFont().getFontName(), Font.ITALIC | Font.BOLD, 18));
-			labelButton.setAlignmentY(JLabel.CENTER_ALIGNMENT);
-			this.setPreferredSize(new Dimension(65, 26));
+			
+			panelButtons = new JPanel();
+			panelButtons.setLayout(new FlowLayout(FlowLayout.CENTER, 2, 0));
+			panelButtons.setOpaque(false);
+			add(panelButtons, BorderLayout.NORTH);
+			
+			this.setPreferredSize(new Dimension(72, 45));
 			
 			update();
 			
 			this.addMouseListener(new MouseAdapter() {
+				int buttonsDown = 0;
+				ArrayList<Integer> buttonsPressed = new ArrayList<Integer>();
+				
 				@Override
 				public void mousePressed(MouseEvent e) {
-					final int newButton = e.getButton();
+					int newButton = e.getButton();
 					
-					PropogationContext propCtx = new PropogationContext();
+					buttonsDown++;
+					buttonsPressed.add(newButton);
+					Collections.sort(buttonsPressed);
 					
-					TranscriberBranch<Model> branch = ToolButton.this.modelTranscriber.createBranch();
+					if(buttonsDown == 1) {
+						setBackground(TOP_BUTTON_BACKGROUND_COLOR.brighter());
+					}
 					
-					branch.execute(propCtx, new DualCommandFactory<Model>() {
+					SwingUtilities.invokeLater(new Runnable() {
 						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							setBackground(TOP_BUTTON_BACKGROUND_COLOR.brighter());
-							
-							int currentButton = ToolButton.this.button;
-							
-							Location modelLocation = ToolButton.this.modelTranscriber.getModelLocation();
-							
-							int previousToolForNewButton = ToolButton.this.liveModel.getToolForButton(newButton);
-							
-							if(previousToolForNewButton != -1) {
-								// If the new button is associated to another tool, then remove that binding
-								dualCommands.add(new DualCommandPair<Model>(
-									new RemoveButtonToToolBindingCommand(modelLocation, newButton, previousToolForNewButton), 
-									new BindButtonToToolCommand(modelLocation, newButton, previousToolForNewButton))
-								);
-							}
-							
-							if(currentButton != -1) {
-								// If this tool is associated to button, then remove that binding before
-								dualCommands.add(new DualCommandPair<Model>(
-									new RemoveButtonToToolBindingCommand(modelLocation, currentButton, ToolButton.this.tool), 
-									new BindButtonToToolCommand(modelLocation, currentButton, ToolButton.this.tool))
-								);
-								
-								// adding the replacement binding
-								dualCommands.add(new DualCommandPair<Model>(
-									new BindButtonToToolCommand(modelLocation, newButton, ToolButton.this.tool), 
-									new RemoveButtonToToolBindingCommand(modelLocation, newButton, ToolButton.this.tool))
-								);
-							} else {
-								dualCommands.add(new DualCommandPair<Model>(
-									new BindButtonToToolCommand(modelLocation, newButton, ToolButton.this.tool), 
-									new RemoveButtonToToolBindingCommand(modelLocation, newButton, ToolButton.this.tool)
-								));
-							}
+						public void run() {
+							System.out.println("Update");
+							update(buttonsPressed);
+							ToolButton.this.repaint();
 						}
 					});
-					branch.close();
 				}
 				
 				@Override
 				public void mouseReleased(MouseEvent e) {
-					setBackground(TOP_BUTTON_BACKGROUND_COLOR);
+					buttonsDown--;
+					
+					if(buttonsDown == 0) {
+						setBackground(TOP_BUTTON_BACKGROUND_COLOR);
+						
+						final int newButton = buttonsPressed.get(0);
+						
+						PropogationContext propCtx = new PropogationContext();
+						
+						TranscriberBranch<Model> branch = ToolButton.this.modelTranscriber.createBranch();
+						
+						branch.execute(propCtx, new DualCommandFactory<Model>() {
+							@Override
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//								setBackground(TOP_BUTTON_BACKGROUND_COLOR.brighter());
+								
+								int currentButton = ToolButton.this.button;
+								
+								Location modelLocation = ToolButton.this.modelTranscriber.getModelLocation();
+								
+								int previousToolForNewButton = ToolButton.this.liveModel.getToolForButton(newButton);
+								
+								if(previousToolForNewButton != -1) {
+									// If the new button is associated to another tool, then remove that binding
+									dualCommands.add(new DualCommandPair<Model>(
+										new RemoveButtonToToolBindingCommand(modelLocation, newButton, previousToolForNewButton), 
+										new BindButtonToToolCommand(modelLocation, newButton, previousToolForNewButton))
+									);
+								}
+								
+								if(currentButton != -1) {
+									// If this tool is associated to button, then remove that binding before
+									dualCommands.add(new DualCommandPair<Model>(
+										new RemoveButtonToToolBindingCommand(modelLocation, currentButton, ToolButton.this.tool), 
+										new BindButtonToToolCommand(modelLocation, currentButton, ToolButton.this.tool))
+									);
+									
+									// adding the replacement binding
+									dualCommands.add(new DualCommandPair<Model>(
+										new BindButtonToToolCommand(modelLocation, newButton, ToolButton.this.tool), 
+										new RemoveButtonToToolBindingCommand(modelLocation, newButton, ToolButton.this.tool))
+									);
+								} else {
+									dualCommands.add(new DualCommandPair<Model>(
+										new BindButtonToToolCommand(modelLocation, newButton, ToolButton.this.tool), 
+										new RemoveButtonToToolBindingCommand(modelLocation, newButton, ToolButton.this.tool)
+									));
+								}
+							}
+						});
+						branch.close();
+						
+						buttonsPressed.clear();
+					}
 				}
 			});
 			
-			// Support for binding a key combination with a tool
-			// It should be possible to both bind a key combination AND a mouse button to the same tool at the same time
-			KeyListener keyListener = new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-//					System.out.println(e.isControlDown() + ":" + e.getKeyCode());
-				}
-				
-				@Override
-				public void keyTyped(KeyEvent e) {
-//					System.out.println(e.isControlDown() + ":" + e.getKeyCode());
-				}
-			};
+//			// Support for binding a key combination with a tool
+//			// It should be possible to both bind a key combination AND a mouse button to the same tool at the same time
+//			KeyListener keyListener = new KeyAdapter() {
+//				@Override
+//				public void keyPressed(KeyEvent e) {
+////					System.out.println(e.isControlDown() + ":" + e.getKeyCode());
+//				}
+//				
+//				@Override
+//				public void keyTyped(KeyEvent e) {
+////					System.out.println(e.isControlDown() + ":" + e.getKeyCode());
+//				}
+//			};
 			
 			setFocusable(true);
 			
-			this.addKeyListener(keyListener);
-			labelToolName.addKeyListener(keyListener);
-			labelButton.addKeyListener(keyListener);
+//			this.addKeyListener(keyListener);
+//			labelToolName.addKeyListener(keyListener);
+//			labelButton.addKeyListener(keyListener);
 		}
 		
 		private static final Color[] BUTTON_COLORS = new Color[] {
@@ -302,25 +337,43 @@ public class LiveModel extends Model {
 			return BUTTON_COLORS[button - 1];
 		}
 		
-		private void update() {
+		private void update(List<Integer> buttons) {
 			labelToolName.setText(text);
 			
 			Border innerBorder = BorderFactory.createEmptyBorder(0, 5, 0, 5);
 			Border outerBorder;
 			
-			if(button != -1) {
-				labelButton.setText("" + button);
-				labelButton.setForeground(getColorForButton(button));
+			panelButtons.removeAll();
+			
+			if(buttons.size() > 0) {
+				for(int button: buttons) {
+					JLabel buttonLabel = new JLabel();
+					buttonLabel.setHorizontalAlignment(SwingConstants.CENTER);
+					buttonLabel.setForeground(getColorForButton(button));
+					buttonLabel.setFont(new Font(buttonLabel.getFont().getFontName(), Font.ITALIC | Font.BOLD, 16));
+					buttonLabel.setText("" + button);
+					
+					panelButtons.add(buttonLabel);
+				}
+				
+				panelButtons.revalidate();
 				
 				outerBorder = BorderFactory.createLoweredSoftBevelBorder();
 			} else {
-				labelButton.setText("");
-				labelButton.setForeground(null);
+				JLabel buttonLabel = new JLabel();
+				buttonLabel.setText(" ");
+				buttonLabel.setForeground(null);
+				
+				panelButtons.add(buttonLabel);
 
 				outerBorder = BorderFactory.createRaisedSoftBevelBorder();
 			}
 			
 			setBorder(BorderFactory.createCompoundBorder(outerBorder, innerBorder));
+		}
+		
+		private void update() {
+			update(button != -1 ? Arrays.asList(button) : Collections.<Integer>emptyList());
 		}
 		
 		public void setButton(int button) {
