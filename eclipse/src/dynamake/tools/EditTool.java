@@ -5,6 +5,7 @@ import java.util.List;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.ModelTranscriber;
@@ -44,7 +45,7 @@ public class EditTool extends BoundsChangeTool {
 	}
 
 	@Override
-	public void rollback() {
+	public void rollback(ProductionPanel productionPanel) {
 		// TODO Auto-generated method stub
 		
 	}

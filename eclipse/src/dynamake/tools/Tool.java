@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 
 import dynamake.models.LiveModel;
+import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.ModelComponent;
 
 public interface Tool {
@@ -21,5 +22,5 @@ public interface Tool {
 
 	void paint(Graphics g);
 
-	void rollback();
+	void rollback(ProductionPanel productionPanel);
 }

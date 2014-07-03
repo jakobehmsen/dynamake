@@ -162,8 +162,18 @@ public class BindTool implements Tool {
 	}
 
 	@Override
-	public void rollback() {
-		// TODO Auto-generated method stub
+	public void rollback(ProductionPanel productionPanel) {
+		final TranscriberBranch<Model> branchStep2 = branch.branch();
+		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
+		targetPresenter.reset(branchStep2);
+		targetPresenter = null;
+
+		interactionPresenter.reset(branchStep2);
+		interactionPresenter = null;
+		
+		branchStep2.close();
+		
+		branch.reject();
 	}
 }

@@ -166,7 +166,7 @@ public class PlotTool implements Tool {
 	}
 
 	@Override
-	public void rollback() {
+	public void rollback(ProductionPanel productionPanel) {
 		// TODO Auto-generated method stub
 		
 	}
