@@ -19,6 +19,9 @@ import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.commands.UnwrapToLocationsTransaction;
+import dynamake.commands.UnwrapTransaction;
+import dynamake.commands.WrapTransaction;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
@@ -361,7 +364,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
+		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, final TranscriberBranch<Model> branch) {
 			Model.appendComponentPropertyChangeTransactions(livePanel, model, modelTranscriber, menuBuilder, branch);
 			// The canvas model can be unwrap only if all the following cases are true:
 			// - It has one ore more models contained in itself
@@ -370,8 +373,39 @@ public class CanvasModel extends Model {
 				menuBuilder.addMenuBuilder("Unwrap", new Runnable() {
 					@Override
 					public void run() {
-						// TODO Auto-generated method stub
+						PropogationContext propCtx = new PropogationContext();
 						
+						branch.execute(propCtx, new DualCommandFactory<Model>() {
+							@Override
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								ModelComponent parent = ModelComponent.Util.getParent(CanvasPanel.this);
+								CanvasModel target = (CanvasModel)parent.getModelBehind();
+								CanvasModel modelToBeUnwrapped = model;
+								Location targetLocation = parent.getModelTranscriber().getModelLocation();
+								int indexOfWrapper = target.indexOfModel(modelToBeUnwrapped);
+								ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
+								Rectangle creationBoundsInSelection = new Rectangle(
+									((Number)modelToBeUnwrapped.getProperty("X")).intValue(),
+									((Number)modelToBeUnwrapped.getProperty("Y")).intValue(),
+									((Number)modelToBeUnwrapped.getProperty("Width")).intValue(),
+									((Number)modelToBeUnwrapped.getProperty("Height")).intValue()
+								);
+								
+								// Each of the model locations should be moved from target to wrapper
+								Location[] modelLocations = new Location[modelToBeUnwrapped.models.size()];
+								int[] modelIndexes = new int[modelToBeUnwrapped.models.size()];
+								for(int i = 0; i < modelLocations.length; i++) {
+									ModelComponent view = (ModelComponent)CanvasPanel.this.getComponent(i);
+									modelLocations[i] = view.getModelTranscriber().getModelLocation();
+									modelIndexes[i] = target.indexOfModel(view.getModelBehind());
+								}
+								
+								dualCommands.add(new DualCommandPair<Model>(
+									new UnwrapTransaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection),
+									new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations)
+								));
+							}
+						});
 					}
 				});
 			}

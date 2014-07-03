@@ -13,7 +13,7 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
-import dynamake.commands.UnwrapTransaction;
+import dynamake.commands.UnwrapToLocationsTransaction;
 import dynamake.commands.WrapTransaction;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
@@ -89,7 +89,7 @@ public class PlotTool implements Tool {
 							
 							dualCommands.add(new DualCommandPair<Model>(
 								new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations), 
-								new UnwrapTransaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
+								new UnwrapToLocationsTransaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
 							));
 						}
 					});

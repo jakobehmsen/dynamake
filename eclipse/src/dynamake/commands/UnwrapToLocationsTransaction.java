@@ -10,7 +10,7 @@ import dynamake.models.PropogationContext;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.TranscriberBranch;
 
-public class UnwrapTransaction implements Command<Model> {
+public class UnwrapToLocationsTransaction implements Command<Model> {
 	/**
 	 * 
 	 */
@@ -20,7 +20,7 @@ public class UnwrapTransaction implements Command<Model> {
 	private int[] modelIndexes;
 	private Rectangle creationBounds;
 	
-	public UnwrapTransaction(Location targetLocation, Location wrapperLocationInTarget, int[] modelIndexes, Rectangle creationBounds) {
+	public UnwrapToLocationsTransaction(Location targetLocation, Location wrapperLocationInTarget, int[] modelIndexes, Rectangle creationBounds) {
 		this.targetLocation = targetLocation;
 		this.wrapperLocationInTarget = wrapperLocationInTarget;
 		this.modelIndexes = modelIndexes;
@@ -72,7 +72,8 @@ public class UnwrapTransaction implements Command<Model> {
 			TranscriberBranch<Model> addBranch = branch.branch();
 			
 			Model model = models[i];
-			target.addModel(model, propCtx, 0, addBranch);
+			int modelIndex = modelIndexes[i];
+			target.addModel(modelIndex, model, propCtx, 0, addBranch);
 			
 			addBranch.close();
 		}
