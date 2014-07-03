@@ -119,11 +119,12 @@ public abstract class BoundsChangeTool implements Tool {
 			relativePosition = new RelativePosition(referencePoint, ((JComponent)targetModelComponent).getSize());
 			final Cursor cursor = relativePosition.getCursor();
 			
+			final InteractionPresenter locationInteractionPresenter = interactionPresenter;
 			branchStep1.onFinished(new Runnable() {
 				@Override
 				public void run() {
-					interactionPresenter.setSelectionFrameCursor(cursor);
-					interactionPresenter.setEffectFrameCursor(cursor);
+					locationInteractionPresenter.setSelectionFrameCursor(cursor);
+					locationInteractionPresenter.setEffectFrameCursor(cursor);
 				}
 			});
 			
@@ -197,5 +198,23 @@ public abstract class BoundsChangeTool implements Tool {
 	@Override
 	public void paint(Graphics g) {
 
+	}
+	
+	@Override
+	public void rollback(ProductionPanel productionPanel) {
+		if(mouseDown != null) {
+			final TranscriberBranch<Model> branchStep2 = branch.branch();
+			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+			
+			targetPresenter.reset(branchStep2);
+			targetPresenter = null;
+	
+			interactionPresenter.reset(branchStep2);
+			interactionPresenter = null;
+			
+			branchStep2.close();
+			
+			branch.reject();
+		}
 	}
 }

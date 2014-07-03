@@ -517,10 +517,15 @@ public class LiveModel extends Model {
 				
 				if(!buttonsPressed.contains(button)) {
 					if(buttonsPressed.size() > 0) {
-						Tool toolToRollback = toolBeingApplied;
+						final Tool toolToRollback = toolBeingApplied;
 						System.out.println("Rollback tool " + toolToRollback.getName());
 						
-						toolToRollback.rollback(productionPanel);
+						productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
+							@Override
+							public void run() {
+								toolToRollback.rollback(productionPanel);
+							}
+						});
 					}
 					
 					buttonsPressed.add(button);
@@ -528,17 +533,17 @@ public class LiveModel extends Model {
 					toolBeingApplied = getTool(buttonsPressed);
 
 					System.out.println("Apply tool " + toolBeingApplied.getName());
+					
+					final ModelComponent modelOver = getModelOver(e);
+					final Tool toolToApply = toolBeingApplied;
+					
+					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
+						@Override
+						public void run() {
+							toolToApply.mousePressed(productionPanel, e, modelOver);
+						}
+					});
 				}
-				
-				final ModelComponent modelOver = getModelOver(e);
-				final Tool toolToApply = toolBeingApplied;
-				
-				productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
-					@Override
-					public void run() {
-						toolToApply.mousePressed(productionPanel, e, modelOver);
-					}
-				});
 				
 //				productionPanel.editPanelMouseAdapter.buttonPressed = e.getButton();
 //				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;

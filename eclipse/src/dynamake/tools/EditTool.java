@@ -43,10 +43,4 @@ public class EditTool extends BoundsChangeTool {
 			new Model.SetPropertyTransaction(selectionModelTranscriber.getModelLocation(), "Height", selectionModel.getProperty("Height"))
 		));
 	}
-
-	@Override
-	public void rollback(ProductionPanel productionPanel) {
-		// TODO Auto-generated method stub
-		
-	}
 }
