@@ -5,7 +5,6 @@ import java.util.List;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
-import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.ModelTranscriber;

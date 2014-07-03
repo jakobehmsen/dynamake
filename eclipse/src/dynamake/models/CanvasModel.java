@@ -19,7 +19,6 @@ import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
-import dynamake.commands.UnwrapToLocationsTransaction;
 import dynamake.commands.UnwrapTransaction;
 import dynamake.commands.WrapTransaction;
 import dynamake.delegates.Action1;
@@ -393,15 +392,13 @@ public class CanvasModel extends Model {
 								
 								// Each of the model locations should be moved from target to wrapper
 								Location[] modelLocations = new Location[modelToBeUnwrapped.models.size()];
-								int[] modelIndexes = new int[modelToBeUnwrapped.models.size()];
 								for(int i = 0; i < modelLocations.length; i++) {
 									ModelComponent view = (ModelComponent)CanvasPanel.this.getComponent(i);
 									modelLocations[i] = view.getModelTranscriber().getModelLocation();
-									modelIndexes[i] = target.indexOfModel(view.getModelBehind());
 								}
 								
 								dualCommands.add(new DualCommandPair<Model>(
-									new UnwrapTransaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection),
+									new UnwrapTransaction(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
 									new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations)
 								));
 							}

@@ -17,13 +17,11 @@ public class UnwrapTransaction implements Command<Model> {
 	private static final long serialVersionUID = 1L;
 	private Location targetLocation;
 	private Location wrapperLocationInTarget;
-	private int[] modelIndexes;
 	private Rectangle creationBounds;
 	
-	public UnwrapTransaction(Location targetLocation, Location wrapperLocationInTarget, int[] modelIndexes, Rectangle creationBounds) {
+	public UnwrapTransaction(Location targetLocation, Location wrapperLocationInTarget, Rectangle creationBounds) {
 		this.targetLocation = targetLocation;
 		this.wrapperLocationInTarget = wrapperLocationInTarget;
-		this.modelIndexes = modelIndexes;
 		this.creationBounds = creationBounds;
 	}
 

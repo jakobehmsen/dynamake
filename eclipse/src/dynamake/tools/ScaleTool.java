@@ -4,7 +4,6 @@ import java.awt.Rectangle;
 import java.util.List;
 
 import dynamake.commands.DualCommand;
-import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 
