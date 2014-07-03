@@ -209,7 +209,14 @@ public class PenTool implements Tool {
 
 	@Override
 	public void rollback(ProductionPanel productionPanel) {
-		// TODO Auto-generated method stub
-		
+		final TranscriberBranch<Model> branch = productionPanel.livePanel.getModelTranscriber().createBranch();
+		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+		endMoveOver(productionPanel, new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				branch.onFinished(runnable);
+			}
+		});
+		branch.close();
 	}
 }
