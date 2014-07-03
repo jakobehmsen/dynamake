@@ -206,4 +206,10 @@ public class PenTool implements Tool {
 		StrokeModel.setupGraphics(g);
 		((Graphics2D)g).draw(shape);
 	}
+
+	@Override
+	public void rollback() {
+		// TODO Auto-generated method stub
+		
+	}
 }

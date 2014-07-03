@@ -329,8 +329,29 @@ public class LiveModel extends Model {
 			new Color(220, 10, 220),
 		};
 		
+		public static Color avgColorOfButtons(List<Integer> buttons) {
+			ArrayList<Color> buttonColors = new ArrayList<Color>();
+			for(int buttonPressed: buttons)
+				buttonColors.add(getColorForButton(buttonPressed));
+			return avgColor(buttonColors);
+		}
+		
 		public static Color getColorForButton(int button) {
 			return BUTTON_COLORS[button - 1];
+		}
+		
+		public static Color avgColor(List<Color> colors) {
+			int rSum = 0;
+			int gSum = 0;
+			int bSum = 0;
+			
+			for(Color c: colors) {
+				rSum += c.getRed();
+				gSum += c.getGreen();
+				bSum += c.getBlue();
+			}
+			
+			return new Color(rSum / colors.size(), gSum / colors.size(), bSum / colors.size());
 		}
 		
 		private void update(List<Integer> buttons) {
@@ -439,6 +460,9 @@ public class LiveModel extends Model {
 						
 						@Override
 						public void paint(Graphics g) { }
+						
+						@Override
+						public void rollback() { }
 					};
 				}
 			}
@@ -469,6 +493,9 @@ public class LiveModel extends Model {
 						
 						@Override
 						public void paint(Graphics g) { }
+
+						@Override
+						public void rollback() { }
 					};
 				}
 			}
@@ -480,7 +507,7 @@ public class LiveModel extends Model {
 			}
 			
 			private int buttonsDown;
-			private ArrayList<Integer> buttonsPressed = new ArrayList<Integer>();
+			public ArrayList<Integer> buttonsPressed = new ArrayList<Integer>();
 			
 			public void mousePressed(final MouseEvent e) {
 				buttonsDown++;
@@ -490,6 +517,8 @@ public class LiveModel extends Model {
 				if(buttonsPressed.size() > 0) {
 					Tool toolToRollback = getTool(buttonsPressed);
 					System.out.println("Rollback tool " + toolToRollback.getName());
+					
+					toolToRollback.rollback();
 				}
 				
 				if(!buttonsPressed.contains(button)) {
@@ -497,59 +526,84 @@ public class LiveModel extends Model {
 					Collections.sort(buttonsPressed);
 				}
 
-				Tool toolToApply = getTool(buttonsPressed);
+				final Tool toolToApply = getTool(buttonsPressed);
 				System.out.println("Apply tool " + toolToApply.getName());
 				
 				final ModelComponent modelOver = getModelOver(e);
 				
-				productionPanel.editPanelMouseAdapter.buttonPressed = e.getButton();
-				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
-//				System.out.println("Pressed button " + localButtonPressed);
-				
 				productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
 					@Override
 					public void run() {
-						getTool(localButtonPressed).mousePressed(productionPanel, e, modelOver);
+						toolToApply.mousePressed(productionPanel, e, modelOver);
 					}
 				});
+				
+//				productionPanel.editPanelMouseAdapter.buttonPressed = e.getButton();
+//				final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
+////				System.out.println("Pressed button " + localButtonPressed);
+//				
+//				productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
+//					@Override
+//					public void run() {
+//						getTool(localButtonPressed).mousePressed(productionPanel, e, modelOver);
+//					}
+//				});
 			}
 
 			public void mouseDragged(final MouseEvent e) {
 				final ModelComponent modelOver = getModelOver(e);
 
 				if(modelOver != null) {
-					final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
-	//				System.out.println("Dragged button " + localButtonPressed);
+					final Tool toolToApply = getTool(buttonsPressed);
 					
 					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
 						@Override
 						public void run() {
-							getTool(localButtonPressed).mouseDragged(productionPanel, e, modelOver);
+							toolToApply.mouseDragged(productionPanel, e, modelOver);
 						}
 					});
+					
+//					final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
+//	//				System.out.println("Dragged button " + localButtonPressed);
+					
+//					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
+//						@Override
+//						public void run() {
+//							getTool(localButtonPressed).mouseDragged(productionPanel, e, modelOver);
+//						}
+//					});
 				}
 			}
 
 			public void mouseReleased(final MouseEvent e) {
 				buttonsDown--;
 				
-				if(buttonsDown == 0) {
-					buttonsPressed.clear();
-				}
-				
 				final ModelComponent modelOver = getModelOver(e);
 
 				if(modelOver != null) {
-					final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
-					productionPanel.editPanelMouseAdapter.buttonPressed = 0;
-	//				System.out.println("Released button " + localButtonPressed);
+//					final int localButtonPressed = productionPanel.editPanelMouseAdapter.buttonPressed;
+//					productionPanel.editPanelMouseAdapter.buttonPressed = 0;
+//	//				System.out.println("Released button " + localButtonPressed);
+//					
+//					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
+//						@Override
+//						public void run() {
+//							getTool(localButtonPressed).mouseReleased(productionPanel, e, modelOver);
+//						}
+//					});
+					
+					final Tool toolToApply = getTool(buttonsPressed);
 					
 					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
 						@Override
 						public void run() {
-							getTool(localButtonPressed).mouseReleased(productionPanel, e, modelOver);
+							toolToApply.mouseReleased(productionPanel, e, modelOver);
 						}
 					});
+					
+					if(buttonsDown == 0) {
+						buttonsPressed.clear();
+					}
 				}
 			}
 			
@@ -561,9 +615,13 @@ public class LiveModel extends Model {
 					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
 						@Override
 						public void run() {
+//							// The tool associated to button 1 is used as a "master" tool
+//							int button = 1;
+//							getTool(button).mouseMoved(productionPanel, e, modelOver);
+							
 							// The tool associated to button 1 is used as a "master" tool
 							int button = 1;
-							getTool(button).mouseMoved(productionPanel, e, modelOver);
+							getTool(Arrays.asList(button)).mouseMoved(productionPanel, e, modelOver);
 						}
 					});
 				}
@@ -593,8 +651,11 @@ public class LiveModel extends Model {
 		
 		@Override
 		public void paint(Graphics g) {
+//			super.paint(g);
+//			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonPressed).paint(g);
+
 			super.paint(g);
-			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonPressed).paint(g);
+			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonsPressed).paint(g);
 		}
 	}
 	

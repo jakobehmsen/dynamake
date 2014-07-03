@@ -190,4 +190,10 @@ public class ConsTool implements Tool {
 	public void paint(Graphics g) {
 
 	}
+
+	@Override
+	public void rollback() {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -20,4 +20,6 @@ public interface Tool {
 	void mouseDragged(LiveModel.ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver);
 
 	void paint(Graphics g);
+
+	void rollback();
 }

@@ -59,4 +59,10 @@ public class UndoTool implements Tool {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void rollback() {
+		// TODO Auto-generated method stub
+		
+	}
 }
