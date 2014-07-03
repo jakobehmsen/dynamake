@@ -193,7 +193,17 @@ public class ConsTool implements Tool {
 
 	@Override
 	public void rollback(ProductionPanel productionPanel) {
-		// TODO Auto-generated method stub
+		final TranscriberBranch<Model> branchStep2 = branch.branch();
+		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
+		targetPresenter.reset(branchStep2);
+		targetPresenter = null;
+
+		interactionPresenter.reset(branchStep2);
+		interactionPresenter = null;
+		
+		branchStep2.close();
+		
+		branch.reject();
 	}
 }
