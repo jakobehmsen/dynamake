@@ -6,7 +6,6 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 import dynamake.commands.DualCommand;
-import dynamake.models.CanvasModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
