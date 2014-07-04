@@ -222,7 +222,7 @@ public class RootModel extends Model {
 
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, final ModelTranscriber modelTranscriber) {
-		this.setLocation(modelTranscriber.getModelLocator());
+		this.setLocator(modelTranscriber.getModelLocator());
 		
 		final FrameModel view = new FrameModel(this, modelTranscriber);
 		

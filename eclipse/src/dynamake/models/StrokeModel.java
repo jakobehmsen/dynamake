@@ -173,7 +173,7 @@ public class StrokeModel extends Model {
 
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, ModelTranscriber modelTranscriber) {
-		this.setLocation(modelTranscriber.getModelLocator());
+		this.setLocator(modelTranscriber.getModelLocator());
 		
 		final ShapeView view = new ShapeView(this, modelTranscriber);
 		

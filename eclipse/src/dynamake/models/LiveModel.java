@@ -769,7 +769,7 @@ public class LiveModel extends Model {
 
 	@Override
 	public Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, ModelTranscriber modelTranscriber) {
-		this.setLocation(modelTranscriber.getModelLocator());
+		this.setLocator(modelTranscriber.getModelLocator());
 		
 		final LivePanel view = new LivePanel(rootView, this, modelTranscriber, viewManager);
 		

@@ -760,6 +760,8 @@ public class CanvasModel extends Model {
 					removedMCBinding.releaseBinding();
 					view.modelToModelComponentMap.clear(removedModel);
 					final ModelComponent removedMC = removedMCBinding.getBindingTarget();
+					// Mark the model physically non-existent at this point in the current branch
+					// (this may change before committing the branch)
 					removedMC.getModelBehind().setLocator(null);
 					
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);

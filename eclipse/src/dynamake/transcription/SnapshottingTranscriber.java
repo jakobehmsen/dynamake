@@ -23,6 +23,7 @@ import dynamake.commands.DualCommandSequence;
 import dynamake.delegates.Func0;
 import dynamake.models.Location;
 import dynamake.models.Model;
+import dynamake.models.ModelLocator;
 import dynamake.models.PropogationContext;
 
 public class SnapshottingTranscriber<T> implements Transcriber<T> {
@@ -388,7 +389,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			// Reduction is null if no transactions were performed that were to be persisted.
 			// For instance, in the case of executing a transaction on an isolated branch.
 			if(reduction != null) {
-				
 				HashSet<T> allAffectedModels = new HashSet<T>();
 				
 				branch.addRegisteredAffectedModels(allAffectedModels);
@@ -398,7 +398,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					// TODO: Decouple from Model further
 					// E.g. by introducing an interface for the getLocator() method 
 					Model affectedModelAsModel = (Model)affectedModel;
-					affectedModelLocations.add(affectedModelAsModel.getLocator().locate());
+					ModelLocator locator = affectedModelAsModel.getLocator();
+					if(locator != null) {
+						// Only affected models which still "physically" exists are collected for
+						// affected models to persist along with the transaction.
+						affectedModelLocations.add(locator.locate());
+					}
 				}
 				
 				ContextualTransaction<T> ctxTransaction = new ContextualTransaction<T>(reduction, affectedModelLocations);
