@@ -43,6 +43,7 @@ import dynamake.tools.Tool;
 import dynamake.tools.TrimTool;
 import dynamake.tools.UndoTool;
 import dynamake.tools.ViewTool;
+import dynamake.tools.UnwrapTool;
 import dynamake.transcription.SnapshottingTranscriber;
 import dynamake.transcription.Transcriber;
 
@@ -116,6 +117,7 @@ public class Main {
 				private Tool[] tools = new Tool[] {
 					new EditTool(),
 					new PlotTool(),
+					new UnwrapTool(),
 					new BindTool(),
 					new DragTool(),
 					new ConsTool(),
