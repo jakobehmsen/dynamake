@@ -16,6 +16,8 @@ public class UnwrapTool extends RepetitiveCanvasTaskTool {
 	
 	@Override
 	protected void createDualCommandsForSingleTask(ProductionPanel productionPanel, List<DualCommand<Model>> dualCommands, ModelComponent canvas, ModelComponent modelOver) {
-		CanvasModel.appendUnwrapTransaction(dualCommands, modelOver);
+		if(modelOver.getModelBehind() instanceof CanvasModel && ((CanvasModel)modelOver.getModelBehind()).getModelCount() > 0) {
+			CanvasModel.appendUnwrapTransaction(dualCommands, modelOver);
+		}
 	}
 }
