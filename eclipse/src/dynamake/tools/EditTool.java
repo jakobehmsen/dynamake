@@ -33,17 +33,15 @@ public class EditTool extends BoundsChangeTool {
 				new Model.SetPropertyTransaction(selectionModelTranscriber.getModelLocation(), "X", selectionModel.getProperty("X"))
 			));
 			
-			if(currentBounds.width != newBounds.width) {
-				if(selectionModel instanceof CanvasModel) {
-					for(Component childComponent: ((JComponent)selection).getComponents()) {
-						ModelComponent child = (ModelComponent)childComponent;
-						int offset = currentBounds.x - newBounds.x;
-						Number newX = ((Fraction)child.getModelBehind().getProperty("X")).add(new Fraction(offset));
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyTransaction(child.getModelTranscriber().getModelLocation(), "X", newX), 
-							new Model.SetPropertyTransaction(child.getModelTranscriber().getModelLocation(), "X", selectionModel.getProperty("X"))
-						));
-					}
+			if(selectionModel instanceof CanvasModel) {
+				for(Component childComponent: ((JComponent)selection).getComponents()) {
+					ModelComponent child = (ModelComponent)childComponent;
+					int offset = currentBounds.x - newBounds.x;
+					Number newX = ((Fraction)child.getModelBehind().getProperty("X")).add(new Fraction(offset));
+					dualCommands.add(new DualCommandPair<Model>(
+						new Model.SetPropertyTransaction(child.getModelTranscriber().getModelLocation(), "X", newX), 
+						new Model.SetPropertyTransaction(child.getModelTranscriber().getModelLocation(), "X", selectionModel.getProperty("X"))
+					));
 				}
 			}
 		}
@@ -53,19 +51,16 @@ public class EditTool extends BoundsChangeTool {
 				new Model.SetPropertyTransaction(selectionModelTranscriber.getModelLocation(), "Y", new Fraction(newBounds.y)), 
 				new Model.SetPropertyTransaction(selectionModelTranscriber.getModelLocation(), "Y", selectionModel.getProperty("Y"))
 			));
-
 			
-			if(currentBounds.height != newBounds.height) {
-				if(selectionModel instanceof CanvasModel) {
-					for(Component childComponent: ((JComponent)selection).getComponents()) {
-						ModelComponent child = (ModelComponent)childComponent;
-						int offset = currentBounds.y - newBounds.y;
-						Number newY = ((Fraction)child.getModelBehind().getProperty("Y")).add(new Fraction(offset));
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyTransaction(child.getModelTranscriber().getModelLocation(), "Y", newY), 
-							new Model.SetPropertyTransaction(child.getModelTranscriber().getModelLocation(), "Y", selectionModel.getProperty("Y"))
-						));
-					}
+			if(selectionModel instanceof CanvasModel) {
+				for(Component childComponent: ((JComponent)selection).getComponents()) {
+					ModelComponent child = (ModelComponent)childComponent;
+					int offset = currentBounds.y - newBounds.y;
+					Number newY = ((Fraction)child.getModelBehind().getProperty("Y")).add(new Fraction(offset));
+					dualCommands.add(new DualCommandPair<Model>(
+						new Model.SetPropertyTransaction(child.getModelTranscriber().getModelLocation(), "Y", newY), 
+						new Model.SetPropertyTransaction(child.getModelTranscriber().getModelLocation(), "Y", selectionModel.getProperty("Y"))
+					));
 				}
 			}
 		}
