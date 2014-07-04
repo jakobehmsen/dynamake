@@ -261,7 +261,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void setLocation(ModelLocator locator) {
+	public void setLocator(ModelLocator locator) {
 		this.locator = locator;
 	}
 	

@@ -711,7 +711,7 @@ public class CanvasModel extends Model {
 
 	@Override
 	public Binding<ModelComponent> createView(final ModelComponent rootView, final ViewManager viewManager, final ModelTranscriber modelTranscriber) {
-		this.setLocation(modelTranscriber.getModelLocator());
+		this.setLocator(modelTranscriber.getModelLocator());
 		
 		final CanvasPanel view = new CanvasPanel(rootView, this, modelTranscriber, viewManager);
 		
@@ -754,12 +754,13 @@ public class CanvasModel extends Model {
 						}
 					);
 				} else if(change instanceof CanvasModel.RemovedModelChange) {
-					// It could be possible to have map mapping from model to model component as follows:
 					Model removedModel = ((CanvasModel.RemovedModelChange)change).model;
 					
 					Binding<ModelComponent> removedMCBinding = view.modelToModelComponentMap.get(removedModel);
+					removedMCBinding.releaseBinding();
 					view.modelToModelComponentMap.clear(removedModel);
 					final ModelComponent removedMC = removedMCBinding.getBindingTarget();
+					removedMC.getModelBehind().setLocator(null);
 					
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
 					removableListener.releaseBinding();
