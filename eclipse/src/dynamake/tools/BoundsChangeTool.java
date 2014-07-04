@@ -12,11 +12,13 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import dynamake.commands.DualCommand;
+import dynamake.commands.DualCommandPair;
 import dynamake.models.CanvasModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
@@ -53,20 +55,38 @@ public abstract class BoundsChangeTool implements Tool {
 			final ModelComponent selection = interactionPresenter.getSelection();
 			
 			if(!interactionPresenter.getSelectionFrameBounds().equals(interactionPresenter.getEffectFrameBounds())) {
-				if(relativePosition.isInCenter() &&
-					newTargetOver.getModelTranscriber() != selection.getModelTranscriber().getParent()) {
-					// Moving to other canvas
-					final Rectangle droppedBounds = SwingUtilities.convertRectangle(
-						productionPanel, interactionPresenter.getEffectFrameBounds(), (JComponent)newTargetOver);
+				if(relativePosition.isInCenter()) {
+					if(newTargetOver.getModelTranscriber() != selection.getModelTranscriber().getParent()) {
+						// Moving to other canvas
+						final Rectangle droppedBounds = SwingUtilities.convertRectangle(
+							productionPanel, interactionPresenter.getEffectFrameBounds(), (JComponent)newTargetOver);
 
-					final ModelComponent targetOver = newTargetOver;
-					
-					branchStep2.execute(new PropogationContext(), new DualCommandFactory<Model>() {
-						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, selection, targetOver, droppedBounds.getLocation());
-						}
-					});
+						final ModelComponent targetOver = newTargetOver;
+						
+						branchStep2.execute(new PropogationContext(), new DualCommandFactory<Model>() {
+							@Override
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, selection, targetOver, droppedBounds.getLocation());
+							}
+						});
+					} else {
+						// Moving within same canvas
+						final Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), (JComponent)newTargetOver);
+						
+						branchStep2.execute(new PropogationContext(), new DualCommandFactory<Model>() {
+							@Override
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(new DualCommandPair<Model>(
+									new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), "X", new Fraction(droppedBounds.x)), 
+									new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), "X", selection.getModelBehind().getProperty("X"))
+								));
+								dualCommands.add(new DualCommandPair<Model>(
+									new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), "Y", new Fraction(droppedBounds.y)), 
+									new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), "Y", selection.getModelBehind().getProperty("Y"))
+								));
+							}
+						});
+					}
 				} else {
 					// Changing bounds within the same canvas
 					JComponent parent = (JComponent)((JComponent)selection).getParent();
@@ -77,7 +97,7 @@ public abstract class BoundsChangeTool implements Tool {
 					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							appendDualCommandsForSameCanvasBoundsChange(dualCommands, selection, newBounds);
+							appendDualCommandsForResize(dualCommands, selection, newBounds);
 						}
 					});
 				}
@@ -92,7 +112,7 @@ public abstract class BoundsChangeTool implements Tool {
 		}
 	}
 
-	protected abstract void appendDualCommandsForSameCanvasBoundsChange(List<DualCommand<Model>> dualCommands, ModelComponent selection, Rectangle newBounds);
+	protected abstract void appendDualCommandsForResize(List<DualCommand<Model>> dualCommands, ModelComponent selection, Rectangle newBounds);
 	
 	private Point mouseDown;
 	private ModelComponent viewPressedOn;

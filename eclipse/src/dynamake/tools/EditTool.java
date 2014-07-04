@@ -21,7 +21,7 @@ public class EditTool extends BoundsChangeTool {
 	}
 
 	@Override
-	protected void appendDualCommandsForSameCanvasBoundsChange(
+	protected void appendDualCommandsForResize(
 			List<DualCommand<Model>> dualCommands, ModelComponent selection, Rectangle newBounds) {
 		ModelTranscriber selectionModelTranscriber = selection.getModelTranscriber();
 		Model selectionModel = selection.getModelBehind();
