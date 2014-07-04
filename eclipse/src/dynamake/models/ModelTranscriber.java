@@ -2,6 +2,7 @@ package dynamake.models;
 
 import dynamake.transcription.Transcriber;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberConnection;
 
 public class ModelTranscriber {
 	private Transcriber<Model> transcriber;
@@ -82,5 +83,9 @@ public class ModelTranscriber {
 
 	public TranscriberBranch<Model> createBranch() {
 		return transcriber.createBranch();
+	}
+
+	public TranscriberConnection<Model> createConnection() {
+		return transcriber.createConnection();
 	}
 }
