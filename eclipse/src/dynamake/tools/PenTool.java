@@ -10,14 +10,11 @@ import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
-import dynamake.delegates.Runner;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -29,7 +26,6 @@ import dynamake.models.factories.Factory;
 import dynamake.models.factories.StrokeModelFactory;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
-import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
 
 public class PenTool implements Tool {
@@ -66,16 +62,16 @@ public class PenTool implements Tool {
 		
 		points = null;
 		shape = null;
-		
-		final TranscriberBranch<Model> branch = productionPanel.livePanel.getModelTranscriber().createBranch();
-		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+
+		TranscriberBranch<Model> branchStep2 = branch.branch();
+		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		PropogationContext propCtx = new PropogationContext();
 		
-		final ModelComponent target = canvas;
+		final ModelComponent target = targetPresenter.getTargetOver();
 		final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)target);
 		
-		branch.execute(propCtx, new DualCommandFactory<Model>() {
+		branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
 			@Override
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
@@ -89,72 +85,17 @@ public class PenTool implements Tool {
 				));
 			}
 		});
-		
-		endMoveOver(productionPanel, new Runner() {
-			@Override
-			public void run(Runnable runnable) {
-				branch.onFinished(runnable);
-			}
-		});
-		
-		branch.onFinished(new Runnable() {
-			@Override
-			public void run() {
 
-			}
-		});
+		targetPresenter.reset(branchStep2);
+		targetPresenter = null;
+		
+		branchStep2.close();
 		
 		branch.close();
 	}
 	
-	private ModelComponent canvas;
-	private JPanel targetFrame;
-	
-	private void initializeModelOver(ModelComponent canvas, final JComponent container, RunBuilder runBuilder) {
-		this.canvas = canvas;
-		addTargetFrame(canvas, container, runBuilder);
-	}
-	
-	private void addTargetFrame(ModelComponent modelOver, final JComponent container, RunBuilder runBuilder) {
-		targetFrame = new JPanel();
-		final Color color = ProductionPanel.TARGET_OVER_COLOR;
-		targetFrame.setBorder(
-			BorderFactory.createCompoundBorder(
-				BorderFactory.createLineBorder(Color.BLACK, 1), 
-				BorderFactory.createCompoundBorder(
-					BorderFactory.createLineBorder(color, 3), 
-					BorderFactory.createLineBorder(Color.BLACK, 1)
-				)
-			)
-		);
-		
-		Rectangle targetFrameBounds = SwingUtilities.convertRectangle(
-			((JComponent)modelOver).getParent(), ((JComponent)modelOver).getBounds(), container);
-		targetFrame.setBounds(targetFrameBounds);
-		targetFrame.setBackground(new Color(0, 0, 0, 0));
-
-		runBuilder.addRunnable(new Runnable() {
-			@Override
-			public void run() {
-				container.add(targetFrame);
-			}
-		});
-	}
-	
-	private void endMoveOver(final JComponent container, Runner runner) {
-		final JComponent localCanvas = (JComponent)targetFrame;
-		runner.run(new Runnable() {
-			@Override
-			public void run() {
-				container.remove(localCanvas);
-			}
-		});
-		
-		canvas = null;
-		targetFrame = null;
-	}
-	
-//	private int i = 0;
+	private TranscriberBranch<Model> branch;
+	private TargetPresenter targetPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
@@ -163,22 +104,33 @@ public class PenTool implements Tool {
 		points.add(e.getPoint());
 		shape.moveTo(e.getX(), e.getY());
 		
-		RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+		ModelComponent canvas = ModelComponent.Util.closestCanvasModelComponent(modelOver);
 		
-		runBuilder.addRunnable(new Runnable() {
-			@Override
-			public void run() { }
-		});
+		branch = modelOver.getModelTranscriber().createBranch();
 		
-		initializeModelOver(ModelComponent.Util.closestCanvasModelComponent(modelOver), productionPanel, runBuilder);
+		TranscriberBranch<Model> branchStep1 = branch.branch();
+		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+		targetPresenter = new TargetPresenter(
+			productionPanel,
+			new TargetPresenter.Behavior() {
+				@Override
+				public Color getColorForTarget(ModelComponent target) {
+					return ProductionPanel.TARGET_OVER_COLOR;
+				}
+				
+				@Override
+				public boolean acceptsTarget(ModelComponent target) {
+					return true;
+				}
+			}
+		);
 		
-		runBuilder.execute();
+		targetPresenter.update(canvas, branchStep1);
+		branchStep1.close();
 	}
 
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-//		i++;
-//		System.out.println(i);
 		points.add(e.getPoint());
 		shape.lineTo(e.getX(), e.getY());
 		
@@ -209,14 +161,13 @@ public class PenTool implements Tool {
 
 	@Override
 	public void rollback(ProductionPanel productionPanel) {
-		final TranscriberBranch<Model> branch = productionPanel.livePanel.getModelTranscriber().createBranch();
-		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		endMoveOver(productionPanel, new Runner() {
-			@Override
-			public void run(Runnable runnable) {
-				branch.onFinished(runnable);
-			}
-		});
-		branch.close();
+		final TranscriberBranch<Model> branchStep2 = branch.branch();
+		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+		
+		targetPresenter.reset(branchStep2);
+		targetPresenter = null;
+		
+		branchStep2.close();
+		branch.reject();
 	}
 }
