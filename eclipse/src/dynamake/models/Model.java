@@ -35,6 +35,7 @@ import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public abstract class Model implements Serializable, Observer {
 	public static class TellProperty {
@@ -104,7 +105,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
 			model.setProperty(name, value, propCtx, 0, branch);
@@ -136,7 +137,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
 			model.setProperty(name, value, propCtx, 0, branch);
@@ -168,7 +169,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
 			TranscriberBranch<Model> undoBranch = branch.isolatedBranch();
@@ -189,7 +190,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
 			TranscriberBranch<Model> undoBranch = branch.isolatedBranch();
@@ -302,7 +303,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
@@ -326,7 +327,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
@@ -643,7 +644,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 			model.sendChanged(new MouseUp(), propCtx, 0, 0, branch);
 		}
@@ -662,7 +663,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 			model.sendChanged(new MouseDown(), propCtx, 0, 0, branch);
 		}

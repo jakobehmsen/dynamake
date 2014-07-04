@@ -9,6 +9,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class UnwrapTransaction implements Command<Model> {
 	/**
@@ -26,7 +27,7 @@ public class UnwrapTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
 		CanvasModel wrapper = (CanvasModel)wrapperLocationInTarget.getChild(target);
 		

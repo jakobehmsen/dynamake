@@ -31,6 +31,7 @@ import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class CanvasModel extends Model {
 	/**
@@ -139,7 +140,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(prevalentSystem);
 			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(prevalentSystem);
 			Model model = (Model)canvasSource.getModel(indexInSource);
@@ -173,7 +174,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, branch);
 
@@ -205,7 +206,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, branch);
 
@@ -235,7 +236,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, null, propCtx, 0, branch);
 			canvas.addModel(index, model, new PropogationContext(), 0, branch);
@@ -258,7 +259,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModel(index);
 			canvas.removeModel(index, propCtx, 0, branch);

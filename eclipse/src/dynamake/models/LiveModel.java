@@ -40,6 +40,7 @@ import dynamake.tools.Tool;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class LiveModel extends Model {
 	/**
@@ -113,7 +114,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, branch);
 		}
@@ -135,7 +136,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, branch);
 		}

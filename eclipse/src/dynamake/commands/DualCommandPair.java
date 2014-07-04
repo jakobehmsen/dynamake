@@ -25,11 +25,11 @@ public class DualCommandPair<T> implements DualCommand<T> {
 
 	@Override
 	public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberBranch<T> branch, TranscriberCollector<T> collector) {
-		forward.executeOn(propCtx, prevalentSystem, executionTime, branch);
+		forward.executeOn(propCtx, prevalentSystem, executionTime, branch, collector);
 	}
 
 	@Override
 	public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberBranch<T> branch, TranscriberCollector<T> collector) {
-		backward.executeOn(propCtx, prevalentSystem, executionTime, branch);
+		backward.executeOn(propCtx, prevalentSystem, executionTime, branch, collector);
 	}
 }

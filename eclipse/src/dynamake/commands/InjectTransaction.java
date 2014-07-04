@@ -6,6 +6,7 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class InjectTransaction implements Command<Model> {
 	/**
@@ -22,7 +23,7 @@ public class InjectTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		Model source = (Model)sourceLocation.getChild(prevalentSystem);
 		Model target = (Model)targetLocation.getChild(prevalentSystem);
 		
