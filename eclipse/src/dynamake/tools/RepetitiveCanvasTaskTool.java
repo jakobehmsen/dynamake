@@ -79,17 +79,17 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 			final ModelComponent modelOverParent = ModelComponent.Util.getParent(modelOver);
 			
 			if(modelOverParent == canvas) {
-				final TranscriberBranch<Model> branchDelete = branch.branch();
-				branchDelete.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+				final TranscriberBranch<Model> branchSingleTask = branch.branch();
+				branchSingleTask.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 				
-				branchDelete.execute(new PropogationContext(), new DualCommandFactory<Model>() {
+				branchSingleTask.execute(new PropogationContext(), new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						createDualCommandsForSingleTask(productionPanel, dualCommands, modelOverParent, modelOver);
 					}
 				});
 				
-				branchDelete.close();
+				branchSingleTask.close();
 			}
 		}
 	}

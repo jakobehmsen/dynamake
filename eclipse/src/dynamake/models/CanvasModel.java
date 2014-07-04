@@ -251,6 +251,8 @@ public class CanvasModel extends Model {
 		private int index;
 		
 		public RemoveModelTransaction(Location canvasLocation, int index) {
+			if(index < 0)
+				new String();
 			this.canvasLocation = canvasLocation;
 			this.index = index;
 		}
@@ -280,13 +282,13 @@ public class CanvasModel extends Model {
 	
 	public void removeModel(Model model, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		int indexOfModel = indexOfModel(model);
-		branch.registerAffectedModel(this);
 		removeModel(indexOfModel, propCtx, propDistance, branch);
 	}
 	
 	public void removeModel(int index, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
 		Model model = models.get(index);
 		models.remove(index);
+		branch.registerAffectedModel(this);
 		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, branch);
 	}
 	
