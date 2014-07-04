@@ -132,7 +132,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			DualCommand<T> transaction = ctxTransaction.transaction;
 
 			IsolatedBranch<T> branch = new IsolatedBranch<T>();
-			transaction.executeForwardOn(propCtx, prevalentSystem, null, branch);
+			transaction.executeForwardOn(propCtx, prevalentSystem, null, branch, null);
 			
 			for(Location affectedModelLocation: ctxTransaction.affectedModelLocations) {
 				// TODO: Abstracted the following code to reduce coupling to models.
@@ -412,7 +412,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					// TODO: Decouple from Model further
 					// E.g. by introducing an interface for the log(...) method 
 					Model affectedModelAsModel = (Model)affectedModel;
-					affectedModelAsModel.log((ContextualTransaction<Model>)ctxTransaction);
+					ModelLocator locator = affectedModelAsModel.getLocator();
+					if(locator != null) {
+						// Only affected models which still "physically" exists are collected for
+						// affected models to persist along with the transaction.
+						affectedModelAsModel.log((ContextualTransaction<Model>)ctxTransaction);
+					}
 				}
 
 				System.out.println("Committed branch: " + branch);
@@ -530,7 +535,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						Branch.this.doOnFinishedDirect(runnable);
 					}
 				});
-				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, backwardsBranch);
+				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, backwardsBranch, null);
 			}
 			
 			// TODO: Consider:
@@ -627,7 +632,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						final Branch<T> b = (Branch<T>)branch.branch();
 						// Initialize affectedModels to support registration of affected models on b
 						b.affectedModels = affectedModels;
-						t.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, b);
+						t.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, b, null);
 						
 						b.prevaylerService.transactionExecutor.execute(new Runnable() {
 							@Override
@@ -738,6 +743,200 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		}
 	}
 	
+	private static class Connection<T> implements TranscriberConnection<T> {
+		private static final int STATE_OPEN = 0;
+		private static final int STATE_COMMITTED = 1;
+		private static final int STATE_REJECTED = 2;
+		
+		private int state = STATE_OPEN;
+		private SnapshottingTranscriber<T> transcriber;
+		private ArrayList<DualCommandFactory<T>> enlistedTransactionFactories = new ArrayList<DualCommandFactory<T>>();
+		private ArrayList<DualCommand<T>> flushedTransactions = new ArrayList<DualCommand<T>>();
+		private ArrayList<Runnable> afterNextFlushRunnables = new ArrayList<Runnable>();
+		private HashSet<T> affectedModels = new HashSet<T>();
+		
+		public Connection(SnapshottingTranscriber<T> transcriber) {
+			this.transcriber = transcriber;
+		}
+
+		@Override
+		public void enqueue(final DualCommandFactory<T> transactionFactory) {
+			this.transcriber.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					if(state == STATE_OPEN)
+						enlistedTransactionFactories.add(transactionFactory);
+				}
+			});
+		}
+
+		@Override
+		public void afterNextFlush(final Runnable runnable) {
+			this.transcriber.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					if(state == STATE_OPEN)
+						afterNextFlushRunnables.add(runnable);
+				}
+			});
+		}
+		
+		private PropogationContext propCtx = new PropogationContext();
+
+		@Override
+		public void flush() {
+			this.transcriber.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					if(state == STATE_OPEN) {
+						ArrayList<DualCommandFactory<T>> currentEnlistedTransactionFactories = Connection.this.enlistedTransactionFactories;
+						
+						while(currentEnlistedTransactionFactories.size() > 0) {
+							final ArrayList<DualCommandFactory<T>> sideEffectFactories = new ArrayList<DualCommandFactory<T>>();
+							
+							TranscriberCollector<T> isolatableCollector = new TranscriberCollector<T>() {
+								boolean inIsolation;
+								
+								@Override
+								public void enqueue(DualCommandFactory<T> transactionFactory) {
+									if(!inIsolation)
+										sideEffectFactories.add(transactionFactory);
+								}
+								
+								@Override
+								public void afterNextFlush(Runnable runnable) {
+									afterNextFlushRunnables.add(runnable);
+								}
+	
+								@Override
+								public void registerAffectedModel(T model) {
+									affectedModels.add(model);
+								}
+								
+								@Override
+								public void beginIsolation() {
+									inIsolation = true;
+								}
+								
+								@Override
+								public void endIsolation() {
+									inIsolation = false;
+								}
+							};
+							
+							for(DualCommandFactory<T> transactionFactory: currentEnlistedTransactionFactories) {
+								ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
+								transactionFactory.createDualCommands(dualCommands);
+
+								for(DualCommand<T> transaction: dualCommands) {
+									transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, null, isolatableCollector);
+									flushedTransactions.add(transaction);
+								}
+							}
+							
+							currentEnlistedTransactionFactories = sideEffectFactories;
+						}
+						
+						currentEnlistedTransactionFactories.clear();
+						
+						for(Runnable runnable: afterNextFlushRunnables)
+							runnable.run();
+					}
+				}
+			});
+		}
+
+		@Override
+		public void commit() {
+			this.transcriber.transactionExecutor.execute(new Runnable() {
+				@SuppressWarnings("unchecked")
+				@Override
+				public void run() {
+					if(state == STATE_OPEN) {
+						if(flushedTransactions.size() > 0) {
+							DualCommand<T>[] dualCommandArray = flushedTransactions.toArray(new DualCommand[flushedTransactions.size()]);
+							
+							DualCommandSequence<T> transaction = new DualCommandSequence<T>(dualCommandArray);
+							
+							ArrayList<Location> affectedModelLocations = new ArrayList<Location>();
+							for(T affectedModel: affectedModels) {
+								// TODO: Decouple from Model further
+								// E.g. by introducing an interface for the getLocator() method 
+								Model affectedModelAsModel = (Model)affectedModel;
+								ModelLocator locator = affectedModelAsModel.getLocator();
+								if(locator != null) {
+									// Only affected models which still "physically" exists are collected for
+									// affected models to persist along with the transaction.
+									affectedModelLocations.add(locator.locate());
+								}
+							}
+							
+							ContextualTransaction<T> ctxTransaction = new ContextualTransaction<T>(transaction, affectedModelLocations);
+							
+							for(T affectedModel: affectedModels) {
+								// TODO: Decouple from Model further
+								// E.g. by introducing an interface for the log(...) method 
+								Model affectedModelAsModel = (Model)affectedModel;
+								ModelLocator locator = affectedModelAsModel.getLocator();
+								if(locator != null) {
+									// Only affected models which still "physically" exists are collected for
+									// affected models to persist along with the transaction.
+									affectedModelAsModel.log((ContextualTransaction<Model>)ctxTransaction);
+								}
+							}
+	
+							System.out.println("Committed connection: " + Connection.this);
+							transcriber.persistTransaction(propCtx, ctxTransaction);
+						}
+						
+						state = STATE_COMMITTED;
+					}
+				}
+			});
+		}
+
+		@Override
+		public void reject() {
+			this.transcriber.transactionExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					if(state == STATE_OPEN) {
+						PropogationContext propCtx = new PropogationContext();
+						
+						afterNextFlushRunnables.clear();
+						TranscriberCollector<T> isolatedCollector = new TranscriberCollector<T>() {
+							@Override
+							public void enqueue(DualCommandFactory<T> transactionFactory) { }
+							
+							@Override
+							public void afterNextFlush(Runnable runnable) {
+								afterNextFlushRunnables.add(runnable);
+							}
+
+							@Override
+							public void registerAffectedModel(T model) { }
+							
+							@Override
+							public void beginIsolation() { }
+							
+							@Override
+							public void endIsolation() { }
+						};
+						
+						for(DualCommand<T> transaction: flushedTransactions) {
+							transaction.executeBackwardOn(propCtx, transcriber.prevalentSystem, null, null, isolatedCollector);
+						}
+						
+						for(Runnable runnable: afterNextFlushRunnables)
+							runnable.run();
+						
+						state = STATE_REJECTED;
+					}
+				}
+			});
+		}
+	}
+	
 	@Override
 	public TranscriberBranch<T> createBranch() {
 		TranscriberBranchBehavior<T> branchBehavior = new TranscriberBranchBehavior<T>() {
@@ -753,5 +952,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	@Override
 	public TranscriberBranch<T> createBranch(TranscriberBranchBehavior<T> branchBehavior) {
 		return new SnapshottingTranscriber.Branch<T>(branchBehavior, this, null);
+	}
+	
+	@Override
+	public TranscriberConnection<T> createConnection() {
+		return new Connection<T>(this);
 	}
 }

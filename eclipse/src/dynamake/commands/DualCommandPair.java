@@ -4,6 +4,7 @@ import java.util.Date;
 
 import dynamake.models.PropogationContext;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class DualCommandPair<T> implements DualCommand<T> {
 	/**
@@ -23,12 +24,12 @@ public class DualCommandPair<T> implements DualCommand<T> {
 	}
 
 	@Override
-	public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberBranch<T> branch) {
+	public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberBranch<T> branch, TranscriberCollector<T> collector) {
 		forward.executeOn(propCtx, prevalentSystem, executionTime, branch);
 	}
 
 	@Override
-	public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberBranch<T> branch) {
+	public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberBranch<T> branch, TranscriberCollector<T> collector) {
 		backward.executeOn(propCtx, prevalentSystem, executionTime, branch);
 	}
 }

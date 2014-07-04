@@ -10,4 +10,6 @@ public interface Transcriber<T> {
 	
 	TranscriberBranch<T> createBranch();
 	TranscriberBranch<T> createBranch(TranscriberBranchBehavior<T> branchBehavior);
+	
+	TranscriberConnection<T> createConnection();
 }

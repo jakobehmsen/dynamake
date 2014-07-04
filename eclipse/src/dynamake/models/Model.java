@@ -215,7 +215,7 @@ public abstract class Model implements Serializable, Observer {
 			affectedModel.undoTill(propCtx, prevalentSystem, isolatedBranch, ctxTransactionToUndo);
 			affectedModel.undoStack.pop();
 		}
-		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatedBranch);
+		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatedBranch, null);
 
 		for(Model affectedModel: affectedModels)
 			affectedModel.redoStack.push(ctxTransactionToUndo);
@@ -225,7 +225,7 @@ public abstract class Model implements Serializable, Observer {
 		PropogationContext propCtx, Model prevalentSystem, TranscriberBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToUndoTill) {
 		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
 		while(ctxTransactionToUndo != ctxTransactionToUndoTill) {
-			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, branch);
+			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, branch, null);
 			undoStack.pop();
 		}
 	}
@@ -247,7 +247,7 @@ public abstract class Model implements Serializable, Observer {
 			affectedModel.redoTill(propCtx, prevalentSystem, isolatedBranch, ctxTransactionToRedo);
 			affectedModel.redoStack.pop();
 		}
-		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatedBranch);
+		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatedBranch, null);
 
 		for(Model affectedModel: affectedModels)
 			affectedModel.undoStack.push(ctxTransactionToRedo);
@@ -256,7 +256,7 @@ public abstract class Model implements Serializable, Observer {
 	private void redoTill(PropogationContext propCtx, Model prevalentSystem, TranscriberBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToRedoTillæ) {
 		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
 		while(ctxTransactionToRedo != ctxTransactionToRedoTillæ) {
-			ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, branch);
+			ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, branch, null);
 			redoStack.pop();
 		}
 	}
