@@ -67,7 +67,7 @@ public class UnwrapTool implements Tool {
 				
 				@Override
 				public boolean acceptsTarget(ModelComponent target) {
-					return target != canvas;
+					return target == canvas;
 				}
 			}
 		);
