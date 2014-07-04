@@ -43,13 +43,13 @@ public class UnwrapTransaction implements Command<Model> {
 			TranscriberBranch<Model> removeBranch = branch.branch();
 			
 			Model model = models[i];
-			wrapper.removeModel(model, propCtx, 0, removeBranch);
+			wrapper.removeModel(model, propCtx, 0, removeBranch, collector);
 			
 			removeBranch.close();
 		}
 
 		// Removed wrapper from target
-		target.removeModel(wrapper, propCtx, 0, branch);
+		target.removeModel(wrapper, propCtx, 0, branch, collector);
 
 		// Offset the coordinates of the moved models
 		for(Model model: models) {
@@ -59,8 +59,8 @@ public class UnwrapTransaction implements Command<Model> {
 			TranscriberBranch<Model> setXBranch = branch.branch();
 			TranscriberBranch<Model> setYBranch = branch.branch();
 			
-			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, setXBranch);
-			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, setYBranch);
+			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, setXBranch, collector);
+			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, setYBranch, collector);
 			
 			setXBranch.close();
 			setYBranch.close();
@@ -71,7 +71,7 @@ public class UnwrapTransaction implements Command<Model> {
 			TranscriberBranch<Model> addBranch = branch.branch();
 			
 			Model model = models[i];
-			target.addModel(model, propCtx, 0, addBranch);
+			target.addModel(model, propCtx, 0, addBranch, collector);
 			
 			addBranch.close();
 		}

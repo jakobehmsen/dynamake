@@ -108,7 +108,7 @@ public abstract class Model implements Serializable, Observer {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-			model.setProperty(name, value, propCtx, 0, branch);
+			model.setProperty(name, value, propCtx, 0, branch, collector);
 		}
 		
 		public static DualCommand<Model> createDual(Model model, String name, Object value) {
@@ -140,7 +140,7 @@ public abstract class Model implements Serializable, Observer {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-			model.setProperty(name, value, propCtx, 0, branch);
+			model.setProperty(name, value, propCtx, 0, branch, collector);
 		}
 		
 		public static DualCommand<Model> createDual(Model model, String name, Object value) {
@@ -275,14 +275,14 @@ public abstract class Model implements Serializable, Observer {
 	private ModelLocator locator;
 	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
 	
-	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
+	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		if(value != null)
 			properties.put(name, value);
 		else
 			properties.remove(name);
 		
 		branch.registerAffectedModel(this);
-		sendChanged(new PropertyChanged(name, value), propCtx, propDistance, 0, branch);
+		sendChanged(new PropertyChanged(name, value), propCtx, propDistance, 0, branch, collector);
 	}
 	
 	public Object getProperty(String name) {
@@ -338,7 +338,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	@Override
-	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
+	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		if(change instanceof SetProperty && changeDistance == 1) {
 			// Side-effect
 			TranscriberBranch<Model> innerBranch = branch.branch();
@@ -364,15 +364,15 @@ public abstract class Model implements Serializable, Observer {
 			TellProperty tellProperty = (TellProperty)change;
 			Object value = getProperty(tellProperty.name);
 			if(value != null)
-				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0, innerBranch);
+				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0, innerBranch, collector);
 
 			innerBranch.close();
 		} else {
-			modelChanged(sender, change, propCtx, propDistance, changeDistance, branch);
+			modelChanged(sender, change, propCtx, propDistance, changeDistance, branch, collector);
 		}
 	}
 	
-	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
+	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 
 	}
 	
@@ -471,28 +471,28 @@ public abstract class Model implements Serializable, Observer {
 		redoStack = (Stack<ContextualTransaction<Model>>)ois.readObject();
 	}
 
-	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
-		setProperty(Model.PROPERTY_VIEW, view, propCtx, propDistance, branch);
+	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+		setProperty(Model.PROPERTY_VIEW, view, propCtx, propDistance, branch, collector);
 	}
 	
-	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
+	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		if(changeQueue != null) {
 			changeQueue.add(new ChangeHolder(change, propCtx, propDistance, changeDistance));
 			return;
 		}
 		
 		changeQueue = new ArrayDeque<Model.ChangeHolder>();
-		sendSingleChanged(change, propCtx, propDistance, changeDistance, branch);
+		sendSingleChanged(change, propCtx, propDistance, changeDistance, branch, collector);
 		while(true) {
 			ChangeHolder changeHolder = changeQueue.poll();
 			if(changeHolder == null)
 				break;
-			sendSingleChanged(changeHolder.change, changeHolder.propCtx, changeHolder.propDistance, changeHolder.changeDistance, branch);
+			sendSingleChanged(changeHolder.change, changeHolder.propCtx, changeHolder.propDistance, changeHolder.changeDistance, branch, collector);
 		}
 		changeQueue = null;
 	}
 	
-	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
+	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		int nextChangeDistance = changeDistance + 1;
 		int nextPropDistance = propDistance + 1;
 		observersToAdd = new ArrayList<Observer>();
@@ -501,13 +501,13 @@ public abstract class Model implements Serializable, Observer {
 		if(!branch.isIsolated()) {
 			for(Observer observer: observers) {
 				PropogationContext propCtxBranch = propCtx.branch();
-				observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch);
+				observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch, collector);
 			}
 		} else {
 			for(Observer observer: observers) {
 				if(!(observer instanceof Model)) {
 					PropogationContext propCtxBranch = propCtx.branch();
-					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch);
+					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch, collector);
 				}
 			}
 		}
@@ -557,7 +557,7 @@ public abstract class Model implements Serializable, Observer {
 	public static RemovableListener wrapForBoundsChanges(final Model model, final ModelComponent target, final ViewManager viewManager) {
 		return RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 				if(change instanceof Model.PropertyChanged
 						&& changeDistance == 1 /* And not a forwarded change */) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
@@ -602,7 +602,7 @@ public abstract class Model implements Serializable, Observer {
 	public static RemovableListener wrapForComponentColorChanges(Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager, final int componentColor) {
 		return RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 				if(change instanceof Model.PropertyChanged) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 
@@ -646,7 +646,7 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
-			model.sendChanged(new MouseUp(), propCtx, 0, 0, branch);
+			model.sendChanged(new MouseUp(), propCtx, 0, 0, branch, collector);
 		}
 	}
 	
@@ -665,7 +665,7 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
-			model.sendChanged(new MouseDown(), propCtx, 0, 0, branch);
+			model.sendChanged(new MouseDown(), propCtx, 0, 0, branch, collector);
 		}
 	}
 	
@@ -760,7 +760,7 @@ public abstract class Model implements Serializable, Observer {
 			propertySetter.run((T)value);
 		return Model.RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 				if(change instanceof Model.PropertyChanged 
 					&& changeDistance == 1 /* And not a forwarded change */) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;

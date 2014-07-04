@@ -8,6 +8,7 @@ import dynamake.models.PropogationContext;
 import dynamake.models.Primitive.Implementation;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class PrimitiveSingletonFactory implements Factory {
 	/**
@@ -26,13 +27,13 @@ public class PrimitiveSingletonFactory implements Factory {
 	}
 	
 	@Override
-	public Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
+	public Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		Primitive model = new Primitive(implementationSingleton);
 		Fraction fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(new Fraction(creationBounds.height, 35));
 		TranscriberBranch<Model> setPropertyBranch = branch.isolatedBranch();
 //		Fraction fontSize = 12 * 40 creationBounds.height;
-		model.setProperty("FontSize", fontSize, propCtx, propDistance, setPropertyBranch);
+		model.setProperty("FontSize", fontSize, propCtx, propDistance, setPropertyBranch, collector);
 		return model;
 		
 //		return new Primitive(implementationSingleton);

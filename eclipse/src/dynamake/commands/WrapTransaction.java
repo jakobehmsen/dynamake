@@ -33,10 +33,10 @@ public class WrapTransaction implements Command<Model> {
 		
 		TranscriberBranch<Model> propertyBranch = branch.isolatedBranch();
 		
-		wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, propertyBranch);
-		wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, propertyBranch);
-		wrapper.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, propertyBranch);
-		wrapper.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, propertyBranch);
+		wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, propertyBranch, collector);
+		wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, propertyBranch, collector);
+		wrapper.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, propertyBranch, collector);
+		wrapper.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, propertyBranch, collector);
 		
 		Model[] models = new Model[modelLocations.length];
 		for(int i = 0; i < modelLocations.length; i++) {
@@ -49,8 +49,8 @@ public class WrapTransaction implements Command<Model> {
 			TranscriberBranch<Model> removeBranch = branch.branch();
 			TranscriberBranch<Model> addBranch = branch.branch();
 			
-			target.removeModel(model, propCtx, 0, removeBranch);
-			wrapper.addModel(model, propCtx, 0, addBranch);
+			target.removeModel(model, propCtx, 0, removeBranch, collector);
+			wrapper.addModel(model, propCtx, 0, addBranch, collector);
 			
 			removeBranch.close();
 			addBranch.close();
@@ -63,13 +63,13 @@ public class WrapTransaction implements Command<Model> {
 			TranscriberBranch<Model> setXBranch = branch.branch();
 			TranscriberBranch<Model> setYBranch = branch.branch();
 			
-			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, setXBranch);
-			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, setYBranch);
+			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, setXBranch, collector);
+			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, setYBranch, collector);
 			
 			setXBranch.close();
 			setYBranch.close();
 		}
 
-		target.addModel(wrapper, propCtx, 0, branch);
+		target.addModel(wrapper, propCtx, 0, branch, collector);
 	}
 }

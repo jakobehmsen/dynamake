@@ -149,9 +149,9 @@ public class CanvasModel extends Model {
 			TranscriberBranch<Model> addBranch = branch.branch();
 
 			int indexOfModel = canvasSource.indexOfModel(model);
-			canvasSource.removeModel(indexOfModel, propCtx, 0, removeBranch);
+			canvasSource.removeModel(indexOfModel, propCtx, 0, removeBranch, collector);
 			
-			canvasTarget.addModel(indexInTarget, model, propCtx, 0, addBranch);
+			canvasTarget.addModel(indexInTarget, model, propCtx, 0, addBranch, collector);
 			
 			removeBranch.close();
 			addBranch.close();
@@ -176,15 +176,15 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, branch);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, branch, collector);
 
 			TranscriberBranch<Model> setPropertyBranch = branch.isolatedBranch();
-			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, setPropertyBranch);
-			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, setPropertyBranch);
-			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, setPropertyBranch);
-			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, setPropertyBranch);
+			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, setPropertyBranch, collector);
+			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, setPropertyBranch, collector);
+			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, setPropertyBranch, collector);
+			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, setPropertyBranch, collector);
 			
-			canvas.addModel(model, new PropogationContext(), 0, branch);
+			canvas.addModel(model, new PropogationContext(), 0, branch, collector);
 		}
 	}
 	
@@ -208,15 +208,15 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, branch);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, branch, collector);
 
 			TranscriberBranch<Model> setPropertyBranch = branch.isolatedBranch();
-			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, setPropertyBranch);
-			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, setPropertyBranch);
-			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, setPropertyBranch);
-			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, setPropertyBranch);
+			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, setPropertyBranch, collector);
+			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, setPropertyBranch, collector);
+			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, setPropertyBranch, collector);
+			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, setPropertyBranch, collector);
 			
-			canvas.addModel(index, model, new PropogationContext(), 0, branch);
+			canvas.addModel(index, model, new PropogationContext(), 0, branch, collector);
 		}
 	}
 	
@@ -238,8 +238,8 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, null, propCtx, 0, branch);
-			canvas.addModel(index, model, new PropogationContext(), 0, branch);
+			Model model = (Model)factory.create(rootPrevalentSystem, null, propCtx, 0, branch, collector);
+			canvas.addModel(index, model, new PropogationContext(), 0, branch, collector);
 		}
 	}
 	
@@ -262,43 +262,43 @@ public class CanvasModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModel(index);
-			canvas.removeModel(index, propCtx, 0, branch);
+			canvas.removeModel(index, propCtx, 0, branch, collector);
 			modelToRemove.beRemoved();
 		}
 	}
 	
-	public void addModel(Model model, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
-		addModel(models.size(), model, propCtx, propDistance, branch);
+	public void addModel(Model model, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+		addModel(models.size(), model, propCtx, propDistance, branch, collector);
 	}
 
 	public Model getModel(int index) {
 		return models.get(index);
 	}
 
-	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
+	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		models.add(index, model);
 		branch.registerAffectedModel(this);
-		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, branch);
+		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, branch, collector);
 	}
 	
-	public void removeModel(Model model, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
+	public void removeModel(Model model, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		int indexOfModel = indexOfModel(model);
-		removeModel(indexOfModel, propCtx, propDistance, branch);
+		removeModel(indexOfModel, propCtx, propDistance, branch, collector);
 	}
 	
-	public void removeModel(int index, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
+	public void removeModel(int index, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		Model model = models.get(index);
 		models.remove(index);
 		branch.registerAffectedModel(this);
-		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, branch);
+		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, branch, collector);
 	}
 	
-	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, int indexInTarget, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
+	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, int indexInTarget, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		int indexOfModel = canvasSource.indexOfModel(model);
 		canvasSource.models.remove(indexOfModel);
-		canvasSource.sendChanged(new RemovedModelChange(indexOfModel, model), propCtx, propDistance, 0, null);
+		canvasSource.sendChanged(new RemovedModelChange(indexOfModel, model), propCtx, propDistance, 0, null, collector);
 		canvasTarget.models.add(indexInTarget, model);
-		canvasTarget.sendChanged(new AddedModelChange(indexInTarget, model), propCtx, propDistance, 0, branch);
+		canvasTarget.sendChanged(new AddedModelChange(indexInTarget, model), propCtx, propDistance, 0, branch, collector);
 	}
 	
 	public int indexOfModel(Model model) {
@@ -640,7 +640,7 @@ public class CanvasModel extends Model {
 			
 			@Override
 			public void changed(Model sender, Object change,
-					PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
+					PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 				if(change instanceof PropertyChanged) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
 					if(propertyChanged.name.equals(Model.PROPERTY_VIEW)) {
@@ -741,7 +741,7 @@ public class CanvasModel extends Model {
 		
 		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, final TranscriberBranch<Model> branch) {
+			public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, final TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 				if(change instanceof CanvasModel.AddedModelChange) {
 					CanvasModel.AddedModelChange addedChange = (CanvasModel.AddedModelChange)change;
 					final Model model = addedChange.model;

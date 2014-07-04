@@ -88,14 +88,14 @@ public class LiveModel extends Model {
 		return Collections.emptyList();
 	}
 	
-	public void removeButtonsToToolBinding(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
+	public void removeButtonsToToolBinding(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		buttonsToToolMap.remove(buttons);
-		sendChanged(new ButtonsToolBindingChanged(Collections.<Integer>emptyList(), tool), propCtx, propDistance, 0, branch);
+		sendChanged(new ButtonsToolBindingChanged(Collections.<Integer>emptyList(), tool), propCtx, propDistance, 0, branch, collector);
 	}
 	
-	public void bindButtonsToTool(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch) {
+	public void bindButtonsToTool(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		buttonsToToolMap.put(buttons, tool);
-		sendChanged(new ButtonsToolBindingChanged(buttons, tool), propCtx, propDistance, 0, branch);
+		sendChanged(new ButtonsToolBindingChanged(buttons, tool), propCtx, propDistance, 0, branch, collector);
 	}
 	
 	public static class BindButtonsToToolCommand implements Command<Model> {
@@ -116,7 +116,7 @@ public class LiveModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
-			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, branch);
+			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, branch, collector);
 		}
 	}
 	
@@ -138,7 +138,7 @@ public class LiveModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
-			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, branch);
+			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, branch, collector);
 		}
 	}
 	
@@ -681,7 +681,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch) {
+				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 					if(change instanceof LiveModel.ButtonsToolBindingChanged) {
 						LiveModel.ButtonsToolBindingChanged bindButtonChanged = (LiveModel.ButtonsToolBindingChanged)change;
 						

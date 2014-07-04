@@ -25,6 +25,6 @@ public class TellPropertyTransaction implements Command<Model> {
 	@Override
 	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		Model receiver = (Model)modelLocation.getChild(prevalentSystem);
-		receiver.changed(null, new Model.TellProperty(propertyName), propCtx, 0, 1, branch);
+		receiver.changed(null, new Model.TellProperty(propertyName), propCtx, 0, 1, branch, collector);
 	}
 }
