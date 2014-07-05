@@ -752,7 +752,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		private SnapshottingTranscriber<T> transcriber;
 		private ArrayList<DualCommandFactory<T>> enlistedTransactionFactories = new ArrayList<DualCommandFactory<T>>();
 		private ArrayList<DualCommand<T>> flushedTransactions = new ArrayList<DualCommand<T>>();
-		private ArrayList<Runnable> afterNextFlushRunnables = new ArrayList<Runnable>();
+		private ArrayList<TranscriberRunnable<T>> afterNextFlushRunnables = new ArrayList<TranscriberRunnable<T>>();
 		private HashSet<T> affectedModels = new HashSet<T>();
 		
 		public Connection(SnapshottingTranscriber<T> transcriber) {
@@ -771,7 +771,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		}
 
 		@Override
-		public void afterNextFlush(final Runnable runnable) {
+		public void afterNextFlush(final TranscriberRunnable<T> runnable) {
 			this.transcriber.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -804,7 +804,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								}
 								
 								@Override
-								public void afterNextFlush(Runnable runnable) {
+								public void afterNextFlush(TranscriberRunnable<T> runnable) {
 									afterNextFlushRunnables.add(runnable);
 								}
 	
@@ -834,13 +834,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								}
 							}
 							
+							for(TranscriberRunnable<T> runnable: afterNextFlushRunnables)
+								runnable.run(isolatableCollector);
+							
 							currentEnlistedTransactionFactories = sideEffectFactories;
 						}
 						
 						currentEnlistedTransactionFactories.clear();
-						
-						for(Runnable runnable: afterNextFlushRunnables)
-							runnable.run();
 					}
 				}
 			});
@@ -909,7 +909,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							public void enqueue(DualCommandFactory<T> transactionFactory) { }
 							
 							@Override
-							public void afterNextFlush(Runnable runnable) {
+							public void afterNextFlush(TranscriberRunnable<T> runnable) {
 								afterNextFlushRunnables.add(runnable);
 							}
 
@@ -927,8 +927,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							transaction.executeBackwardOn(propCtx, transcriber.prevalentSystem, null, null, isolatedCollector);
 						}
 						
-						for(Runnable runnable: afterNextFlushRunnables)
-							runnable.run();
+						while(afterNextFlushRunnables.size() > 0) {
+							ArrayList<TranscriberRunnable<T>> afterNextFlushRunnablesClone = afterNextFlushRunnables;
+							afterNextFlushRunnables = new ArrayList<TranscriberRunnable<T>>();
+							for(TranscriberRunnable<T> runnable: afterNextFlushRunnablesClone)
+								runnable.run(isolatedCollector);
+						}
 						
 						state = STATE_REJECTED;
 					}
