@@ -42,6 +42,7 @@ import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.TranscriberOnFlush;
 import dynamake.transcription.TranscriberRunnable;
 
 public class LiveModel extends Model {
@@ -554,6 +555,7 @@ public class LiveModel extends Model {
 				toolConnection.afterNextFlush(new TranscriberRunnable<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
+//						System.out.println("sdf");
 						buttonsDown++;
 						
 						int button = e.getButton();
@@ -577,15 +579,10 @@ public class LiveModel extends Model {
 						}
 					}
 				});
-				toolConnection.afterNextFlush(new TranscriberRunnable<Model>() {
+				toolConnection.afterNextFlush(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								productionPanel.livePanel.repaint();
-							}
-						});
+						productionPanel.livePanel.repaint();
 					}
 				});
 				toolConnection.flush();
@@ -634,15 +631,10 @@ public class LiveModel extends Model {
 						}
 					}
 				});
-				toolConnection.afterNextFlush(new TranscriberRunnable<Model>() {
+				toolConnection.afterNextFlush(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								productionPanel.livePanel.repaint();
-							}
-						});
+						productionPanel.livePanel.repaint();
 					}
 				});
 				toolConnection.flush();
@@ -679,15 +671,10 @@ public class LiveModel extends Model {
 						}
 					}
 				});
-				toolConnection.afterNextFlush(new TranscriberRunnable<Model>() {
+				toolConnection.afterNextFlush(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								productionPanel.livePanel.repaint();
-							}
-						});
+						productionPanel.livePanel.repaint();
 					}
 				});
 				toolConnection.flush();

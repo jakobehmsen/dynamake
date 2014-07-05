@@ -14,6 +14,7 @@ import dynamake.models.ModelComponent;
 import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberOnFlush;
 import dynamake.transcription.TranscriberRunnable;
 
 public class TargetPresenter {
@@ -36,10 +37,10 @@ public class TargetPresenter {
 		update(newTargetOver, new Runner() {
 			@Override
 			public void run(final Runnable runnable) {
-				collector.afterNextFlush(new TranscriberRunnable<Model>() {
+				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
-						SwingUtilities.invokeLater(runnable);
+						runnable.run();
 					}
 				});
 			}
@@ -110,10 +111,10 @@ public class TargetPresenter {
 		reset(new Runner() {
 			@Override
 			public void run(final Runnable runnable) {
-				collector.afterNextFlush(new TranscriberRunnable<Model>() {
+				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
-						SwingUtilities.invokeLater(runnable);
+						runnable.run();
 					}
 				});
 			}

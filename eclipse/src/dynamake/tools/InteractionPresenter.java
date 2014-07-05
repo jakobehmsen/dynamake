@@ -31,6 +31,7 @@ import dynamake.models.ModelComponent;
 import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberOnFlush;
 import dynamake.transcription.TranscriberRunnable;
 
 public class InteractionPresenter {
@@ -54,10 +55,10 @@ public class InteractionPresenter {
 		selectFromView(view, initialMouseDown, new Runner() {
 			@Override
 			public void run(final Runnable runnable) {
-				collector.afterNextFlush(new TranscriberRunnable<Model>() {
+				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
-						SwingUtilities.invokeLater(runnable);
+						runnable.run();
 					}
 				});
 			}
@@ -402,10 +403,10 @@ public class InteractionPresenter {
 		reset(new Runner() {
 			@Override
 			public void run(final Runnable runnable) {
-				collector.afterNextFlush(new TranscriberRunnable<Model>() {
+				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
-						SwingUtilities.invokeLater(runnable);
+						runnable.run();
 					}
 				});
 			}
@@ -434,10 +435,10 @@ public class InteractionPresenter {
 		changeEffectFrameDirect2(newBounds, new Runner() {
 			@Override
 			public void run(final Runnable runnable) {
-				collector.afterNextFlush(new TranscriberRunnable<Model>() {
+				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
-						SwingUtilities.invokeLater(runnable);
+						runnable.run();
 					}
 				});
 			}
