@@ -20,6 +20,7 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class BindTool implements Tool {
 	@Override
@@ -28,35 +29,35 @@ public class BindTool implements Tool {
 	}
 
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseExited(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseExited(ProductionPanel productionPanel, MouseEvent e, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		final ModelComponent targetModelComponent = modelOver;
 		
-		final TranscriberBranch<Model> branchStep2 = branch.branch();
-		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//		final TranscriberBranch<Model> branchStep2 = branch.branch();
+//		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//		
+//		branch.close();
 		
-		branch.close();
-		
-		targetPresenter.reset(branchStep2);
+		targetPresenter.reset(collector);
 		targetPresenter = null;
 
 		final ModelComponent selection = interactionPresenter.getSelection();
-		interactionPresenter.reset(branchStep2);
+		interactionPresenter.reset(collector);
 		interactionPresenter = null;
 		
 		if(targetModelComponent != null && selection != targetModelComponent) {
 			if(selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
-				PropogationContext propCtx = new PropogationContext();
-				branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+//				PropogationContext propCtx = new PropogationContext();
+				collector.enqueue(new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						Location observableLocation = selection.getModelTranscriber().getModelLocation();
@@ -69,8 +70,8 @@ public class BindTool implements Tool {
 					}
 				});
 			} else {
-				PropogationContext propCtx = new PropogationContext();
-				branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+//				PropogationContext propCtx = new PropogationContext();
+				collector.enqueue(new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						Location observableLocation = selection.getModelTranscriber().getModelLocation();
@@ -84,32 +85,34 @@ public class BindTool implements Tool {
 				});
 			}
 			
-			branchStep2.close();
+//			branchStep2.close();
+			collector.commit();
 		} else {
-			branchStep2.reject();
+			collector.reject();
+//			branchStep2.reject();
 		}
 		
 		mouseDown = null;
 	}
 	
 	private Point mouseDown;
-	private TranscriberBranch<Model> branch;
+//	private TranscriberBranch<Model> branch;
 	private TargetPresenter targetPresenter;
 	private InteractionPresenter interactionPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
-		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
+	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
+//		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 		
-		final TranscriberBranch<Model> branchStep1 = branch.branch();
+//		final TranscriberBranch<Model> branchStep1 = branch.branch();
 		
-		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 
 		ModelComponent targetModelComponent = modelOver;
 
 		Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 		interactionPresenter = new InteractionPresenter(productionPanel);
-		interactionPresenter.selectFromView(targetModelComponent, referencePoint, branchStep1);
+		interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
 		
 		targetPresenter = new TargetPresenter(
 			productionPanel,
@@ -128,19 +131,19 @@ public class BindTool implements Tool {
 			}
 		);
 		
-		targetPresenter.update(modelOver, branchStep1);
+		targetPresenter.update(modelOver, collector);
 		
 		mouseDown = e.getPoint();
 		
-		branchStep1.close();
+//		branchStep1.close();
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		if(mouseDown != null) {
-			final RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+//			final RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			
-			targetPresenter.update(modelOver, runBuilder);
+			targetPresenter.update(modelOver, collector);
 			
 			final int width = interactionPresenter.getEffectFrameWidth();
 			final int height = interactionPresenter.getEffectFrameHeight();
@@ -150,9 +153,9 @@ public class BindTool implements Tool {
 			final int x = interactionPresenter.getSelectionFrameLocation().x + (cursorLocationInProductionPanel.x - mouseDown.x);
 			final int y = interactionPresenter.getSelectionFrameLocation().y + (cursorLocationInProductionPanel.y - mouseDown.y);
 			
-			interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), runBuilder);
+			interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), collector);
 			
-			runBuilder.execute();
+//			runBuilder.execute();
 		}
 	}
 
@@ -162,18 +165,18 @@ public class BindTool implements Tool {
 	}
 
 	@Override
-	public void rollback(ProductionPanel productionPanel) {
-		final TranscriberBranch<Model> branchStep2 = branch.branch();
-		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
+//		final TranscriberBranch<Model> branchStep2 = branch.branch();
+//		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
-		targetPresenter.reset(branchStep2);
+		targetPresenter.reset(collector);
 		targetPresenter = null;
 
-		interactionPresenter.reset(branchStep2);
+		interactionPresenter.reset(collector);
 		interactionPresenter = null;
 		
-		branchStep2.close();
-		
-		branch.reject();
+//		branchStep2.close();
+//		
+//		branch.reject();
 	}
 }

@@ -14,6 +14,7 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class RedoTool implements Tool {
 @Override
@@ -22,13 +23,13 @@ public class RedoTool implements Tool {
 	}
 
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
+	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) { }
 
 	@Override
-	public void mouseExited(ProductionPanel productionPanel, MouseEvent e) { }
+	public void mouseExited(ProductionPanel productionPanel, MouseEvent e, TranscriberCollector<Model> collector) { }
 
 	@Override
-	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver) {
+	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver, TranscriberCollector<Model> collector) {
 //		productionPanel.livePanel.redo();
 		
 		TranscriberBranch<Model> branch = modelOver.getModelTranscriber().createBranch();
@@ -49,10 +50,10 @@ public class RedoTool implements Tool {
 	}
 
 	@Override
-	public void mousePressed(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
+	public void mousePressed(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) { }
 
 	@Override
-	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
+	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) { }
 
 	@Override
 	public void paint(Graphics g) {
@@ -61,7 +62,7 @@ public class RedoTool implements Tool {
 	}
 
 	@Override
-	public void rollback(ProductionPanel productionPanel) {
+	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
 		// TODO Auto-generated method stub
 		
 	}

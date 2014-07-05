@@ -17,6 +17,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
+import dynamake.delegates.Runner;
 import dynamake.dragndrop.ConsDragDropPopupBuilder;
 import dynamake.dragndrop.DragDragDropPopupBuilder;
 import dynamake.dragndrop.DragDropPopupBuilder;
@@ -29,6 +30,8 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberRunnable;
 
 public class InteractionPresenter {
 	public static final Color SELECTION_COLOR = Color.GRAY;
@@ -47,22 +50,63 @@ public class InteractionPresenter {
 		return selection;
 	}
 	
-	public void selectFromView(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
-		Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-		select(view, branch);
-		createEffectFrame(effectBounds, branch);
+	public void selectFromView(final ModelComponent view, final Point initialMouseDown, final TranscriberCollector<Model> collector) {
+		selectFromView(view, initialMouseDown, new Runner() {
+			@Override
+			public void run(final Runnable runnable) {
+				collector.afterNextFlush(new TranscriberRunnable<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						SwingUtilities.invokeLater(runnable);
+					}
+				});
+			}
+		});
 	}
 	
-	public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, TranscriberBranch<Model> branch) {
+	public void selectFromView(final ModelComponent view, final Point initialMouseDown, final TranscriberBranch<Model> branch) {
+		selectFromView(view, initialMouseDown, new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				branch.onFinished(runnable);
+			}
+		});
+	}
+	
+	public void selectFromView(final ModelComponent view, final Point initialMouseDown, Runner runner) {
+		Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+		select(view, runner);
+		createEffectFrame(effectBounds, runner);
+	}
+	
+	public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, final TranscriberBranch<Model> branch) {
+		selectFromDefault(view, initialMouseDown, new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				branch.onFinished(runnable);
+			}
+		});
+	}
+	
+	public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, Runner runner) {
 		Dimension sourceBoundsSize = new Dimension(125, 33);
 		Point sourceBoundsLocation = new Point(initialMouseDown.x - sourceBoundsSize.width / 2, initialMouseDown.y - sourceBoundsSize.height / 2);
 		Rectangle sourceBounds = new Rectangle(sourceBoundsLocation, sourceBoundsSize);
 		Rectangle selectionBounds = SwingUtilities.convertRectangle((JComponent)view, sourceBounds, productionPanel);
-		select(view, branch);
-		createEffectFrame(selectionBounds, branch);
+		select(view, runner);
+		createEffectFrame(selectionBounds, runner);
 	}
 	
-	private void select(final ModelComponent view, TranscriberBranch<Model> branch) {
+//	private void select(final ModelComponent view, final TranscriberBranch<Model> branch) {
+//		select(view, new Runner() {
+//			@Override
+//			public void run(Runnable runnable) {
+//				branch.onFinished(runnable);
+//			}
+//		});
+//	}
+	
+	private void select(final ModelComponent view, Runner runner) {
 		// <Don't remove>
 		// Whether the following check is necessary or not has not been decided yet, so don't remove the code
 //		if(this.selection == view)
@@ -151,7 +195,15 @@ public class InteractionPresenter {
 
 				selectionFrame = localSelectionFrame;
 				
-				branch.onFinished(new Runnable() {
+//				branch.onFinished(new Runnable() {
+//					@Override
+//					public void run() {
+//						productionPanel.add(localSelectionFrame);
+////						System.out.println("Added selectionFrame");
+//					}
+//				});
+				
+				runner.run(new Runnable() {
 					@Override
 					public void run() {
 						productionPanel.add(localSelectionFrame);
@@ -163,7 +215,17 @@ public class InteractionPresenter {
 			final JPanel localSelectionFrame = this.selectionFrame;
 			
 			// Wait deriving the Swing based bounds because the adding of the component is postponed to the next repaint sync
-			branch.onFinished(new Runnable() {
+//			branch.onFinished(new Runnable() {
+//				@Override
+//				public void run() {
+//					final Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
+//					localSelectionFrame.setBounds(selectionBounds);
+////					System.out.println("Changed selection bounds");
+//				}
+//			});
+
+			// Wait deriving the Swing based bounds because the adding of the component is postponed to the next repaint sync
+			runner.run(new Runnable() {
 				@Override
 				public void run() {
 					final Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
@@ -214,17 +276,33 @@ public class InteractionPresenter {
 			};
 		} else {
 			if(selectionFrame != null)
-				clearFocus(branch);
+				clearFocus(runner);
 		}
 	}
 	
-	private void clearFocus(TranscriberBranch<Model> branch) {
+	private void clearFocus(final TranscriberBranch<Model> branch) {
+		clearFocus(new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				branch.onFinished(runnable);
+			}
+		});
+	}
+	
+	private void clearFocus(Runner runner) {
 		if(selectionFrame != null) {
 			if(selectionBoundsBinding != null)
 				selectionBoundsBinding.releaseBinding();
 			
 			final JPanel localSelectionFrame = selectionFrame;
-			branch.onFinished(new Runnable() {
+//			branch.onFinished(new Runnable() {
+//				@Override
+//				public void run() {
+//					productionPanel.remove(localSelectionFrame);
+////					System.out.println("Removed selectionFrame");
+//				}
+//			});
+			runner.run(new Runnable() {
 				@Override
 				public void run() {
 					productionPanel.remove(localSelectionFrame);
@@ -235,12 +313,21 @@ public class InteractionPresenter {
 		}
 	}
 	
-	private void clearEffectFrameOnBranch(TranscriberBranch<Model> branch) {
+	private void clearEffectFrameOnBranch(final TranscriberBranch<Model> branch) {
+		clearEffectFrameOnBranch(new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				branch.onFinished(runnable);
+			}
+		});
+	}
+	
+	private void clearEffectFrameOnBranch(Runner runner) {
 		if(effectFrame != null) {
 			final JPanel localEffectFrame = effectFrame;
 			effectFrame = null;
 //			initialEffectBounds = null;
-			branch.onFinished(new Runnable() {
+			runner.run(new Runnable() {
 				@Override
 				public void run() {
 					productionPanel.remove(localEffectFrame);
@@ -252,7 +339,7 @@ public class InteractionPresenter {
 		}
 	}
 	
-	private void createEffectFrame(Rectangle creationBounds, TranscriberBranch<Model> branch) {
+	private void createEffectFrame(Rectangle creationBounds, Runner runner) {
 		if(effectFrame == null) {
 			final JPanel localEffectFrame = new JPanel();
 			localEffectFrame.setBackground(new Color(0, 0, 0, 0));
@@ -274,7 +361,7 @@ public class InteractionPresenter {
 			// Ensure effect frame is shown in front of selection frame
 			if(selectionFrame != null) {
 				final JPanel localSelectionFrame = selectionFrame; 
-				branch.onFinished(new Runnable() {
+				runner.run(new Runnable() {
 					@Override
 					public void run() {
 						// NOTICE: DON'T REMOVE THE COMMENTED FOLLOWING CODE
@@ -298,7 +385,7 @@ public class InteractionPresenter {
 					}
 				});
 			} else {
-				branch.onFinished(new Runnable() {
+				runner.run(new Runnable() {
 					@Override
 					public void run() {
 						productionPanel.add(localEffectFrame);
@@ -310,21 +397,67 @@ public class InteractionPresenter {
 			System.out.println("Attempted to created an effect frame when it has already been created.");
 		}
 	}
+
+	public void reset(final TranscriberCollector<Model> collector) {
+		reset(new Runner() {
+			@Override
+			public void run(final Runnable runnable) {
+				collector.afterNextFlush(new TranscriberRunnable<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						SwingUtilities.invokeLater(runnable);
+					}
+				});
+			}
+		});
+	}
+
+	public void reset(final TranscriberBranch<Model> branch) {
+		reset(new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				branch.onFinished(runnable);
+			}
+		});
+	}
 	
-	public void reset(TranscriberBranch<Model> branch) {
-		clearFocus(branch);
-		clearEffectFrameOnBranch(branch);
+	public void reset(Runner runner) {
+		clearFocus(runner);
+		clearEffectFrameOnBranch(runner);
 	}
 
 	public Rectangle getEffectFrameBounds() {
 		return effectFrame.getBounds();
 	}
 	
-	public void changeEffectFrameDirect2(final Rectangle newBounds, RunBuilder runBuilder) {
+	public void changeEffectFrameDirect2(final Rectangle newBounds, final TranscriberCollector<Model> collector) {
+		changeEffectFrameDirect2(newBounds, new Runner() {
+			@Override
+			public void run(final Runnable runnable) {
+				collector.afterNextFlush(new TranscriberRunnable<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						SwingUtilities.invokeLater(runnable);
+					}
+				});
+			}
+		});
+	}
+	
+	public void changeEffectFrameDirect2(final Rectangle newBounds, final RunBuilder runBuilder) {
+		changeEffectFrameDirect2(newBounds, new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				runBuilder.addRunnable(runnable);
+			}
+		});
+	}
+	
+	public void changeEffectFrameDirect2(final Rectangle newBounds, Runner runner) {
 		if(effectFrame != null) {
 			final JPanel localEffectFrame = effectFrame;
 			
-			runBuilder.addRunnable(new Runnable() {
+			runner.run(new Runnable() {
 				@Override
 				public void run() {
 					localEffectFrame.setBounds(newBounds);
@@ -377,9 +510,18 @@ public class InteractionPresenter {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ViewDragDropPopupBuilder(branch));
 	}
 
-	public void selectFromEmpty(ModelComponent view, Point initialMouseDown, TranscriberBranch<Model> branch) {
-		select(view, branch);
-		createEffectFrame(new Rectangle(0, 0, 0, 0), branch);
+	public void selectFromEmpty(ModelComponent view, Point initialMouseDown, final TranscriberBranch<Model> branch) {
+		selectFromEmpty(view, initialMouseDown, new Runner() {
+			@Override
+			public void run(Runnable runnable) {
+				branch.onFinished(runnable);
+			}
+		});
+	}
+
+	public void selectFromEmpty(ModelComponent view, Point initialMouseDown, Runner runner) {
+		select(view, runner);
+		createEffectFrame(new Rectangle(0, 0, 0, 0), runner);
 	}
 	
 	private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, final DragDropPopupBuilder popupBuilder) {

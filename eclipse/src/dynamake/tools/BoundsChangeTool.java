@@ -22,10 +22,11 @@ import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public abstract class BoundsChangeTool implements Tool {
 	@Override
-	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 //		if(productionPanel.editPanelMouseAdapter.selection == modelOver && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 //			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
 //			relativePosition = new RelativePosition(point, ((JComponent)modelOver).getSize());
@@ -34,12 +35,12 @@ public abstract class BoundsChangeTool implements Tool {
 	}
 
 	@Override
-	public void mouseExited(final ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseExited(final ProductionPanel productionPanel, MouseEvent e, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		if(viewPressedOn != null) {
 			viewPressedOn = null;
 			
@@ -122,7 +123,7 @@ public abstract class BoundsChangeTool implements Tool {
 	private InteractionPresenter interactionPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		ModelComponent targetModelComponent = modelOver;
 
 		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
@@ -173,7 +174,7 @@ public abstract class BoundsChangeTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		if(mouseDown != null && interactionPresenter.getSelection() != productionPanel.contentView.getBindingTarget()) {
 			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			
@@ -221,7 +222,7 @@ public abstract class BoundsChangeTool implements Tool {
 	}
 	
 	@Override
-	public void rollback(ProductionPanel productionPanel) {
+	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
 		if(mouseDown != null) {
 			final TranscriberBranch<Model> branchStep2 = branch.branch();
 			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));

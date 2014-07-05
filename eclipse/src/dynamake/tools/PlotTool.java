@@ -27,6 +27,7 @@ import dynamake.models.factories.Factory;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class PlotTool implements Tool {
 	@Override
@@ -35,17 +36,17 @@ public class PlotTool implements Tool {
 	}
 
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseExited(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseExited(ProductionPanel productionPanel, MouseEvent e, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		if(mouseDown != null) {
 			final Rectangle creationBoundsInProductionPanel = interactionPresenter.getPlotBounds(mouseDown, e.getPoint());
 			final Rectangle creationBoundsInSelection = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, interactionPresenter.getSelectionFrame());
@@ -131,7 +132,7 @@ public class PlotTool implements Tool {
 	private InteractionPresenter interactionPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver) {
+	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 		
 		TranscriberBranch<Model> branchStep1 = branch.branch();
@@ -150,7 +151,7 @@ public class PlotTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver) {
+	public void mouseDragged(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		if(mouseDown != null) {
 			final Rectangle plotBoundsInProductionPanel = interactionPresenter.getPlotBounds(mouseDown, e.getPoint());
 			
@@ -166,7 +167,7 @@ public class PlotTool implements Tool {
 	}
 
 	@Override
-	public void rollback(ProductionPanel productionPanel) {
+	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
 		final TranscriberBranch<Model> branchStep2 = branch.branch();
 		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 

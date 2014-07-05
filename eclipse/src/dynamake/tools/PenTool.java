@@ -27,6 +27,7 @@ import dynamake.models.factories.StrokeModelFactory;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class PenTool implements Tool {
 	@Override
@@ -38,17 +39,17 @@ public class PenTool implements Tool {
 	private Path2D.Double shape;
 
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		
 	}
 
 	@Override
-	public void mouseExited(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseExited(ProductionPanel productionPanel, MouseEvent e, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		final ArrayList<Point> pointsForCreation = points;
 		// Deriving bounds for shape composition is different than the below:
 		final Rectangle creationBoundsInProductionPanelSource = shape.getBounds();
@@ -98,7 +99,7 @@ public class PenTool implements Tool {
 	private TargetPresenter targetPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		points = new ArrayList<Point>();
 		shape = new Path2D.Double();
 		points.add(e.getPoint());
@@ -130,7 +131,7 @@ public class PenTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		points.add(e.getPoint());
 		shape.lineTo(e.getX(), e.getY());
 		
@@ -160,7 +161,7 @@ public class PenTool implements Tool {
 	}
 
 	@Override
-	public void rollback(ProductionPanel productionPanel) {
+	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
 		final TranscriberBranch<Model> branchStep2 = branch.branch();
 		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		

@@ -14,6 +14,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class DragTool implements Tool {
 	@Override
@@ -22,17 +23,17 @@ public class DragTool implements Tool {
 	}
 
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseExited(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseExited(ProductionPanel productionPanel, MouseEvent e, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 //		System.out.println("Drag tool mouseReleased");
 		
 		ModelComponent targetModelComponent = modelOver;
@@ -65,7 +66,7 @@ public class DragTool implements Tool {
 	private InteractionPresenter interactionPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 //		System.out.println("Drag tool mousePressed");
 		
 		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
@@ -106,7 +107,7 @@ public class DragTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 //		System.out.println("Drag tool mouseDragged (mouseDown=" + mouseDown + ")");
 		
 		if(mouseDown != null) {
@@ -134,7 +135,7 @@ public class DragTool implements Tool {
 	}
 
 	@Override
-	public void rollback(ProductionPanel productionPanel) {
+	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
 		// TODO Auto-generated method stub
 		
 	}

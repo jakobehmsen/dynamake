@@ -6,4 +6,6 @@ public interface TranscriberCollector<T> {
 	void registerAffectedModel(T model);
 	void beginIsolation();
 	void endIsolation();
+	void reject();
+	void commit();
 }

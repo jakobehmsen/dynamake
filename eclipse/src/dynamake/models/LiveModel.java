@@ -42,6 +42,7 @@ import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.TranscriberRunnable;
 
 public class LiveModel extends Model {
 	/**
@@ -301,9 +302,15 @@ public class LiveModel extends Model {
 								}
 							}
 						});
+						connection.afterNextFlush(new TranscriberRunnable<Model>() {
+							@Override
+							public void run(TranscriberCollector<Model> collector) {
+								collector.commit();
+							}
+						});
 						
 						connection.flush();
-						connection.commit();
+//						connection.commit();
 
 //						PropogationContext propCtx = new PropogationContext();
 //						
@@ -495,6 +502,7 @@ public class LiveModel extends Model {
 			
 			public EditPanelMouseAdapter(ProductionPanel productionPanel) {
 				this.productionPanel = productionPanel;
+				toolConnection = productionPanel.livePanel.getModelTranscriber().createConnection();
 			}
 			
 			private Tool getTool(List<Integer> buttons) {
@@ -504,19 +512,19 @@ public class LiveModel extends Model {
 				} else {
 					return new Tool() {
 						@Override
-						public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
+						public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) { }
 						
 						@Override
-						public void mousePressed(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
+						public void mousePressed(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) { }
 						
 						@Override
-						public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
+						public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) { }
 						
 						@Override
-						public void mouseExited(ProductionPanel productionPanel, MouseEvent e) { }
+						public void mouseExited(ProductionPanel productionPanel, MouseEvent e, TranscriberCollector<Model> collector) { }
 						
 						@Override
-						public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) { }
+						public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) { }
 						
 						@Override
 						public String getName() { return null; }
@@ -525,7 +533,7 @@ public class LiveModel extends Model {
 						public void paint(Graphics g) { }
 						
 						@Override
-						public void rollback(ProductionPanel productionPanel) { }
+						public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) { }
 					};
 				}
 			}
@@ -540,89 +548,197 @@ public class LiveModel extends Model {
 			private int buttonsDown;
 			public ArrayList<Integer> buttonsPressed = new ArrayList<Integer>();
 			
+			private TranscriberConnection<Model> toolConnection;
+			
 			public void mousePressed(final MouseEvent e) {
-				buttonsDown++;
-				
-				int button = e.getButton();
-				
-				if(!buttonsPressed.contains(button)) {
-					if(buttonsPressed.size() > 0) {
-						final Tool toolToRollback = toolBeingApplied;
+				toolConnection.afterNextFlush(new TranscriberRunnable<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						buttonsDown++;
 						
-						productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
+						int button = e.getButton();
+						
+						if(!buttonsPressed.contains(button)) {
+							if(buttonsPressed.size() > 0) {
+								final Tool toolToRollback = toolBeingApplied;
+								
+								toolToRollback.rollback(productionPanel, collector);
+								collector.reject();
+							}
+							
+							buttonsPressed.add(button);
+							Collections.sort(buttonsPressed);
+							toolBeingApplied = getTool(buttonsPressed);
+							
+							final ModelComponent modelOver = getModelOver(e);
+							final Tool toolToApply = toolBeingApplied;
+							
+							toolToApply.mousePressed(productionPanel, e, modelOver, collector);
+						}
+					}
+				});
+				toolConnection.afterNextFlush(new TranscriberRunnable<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								toolToRollback.rollback(productionPanel);
+								productionPanel.livePanel.repaint();
 							}
 						});
 					}
-					
-					buttonsPressed.add(button);
-					Collections.sort(buttonsPressed);
-					toolBeingApplied = getTool(buttonsPressed);
-					
-					final ModelComponent modelOver = getModelOver(e);
-					final Tool toolToApply = toolBeingApplied;
-					
-					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
-						@Override
-						public void run() {
-							toolToApply.mousePressed(productionPanel, e, modelOver);
-						}
-					});
-				}
+				});
+				toolConnection.flush();
+				
+//				buttonsDown++;
+//				
+//				int button = e.getButton();
+//				
+//				if(!buttonsPressed.contains(button)) {
+//					if(buttonsPressed.size() > 0) {
+//						final Tool toolToRollback = toolBeingApplied;
+//						
+//						productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
+//							@Override
+//							public void run() {
+//								toolToRollback.rollback(productionPanel, collector);
+//							}
+//						});
+//					}
+//					
+//					buttonsPressed.add(button);
+//					Collections.sort(buttonsPressed);
+//					toolBeingApplied = getTool(buttonsPressed);
+//					
+//					final ModelComponent modelOver = getModelOver(e);
+//					final Tool toolToApply = toolBeingApplied;
+//					
+//					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
+//						@Override
+//						public void run() {
+//							toolToApply.mousePressed(productionPanel, e, modelOver, collector);
+//						}
+//					});
+//				}
 			}
 
 			public void mouseDragged(final MouseEvent e) {
-				final ModelComponent modelOver = getModelOver(e);
+				toolConnection.afterNextFlush(new TranscriberRunnable<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						final ModelComponent modelOver = getModelOver(e);
 
-				if(modelOver != null) {
-					final Tool toolToApply = toolBeingApplied;
-					
-					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
-						@Override
-						public void run() {
-							toolToApply.mouseDragged(productionPanel, e, modelOver);
+						if(modelOver != null) {
+							final Tool toolToApply = toolBeingApplied;
+							toolToApply.mouseDragged(productionPanel, e, modelOver, collector);
 						}
-					});
-				}
+					}
+				});
+				toolConnection.afterNextFlush(new TranscriberRunnable<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								productionPanel.livePanel.repaint();
+							}
+						});
+					}
+				});
+				toolConnection.flush();
+				
+//				final ModelComponent modelOver = getModelOver(e);
+//
+//				if(modelOver != null) {
+//					final Tool toolToApply = toolBeingApplied;
+//					
+//					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
+//						@Override
+//						public void run() {
+//							toolToApply.mouseDragged(productionPanel, e, modelOver, collector);
+//						}
+//					});
+//				}
 			}
 
 			public void mouseReleased(final MouseEvent e) {
-				buttonsDown--;
-				
-				final ModelComponent modelOver = getModelOver(e);
-
-				if(modelOver != null) {
-					if(buttonsDown == 0) {
-						final Tool toolToApply = toolBeingApplied;
+				toolConnection.afterNextFlush(new TranscriberRunnable<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						buttonsDown--;
 						
-						productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
+						final ModelComponent modelOver = getModelOver(e);
+
+						if(modelOver != null) {
+							if(buttonsDown == 0) {
+								final Tool toolToApply = toolBeingApplied;
+								toolToApply.mouseReleased(productionPanel, e, modelOver, collector);
+								
+								buttonsPressed.clear();
+							}
+						}
+					}
+				});
+				toolConnection.afterNextFlush(new TranscriberRunnable<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						SwingUtilities.invokeLater(new Runnable() {
 							@Override
 							public void run() {
-								toolToApply.mouseReleased(productionPanel, e, modelOver);
+								productionPanel.livePanel.repaint();
 							}
 						});
-						
-						buttonsPressed.clear();
 					}
-				}
+				});
+				toolConnection.flush();
+//				buttonsDown--;
+//				
+//				final ModelComponent modelOver = getModelOver(e);
+//
+//				if(modelOver != null) {
+//					if(buttonsDown == 0) {
+//						final Tool toolToApply = toolBeingApplied;
+//						
+//						productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
+//							@Override
+//							public void run() {
+//								toolToApply.mouseReleased(productionPanel, e, modelOver, collector);
+//							}
+//						});
+//						
+//						buttonsPressed.clear();
+//					}
+//				}
 			}
 			
 			@Override
 			public void mouseMoved(final MouseEvent e) {
-				final ModelComponent modelOver = getModelOver(e);
-
-				if(modelOver != null) {
-					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
-						@Override
-						public void run() {
-							// The tool associated to button 1 is used as a "master" tool
-							int button = 1;
-							getTool(Arrays.asList(button)).mouseMoved(productionPanel, e, modelOver);
-						}
-					});
-				}
+//				toolConnection.afterNextFlush(new TranscriberRunnable<Model>() {
+//					@Override
+//					public void run(TranscriberCollector<Model> collector) {
+//						final ModelComponent modelOver = getModelOver(e);
+//
+//						if(modelOver != null) {
+//							// The tool associated to button 1 is used as a "master" tool
+//							int button = 1;
+//							getTool(Arrays.asList(button)).mouseMoved(productionPanel, e, modelOver, collector);
+//						}
+//					}
+//				});
+//				toolConnection.flush();
+				
+//				final ModelComponent modelOver = getModelOver(e);
+//
+//				if(modelOver != null) {
+//					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
+//						@Override
+//						public void run() {
+//							// The tool associated to button 1 is used as a "master" tool
+//							int button = 1;
+//							getTool(Arrays.asList(button)).mouseMoved(productionPanel, e, modelOver, collector);
+//						}
+//					});
+//				}
 			}
 		}
 		

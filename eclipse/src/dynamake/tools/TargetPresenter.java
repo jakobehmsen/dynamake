@@ -13,6 +13,8 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberRunnable;
 
 public class TargetPresenter {
 	public interface Behavior {
@@ -28,6 +30,20 @@ public class TargetPresenter {
 	public TargetPresenter(JComponent container, Behavior behavior) {
 		this.container = container;
 		this.behavior = behavior;
+	}
+	
+	public void update(ModelComponent newTargetOver, final TranscriberCollector<Model> collector) {
+		update(newTargetOver, new Runner() {
+			@Override
+			public void run(final Runnable runnable) {
+				collector.afterNextFlush(new TranscriberRunnable<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						SwingUtilities.invokeLater(runnable);
+					}
+				});
+			}
+		});
 	}
 	
 	public void update(ModelComponent newTargetOver, final RunBuilder runBuilder) {
@@ -88,6 +104,20 @@ public class TargetPresenter {
 				});
 			}
 		}
+	}
+	
+	public void reset(final TranscriberCollector<Model> collector) {
+		reset(new Runner() {
+			@Override
+			public void run(final Runnable runnable) {
+				collector.afterNextFlush(new TranscriberRunnable<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						SwingUtilities.invokeLater(runnable);
+					}
+				});
+			}
+		});
 	}
 	
 	public void reset(final RunBuilder runBuilder) {

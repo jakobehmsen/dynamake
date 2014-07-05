@@ -21,6 +21,7 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class ConsTool implements Tool {
 	@Override
@@ -29,17 +30,17 @@ public class ConsTool implements Tool {
 	}
 
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseExited(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseExited(ProductionPanel productionPanel, MouseEvent e, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		final ModelComponent targetModelComponent = modelOver;
 		
 		if(targetModelComponent != null && interactionPresenter.getSelection() != targetModelComponent) {
@@ -123,7 +124,7 @@ public class ConsTool implements Tool {
 	private InteractionPresenter interactionPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 		
 		TranscriberBranch<Model> branchStep1 = branch.branch();
@@ -166,7 +167,7 @@ public class ConsTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		if(mouseDown != null) {
 			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			
@@ -192,7 +193,7 @@ public class ConsTool implements Tool {
 	}
 
 	@Override
-	public void rollback(ProductionPanel productionPanel) {
+	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
 		final TranscriberBranch<Model> branchStep2 = branch.branch();
 		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		

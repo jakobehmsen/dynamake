@@ -13,20 +13,21 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public abstract class RepetitiveCanvasTaskTool implements Tool {
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		
 	}
 
 	@Override
-	public void mouseExited(ProductionPanel productionPanel, MouseEvent e) {
+	public void mouseExited(ProductionPanel productionPanel, MouseEvent e, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		canvas = null;
 
 		final TranscriberBranch<Model> branchReset = branch.branch();
@@ -46,7 +47,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 	private TargetPresenter targetPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver) {
+	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 		
 		canvas = ModelComponent.Util.closestCanvasModelComponent(modelOver);
@@ -74,7 +75,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		if(modelOver != canvas) {
 			final ModelComponent modelOverParent = ModelComponent.Util.getParent(modelOver);
 			
@@ -100,7 +101,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 	}
 
 	@Override
-	public void rollback(ProductionPanel productionPanel) {
+	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
 		final TranscriberBranch<Model> branchStep2 = branch.branch();
 		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
