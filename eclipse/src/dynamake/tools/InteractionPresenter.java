@@ -32,7 +32,6 @@ import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberOnFlush;
-import dynamake.transcription.TranscriberRunnable;
 
 public class InteractionPresenter {
 	public static final Color SELECTION_COLOR = Color.GRAY;
@@ -281,14 +280,14 @@ public class InteractionPresenter {
 		}
 	}
 	
-	private void clearFocus(final TranscriberBranch<Model> branch) {
-		clearFocus(new Runner() {
-			@Override
-			public void run(Runnable runnable) {
-				branch.onFinished(runnable);
-			}
-		});
-	}
+//	private void clearFocus(final TranscriberBranch<Model> branch) {
+//		clearFocus(new Runner() {
+//			@Override
+//			public void run(Runnable runnable) {
+//				branch.onFinished(runnable);
+//			}
+//		});
+//	}
 	
 	private void clearFocus(Runner runner) {
 		if(selectionFrame != null) {
@@ -314,14 +313,14 @@ public class InteractionPresenter {
 		}
 	}
 	
-	private void clearEffectFrameOnBranch(final TranscriberBranch<Model> branch) {
-		clearEffectFrameOnBranch(new Runner() {
-			@Override
-			public void run(Runnable runnable) {
-				branch.onFinished(runnable);
-			}
-		});
-	}
+//	private void clearEffectFrameOnBranch(final TranscriberBranch<Model> branch) {
+//		clearEffectFrameOnBranch(new Runner() {
+//			@Override
+//			public void run(Runnable runnable) {
+//				branch.onFinished(runnable);
+//			}
+//		});
+//	}
 	
 	private void clearEffectFrameOnBranch(Runner runner) {
 		if(effectFrame != null) {

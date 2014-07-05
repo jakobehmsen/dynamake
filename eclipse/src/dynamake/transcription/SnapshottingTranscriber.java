@@ -749,9 +749,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private static class Connection<T> implements TranscriberConnection<T> {
 		private SnapshottingTranscriber<T> transcriber;
 		private ArrayList<Object> enlistings = new ArrayList<Object>();
-		private ArrayList<DualCommandFactory<T>> enlistedTransactionFactories = new ArrayList<DualCommandFactory<T>>();
 		private ArrayList<DualCommand<T>> flushedTransactions = new ArrayList<DualCommand<T>>();
-		private ArrayList<TranscriberRunnable<T>> afterNextFlushRunnables = new ArrayList<TranscriberRunnable<T>>();
 		private HashSet<T> affectedModels = new HashSet<T>();
 		
 		public Connection(SnapshottingTranscriber<T> transcriber) {
@@ -763,7 +761,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			this.transcriber.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-//					enlistedTransactionFactories.add(transactionFactory);
 					enlistings.add(transactionFactory);
 				}
 			});
@@ -774,7 +771,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			this.transcriber.transactionExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
-//					afterNextFlushRunnables.add(runnable);
 					enlistings.add(runnable);
 				}
 			});
@@ -787,7 +783,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			public int i;
 			
 			public Frame(ArrayList<Object> enlistings) {
-				super();
 				this.enlistings = enlistings;
 			}
 		}
@@ -795,132 +790,17 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		@Override
 		public void flush() {
 			this.transcriber.transactionExecutor.execute(new Runnable() {
+				@SuppressWarnings("unchecked")
 				@Override
 				public void run() {
-//					final ArrayList<DualCommandFactory<T>> currentEnlistedTransactionFactories = Connection.this.enlistedTransactionFactories;
-//					final ArrayList<TranscriberRunnable<T>> currentAfterNextFlushRunnables = Connection.this.afterNextFlushRunnables;
-//					
-//					Connection.this.enlistedTransactionFactories = new ArrayList<DualCommandFactory<T>>();
-//					Connection.this.afterNextFlushRunnables = new ArrayList<TranscriberRunnable<T>>();
-//					final boolean[] rejectHolder = new boolean[]{false};
-//					final boolean[] commitHolder = new boolean[]{false};
-//					
-//					TranscriberCollector<T> isolatableCollector = new TranscriberCollector<T>() {
-//						boolean inIsolation;
-//						
-//						@Override
-//						public void enqueue(DualCommandFactory<T> transactionFactory) {
-//							if(!inIsolation)
-//								currentEnlistedTransactionFactories.add(transactionFactory);
-//						}
-//						
-//						@Override
-//						public void afterNextFlush(TranscriberRunnable<T> runnable) {
-//							currentAfterNextFlushRunnables.add(runnable);
-//						}
-//
-//						@Override
-//						public void registerAffectedModel(T model) {
-//							affectedModels.add(model);
-//						}
-//						
-//						@Override
-//						public void beginIsolation() {
-//							inIsolation = true;
-//						}
-//						
-//						@Override
-//						public void endIsolation() {
-//							inIsolation = false;
-//						}
-//						
-//						@Override
-//						public void reject() {
-//							rejectHolder[0] = true;
-//							// Add special enlisted dual command factory
-//						}
-//						
-//						@Override
-//						public void commit() {
-//							commitHolder[0] = true;
-//							// Add special enlisted dual command factory
-//						}
-//					};
-//					
-//					while(currentEnlistedTransactionFactories.size() > 0 || currentAfterNextFlushRunnables.size() > 0) {
-//						@SuppressWarnings("unchecked")
-//						ArrayList<DualCommandFactory<T>> enlistedTransactionFactoriesClone = (ArrayList<DualCommandFactory<T>>)currentEnlistedTransactionFactories.clone();
-//						currentEnlistedTransactionFactories.clear();
-//						
-//						for(DualCommandFactory<T> transactionFactory: enlistedTransactionFactoriesClone) {
-//							// if transactionFactory is special reject dual command factory, then reject
-//
-//							// if transactionFactory is special commit dual command factory, then commit
-//							
-//							// otherwise, do the below
-//							
-//							ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
-//							transactionFactory.createDualCommands(dualCommands);
-//	
-//							for(DualCommand<T> transaction: dualCommands) {
-//								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, null, isolatableCollector);
-//								flushedTransactions.add(transaction);
-//								
-//								if(rejectHolder[0])
-//									break;
-//								
-//								if(commitHolder[0]) {
-//									doCommit();
-//									commitHolder[0] = false;
-//								}
-//							}
-//							
-//							if(rejectHolder[0])
-//								break;
-//						}
-//						
-//						if(rejectHolder[0])
-//							break;
-//
-//						@SuppressWarnings("unchecked")
-//						ArrayList<TranscriberRunnable<T>> afterNextFlushRunnablesClone = (ArrayList<TranscriberRunnable<T>>)currentAfterNextFlushRunnables.clone();
-//						currentAfterNextFlushRunnables.clear();
-//						
-//						for(TranscriberRunnable<T> runnable: afterNextFlushRunnablesClone) {
-//							runnable.run(isolatableCollector);
-//							
-//							if(rejectHolder[0])
-//								break;
-//							
-//							if(commitHolder[0]) {
-//								doCommit();
-//								commitHolder[0] = false;
-//							}
-//						}
-//					}
-//					
-//					if(rejectHolder[0]) {
-//						while(currentAfterNextFlushRunnables.size() > 0) {
-//							@SuppressWarnings("unchecked")
-//							ArrayList<TranscriberRunnable<T>> afterNextFlushRunnablesClone = (ArrayList<TranscriberRunnable<T>>)currentAfterNextFlushRunnables.clone();
-//							currentAfterNextFlushRunnables.clear();
-//							
-//							for(TranscriberRunnable<T> runnable: afterNextFlushRunnablesClone)
-//								runnable.run(isolatableCollector);
-//						}
-//						
-//						doReject();
-//					}
-					
 					final ArrayList<TranscriberOnFlush<T>> onFlush = new ArrayList<TranscriberOnFlush<T>>();
 					
-//					boolean rejecting = false;
 					Stack<Frame> frameStack = new Stack<Frame>();
 					
 					frameStack.push(new Frame(enlistings));
 					enlistings = new ArrayList<Object>();
 					
-					System.out.println("Started flushing...");
+//					System.out.println("Started flushing...");
 					
 					while(frameStack.size() > 0) {
 						Frame frame = frameStack.peek();
@@ -974,8 +854,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							switch(i) {
 							case 0: // reject
-//								frameStack.clear();
-//								rejecting = true;
 								doReject();
 								break;
 							case 1: // commit
@@ -1010,6 +888,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						}
 					}
 
+					// TODO: This should be factored out of this class
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
@@ -1018,142 +897,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						}
 					});
 					
-					System.out.println("Finished flushing.");
-					
-//					final ArrayList<Object> currentEnlistings = Connection.this.enlistings;
-//					
-//					Connection.this.enlistings = new ArrayList<Object>();
-//					
-//					TranscriberCollector<T> isolatableCollector = new TranscriberCollector<T>() {
-//						boolean inIsolation;
-//						
-//						@Override
-//						public void enqueue(DualCommandFactory<T> transactionFactory) {
-//							if(!inIsolation)
-//								currentEnlistings.add(transactionFactory);
-//						}
-//						
-//						@Override
-//						public void afterNextFlush(TranscriberRunnable<T> runnable) {
-//							currentEnlistings.add(runnable);
-//						}
-//
-//						@Override
-//						public void registerAffectedModel(T model) {
-//							affectedModels.add(model);
-//						}
-//						
-//						@Override
-//						public void beginIsolation() {
-//							inIsolation = true;
-//						}
-//						
-//						@Override
-//						public void endIsolation() {
-//							inIsolation = false;
-//						}
-//						
-//						@Override
-//						public void reject() {
-//							currentEnlistings.add(0);
-//						}
-//						
-//						@Override
-//						public void commit() {
-//							currentEnlistings.add(1);
-//						}
-//					};
-//					
-//					while(currentEnlistings.size() > 0) {
-//						@SuppressWarnings("unchecked")
-//						ArrayList<DualCommandFactory<T>> enlistingsClone = (ArrayList<DualCommandFactory<T>>)currentEnlistings.clone();
-//						currentEnlistings.clear();
-//						
-//						for(Object enlisting: enlistingsClone) {
-//							if(enlisting instanceof Integer) {
-//								int i = (int)enlisting;
-//								
-//								switch(i) {
-//								case 0: // reject
-//									doReject();
-//									break;
-//								case 1: // commit
-//									doCommit();
-//									break;
-//								}
-//							} else if(enlisting instanceof DualCommandFactory) {
-//								DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)enlisting;
-//								
-//								ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
-//								transactionFactory.createDualCommands(dualCommands);
-//		
-//								for(DualCommand<T> transaction: dualCommands) {
-//									transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, null, isolatableCollector);
-//									flushedTransactions.add(transaction);
-//								}
-//							} else if(enlisting instanceof TranscriberRunnable) {
-//								TranscriberRunnable<T> runnable = (TranscriberRunnable<T>)enlisting;
-//								runnable.run(isolatableCollector);
-//							}
-//							
-//							// if transactionFactory is special reject dual command factory, then reject
-//
-//							// if transactionFactory is special commit dual command factory, then commit
-//							
-//							// otherwise, do the below
-//							
-////							ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
-////							transactionFactory.createDualCommands(dualCommands);
-////	
-////							for(DualCommand<T> transaction: dualCommands) {
-////								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, null, isolatableCollector);
-////								flushedTransactions.add(transaction);
-////								
-////								if(rejectHolder[0])
-////									break;
-////								
-////								if(commitHolder[0]) {
-////									doCommit();
-////									commitHolder[0] = false;
-////								}
-////							}
-////							
-////							if(rejectHolder[0])
-////								break;
-//						}
-//						
-////						if(rejectHolder[0])
-////							break;
-////
-////						@SuppressWarnings("unchecked")
-////						ArrayList<TranscriberRunnable<T>> afterNextFlushRunnablesClone = (ArrayList<TranscriberRunnable<T>>)currentAfterNextFlushRunnables.clone();
-////						currentAfterNextFlushRunnables.clear();
-////						
-////						for(TranscriberRunnable<T> runnable: afterNextFlushRunnablesClone) {
-////							runnable.run(isolatableCollector);
-////							
-////							if(rejectHolder[0])
-////								break;
-////							
-////							if(commitHolder[0]) {
-////								doCommit();
-////								commitHolder[0] = false;
-////							}
-////						}
-//					}
-//					
-////					if(rejectHolder[0]) {
-////						while(currentAfterNextFlushRunnables.size() > 0) {
-////							@SuppressWarnings("unchecked")
-////							ArrayList<TranscriberRunnable<T>> afterNextFlushRunnablesClone = (ArrayList<TranscriberRunnable<T>>)currentAfterNextFlushRunnables.clone();
-////							currentAfterNextFlushRunnables.clear();
-////							
-////							for(TranscriberRunnable<T> runnable: afterNextFlushRunnablesClone)
-////								runnable.run(isolatableCollector);
-////						}
-////						
-////						doReject();
-////					}
+//					System.out.println("Finished flushing.");
 				}
 			});
 		}
@@ -1198,6 +942,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			}
 		}
 		
+		@SuppressWarnings("unchecked")
 		private void doReject() {
 			final ArrayList<Object> currentEnlistings = Connection.this.enlistings;
 			
@@ -1224,24 +969,18 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				public void endIsolation() { }
 				
 				@Override
-				public void reject() {
-					// TODO Auto-generated method stub
-					
-				}
+				public void reject() { }
 				
 				@Override
-				public void commit() {
-					// TODO Auto-generated method stub
-					
-				}
+				public void commit() { }
 			};
 			
-			for(DualCommand<T> transaction: flushedTransactions) {
+			for(DualCommand<T> transaction: flushedTransactions)
 				transaction.executeBackwardOn(propCtx, transcriber.prevalentSystem, null, null, isolatedCollector);
-			}
+			
+			flushedTransactions.clear();
 			
 			while(currentEnlistings.size() > 0) {
-				@SuppressWarnings("unchecked")
 				ArrayList<Object> enlistingsClone = (ArrayList<Object>)currentEnlistings.clone();
 				currentEnlistings.clear();
 				
@@ -1252,68 +991,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					}
 				}
 			}
-			
-			reset();
-			
-			
-//			PropogationContext propCtx = new PropogationContext();
-//			
-//			final ArrayList<TranscriberRunnable<T>> currentAfterNextFlushRunnables = Connection.this.afterNextFlushRunnables;
-//			
-//			Connection.this.afterNextFlushRunnables.clear();
-//			
-//			TranscriberCollector<T> isolatedCollector = new TranscriberCollector<T>() {
-//				@Override
-//				public void enqueue(DualCommandFactory<T> transactionFactory) { }
-//				
-//				@Override
-//				public void afterNextFlush(TranscriberRunnable<T> runnable) {
-//					currentAfterNextFlushRunnables.add(runnable);
-//				}
-//
-//				@Override
-//				public void registerAffectedModel(T model) { }
-//				
-//				@Override
-//				public void beginIsolation() { }
-//				
-//				@Override
-//				public void endIsolation() { }
-//				
-//				@Override
-//				public void reject() {
-//					// TODO Auto-generated method stub
-//					
-//				}
-//				
-//				@Override
-//				public void commit() {
-//					// TODO Auto-generated method stub
-//					
-//				}
-//			};
-//			
-//			for(DualCommand<T> transaction: flushedTransactions) {
-//				transaction.executeBackwardOn(propCtx, transcriber.prevalentSystem, null, null, isolatedCollector);
-//			}
-//			
-//			while(currentAfterNextFlushRunnables.size() > 0) {
-//				@SuppressWarnings("unchecked")
-//				ArrayList<TranscriberRunnable<T>> afterNextFlushRunnablesClone = (ArrayList<TranscriberRunnable<T>>)currentAfterNextFlushRunnables.clone();
-//				currentAfterNextFlushRunnables.clear();
-//				
-//				for(TranscriberRunnable<T> runnable: afterNextFlushRunnablesClone)
-//					runnable.run(isolatedCollector);
-//			}
-//			
-//			reset();
-		}
-		
-		private void reset() {
-			enlistedTransactionFactories.clear();
-			flushedTransactions.clear();
-			afterNextFlushRunnables.clear();
-			affectedModels.clear();
 		}
 	}
 	

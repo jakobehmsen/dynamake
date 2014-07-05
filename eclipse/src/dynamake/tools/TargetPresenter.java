@@ -15,7 +15,6 @@ import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberOnFlush;
-import dynamake.transcription.TranscriberRunnable;
 
 public class TargetPresenter {
 	public interface Behavior {
