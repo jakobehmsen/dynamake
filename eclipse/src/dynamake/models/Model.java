@@ -519,6 +519,7 @@ public abstract class Model implements Serializable, Observer {
 				PropogationContext propCtxBranch = propCtx.branch();
 				observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch, collector);
 			}
+			collector.flush();
 		}
 		
 		for(Observer observerToAdd: observersToAdd) {

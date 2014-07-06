@@ -120,6 +120,7 @@ public abstract class BoundsChangeTool implements Tool {
 			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 				@Override
 				public void run(TranscriberCollector<Model> collector) {
+					System.out.println("Repaint release");
 					productionPanel.livePanel.repaint();
 				}
 			});

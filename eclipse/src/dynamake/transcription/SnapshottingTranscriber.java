@@ -844,23 +844,23 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							case 2: // flush
 								commands.addAll(enlistings);
 								enlistings.clear();
-								commands.add(3);
+//								commands.add(3);
 								
 								break;
-							case 3: // On flush
-								if(onFlush.size() > 0) {
-									final ArrayList<TranscriberOnFlush<T>> localOnFlush = new ArrayList<TranscriberOnFlush<T>>(onFlush);
-									SwingUtilities.invokeLater(new Runnable() {
-										@Override
-										public void run() {
-											for(TranscriberOnFlush<T> r: localOnFlush)
-												r.run(null);
-										}
-									});
-									onFlush.clear();
-								}
-								
-								break;
+//							case 3: // On flush
+//								if(onFlush.size() > 0) {
+//									final ArrayList<TranscriberOnFlush<T>> localOnFlush = new ArrayList<TranscriberOnFlush<T>>(onFlush);
+//									SwingUtilities.invokeLater(new Runnable() {
+//										@Override
+//										public void run() {
+//											for(TranscriberOnFlush<T> r: localOnFlush)
+//												r.run(null);
+//										}
+//									});
+//									onFlush.clear();
+//								}
+//								
+//								break;
 							}
 						} else if(command instanceof ArrayList) {
 							final ArrayList<TranscriberOnFlush<T>> localOnFlush = (ArrayList<TranscriberOnFlush<T>>)command;
@@ -890,6 +890,18 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							else
 								runnable.run(isolatableCollector);
 						}
+					}
+					
+					if(onFlush.size() > 0) {
+						final ArrayList<TranscriberOnFlush<T>> localOnFlush = new ArrayList<TranscriberOnFlush<T>>(onFlush);
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								for(TranscriberOnFlush<T> r: localOnFlush)
+									r.run(null);
+							}
+						});
+						onFlush.clear();
 					}
 					
 //					final ArrayList<TranscriberOnFlush<T>> onFlush = new ArrayList<TranscriberOnFlush<T>>();
