@@ -134,8 +134,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		for(ContextualTransaction<T> ctxTransaction: transactions) {
 			DualCommand<T> transaction = ctxTransaction.transaction;
 
-			IsolatedBranch<T> branch = new IsolatedBranch<T>();
-			transaction.executeForwardOn(propCtx, prevalentSystem, null, branch, null);
+			transaction.executeForwardOn(propCtx, prevalentSystem, null, null, new NullCollector<T>());
 			
 			for(Location affectedModelLocation: ctxTransaction.affectedModelLocations) {
 				// TODO: Abstracted the following code to reduce coupling to models.
@@ -218,8 +217,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private static class IsolatedBranch<T> implements TranscriberBranch<T>, BranchParent {
 		private BranchParent parent;
 		private RunBuilder finishedBuilder;
-		
-		public IsolatedBranch() { }
 		
 		public IsolatedBranch(BranchParent parent) {
 			this.parent = parent;
@@ -810,12 +807,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						final ArrayList<Object> innerEnlistings = new ArrayList<Object>();
 						
 						TranscriberCollector<T> isolatableCollector = new TranscriberCollector<T>() {
-							boolean inIsolation;
-							
 							@Override
 							public void enqueue(DualCommandFactory<T> transactionFactory) {
-								if(!inIsolation)
-									innerEnlistings.add(transactionFactory);
+								innerEnlistings.add(transactionFactory);
 							}
 							
 							@Override
@@ -826,16 +820,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							@Override
 							public void registerAffectedModel(T model) {
 								affectedModels.add(model);
-							}
-							
-							@Override
-							public void beginIsolation() {
-								inIsolation = true;
-							}
-							
-							@Override
-							public void endIsolation() {
-								inIsolation = false;
 							}
 							
 							@Override
@@ -961,12 +945,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 
 				@Override
 				public void registerAffectedModel(T model) { }
-				
-				@Override
-				public void beginIsolation() { }
-				
-				@Override
-				public void endIsolation() { }
 				
 				@Override
 				public void reject() { }

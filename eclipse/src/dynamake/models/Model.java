@@ -36,6 +36,7 @@ import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberOnFlush;
 
 public abstract class Model implements Serializable, Observer {
 	public static class TellProperty {
@@ -281,7 +282,8 @@ public abstract class Model implements Serializable, Observer {
 		else
 			properties.remove(name);
 		
-		branch.registerAffectedModel(this);
+		collector.registerAffectedModel(this);
+		
 		sendChanged(new PropertyChanged(name, value), propCtx, propDistance, 0, branch, collector);
 	}
 	
@@ -570,33 +572,57 @@ public abstract class Model implements Serializable, Observer {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 					final Component targetComponent = ((Component)target);
 					if(propertyChanged.name.equals("X")) {
-						branch.onFinished(new Runnable() {
+						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 							@Override
-							public void run() {
+							public void run(TranscriberCollector<Model> collector) {
 								targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
 							}
 						});
+//						branch.onFinished(new Runnable() {
+//							@Override
+//							public void run() {
+//								targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
+//							}
+//						});
 					} else if(propertyChanged.name.equals("Y")) {
-						branch.onFinished(new Runnable() {
+						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 							@Override
-							public void run() {
+							public void run(TranscriberCollector<Model> collector) {
 								targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
 							}
 						});
+//						branch.onFinished(new Runnable() {
+//							@Override
+//							public void run() {
+//								targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
+//							}
+//						});
 					} else if(propertyChanged.name.equals("Width")) {
-						branch.onFinished(new Runnable() {
+						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 							@Override
-							public void run() {
+							public void run(TranscriberCollector<Model> collector) {
 								targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
 							}
 						});
+//						branch.onFinished(new Runnable() {
+//							@Override
+//							public void run() {
+//								targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
+//							}
+//						});
 					} else if(propertyChanged.name.equals("Height")) {
-						branch.onFinished(new Runnable() {
+						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 							@Override
-							public void run() {
+							public void run(TranscriberCollector<Model> collector) {
 								targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
 							}
 						});
+//						branch.onFinished(new Runnable() {
+//							@Override
+//							public void run() {
+//								targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
+//							}
+//						});
 					}
 				}
 			}

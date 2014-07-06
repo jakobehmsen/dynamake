@@ -16,13 +16,11 @@ import dynamake.commands.DualCommandPair;
 import dynamake.models.CanvasModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.RepaintRunBuilder;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberOnFlush;
 
 public abstract class BoundsChangeTool implements Tool {
 	@Override
@@ -44,13 +42,13 @@ public abstract class BoundsChangeTool implements Tool {
 		if(viewPressedOn != null) {
 			viewPressedOn = null;
 			
-			final TranscriberBranch<Model> branchStep2 = branch.branch();
-			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-			branch.close();
+//			final TranscriberBranch<Model> branchStep2 = branch.branch();
+//			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//			branch.close();
 
 			ModelComponent newTargetOver = targetPresenter.getTargetOver();
 			
-			targetPresenter.reset(branchStep2);
+			targetPresenter.reset(collector);
 			targetPresenter = null;
 			
 			final ModelComponent selection = interactionPresenter.getSelection();
@@ -64,7 +62,7 @@ public abstract class BoundsChangeTool implements Tool {
 
 						final ModelComponent targetOver = newTargetOver;
 						
-						branchStep2.execute(new PropogationContext(), new DualCommandFactory<Model>() {
+						collector.enqueue(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, selection, targetOver, droppedBounds.getLocation());
@@ -74,7 +72,7 @@ public abstract class BoundsChangeTool implements Tool {
 						// Moving within same canvas
 						final Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), (JComponent)newTargetOver);
 						
-						branchStep2.execute(new PropogationContext(), new DualCommandFactory<Model>() {
+						collector.enqueue(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
@@ -93,21 +91,28 @@ public abstract class BoundsChangeTool implements Tool {
 					JComponent parent = (JComponent)((JComponent)selection).getParent();
 					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), parent);
 					
-					PropogationContext propCtx = new PropogationContext();
+//					PropogationContext propCtx = new PropogationContext();
 					
-					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+					collector.enqueue(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							appendDualCommandsForResize(dualCommands, selection, newBounds);
 						}
 					});
 				}
-			}
 
-			interactionPresenter.reset(branchStep2);
-			interactionPresenter = null;
+				interactionPresenter.reset(collector);
+				interactionPresenter = null;
+				
+				collector.commit();
+			} else {
+				interactionPresenter.reset(collector);
+				interactionPresenter = null;
+				
+				collector.reject();
+			}
 			
-			branchStep2.close();
+//			branchStep2.close();
 			
 			mouseDown = null;
 		}
@@ -117,7 +122,7 @@ public abstract class BoundsChangeTool implements Tool {
 	
 	private Point mouseDown;
 	private ModelComponent viewPressedOn;
-	private TranscriberBranch<Model> branch;
+//	private TranscriberBranch<Model> branch;
 	private RelativePosition relativePosition;
 	private TargetPresenter targetPresenter;
 	private InteractionPresenter interactionPresenter;
@@ -128,26 +133,33 @@ public abstract class BoundsChangeTool implements Tool {
 
 		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			viewPressedOn = targetModelComponent;
-			branch = productionPanel.livePanel.getModelTranscriber().createBranch();
-			TranscriberBranch<Model> branchStep1 = branch.branch();
-			branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//			branch = productionPanel.livePanel.getModelTranscriber().createBranch();
+//			TranscriberBranch<Model> branchStep1 = branch.branch();
+//			branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 			
 			interactionPresenter = new InteractionPresenter(productionPanel);
-			interactionPresenter.selectFromView(targetModelComponent, referencePoint, branchStep1);
+			interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
 			
 			relativePosition = new RelativePosition(referencePoint, ((JComponent)targetModelComponent).getSize());
 			final Cursor cursor = relativePosition.getCursor();
 			
 			final InteractionPresenter locationInteractionPresenter = interactionPresenter;
-			branchStep1.onFinished(new Runnable() {
+			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 				@Override
-				public void run() {
+				public void run(TranscriberCollector<Model> collector) {
 					locationInteractionPresenter.setSelectionFrameCursor(cursor);
 					locationInteractionPresenter.setEffectFrameCursor(cursor);
 				}
 			});
+//			branchStep1.onFinished(new Runnable() {
+//				@Override
+//				public void run() {
+//					locationInteractionPresenter.setSelectionFrameCursor(cursor);
+//					locationInteractionPresenter.setEffectFrameCursor(cursor);
+//				}
+//			});
 			
 			targetPresenter = new TargetPresenter(
 				productionPanel,
@@ -165,9 +177,9 @@ public abstract class BoundsChangeTool implements Tool {
 			);
 
 			ModelComponent newTargetOver = getTargetOver(productionPanel, modelOver, modelOver);
-			targetPresenter.update(newTargetOver, branchStep1);
+			targetPresenter.update(newTargetOver, collector);
 			
-			branchStep1.close();
+//			branchStep1.close();
 			
 			mouseDown = e.getPoint();
 		}
@@ -176,10 +188,10 @@ public abstract class BoundsChangeTool implements Tool {
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
 		if(mouseDown != null && interactionPresenter.getSelection() != productionPanel.contentView.getBindingTarget()) {
-			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+//			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			
 			ModelComponent newTargetOver = getTargetOver(productionPanel, modelOver, interactionPresenter.getSelection());
-			targetPresenter.update(newTargetOver, runBuilder);
+			targetPresenter.update(newTargetOver, collector);
 			
 			Rectangle newEffectBounds = relativePosition.resize(
 				interactionPresenter.getSelectionFrameLocation(), 
@@ -188,9 +200,9 @@ public abstract class BoundsChangeTool implements Tool {
 				interactionPresenter.getEffectFrameBounds(), 
 				e.getPoint());
 			
-			interactionPresenter.changeEffectFrameDirect2(newEffectBounds, runBuilder);
+			interactionPresenter.changeEffectFrameDirect2(newEffectBounds, collector);
 			
-			runBuilder.execute();
+//			runBuilder.execute();
 		}
 	}
 	
@@ -224,18 +236,18 @@ public abstract class BoundsChangeTool implements Tool {
 	@Override
 	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
 		if(mouseDown != null) {
-			final TranscriberBranch<Model> branchStep2 = branch.branch();
-			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//			final TranscriberBranch<Model> branchStep2 = branch.branch();
+//			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
-			targetPresenter.reset(branchStep2);
+			targetPresenter.reset(collector);
 			targetPresenter = null;
 	
-			interactionPresenter.reset(branchStep2);
+			interactionPresenter.reset(collector);
 			interactionPresenter = null;
 			
-			branchStep2.close();
-			
-			branch.reject();
+//			branchStep2.close();
+//			
+//			branch.reject();
 		}
 	}
 }
