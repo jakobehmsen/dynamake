@@ -15,4 +15,7 @@ public class NullCollector<T> implements TranscriberCollector<T> {
 
 	@Override
 	public void commit() { }
+	
+	@Override
+	public void flush() { }
 }

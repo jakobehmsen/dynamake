@@ -31,4 +31,9 @@ public class IsolatingCollector<T> implements TranscriberCollector<T> {
 	public void commit() {
 		collector.commit();
 	}
+	
+	@Override
+	public void flush() {
+		collector.flush();
+	}
 }

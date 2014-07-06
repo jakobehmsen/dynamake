@@ -20,11 +20,12 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberConnection;
 import dynamake.transcription.TranscriberOnFlush;
 
 public abstract class BoundsChangeTool implements Tool {
 	@Override
-	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
+	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 //		if(productionPanel.editPanelMouseAdapter.selection == modelOver && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
 //			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
 //			relativePosition = new RelativePosition(point, ((JComponent)modelOver).getSize());
@@ -33,12 +34,12 @@ public abstract class BoundsChangeTool implements Tool {
 	}
 
 	@Override
-	public void mouseExited(final ProductionPanel productionPanel, MouseEvent e, TranscriberCollector<Model> collector) {
+	public void mouseExited(final ProductionPanel productionPanel, MouseEvent e, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 		if(viewPressedOn != null) {
 			viewPressedOn = null;
 			
@@ -115,6 +116,14 @@ public abstract class BoundsChangeTool implements Tool {
 //			branchStep2.close();
 			
 			mouseDown = null;
+			
+			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+				@Override
+				public void run(TranscriberCollector<Model> collector) {
+					productionPanel.livePanel.repaint();
+				}
+			});
+			collector.flush();
 		}
 	}
 
@@ -128,7 +137,7 @@ public abstract class BoundsChangeTool implements Tool {
 	private InteractionPresenter interactionPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
+	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 		ModelComponent targetModelComponent = modelOver;
 
 		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
@@ -182,11 +191,19 @@ public abstract class BoundsChangeTool implements Tool {
 //			branchStep1.close();
 			
 			mouseDown = e.getPoint();
+			
+			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+				@Override
+				public void run(TranscriberCollector<Model> collector) {
+					productionPanel.livePanel.repaint();
+				}
+			});
+			collector.flush();
 		}
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector, TranscriberConnection<Model> connection) {
 		if(mouseDown != null && interactionPresenter.getSelection() != productionPanel.contentView.getBindingTarget()) {
 //			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			
@@ -203,6 +220,14 @@ public abstract class BoundsChangeTool implements Tool {
 			interactionPresenter.changeEffectFrameDirect2(newEffectBounds, collector);
 			
 //			runBuilder.execute();
+			
+			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+				@Override
+				public void run(TranscriberCollector<Model> collector) {
+					productionPanel.livePanel.repaint();
+				}
+			});
+			collector.flush();
 		}
 	}
 	

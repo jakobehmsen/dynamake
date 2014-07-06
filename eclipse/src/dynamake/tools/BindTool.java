@@ -18,6 +18,8 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.TranscriberOnFlush;
 
 public class BindTool implements Tool {
 	@Override
@@ -26,17 +28,17 @@ public class BindTool implements Tool {
 	}
 
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
+	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseExited(ProductionPanel productionPanel, MouseEvent e, TranscriberCollector<Model> collector) {
+	public void mouseExited(ProductionPanel productionPanel, MouseEvent e, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 
 	}
 
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
+	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 		final ModelComponent targetModelComponent = modelOver;
 		
 		targetPresenter.reset(collector);
@@ -81,6 +83,14 @@ public class BindTool implements Tool {
 		}
 		
 		mouseDown = null;
+		
+		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+			@Override
+			public void run(TranscriberCollector<Model> collector) {
+				productionPanel.livePanel.repaint();
+			}
+		});
+		collector.flush();
 	}
 	
 	private Point mouseDown;
@@ -88,7 +98,7 @@ public class BindTool implements Tool {
 	private InteractionPresenter interactionPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
+	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 		ModelComponent targetModelComponent = modelOver;
 
 		Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
@@ -115,10 +125,18 @@ public class BindTool implements Tool {
 		targetPresenter.update(modelOver, collector);
 		
 		mouseDown = e.getPoint();
+		
+		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+			@Override
+			public void run(TranscriberCollector<Model> collector) {
+				productionPanel.livePanel.repaint();
+			}
+		});
+		collector.flush();
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector) {
+	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector, TranscriberConnection<Model> connection) {
 		targetPresenter.update(modelOver, collector);
 		
 		final int width = interactionPresenter.getEffectFrameWidth();
@@ -130,6 +148,14 @@ public class BindTool implements Tool {
 		final int y = interactionPresenter.getSelectionFrameLocation().y + (cursorLocationInProductionPanel.y - mouseDown.y);
 		
 		interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), collector);
+		
+		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+			@Override
+			public void run(TranscriberCollector<Model> collector) {
+				productionPanel.livePanel.repaint();
+			}
+		});
+		collector.flush();
 	}
 
 	@Override

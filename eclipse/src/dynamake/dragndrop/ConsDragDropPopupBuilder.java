@@ -15,17 +15,16 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.Primitive;
-import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.PrimitiveSingletonFactory;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
-	private TranscriberBranch<Model> branch;
+	private TranscriberCollector<Model> collector;
 	
-	public ConsDragDropPopupBuilder(TranscriberBranch<Model> branch) {
-		this.branch = branch;
+	public ConsDragDropPopupBuilder(TranscriberCollector<Model> collector) {
+		this.collector = collector;
 	}
 
 	@Override
@@ -36,16 +35,16 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			@Override
 			public void run(Runnable runnable) {
 				runnable.run();
-
-				branch.close();
+				collector.commit();
+//				branch.close();
 			}
 		};
 		
 		DualCommandFactory<Model> implicitDropAction = selection.getImplicitDropAction(target);
 		
 		if(implicitDropAction != null) {
-			branch.execute(new PropogationContext(), implicitDropAction);
-			branch.close();
+			collector.enqueue(implicitDropAction);
+			collector.commit();
 		} else {
 			CompositeMenuBuilder transactionTargetContentMapBuilder = new CompositeMenuBuilder();
 			
@@ -53,12 +52,11 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionTargetContentMapBuilder.addMenuBuilder("Unforward to", new Runnable() {
 					@Override
 					public void run() {
-						PropogationContext propCtx = new PropogationContext();
+//						PropogationContext propCtx = new PropogationContext();
 						
-						branch.execute(propCtx, new DualCommandFactory<Model>() {
+						collector.enqueue(new DualCommandFactory<Model>() {
 							@Override
-							public void createDualCommands(
-									List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
 									new Model.RemoveObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation()),
 									new Model.AddObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation())
@@ -71,12 +69,11 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionTargetContentMapBuilder.addMenuBuilder("Forward to", new Runnable() {
 					@Override
 					public void run() {
-						PropogationContext propCtx = new PropogationContext();
+//						PropogationContext propCtx = new PropogationContext();
 
-						branch.execute(propCtx, new DualCommandFactory<Model>() {
+						collector.enqueue(new DualCommandFactory<Model>() {
 							@Override
-							public void createDualCommands(
-									List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
 									new Model.AddObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation()),
 									new Model.RemoveObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation())
@@ -95,9 +92,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new Runnable() {
 					@Override
 					public void run() {
-						final PropogationContext propCtx = new PropogationContext();
+//						final PropogationContext propCtx = new PropogationContext();
 						
-						branch.execute(propCtx, new DualCommandFactory<Model>() {
+						collector.enqueue(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
@@ -128,6 +125,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
-		branch.reject();
+		collector.reject();
+//		branch.reject();
 	}
 }

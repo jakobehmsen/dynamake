@@ -79,6 +79,20 @@ public class InteractionPresenter {
 		createEffectFrame(effectBounds, runner);
 	}
 	
+	public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, final TranscriberCollector<Model> collector) {
+		selectFromDefault(view, initialMouseDown, new Runner() {
+			@Override
+			public void run(final Runnable runnable) {
+				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						runnable.run();
+					}
+				});
+			}
+		});
+	}
+	
 	public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, final TranscriberBranch<Model> branch) {
 		selectFromDefault(view, initialMouseDown, new Runner() {
 			@Override
@@ -498,8 +512,8 @@ public class InteractionPresenter {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(branch));
 	}
 
-	public void showPopupForSelectionCons(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberBranch<Model> branch) {
-		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(branch));
+	public void showPopupForSelectionCons(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberCollector<Model> collector) {
+		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(collector));
 	}
 
 	public void showPopupForSelectionTell(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberBranch<Model> branch) {
