@@ -19,16 +19,14 @@ import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.PropogationContext;
 import dynamake.models.StrokeModel;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.factories.Factory;
 import dynamake.models.factories.StrokeModelFactory;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.RepaintRunBuilder;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.TranscriberOnFlush;
 
 public class PenTool implements Tool {
 	@Override
@@ -64,16 +62,11 @@ public class PenTool implements Tool {
 		
 		points = null;
 		shape = null;
-
-		TranscriberBranch<Model> branchStep2 = branch.branch();
-		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		
-		PropogationContext propCtx = new PropogationContext();
 		
 		final ModelComponent target = targetPresenter.getTargetOver();
 		final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)target);
 		
-		branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+		collector.enqueue(new DualCommandFactory<Model>() {
 			@Override
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
@@ -88,15 +81,13 @@ public class PenTool implements Tool {
 			}
 		});
 
-		targetPresenter.reset(branchStep2);
+		targetPresenter.reset(collector);
 		targetPresenter = null;
 		
-		branchStep2.close();
-		
-		branch.close();
+		collector.commit();
+		collector.flush();
 	}
 	
-	private TranscriberBranch<Model> branch;
 	private TargetPresenter targetPresenter;
 
 	@Override
@@ -107,11 +98,7 @@ public class PenTool implements Tool {
 		shape.moveTo(e.getX(), e.getY());
 		
 		ModelComponent canvas = ModelComponent.Util.closestCanvasModelComponent(modelOver);
-		
-		branch = modelOver.getModelTranscriber().createBranch();
-		
-		TranscriberBranch<Model> branchStep1 = branch.branch();
-		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+
 		targetPresenter = new TargetPresenter(
 			productionPanel,
 			new TargetPresenter.Behavior() {
@@ -127,16 +114,14 @@ public class PenTool implements Tool {
 			}
 		);
 		
-		targetPresenter.update(canvas, branchStep1);
-		branchStep1.close();
+		targetPresenter.update(canvas, collector);
+		collector.flush();
 	}
 
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector, TranscriberConnection<Model> connection) {
 		points.add(e.getPoint());
 		shape.lineTo(e.getX(), e.getY());
-		
-		RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 		
 		// TODO: Only repaint the area necessary here!!!
 //		final Rectangle creationBoundsInProductionPanelSource = shape.getBounds();
@@ -147,12 +132,13 @@ public class PenTool implements Tool {
 //				creationBoundsInProductionPanelSource.width + (int)StrokeModel.STROKE_SIZE * 2, 
 //				creationBoundsInProductionPanelSource.height + (int)StrokeModel.STROKE_SIZE * 2
 //		);
-		runBuilder.addRunnable(new Runnable() {
-			@Override
-			public void run() { }
-		});//, productionPanel, creationBoundsInProductionPanel);
 		
-		runBuilder.execute();
+		// This provokes a repaint request
+		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+			@Override
+			public void run(TranscriberCollector<Model> collector) { }
+		});
+		collector.flush();
 	}
 
 	@Override
@@ -163,13 +149,7 @@ public class PenTool implements Tool {
 
 	@Override
 	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
-		final TranscriberBranch<Model> branchStep2 = branch.branch();
-		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		
-		targetPresenter.reset(branchStep2);
+		targetPresenter.reset(collector);
 		targetPresenter = null;
-		
-		branchStep2.close();
-		branch.reject();
 	}
 }
