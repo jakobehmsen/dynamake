@@ -33,9 +33,9 @@ public class UndoTool implements Tool {
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 //		productionPanel.livePanel.undo();
 		
-		TranscriberBranch<Model> branch = modelOver.getModelTranscriber().createBranch();
-		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		branch.execute(new PropogationContext(), new DualCommandFactory<Model>() {
+//		TranscriberBranch<Model> branch = modelOver.getModelTranscriber().createBranch();
+//		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+		collector.enqueue(new DualCommandFactory<Model>() {
 			@Override
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				dualCommands.add(
@@ -46,8 +46,8 @@ public class UndoTool implements Tool {
 				);
 			}
 		});
-		
-		branch.close();
+		collector.commit();
+		collector.flush();
 	}
 
 	@Override

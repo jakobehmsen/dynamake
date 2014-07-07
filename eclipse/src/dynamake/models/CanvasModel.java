@@ -33,6 +33,7 @@ import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberOnFlush;
 import dynamake.transcription.TranscriberRunnable;
 
 public class CanvasModel extends Model {
@@ -754,8 +755,7 @@ public class CanvasModel extends Model {
 						new Runner() {
 							@Override
 							public void run(final Runnable runnable) {
-//								branch.onFinished(runnable);
-								collector.afterNextFlush(new TranscriberRunnable<Model>() {
+								collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 									
 									@Override
 									public void run(TranscriberCollector<Model> collector) {
@@ -779,12 +779,17 @@ public class CanvasModel extends Model {
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
 					removableListener.releaseBinding();
 					
-					branch.onFinished(new Runnable() {
-						@Override
-						public void run() {
+					collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+						public void run(dynamake.transcription.TranscriberCollector<Model> collector) {
 							view.remove((JComponent)removedMC);
 						}
 					});
+//					branch.onFinished(new Runnable() {
+//						@Override
+//						public void run() {
+//							view.remove((JComponent)removedMC);
+//						}
+//					});
 				} else if(change instanceof Model.PropertyChanged && propDistance == 1) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
 					if(propertyChanged.name.equals(Model.PROPERTY_VIEW)) {

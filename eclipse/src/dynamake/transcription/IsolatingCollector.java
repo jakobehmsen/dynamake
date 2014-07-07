@@ -19,7 +19,7 @@ public class IsolatingCollector<T> implements TranscriberCollector<T> {
 
 	@Override
 	public void registerAffectedModel(T model) {
-		collector.registerAffectedModel(model);
+//		collector.registerAffectedModel(model);
 	}
 
 	@Override

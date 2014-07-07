@@ -815,6 +815,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								commands.addAll(enlistings);
 								enlistings.clear();
 								break;
+							case 3: // new scope
+								// flushes are
+								break;
 							}
 						} else if(command instanceof DualCommandFactory) {
 							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)command;
@@ -826,6 +829,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, null, isolatableCollector);
 								flushedTransactions.add(transaction);
 							}
+							
+							// Push new frame consisting of the created dual commands
+							// Add "pop frame" as last command
 						} else if(command instanceof TranscriberRunnable) {
 							TranscriberRunnable<T> runnable = (TranscriberRunnable<T>)command;
 							
@@ -882,6 +888,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 
 				System.out.println("Committed connection: " + Connection.this);
 				transcriber.persistTransaction(propCtx, ctxTransaction);
+				affectedModels.clear();
 			}
 		}
 		

@@ -34,6 +34,7 @@ import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
+import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberOnFlush;
@@ -173,9 +174,9 @@ public abstract class Model implements Serializable, Observer {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-			TranscriberBranch<Model> undoBranch = branch.isolatedBranch();
-			model.undo(propCtx, prevalentSystem, undoBranch);
-			undoBranch.close();
+			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<Model>(collector);
+			model.undo(propCtx, prevalentSystem, isolatingCollector);
+//			undoBranch.close();
 		}
 	}
 	
@@ -193,14 +194,13 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
-			
-			TranscriberBranch<Model> undoBranch = branch.isolatedBranch();
-			model.redo(propCtx, prevalentSystem, undoBranch);
-			undoBranch.close();
+
+			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<Model>(collector);
+			model.redo(propCtx, prevalentSystem, isolatingCollector);
 		}
 	}
 	
-	public void undo(PropogationContext propCtx, Model prevalentSystem, TranscriberBranch<Model> isolatedBranch) {
+	public void undo(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector) {
 		if(undoStack.isEmpty())
 			return;
 		
@@ -214,25 +214,25 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		for(Model affectedModel: affectedModels) {
-			affectedModel.undoTill(propCtx, prevalentSystem, isolatedBranch, ctxTransactionToUndo);
+			affectedModel.undoTill(propCtx, prevalentSystem, isolatingCollector, ctxTransactionToUndo);
 			affectedModel.undoStack.pop();
 		}
-		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatedBranch, null);
+		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, null, isolatingCollector);
 
 		for(Model affectedModel: affectedModels)
 			affectedModel.redoStack.push(ctxTransactionToUndo);
 	}
 	
 	private void undoTill(
-		PropogationContext propCtx, Model prevalentSystem, TranscriberBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToUndoTill) {
+		PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector, ContextualTransaction<Model> ctxTransactionToUndoTill) {
 		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
 		while(ctxTransactionToUndo != ctxTransactionToUndoTill) {
-			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, branch, null);
+			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, null, isolatingCollector);
 			undoStack.pop();
 		}
 	}
 	
-	public void redo(PropogationContext propCtx, Model prevalentSystem, TranscriberBranch<Model> isolatedBranch) {
+	public void redo(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector) {
 		if(redoStack.isEmpty())
 			return;
 		
@@ -246,19 +246,19 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		for(Model affectedModel: affectedModels) {
-			affectedModel.redoTill(propCtx, prevalentSystem, isolatedBranch, ctxTransactionToRedo);
+			affectedModel.redoTill(propCtx, prevalentSystem, isolatingCollector, ctxTransactionToRedo);
 			affectedModel.redoStack.pop();
 		}
-		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatedBranch, null);
+		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, null, isolatingCollector);
 
 		for(Model affectedModel: affectedModels)
 			affectedModel.undoStack.push(ctxTransactionToRedo);
 	}
 	
-	private void redoTill(PropogationContext propCtx, Model prevalentSystem, TranscriberBranch<Model> branch, ContextualTransaction<Model> ctxTransactionToRedoTillæ) {
+	private void redoTill(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector, ContextualTransaction<Model> ctxTransactionToRedoTillæ) {
 		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
 		while(ctxTransactionToRedo != ctxTransactionToRedoTillæ) {
-			ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, branch, null);
+			ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, null, isolatingCollector);
 			redoStack.pop();
 		}
 	}
