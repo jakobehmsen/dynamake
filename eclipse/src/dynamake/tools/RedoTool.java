@@ -9,11 +9,8 @@ import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.RepaintRunBuilder;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
 
@@ -31,11 +28,7 @@ public class RedoTool implements Tool {
 
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
-//		productionPanel.livePanel.redo();
-		
-		TranscriberBranch<Model> branch = modelOver.getModelTranscriber().createBranch();
-		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		branch.execute(new PropogationContext(), new DualCommandFactory<Model>() {
+		collector.enqueue(new DualCommandFactory<Model>() {
 			@Override
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				dualCommands.add(
@@ -46,8 +39,8 @@ public class RedoTool implements Tool {
 				);
 			}
 		});
-		
-		branch.close();
+		collector.commit();
+		collector.flush();
 	}
 
 	@Override
