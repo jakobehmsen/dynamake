@@ -8,7 +8,7 @@ import javax.swing.JPopupMenu;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
-import dynamake.delegates.Runner;
+import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
@@ -19,41 +19,60 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.PrimitiveSingletonFactory;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.TranscriberOnFlush;
+import dynamake.transcription.TranscriberRunnable;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
-	private TranscriberCollector<Model> collector;
+	private TranscriberConnection<Model> connection;
 	
-	public ConsDragDropPopupBuilder(TranscriberCollector<Model> collector) {
-		this.collector = collector;
+	public ConsDragDropPopupBuilder(TranscriberConnection<Model> connection) {
+		this.connection = connection;
 	}
 
 	@Override
 	public void buildFromSelectionAndTarget(final ModelComponent livePanel,
 			JPopupMenu popup, final ModelComponent selection,
 			final ModelComponent target, Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
-		Runner runner = new Runner() {
+		ActionRunner runner = new ActionRunner() {
 			@Override
-			public void run(Runnable runnable) {
-				runnable.run();
-				collector.commit();
-//				branch.close();
+			public void run(final Object action) {
+				connection.trigger(new TranscriberRunnable<Model>() {
+					@SuppressWarnings("unchecked")
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						((TranscriberRunnable<Model>)action).run(collector);
+						collector.commit();
+						
+//						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+//							@Override
+//							public void run(TranscriberCollector<Model> collector) {
+//								((LivePanel)livePanel).repaint();
+//							}
+//						});
+						collector.flush();
+					}
+				});
 			}
 		};
 		
-		DualCommandFactory<Model> implicitDropAction = selection.getImplicitDropAction(target);
+		final DualCommandFactory<Model> implicitDropAction = selection.getImplicitDropAction(target);
 		
 		if(implicitDropAction != null) {
-			collector.enqueue(implicitDropAction);
-			collector.commit();
+			connection.trigger(new TranscriberRunnable<Model>() {
+				@Override
+				public void run(TranscriberCollector<Model> collector) {
+					collector.enqueue(implicitDropAction);
+					collector.commit();
+				}
+			});
 		} else {
 			CompositeMenuBuilder transactionTargetContentMapBuilder = new CompositeMenuBuilder();
 			
 			if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
-				transactionTargetContentMapBuilder.addMenuBuilder("Unforward to", new Runnable() {
+				transactionTargetContentMapBuilder.addMenuBuilder("Unforward to", new TranscriberRunnable<Model>() {
 					@Override
-					public void run() {
-//						PropogationContext propCtx = new PropogationContext();
-						
+					public void run(TranscriberCollector<Model> collector) {
 						collector.enqueue(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -66,11 +85,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					}
 				});
 			} else {
-				transactionTargetContentMapBuilder.addMenuBuilder("Forward to", new Runnable() {
+				transactionTargetContentMapBuilder.addMenuBuilder("Forward to", new TranscriberRunnable<Model>() {
 					@Override
-					public void run() {
-//						PropogationContext propCtx = new PropogationContext();
-
+					public void run(TranscriberCollector<Model> collector) {
 						collector.enqueue(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -89,11 +106,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			CompositeMenuBuilder transactionObserverContentMapBuilder = new CompositeMenuBuilder();
 			for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
 				final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
-				transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new Runnable() {
+				transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new TranscriberRunnable<Model>() {
 					@Override
-					public void run() {
-//						final PropogationContext propCtx = new PropogationContext();
-						
+					public void run(TranscriberCollector<Model> collector) {
 						collector.enqueue(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -124,8 +139,19 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	}
 
 	@Override
-	public void cancelPopup(LivePanel livePanel) {
-		collector.reject();
-//		branch.reject();
+	public void cancelPopup(final LivePanel livePanel) {
+		connection.trigger(new TranscriberRunnable<Model>() {
+			public void run(TranscriberCollector<Model> collector) {
+				collector.reject();
+				
+//				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+//					@Override
+//					public void run(TranscriberCollector<Model> collector) {
+//						livePanel.repaint();
+//					}
+//				});
+				collector.flush();
+			}
+		});
 	}
 }

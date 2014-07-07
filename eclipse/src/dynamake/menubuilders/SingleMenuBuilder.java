@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import javax.swing.JMenuItem;
 
 public class SingleMenuBuilder extends MenuBuilder {
-	private Runnable action;
+	private Object action;
 
-	public SingleMenuBuilder(Runnable action) {
+	public SingleMenuBuilder(Object action) {
 		this.action = action;
 	}
 	

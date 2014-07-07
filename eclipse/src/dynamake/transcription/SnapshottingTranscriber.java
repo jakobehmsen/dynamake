@@ -745,13 +745,15 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	private static class Connection<T> implements TranscriberConnection<T> {
+		private FlushHandler<T> flushHandler;
 		private SnapshottingTranscriber<T> transcriber;
 		private ArrayList<Object> enlistings = new ArrayList<Object>();
 		private ArrayList<DualCommand<T>> flushedTransactions = new ArrayList<DualCommand<T>>();
 		private HashSet<T> affectedModels = new HashSet<T>();
 		
-		public Connection(SnapshottingTranscriber<T> transcriber) {
+		public Connection(SnapshottingTranscriber<T> transcriber, FlushHandler<T> flushHandler) {
 			this.transcriber = transcriber;
+			this.flushHandler = flushHandler;
 		}
 
 //		@Override
@@ -862,16 +864,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 //								
 //								break;
 							}
-						} else if(command instanceof ArrayList) {
-							final ArrayList<TranscriberOnFlush<T>> localOnFlush = (ArrayList<TranscriberOnFlush<T>>)command;
-							
-							SwingUtilities.invokeLater(new Runnable() {
-								@Override
-								public void run() {
-									for(TranscriberOnFlush<T> r: localOnFlush)
-										r.run(null);
-								}
-							});
 						} else if(command instanceof DualCommandFactory) {
 							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)command;
 							
@@ -894,13 +886,14 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					
 					if(onFlush.size() > 0) {
 						final ArrayList<TranscriberOnFlush<T>> localOnFlush = new ArrayList<TranscriberOnFlush<T>>(onFlush);
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								for(TranscriberOnFlush<T> r: localOnFlush)
-									r.run(null);
-							}
-						});
+						flushHandler.handleFlush(localOnFlush);
+//						SwingUtilities.invokeLater(new Runnable() {
+//							@Override
+//							public void run() {
+//								for(TranscriberOnFlush<T> r: localOnFlush)
+//									r.run(null);
+//							}
+//						});
 						onFlush.clear();
 					}
 					
@@ -1126,7 +1119,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	@Override
-	public TranscriberConnection<T> createConnection() {
-		return new Connection<T>(this);
+	public TranscriberConnection<T> createConnection(FlushHandler<T> flushHandler) {
+		return new Connection<T>(this, flushHandler);
 	}
 }

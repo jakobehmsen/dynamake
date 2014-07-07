@@ -17,8 +17,8 @@ public class CompositeMenuBuilder extends MenuBuilder {
 	
 	private ArrayList<CompositeMenuBuilder.MenuInfo> menuInfos = new ArrayList<CompositeMenuBuilder.MenuInfo>();
 	
-	public void addMenuBuilder(String name, Runnable transaction) {
-		addMenudBuilder(name, new SingleMenuBuilder(transaction));
+	public void addMenuBuilder(String name, Object action) {
+		addMenudBuilder(name, new SingleMenuBuilder(action));
 	}
 	
 	public void addMenudBuilder(String name, MenuBuilder transaction) {

@@ -37,6 +37,7 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
 import dynamake.transcription.DualCommandFactory;
+import dynamake.transcription.FlushHandler;
 import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
@@ -254,7 +255,18 @@ public class LiveModel extends Model {
 						@SuppressWarnings("unchecked")
 						final ArrayList<Integer> localButtonsPressed = (ArrayList<Integer>)buttonsPressed.clone();
 						
-						TranscriberConnection<Model> connection = ToolButton.this.modelTranscriber.createConnection();
+						TranscriberConnection<Model> connection = ToolButton.this.modelTranscriber.createConnection(new FlushHandler<Model>() {
+							@Override
+							public void handleFlush(final List<TranscriberOnFlush<Model>> runnables) {
+								SwingUtilities.invokeLater(new Runnable() {
+									@Override
+									public void run() {
+										for(TranscriberOnFlush<Model> runnable: runnables)
+											runnable.run(null);
+									}
+								});
+							}
+						});
 						
 						connection.trigger(new TranscriberRunnable<Model>() {
 							@Override
@@ -557,7 +569,20 @@ public class LiveModel extends Model {
 			
 			public EditPanelMouseAdapter(ProductionPanel productionPanel) {
 				this.productionPanel = productionPanel;
-				toolConnection = productionPanel.livePanel.getModelTranscriber().createConnection();
+				toolConnection = productionPanel.livePanel.getModelTranscriber().createConnection(new FlushHandler<Model>() {
+					@Override
+					public void handleFlush(final List<TranscriberOnFlush<Model>> runnables) {
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								for(TranscriberOnFlush<Model> runnable: runnables)
+									runnable.run(null);
+								
+								EditPanelMouseAdapter.this.productionPanel.livePanel.repaint();
+							}
+						});
+					}
+				});
 			}
 			
 			private Tool getTool(List<Integer> buttons) {

@@ -84,12 +84,12 @@ public class BindTool implements Tool {
 		
 		mouseDown = null;
 		
-		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-			@Override
-			public void run(TranscriberCollector<Model> collector) {
-				productionPanel.livePanel.repaint();
-			}
-		});
+//		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+//			@Override
+//			public void run(TranscriberCollector<Model> collector) {
+//				productionPanel.livePanel.repaint();
+//			}
+//		});
 		collector.flush();
 	}
 	
@@ -126,12 +126,12 @@ public class BindTool implements Tool {
 		
 		mouseDown = e.getPoint();
 		
-		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-			@Override
-			public void run(TranscriberCollector<Model> collector) {
-				productionPanel.livePanel.repaint();
-			}
-		});
+//		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+//			@Override
+//			public void run(TranscriberCollector<Model> collector) {
+//				productionPanel.livePanel.repaint();
+//			}
+//		});
 		collector.flush();
 	}
 
@@ -149,12 +149,12 @@ public class BindTool implements Tool {
 		
 		interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), collector);
 		
-		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-			@Override
-			public void run(TranscriberCollector<Model> collector) {
-				productionPanel.livePanel.repaint();
-			}
-		});
+//		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+//			@Override
+//			public void run(TranscriberCollector<Model> collector) {
+//				productionPanel.livePanel.repaint();
+//			}
+//		});
 		collector.flush();
 	}
 

@@ -39,6 +39,15 @@ public abstract class MenuBuilder {
 	}
 	
 	public void appendTo(final JPopupMenu popupMenu, final Runner runner, String name) {
+		appendTo(popupMenu, new ActionRunner() {
+			@Override
+			public void run(Object action) {
+				((Runnable)action).run();
+			}
+		}, name);
+	}
+	
+	public void appendTo(final JPopupMenu popupMenu, final ActionRunner runner, String name) {
 		ArrayList<JMenuItem> menuItems = new ArrayList<JMenuItem>();
 		appendTo(new MenuView() {
 			@Override
@@ -47,7 +56,7 @@ public abstract class MenuBuilder {
 			}
 			
 			@Override
-			public void execute(Runnable action) {
+			public void execute(Object action) {
 				runner.run(action);
 			}
 		}, menuItems, name);

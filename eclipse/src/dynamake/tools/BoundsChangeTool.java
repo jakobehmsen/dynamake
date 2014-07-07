@@ -117,13 +117,13 @@ public abstract class BoundsChangeTool implements Tool {
 			
 			mouseDown = null;
 			
-			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-				@Override
-				public void run(TranscriberCollector<Model> collector) {
-					System.out.println("Repaint release");
-					productionPanel.livePanel.repaint();
-				}
-			});
+//			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+//				@Override
+//				public void run(TranscriberCollector<Model> collector) {
+//					System.out.println("Repaint release");
+//					productionPanel.livePanel.repaint();
+//				}
+//			});
 			collector.flush();
 		}
 	}
@@ -193,12 +193,12 @@ public abstract class BoundsChangeTool implements Tool {
 			
 			mouseDown = e.getPoint();
 			
-			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-				@Override
-				public void run(TranscriberCollector<Model> collector) {
-					productionPanel.livePanel.repaint();
-				}
-			});
+//			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+//				@Override
+//				public void run(TranscriberCollector<Model> collector) {
+//					productionPanel.livePanel.repaint();
+//				}
+//			});
 			collector.flush();
 		}
 	}
@@ -222,12 +222,12 @@ public abstract class BoundsChangeTool implements Tool {
 			
 //			runBuilder.execute();
 			
-			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-				@Override
-				public void run(TranscriberCollector<Model> collector) {
-					productionPanel.livePanel.repaint();
-				}
-			});
+//			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+//				@Override
+//				public void run(TranscriberCollector<Model> collector) {
+//					productionPanel.livePanel.repaint();
+//				}
+//			});
 			collector.flush();
 		}
 	}

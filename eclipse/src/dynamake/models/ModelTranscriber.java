@@ -1,5 +1,6 @@
 package dynamake.models;
 
+import dynamake.transcription.FlushHandler;
 import dynamake.transcription.Transcriber;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberConnection;
@@ -85,7 +86,7 @@ public class ModelTranscriber {
 		return transcriber.createBranch();
 	}
 
-	public TranscriberConnection<Model> createConnection() {
-		return transcriber.createConnection();
+	public TranscriberConnection<Model> createConnection(FlushHandler<Model> flushHandler) {
+		return transcriber.createConnection(flushHandler);
 	}
 }

@@ -20,6 +20,7 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.TranscriberOnFlush;
 
 public class ConsTool implements Tool {
 	@Override
@@ -50,7 +51,7 @@ public class ConsTool implements Tool {
 			targetPresenter = null;
 			
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
-				interactionPresenter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, collector);
+				interactionPresenter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, connection);
 				
 				interactionPresenter.reset(collector);
 				interactionPresenter = null;
@@ -92,6 +93,14 @@ public class ConsTool implements Tool {
 
 				collector.commit();
 //				branchStep2.close();
+				
+//				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+//					@Override
+//					public void run(TranscriberCollector<Model> collector) {
+//						productionPanel.livePanel.repaint();
+//					}
+//				});
+				collector.flush();
 			}
 		} else {
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
@@ -101,9 +110,9 @@ public class ConsTool implements Tool {
 				targetPresenter = null;
 				interactionPresenter.reset(collector);
 				interactionPresenter = null;
-				interactionPresenter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, collector);
+				interactionPresenter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, connection);
 //				branch.close();
-				collector.commit();
+//				collector.commit();
 			} else {
 //				final TranscriberBranch<Model> branchStep2 = branch.branch();
 //				branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
@@ -113,6 +122,14 @@ public class ConsTool implements Tool {
 				interactionPresenter = null;
 //				branch.reject();
 				collector.reject();
+				
+				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						productionPanel.livePanel.repaint();
+					}
+				});
+				collector.flush();
 			}
 		}
 
@@ -164,6 +181,14 @@ public class ConsTool implements Tool {
 		
 		mouseDown = e.getPoint();
 		
+//		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+//			@Override
+//			public void run(TranscriberCollector<Model> collector) {
+//				productionPanel.livePanel.repaint();
+//			}
+//		});
+		collector.flush();
+		
 //		branchStep1.close();
 	}
 
@@ -183,6 +208,14 @@ public class ConsTool implements Tool {
 			final int y = cursorLocationInProductionPanel.y - height / 2;
 			
 			interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), collector);
+			
+//			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+//				@Override
+//				public void run(TranscriberCollector<Model> collector) {
+//					productionPanel.livePanel.repaint();
+//				}
+//			});
+			collector.flush();
 			
 //			runBuilder.execute();
 		}
