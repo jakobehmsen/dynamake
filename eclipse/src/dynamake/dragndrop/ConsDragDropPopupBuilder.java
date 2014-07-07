@@ -20,7 +20,6 @@ import dynamake.models.factories.PrimitiveSingletonFactory;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
-import dynamake.transcription.TranscriberOnFlush;
 import dynamake.transcription.TranscriberRunnable;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
@@ -43,13 +42,6 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					public void run(TranscriberCollector<Model> collector) {
 						((TranscriberRunnable<Model>)action).run(collector);
 						collector.commit();
-						
-//						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-//							@Override
-//							public void run(TranscriberCollector<Model> collector) {
-//								((LivePanel)livePanel).repaint();
-//							}
-//						});
 						collector.flush();
 					}
 				});
@@ -143,13 +135,6 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 		connection.trigger(new TranscriberRunnable<Model>() {
 			public void run(TranscriberCollector<Model> collector) {
 				collector.reject();
-				
-//				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-//					@Override
-//					public void run(TranscriberCollector<Model> collector) {
-//						livePanel.repaint();
-//					}
-//				});
 				collector.flush();
 			}
 		});

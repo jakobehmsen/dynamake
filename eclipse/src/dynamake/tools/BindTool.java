@@ -19,7 +19,6 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
-import dynamake.transcription.TranscriberOnFlush;
 
 public class BindTool implements Tool {
 	@Override
@@ -83,13 +82,7 @@ public class BindTool implements Tool {
 		}
 		
 		mouseDown = null;
-		
-//		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-//			@Override
-//			public void run(TranscriberCollector<Model> collector) {
-//				productionPanel.livePanel.repaint();
-//			}
-//		});
+
 		collector.flush();
 	}
 	
@@ -125,13 +118,7 @@ public class BindTool implements Tool {
 		targetPresenter.update(modelOver, collector);
 		
 		mouseDown = e.getPoint();
-		
-//		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-//			@Override
-//			public void run(TranscriberCollector<Model> collector) {
-//				productionPanel.livePanel.repaint();
-//			}
-//		});
+
 		collector.flush();
 	}
 
@@ -148,13 +135,7 @@ public class BindTool implements Tool {
 		final int y = interactionPresenter.getSelectionFrameLocation().y + (cursorLocationInProductionPanel.y - mouseDown.y);
 		
 		interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), collector);
-		
-//		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-//			@Override
-//			public void run(TranscriberCollector<Model> collector) {
-//				productionPanel.livePanel.repaint();
-//			}
-//		});
+
 		collector.flush();
 	}
 

@@ -15,11 +15,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.swing.SwingUtilities;
 
 import dynamake.commands.ContextualTransaction;
 import dynamake.commands.DualCommand;
@@ -755,37 +752,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			this.transcriber = transcriber;
 			this.flushHandler = flushHandler;
 		}
-
-//		@Override
-//		public void enqueue(final DualCommandFactory<T> transactionFactory) {
-//			this.transcriber.transactionExecutor.execute(new Runnable() {
-//				@Override
-//				public void run() {
-//					enlistings.add(transactionFactory);
-//				}
-//			});
-//		}
-
-//		@Override
-//		public void trigger(final TranscriberRunnable<T> runnable) {
-//			this.transcriber.transactionExecutor.execute(new Runnable() {
-//				@Override
-//				public void run() {
-//					enlistings.add(runnable);
-//				}
-//			});
-//		}
 		
 		private PropogationContext propCtx = new PropogationContext();
-		
-//		private static class Frame {
-//			public ArrayList<Object> enlistings;
-//			public int i;
-//			
-//			public Frame(ArrayList<Object> enlistings) {
-//				this.enlistings = enlistings;
-//			}
-//		}
 		
 		private ArrayList<TranscriberOnFlush<T>> onFlush = new ArrayList<TranscriberOnFlush<T>>();
 
@@ -846,23 +814,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							case 2: // flush
 								commands.addAll(enlistings);
 								enlistings.clear();
-//								commands.add(3);
-								
 								break;
-//							case 3: // On flush
-//								if(onFlush.size() > 0) {
-//									final ArrayList<TranscriberOnFlush<T>> localOnFlush = new ArrayList<TranscriberOnFlush<T>>(onFlush);
-//									SwingUtilities.invokeLater(new Runnable() {
-//										@Override
-//										public void run() {
-//											for(TranscriberOnFlush<T> r: localOnFlush)
-//												r.run(null);
-//										}
-//									});
-//									onFlush.clear();
-//								}
-//								
-//								break;
 							}
 						} else if(command instanceof DualCommandFactory) {
 							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)command;
@@ -887,127 +839,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					if(onFlush.size() > 0) {
 						final ArrayList<TranscriberOnFlush<T>> localOnFlush = new ArrayList<TranscriberOnFlush<T>>(onFlush);
 						flushHandler.handleFlush(localOnFlush);
-//						SwingUtilities.invokeLater(new Runnable() {
-//							@Override
-//							public void run() {
-//								for(TranscriberOnFlush<T> r: localOnFlush)
-//									r.run(null);
-//							}
-//						});
 						onFlush.clear();
 					}
-					
-//					final ArrayList<TranscriberOnFlush<T>> onFlush = new ArrayList<TranscriberOnFlush<T>>();
-//					
-//					Stack<Frame> frameStack = new Stack<Frame>();
-//					
-//					frameStack.push(new Frame(enlistings));
-//					enlistings = new ArrayList<Object>();
-//					
-////					System.out.println("Started flushing...");
-//					
-//					while(frameStack.size() > 0) {
-//						Frame frame = frameStack.peek();
-//						
-//						if(frame.i == frame.enlistings.size()) {
-//							frameStack.pop();
-//							continue;
-//						}
-//						
-//						Object enlisting = frame.enlistings.get(frame.i);
-//						
-//						final ArrayList<Object> innerEnlistings = new ArrayList<Object>();
-//						
-//						TranscriberCollector<T> isolatableCollector = new TranscriberCollector<T>() {
-//							@Override
-//							public void enqueue(DualCommandFactory<T> transactionFactory) {
-//								innerEnlistings.add(transactionFactory);
-//							}
-//							
-//							@Override
-//							public void afterNextFlush(TranscriberRunnable<T> runnable) {
-//								innerEnlistings.add(runnable);
-//							}
-//
-//							@Override
-//							public void registerAffectedModel(T model) {
-//								affectedModels.add(model);
-//							}
-//							
-//							@Override
-//							public void reject() {
-//								innerEnlistings.add(0);
-//							}
-//							
-//							@Override
-//							public void commit() {
-//								innerEnlistings.add(1);
-//							}
-//							
-//							@Override
-//							public void flush() {
-//								innerEnlistings.add(2);
-//							}
-//						};
-//						
-//						if(enlisting instanceof Integer) {
-//							int i = (int)enlisting;
-//							
-//							switch(i) {
-//							case 0: // reject
-//								doReject();
-//								break;
-//							case 1: // commit
-//								doCommit();
-//								break;
-//							case 2: // flush
-////								doCommit();
-//								break;
-//							}
-//						} else if(enlisting instanceof DualCommandFactory) {
-//							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)enlisting;
-//							
-//							ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
-//							transactionFactory.createDualCommands(dualCommands);
-//	
-//							for(DualCommand<T> transaction: dualCommands) {
-//								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, null, isolatableCollector);
-//								flushedTransactions.add(transaction);
-//							}
-//							
-//							// Loop through all inner enlistings
-//							// 
-//						} else if(enlisting instanceof TranscriberRunnable) {
-//							TranscriberRunnable<T> runnable = (TranscriberRunnable<T>)enlisting;
-//							
-//							if(runnable instanceof TranscriberOnFlush)
-//								onFlush.add((TranscriberOnFlush<T>)runnable);
-//							else
-//								runnable.run(isolatableCollector);
-//						}
-//
-//						frame.i++;
-//						if(innerEnlistings.size() > 0) {
-//							frameStack.push(new Frame(innerEnlistings));
-//						} else {
-////							while(frameStack.size() > 0 && frame.i == frame.enlistings.size()) {
-////								frameStack.pop();
-////							}
-////							if(frame.i == frame.enlistings.size())
-////								frameStack.pop();
-//						}
-//					}
-//
-//					// TODO: This should be factored out of this class
-//					SwingUtilities.invokeLater(new Runnable() {
-//						@Override
-//						public void run() {
-//							for(TranscriberOnFlush<T> r: onFlush)
-//								r.run(null);
-//						}
-//					});
-//					
-////					System.out.println("Finished flushing.");
 				}
 			});
 		}
@@ -1106,7 +939,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		TranscriberBranchBehavior<T> branchBehavior = new TranscriberBranchBehavior<T>() {
 			@Override
 			public void commit(PropogationContext propCtx, ContextualTransaction<T> ctxTransaction) {
-//				registerTransaction(ctxTransaction);
 				persistTransaction(propCtx, ctxTransaction);
 			}
 		};

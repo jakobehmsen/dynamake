@@ -42,10 +42,6 @@ public abstract class BoundsChangeTool implements Tool {
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 		if(viewPressedOn != null) {
 			viewPressedOn = null;
-			
-//			final TranscriberBranch<Model> branchStep2 = branch.branch();
-//			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-//			branch.close();
 
 			ModelComponent newTargetOver = targetPresenter.getTargetOver();
 			
@@ -92,8 +88,6 @@ public abstract class BoundsChangeTool implements Tool {
 					JComponent parent = (JComponent)((JComponent)selection).getParent();
 					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), parent);
 					
-//					PropogationContext propCtx = new PropogationContext();
-					
 					collector.enqueue(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -113,17 +107,8 @@ public abstract class BoundsChangeTool implements Tool {
 				collector.reject();
 			}
 			
-//			branchStep2.close();
-			
 			mouseDown = null;
-			
-//			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-//				@Override
-//				public void run(TranscriberCollector<Model> collector) {
-//					System.out.println("Repaint release");
-//					productionPanel.livePanel.repaint();
-//				}
-//			});
+
 			collector.flush();
 		}
 	}
@@ -132,7 +117,6 @@ public abstract class BoundsChangeTool implements Tool {
 	
 	private Point mouseDown;
 	private ModelComponent viewPressedOn;
-//	private TranscriberBranch<Model> branch;
 	private RelativePosition relativePosition;
 	private TargetPresenter targetPresenter;
 	private InteractionPresenter interactionPresenter;
@@ -143,9 +127,6 @@ public abstract class BoundsChangeTool implements Tool {
 
 		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			viewPressedOn = targetModelComponent;
-//			branch = productionPanel.livePanel.getModelTranscriber().createBranch();
-//			TranscriberBranch<Model> branchStep1 = branch.branch();
-//			branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 			
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 			
@@ -163,13 +144,6 @@ public abstract class BoundsChangeTool implements Tool {
 					locationInteractionPresenter.setEffectFrameCursor(cursor);
 				}
 			});
-//			branchStep1.onFinished(new Runnable() {
-//				@Override
-//				public void run() {
-//					locationInteractionPresenter.setSelectionFrameCursor(cursor);
-//					locationInteractionPresenter.setEffectFrameCursor(cursor);
-//				}
-//			});
 			
 			targetPresenter = new TargetPresenter(
 				productionPanel,
@@ -189,16 +163,8 @@ public abstract class BoundsChangeTool implements Tool {
 			ModelComponent newTargetOver = getTargetOver(productionPanel, modelOver, modelOver);
 			targetPresenter.update(newTargetOver, collector);
 			
-//			branchStep1.close();
-			
 			mouseDown = e.getPoint();
 			
-//			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-//				@Override
-//				public void run(TranscriberCollector<Model> collector) {
-//					productionPanel.livePanel.repaint();
-//				}
-//			});
 			collector.flush();
 		}
 	}
@@ -206,8 +172,6 @@ public abstract class BoundsChangeTool implements Tool {
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector, TranscriberConnection<Model> connection) {
 		if(mouseDown != null && interactionPresenter.getSelection() != productionPanel.contentView.getBindingTarget()) {
-//			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
-			
 			ModelComponent newTargetOver = getTargetOver(productionPanel, modelOver, interactionPresenter.getSelection());
 			targetPresenter.update(newTargetOver, collector);
 			
@@ -219,15 +183,7 @@ public abstract class BoundsChangeTool implements Tool {
 				e.getPoint());
 			
 			interactionPresenter.changeEffectFrameDirect2(newEffectBounds, collector);
-			
-//			runBuilder.execute();
-			
-//			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-//				@Override
-//				public void run(TranscriberCollector<Model> collector) {
-//					productionPanel.livePanel.repaint();
-//				}
-//			});
+
 			collector.flush();
 		}
 	}
@@ -262,18 +218,11 @@ public abstract class BoundsChangeTool implements Tool {
 	@Override
 	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
 		if(mouseDown != null) {
-//			final TranscriberBranch<Model> branchStep2 = branch.branch();
-//			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-			
 			targetPresenter.reset(collector);
 			targetPresenter = null;
 	
 			interactionPresenter.reset(collector);
 			interactionPresenter = null;
-			
-//			branchStep2.close();
-//			
-//			branch.reject();
 		}
 	}
 }

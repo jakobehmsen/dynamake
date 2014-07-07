@@ -43,10 +43,6 @@ public class ConsTool implements Tool {
 		final ModelComponent targetModelComponent = modelOver;
 		
 		if(targetModelComponent != null && interactionPresenter.getSelection() != targetModelComponent) {
-//			TranscriberBranch<Model> branchStep2 = branch.branch();
-//			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-//			branch.close();
-
 			targetPresenter.reset(collector);
 			targetPresenter = null;
 			
@@ -58,7 +54,7 @@ public class ConsTool implements Tool {
 			} else {
 				if(interactionPresenter.getSelection().getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 					final ModelComponent selection = interactionPresenter.getSelection();
-//					PropogationContext propCtx = new PropogationContext();
+
 					collector.enqueue(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -72,7 +68,6 @@ public class ConsTool implements Tool {
 						}
 					});
 				} else {
-//					PropogationContext propCtx = new PropogationContext();
 					final ModelComponent selection = interactionPresenter.getSelection();
 					collector.enqueue(new DualCommandFactory<Model>() {
 						@Override
@@ -92,35 +87,20 @@ public class ConsTool implements Tool {
 				interactionPresenter = null;
 
 				collector.commit();
-//				branchStep2.close();
-				
-//				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-//					@Override
-//					public void run(TranscriberCollector<Model> collector) {
-//						productionPanel.livePanel.repaint();
-//					}
-//				});
 				collector.flush();
 			}
 		} else {
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
-//				final TranscriberBranch<Model> branchStep2 = branch.branch();
-//				branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 				targetPresenter.reset(collector);
 				targetPresenter = null;
 				interactionPresenter.reset(collector);
 				interactionPresenter = null;
 				interactionPresenter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, connection);
-//				branch.close();
-//				collector.commit();
 			} else {
-//				final TranscriberBranch<Model> branchStep2 = branch.branch();
-//				branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 				targetPresenter.reset(collector);
 				targetPresenter = null;
 				interactionPresenter.reset(collector);
 				interactionPresenter = null;
-//				branch.reject();
 				collector.reject();
 				
 				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
@@ -137,17 +117,11 @@ public class ConsTool implements Tool {
 	}
 	
 	private Point mouseDown;
-//	private TranscriberBranch<Model> branch;
 	private TargetPresenter targetPresenter;
 	private InteractionPresenter interactionPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
-//		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
-//		
-//		TranscriberBranch<Model> branchStep1 = branch.branch();
-//		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-
 		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
@@ -180,23 +154,13 @@ public class ConsTool implements Tool {
 		targetPresenter.update(modelOver, collector);
 		
 		mouseDown = e.getPoint();
-		
-//		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-//			@Override
-//			public void run(TranscriberCollector<Model> collector) {
-//				productionPanel.livePanel.repaint();
-//			}
-//		});
+
 		collector.flush();
-		
-//		branchStep1.close();
 	}
 
 	@Override
 	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector, TranscriberConnection<Model> connection) {
 		if(mouseDown != null) {
-//			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
-			
 			targetPresenter.update(modelOver, collector);
 			
 			final int width = interactionPresenter.getEffectFrameWidth();
@@ -208,16 +172,8 @@ public class ConsTool implements Tool {
 			final int y = cursorLocationInProductionPanel.y - height / 2;
 			
 			interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), collector);
-			
-//			collector.afterNextFlush(new TranscriberOnFlush<Model>() {
-//				@Override
-//				public void run(TranscriberCollector<Model> collector) {
-//					productionPanel.livePanel.repaint();
-//				}
-//			});
+
 			collector.flush();
-			
-//			runBuilder.execute();
 		}
 	}
 
@@ -228,17 +184,10 @@ public class ConsTool implements Tool {
 
 	@Override
 	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
-//		final TranscriberBranch<Model> branchStep2 = branch.branch();
-//		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		
 		targetPresenter.reset(collector);
 		targetPresenter = null;
 
 		interactionPresenter.reset(collector);
 		interactionPresenter = null;
-		
-//		branchStep2.close();
-//		
-//		branch.reject();
 	}
 }
