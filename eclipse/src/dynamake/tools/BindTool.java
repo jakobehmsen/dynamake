@@ -49,7 +49,7 @@ public class BindTool implements Tool {
 		
 		if(targetModelComponent != null && selection != targetModelComponent) {
 			if(selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
-				collector.enqueue(new DualCommandFactory<Model>() {
+				collector.enlist(new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						Location observableLocation = selection.getModelTranscriber().getModelLocation();
@@ -62,7 +62,7 @@ public class BindTool implements Tool {
 					}
 				});
 			} else {
-				collector.enqueue(new DualCommandFactory<Model>() {
+				collector.enlist(new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						Location observableLocation = selection.getModelTranscriber().getModelLocation();

@@ -769,15 +769,20 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					while(!commands.isEmpty()) {
 						Object command = commands.pop();
 						
-						TranscriberCollector<T> isolatableCollector = new TranscriberCollector<T>() {
+						TranscriberCollector<T> collector = new TranscriberCollector<T>() {
 							@Override
-							public void enqueue(DualCommandFactory<T> transactionFactory) {
+							public void enlist(DualCommandFactory<T> transactionFactory) {
 								enlistings.add(transactionFactory);
 							}
 							
 							@Override
-							public void afterNextFlush(TranscriberRunnable<T> runnable) {
-								enlistings.add(runnable);
+							public void execute( DualCommandFactory<T> transactionFactory) {
+								commands.add(transactionFactory);
+							}
+							
+							@Override
+							public void afterNextFlush(TranscriberOnFlush<T> runnable) {
+								onFlush.add(runnable);
 							}
 
 							@Override
@@ -815,9 +820,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								commands.addAll(enlistings);
 								enlistings.clear();
 								break;
-							case 3: // new scope
-								// flushes are
-								break;
 							}
 						} else if(command instanceof DualCommandFactory) {
 							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)command;
@@ -826,19 +828,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							transactionFactory.createDualCommands(dualCommands);
 	
 							for(DualCommand<T> transaction: dualCommands) {
-								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, null, isolatableCollector);
+								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, null, collector);
 								flushedTransactions.add(transaction);
 							}
-							
-							// Push new frame consisting of the created dual commands
-							// Add "pop frame" as last command
 						} else if(command instanceof TranscriberRunnable) {
-							TranscriberRunnable<T> runnable = (TranscriberRunnable<T>)command;
-							
-							if(runnable instanceof TranscriberOnFlush)
-								onFlush.add((TranscriberOnFlush<T>)runnable);
-							else
-								runnable.run(isolatableCollector);
+							((TranscriberRunnable<T>)command).run(collector);
 						}
 					}
 					
@@ -902,10 +896,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			
 			TranscriberCollector<T> isolatedCollector = new TranscriberCollector<T>() {
 				@Override
-				public void enqueue(DualCommandFactory<T> transactionFactory) { }
+				public void enlist(DualCommandFactory<T> transactionFactory) { }
 				
 				@Override
-				public void afterNextFlush(TranscriberRunnable<T> runnable) {
+				public void execute(DualCommandFactory<T> transactionFactory) { }
+				
+				@Override
+				public void afterNextFlush(TranscriberOnFlush<T> runnable) {
 					currentEnlistings.add(runnable);
 				}
 

@@ -2,10 +2,13 @@ package dynamake.transcription;
 
 public class NullCollector<T> implements TranscriberCollector<T> {
 	@Override
-	public void enqueue(DualCommandFactory<T> transactionFactory) { }
+	public void enlist(DualCommandFactory<T> transactionFactory) { }
+	
+	@Override
+	public void execute(DualCommandFactory<T> transactionFactory) { }
 
 	@Override
-	public void afterNextFlush(TranscriberRunnable<T> runnable) { }
+	public void afterNextFlush(TranscriberOnFlush<T> runnable) { }
 
 	@Override
 	public void registerAffectedModel(T model) { }

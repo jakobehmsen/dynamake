@@ -1,8 +1,9 @@
 package dynamake.transcription;
 
 public interface TranscriberCollector<T> {
-	void enqueue(DualCommandFactory<T> transactionFactory);
-	void afterNextFlush(TranscriberRunnable<T> runnable);
+	void enlist(DualCommandFactory<T> transactionFactory);
+	void execute(DualCommandFactory<T> transactionFactory);
+	void afterNextFlush(TranscriberOnFlush<T> runnable);
 	void registerAffectedModel(T model);
 	void reject();
 	void commit();

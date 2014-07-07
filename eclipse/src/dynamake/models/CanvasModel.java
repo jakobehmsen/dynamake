@@ -34,7 +34,6 @@ import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberOnFlush;
-import dynamake.transcription.TranscriberRunnable;
 
 public class CanvasModel extends Model {
 	/**

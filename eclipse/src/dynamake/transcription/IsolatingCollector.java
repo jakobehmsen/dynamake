@@ -6,14 +6,19 @@ public class IsolatingCollector<T> implements TranscriberCollector<T> {
 	public IsolatingCollector(TranscriberCollector<T> collector) {
 		this.collector = collector;
 	}
-
+	
 	@Override
-	public void enqueue(DualCommandFactory<T> transactionFactory) {
+	public void execute(DualCommandFactory<T> transactionFactory) {
 		// Do nothing which means side effects aren't collected
 	}
 
 	@Override
-	public void afterNextFlush(TranscriberRunnable<T> runnable) {
+	public void enlist(DualCommandFactory<T> transactionFactory) {
+		// Do nothing which means side effects aren't collected
+	}
+
+	@Override
+	public void afterNextFlush(TranscriberOnFlush<T> runnable) {
 		collector.afterNextFlush(runnable);
 	}
 

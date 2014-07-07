@@ -9,11 +9,8 @@ import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.RepaintRunBuilder;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
 
@@ -35,7 +32,7 @@ public class UndoTool implements Tool {
 		
 //		TranscriberBranch<Model> branch = modelOver.getModelTranscriber().createBranch();
 //		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		collector.enqueue(new DualCommandFactory<Model>() {
+		collector.enlist(new DualCommandFactory<Model>() {
 			@Override
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				dualCommands.add(

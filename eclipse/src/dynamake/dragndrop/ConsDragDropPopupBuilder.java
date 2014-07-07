@@ -54,7 +54,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			connection.trigger(new TranscriberRunnable<Model>() {
 				@Override
 				public void run(TranscriberCollector<Model> collector) {
-					collector.enqueue(implicitDropAction);
+					collector.enlist(implicitDropAction);
 					collector.commit();
 				}
 			});
@@ -65,7 +65,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionTargetContentMapBuilder.addMenuBuilder("Unforward to", new TranscriberRunnable<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
-						collector.enqueue(new DualCommandFactory<Model>() {
+						collector.enlist(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
@@ -80,7 +80,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionTargetContentMapBuilder.addMenuBuilder("Forward to", new TranscriberRunnable<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
-						collector.enqueue(new DualCommandFactory<Model>() {
+						collector.enlist(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
@@ -101,7 +101,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new TranscriberRunnable<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
-						collector.enqueue(new DualCommandFactory<Model>() {
+						collector.enlist(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								CanvasModel canvasModel = (CanvasModel)target.getModelBehind();

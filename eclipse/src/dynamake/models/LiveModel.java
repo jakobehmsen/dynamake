@@ -271,7 +271,7 @@ public class LiveModel extends Model {
 						connection.trigger(new TranscriberRunnable<Model>() {
 							@Override
 							public void run(TranscriberCollector<Model> collector) {
-								collector.enqueue(new DualCommandFactory<Model>() {
+								collector.enlist(new DualCommandFactory<Model>() {
 									@Override
 									public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 										List<Integer> currentButtons = ToolButton.this.buttons;

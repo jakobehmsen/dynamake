@@ -59,7 +59,7 @@ public abstract class BoundsChangeTool implements Tool {
 
 						final ModelComponent targetOver = newTargetOver;
 						
-						collector.enqueue(new DualCommandFactory<Model>() {
+						collector.enlist(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, selection, targetOver, droppedBounds.getLocation());
@@ -69,7 +69,7 @@ public abstract class BoundsChangeTool implements Tool {
 						// Moving within same canvas
 						final Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), (JComponent)newTargetOver);
 						
-						collector.enqueue(new DualCommandFactory<Model>() {
+						collector.enlist(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
@@ -88,7 +88,7 @@ public abstract class BoundsChangeTool implements Tool {
 					JComponent parent = (JComponent)((JComponent)selection).getParent();
 					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), parent);
 					
-					collector.enqueue(new DualCommandFactory<Model>() {
+					collector.enlist(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							appendDualCommandsForResize(dualCommands, selection, newBounds);
