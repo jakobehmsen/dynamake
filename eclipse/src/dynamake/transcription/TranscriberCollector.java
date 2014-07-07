@@ -5,7 +5,7 @@ public interface TranscriberCollector<T> {
 	void execute(DualCommandFactory<T> transactionFactory);
 	void afterNextFlush(TranscriberOnFlush<T> runnable);
 	void registerAffectedModel(T model);
-	void reject();
-	void commit();
+	void enlistReject();
+	void enlistCommit();
 	void flush();
 }

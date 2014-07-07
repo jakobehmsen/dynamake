@@ -76,9 +76,9 @@ public class BindTool implements Tool {
 				});
 			}
 			
-			collector.commit();
+			collector.enlistCommit();
 		} else {
-			collector.reject();
+			collector.enlistReject();
 		}
 		
 		mouseDown = null;

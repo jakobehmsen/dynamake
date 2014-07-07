@@ -317,7 +317,7 @@ public class LiveModel extends Model {
 										}
 									}
 								});
-								collector.commit();
+								collector.enlistCommit();
 								collector.flush();
 							}
 						});
@@ -643,7 +643,7 @@ public class LiveModel extends Model {
 								final Tool toolToRollback = toolBeingApplied;
 								
 								toolToRollback.rollback(productionPanel, collector);
-								collector.reject();
+								collector.enlistReject();
 								collector.flush();
 							}
 							

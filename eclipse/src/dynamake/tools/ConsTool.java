@@ -86,7 +86,7 @@ public class ConsTool implements Tool {
 				interactionPresenter.reset(collector);
 				interactionPresenter = null;
 
-				collector.commit();
+				collector.enlistCommit();
 				collector.flush();
 			}
 		} else {
@@ -101,7 +101,7 @@ public class ConsTool implements Tool {
 				targetPresenter = null;
 				interactionPresenter.reset(collector);
 				interactionPresenter = null;
-				collector.reject();
+				collector.enlistReject();
 				
 				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 					@Override

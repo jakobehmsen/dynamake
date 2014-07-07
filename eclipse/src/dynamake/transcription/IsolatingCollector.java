@@ -28,13 +28,13 @@ public class IsolatingCollector<T> implements TranscriberCollector<T> {
 	}
 
 	@Override
-	public void reject() {
-		collector.reject();
+	public void enlistReject() {
+		collector.enlistReject();
 	}
 
 	@Override
-	public void commit() {
-		collector.commit();
+	public void enlistCommit() {
+		collector.enlistCommit();
 	}
 	
 	@Override

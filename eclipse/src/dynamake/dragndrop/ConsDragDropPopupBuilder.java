@@ -41,7 +41,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						((TranscriberRunnable<Model>)action).run(collector);
-						collector.commit();
+						collector.enlistCommit();
 						collector.flush();
 					}
 				});
@@ -55,7 +55,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				@Override
 				public void run(TranscriberCollector<Model> collector) {
 					collector.enlist(implicitDropAction);
-					collector.commit();
+					collector.enlistCommit();
 				}
 			});
 		} else {
@@ -134,7 +134,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	public void cancelPopup(final LivePanel livePanel) {
 		connection.trigger(new TranscriberRunnable<Model>() {
 			public void run(TranscriberCollector<Model> collector) {
-				collector.reject();
+				collector.enlistReject();
 				collector.flush();
 			}
 		});

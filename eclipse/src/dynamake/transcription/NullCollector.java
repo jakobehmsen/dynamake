@@ -14,10 +14,10 @@ public class NullCollector<T> implements TranscriberCollector<T> {
 	public void registerAffectedModel(T model) { }
 
 	@Override
-	public void reject() { }
+	public void enlistReject() { }
 
 	@Override
-	public void commit() { }
+	public void enlistCommit() { }
 	
 	@Override
 	public void flush() { }

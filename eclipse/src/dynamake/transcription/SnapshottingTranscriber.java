@@ -791,12 +791,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							}
 							
 							@Override
-							public void reject() {
+							public void enlistReject() {
 								enlistings.add(0);
 							}
 							
 							@Override
-							public void commit() {
+							public void enlistCommit() {
 								enlistings.add(1);
 							}
 							
@@ -910,10 +910,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				public void registerAffectedModel(T model) { }
 				
 				@Override
-				public void reject() { }
+				public void enlistReject() { }
 				
 				@Override
-				public void commit() { }
+				public void enlistCommit() { }
 				
 				@Override
 				public void flush() { }

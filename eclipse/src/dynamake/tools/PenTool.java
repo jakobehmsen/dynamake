@@ -84,7 +84,7 @@ public class PenTool implements Tool {
 		targetPresenter.reset(collector);
 		targetPresenter = null;
 		
-		collector.commit();
+		collector.enlistCommit();
 		collector.flush();
 	}
 	
