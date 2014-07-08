@@ -55,15 +55,6 @@ public class TargetPresenter {
 		});
 	}
 	
-	public void update(ModelComponent newTargetOver, final TranscriberBranch<Model> branch) {
-		update(newTargetOver, new Runner() {
-			@Override
-			public void run(Runnable runnable) {
-				branch.onFinished(runnable);
-			}
-		});
-	}
-	
 	public void update(ModelComponent newTargetOver, Runner runner) {
 		if(newTargetOver != currentTargetOver) {
 			currentTargetOver = newTargetOver;
@@ -125,15 +116,6 @@ public class TargetPresenter {
 			@Override
 			public void run(Runnable runnable) {
 				runBuilder.addRunnable(runnable);
-			}
-		});
-	}
-
-	public void reset(final TranscriberBranch<Model> branch) {
-		reset(new Runner() {
-			@Override
-			public void run(Runnable runnable) {
-				branch.onFinished(runnable);
 			}
 		});
 	}

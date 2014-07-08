@@ -65,15 +65,6 @@ public class InteractionPresenter {
 		});
 	}
 	
-	public void selectFromView(final ModelComponent view, final Point initialMouseDown, final TranscriberBranch<Model> branch) {
-		selectFromView(view, initialMouseDown, new Runner() {
-			@Override
-			public void run(Runnable runnable) {
-				branch.onFinished(runnable);
-			}
-		});
-	}
-	
 	public void selectFromView(final ModelComponent view, final Point initialMouseDown, Runner runner) {
 		Rectangle effectBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
 		select(view, runner);
@@ -90,15 +81,6 @@ public class InteractionPresenter {
 						runnable.run();
 					}
 				});
-			}
-		});
-	}
-	
-	public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, final TranscriberBranch<Model> branch) {
-		selectFromDefault(view, initialMouseDown, new Runner() {
-			@Override
-			public void run(Runnable runnable) {
-				branch.onFinished(runnable);
 			}
 		});
 	}
@@ -423,15 +405,6 @@ public class InteractionPresenter {
 						runnable.run();
 					}
 				});
-			}
-		});
-	}
-
-	public void reset(final TranscriberBranch<Model> branch) {
-		reset(new Runner() {
-			@Override
-			public void run(Runnable runnable) {
-				branch.onFinished(runnable);
 			}
 		});
 	}

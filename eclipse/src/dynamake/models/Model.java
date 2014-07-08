@@ -802,9 +802,9 @@ public abstract class Model implements Serializable, Observer {
 					&& changeDistance == 1 /* And not a forwarded change */) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 					if(propertyChanged.name.equals(modelPropertyName)) {
-						branch.onFinished(new Runnable() {
+						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 							@Override
-							public void run() {
+							public void run(TranscriberCollector<Model> collector) {
 								propertySetter.run((T)propertyChanged.value);
 							}
 						});

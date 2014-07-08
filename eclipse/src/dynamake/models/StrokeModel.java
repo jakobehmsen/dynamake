@@ -20,6 +20,7 @@ import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberOnFlush;
 
 public class StrokeModel extends Model {
 	/**
@@ -187,9 +188,9 @@ public class StrokeModel extends Model {
 						&& changeDistance == 1 /* And not a forwarded change */) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 					if(propertyChanged.name.equals("Width") || propertyChanged.name.equals("Height")) {
-						branch.onFinished(new Runnable() {
+						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 							@Override
-							public void run() {
+							public void run(TranscriberCollector<Model> collector) {
 								view.shouldRefreshViewShape = true;
 							}
 						});
