@@ -15,15 +15,15 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.TranscriberCollector;
-import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.Collector;
+import dynamake.transcription.Connection;
 import dynamake.transcription.Trigger;
 
 public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
-	private TranscriberConnection<Model> connection; 
+	private Connection<Model> connection; 
 	private InteractionPresenter interactionPresenter;
 	
-	public ViewDragDropPopupBuilder(TranscriberConnection<Model> connection, InteractionPresenter interactionPresenter) {
+	public ViewDragDropPopupBuilder(Connection<Model> connection, InteractionPresenter interactionPresenter) {
 		this.connection = connection;
 		this.interactionPresenter = interactionPresenter;
 	}
@@ -38,7 +38,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 				connection.trigger(new Trigger<Model>() {
 					@SuppressWarnings("unchecked")
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						interactionPresenter.reset(collector);
 						
 						((Trigger<Model>)action).run(collector);
@@ -53,7 +53,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		
 		transactionTargetContentMapBuilder.addMenuBuilder("Appliance", new Trigger<Model>() {
 			@Override
-			public void run(TranscriberCollector<Model> collector) {
+			public void run(Collector<Model> collector) {
 				collector.execute(new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -71,7 +71,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		
 		transactionTargetContentMapBuilder.addMenuBuilder("Engineering", new Trigger<Model>() {
 			@Override
-			public void run(TranscriberCollector<Model> collector) {
+			public void run(Collector<Model> collector) {
 				collector.execute(new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -94,7 +94,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
 		connection.trigger(new Trigger<Model>() {
-			public void run(TranscriberCollector<Model> collector) {
+			public void run(Collector<Model> collector) {
 				interactionPresenter.reset(collector);
 				
 				collector.enlistReject();

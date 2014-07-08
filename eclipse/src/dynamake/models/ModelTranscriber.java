@@ -7,7 +7,7 @@ import javax.swing.SwingUtilities;
 
 import dynamake.transcription.TriggerHandler;
 import dynamake.transcription.Transcriber;
-import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.Connection;
 
 public class ModelTranscriber {
 	private Transcriber<Model> transcriber;
@@ -92,7 +92,7 @@ public class ModelTranscriber {
 		return new CompositeModelLocation(getModelLocation(), otherLocation);
 	}
 
-	public TranscriberConnection<Model> createConnection() {
+	public Connection<Model> createConnection() {
 		return transcriber.createConnection(new TriggerHandler<Model>() {
 			@Override
 			public void handleAfterTrigger(final List<Runnable> runnables) {

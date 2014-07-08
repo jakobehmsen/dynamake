@@ -8,5 +8,5 @@ public interface Transcriber<T> {
 	
 	void executeTransient(Runnable runnable);
 	
-	TranscriberConnection<T> createConnection(TriggerHandler<T> flushHandler);
+	Connection<T> createConnection(TriggerHandler<T> flushHandler);
 }

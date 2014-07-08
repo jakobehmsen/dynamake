@@ -31,7 +31,7 @@ import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.IsolatingCollector;
-import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.Collector;
 import dynamake.transcription.Trigger;
 
 public class CanvasModel extends Model {
@@ -141,7 +141,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
 			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(prevalentSystem);
 			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(prevalentSystem);
 			Model model = (Model)canvasSource.getModel(indexInSource);
@@ -168,7 +168,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, collector);
 
@@ -200,7 +200,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, collector);
 
@@ -231,7 +231,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, null, propCtx, 0, collector);
 			canvas.addModel(index, model, new PropogationContext(), 0, collector);
@@ -254,7 +254,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModel(index);
 			canvas.removeModel(index, propCtx, 0, collector);
@@ -262,7 +262,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public void addModel(Model model, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
+	public void addModel(Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		addModel(models.size(), model, propCtx, propDistance, collector);
 	}
 
@@ -270,25 +270,25 @@ public class CanvasModel extends Model {
 		return models.get(index);
 	}
 
-	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
+	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		models.add(index, model);
 		collector.registerAffectedModel(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 	
-	public void removeModel(Model model, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
+	public void removeModel(Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		int indexOfModel = indexOfModel(model);
 		removeModel(indexOfModel, propCtx, propDistance, collector);
 	}
 	
-	public void removeModel(int index, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
+	public void removeModel(int index, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		Model model = models.get(index);
 		models.remove(index);
 		collector.registerAffectedModel(this);
 		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 	
-	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, int indexInTarget, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
+	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, int indexInTarget, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		int indexOfModel = canvasSource.indexOfModel(model);
 		canvasSource.models.remove(indexOfModel);
 		canvasSource.sendChanged(new RemovedModelChange(indexOfModel, model), propCtx, propDistance, 0, collector);
@@ -346,7 +346,7 @@ public class CanvasModel extends Model {
 				final LivePanel livePanel, CompositeMenuBuilder menuBuilder, final ModelComponent child) {
 			menuBuilder.addMenuBuilder("Remove", new Trigger<Model>() {
 				@Override
-				public void run(TranscriberCollector<Model> collector) {
+				public void run(Collector<Model> collector) {
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -368,7 +368,7 @@ public class CanvasModel extends Model {
 			if(model.models.size() > 0 && ModelComponent.Util.getParent(this).getModelBehind() instanceof CanvasModel) {
 				menuBuilder.addMenuBuilder("Unwrap", new Trigger<Model>() {
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -392,7 +392,7 @@ public class CanvasModel extends Model {
 				!isContainerOf(dropped.getModelTranscriber(), this.modelTranscriber) /*Dropee cannot be child of dropped*/) {
 				menuBuilder.addMenuBuilder("Move", new Trigger<Model>() {
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(
@@ -606,7 +606,7 @@ public class CanvasModel extends Model {
 			
 			@Override
 			public void changed(Model sender, Object change,
-					PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
+					PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 				if(change instanceof PropertyChanged) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
 					if(propertyChanged.name.equals(Model.PROPERTY_VIEW)) {
@@ -707,7 +707,7 @@ public class CanvasModel extends Model {
 		
 		final Model.RemovableListener removableListener = Model.RemovableListener.addObserver(this, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, final TranscriberCollector<Model> collector) {
+			public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, final Collector<Model> collector) {
 				if(change instanceof CanvasModel.AddedModelChange) {
 					CanvasModel.AddedModelChange addedChange = (CanvasModel.AddedModelChange)change;
 					final Model model = addedChange.model;

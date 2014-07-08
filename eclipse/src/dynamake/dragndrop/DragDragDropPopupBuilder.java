@@ -20,16 +20,16 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.TranscriberCollector;
-import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.Collector;
+import dynamake.transcription.Connection;
 import dynamake.transcription.Trigger;
 
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
-	private TranscriberConnection<Model> connection;
+	private Connection<Model> connection;
 	private TargetPresenter targetPresenter;
 	private InteractionPresenter interactionPresenter;
 	
-	public DragDragDropPopupBuilder(TranscriberConnection<Model> connection, TargetPresenter targetPresenter, InteractionPresenter interactionPresenter) {
+	public DragDragDropPopupBuilder(Connection<Model> connection, TargetPresenter targetPresenter, InteractionPresenter interactionPresenter) {
 		this.connection = connection;
 		this.targetPresenter = targetPresenter;
 		this.interactionPresenter = interactionPresenter;
@@ -55,7 +55,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				connection.trigger(new Trigger<Model>() {
 					@SuppressWarnings("unchecked")
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						targetPresenter.reset(collector);
 						interactionPresenter.reset(collector);
 						
@@ -90,7 +90,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				connection.trigger(new Trigger<Model>() {
 					@SuppressWarnings("unchecked")
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						targetPresenter.reset(collector);
 						interactionPresenter.reset(collector);
 						
@@ -107,7 +107,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
 			transactionSelectionGeneralMapBuilder.addMenuBuilder("Unforward to", new Trigger<Model>() {
 				@Override
-				public void run(TranscriberCollector<Model> collector) {
+				public void run(Collector<Model> collector) {
 					collector.enlist(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -125,7 +125,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		} else {
 			transactionSelectionGeneralMapBuilder.addMenuBuilder("Forward to", new Trigger<Model>() {
 				@Override
-				public void run(TranscriberCollector<Model> collector) {
+				public void run(Collector<Model> collector) {
 					collector.enlist(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -144,7 +144,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		
 		transactionSelectionGeneralMapBuilder.addMenuBuilder("Inject", new Trigger<Model>() {
 			@Override
-			public void run(TranscriberCollector<Model> collector) {
+			public void run(Collector<Model> collector) {
 				collector.enlist(new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(
@@ -176,7 +176,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
 		connection.trigger(new Trigger<Model>() {
-			public void run(TranscriberCollector<Model> collector) {
+			public void run(Collector<Model> collector) {
 				targetPresenter.reset(collector);
 				interactionPresenter.reset(collector);
 				

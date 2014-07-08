@@ -29,8 +29,8 @@ import dynamake.models.LiveModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.transcription.RunBuilder;
-import dynamake.transcription.TranscriberCollector;
-import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.Collector;
+import dynamake.transcription.Connection;
 
 public class InteractionPresenter {
 	public static final Color SELECTION_COLOR = Color.GRAY;
@@ -49,7 +49,7 @@ public class InteractionPresenter {
 		return selection;
 	}
 	
-	public void selectFromView(final ModelComponent view, final Point initialMouseDown, final TranscriberCollector<Model> collector) {
+	public void selectFromView(final ModelComponent view, final Point initialMouseDown, final Collector<Model> collector) {
 		selectFromView(view, initialMouseDown, new Runner() {
 			@Override
 			public void run(Runnable runnable) {
@@ -64,7 +64,7 @@ public class InteractionPresenter {
 		createEffectFrame(effectBounds, runner);
 	}
 	
-	public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, final TranscriberCollector<Model> collector) {
+	public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, final Collector<Model> collector) {
 		selectFromDefault(view, initialMouseDown, new Runner() {
 			@Override
 			public void run(Runnable runnable) {
@@ -383,7 +383,7 @@ public class InteractionPresenter {
 		}
 	}
 
-	public void reset(final TranscriberCollector<Model> collector) {
+	public void reset(final Collector<Model> collector) {
 		reset(new Runner() {
 			@Override
 			public void run(Runnable runnable) {
@@ -401,7 +401,7 @@ public class InteractionPresenter {
 		return effectFrame.getBounds();
 	}
 	
-	public void changeEffectFrameDirect2(final Rectangle newBounds, final TranscriberCollector<Model> collector) {
+	public void changeEffectFrameDirect2(final Rectangle newBounds, final Collector<Model> collector) {
 		changeEffectFrameDirect2(newBounds, new Runner() {
 			@Override
 			public void run(Runnable runnable) {
@@ -460,23 +460,23 @@ public class InteractionPresenter {
 		return effectFrame.getHeight();
 	}
 
-	public void showPopupForSelectionObject(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberConnection<Model> connection, TargetPresenter targetPresenter, InteractionPresenter interactionPresenter) {
+	public void showPopupForSelectionObject(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, Connection<Model> connection, TargetPresenter targetPresenter, InteractionPresenter interactionPresenter) {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(connection, targetPresenter, interactionPresenter));
 	}
 
-	public void showPopupForSelectionCons(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberConnection<Model> connection, TargetPresenter targetPresenter, InteractionPresenter interactionPresenter) {
+	public void showPopupForSelectionCons(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, Connection<Model> connection, TargetPresenter targetPresenter, InteractionPresenter interactionPresenter) {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(connection, targetPresenter, interactionPresenter));
 	}
 
-	public void showPopupForSelectionTell(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberConnection<Model> connection, InteractionPresenter interactionPresenter) {
+	public void showPopupForSelectionTell(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, Connection<Model> connection, InteractionPresenter interactionPresenter) {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new TellDragDropPopupBuilder(connection, interactionPresenter));
 	}
 
-	public void showPopupForSelectionView(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberConnection<Model> connection, InteractionPresenter interactionPresenter) {
+	public void showPopupForSelectionView(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, Connection<Model> connection, InteractionPresenter interactionPresenter) {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ViewDragDropPopupBuilder(connection, interactionPresenter));
 	}
 
-	public void selectFromEmpty(ModelComponent view, Point initialMouseDown, final TranscriberCollector<Model> collector) {
+	public void selectFromEmpty(ModelComponent view, Point initialMouseDown, final Collector<Model> collector) {
 		selectFromEmpty(view, initialMouseDown, new Runner() {
 			@Override
 			public void run(Runnable runnable) {

@@ -37,8 +37,8 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.TranscriberCollector;
-import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.Collector;
+import dynamake.transcription.Connection;
 import dynamake.transcription.Trigger;
 
 public class LiveModel extends Model {
@@ -87,12 +87,12 @@ public class LiveModel extends Model {
 		return Collections.emptyList();
 	}
 	
-	public void removeButtonsToToolBinding(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
+	public void removeButtonsToToolBinding(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		buttonsToToolMap.remove(buttons);
 		sendChanged(new ButtonsToolBindingChanged(Collections.<Integer>emptyList(), tool), propCtx, propDistance, 0, collector);
 	}
 	
-	public void bindButtonsToTool(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
+	public void bindButtonsToTool(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		buttonsToToolMap.put(buttons, tool);
 		sendChanged(new ButtonsToolBindingChanged(buttons, tool), propCtx, propDistance, 0, collector);
 	}
@@ -113,7 +113,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, collector);
 		}
@@ -135,7 +135,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, collector);
 		}
@@ -251,11 +251,11 @@ public class LiveModel extends Model {
 						@SuppressWarnings("unchecked")
 						final ArrayList<Integer> localButtonsPressed = (ArrayList<Integer>)buttonsPressed.clone();
 						
-						TranscriberConnection<Model> connection = ToolButton.this.modelTranscriber.createConnection();
+						Connection<Model> connection = ToolButton.this.modelTranscriber.createConnection();
 						
 						connection.trigger(new Trigger<Model>() {
 							@Override
-							public void run(TranscriberCollector<Model> collector) {
+							public void run(Collector<Model> collector) {
 								collector.enlist(new DualCommandFactory<Model>() {
 									@Override
 									public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -455,19 +455,19 @@ public class LiveModel extends Model {
 				} else {
 					return new Tool() {
 						@Override
-						public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) { }
+						public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) { }
 						
 						@Override
-						public void mousePressed(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) { }
+						public void mousePressed(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) { }
 						
 						@Override
-						public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) { }
+						public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) { }
 						
 						@Override
-						public void mouseExited(ProductionPanel productionPanel, MouseEvent e, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) { }
+						public void mouseExited(ProductionPanel productionPanel, MouseEvent e, Connection<Model> connection, Collector<Model> collector) { }
 						
 						@Override
-						public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector, TranscriberConnection<Model> connection) { }
+						public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) { }
 						
 						@Override
 						public String getName() { return null; }
@@ -476,7 +476,7 @@ public class LiveModel extends Model {
 						public void paint(Graphics g) { }
 						
 						@Override
-						public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) { }
+						public void rollback(ProductionPanel productionPanel, Collector<Model> collector) { }
 					};
 				}
 			}
@@ -491,12 +491,12 @@ public class LiveModel extends Model {
 			private int buttonsDown;
 			public ArrayList<Integer> buttonsPressed = new ArrayList<Integer>();
 			
-			private TranscriberConnection<Model> toolConnection;
+			private Connection<Model> toolConnection;
 			
 			public void mousePressed(final MouseEvent e) {
 				toolConnection.trigger(new Trigger<Model>() {
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						buttonsDown++;
 						
 						int button = e.getButton();
@@ -526,7 +526,7 @@ public class LiveModel extends Model {
 			public void mouseDragged(final MouseEvent e) {
 				toolConnection.trigger(new Trigger<Model>() {
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						final ModelComponent modelOver = getModelOver(e);
 
 						if(modelOver != null) {
@@ -540,7 +540,7 @@ public class LiveModel extends Model {
 			public void mouseReleased(final MouseEvent e) {
 				toolConnection.trigger(new Trigger<Model>() {
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						buttonsDown--;
 						
 						final ModelComponent modelOver = getModelOver(e);
@@ -672,7 +672,7 @@ public class LiveModel extends Model {
 				}
 				
 				@Override
-				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
+				public void changed(Model sender, Object change, final PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 					if(change instanceof LiveModel.ButtonsToolBindingChanged) {
 						LiveModel.ButtonsToolBindingChanged bindButtonChanged = (LiveModel.ButtonsToolBindingChanged)change;
 						

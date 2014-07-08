@@ -1,6 +1,6 @@
 package dynamake.transcription;
 
-public class NullCollector<T> implements TranscriberCollector<T> {
+public class NullCollector<T> implements Collector<T> {
 	@Override
 	public void enlist(DualCommandFactory<T> transactionFactory) { }
 	

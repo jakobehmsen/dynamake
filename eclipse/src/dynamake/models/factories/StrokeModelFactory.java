@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.StrokeModel;
-import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.Collector;
 
 public class StrokeModelFactory implements Factory {
 	/**
@@ -29,7 +29,7 @@ public class StrokeModelFactory implements Factory {
 	}
 
 	@Override
-	public Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
+	public Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		return new StrokeModel(creationBounds.getSize(), offset, points);
 	}
 }

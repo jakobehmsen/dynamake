@@ -3,7 +3,7 @@ package dynamake.commands;
 import java.util.Date;
 
 import dynamake.models.PropogationContext;
-import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.Collector;
 
 public class DualCommandPair<T> implements DualCommand<T> {
 	/**
@@ -23,12 +23,12 @@ public class DualCommandPair<T> implements DualCommand<T> {
 	}
 
 	@Override
-	public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberCollector<T> collector) {
+	public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector) {
 		forward.executeOn(propCtx, prevalentSystem, executionTime, collector);
 	}
 
 	@Override
-	public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberCollector<T> collector) {
+	public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector) {
 		backward.executeOn(propCtx, prevalentSystem, executionTime, collector);
 	}
 }

@@ -1,9 +1,9 @@
 package dynamake.transcription;
 
-public class IsolatingCollector<T> implements TranscriberCollector<T> {
-	private TranscriberCollector<T> collector;
+public class IsolatingCollector<T> implements Collector<T> {
+	private Collector<T> collector;
 
-	public IsolatingCollector(TranscriberCollector<T> collector) {
+	public IsolatingCollector(Collector<T> collector) {
 		this.collector = collector;
 	}
 	

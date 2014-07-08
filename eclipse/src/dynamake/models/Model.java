@@ -35,8 +35,8 @@ import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.IsolatingCollector;
-import dynamake.transcription.TranscriberCollector;
-import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.Collector;
+import dynamake.transcription.Connection;
 import dynamake.transcription.Trigger;
 
 public abstract class Model implements Serializable, Observer {
@@ -107,7 +107,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
 			model.setProperty(name, value, propCtx, 0, collector);
@@ -139,7 +139,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
 			model.setProperty(name, value, propCtx, 0, collector);
@@ -171,7 +171,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
 			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<Model>(collector);
@@ -191,7 +191,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 
 			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<Model>(collector);
@@ -277,7 +277,7 @@ public abstract class Model implements Serializable, Observer {
 	private ModelLocator locator;
 	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
 	
-	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
+	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(value != null)
 			properties.put(name, value);
 		else
@@ -306,7 +306,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
@@ -330,7 +330,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
 			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
 			
@@ -341,7 +341,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	@Override
-	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
+	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		if(change instanceof SetProperty && changeDistance == 1) {
 			// Side-effect
 			final SetProperty setProperty = (SetProperty)change;
@@ -369,7 +369,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
+	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 
 	}
 	
@@ -450,11 +450,11 @@ public abstract class Model implements Serializable, Observer {
 		redoStack = (Stack<ContextualTransaction<Model>>)ois.readObject();
 	}
 
-	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
+	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		setProperty(Model.PROPERTY_VIEW, view, propCtx, propDistance, collector);
 	}
 	
-	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
+	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		int nextChangeDistance = changeDistance + 1;
 		int nextPropDistance = propDistance + 1;
 		
@@ -489,7 +489,7 @@ public abstract class Model implements Serializable, Observer {
 	public static RemovableListener wrapForBoundsChanges(final Model model, final ModelComponent target, final ViewManager viewManager) {
 		return RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 				if(change instanceof Model.PropertyChanged
 						&& changeDistance == 1 /* And not a forwarded change */) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
@@ -534,7 +534,7 @@ public abstract class Model implements Serializable, Observer {
 	public static RemovableListener wrapForComponentColorChanges(Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager, final int componentColor) {
 		return RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 				if(change instanceof Model.PropertyChanged) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 
@@ -576,7 +576,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 			model.sendChanged(new MouseUp(), propCtx, 0, 0, collector);
 		}
@@ -595,7 +595,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
 			model.sendChanged(new MouseDown(), propCtx, 0, 0, collector);
 		}
@@ -605,10 +605,10 @@ public abstract class Model implements Serializable, Observer {
 		((JComponent)view).addMouseListener(new MouseListener() {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
-				TranscriberConnection<Model> connection = view.getModelTranscriber().createConnection();
+				Connection<Model> connection = view.getModelTranscriber().createConnection();
 				connection.trigger(new Trigger<Model>() {
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						collector.enlist(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -626,10 +626,10 @@ public abstract class Model implements Serializable, Observer {
 			
 			@Override
 			public void mousePressed(MouseEvent arg0) {
-				TranscriberConnection<Model> connection = view.getModelTranscriber().createConnection();
+				Connection<Model> connection = view.getModelTranscriber().createConnection();
 				connection.trigger(new Trigger<Model>() {
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						collector.enlist(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -702,7 +702,7 @@ public abstract class Model implements Serializable, Observer {
 			propertySetter.run((T)value);
 		return Model.RemovableListener.addObserver(model, new ObserverAdapter() {
 			@Override
-			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
+			public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 				if(change instanceof Model.PropertyChanged 
 					&& changeDistance == 1 /* And not a forwarded change */) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
@@ -725,7 +725,7 @@ public abstract class Model implements Serializable, Observer {
 			public Object call(final Color color) {
 				return new Trigger<Model>() {
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -763,7 +763,7 @@ public abstract class Model implements Serializable, Observer {
 		if(target.getModelBehind() instanceof CanvasModel) {
 			transactions.addMenuBuilder("Clone Isolated", new Trigger<Model>() {
 				@Override
-				public void run(TranscriberCollector<Model> collector) {
+				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
 
 					collector.execute(new DualCommandFactory<Model>() {
@@ -782,7 +782,7 @@ public abstract class Model implements Serializable, Observer {
 			});
 			transactions.addMenuBuilder("Clone Deep", new Trigger<Model>() {
 				@Override
-				public void run(TranscriberCollector<Model> collector) {
+				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
 
 					collector.execute(new DualCommandFactory<Model>() {

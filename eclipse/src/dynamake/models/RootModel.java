@@ -22,8 +22,8 @@ import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.TranscriberCollector;
-import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.Collector;
+import dynamake.transcription.Connection;
 import dynamake.transcription.Trigger;
 
 public class RootModel extends Model {
@@ -155,11 +155,11 @@ public class RootModel extends Model {
 			mouseIsDown = false;
 
 			if(newLocation != null && newSize != null) {
-				TranscriberConnection<Model> connection = modelTranscriber.createConnection();
+				Connection<Model> connection = modelTranscriber.createConnection();
 				
 				connection.trigger(new Trigger<Model>() {
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -257,11 +257,11 @@ public class RootModel extends Model {
 			public void windowStateChanged(WindowEvent e) {
 				final int newState = e.getNewState();
 				
-				TranscriberConnection<Model> connection = modelTranscriber.createConnection();
+				Connection<Model> connection = modelTranscriber.createConnection();
 				
 				connection.trigger(new Trigger<Model>() {
 					@Override
-					public void run(TranscriberCollector<Model> collector) {
+					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							public DualCommand<Model> createDualCommand() {
 								Location modelLocation = modelTranscriber.getModelLocation();

@@ -12,7 +12,7 @@ import dynamake.delegates.Runner;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.transcription.RunBuilder;
-import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.Collector;
 
 public class TargetPresenter {
 	public interface Behavior {
@@ -30,7 +30,7 @@ public class TargetPresenter {
 		this.behavior = behavior;
 	}
 	
-	public void update(ModelComponent newTargetOver, final TranscriberCollector<Model> collector) {
+	public void update(ModelComponent newTargetOver, final Collector<Model> collector) {
 		update(newTargetOver, new Runner() {
 			@Override
 			public void run(Runnable runnable) {
@@ -90,7 +90,7 @@ public class TargetPresenter {
 		}
 	}
 	
-	public void reset(final TranscriberCollector<Model> collector) {
+	public void reset(final Collector<Model> collector) {
 		reset(new Runner() {
 			@Override
 			public void run(Runnable runnable) {

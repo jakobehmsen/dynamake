@@ -5,7 +5,7 @@ import java.awt.Rectangle;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
-import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.Collector;
 
 public class CloneDeepFactory implements Factory {
 	/**
@@ -24,7 +24,7 @@ public class CloneDeepFactory implements Factory {
 	}
 
 	@Override
-	public Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
+	public Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		PropogationContext propCtx = new PropogationContext();
 		
 		Model model = (Model)modelLocation.getChild(rootModel);

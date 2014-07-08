@@ -267,7 +267,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		return prevalentSystem;
 	}
 	
-	private static class Connection<T> implements TranscriberConnection<T> {
+	private static class Connection<T> implements dynamake.transcription.Connection<T> {
 		private TriggerHandler<T> triggerHandler;
 		private SnapshottingTranscriber<T> transcriber;
 		private ArrayList<Object> enlistings = new ArrayList<Object>();
@@ -294,7 +294,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					while(!commands.isEmpty()) {
 						Object command = commands.pop();
 						
-						TranscriberCollector<T> collector = new TranscriberCollector<T>() {
+						Collector<T> collector = new Collector<T>() {
 							@Override
 							public void enlist(DualCommandFactory<T> transactionFactory) {
 								enlistings.add(transactionFactory);
@@ -419,7 +419,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			
 			PropogationContext propCtx = new PropogationContext();
 			
-			TranscriberCollector<T> isolatedCollector = new TranscriberCollector<T>() {
+			Collector<T> isolatedCollector = new Collector<T>() {
 				@Override
 				public void enlist(DualCommandFactory<T> transactionFactory) { }
 				
@@ -464,7 +464,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	@Override
-	public TranscriberConnection<T> createConnection(TriggerHandler<T> flushHandler) {
+	public Connection<T> createConnection(TriggerHandler<T> flushHandler) {
 		return new Connection<T>(this, flushHandler);
 	}
 }

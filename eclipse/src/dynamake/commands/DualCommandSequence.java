@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import dynamake.models.PropogationContext;
-import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.Collector;
 
 public class DualCommandSequence<T> implements DualCommand<T> {
 	/**
@@ -25,14 +25,14 @@ public class DualCommandSequence<T> implements DualCommand<T> {
 
 	@Override
 	public void executeForwardOn(PropogationContext propCtx, T prevalentSystem,
-			Date executionTime, TranscriberCollector<T> collector) {
+			Date executionTime, Collector<T> collector) {
 		for(DualCommand<T> t: transactions)
 			t.executeForwardOn(propCtx, prevalentSystem, executionTime, collector);
 	}
 
 	@Override
 	public void executeBackwardOn(PropogationContext propCtx,
-			T prevalentSystem, Date executionTime, TranscriberCollector<T> collector) {
+			T prevalentSystem, Date executionTime, Collector<T> collector) {
 		// Reverse the sequence
 		for(int i = transactions.length - 1; i >= 0; i--) {
 			DualCommand<T> t = transactions[i];
