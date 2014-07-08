@@ -1,5 +1,5 @@
 package dynamake.transcription;
 
-public interface TranscriberOnFlush<T> extends Trigger<T> {
-
+public interface TranscriberOnFlush<T> {
+	void run(TranscriberCollector<T> collector);
 }
