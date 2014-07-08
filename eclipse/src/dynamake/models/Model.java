@@ -178,7 +178,6 @@ public abstract class Model implements Serializable, Observer {
 			
 			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<Model>(collector);
 			model.undo(propCtx, prevalentSystem, isolatingCollector);
-//			undoBranch.close();
 		}
 	}
 	
@@ -347,7 +346,6 @@ public abstract class Model implements Serializable, Observer {
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 		if(change instanceof SetProperty && changeDistance == 1) {
 			// Side-effect
-//			TranscriberBranch<Model> innerBranch = branch.branch();
 			final SetProperty setProperty = (SetProperty)change;
 			
 			collector.execute(new DualCommandFactory<Model>() {
@@ -362,17 +360,12 @@ public abstract class Model implements Serializable, Observer {
 					));
 				}
 			});
-//			innerBranch.close();
 		} else if(change instanceof TellProperty && changeDistance == 1) {
 			// Side-effect
-//			TranscriberBranch<Model> innerBranch = branch.branch();
-			
 			TellProperty tellProperty = (TellProperty)change;
 			Object value = getProperty(tellProperty.name);
 			if(value != null)
 				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0, collector);
-
-//			innerBranch.close();
 		} else {
 			modelChanged(sender, change, propCtx, propDistance, changeDistance, collector);
 		}
@@ -566,12 +559,6 @@ public abstract class Model implements Serializable, Observer {
 								targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
 							}
 						});
-//						branch.onFinished(new Runnable() {
-//							@Override
-//							public void run() {
-//								targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
-//							}
-//						});
 					} else if(propertyChanged.name.equals("Y")) {
 						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 							@Override
@@ -579,12 +566,6 @@ public abstract class Model implements Serializable, Observer {
 								targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
 							}
 						});
-//						branch.onFinished(new Runnable() {
-//							@Override
-//							public void run() {
-//								targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
-//							}
-//						});
 					} else if(propertyChanged.name.equals("Width")) {
 						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 							@Override
@@ -592,12 +573,6 @@ public abstract class Model implements Serializable, Observer {
 								targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
 							}
 						});
-//						branch.onFinished(new Runnable() {
-//							@Override
-//							public void run() {
-//								targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
-//							}
-//						});
 					} else if(propertyChanged.name.equals("Height")) {
 						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 							@Override
@@ -605,12 +580,6 @@ public abstract class Model implements Serializable, Observer {
 								targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
 							}
 						});
-//						branch.onFinished(new Runnable() {
-//							@Override
-//							public void run() {
-//								targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
-//							}
-//						});
 					}
 				}
 			}
