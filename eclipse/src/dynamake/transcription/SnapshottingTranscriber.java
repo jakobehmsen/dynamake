@@ -207,10 +207,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private void saveSnapshot(PropogationContext propCtx) throws ClassNotFoundException, IOException, ParseException {
 		saveSnapshot(propCtx, prevalentSystemFunc, prevalanceDirectory + "/" + journalFile, prevalanceDirectory + "/" + snapshotFile);
 	}
-	
-	private static interface BranchParent {
-		void doOnFinished(Runnable runnable);
-	}
 
 	public void executeTransient(Runnable runnable) {
 		transactionExecutor.execute(runnable);
