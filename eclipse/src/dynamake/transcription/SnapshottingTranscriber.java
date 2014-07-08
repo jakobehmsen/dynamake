@@ -132,7 +132,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		for(ContextualTransaction<T> ctxTransaction: transactions) {
 			DualCommand<T> transaction = ctxTransaction.transaction;
 
-			transaction.executeForwardOn(propCtx, prevalentSystem, null, null, new NullCollector<T>());
+			transaction.executeForwardOn(propCtx, prevalentSystem, null, new NullCollector<T>());
 			
 			for(Location affectedModelLocation: ctxTransaction.affectedModelLocations) {
 				// TODO: Abstracted the following code to reduce coupling to models.
@@ -533,7 +533,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						Branch.this.doOnFinishedDirect(runnable);
 					}
 				});
-				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, backwardsBranch, null);
+				transaction.executeBackwardOn(propCtx, prevaylerService.prevalentSystem(), null, null);
 			}
 			
 			// TODO: Consider:
@@ -630,7 +630,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						final Branch<T> b = (Branch<T>)branch.branch();
 						// Initialize affectedModels to support registration of affected models on b
 						b.affectedModels = affectedModels;
-						t.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, b, null);
+						t.executeForwardOn(branch.propCtx, branch.prevaylerService.prevalentSystem(), null, null);
 						
 						b.prevaylerService.transactionExecutor.execute(new Runnable() {
 							@Override
@@ -828,7 +828,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							transactionFactory.createDualCommands(dualCommands);
 	
 							for(DualCommand<T> transaction: dualCommands) {
-								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, null, collector);
+								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, collector);
 								flushedTransactions.add(transaction);
 							}
 						} else if(command instanceof TranscriberRunnable) {
@@ -920,7 +920,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			};
 			
 			for(DualCommand<T> transaction: flushedTransactions)
-				transaction.executeBackwardOn(propCtx, transcriber.prevalentSystem, null, null, isolatedCollector);
+				transaction.executeBackwardOn(propCtx, transcriber.prevalentSystem, null, isolatedCollector);
 			
 			flushedTransactions.clear();
 			

@@ -220,7 +220,7 @@ public abstract class Model implements Serializable, Observer {
 			affectedModel.undoTill(propCtx, prevalentSystem, isolatingCollector, ctxTransactionToUndo);
 			affectedModel.undoStack.pop();
 		}
-		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, null, isolatingCollector);
+		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatingCollector);
 
 		for(Model affectedModel: affectedModels)
 			affectedModel.redoStack.push(ctxTransactionToUndo);
@@ -230,7 +230,7 @@ public abstract class Model implements Serializable, Observer {
 		PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector, ContextualTransaction<Model> ctxTransactionToUndoTill) {
 		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
 		while(ctxTransactionToUndo != ctxTransactionToUndoTill) {
-			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, null, isolatingCollector);
+			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatingCollector);
 			undoStack.pop();
 			ctxTransactionToUndo = undoStack.peek();
 		}
@@ -253,7 +253,7 @@ public abstract class Model implements Serializable, Observer {
 			affectedModel.redoTill(propCtx, prevalentSystem, isolatingCollector, ctxTransactionToRedo);
 			affectedModel.redoStack.pop();
 		}
-		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, null, isolatingCollector);
+		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatingCollector);
 
 		for(Model affectedModel: affectedModels)
 			affectedModel.undoStack.push(ctxTransactionToRedo);
@@ -262,7 +262,7 @@ public abstract class Model implements Serializable, Observer {
 	private void redoTill(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector, ContextualTransaction<Model> ctxTransactionToRedoTillæ) {
 		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
 		while(ctxTransactionToRedo != ctxTransactionToRedoTillæ) {
-			ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, null, isolatingCollector);
+			ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatingCollector);
 			redoStack.pop();
 			ctxTransactionToRedo = redoStack.peek();
 		}
