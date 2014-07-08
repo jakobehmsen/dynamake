@@ -34,6 +34,7 @@ import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberOnFlush;
+import dynamake.transcription.TranscriberRunnable;
 
 public class CanvasModel extends Model {
 	/**
@@ -351,11 +352,10 @@ public class CanvasModel extends Model {
 		@Override
 		public void appendContainerTransactions(
 				final LivePanel livePanel, CompositeMenuBuilder menuBuilder, final ModelComponent child, final TranscriberBranch<Model> branch) {
-			menuBuilder.addMenuBuilder("Remove", new Runnable() {
+			menuBuilder.addMenuBuilder("Remove", new TranscriberRunnable<Model>() {
 				@Override
-				public void run() {
-					PropogationContext propCtx = new PropogationContext();
-					branch.execute(propCtx, new DualCommandFactory<Model>() {
+				public void run(TranscriberCollector<Model> collector) {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Location canvasLocation = modelTranscriber.getModelLocation();

@@ -27,6 +27,7 @@ import dynamake.commands.ContextualTransaction;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
+import dynamake.delegates.Func1;
 import dynamake.menubuilders.ColorMenuBuilder;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.CloneDeepFactory;
@@ -38,6 +39,7 @@ import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberOnFlush;
+import dynamake.transcription.TranscriberRunnable;
 
 public abstract class Model implements Serializable, Observer {
 	public static class TellProperty {
@@ -642,17 +644,17 @@ public abstract class Model implements Serializable, Observer {
 					if(propertyChanged.name.equals(PROPERTY_COLOR)) {
 						switch(componentColor) {
 						case COMPONENT_COLOR_BACKGROUND: {
-							branch.onFinished(new Runnable() {
+							collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 								@Override
-								public void run() {
+								public void run(TranscriberCollector<Model> collector) {
 									targetComponent.setBackground((Color)propertyChanged.value);
 								}
 							});
 						}
 						case COMPONENT_COLOR_FOREGROUND: {
-							branch.onFinished(new Runnable() {
+							collector.afterNextFlush(new TranscriberOnFlush<Model>() {
 								@Override
-								public void run() {
+								public void run(TranscriberCollector<Model> collector) {
 									targetComponent.setForeground((Color)propertyChanged.value);
 								}
 							});
@@ -811,22 +813,24 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final ModelTranscriber modelTranscriber, CompositeMenuBuilder transactions, final TranscriberBranch<Model> branch) {
-		transactions.addMenudBuilder("Set " + PROPERTY_COLOR, new ColorMenuBuilder((Color)model.getProperty(PROPERTY_COLOR), new Action1<Color>() {
+		transactions.addMenudBuilder("Set " + PROPERTY_COLOR, new ColorMenuBuilder((Color)model.getProperty(PROPERTY_COLOR), new Func1<Color, Object>() {
 			@Override
-			public void run(final Color color) {
-				PropogationContext propCtx = new PropogationContext();
-				
-				branch.execute(propCtx, new DualCommandFactory<Model>() {
+			public Object call(final Color color) {
+				return new TranscriberRunnable<Model>() {
 					@Override
-					public void createDualCommands(
-							List<DualCommand<Model>> dualCommands) {
-						Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, color),
-							new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, currentColor)
-						));
+					public void run(TranscriberCollector<Model> collector) {
+						collector.execute(new DualCommandFactory<Model>() {
+							@Override
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
+								dualCommands.add(new DualCommandPair<Model>(
+									new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, color),
+									new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, currentColor)
+								));
+							}
+						});
 					}
-				});
+				};
 			}
 		}));
 	}
@@ -850,15 +854,14 @@ public abstract class Model implements Serializable, Observer {
 	public static void appendGeneralDroppedTransactions(final ModelComponent livePanel,
 			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, CompositeMenuBuilder transactions, final TranscriberBranch<Model> branch) {
 		if(target.getModelBehind() instanceof CanvasModel) {
-			transactions.addMenuBuilder("Clone Isolated", new Runnable() {
+			transactions.addMenuBuilder("Clone Isolated", new TranscriberRunnable<Model>() {
 				@Override
-				public void run() {
+				public void run(TranscriberCollector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
 
-					branch.execute(new PropogationContext(), new DualCommandFactory<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
-						public void createDualCommands(
-								List<DualCommand<Model>> dualCommands) {
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
 							Location targetCanvasLocation = target.getModelTranscriber().getModelLocation();
 							Factory factory = new CloneIsolatedFactory(dropped.getModelTranscriber().getModelLocation());
@@ -870,13 +873,12 @@ public abstract class Model implements Serializable, Observer {
 					});
 				}
 			});
-			transactions.addMenuBuilder("Clone Deep", new Runnable() {
+			transactions.addMenuBuilder("Clone Deep", new TranscriberRunnable<Model>() {
 				@Override
-				public void run() {
+				public void run(TranscriberCollector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
-					
-					PropogationContext propCtx = new PropogationContext();
-					branch.execute(propCtx, new DualCommandFactory<Model>() {
+
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 
 import javax.swing.JMenuItem;
 
+import dynamake.delegates.Action1;
+
 public class SingleMenuBuilder extends MenuBuilder {
 	private Object action;
 
@@ -19,7 +21,13 @@ public class SingleMenuBuilder extends MenuBuilder {
 		menuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				view.execute(action);
+				view.execute(new Action1<ActionRunner>() {
+					@Override
+					public void run(ActionRunner runner) {
+						runner.run(action);
+					}
+				});
+//				view.execute(action);
 //				action.run();
 			}
 		});

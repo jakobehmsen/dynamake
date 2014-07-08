@@ -37,32 +37,33 @@ public class DragTool implements Tool {
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 //		System.out.println("Drag tool mouseReleased");
 		
+//		System.out.println("Ree");
 		ModelComponent targetModelComponent = modelOver;
 		
-		final TranscriberBranch<Model> branchStep2 = branch.branch();
-		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//		final TranscriberBranch<Model> branchStep2 = branch.branch();
+//		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 
-		targetPresenter.reset(branchStep2);
+		targetPresenter.reset(collector);
 		targetPresenter = null;
 		
 		if(targetModelComponent != null && interactionPresenter.getSelection() != targetModelComponent) {
 //			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
-			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
+			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, connection);
 		} else {
 //			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), null, branchStep2);
-			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
+			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, connection);
 		}
 		
-		interactionPresenter.reset(branchStep2);
+		interactionPresenter.reset(collector);
 		interactionPresenter = null;
 		
-		branch.close();
+//		branch.close();
 
 		mouseDown = null;
 	}
 	
 	private Point mouseDown;
-	private TranscriberBranch<Model> branch;
+//	private TranscriberBranch<Model> branch;
 	private TargetPresenter targetPresenter;
 	private InteractionPresenter interactionPresenter;
 
@@ -70,10 +71,10 @@ public class DragTool implements Tool {
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 //		System.out.println("Drag tool mousePressed");
 		
-		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
-		
-		TranscriberBranch<Model> branchStep1 = branch.branch();
-		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
+//		
+//		TranscriberBranch<Model> branchStep1 = branch.branch();
+//		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
@@ -82,7 +83,7 @@ public class DragTool implements Tool {
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 			interactionPresenter = new InteractionPresenter(productionPanel);
-			interactionPresenter.selectFromView(targetModelComponent, referencePoint, branchStep1);
+			interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
 		}
 		
 		targetPresenter = new TargetPresenter(
@@ -100,11 +101,13 @@ public class DragTool implements Tool {
 			}
 		);
 		
-		targetPresenter.update(modelOver, branchStep1);
+		targetPresenter.update(modelOver, collector);
 		
-		branchStep1.close();
+//		branchStep1.close();
 		
 		mouseDown = e.getPoint();
+		
+		collector.flush();
 	}
 
 	@Override
@@ -112,9 +115,9 @@ public class DragTool implements Tool {
 //		System.out.println("Drag tool mouseDragged (mouseDown=" + mouseDown + ")");
 		
 		if(mouseDown != null) {
-			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+//			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 			
-			targetPresenter.update(modelOver, runBuilder);
+			targetPresenter.update(modelOver, collector);
 			
 			final int width = interactionPresenter.getEffectFrameWidth();
 			final int height = interactionPresenter.getEffectFrameHeight();
@@ -124,9 +127,10 @@ public class DragTool implements Tool {
 			final int x = interactionPresenter.getSelectionFrameLocation().x + (cursorLocationInProductionPanel.x - mouseDown.x);
 			final int y = interactionPresenter.getSelectionFrameLocation().y + (cursorLocationInProductionPanel.y - mouseDown.y);
 			
-			interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), runBuilder);
+			interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), collector);
 			
-			runBuilder.execute();
+//			runBuilder.execute();
+			collector.flush();
 		}
 	}
 

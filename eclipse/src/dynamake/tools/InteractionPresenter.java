@@ -509,8 +509,8 @@ public class InteractionPresenter {
 		return effectFrame.getHeight();
 	}
 
-	public void showPopupForSelectionObject(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberBranch<Model> branch) {
-		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(branch));
+	public void showPopupForSelectionObject(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberConnection<Model> connection) {
+		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(connection));
 	}
 
 	public void showPopupForSelectionCons(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberConnection<Model> connection) {

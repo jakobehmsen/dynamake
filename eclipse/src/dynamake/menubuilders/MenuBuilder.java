@@ -6,6 +6,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
+import dynamake.delegates.Action1;
 import dynamake.delegates.Runner;
 
 public abstract class MenuBuilder {
@@ -56,8 +57,8 @@ public abstract class MenuBuilder {
 			}
 			
 			@Override
-			public void execute(Object action) {
-				runner.run(action);
+			public void execute(Action1<ActionRunner> runnerUsage) {
+				runnerUsage.run(runner);
 			}
 		}, menuItems, name);
 		

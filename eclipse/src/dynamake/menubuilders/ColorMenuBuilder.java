@@ -2,6 +2,7 @@ package dynamake.menubuilders;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JColorChooser;
@@ -14,15 +15,23 @@ import javax.swing.event.ChangeListener;
 
 import resources.ResourceManager;
 
+import dynamake.commands.DualCommand;
+import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
+import dynamake.delegates.Func1;
+import dynamake.models.Location;
+import dynamake.models.Model;
+import dynamake.transcription.DualCommandFactory;
+import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberRunnable;
 
 public class ColorMenuBuilder extends MenuBuilder {
 	private Color initialColor;
-	private Action1<Color> action;
+	private Func1<Color, Object> actionCreator;
 
-	public ColorMenuBuilder(Color initialColor, Action1<Color> action) {
+	public ColorMenuBuilder(Color initialColor, Func1<Color, Object> actionCreator) {
 		this.initialColor = initialColor;
-		this.action = action;
+		this.actionCreator = actionCreator;
 	}
 	
 	private static JColorChooser getColorChooser(String name) {
@@ -48,12 +57,14 @@ public class ColorMenuBuilder extends MenuBuilder {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				final ChangeListener self = this;
-				view.execute(new Runnable() {
+
+				view.execute(new Action1<ActionRunner>() {
 					@Override
-					public void run() {
+					public void run(ActionRunner runner) {
 						colorChooserPanel.getColorSelectionModel().removeChangeListener(self);
 						Color color = colorChooserPanel.getColorSelectionModel().getSelectedColor();
-						action.run(color);
+						Object action = actionCreator.call(color);
+						runner.run(action);
 						view.hide();
 					}
 				});
