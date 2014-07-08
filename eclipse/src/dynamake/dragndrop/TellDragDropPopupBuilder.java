@@ -9,16 +9,13 @@ import javax.swing.JPopupMenu;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.commands.TellPropertyTransaction;
-import dynamake.delegates.Runner;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
 import dynamake.transcription.TranscriberRunnable;
@@ -74,7 +71,6 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 	
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
-//		branch.reject();
 		connection.trigger(new TranscriberRunnable<Model>() {
 			public void run(TranscriberCollector<Model> collector) {
 				interactionPresenter.reset(collector);

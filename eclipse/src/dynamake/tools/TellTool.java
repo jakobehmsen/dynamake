@@ -10,8 +10,6 @@ import javax.swing.SwingUtilities;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
-import dynamake.transcription.RepaintRunBuilder;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
 
@@ -33,29 +31,19 @@ public class TellTool implements Tool {
 
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
-//		final TranscriberBranch<Model> branchStep2 = branch.branch();
-//		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		
 		interactionPresenter.showPopupForSelectionTell(productionPanel, e.getPoint(), null, connection, interactionPresenter);
 		
 		interactionPresenter.reset(collector);
 		interactionPresenter = null;
 		
-//		branch.close();
 		collector.enlistCommit();
 		collector.flush();
 	}
 	
-//	private TranscriberBranch<Model> branch;
 	private InteractionPresenter interactionPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
-//		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
-//		
-//		TranscriberBranch<Model> branchStep1 = branch.branch();
-//		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-
 		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
@@ -63,7 +51,6 @@ public class TellTool implements Tool {
 			interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
 		}
 		
-//		branchStep1.close();
 		collector.flush();
 	}
 
@@ -79,14 +66,7 @@ public class TellTool implements Tool {
 
 	@Override
 	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
-//		final TranscriberBranch<Model> branchStep2 = branch.branch();
-//		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-
 		interactionPresenter.reset(collector);
 		interactionPresenter = null;
-		
-//		branchStep2.close();
-//		
-//		branch.reject();
 	}
 }

@@ -20,7 +20,6 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.ModelLocation;
-import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.factories.CanvasModelFactory;
 import dynamake.models.factories.Factory;
@@ -60,17 +59,11 @@ public class PlotTool implements Tool {
 					componentsWithinBounds.add(0, (ModelComponent)c);
 				}
 			}
-			
-//			final TranscriberBranch<Model> branchStep2 = branch.branch();
-//			
-//			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 
 			if(interactionPresenter.getSelection().getModelBehind() instanceof CanvasModel) {
 				final ModelComponent selection = interactionPresenter.getSelection();
 				// Wrap if one more models are contained within the effect frame
 				if(componentsWithinBounds.size() > 0) {
-					PropogationContext propCtx = new PropogationContext();
-					
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -97,8 +90,6 @@ public class PlotTool implements Tool {
 				} else {
 					final Factory factory = new CanvasModelFactory();
 					
-					PropogationContext propCtx = new PropogationContext();
-					
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -123,25 +114,15 @@ public class PlotTool implements Tool {
 			collector.enlistCommit();
 			collector.flush();
 			
-//			branchStep2.close();
-//			branch.close();
-			
 			mouseDown = null;
 		}
 	}
 	
-//	private TranscriberBranch<Model> branch;
 	private Point mouseDown;
 	private InteractionPresenter interactionPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
-//		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
-//		
-//		TranscriberBranch<Model> branchStep1 = branch.branch();
-		
-//		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-		
 		if(modelOver.getModelBehind() instanceof CanvasModel) {
 			mouseDown = e.getPoint();
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)modelOver);
@@ -171,14 +152,7 @@ public class PlotTool implements Tool {
 
 	@Override
 	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
-//		final TranscriberBranch<Model> branchStep2 = branch.branch();
-//		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-
 		interactionPresenter.reset(collector);
 		interactionPresenter = null;
-		
-//		branchStep2.close();
-//		
-//		branch.reject();
 	}
 }

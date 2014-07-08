@@ -2,7 +2,6 @@ package dynamake.menubuilders;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JColorChooser;
@@ -15,15 +14,8 @@ import javax.swing.event.ChangeListener;
 
 import resources.ResourceManager;
 
-import dynamake.commands.DualCommand;
-import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
-import dynamake.models.Location;
-import dynamake.models.Model;
-import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.TranscriberCollector;
-import dynamake.transcription.TranscriberRunnable;
 
 public class ColorMenuBuilder extends MenuBuilder {
 	private Color initialColor;

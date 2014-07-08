@@ -11,18 +11,15 @@ import dynamake.commands.DejectTransaction;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.commands.InjectTransaction;
-import dynamake.delegates.Runner;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
 import dynamake.transcription.TranscriberRunnable;
@@ -52,17 +49,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	}
 	
 	private void buildFromSelectionToSelection(final ModelComponent livePanel, JPopupMenu popup, ModelComponent selection) {
-//		Runner runner = new Runner() {
-//			@Override
-//			public void run(Runnable runnable) {
-//				runnable.run();
-//
-////				((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.select(null, branch);
-////				((LivePanel)livePanel).productionPanel.editPanelMouseAdapter.clearEffectFrameOnBranch(branch);
-//				branch.close();
-//			}
-//		};
-		
 		ActionRunner runner = new ActionRunner() {
 			@Override
 			public void run(final Object action) {
@@ -98,14 +84,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 	}
 
 	private void buildFromSelectionToOther(final ModelComponent livePanel, JPopupMenu popup, final ModelComponent selection, final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
-//		Runner runner = new Runner() {
-//			@Override
-//			public void run(Runnable runnable) {
-//				runnable.run();
-//				branch.close();
-//			}
-//		};
-		
 		ActionRunner runner = new ActionRunner() {
 			@Override
 			public void run(final Object action) {
@@ -206,6 +184,5 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				collector.flush();
 			}
 		});
-//		branch.reject();
 	}
 }

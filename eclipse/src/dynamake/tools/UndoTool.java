@@ -28,10 +28,6 @@ public class UndoTool implements Tool {
 
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
-//		productionPanel.livePanel.undo();
-		
-//		TranscriberBranch<Model> branch = modelOver.getModelTranscriber().createBranch();
-//		branch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		collector.enlist(new DualCommandFactory<Model>() {
 			@Override
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -54,14 +50,8 @@ public class UndoTool implements Tool {
 	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector, TranscriberConnection<Model> connection) { }
 
 	@Override
-	public void paint(Graphics g) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void paint(Graphics g) { }
 
 	@Override
-	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) { }
 }

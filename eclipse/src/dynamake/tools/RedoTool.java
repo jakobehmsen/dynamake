@@ -50,14 +50,8 @@ public class RedoTool implements Tool {
 	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberCollector<Model> collector, TranscriberConnection<Model> connection) { }
 
 	@Override
-	public void paint(Graphics g) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void paint(Graphics g) { }
 
 	@Override
-	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) { }
 }
