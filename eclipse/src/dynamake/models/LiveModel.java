@@ -37,7 +37,6 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
 import dynamake.transcription.TranscriberRunnable;
@@ -88,12 +87,12 @@ public class LiveModel extends Model {
 		return Collections.emptyList();
 	}
 	
-	public void removeButtonsToToolBinding(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	public void removeButtonsToToolBinding(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
 		buttonsToToolMap.remove(buttons);
 		sendChanged(new ButtonsToolBindingChanged(Collections.<Integer>emptyList(), tool), propCtx, propDistance, 0, collector);
 	}
 	
-	public void bindButtonsToTool(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	public void bindButtonsToTool(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
 		buttonsToToolMap.put(buttons, tool);
 		sendChanged(new ButtonsToolBindingChanged(buttons, tool), propCtx, propDistance, 0, collector);
 	}
@@ -116,7 +115,7 @@ public class LiveModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
-			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, null, collector);
+			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, collector);
 		}
 	}
 	
@@ -138,7 +137,7 @@ public class LiveModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
-			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, null, collector);
+			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, collector);
 		}
 	}
 	
