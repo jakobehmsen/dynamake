@@ -18,7 +18,6 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberOnFlush;
 
@@ -99,16 +98,14 @@ public class StrokeModel extends Model {
 
 		@Override
 		public void appendContainerTransactions(LivePanel livePanel,
-				CompositeMenuBuilder menuBuilder, ModelComponent child,
-				TranscriberBranch<Model> branch) {
+				CompositeMenuBuilder menuBuilder, ModelComponent child) {
 			// TODO Auto-generated method stub
 			
 		}
 
 		@Override
 		public void appendTransactions(ModelComponent livePanel,
-				CompositeMenuBuilder menuBuilder,
-				TranscriberBranch<Model> branch) {
+				CompositeMenuBuilder menuBuilder) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -116,16 +113,14 @@ public class StrokeModel extends Model {
 		@Override
 		public void appendDroppedTransactions(ModelComponent livePanel,
 				ModelComponent target, Rectangle droppedBounds,
-				CompositeMenuBuilder menuBuilder,
-				TranscriberBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, branch);
+				CompositeMenuBuilder menuBuilder) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, null);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
 				ModelComponent dropped, Rectangle droppedBounds,
-				Point dropPoint, CompositeMenuBuilder menuBuilder,
-				TranscriberBranch<Model> branch) {
+				Point dropPoint, CompositeMenuBuilder menuBuilder) {
 			// TODO Auto-generated method stub
 			
 		}

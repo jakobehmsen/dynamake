@@ -280,23 +280,23 @@ public class Primitive extends Model {
 
 		@Override
 		public void appendContainerTransactions(
-				LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child, TranscriberBranch<Model> branch) {
+				LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child) {
 
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, modelTranscriber, menuBuilder, branch);
+		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder) {
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, modelTranscriber, menuBuilder, null);
 		}
 
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, branch);
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, null);
 		}
 
 		@Override
 		public void appendDropTargetTransactions(ModelComponent livePanel,
-				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
+				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder) {
 
 		}
 		

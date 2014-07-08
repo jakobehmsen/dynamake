@@ -345,7 +345,7 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public void appendContainerTransactions(
-				final LivePanel livePanel, CompositeMenuBuilder menuBuilder, final ModelComponent child, final TranscriberBranch<Model> branch) {
+				final LivePanel livePanel, CompositeMenuBuilder menuBuilder, final ModelComponent child) {
 			menuBuilder.addMenuBuilder("Remove", new TranscriberRunnable<Model>() {
 				@Override
 				public void run(TranscriberCollector<Model> collector) {
@@ -362,8 +362,8 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, final TranscriberBranch<Model> branch) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, modelTranscriber, menuBuilder, branch);
+		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder) {
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, modelTranscriber, menuBuilder, null);
 			// The canvas model can be unwrap only if all the following cases are true:
 			// - It has one ore more models contained in itself
 			// - Its parent is a canvas model; i.e. canvases can only be unwrapped into other canvases
@@ -407,13 +407,13 @@ public class CanvasModel extends Model {
 			}
 		}
 		@Override
-		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, branch);
+		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder) {
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, null);
 		}
 		
 		@Override
 		public void appendDropTargetTransactions(final ModelComponent livePanel,
-				final ModelComponent dropped, final Rectangle droppedBounds, final Point dropPoint, CompositeMenuBuilder menuBuilder, final TranscriberBranch<Model> branch) {
+				final ModelComponent dropped, final Rectangle droppedBounds, final Point dropPoint, CompositeMenuBuilder menuBuilder) {
 			if(dropped.getModelTranscriber().getParent() != null && 
 				dropped.getModelTranscriber().getParent() != CanvasPanel.this.modelTranscriber &&
 				!isContainerOf(dropped.getModelTranscriber(), this.modelTranscriber) /*Dropee cannot be child of dropped*/) {

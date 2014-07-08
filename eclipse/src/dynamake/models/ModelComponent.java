@@ -8,7 +8,6 @@ import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.TranscriberBranch;
 
 /**
  * Assumed only to be implemented by JComponent (or JFrame) class extensions.
@@ -16,10 +15,10 @@ import dynamake.transcription.TranscriberBranch;
 public interface ModelComponent {
 	Model getModelBehind();
 	ModelTranscriber getModelTranscriber();
-	void appendContainerTransactions(LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child, TranscriberBranch<Model> branch);
-	void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch);
-	void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch);
-	void appendDropTargetTransactions(ModelComponent livePanel, ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder, TranscriberBranch<Model> branch);
+	void appendContainerTransactions(LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child);
+	void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder);
+	void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder);
+	void appendDropTargetTransactions(ModelComponent livePanel, ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder);
 	void initialize();
 	
 	public static class Util {
