@@ -375,12 +375,10 @@ public class CanvasModel extends Model {
 			// - It has one ore more models contained in itself
 			// - Its parent is a canvas model; i.e. canvases can only be unwrapped into other canvases
 			if(model.models.size() > 0 && ModelComponent.Util.getParent(this).getModelBehind() instanceof CanvasModel) {
-				menuBuilder.addMenuBuilder("Unwrap", new Runnable() {
+				menuBuilder.addMenuBuilder("Unwrap", new TranscriberRunnable<Model>() {
 					@Override
-					public void run() {
-						PropogationContext propCtx = new PropogationContext();
-						
-						branch.execute(propCtx, new DualCommandFactory<Model>() {
+					public void run(TranscriberCollector<Model> collector) {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 //								ModelComponent parent = ModelComponent.Util.getParent(CanvasPanel.this);
@@ -426,11 +424,10 @@ public class CanvasModel extends Model {
 			if(dropped.getModelTranscriber().getParent() != null && 
 				dropped.getModelTranscriber().getParent() != CanvasPanel.this.modelTranscriber &&
 				!isContainerOf(dropped.getModelTranscriber(), this.modelTranscriber) /*Dropee cannot be child of dropped*/) {
-				menuBuilder.addMenuBuilder("Move", new Runnable() {
+				menuBuilder.addMenuBuilder("Move", new TranscriberRunnable<Model>() {
 					@Override
-					public void run() {
-						PropogationContext propCtx = new PropogationContext();
-						branch.execute(propCtx, new DualCommandFactory<Model>() {
+					public void run(TranscriberCollector<Model> collector) {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(
 									List<DualCommand<Model>> dualCommands) {

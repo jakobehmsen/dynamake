@@ -23,6 +23,9 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.TranscriberRunnable;
 
 public class RootModel extends Model {
 	/**
@@ -153,39 +156,43 @@ public class RootModel extends Model {
 			mouseIsDown = false;
 
 			if(newLocation != null && newSize != null) {
-				PropogationContext propCtx = new PropogationContext();
-				TranscriberBranch<Model> branch = modelTranscriber.createBranch();
+				TranscriberConnection<Model> connection = modelTranscriber.createConnection();
 				
-				branch.execute(propCtx, new DualCommandFactory<Model>() {
+				connection.trigger(new TranscriberRunnable<Model>() {
 					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						if(newLocation != null) {
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "X", newLocation.x),
-								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "X", rootModel.getProperty("X"))
-							));
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Y", newLocation.y),
-								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Y", rootModel.getProperty("Y"))
-							));
-						}
-						
-						if(newSize != null) {
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Width", newSize.width),
-								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Width", rootModel.getProperty("Width"))
-							));
-	
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Height", newSize.height),
-								new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Height", rootModel.getProperty("Height"))
-							));
-						}
+					public void run(TranscriberCollector<Model> collector) {
+						collector.execute(new DualCommandFactory<Model>() {
+							@Override
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								if(newLocation != null) {
+									dualCommands.add(new DualCommandPair<Model>(
+										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "X", newLocation.x),
+										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "X", rootModel.getProperty("X"))
+									));
+									
+									dualCommands.add(new DualCommandPair<Model>(
+										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Y", newLocation.y),
+										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Y", rootModel.getProperty("Y"))
+									));
+								}
+								
+								if(newSize != null) {
+									dualCommands.add(new DualCommandPair<Model>(
+										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Width", newSize.width),
+										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Width", rootModel.getProperty("Width"))
+									));
+			
+									dualCommands.add(new DualCommandPair<Model>(
+										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Height", newSize.height),
+										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Height", rootModel.getProperty("Height"))
+									));
+								}
+							}
+						});
+						collector.enlistCommit();
+						collector.flush();
 					}
 				});
-				
-				branch.close();
 			}
 		}
 		
@@ -249,27 +256,32 @@ public class RootModel extends Model {
 		view.addWindowStateListener(new WindowStateListener() {
 			@Override
 			public void windowStateChanged(WindowEvent e) {
-				PropogationContext propCtx = new PropogationContext();
-
 				final int newState = e.getNewState();
-				TranscriberBranch<Model> branch = view.getModelTranscriber().createBranch();
-				branch.execute(propCtx, new DualCommandFactory<Model>() {
-					public DualCommand<Model> createDualCommand() {
-						Location modelLocation = modelTranscriber.getModelLocation();
-						Integer currentState = (Integer)RootModel.this.getProperty("State");
-						return new DualCommandPair<Model>(
-							new Model.SetPropertyOnRootTransaction(modelLocation, "State", newState),
-							new Model.SetPropertyOnRootTransaction(modelLocation, "State", currentState)
-						);
-					}
-					
+				
+				TranscriberConnection<Model> connection = modelTranscriber.createConnection();
+				
+				connection.trigger(new TranscriberRunnable<Model>() {
 					@Override
-					public void createDualCommands(
-							List<DualCommand<Model>> dualCommands) {
-						dualCommands.add(createDualCommand());
+					public void run(TranscriberCollector<Model> collector) {
+						collector.execute(new DualCommandFactory<Model>() {
+							public DualCommand<Model> createDualCommand() {
+								Location modelLocation = modelTranscriber.getModelLocation();
+								Integer currentState = (Integer)RootModel.this.getProperty("State");
+								return new DualCommandPair<Model>(
+									new Model.SetPropertyOnRootTransaction(modelLocation, "State", newState),
+									new Model.SetPropertyOnRootTransaction(modelLocation, "State", currentState)
+								);
+							}
+							
+							@Override
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(createDualCommand());
+							}
+						});
+						collector.enlistCommit();
+						collector.flush();
 					}
 				});
-				branch.close();
 			}
 		});
 		

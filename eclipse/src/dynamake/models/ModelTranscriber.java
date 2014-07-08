@@ -1,18 +1,29 @@
 package dynamake.models;
 
+import java.util.List;
+
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+
 import dynamake.transcription.FlushHandler;
 import dynamake.transcription.Transcriber;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.TranscriberOnFlush;
 
 public class ModelTranscriber {
 	private Transcriber<Model> transcriber;
 	private ModelTranscriber parent;
 	private ModelLocator locator;
+	private JComponent componentToRepaint;
 	
 	public ModelTranscriber(Transcriber<Model> transcriber, ModelLocator locator) {
 		this.transcriber = transcriber;
 		this.locator = locator;
+	}
+	
+	public void setComponentToRepaint(JComponent componentToRepaint) {
+		this.componentToRepaint = componentToRepaint;
 	}
 	
 	public ModelTranscriber getParent() {
@@ -40,6 +51,7 @@ public class ModelTranscriber {
 		ModelTranscriber extended = new ModelTranscriber(transcriber, locator);
 		
 		extended.parent = this;
+		extended.componentToRepaint = this.componentToRepaint;
 		
 		return extended;
 	}
@@ -86,7 +98,22 @@ public class ModelTranscriber {
 		return transcriber.createBranch();
 	}
 
-	public TranscriberConnection<Model> createConnection(FlushHandler<Model> flushHandler) {
-		return transcriber.createConnection(flushHandler);
+	public TranscriberConnection<Model> createConnection() {
+		return transcriber.createConnection(new FlushHandler<Model>() {
+			@Override
+			public void handleFlush(final List<TranscriberOnFlush<Model>> runnables) {
+				if(componentToRepaint != null) {
+					SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							for(TranscriberOnFlush<Model> r: runnables)
+								r.run(null);
+							
+							componentToRepaint.repaint();
+						}
+					});
+				}
+			}
+		});
 	}
 }

@@ -35,9 +35,11 @@ import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
+import dynamake.transcription.FlushHandler;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberConnection;
 import dynamake.transcription.TranscriberOnFlush;
 import dynamake.transcription.TranscriberRunnable;
 
@@ -710,34 +712,44 @@ public abstract class Model implements Serializable, Observer {
 		((JComponent)view).addMouseListener(new MouseListener() {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
-				PropogationContext propCtx = new PropogationContext();
-				TranscriberBranch<Model> branch = view.getModelTranscriber().createBranch();
-				branch.execute(propCtx, new DualCommandFactory<Model>() {
+				TranscriberConnection<Model> connection = view.getModelTranscriber().createConnection();
+				connection.trigger(new TranscriberRunnable<Model>() {
 					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						dualCommands.add(new DualCommandPair<Model>(
-							new MouseUpTransaction(view.getModelTranscriber().getModelLocation()), 
-							new MouseUpTransaction(view.getModelTranscriber().getModelLocation())
-						));
+					public void run(TranscriberCollector<Model> collector) {
+						collector.enlist(new DualCommandFactory<Model>() {
+							@Override
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(new DualCommandPair<Model>(
+									new MouseUpTransaction(view.getModelTranscriber().getModelLocation()), 
+									new MouseUpTransaction(view.getModelTranscriber().getModelLocation())
+								));
+							}
+						});
+						collector.enlistCommit();
+						collector.flush();
 					}
 				});
-				branch.close();
 			}
 			
 			@Override
 			public void mousePressed(MouseEvent arg0) {
-				PropogationContext propCtx = new PropogationContext();
-				TranscriberBranch<Model> branch = view.getModelTranscriber().createBranch();
-				branch.execute(propCtx, new DualCommandFactory<Model>() {
+				TranscriberConnection<Model> connection = view.getModelTranscriber().createConnection();
+				connection.trigger(new TranscriberRunnable<Model>() {
 					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						dualCommands.add(new DualCommandPair<Model>(
-							new MouseDownTransaction(view.getModelTranscriber().getModelLocation()), 
-							new MouseDownTransaction(view.getModelTranscriber().getModelLocation())
-						));
+					public void run(TranscriberCollector<Model> collector) {
+						collector.enlist(new DualCommandFactory<Model>() {
+							@Override
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+								dualCommands.add(new DualCommandPair<Model>(
+										new MouseDownTransaction(view.getModelTranscriber().getModelLocation()), 
+										new MouseDownTransaction(view.getModelTranscriber().getModelLocation())
+								));
+							}
+						});
+						collector.enlistCommit();
+						collector.flush();
 					}
 				});
-				branch.close();
 			}
 			
 			@Override

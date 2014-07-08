@@ -37,12 +37,9 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.FlushHandler;
-import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
-import dynamake.transcription.TranscriberOnFlush;
 import dynamake.transcription.TranscriberRunnable;
 
 public class LiveModel extends Model {
@@ -255,18 +252,7 @@ public class LiveModel extends Model {
 						@SuppressWarnings("unchecked")
 						final ArrayList<Integer> localButtonsPressed = (ArrayList<Integer>)buttonsPressed.clone();
 						
-						TranscriberConnection<Model> connection = ToolButton.this.modelTranscriber.createConnection(new FlushHandler<Model>() {
-							@Override
-							public void handleFlush(final List<TranscriberOnFlush<Model>> runnables) {
-								SwingUtilities.invokeLater(new Runnable() {
-									@Override
-									public void run() {
-										for(TranscriberOnFlush<Model> runnable: runnables)
-											runnable.run(null);
-									}
-								});
-							}
-						});
+						TranscriberConnection<Model> connection = ToolButton.this.modelTranscriber.createConnection();
 						
 						connection.trigger(new TranscriberRunnable<Model>() {
 							@Override
@@ -569,20 +555,7 @@ public class LiveModel extends Model {
 			
 			public EditPanelMouseAdapter(ProductionPanel productionPanel) {
 				this.productionPanel = productionPanel;
-				toolConnection = productionPanel.livePanel.getModelTranscriber().createConnection(new FlushHandler<Model>() {
-					@Override
-					public void handleFlush(final List<TranscriberOnFlush<Model>> runnables) {
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								for(TranscriberOnFlush<Model> runnable: runnables)
-									runnable.run(null);
-								
-								EditPanelMouseAdapter.this.productionPanel.livePanel.repaint();
-							}
-						});
-					}
-				});
+				toolConnection = productionPanel.livePanel.getModelTranscriber().createConnection();
 			}
 			
 			private Tool getTool(List<Integer> buttons) {
@@ -854,6 +827,7 @@ public class LiveModel extends Model {
 		private final Binding<ModelComponent> contentView;
 		
 		public LivePanel(final ModelComponent rootView, LiveModel model, ModelTranscriber modelTranscriber, final ViewManager viewManager) {
+			modelTranscriber.setComponentToRepaint(this);
 			this.setLayout(new BorderLayout());
 			this.model = model;
 			this.viewManager = viewManager;
