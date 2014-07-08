@@ -175,10 +175,10 @@ public class CanvasModel extends Model {
 			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, collector);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
-			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, null, isolatedCollector);
-			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, null, isolatedCollector);
-			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, null, isolatedCollector);
-			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, null, isolatedCollector);
+			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, isolatedCollector);
+			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, isolatedCollector);
+			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, isolatedCollector);
+			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, isolatedCollector);
 			
 			canvas.addModel(model, new PropogationContext(), 0, null, collector);
 		}
@@ -208,10 +208,10 @@ public class CanvasModel extends Model {
 
 			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<>(collector);
 
-			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, null, isolatingCollector);
-			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, null, isolatingCollector);
-			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, null, isolatingCollector);
-			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, null, isolatingCollector);
+			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, isolatingCollector);
+			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, isolatingCollector);
+			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, isolatingCollector);
+			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, isolatingCollector);
 			
 			canvas.addModel(index, model, new PropogationContext(), 0, null, collector);
 		}

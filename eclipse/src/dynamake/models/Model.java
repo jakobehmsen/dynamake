@@ -113,7 +113,7 @@ public abstract class Model implements Serializable, Observer {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-			model.setProperty(name, value, propCtx, 0, null, collector);
+			model.setProperty(name, value, propCtx, 0, collector);
 		}
 		
 		public static DualCommand<Model> createDual(Model model, String name, Object value) {
@@ -145,7 +145,7 @@ public abstract class Model implements Serializable, Observer {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-			model.setProperty(name, value, propCtx, 0, null, collector);
+			model.setProperty(name, value, propCtx, 0, collector);
 		}
 		
 		public static DualCommand<Model> createDual(Model model, String name, Object value) {
@@ -281,7 +281,7 @@ public abstract class Model implements Serializable, Observer {
 	private ModelLocator locator;
 	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
 	
-	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
 		if(value != null)
 			properties.put(name, value);
 		else
@@ -478,8 +478,8 @@ public abstract class Model implements Serializable, Observer {
 		redoStack = (Stack<ContextualTransaction<Model>>)ois.readObject();
 	}
 
-	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
-		setProperty(Model.PROPERTY_VIEW, view, propCtx, propDistance, branch, collector);
+	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
+		setProperty(Model.PROPERTY_VIEW, view, propCtx, propDistance, collector);
 	}
 	
 	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {

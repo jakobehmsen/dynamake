@@ -34,10 +34,10 @@ public class WrapTransaction implements Command<Model> {
 		
 		IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 		
-		wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, null, isolatedCollector);
-		wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, null, isolatedCollector);
-		wrapper.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, null, isolatedCollector);
-		wrapper.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, null, isolatedCollector);
+		wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, isolatedCollector);
+		wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, isolatedCollector);
+		wrapper.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, isolatedCollector);
+		wrapper.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, isolatedCollector);
 		
 		Model[] models = new Model[modelLocations.length];
 		for(int i = 0; i < modelLocations.length; i++) {
@@ -55,8 +55,8 @@ public class WrapTransaction implements Command<Model> {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
 			
-			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, null, isolatedCollector);
-			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, null, isolatedCollector);
+			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, isolatedCollector);
+			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, isolatedCollector);
 		}
 
 		target.addModel(wrapper, propCtx, 0, null, collector);

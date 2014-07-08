@@ -55,8 +55,8 @@ public class UnwrapTransaction implements Command<Model> {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
 
-			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, null, isolatedCollector);
-			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, null, isolatedCollector);
+			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, isolatedCollector);
+			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, isolatedCollector);
 		}
 		
 		// Move models from wrapper to target

@@ -54,8 +54,8 @@ public class UnwrapToLocationsTransaction implements Command<Model> {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
 			
-			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, null, collector);
-			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, null, collector);
+			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, collector);
+			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, collector);
 		}
 		
 		// Move models from wrapper to target

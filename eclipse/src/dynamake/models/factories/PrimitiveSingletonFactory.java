@@ -34,7 +34,7 @@ public class PrimitiveSingletonFactory implements Factory {
 //		TranscriberBranch<Model> setPropertyBranch = branch.isolatedBranch();
 		IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<>(collector);
 //		Fraction fontSize = 12 * 40 creationBounds.height;
-		model.setProperty("FontSize", fontSize, propCtx, propDistance, null, isolatedCollector);
+		model.setProperty("FontSize", fontSize, propCtx, propDistance, isolatedCollector);
 		return model;
 		
 //		return new Primitive(implementationSingleton);
