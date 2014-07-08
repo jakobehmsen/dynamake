@@ -43,11 +43,11 @@ public class UnwrapToLocationsTransaction implements Command<Model> {
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
 			Model model = models[i];
-			wrapper.removeModel(model, propCtx, 0, null, collector);
+			wrapper.removeModel(model, propCtx, 0, collector);
 		}
 
 		// Removed wrapper from target
-		target.removeModel(wrapper, propCtx, 0, null, collector);
+		target.removeModel(wrapper, propCtx, 0, collector);
 
 		// Offset the coordinates of the moved models
 		for(Model model: models) {
@@ -62,7 +62,7 @@ public class UnwrapToLocationsTransaction implements Command<Model> {
 		for(int i = 0; i < models.length; i++) {
 			Model model = models[i];
 			int modelIndex = modelIndexes[i];
-			target.addModel(modelIndex, model, propCtx, 0, null, collector);
+			target.addModel(modelIndex, model, propCtx, 0, collector);
 		}
 	}
 }

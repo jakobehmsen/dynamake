@@ -42,11 +42,11 @@ public class UnwrapTransaction implements Command<Model> {
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
 			Model model = models[i];
-			wrapper.removeModel(model, propCtx, 0, null, collector);
+			wrapper.removeModel(model, propCtx, 0, collector);
 		}
 
 		// Removed wrapper from target
-		target.removeModel(wrapper, propCtx, 0, null, collector);
+		target.removeModel(wrapper, propCtx, 0, collector);
 		
 		IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 
@@ -62,7 +62,7 @@ public class UnwrapTransaction implements Command<Model> {
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
 			Model model = models[i];
-			target.addModel(model, propCtx, 0, null, collector);
+			target.addModel(model, propCtx, 0, collector);
 		}
 	}
 }

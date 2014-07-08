@@ -47,8 +47,8 @@ public class WrapTransaction implements Command<Model> {
 		}
 		
 		for(Model model: models) {
-			target.removeModel(model, propCtx, 0, null, collector);
-			wrapper.addModel(model, propCtx, 0, null, collector);
+			target.removeModel(model, propCtx, 0, collector);
+			wrapper.addModel(model, propCtx, 0, collector);
 		}
 		
 		for(Model model: models) {
@@ -59,6 +59,6 @@ public class WrapTransaction implements Command<Model> {
 			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, isolatedCollector);
 		}
 
-		target.addModel(wrapper, propCtx, 0, null, collector);
+		target.addModel(wrapper, propCtx, 0, collector);
 	}
 }

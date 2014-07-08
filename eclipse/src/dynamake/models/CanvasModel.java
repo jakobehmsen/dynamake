@@ -31,7 +31,6 @@ import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.IsolatingCollector;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberOnFlush;
 import dynamake.transcription.TranscriberRunnable;
@@ -149,8 +148,8 @@ public class CanvasModel extends Model {
 			Model model = (Model)canvasSource.getModel(indexInSource);
 
 			int indexOfModel = canvasSource.indexOfModel(model);
-			canvasSource.removeModel(indexOfModel, propCtx, 0, null, collector);
-			canvasTarget.addModel(indexInTarget, model, propCtx, 0, null, collector);
+			canvasSource.removeModel(indexOfModel, propCtx, 0, collector);
+			canvasTarget.addModel(indexInTarget, model, propCtx, 0, collector);
 		}
 	}
 	
@@ -180,7 +179,7 @@ public class CanvasModel extends Model {
 			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, isolatedCollector);
 			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, isolatedCollector);
 			
-			canvas.addModel(model, new PropogationContext(), 0, null, collector);
+			canvas.addModel(model, new PropogationContext(), 0, collector);
 		}
 	}
 	
@@ -213,7 +212,7 @@ public class CanvasModel extends Model {
 			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, isolatingCollector);
 			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, isolatingCollector);
 			
-			canvas.addModel(index, model, new PropogationContext(), 0, null, collector);
+			canvas.addModel(index, model, new PropogationContext(), 0, collector);
 		}
 	}
 	
@@ -236,7 +235,7 @@ public class CanvasModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, null, propCtx, 0, collector);
-			canvas.addModel(index, model, new PropogationContext(), 0, null, collector);
+			canvas.addModel(index, model, new PropogationContext(), 0, collector);
 		}
 	}
 	
@@ -259,38 +258,38 @@ public class CanvasModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModel(index);
-			canvas.removeModel(index, propCtx, 0, null, collector);
+			canvas.removeModel(index, propCtx, 0, collector);
 			modelToRemove.beRemoved();
 		}
 	}
 	
-	public void addModel(Model model, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
-		addModel(models.size(), model, propCtx, propDistance, branch, collector);
+	public void addModel(Model model, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
+		addModel(models.size(), model, propCtx, propDistance, collector);
 	}
 
 	public Model getModel(int index) {
 		return models.get(index);
 	}
 
-	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
 		models.add(index, model);
 		collector.registerAffectedModel(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 	
-	public void removeModel(Model model, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	public void removeModel(Model model, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
 		int indexOfModel = indexOfModel(model);
-		removeModel(indexOfModel, propCtx, propDistance, branch, collector);
+		removeModel(indexOfModel, propCtx, propDistance, collector);
 	}
 	
-	public void removeModel(int index, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	public void removeModel(int index, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
 		Model model = models.get(index);
 		models.remove(index);
 		collector.registerAffectedModel(this);
 		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 	
-	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, int indexInTarget, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, int indexInTarget, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
 		int indexOfModel = canvasSource.indexOfModel(model);
 		canvasSource.models.remove(indexOfModel);
 		canvasSource.sendChanged(new RemovedModelChange(indexOfModel, model), propCtx, propDistance, 0, collector);
