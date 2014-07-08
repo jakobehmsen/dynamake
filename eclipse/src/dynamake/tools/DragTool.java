@@ -111,6 +111,7 @@ public class DragTool implements Tool {
 
 	@Override
 	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
-
+		targetPresenter.reset(collector);
+		interactionPresenter.reset(collector);
 	}
 }
