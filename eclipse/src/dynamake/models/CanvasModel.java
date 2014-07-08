@@ -373,31 +373,6 @@ public class CanvasModel extends Model {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//								ModelComponent parent = ModelComponent.Util.getParent(CanvasPanel.this);
-//								CanvasModel target = (CanvasModel)parent.getModelBehind();
-//								CanvasModel modelToBeUnwrapped = model;
-//								Location targetLocation = parent.getModelTranscriber().getModelLocation();
-//								int indexOfWrapper = target.indexOfModel(modelToBeUnwrapped);
-//								ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
-//								Rectangle creationBoundsInSelection = new Rectangle(
-//									((Number)modelToBeUnwrapped.getProperty("X")).intValue(),
-//									((Number)modelToBeUnwrapped.getProperty("Y")).intValue(),
-//									((Number)modelToBeUnwrapped.getProperty("Width")).intValue(),
-//									((Number)modelToBeUnwrapped.getProperty("Height")).intValue()
-//								);
-//								
-//								// Each of the model locations should be moved from target to wrapper
-//								Location[] modelLocations = new Location[modelToBeUnwrapped.models.size()];
-//								for(int i = 0; i < modelLocations.length; i++) {
-//									ModelComponent view = (ModelComponent)CanvasPanel.this.getComponent(i);
-//									modelLocations[i] = view.getModelTranscriber().getModelLocation();
-//								}
-//								
-//								dualCommands.add(new DualCommandPair<Model>(
-//									new UnwrapTransaction(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
-//									new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations)
-//								));
-								
 								CanvasModel.appendUnwrapTransaction(dualCommands, CanvasPanel.this);
 							}
 						});
@@ -772,12 +747,6 @@ public class CanvasModel extends Model {
 							view.remove((JComponent)removedMC);
 						}
 					});
-//					branch.onFinished(new Runnable() {
-//						@Override
-//						public void run() {
-//							view.remove((JComponent)removedMC);
-//						}
-//					});
 				} else if(change instanceof Model.PropertyChanged && propDistance == 1) {
 					PropertyChanged propertyChanged = (PropertyChanged)change;
 					if(propertyChanged.name.equals(Model.PROPERTY_VIEW)) {

@@ -307,115 +307,6 @@ public class LiveModel extends Model {
 							}
 						});
 						
-//						connection.enqueue(new DualCommandFactory<Model>() {
-//							@Override
-//							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//								List<Integer> currentButtons = ToolButton.this.buttons;
-//								
-//								Location modelLocation = ToolButton.this.modelTranscriber.getModelLocation();
-//								
-//								if(localButtonsPressed.equals(currentButtons)) {
-//									// If the indicated combination is the same as the current combination, then remove
-//									// the current binding
-//									dualCommands.add(new DualCommandPair<Model>(
-//										new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, ToolButton.this.tool),
-//										new BindButtonsToToolCommand(modelLocation, localButtonsPressed, ToolButton.this.tool)
-//									));
-//								} else {
-//									int previousToolForNewButton = ToolButton.this.liveModel.getToolForButtons(localButtonsPressed);
-//									
-//									if(previousToolForNewButton != -1) {
-//										// If the new buttons are associated to another tool, then remove that binding
-//										dualCommands.add(new DualCommandPair<Model>(
-//											new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, previousToolForNewButton), 
-//											new BindButtonsToToolCommand(modelLocation, localButtonsPressed, previousToolForNewButton))
-//										);
-//									}
-//									
-//									if(currentButtons.size() > 0) {
-//										// If this tool is associated to buttons, then remove that binding before
-//										dualCommands.add(new DualCommandPair<Model>(
-//											new RemoveButtonsToToolBindingCommand(modelLocation, currentButtons, ToolButton.this.tool), 
-//											new BindButtonsToToolCommand(modelLocation, currentButtons, ToolButton.this.tool))
-//										);
-//										
-//										// adding the replacement binding
-//										dualCommands.add(new DualCommandPair<Model>(
-//											new BindButtonsToToolCommand(modelLocation, localButtonsPressed, ToolButton.this.tool), 
-//											new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, ToolButton.this.tool))
-//										);
-//									} else {
-//										dualCommands.add(new DualCommandPair<Model>(
-//											new BindButtonsToToolCommand(modelLocation, localButtonsPressed, ToolButton.this.tool), 
-//											new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, ToolButton.this.tool)
-//										));
-//									}
-//								}
-//							}
-//						});
-//						connection.trigger(new TranscriberRunnable<Model>() {
-//							@Override
-//							public void run(TranscriberCollector<Model> collector) {
-//								collector.commit();
-//							}
-//						});
-//						
-//						connection.flush();
-						
-//						connection.commit();
-
-//						PropogationContext propCtx = new PropogationContext();
-//						
-//						TranscriberBranch<Model> branch = ToolButton.this.modelTranscriber.createBranch();
-//						
-//						branch.execute(propCtx, new DualCommandFactory<Model>() {
-//							@Override
-//							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//								List<Integer> currentButtons = ToolButton.this.buttons;
-//								
-//								Location modelLocation = ToolButton.this.modelTranscriber.getModelLocation();
-//								
-//								if(localButtonsPressed.equals(currentButtons)) {
-//									// If the indicated combination is the same as the current combination, then remove
-//									// the current binding
-//									dualCommands.add(new DualCommandPair<Model>(
-//										new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, ToolButton.this.tool),
-//										new BindButtonsToToolCommand(modelLocation, localButtonsPressed, ToolButton.this.tool)
-//									));
-//								} else {
-//									int previousToolForNewButton = ToolButton.this.liveModel.getToolForButtons(localButtonsPressed);
-//									
-//									if(previousToolForNewButton != -1) {
-//										// If the new buttons are associated to another tool, then remove that binding
-//										dualCommands.add(new DualCommandPair<Model>(
-//											new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, previousToolForNewButton), 
-//											new BindButtonsToToolCommand(modelLocation, localButtonsPressed, previousToolForNewButton))
-//										);
-//									}
-//									
-//									if(currentButtons.size() > 0) {
-//										// If this tool is associated to buttons, then remove that binding before
-//										dualCommands.add(new DualCommandPair<Model>(
-//											new RemoveButtonsToToolBindingCommand(modelLocation, currentButtons, ToolButton.this.tool), 
-//											new BindButtonsToToolCommand(modelLocation, currentButtons, ToolButton.this.tool))
-//										);
-//										
-//										// adding the replacement binding
-//										dualCommands.add(new DualCommandPair<Model>(
-//											new BindButtonsToToolCommand(modelLocation, localButtonsPressed, ToolButton.this.tool), 
-//											new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, ToolButton.this.tool))
-//										);
-//									} else {
-//										dualCommands.add(new DualCommandPair<Model>(
-//											new BindButtonsToToolCommand(modelLocation, localButtonsPressed, ToolButton.this.tool), 
-//											new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, ToolButton.this.tool)
-//										));
-//									}
-//								}
-//							}
-//						});
-//						branch.close();
-						
 						buttonsPressed.clear();
 					}
 				}
@@ -630,44 +521,6 @@ public class LiveModel extends Model {
 						}
 					}
 				});
-//				toolConnection.afterNextFlush(new TranscriberOnFlush<Model>() {
-//					@Override
-//					public void run(TranscriberCollector<Model> collector) {
-//						productionPanel.livePanel.repaint();
-//					}
-//				});
-//				toolConnection.flush();
-				
-//				buttonsDown++;
-//				
-//				int button = e.getButton();
-//				
-//				if(!buttonsPressed.contains(button)) {
-//					if(buttonsPressed.size() > 0) {
-//						final Tool toolToRollback = toolBeingApplied;
-//						
-//						productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
-//							@Override
-//							public void run() {
-//								toolToRollback.rollback(productionPanel, collector);
-//							}
-//						});
-//					}
-//					
-//					buttonsPressed.add(button);
-//					Collections.sort(buttonsPressed);
-//					toolBeingApplied = getTool(buttonsPressed);
-//					
-//					final ModelComponent modelOver = getModelOver(e);
-//					final Tool toolToApply = toolBeingApplied;
-//					
-//					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
-//						@Override
-//						public void run() {
-//							toolToApply.mousePressed(productionPanel, e, modelOver, collector);
-//						}
-//					});
-//				}
 			}
 
 			public void mouseDragged(final MouseEvent e) {
@@ -682,26 +535,6 @@ public class LiveModel extends Model {
 						}
 					}
 				});
-//				toolConnection.afterNextFlush(new TranscriberOnFlush<Model>() {
-//					@Override
-//					public void run(TranscriberCollector<Model> collector) {
-//						productionPanel.livePanel.repaint();
-//					}
-//				});
-//				toolConnection.flush();
-				
-//				final ModelComponent modelOver = getModelOver(e);
-//
-//				if(modelOver != null) {
-//					final Tool toolToApply = toolBeingApplied;
-//					
-//					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
-//						@Override
-//						public void run() {
-//							toolToApply.mouseDragged(productionPanel, e, modelOver, collector);
-//						}
-//					});
-//				}
 			}
 
 			public void mouseReleased(final MouseEvent e) {
@@ -722,63 +555,11 @@ public class LiveModel extends Model {
 						}
 					}
 				});
-//				toolConnection.afterNextFlush(new TranscriberOnFlush<Model>() {
-//					@Override
-//					public void run(TranscriberCollector<Model> collector) {
-//						productionPanel.livePanel.repaint();
-//					}
-//				});
-//				toolConnection.flush();
-				
-				
-//				buttonsDown--;
-//				
-//				final ModelComponent modelOver = getModelOver(e);
-//
-//				if(modelOver != null) {
-//					if(buttonsDown == 0) {
-//						final Tool toolToApply = toolBeingApplied;
-//						
-//						productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
-//							@Override
-//							public void run() {
-//								toolToApply.mouseReleased(productionPanel, e, modelOver, collector);
-//							}
-//						});
-//						
-//						buttonsPressed.clear();
-//					}
-//				}
 			}
 			
 			@Override
 			public void mouseMoved(final MouseEvent e) {
-//				toolConnection.afterNextFlush(new TranscriberRunnable<Model>() {
-//					@Override
-//					public void run(TranscriberCollector<Model> collector) {
-//						final ModelComponent modelOver = getModelOver(e);
-//
-//						if(modelOver != null) {
-//							// The tool associated to button 1 is used as a "master" tool
-//							int button = 1;
-//							getTool(Arrays.asList(button)).mouseMoved(productionPanel, e, modelOver, collector);
-//						}
-//					}
-//				});
-//				toolConnection.flush();
-				
-//				final ModelComponent modelOver = getModelOver(e);
-//
-//				if(modelOver != null) {
-//					productionPanel.livePanel.getModelTranscriber().executeTransient(new Runnable() {
-//						@Override
-//						public void run() {
-//							// The tool associated to button 1 is used as a "master" tool
-//							int button = 1;
-//							getTool(Arrays.asList(button)).mouseMoved(productionPanel, e, modelOver, collector);
-//						}
-//					});
-//				}
+
 			}
 		}
 		

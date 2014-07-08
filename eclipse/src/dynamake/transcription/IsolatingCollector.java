@@ -24,7 +24,7 @@ public class IsolatingCollector<T> implements TranscriberCollector<T> {
 
 	@Override
 	public void registerAffectedModel(T model) {
-//		collector.registerAffectedModel(model);
+		// Do nothing which means side effects aren't collected
 	}
 
 	@Override
