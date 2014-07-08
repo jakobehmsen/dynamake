@@ -114,9 +114,9 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
-			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, branch, collector);
+			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, null, collector);
 		}
 	}
 	
@@ -136,9 +136,9 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
-			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, branch, collector);
+			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, null, collector);
 		}
 	}
 	

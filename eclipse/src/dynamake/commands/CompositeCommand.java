@@ -3,7 +3,6 @@ package dynamake.commands;
 import java.util.Date;
 
 import dynamake.models.PropogationContext;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 
 public class CompositeCommand<T> implements Command<T> {
@@ -19,9 +18,9 @@ public class CompositeCommand<T> implements Command<T> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberBranch<T> branch, TranscriberCollector<T> collector) {
+	public void executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, TranscriberCollector<T> collector) {
 		for(Command<T> command: commandSequence) {
-			command.executeOn(propCtx, prevalentSystem, executionTime, branch, collector);
+			command.executeOn(propCtx, prevalentSystem, executionTime, collector);
 		}
 	}
 }

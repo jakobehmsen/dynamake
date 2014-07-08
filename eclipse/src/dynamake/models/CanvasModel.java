@@ -143,7 +143,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(prevalentSystem);
 			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(prevalentSystem);
 			Model model = (Model)canvasSource.getModel(indexInSource);
@@ -170,7 +170,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, collector);
 
@@ -180,7 +180,7 @@ public class CanvasModel extends Model {
 			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, null, isolatedCollector);
 			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, null, isolatedCollector);
 			
-			canvas.addModel(model, new PropogationContext(), 0, branch, collector);
+			canvas.addModel(model, new PropogationContext(), 0, null, collector);
 		}
 	}
 	
@@ -202,7 +202,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, collector);
 
@@ -213,7 +213,7 @@ public class CanvasModel extends Model {
 			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, null, isolatingCollector);
 			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, null, isolatingCollector);
 			
-			canvas.addModel(index, model, new PropogationContext(), 0, branch, collector);
+			canvas.addModel(index, model, new PropogationContext(), 0, null, collector);
 		}
 	}
 	
@@ -233,10 +233,10 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, null, propCtx, 0, collector);
-			canvas.addModel(index, model, new PropogationContext(), 0, branch, collector);
+			canvas.addModel(index, model, new PropogationContext(), 0, null, collector);
 		}
 	}
 	
@@ -256,10 +256,10 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModel(index);
-			canvas.removeModel(index, propCtx, 0, branch, collector);
+			canvas.removeModel(index, propCtx, 0, null, collector);
 			modelToRemove.beRemoved();
 		}
 	}

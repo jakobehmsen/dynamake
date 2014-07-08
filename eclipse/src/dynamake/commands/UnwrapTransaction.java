@@ -28,7 +28,7 @@ public class UnwrapTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
 		CanvasModel wrapper = (CanvasModel)wrapperLocationInTarget.getChild(target);
 		
@@ -46,7 +46,7 @@ public class UnwrapTransaction implements Command<Model> {
 		}
 
 		// Removed wrapper from target
-		target.removeModel(wrapper, propCtx, 0, branch, collector);
+		target.removeModel(wrapper, propCtx, 0, null, collector);
 		
 		IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 

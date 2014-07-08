@@ -28,7 +28,7 @@ public class WrapTransaction implements Command<Model> {
 	}
 
 	@Override
-	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
 		CanvasModel wrapper = new CanvasModel();
 		
@@ -59,6 +59,6 @@ public class WrapTransaction implements Command<Model> {
 			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, null, isolatedCollector);
 		}
 
-		target.addModel(wrapper, propCtx, 0, branch, collector);
+		target.addModel(wrapper, propCtx, 0, null, collector);
 	}
 }
