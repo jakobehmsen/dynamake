@@ -289,7 +289,7 @@ public abstract class Model implements Serializable, Observer {
 		
 		collector.registerAffectedModel(this);
 		
-		sendChanged(new PropertyChanged(name, value), propCtx, propDistance, 0, branch, collector);
+		sendChanged(new PropertyChanged(name, value), propCtx, propDistance, 0, collector);
 	}
 	
 	public Object getProperty(String name) {
@@ -371,7 +371,7 @@ public abstract class Model implements Serializable, Observer {
 			TellProperty tellProperty = (TellProperty)change;
 			Object value = getProperty(tellProperty.name);
 			if(value != null)
-				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0, null, collector);
+				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0, collector);
 
 //			innerBranch.close();
 		} else {
@@ -482,48 +482,32 @@ public abstract class Model implements Serializable, Observer {
 		setProperty(Model.PROPERTY_VIEW, view, propCtx, propDistance, branch, collector);
 	}
 	
-	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 		if(changeQueue != null) {
 			changeQueue.add(new ChangeHolder(change, propCtx, propDistance, changeDistance));
 			return;
 		}
 		
 		changeQueue = new ArrayDeque<Model.ChangeHolder>();
-		sendSingleChanged(change, propCtx, propDistance, changeDistance, branch, collector);
+		sendSingleChanged(change, propCtx, propDistance, changeDistance, collector);
 		while(true) {
 			ChangeHolder changeHolder = changeQueue.poll();
 			if(changeHolder == null)
 				break;
-			sendSingleChanged(changeHolder.change, changeHolder.propCtx, changeHolder.propDistance, changeHolder.changeDistance, branch, collector);
+			sendSingleChanged(changeHolder.change, changeHolder.propCtx, changeHolder.propDistance, changeHolder.changeDistance, collector);
 		}
 		changeQueue = null;
 	}
 	
-	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 		int nextChangeDistance = changeDistance + 1;
 		int nextPropDistance = propDistance + 1;
 		observersToAdd = new ArrayList<Observer>();
 		observersToRemove = new ArrayList<Observer>();
 		
-		if(branch != null) {
-//			if(!branch.isIsolated()) {
-//				for(Observer observer: observers) {
-//					PropogationContext propCtxBranch = propCtx.branch();
-//					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch, collector);
-//				}
-//			} else {
-//				for(Observer observer: observers) {
-//					if(!(observer instanceof Model)) {
-//						PropogationContext propCtxBranch = propCtx.branch();
-//						observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch, collector);
-//					}
-//				}
-//			}
-		} else {
-			for(Observer observer: observers) {
-				PropogationContext propCtxBranch = propCtx.branch();
-				observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, collector);
-			}
+		for(Observer observer: observers) {
+			PropogationContext propCtxBranch = propCtx.branch();
+			observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, collector);
 		}
 		
 		for(Observer observerToAdd: observersToAdd) {
@@ -684,7 +668,7 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
-			model.sendChanged(new MouseUp(), propCtx, 0, 0, null, collector);
+			model.sendChanged(new MouseUp(), propCtx, 0, 0, collector);
 		}
 	}
 	
@@ -703,7 +687,7 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberCollector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(rootPrevalentSystem);
-			model.sendChanged(new MouseDown(), propCtx, 0, 0, null, collector);
+			model.sendChanged(new MouseDown(), propCtx, 0, 0, collector);
 		}
 	}
 	

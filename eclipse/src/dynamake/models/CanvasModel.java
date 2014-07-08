@@ -275,7 +275,7 @@ public class CanvasModel extends Model {
 	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		models.add(index, model);
 		collector.registerAffectedModel(this);
-		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, branch, collector);
+		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 	
 	public void removeModel(Model model, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
@@ -287,15 +287,15 @@ public class CanvasModel extends Model {
 		Model model = models.get(index);
 		models.remove(index);
 		collector.registerAffectedModel(this);
-		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, branch, collector);
+		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 	
 	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, int indexInTarget, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		int indexOfModel = canvasSource.indexOfModel(model);
 		canvasSource.models.remove(indexOfModel);
-		canvasSource.sendChanged(new RemovedModelChange(indexOfModel, model), propCtx, propDistance, 0, null, collector);
+		canvasSource.sendChanged(new RemovedModelChange(indexOfModel, model), propCtx, propDistance, 0, collector);
 		canvasTarget.models.add(indexInTarget, model);
-		canvasTarget.sendChanged(new AddedModelChange(indexInTarget, model), propCtx, propDistance, 0, branch, collector);
+		canvasTarget.sendChanged(new AddedModelChange(indexInTarget, model), propCtx, propDistance, 0, collector);
 	}
 	
 	public int indexOfModel(Model model) {

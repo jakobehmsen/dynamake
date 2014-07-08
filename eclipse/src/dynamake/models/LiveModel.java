@@ -90,12 +90,12 @@ public class LiveModel extends Model {
 	
 	public void removeButtonsToToolBinding(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		buttonsToToolMap.remove(buttons);
-		sendChanged(new ButtonsToolBindingChanged(Collections.<Integer>emptyList(), tool), propCtx, propDistance, 0, branch, collector);
+		sendChanged(new ButtonsToolBindingChanged(Collections.<Integer>emptyList(), tool), propCtx, propDistance, 0, collector);
 	}
 	
 	public void bindButtonsToTool(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		buttonsToToolMap.put(buttons, tool);
-		sendChanged(new ButtonsToolBindingChanged(buttons, tool), propCtx, propDistance, 0, branch, collector);
+		sendChanged(new ButtonsToolBindingChanged(buttons, tool), propCtx, propDistance, 0, collector);
 	}
 	
 	public static class BindButtonsToToolCommand implements Command<Model> {
