@@ -33,9 +33,6 @@ public class TellTool implements Tool {
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 		interactionPresenter.showPopupForSelectionTell(productionPanel, e.getPoint(), null, connection, interactionPresenter);
 		
-		interactionPresenter.reset(collector);
-		interactionPresenter = null;
-		
 		collector.enlistCommit();
 		collector.flush();
 	}
