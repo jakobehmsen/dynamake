@@ -284,13 +284,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		private ArrayList<TranscriberOnFlush<T>> onFlush = new ArrayList<TranscriberOnFlush<T>>();
 
 		@Override
-		public void trigger(final TranscriberRunnable<T> runnable) {
+		public void trigger(final Trigger<T> trigger) {
 			this.transcriber.transactionExecutor.execute(new Runnable() {
 				@SuppressWarnings("unchecked")
 				@Override
 				public void run() {
 					final LinkedList<Object> commands = new LinkedList<Object>();
-					commands.add(runnable);
+					commands.add(trigger);
 					
 					while(!commands.isEmpty()) {
 						Object command = commands.pop();
@@ -357,8 +357,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, collector);
 								flushedTransactions.add(transaction);
 							}
-						} else if(command instanceof TranscriberRunnable) {
-							((TranscriberRunnable<T>)command).run(collector);
+						} else if(command instanceof Trigger) {
+							((Trigger<T>)command).run(collector);
 						}
 					}
 
@@ -455,9 +455,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				currentEnlistings.clear();
 				
 				for(Object enlisting: enlistingsClone) {
-					if(enlisting instanceof TranscriberRunnable) {
-						TranscriberRunnable<T> runnable = (TranscriberRunnable<T>)enlisting;
-						runnable.run(isolatedCollector);
+					if(enlisting instanceof Trigger) {
+						Trigger<T> trigger = (Trigger<T>)enlisting;
+						trigger.run(isolatedCollector);
 					}
 				}
 			}

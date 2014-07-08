@@ -39,7 +39,7 @@ import dynamake.tools.Tool;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
-import dynamake.transcription.TranscriberRunnable;
+import dynamake.transcription.Trigger;
 
 public class LiveModel extends Model {
 	/**
@@ -253,7 +253,7 @@ public class LiveModel extends Model {
 						
 						TranscriberConnection<Model> connection = ToolButton.this.modelTranscriber.createConnection();
 						
-						connection.trigger(new TranscriberRunnable<Model>() {
+						connection.trigger(new Trigger<Model>() {
 							@Override
 							public void run(TranscriberCollector<Model> collector) {
 								collector.enlist(new DualCommandFactory<Model>() {
@@ -494,7 +494,7 @@ public class LiveModel extends Model {
 			private TranscriberConnection<Model> toolConnection;
 			
 			public void mousePressed(final MouseEvent e) {
-				toolConnection.trigger(new TranscriberRunnable<Model>() {
+				toolConnection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						buttonsDown++;
@@ -524,7 +524,7 @@ public class LiveModel extends Model {
 			}
 
 			public void mouseDragged(final MouseEvent e) {
-				toolConnection.trigger(new TranscriberRunnable<Model>() {
+				toolConnection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						final ModelComponent modelOver = getModelOver(e);
@@ -538,7 +538,7 @@ public class LiveModel extends Model {
 			}
 
 			public void mouseReleased(final MouseEvent e) {
-				toolConnection.trigger(new TranscriberRunnable<Model>() {
+				toolConnection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						buttonsDown--;

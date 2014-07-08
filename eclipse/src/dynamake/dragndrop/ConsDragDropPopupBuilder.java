@@ -22,7 +22,7 @@ import dynamake.tools.TargetPresenter;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
-import dynamake.transcription.TranscriberRunnable;
+import dynamake.transcription.Trigger;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	private TranscriberConnection<Model> connection;
@@ -42,14 +42,14 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 		ActionRunner runner = new ActionRunner() {
 			@Override
 			public void run(final Object action) {
-				connection.trigger(new TranscriberRunnable<Model>() {
+				connection.trigger(new Trigger<Model>() {
 					@SuppressWarnings("unchecked")
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						targetPresenter.reset(collector);
 						interactionPresenter.reset(collector);
 						
-						((TranscriberRunnable<Model>)action).run(collector);
+						((Trigger<Model>)action).run(collector);
 						collector.enlistCommit();
 						collector.flush();
 					}
@@ -60,7 +60,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 		final DualCommandFactory<Model> implicitDropAction = selection.getImplicitDropAction(target);
 		
 		if(implicitDropAction != null) {
-			connection.trigger(new TranscriberRunnable<Model>() {
+			connection.trigger(new Trigger<Model>() {
 				@Override
 				public void run(TranscriberCollector<Model> collector) {
 					collector.enlist(implicitDropAction);
@@ -71,7 +71,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			CompositeMenuBuilder transactionTargetContentMapBuilder = new CompositeMenuBuilder();
 			
 			if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
-				transactionTargetContentMapBuilder.addMenuBuilder("Unforward to", new TranscriberRunnable<Model>() {
+				transactionTargetContentMapBuilder.addMenuBuilder("Unforward to", new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						collector.enlist(new DualCommandFactory<Model>() {
@@ -86,7 +86,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					}
 				});
 			} else {
-				transactionTargetContentMapBuilder.addMenuBuilder("Forward to", new TranscriberRunnable<Model>() {
+				transactionTargetContentMapBuilder.addMenuBuilder("Forward to", new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						collector.enlist(new DualCommandFactory<Model>() {
@@ -107,7 +107,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			CompositeMenuBuilder transactionObserverContentMapBuilder = new CompositeMenuBuilder();
 			for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
 				final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
-				transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new TranscriberRunnable<Model>() {
+				transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						collector.enlist(new DualCommandFactory<Model>() {
@@ -141,7 +141,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 
 	@Override
 	public void cancelPopup(final LivePanel livePanel) {
-		connection.trigger(new TranscriberRunnable<Model>() {
+		connection.trigger(new Trigger<Model>() {
 			public void run(TranscriberCollector<Model> collector) {
 				targetPresenter.reset(collector);
 				interactionPresenter.reset(collector);

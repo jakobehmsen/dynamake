@@ -33,7 +33,7 @@ import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberOnFlush;
-import dynamake.transcription.TranscriberRunnable;
+import dynamake.transcription.Trigger;
 
 public class CanvasModel extends Model {
 	/**
@@ -345,7 +345,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void appendContainerTransactions(
 				final LivePanel livePanel, CompositeMenuBuilder menuBuilder, final ModelComponent child) {
-			menuBuilder.addMenuBuilder("Remove", new TranscriberRunnable<Model>() {
+			menuBuilder.addMenuBuilder("Remove", new Trigger<Model>() {
 				@Override
 				public void run(TranscriberCollector<Model> collector) {
 					collector.execute(new DualCommandFactory<Model>() {
@@ -367,7 +367,7 @@ public class CanvasModel extends Model {
 			// - It has one ore more models contained in itself
 			// - Its parent is a canvas model; i.e. canvases can only be unwrapped into other canvases
 			if(model.models.size() > 0 && ModelComponent.Util.getParent(this).getModelBehind() instanceof CanvasModel) {
-				menuBuilder.addMenuBuilder("Unwrap", new TranscriberRunnable<Model>() {
+				menuBuilder.addMenuBuilder("Unwrap", new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
@@ -391,7 +391,7 @@ public class CanvasModel extends Model {
 			if(dropped.getModelTranscriber().getParent() != null && 
 				dropped.getModelTranscriber().getParent() != CanvasPanel.this.modelTranscriber &&
 				!isContainerOf(dropped.getModelTranscriber(), this.modelTranscriber) /*Dropee cannot be child of dropped*/) {
-				menuBuilder.addMenuBuilder("Move", new TranscriberRunnable<Model>() {
+				menuBuilder.addMenuBuilder("Move", new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {

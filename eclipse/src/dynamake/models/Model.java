@@ -38,7 +38,7 @@ import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
 import dynamake.transcription.TranscriberOnFlush;
-import dynamake.transcription.TranscriberRunnable;
+import dynamake.transcription.Trigger;
 
 public abstract class Model implements Serializable, Observer {
 	public static class TellProperty {
@@ -607,7 +607,7 @@ public abstract class Model implements Serializable, Observer {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 				TranscriberConnection<Model> connection = view.getModelTranscriber().createConnection();
-				connection.trigger(new TranscriberRunnable<Model>() {
+				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						collector.enlist(new DualCommandFactory<Model>() {
@@ -628,7 +628,7 @@ public abstract class Model implements Serializable, Observer {
 			@Override
 			public void mousePressed(MouseEvent arg0) {
 				TranscriberConnection<Model> connection = view.getModelTranscriber().createConnection();
-				connection.trigger(new TranscriberRunnable<Model>() {
+				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						collector.enlist(new DualCommandFactory<Model>() {
@@ -724,7 +724,7 @@ public abstract class Model implements Serializable, Observer {
 		transactions.addMenudBuilder("Set " + PROPERTY_COLOR, new ColorMenuBuilder((Color)model.getProperty(PROPERTY_COLOR), new Func1<Color, Object>() {
 			@Override
 			public Object call(final Color color) {
-				return new TranscriberRunnable<Model>() {
+				return new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
@@ -762,7 +762,7 @@ public abstract class Model implements Serializable, Observer {
 	public static void appendGeneralDroppedTransactions(final ModelComponent livePanel,
 			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, CompositeMenuBuilder transactions) {
 		if(target.getModelBehind() instanceof CanvasModel) {
-			transactions.addMenuBuilder("Clone Isolated", new TranscriberRunnable<Model>() {
+			transactions.addMenuBuilder("Clone Isolated", new Trigger<Model>() {
 				@Override
 				public void run(TranscriberCollector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
@@ -781,7 +781,7 @@ public abstract class Model implements Serializable, Observer {
 					});
 				}
 			});
-			transactions.addMenuBuilder("Clone Deep", new TranscriberRunnable<Model>() {
+			transactions.addMenuBuilder("Clone Deep", new Trigger<Model>() {
 				@Override
 				public void run(TranscriberCollector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;

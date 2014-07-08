@@ -1,5 +1,5 @@
 package dynamake.transcription;
 
-public interface TranscriberRunnable<T> {
+public interface Trigger<T> {
 	void run(TranscriberCollector<T> collector);
 }

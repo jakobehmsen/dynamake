@@ -24,7 +24,7 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
-import dynamake.transcription.TranscriberRunnable;
+import dynamake.transcription.Trigger;
 
 public class RootModel extends Model {
 	/**
@@ -157,7 +157,7 @@ public class RootModel extends Model {
 			if(newLocation != null && newSize != null) {
 				TranscriberConnection<Model> connection = modelTranscriber.createConnection();
 				
-				connection.trigger(new TranscriberRunnable<Model>() {
+				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
@@ -259,7 +259,7 @@ public class RootModel extends Model {
 				
 				TranscriberConnection<Model> connection = modelTranscriber.createConnection();
 				
-				connection.trigger(new TranscriberRunnable<Model>() {
+				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {

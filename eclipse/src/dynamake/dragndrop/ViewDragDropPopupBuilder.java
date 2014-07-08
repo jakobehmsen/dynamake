@@ -17,7 +17,7 @@ import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
-import dynamake.transcription.TranscriberRunnable;
+import dynamake.transcription.Trigger;
 
 public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 	private TranscriberConnection<Model> connection; 
@@ -35,13 +35,13 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		ActionRunner runner = new ActionRunner() {
 			@Override
 			public void run(final Object action) {
-				connection.trigger(new TranscriberRunnable<Model>() {
+				connection.trigger(new Trigger<Model>() {
 					@SuppressWarnings("unchecked")
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						interactionPresenter.reset(collector);
 						
-						((TranscriberRunnable<Model>)action).run(collector);
+						((Trigger<Model>)action).run(collector);
 						collector.enlistCommit();
 						collector.flush();
 					}
@@ -51,7 +51,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		
 		CompositeMenuBuilder transactionTargetContentMapBuilder = new CompositeMenuBuilder();
 		
-		transactionTargetContentMapBuilder.addMenuBuilder("Appliance", new TranscriberRunnable<Model>() {
+		transactionTargetContentMapBuilder.addMenuBuilder("Appliance", new Trigger<Model>() {
 			@Override
 			public void run(TranscriberCollector<Model> collector) {
 				collector.execute(new DualCommandFactory<Model>() {
@@ -69,7 +69,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			}
 		});
 		
-		transactionTargetContentMapBuilder.addMenuBuilder("Engineering", new TranscriberRunnable<Model>() {
+		transactionTargetContentMapBuilder.addMenuBuilder("Engineering", new Trigger<Model>() {
 			@Override
 			public void run(TranscriberCollector<Model> collector) {
 				collector.execute(new DualCommandFactory<Model>() {
@@ -93,7 +93,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 	
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
-		connection.trigger(new TranscriberRunnable<Model>() {
+		connection.trigger(new Trigger<Model>() {
 			public void run(TranscriberCollector<Model> collector) {
 				interactionPresenter.reset(collector);
 				
