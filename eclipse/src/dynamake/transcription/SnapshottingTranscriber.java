@@ -268,20 +268,19 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	private static class Connection<T> implements TranscriberConnection<T> {
-		private TriggerHandler<T> flushHandler;
+		private TriggerHandler<T> triggerHandler;
 		private SnapshottingTranscriber<T> transcriber;
 		private ArrayList<Object> enlistings = new ArrayList<Object>();
 		private ArrayList<DualCommand<T>> flushedTransactions = new ArrayList<DualCommand<T>>();
 		private HashSet<T> affectedModels = new HashSet<T>();
 		
-		public Connection(SnapshottingTranscriber<T> transcriber, TriggerHandler<T> flushHandler) {
+		public Connection(SnapshottingTranscriber<T> transcriber, TriggerHandler<T> triggerHandler) {
 			this.transcriber = transcriber;
-			this.flushHandler = flushHandler;
+			this.triggerHandler = triggerHandler;
 		}
 		
 		private PropogationContext propCtx = new PropogationContext();
-		
-		private ArrayList<Runnable> onFlush = new ArrayList<Runnable>();
+		private ArrayList<Runnable> onAfterNextTrigger = new ArrayList<Runnable>();
 
 		@Override
 		public void trigger(final Trigger<T> trigger) {
@@ -308,7 +307,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							@Override
 							public void afterNextTrigger(Runnable runnable) {
-								onFlush.add(runnable);
+								onAfterNextTrigger.add(runnable);
 							}
 
 							@Override
@@ -362,10 +361,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						}
 					}
 
-					if(onFlush.size() > 0) {
-						final ArrayList<Runnable> localOnFlush = new ArrayList<Runnable>(onFlush);
-						flushHandler.handleAfterTrigger(localOnFlush);
-						onFlush.clear();
+					if(onAfterNextTrigger.size() > 0) {
+						final ArrayList<Runnable> localOnFlush = new ArrayList<Runnable>(onAfterNextTrigger);
+						triggerHandler.handleAfterTrigger(localOnFlush);
+						onAfterNextTrigger.clear();
 					}
 				}
 			});
