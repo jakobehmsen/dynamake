@@ -172,7 +172,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, branch, collector);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, collector);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, null, isolatedCollector);
@@ -204,7 +204,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, branch, collector);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, collector);
 
 			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<>(collector);
 
@@ -235,7 +235,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, null, propCtx, 0, branch, collector);
+			Model model = (Model)factory.create(rootPrevalentSystem, null, propCtx, 0, collector);
 			canvas.addModel(index, model, new PropogationContext(), 0, branch, collector);
 		}
 	}

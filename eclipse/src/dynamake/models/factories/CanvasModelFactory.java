@@ -5,7 +5,6 @@ import java.awt.Rectangle;
 import dynamake.models.CanvasModel;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 
 public class CanvasModelFactory implements Factory {
@@ -20,7 +19,7 @@ public class CanvasModelFactory implements Factory {
 	}
 
 	@Override
-	public Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	public Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, TranscriberCollector<Model> collector) {
 		return new CanvasModel();
 	}
 }
