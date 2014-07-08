@@ -18,7 +18,6 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 
 public class Primitive extends Model {
@@ -243,7 +242,7 @@ public class Primitive extends Model {
 	}
 	
 	@Override
-	public void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	public void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 		implementation.execute(this, sender, change, propCtx, propDistance, changeDistance, collector);
 	}
 	

@@ -375,11 +375,11 @@ public abstract class Model implements Serializable, Observer {
 
 //			innerBranch.close();
 		} else {
-			modelChanged(sender, change, propCtx, propDistance, changeDistance, null, collector);
+			modelChanged(sender, change, propCtx, propDistance, changeDistance, collector);
 		}
 	}
 	
-	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+	protected void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 
 	}
 	
