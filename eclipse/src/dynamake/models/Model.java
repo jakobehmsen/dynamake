@@ -433,10 +433,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	private ArrayList<Observer> observers;
-	private transient ArrayList<Observer> observersToAdd;
-	private transient ArrayList<Observer> observersToRemove;
 	private ArrayList<Observer> observees;
-	private transient ArrayDeque<ChangeHolder> changeQueue;
 	
 	public Model() {
 		observers = new ArrayList<Observer>();
@@ -475,61 +472,23 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
-		if(changeQueue != null) {
-			changeQueue.add(new ChangeHolder(change, propCtx, propDistance, changeDistance));
-			return;
-		}
-		
-		changeQueue = new ArrayDeque<Model.ChangeHolder>();
-		sendSingleChanged(change, propCtx, propDistance, changeDistance, collector);
-		while(true) {
-			ChangeHolder changeHolder = changeQueue.poll();
-			if(changeHolder == null)
-				break;
-			sendSingleChanged(changeHolder.change, changeHolder.propCtx, changeHolder.propDistance, changeHolder.changeDistance, collector);
-		}
-		changeQueue = null;
-	}
-	
-	protected void sendSingleChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 		int nextChangeDistance = changeDistance + 1;
 		int nextPropDistance = propDistance + 1;
-		observersToAdd = new ArrayList<Observer>();
-		observersToRemove = new ArrayList<Observer>();
 		
 		for(Observer observer: observers) {
 			PropogationContext propCtxBranch = propCtx.branch();
 			observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, collector);
 		}
-		
-		for(Observer observerToAdd: observersToAdd) {
-			observers.add(observerToAdd);
-			observerToAdd.addObservee(this);
-		}
-		
-		for(Observer observerToRemove: observersToRemove) {
-			observers.remove(observerToRemove);
-			observerToRemove.removeObservee(this);
-		}
-		
-		observersToAdd = null;
-		observersToRemove = null;
 	}
 	
 	public void addObserver(Observer observer) {
-		if(observersToAdd == null) {
-			observers.add(observer);
-			observer.addObservee(this);
-		} else
-			observersToAdd.add(observer);
+		observers.add(observer);
+		observer.addObservee(this);
 	}
 	
 	public void removeObserver(Observer observer) {
-		if(observersToRemove == null) {
-			observers.remove(observer);
-			observer.removeObservee(this);
-		} else
-			observersToRemove.add(observer);
+		observers.remove(observer);
+		observer.removeObservee(this);
 	}
 	
 	public void addObservee(Observer observee) {
