@@ -506,19 +506,19 @@ public abstract class Model implements Serializable, Observer {
 		observersToRemove = new ArrayList<Observer>();
 		
 		if(branch != null) {
-			if(!branch.isIsolated()) {
-				for(Observer observer: observers) {
-					PropogationContext propCtxBranch = propCtx.branch();
-					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch, collector);
-				}
-			} else {
-				for(Observer observer: observers) {
-					if(!(observer instanceof Model)) {
-						PropogationContext propCtxBranch = propCtx.branch();
-						observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch, collector);
-					}
-				}
-			}
+//			if(!branch.isIsolated()) {
+//				for(Observer observer: observers) {
+//					PropogationContext propCtxBranch = propCtx.branch();
+//					observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch, collector);
+//				}
+//			} else {
+//				for(Observer observer: observers) {
+//					if(!(observer instanceof Model)) {
+//						PropogationContext propCtxBranch = propCtx.branch();
+//						observer.changed(this, change, propCtxBranch, nextPropDistance, nextChangeDistance, branch, collector);
+//					}
+//				}
+//			}
 		} else {
 			for(Observer observer: observers) {
 				PropogationContext propCtxBranch = propCtx.branch();
