@@ -5,7 +5,7 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.transcription.FlushHandler;
+import dynamake.transcription.TriggerHandler;
 import dynamake.transcription.Transcriber;
 import dynamake.transcription.TranscriberConnection;
 
@@ -93,9 +93,9 @@ public class ModelTranscriber {
 	}
 
 	public TranscriberConnection<Model> createConnection() {
-		return transcriber.createConnection(new FlushHandler<Model>() {
+		return transcriber.createConnection(new TriggerHandler<Model>() {
 			@Override
-			public void handleFlush(final List<Runnable> runnables) {
+			public void handleAfterTrigger(final List<Runnable> runnables) {
 				if(componentToRepaint != null) {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override

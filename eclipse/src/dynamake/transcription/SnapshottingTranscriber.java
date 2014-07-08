@@ -268,13 +268,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	private static class Connection<T> implements TranscriberConnection<T> {
-		private FlushHandler<T> flushHandler;
+		private TriggerHandler<T> flushHandler;
 		private SnapshottingTranscriber<T> transcriber;
 		private ArrayList<Object> enlistings = new ArrayList<Object>();
 		private ArrayList<DualCommand<T>> flushedTransactions = new ArrayList<DualCommand<T>>();
 		private HashSet<T> affectedModels = new HashSet<T>();
 		
-		public Connection(SnapshottingTranscriber<T> transcriber, FlushHandler<T> flushHandler) {
+		public Connection(SnapshottingTranscriber<T> transcriber, TriggerHandler<T> flushHandler) {
 			this.transcriber = transcriber;
 			this.flushHandler = flushHandler;
 		}
@@ -364,7 +364,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 
 					if(onFlush.size() > 0) {
 						final ArrayList<Runnable> localOnFlush = new ArrayList<Runnable>(onFlush);
-						flushHandler.handleFlush(localOnFlush);
+						flushHandler.handleAfterTrigger(localOnFlush);
 						onFlush.clear();
 					}
 				}
@@ -465,7 +465,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	@Override
-	public TranscriberConnection<T> createConnection(FlushHandler<T> flushHandler) {
+	public TranscriberConnection<T> createConnection(TriggerHandler<T> flushHandler) {
 		return new Connection<T>(this, flushHandler);
 	}
 }
