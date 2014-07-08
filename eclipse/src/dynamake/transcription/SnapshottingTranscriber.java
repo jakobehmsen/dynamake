@@ -281,7 +281,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		
 		private PropogationContext propCtx = new PropogationContext();
 		
-		private ArrayList<TranscriberOnFlush<T>> onFlush = new ArrayList<TranscriberOnFlush<T>>();
+		private ArrayList<Runnable> onFlush = new ArrayList<Runnable>();
 
 		@Override
 		public void trigger(final Trigger<T> trigger) {
@@ -307,7 +307,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							}
 							
 							@Override
-							public void afterNextTrigger(TranscriberOnFlush<T> runnable) {
+							public void afterNextTrigger(Runnable runnable) {
 								onFlush.add(runnable);
 							}
 
@@ -363,7 +363,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					}
 
 					if(onFlush.size() > 0) {
-						final ArrayList<TranscriberOnFlush<T>> localOnFlush = new ArrayList<TranscriberOnFlush<T>>(onFlush);
+						final ArrayList<Runnable> localOnFlush = new ArrayList<Runnable>(onFlush);
 						flushHandler.handleFlush(localOnFlush);
 						onFlush.clear();
 					}
@@ -428,7 +428,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				public void execute(DualCommandFactory<T> transactionFactory) { }
 				
 				@Override
-				public void afterNextTrigger(TranscriberOnFlush<T> runnable) {
+				public void afterNextTrigger(Runnable runnable) {
 					currentEnlistings.add(runnable);
 				}
 

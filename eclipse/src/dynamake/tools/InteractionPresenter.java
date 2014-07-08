@@ -53,13 +53,8 @@ public class InteractionPresenter {
 	public void selectFromView(final ModelComponent view, final Point initialMouseDown, final TranscriberCollector<Model> collector) {
 		selectFromView(view, initialMouseDown, new Runner() {
 			@Override
-			public void run(final Runnable runnable) {
-				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
-					@Override
-					public void run(TranscriberCollector<Model> collector) {
-						runnable.run();
-					}
-				});
+			public void run(Runnable runnable) {
+				collector.afterNextTrigger(runnable);
 			}
 		});
 	}
@@ -73,13 +68,8 @@ public class InteractionPresenter {
 	public void selectFromDefault(final ModelComponent view, final Point initialMouseDown, final TranscriberCollector<Model> collector) {
 		selectFromDefault(view, initialMouseDown, new Runner() {
 			@Override
-			public void run(final Runnable runnable) {
-				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
-					@Override
-					public void run(TranscriberCollector<Model> collector) {
-						runnable.run();
-					}
-				});
+			public void run(Runnable runnable) {
+				collector.afterNextTrigger(runnable);
 			}
 		});
 	}
@@ -397,13 +387,8 @@ public class InteractionPresenter {
 	public void reset(final TranscriberCollector<Model> collector) {
 		reset(new Runner() {
 			@Override
-			public void run(final Runnable runnable) {
-				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
-					@Override
-					public void run(TranscriberCollector<Model> collector) {
-						runnable.run();
-					}
-				});
+			public void run(Runnable runnable) {
+				collector.afterNextTrigger(runnable);
 			}
 		});
 	}
@@ -420,13 +405,8 @@ public class InteractionPresenter {
 	public void changeEffectFrameDirect2(final Rectangle newBounds, final TranscriberCollector<Model> collector) {
 		changeEffectFrameDirect2(newBounds, new Runner() {
 			@Override
-			public void run(final Runnable runnable) {
-				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
-					@Override
-					public void run(TranscriberCollector<Model> collector) {
-						runnable.run();
-					}
-				});
+			public void run(Runnable runnable) {
+				collector.afterNextTrigger(runnable);
 			}
 		});
 	}
@@ -500,13 +480,8 @@ public class InteractionPresenter {
 	public void selectFromEmpty(ModelComponent view, Point initialMouseDown, final TranscriberCollector<Model> collector) {
 		selectFromEmpty(view, initialMouseDown, new Runner() {
 			@Override
-			public void run(final Runnable runnable) {
-				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
-					@Override
-					public void run(TranscriberCollector<Model> collector) {
-						runnable.run();
-					}
-				});
+			public void run(Runnable runnable) {
+				collector.afterNextTrigger(runnable);
 			}
 		});
 	}

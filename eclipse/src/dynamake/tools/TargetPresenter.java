@@ -34,13 +34,8 @@ public class TargetPresenter {
 	public void update(ModelComponent newTargetOver, final TranscriberCollector<Model> collector) {
 		update(newTargetOver, new Runner() {
 			@Override
-			public void run(final Runnable runnable) {
-				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
-					@Override
-					public void run(TranscriberCollector<Model> collector) {
-						runnable.run();
-					}
-				});
+			public void run(Runnable runnable) {
+				collector.afterNextTrigger(runnable);
 			}
 		});
 	}
@@ -99,13 +94,8 @@ public class TargetPresenter {
 	public void reset(final TranscriberCollector<Model> collector) {
 		reset(new Runner() {
 			@Override
-			public void run(final Runnable runnable) {
-				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
-					@Override
-					public void run(TranscriberCollector<Model> collector) {
-						runnable.run();
-					}
-				});
+			public void run(Runnable runnable) {
+				collector.afterNextTrigger(runnable);
 			}
 		});
 	}

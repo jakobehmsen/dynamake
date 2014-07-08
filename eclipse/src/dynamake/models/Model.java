@@ -496,30 +496,30 @@ public abstract class Model implements Serializable, Observer {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 					final Component targetComponent = ((Component)target);
 					if(propertyChanged.name.equals("X")) {
-						collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
+						collector.afterNextTrigger(new Runnable() {
 							@Override
-							public void run(TranscriberCollector<Model> collector) {
+							public void run() {
 								targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
 							}
 						});
 					} else if(propertyChanged.name.equals("Y")) {
-						collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
+						collector.afterNextTrigger(new Runnable() {
 							@Override
-							public void run(TranscriberCollector<Model> collector) {
+							public void run() {
 								targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
 							}
 						});
 					} else if(propertyChanged.name.equals("Width")) {
-						collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
+						collector.afterNextTrigger(new Runnable() {
 							@Override
-							public void run(TranscriberCollector<Model> collector) {
+							public void run() {
 								targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
 							}
 						});
 					} else if(propertyChanged.name.equals("Height")) {
-						collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
+						collector.afterNextTrigger(new Runnable() {
 							@Override
-							public void run(TranscriberCollector<Model> collector) {
+							public void run() {
 								targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
 							}
 						});
@@ -542,17 +542,17 @@ public abstract class Model implements Serializable, Observer {
 					if(propertyChanged.name.equals(PROPERTY_COLOR)) {
 						switch(componentColor) {
 						case COMPONENT_COLOR_BACKGROUND: {
-							collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
+							collector.afterNextTrigger(new Runnable() {
 								@Override
-								public void run(TranscriberCollector<Model> collector) {
+								public void run() {
 									targetComponent.setBackground((Color)propertyChanged.value);
 								}
 							});
 						}
 						case COMPONENT_COLOR_FOREGROUND: {
-							collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
+							collector.afterNextTrigger(new Runnable() {
 								@Override
-								public void run(TranscriberCollector<Model> collector) {
+								public void run() {
 									targetComponent.setForeground((Color)propertyChanged.value);
 								}
 							});
@@ -708,9 +708,9 @@ public abstract class Model implements Serializable, Observer {
 					&& changeDistance == 1 /* And not a forwarded change */) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 					if(propertyChanged.name.equals(modelPropertyName)) {
-						collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
+						collector.afterNextTrigger(new Runnable() {
 							@Override
-							public void run(TranscriberCollector<Model> collector) {
+							public void run() {
 								propertySetter.run((T)propertyChanged.value);
 							}
 						});

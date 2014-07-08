@@ -137,9 +137,9 @@ public abstract class BoundsChangeTool implements Tool {
 			final Cursor cursor = relativePosition.getCursor();
 			
 			final InteractionPresenter locationInteractionPresenter = interactionPresenter;
-			collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
+			collector.afterNextTrigger(new Runnable() {
 				@Override
-				public void run(TranscriberCollector<Model> collector) {
+				public void run() {
 					locationInteractionPresenter.setSelectionFrameCursor(cursor);
 					locationInteractionPresenter.setEffectFrameCursor(cursor);
 				}

@@ -96,13 +96,13 @@ public class ModelTranscriber {
 	public TranscriberConnection<Model> createConnection() {
 		return transcriber.createConnection(new FlushHandler<Model>() {
 			@Override
-			public void handleFlush(final List<TranscriberOnFlush<Model>> runnables) {
+			public void handleFlush(final List<Runnable> runnables) {
 				if(componentToRepaint != null) {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							for(TranscriberOnFlush<Model> r: runnables)
-								r.run(null);
+							for(Runnable r: runnables)
+								r.run();
 							
 							componentToRepaint.repaint();
 						}

@@ -18,7 +18,7 @@ public class IsolatingCollector<T> implements TranscriberCollector<T> {
 	}
 
 	@Override
-	public void afterNextTrigger(TranscriberOnFlush<T> runnable) {
+	public void afterNextTrigger(Runnable runnable) {
 		collector.afterNextTrigger(runnable);
 	}
 
