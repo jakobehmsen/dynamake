@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -416,21 +415,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public abstract Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, ModelTranscriber modelTranscriber);
-	
-	private static class ChangeHolder {
-		public final Object change;
-		public final PropogationContext propCtx;
-		public final int propDistance;
-		public final int changeDistance;
-
-		public ChangeHolder(Object change, PropogationContext propCtx,
-				int propDistance, int changeDistance) {
-			this.change = change;
-			this.propCtx = propCtx;
-			this.propDistance = propDistance;
-			this.changeDistance = changeDistance;
-		}
-	}
 	
 	private ArrayList<Observer> observers;
 	private ArrayList<Observer> observees;
