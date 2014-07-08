@@ -60,13 +60,9 @@ public class UnwrapToLocationsTransaction implements Command<Model> {
 		
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
-			TranscriberBranch<Model> addBranch = branch.branch();
-			
 			Model model = models[i];
 			int modelIndex = modelIndexes[i];
-			target.addModel(modelIndex, model, propCtx, 0, addBranch, collector);
-			
-			addBranch.close();
+			target.addModel(modelIndex, model, propCtx, 0, null, collector);
 		}
 	}
 }
