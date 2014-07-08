@@ -37,7 +37,6 @@ import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
-import dynamake.transcription.TranscriberOnFlush;
 import dynamake.transcription.Trigger;
 
 public abstract class Model implements Serializable, Observer {

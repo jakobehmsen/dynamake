@@ -32,7 +32,6 @@ import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.TranscriberCollector;
-import dynamake.transcription.TranscriberOnFlush;
 import dynamake.transcription.Trigger;
 
 public class CanvasModel extends Model {

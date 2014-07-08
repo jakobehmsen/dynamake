@@ -13,7 +13,6 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberCollector;
-import dynamake.transcription.TranscriberOnFlush;
 
 public class TargetPresenter {
 	public interface Behavior {

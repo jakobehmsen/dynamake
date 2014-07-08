@@ -8,7 +8,6 @@ import javax.swing.SwingUtilities;
 import dynamake.transcription.FlushHandler;
 import dynamake.transcription.Transcriber;
 import dynamake.transcription.TranscriberConnection;
-import dynamake.transcription.TranscriberOnFlush;
 
 public class ModelTranscriber {
 	private Transcriber<Model> transcriber;

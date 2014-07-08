@@ -19,7 +19,6 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberCollector;
-import dynamake.transcription.TranscriberOnFlush;
 
 public class StrokeModel extends Model {
 	/**

@@ -31,7 +31,6 @@ import dynamake.models.ModelComponent;
 import dynamake.transcription.RunBuilder;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
-import dynamake.transcription.TranscriberOnFlush;
 
 public class InteractionPresenter {
 	public static final Color SELECTION_COLOR = Color.GRAY;
