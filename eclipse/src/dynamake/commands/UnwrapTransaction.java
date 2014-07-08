@@ -8,6 +8,7 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.numbers.Fraction;
+import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 
@@ -40,40 +41,28 @@ public class UnwrapTransaction implements Command<Model> {
 
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
-			TranscriberBranch<Model> removeBranch = branch.branch();
-			
 			Model model = models[i];
-			wrapper.removeModel(model, propCtx, 0, removeBranch, collector);
-			
-			removeBranch.close();
+			wrapper.removeModel(model, propCtx, 0, null, collector);
 		}
 
 		// Removed wrapper from target
 		target.removeModel(wrapper, propCtx, 0, branch, collector);
+		
+		IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 
 		// Offset the coordinates of the moved models
 		for(Model model: models) {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
 
-			TranscriberBranch<Model> setXBranch = branch.branch();
-			TranscriberBranch<Model> setYBranch = branch.branch();
-			
-			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, setXBranch, collector);
-			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, setYBranch, collector);
-			
-			setXBranch.close();
-			setYBranch.close();
+			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, null, isolatedCollector);
+			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, null, isolatedCollector);
 		}
 		
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
-			TranscriberBranch<Model> addBranch = branch.branch();
-			
 			Model model = models[i];
-			target.addModel(model, propCtx, 0, addBranch, collector);
-			
-			addBranch.close();
+			target.addModel(model, propCtx, 0, null, collector);
 		}
 	}
 }

@@ -31,25 +31,28 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
 		canvas = null;
 
-		final TranscriberBranch<Model> branchReset = branch.branch();
-		branchReset.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//		final TranscriberBranch<Model> branchReset = branch.branch();
+//		branchReset.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
-		targetPresenter.reset(branchReset);
+		targetPresenter.reset(collector);
 		targetPresenter = null;
 		
-		branchReset.close();
+//		branchReset.close();
 		
-		branch.close();
-		branch = null;
+//		branch.close();
+//		branch = null;
+		
+		collector.enlistCommit();
+		collector.flush();
 	}
 	
-	private TranscriberBranch<Model> branch;
+//	private TranscriberBranch<Model> branch;
 	private ModelComponent canvas;
 	private TargetPresenter targetPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
-		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
+//		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
 		
 		canvas = ModelComponent.Util.closestCanvasModelComponent(modelOver);
 		
@@ -68,11 +71,12 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 			}
 		);
 		
-		RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
+//		RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
 		
-		targetPresenter.update(canvas, runBuilder);
+		targetPresenter.update(canvas, collector);
 		
-		runBuilder.execute();
+//		runBuilder.execute();
+		collector.flush();
 	}
 
 	@Override
@@ -81,17 +85,18 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 			final ModelComponent modelOverParent = ModelComponent.Util.getParent(modelOver);
 			
 			if(modelOverParent == canvas) {
-				final TranscriberBranch<Model> branchSingleTask = branch.branch();
-				branchSingleTask.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//				final TranscriberBranch<Model> branchSingleTask = branch.branch();
+//				branchSingleTask.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 				
-				branchSingleTask.execute(new PropogationContext(), new DualCommandFactory<Model>() {
+				collector.execute(new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						createDualCommandsForSingleTask(productionPanel, dualCommands, modelOverParent, modelOver);
 					}
 				});
 				
-				branchSingleTask.close();
+//				branchSingleTask.close();
+				collector.flush();
 			}
 		}
 	}
@@ -103,15 +108,15 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 
 	@Override
 	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
-		final TranscriberBranch<Model> branchStep2 = branch.branch();
-		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//		final TranscriberBranch<Model> branchStep2 = branch.branch();
+//		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
-		targetPresenter.reset(branchStep2);
+		targetPresenter.reset(collector);
 		targetPresenter = null;
 		
-		branchStep2.close();
-		
-		branch.reject();
+//		branchStep2.close();
+//		
+//		branch.reject();
 	}
 	
 	protected abstract void createDualCommandsForSingleTask(ProductionPanel productionPanel, List<DualCommand<Model>> dualCommands, ModelComponent canvas, ModelComponent modelOver);

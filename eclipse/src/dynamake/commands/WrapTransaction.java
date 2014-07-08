@@ -32,7 +32,7 @@ public class WrapTransaction implements Command<Model> {
 		CanvasModel target = (CanvasModel)targetLocation.getChild(prevalentSystem);
 		CanvasModel wrapper = new CanvasModel();
 		
-		IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<>(collector);
+		IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 		
 		wrapper.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, null, isolatedCollector);
 		wrapper.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, null, isolatedCollector);
