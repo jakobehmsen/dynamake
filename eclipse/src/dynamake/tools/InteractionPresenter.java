@@ -521,8 +521,8 @@ public class InteractionPresenter {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new TellDragDropPopupBuilder(connection, interactionPresenter));
 	}
 
-	public void showPopupForSelectionView(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberBranch<Model> branch) {
-		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ViewDragDropPopupBuilder(branch));
+	public void showPopupForSelectionView(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberConnection<Model> connection, InteractionPresenter interactionPresenter) {
+		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ViewDragDropPopupBuilder(connection, interactionPresenter));
 	}
 
 	public void selectFromEmpty(ModelComponent view, Point initialMouseDown, final TranscriberCollector<Model> collector) {
