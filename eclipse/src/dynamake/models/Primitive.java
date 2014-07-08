@@ -24,7 +24,7 @@ import dynamake.transcription.TranscriberCollector;
 public class Primitive extends Model {
 	public interface Implementation extends Serializable {
 		String getName();
-		void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector);
+		void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector);
 	}
 	
 	public static Implementation[] getImplementationSingletons() {
@@ -41,10 +41,10 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 					if(change instanceof Model.PropertyChanged && ((Model.PropertyChanged)change).name.equals(Model.PROPERTY_COLOR)) {
 						Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
-						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance, 0, branch, collector);
+						receiver.sendChanged(new Model.Atom(propertyChanged.value), propCtx, propDistance, 0, null, collector);
 					}
 				}
 			},
@@ -60,11 +60,11 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
 						Model.SetProperty setProperty = new Model.SetProperty(Model.PROPERTY_COLOR, atom.value);
-						receiver.sendChanged(setProperty, propCtx, propDistance, 0, branch, collector);
+						receiver.sendChanged(setProperty, propCtx, propDistance, 0, null, collector);
 					}
 				}
 			},
@@ -80,11 +80,11 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
 						Color darkenedColor = ((Color)atom.value).darker();
-						receiver.sendChanged(new Model.Atom(darkenedColor), propCtx, propDistance, 0, branch, collector);
+						receiver.sendChanged(new Model.Atom(darkenedColor), propCtx, propDistance, 0, null, collector);
 					}
 				}
 			},
@@ -100,11 +100,11 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
 						Color brightenedColor = ((Color)atom.value).brighter();
-						receiver.sendChanged(new Model.Atom(brightenedColor), propCtx, propDistance, 0, branch, collector);
+						receiver.sendChanged(new Model.Atom(brightenedColor), propCtx, propDistance, 0, null, collector);
 					}
 				}
 			},
@@ -120,9 +120,9 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 					if(propDistance == 1)
-						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch, collector);
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance, null, collector);
 				}
 			},
 			new Implementation() {
@@ -137,9 +137,9 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 					if(propDistance > 1)
-						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch, collector);
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance, null, collector);
 				}
 			},
 			new Implementation() {
@@ -154,9 +154,9 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 					if(change instanceof Model.PropertyChanged)
-						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch, collector);
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance, null, collector);
 				}
 			}
 			
@@ -173,9 +173,9 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 					if(change instanceof Model.MouseDown) {
-						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch, collector);
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance, null, collector);
 					}
 				}
 			},
@@ -191,9 +191,9 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
 					if(change instanceof Model.MouseUp) {
-						receiver.sendChanged(change, propCtx, propDistance, changeDistance, branch, collector);
+						receiver.sendChanged(change, propCtx, propDistance, changeDistance, null, collector);
 					}
 				}
 			},
@@ -209,8 +209,8 @@ public class Primitive extends Model {
 				}
 				
 				@Override
-				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
-					receiver.sendChanged(new Model.TellProperty(Model.PROPERTY_COLOR), propCtx, propDistance, 0, branch, collector);
+				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberCollector<Model> collector) {
+					receiver.sendChanged(new Model.TellProperty(Model.PROPERTY_COLOR), propCtx, propDistance, 0, null, collector);
 				}
 			},
 		};
@@ -244,7 +244,7 @@ public class Primitive extends Model {
 	
 	@Override
 	public void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
-		implementation.execute(this, sender, change, propCtx, propDistance, changeDistance, branch, collector);
+		implementation.execute(this, sender, change, propCtx, propDistance, changeDistance, collector);
 	}
 	
 	private static class PrimitiveView extends JLabel implements ModelComponent {
