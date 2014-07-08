@@ -948,11 +948,6 @@ public class LiveModel extends Model {
 			for(JComponent buttonTool: buttonTools) {
 				topPanel.add(buttonTool);
 			}
-			
-			TranscriberBranch<Model> initializationBranch = getModelTranscriber().createBranch();
-			initializationBranch.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
-			
-			initializationBranch.close();
 		}
 		
 		public Factory[] getFactories() {
