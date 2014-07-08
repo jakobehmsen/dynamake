@@ -134,7 +134,7 @@ public class PenTool implements Tool {
 //		);
 		
 		// This provokes a repaint request
-		collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+		collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 			@Override
 			public void run(TranscriberCollector<Model> collector) { }
 		});

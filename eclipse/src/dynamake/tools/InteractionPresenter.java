@@ -54,7 +54,7 @@ public class InteractionPresenter {
 		selectFromView(view, initialMouseDown, new Runner() {
 			@Override
 			public void run(final Runnable runnable) {
-				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						runnable.run();
@@ -74,7 +74,7 @@ public class InteractionPresenter {
 		selectFromDefault(view, initialMouseDown, new Runner() {
 			@Override
 			public void run(final Runnable runnable) {
-				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						runnable.run();
@@ -398,7 +398,7 @@ public class InteractionPresenter {
 		reset(new Runner() {
 			@Override
 			public void run(final Runnable runnable) {
-				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						runnable.run();
@@ -421,7 +421,7 @@ public class InteractionPresenter {
 		changeEffectFrameDirect2(newBounds, new Runner() {
 			@Override
 			public void run(final Runnable runnable) {
-				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						runnable.run();
@@ -501,7 +501,7 @@ public class InteractionPresenter {
 		selectFromEmpty(view, initialMouseDown, new Runner() {
 			@Override
 			public void run(final Runnable runnable) {
-				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						runnable.run();

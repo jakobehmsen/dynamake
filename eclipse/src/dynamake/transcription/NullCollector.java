@@ -8,7 +8,7 @@ public class NullCollector<T> implements TranscriberCollector<T> {
 	public void execute(DualCommandFactory<T> transactionFactory) { }
 
 	@Override
-	public void afterNextFlush(TranscriberOnFlush<T> runnable) { }
+	public void afterNextTrigger(TranscriberOnFlush<T> runnable) { }
 
 	@Override
 	public void registerAffectedModel(T model) { }

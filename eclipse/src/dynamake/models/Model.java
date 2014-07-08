@@ -496,28 +496,28 @@ public abstract class Model implements Serializable, Observer {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 					final Component targetComponent = ((Component)target);
 					if(propertyChanged.name.equals("X")) {
-						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+						collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 							@Override
 							public void run(TranscriberCollector<Model> collector) {
 								targetComponent.setLocation(new Point(((Number)propertyChanged.value).intValue(), targetComponent.getY()));
 							}
 						});
 					} else if(propertyChanged.name.equals("Y")) {
-						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+						collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 							@Override
 							public void run(TranscriberCollector<Model> collector) {
 								targetComponent.setLocation(new Point(targetComponent.getX(), ((Number)propertyChanged.value).intValue()));
 							}
 						});
 					} else if(propertyChanged.name.equals("Width")) {
-						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+						collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 							@Override
 							public void run(TranscriberCollector<Model> collector) {
 								targetComponent.setSize(new Dimension(((Number)propertyChanged.value).intValue(), targetComponent.getHeight()));
 							}
 						});
 					} else if(propertyChanged.name.equals("Height")) {
-						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+						collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 							@Override
 							public void run(TranscriberCollector<Model> collector) {
 								targetComponent.setSize(new Dimension(targetComponent.getWidth(), ((Number)propertyChanged.value).intValue()));
@@ -542,7 +542,7 @@ public abstract class Model implements Serializable, Observer {
 					if(propertyChanged.name.equals(PROPERTY_COLOR)) {
 						switch(componentColor) {
 						case COMPONENT_COLOR_BACKGROUND: {
-							collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+							collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 								@Override
 								public void run(TranscriberCollector<Model> collector) {
 									targetComponent.setBackground((Color)propertyChanged.value);
@@ -550,7 +550,7 @@ public abstract class Model implements Serializable, Observer {
 							});
 						}
 						case COMPONENT_COLOR_FOREGROUND: {
-							collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+							collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 								@Override
 								public void run(TranscriberCollector<Model> collector) {
 									targetComponent.setForeground((Color)propertyChanged.value);
@@ -708,7 +708,7 @@ public abstract class Model implements Serializable, Observer {
 					&& changeDistance == 1 /* And not a forwarded change */) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 					if(propertyChanged.name.equals(modelPropertyName)) {
-						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+						collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 							@Override
 							public void run(TranscriberCollector<Model> collector) {
 								propertySetter.run((T)propertyChanged.value);

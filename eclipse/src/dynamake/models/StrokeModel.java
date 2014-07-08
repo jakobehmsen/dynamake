@@ -183,7 +183,7 @@ public class StrokeModel extends Model {
 						&& changeDistance == 1 /* And not a forwarded change */) {
 					final Model.PropertyChanged propertyChanged = (Model.PropertyChanged)change;
 					if(propertyChanged.name.equals("Width") || propertyChanged.name.equals("Height")) {
-						collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+						collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 							@Override
 							public void run(TranscriberCollector<Model> collector) {
 								view.shouldRefreshViewShape = true;

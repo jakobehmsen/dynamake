@@ -35,7 +35,7 @@ public class TargetPresenter {
 		update(newTargetOver, new Runner() {
 			@Override
 			public void run(final Runnable runnable) {
-				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						runnable.run();
@@ -100,7 +100,7 @@ public class TargetPresenter {
 		reset(new Runner() {
 			@Override
 			public void run(final Runnable runnable) {
-				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						runnable.run();

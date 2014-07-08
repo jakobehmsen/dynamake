@@ -619,7 +619,7 @@ public class CanvasModel extends Model {
 								
 								view.shownModels.add(sender);
 								
-								collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+								collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 									@Override
 									public void run(TranscriberCollector<Model> collector) {
 										view.add((JComponent)modelView.getBindingTarget());
@@ -646,7 +646,7 @@ public class CanvasModel extends Model {
 								}
 
 								final int localZOrder = zOrder;
-								collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+								collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 									@Override
 									public void run(TranscriberCollector<Model> collector) {
 										view.setComponentZOrder((JComponent)modelView.getBindingTarget(), localZOrder);
@@ -660,7 +660,7 @@ public class CanvasModel extends Model {
 								
 								view.shownModels.remove(sender);
 								
-								collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+								collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 									@Override
 									public void run(TranscriberCollector<Model> collector) {
 										view.remove((JComponent)modelView.getBindingTarget());
@@ -719,7 +719,7 @@ public class CanvasModel extends Model {
 						new Runner() {
 							@Override
 							public void run(final Runnable runnable) {
-								collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+								collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 									@Override
 									public void run(TranscriberCollector<Model> collector) {
 										runnable.run();
@@ -742,7 +742,7 @@ public class CanvasModel extends Model {
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
 					removableListener.releaseBinding();
 					
-					collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+					collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 						public void run(dynamake.transcription.TranscriberCollector<Model> collector) {
 							view.remove((JComponent)removedMC);
 						}
@@ -784,7 +784,7 @@ public class CanvasModel extends Model {
 						for(final Component newInvisible: newInvisibles) {
 							shownModels.remove(((ModelComponent)newInvisible).getModelBehind());
 							
-							collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+							collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 								@Override
 								public void run(TranscriberCollector<Model> collector) {
 									view.remove(newInvisible);
@@ -816,7 +816,7 @@ public class CanvasModel extends Model {
 									shownModels.add(model);
 									final Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 
-									collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+									collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 										@Override
 										public void run(TranscriberCollector<Model> collector) {
 											view.add((JComponent)modelView.getBindingTarget());
@@ -837,7 +837,7 @@ public class CanvasModel extends Model {
 									final Binding<ModelComponent> modelView = view.modelToModelComponentMap.call(model);
 									
 									final int localZOrder = zOrder;
-									collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+									collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 										@Override
 										public void run(TranscriberCollector<Model> collector) {
 											view.setComponentZOrder((JComponent)modelView.getBindingTarget(), localZOrder);
@@ -846,7 +846,7 @@ public class CanvasModel extends Model {
 								} else {
 									final JComponent component = (JComponent)visibles[i];
 									final int localZOrder = zOrder;
-									collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+									collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 										@Override
 										public void run(TranscriberCollector<Model> collector) {
 											view.setComponentZOrder(component, localZOrder);

@@ -307,7 +307,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							}
 							
 							@Override
-							public void afterNextFlush(TranscriberOnFlush<T> runnable) {
+							public void afterNextTrigger(TranscriberOnFlush<T> runnable) {
 								onFlush.add(runnable);
 							}
 
@@ -428,7 +428,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				public void execute(DualCommandFactory<T> transactionFactory) { }
 				
 				@Override
-				public void afterNextFlush(TranscriberOnFlush<T> runnable) {
+				public void afterNextTrigger(TranscriberOnFlush<T> runnable) {
 					currentEnlistings.add(runnable);
 				}
 

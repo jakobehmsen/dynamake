@@ -101,7 +101,7 @@ public class ConsTool implements Tool {
 				interactionPresenter = null;
 				collector.enlistReject();
 				
-				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+				collector.afterNextTrigger(new TranscriberOnFlush<Model>() {
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
 						productionPanel.livePanel.repaint();
