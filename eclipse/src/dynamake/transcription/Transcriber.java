@@ -8,8 +8,5 @@ public interface Transcriber<T> {
 	
 	void executeTransient(Runnable runnable);
 	
-	TranscriberBranch<T> createBranch();
-	TranscriberBranch<T> createBranch(TranscriberBranchBehavior<T> branchBehavior);
-	
 	TranscriberConnection<T> createConnection(FlushHandler<T> flushHandler);
 }

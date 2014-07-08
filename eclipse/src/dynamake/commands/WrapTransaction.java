@@ -9,7 +9,6 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.IsolatingCollector;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 
 public class WrapTransaction implements Command<Model> {

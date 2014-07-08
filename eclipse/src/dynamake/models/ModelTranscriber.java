@@ -7,7 +7,6 @@ import javax.swing.SwingUtilities;
 
 import dynamake.transcription.FlushHandler;
 import dynamake.transcription.Transcriber;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberConnection;
 import dynamake.transcription.TranscriberOnFlush;
 

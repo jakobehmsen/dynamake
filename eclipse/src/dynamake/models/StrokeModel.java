@@ -114,7 +114,7 @@ public class StrokeModel extends Model {
 		public void appendDroppedTransactions(ModelComponent livePanel,
 				ModelComponent target, Rectangle droppedBounds,
 				CompositeMenuBuilder menuBuilder) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, null);
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder);
 		}
 
 		@Override

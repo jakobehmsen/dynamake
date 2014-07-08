@@ -36,7 +36,6 @@ import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.IsolatingCollector;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
 import dynamake.transcription.TranscriberOnFlush;
@@ -809,7 +808,7 @@ public abstract class Model implements Serializable, Observer {
 		});
 	}
 	
-	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final ModelTranscriber modelTranscriber, CompositeMenuBuilder transactions, final TranscriberBranch<Model> branch) {
+	public static void appendComponentPropertyChangeTransactions(final ModelComponent livePanel, final Model model, final ModelTranscriber modelTranscriber, CompositeMenuBuilder transactions) {
 		transactions.addMenudBuilder("Set " + PROPERTY_COLOR, new ColorMenuBuilder((Color)model.getProperty(PROPERTY_COLOR), new Func1<Color, Object>() {
 			@Override
 			public Object call(final Color color) {
@@ -849,7 +848,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void appendGeneralDroppedTransactions(final ModelComponent livePanel,
-			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, CompositeMenuBuilder transactions, final TranscriberBranch<Model> branch) {
+			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, CompositeMenuBuilder transactions) {
 		if(target.getModelBehind() instanceof CanvasModel) {
 			transactions.addMenuBuilder("Clone Isolated", new TranscriberRunnable<Model>() {
 				@Override

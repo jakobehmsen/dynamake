@@ -362,7 +362,7 @@ public class CanvasModel extends Model {
 
 		@Override
 		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder) {
-			Model.appendComponentPropertyChangeTransactions(livePanel, model, modelTranscriber, menuBuilder, null);
+			Model.appendComponentPropertyChangeTransactions(livePanel, model, modelTranscriber, menuBuilder);
 			// The canvas model can be unwrap only if all the following cases are true:
 			// - It has one ore more models contained in itself
 			// - Its parent is a canvas model; i.e. canvases can only be unwrapped into other canvases
@@ -407,7 +407,7 @@ public class CanvasModel extends Model {
 		}
 		@Override
 		public void appendDroppedTransactions(ModelComponent livePanel, ModelComponent target, Rectangle droppedBounds, CompositeMenuBuilder menuBuilder) {
-			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder, null);
+			Model.appendGeneralDroppedTransactions(livePanel, this, target, droppedBounds, menuBuilder);
 		}
 		
 		@Override
