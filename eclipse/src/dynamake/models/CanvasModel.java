@@ -213,11 +213,12 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, branch, collector);
 
-			TranscriberBranch<Model> setPropertyBranch = branch.isolatedBranch();
-			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, setPropertyBranch, collector);
-			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, setPropertyBranch, collector);
-			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, setPropertyBranch, collector);
-			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, setPropertyBranch, collector);
+			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<>(collector);
+
+			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, null, isolatingCollector);
+			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, null, isolatingCollector);
+			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, null, isolatingCollector);
+			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, null, isolatingCollector);
 			
 			canvas.addModel(index, model, new PropogationContext(), 0, branch, collector);
 		}
