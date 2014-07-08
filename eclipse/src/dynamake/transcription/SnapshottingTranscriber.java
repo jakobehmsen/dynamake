@@ -819,11 +819,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							case 2: // flush
 								commands.addAll(enlistings);
 								enlistings.clear();
-								if(onFlush.size() > 0) {
-									final ArrayList<TranscriberOnFlush<T>> localOnFlush = new ArrayList<TranscriberOnFlush<T>>(onFlush);
-									flushHandler.handleFlush(localOnFlush);
-									onFlush.clear();
-								}
 								break;
 							}
 						} else if(command instanceof DualCommandFactory) {
@@ -839,6 +834,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						} else if(command instanceof TranscriberRunnable) {
 							((TranscriberRunnable<T>)command).run(collector);
 						}
+					}
+
+					if(onFlush.size() > 0) {
+						final ArrayList<TranscriberOnFlush<T>> localOnFlush = new ArrayList<TranscriberOnFlush<T>>(onFlush);
+						flushHandler.handleFlush(localOnFlush);
+						onFlush.clear();
 					}
 				}
 			});

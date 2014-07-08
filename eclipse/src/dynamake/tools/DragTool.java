@@ -43,18 +43,18 @@ public class DragTool implements Tool {
 //		final TranscriberBranch<Model> branchStep2 = branch.branch();
 //		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 
-		targetPresenter.reset(collector);
-		targetPresenter = null;
+//		targetPresenter.reset(collector);
 		
 		if(targetModelComponent != null && interactionPresenter.getSelection() != targetModelComponent) {
 //			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, branchStep2);
-			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, connection);
+			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, connection, targetPresenter, interactionPresenter);
 		} else {
 //			productionPanel.editPanelMouseAdapter.showPopupForSelectionObject(productionPanel, e.getPoint(), null, branchStep2);
-			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, connection);
+			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, connection, targetPresenter, interactionPresenter);
 		}
 		
-		interactionPresenter.reset(collector);
+//		interactionPresenter.reset(collector);
+		targetPresenter = null;
 		interactionPresenter = null;
 		
 //		branch.close();

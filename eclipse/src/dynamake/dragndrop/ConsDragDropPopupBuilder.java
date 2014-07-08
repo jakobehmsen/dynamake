@@ -17,6 +17,8 @@ import dynamake.models.ModelComponent;
 import dynamake.models.Primitive;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.PrimitiveSingletonFactory;
+import dynamake.tools.InteractionPresenter;
+import dynamake.tools.TargetPresenter;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
@@ -24,9 +26,13 @@ import dynamake.transcription.TranscriberRunnable;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	private TranscriberConnection<Model> connection;
+	private TargetPresenter targetPresenter;
+	private InteractionPresenter interactionPresenter;
 	
-	public ConsDragDropPopupBuilder(TranscriberConnection<Model> connection) {
+	public ConsDragDropPopupBuilder(TranscriberConnection<Model> connection, TargetPresenter targetPresenter, InteractionPresenter interactionPresenter) {
 		this.connection = connection;
+		this.targetPresenter = targetPresenter;
+		this.interactionPresenter = interactionPresenter;
 	}
 
 	@Override
@@ -40,6 +46,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					@SuppressWarnings("unchecked")
 					@Override
 					public void run(TranscriberCollector<Model> collector) {
+						targetPresenter.reset(collector);
+						interactionPresenter.reset(collector);
+						
 						((TranscriberRunnable<Model>)action).run(collector);
 						collector.enlistCommit();
 						collector.flush();
@@ -134,6 +143,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 	public void cancelPopup(final LivePanel livePanel) {
 		connection.trigger(new TranscriberRunnable<Model>() {
 			public void run(TranscriberCollector<Model> collector) {
+				targetPresenter.reset(collector);
+				interactionPresenter.reset(collector);
+				
 				collector.enlistReject();
 				collector.flush();
 			}

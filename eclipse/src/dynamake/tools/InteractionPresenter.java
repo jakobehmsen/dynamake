@@ -509,12 +509,12 @@ public class InteractionPresenter {
 		return effectFrame.getHeight();
 	}
 
-	public void showPopupForSelectionObject(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberConnection<Model> connection) {
-		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(connection));
+	public void showPopupForSelectionObject(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberConnection<Model> connection, TargetPresenter targetPresenter, InteractionPresenter interactionPresenter) {
+		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new DragDragDropPopupBuilder(connection, targetPresenter, interactionPresenter));
 	}
 
-	public void showPopupForSelectionCons(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberConnection<Model> connection) {
-		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(connection));
+	public void showPopupForSelectionCons(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberConnection<Model> connection, TargetPresenter targetPresenter, InteractionPresenter interactionPresenter) {
+		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ConsDragDropPopupBuilder(connection, targetPresenter, interactionPresenter));
 	}
 
 	public void showPopupForSelectionTell(JComponent popupMenuInvoker, Point pointOnInvoker, ModelComponent targetOver, TranscriberBranch<Model> branch) {
@@ -525,11 +525,16 @@ public class InteractionPresenter {
 		showPopupForSelection(popupMenuInvoker, pointOnInvoker, targetOver, new ViewDragDropPopupBuilder(branch));
 	}
 
-	public void selectFromEmpty(ModelComponent view, Point initialMouseDown, final TranscriberBranch<Model> branch) {
+	public void selectFromEmpty(ModelComponent view, Point initialMouseDown, final TranscriberCollector<Model> collector) {
 		selectFromEmpty(view, initialMouseDown, new Runner() {
 			@Override
-			public void run(Runnable runnable) {
-				branch.onFinished(runnable);
+			public void run(final Runnable runnable) {
+				collector.afterNextFlush(new TranscriberOnFlush<Model>() {
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						runnable.run();
+					}
+				});
 			}
 		});
 	}

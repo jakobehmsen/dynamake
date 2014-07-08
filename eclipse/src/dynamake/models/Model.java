@@ -345,10 +345,10 @@ public abstract class Model implements Serializable, Observer {
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, TranscriberBranch<Model> branch, TranscriberCollector<Model> collector) {
 		if(change instanceof SetProperty && changeDistance == 1) {
 			// Side-effect
-			TranscriberBranch<Model> innerBranch = branch.branch();
+//			TranscriberBranch<Model> innerBranch = branch.branch();
 			final SetProperty setProperty = (SetProperty)change;
 			
-			innerBranch.execute(propCtx, new DualCommandFactory<Model>() {
+			collector.execute(new DualCommandFactory<Model>() {
 				@Override
 				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 					Location modelLocation = getLocator().locate();
@@ -360,7 +360,7 @@ public abstract class Model implements Serializable, Observer {
 					));
 				}
 			});
-			innerBranch.close();
+//			innerBranch.close();
 		} else if(change instanceof TellProperty && changeDistance == 1) {
 			// Side-effect
 			TranscriberBranch<Model> innerBranch = branch.branch();

@@ -26,7 +26,6 @@ import dynamake.models.factories.CanvasModelFactory;
 import dynamake.models.factories.Factory;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.RepaintRunBuilder;
-import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
 import dynamake.transcription.TranscriberConnection;
 
@@ -62,9 +61,9 @@ public class PlotTool implements Tool {
 				}
 			}
 			
-			final TranscriberBranch<Model> branchStep2 = branch.branch();
-			
-			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//			final TranscriberBranch<Model> branchStep2 = branch.branch();
+//			
+//			branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 
 			if(interactionPresenter.getSelection().getModelBehind() instanceof CanvasModel) {
 				final ModelComponent selection = interactionPresenter.getSelection();
@@ -72,7 +71,7 @@ public class PlotTool implements Tool {
 				if(componentsWithinBounds.size() > 0) {
 					PropogationContext propCtx = new PropogationContext();
 					
-					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							CanvasModel target = (CanvasModel)selection.getModelBehind();
@@ -100,7 +99,7 @@ public class PlotTool implements Tool {
 					
 					PropogationContext propCtx = new PropogationContext();
 					
-					branchStep2.execute(propCtx, new DualCommandFactory<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							ModelComponent target = selection;
@@ -118,37 +117,40 @@ public class PlotTool implements Tool {
 				}
 			}
 
-			interactionPresenter.reset(branchStep2);
+			interactionPresenter.reset(collector);
 			interactionPresenter = null;
 			
-			branchStep2.close();
-			branch.close();
+			collector.enlistCommit();
+			collector.flush();
+			
+//			branchStep2.close();
+//			branch.close();
 			
 			mouseDown = null;
 		}
 	}
 	
-	private TranscriberBranch<Model> branch;
+//	private TranscriberBranch<Model> branch;
 	private Point mouseDown;
 	private InteractionPresenter interactionPresenter;
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver, TranscriberConnection<Model> connection, TranscriberCollector<Model> collector) {
-		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
+//		branch = productionPanel.livePanel.getModelTranscriber().createBranch();
+//		
+//		TranscriberBranch<Model> branchStep1 = branch.branch();
 		
-		TranscriberBranch<Model> branchStep1 = branch.branch();
-		
-		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//		branchStep1.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 		
 		if(modelOver.getModelBehind() instanceof CanvasModel) {
 			mouseDown = e.getPoint();
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)modelOver);
 			
 			interactionPresenter = new InteractionPresenter(productionPanel);
-			interactionPresenter.selectFromEmpty(modelOver, referencePoint, branchStep1);
+			interactionPresenter.selectFromEmpty(modelOver, referencePoint, collector);
 		}
 		
-		branchStep1.close();
+		collector.flush();
 	}
 
 	@Override
@@ -169,14 +171,14 @@ public class PlotTool implements Tool {
 
 	@Override
 	public void rollback(ProductionPanel productionPanel, TranscriberCollector<Model> collector) {
-		final TranscriberBranch<Model> branchStep2 = branch.branch();
-		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
+//		final TranscriberBranch<Model> branchStep2 = branch.branch();
+//		branchStep2.setOnFinishedBuilder(new RepaintRunBuilder(productionPanel.livePanel));
 
-		interactionPresenter.reset(branchStep2);
+		interactionPresenter.reset(collector);
 		interactionPresenter = null;
 		
-		branchStep2.close();
-		
-		branch.reject();
+//		branchStep2.close();
+//		
+//		branch.reject();
 	}
 }
