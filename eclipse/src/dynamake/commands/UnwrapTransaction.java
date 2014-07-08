@@ -46,16 +46,14 @@ public class UnwrapTransaction implements Command<Model> {
 
 		// Removed wrapper from target
 		target.removeModel(wrapper, propCtx, 0, collector);
-		
-		IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 
 		// Offset the coordinates of the moved models
 		for(Model model: models) {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
 
-			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, isolatedCollector);
-			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, isolatedCollector);
+			model.setProperty("X", x.add(new Fraction(creationBounds.x)), propCtx, 0, collector);
+			model.setProperty("Y", y.add(new Fraction(creationBounds.y)), propCtx, 0, collector);
 		}
 		
 		// Move models from wrapper to target

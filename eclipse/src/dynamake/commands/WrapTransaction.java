@@ -54,8 +54,8 @@ public class WrapTransaction implements Command<Model> {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
 			
-			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, isolatedCollector);
-			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, isolatedCollector);
+			model.setProperty("X", x.subtract(new Fraction(creationBounds.x)), propCtx, 0, collector);
+			model.setProperty("Y", y.subtract(new Fraction(creationBounds.y)), propCtx, 0, collector);
 		}
 
 		target.addModel(wrapper, propCtx, 0, collector);
