@@ -10,41 +10,55 @@ import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.commands.TellPropertyTransaction;
 import dynamake.delegates.Runner;
+import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscriberBranch;
+import dynamake.transcription.TranscriberCollector;
+import dynamake.transcription.TranscriberConnection;
+import dynamake.transcription.TranscriberRunnable;
 
 public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
-	private TranscriberBranch<Model> branch;
+	private TranscriberConnection<Model> connection; 
+	private InteractionPresenter interactionPresenter;
 	
-	public TellDragDropPopupBuilder(TranscriberBranch<Model> branch) {
-		this.branch = branch;
+	public TellDragDropPopupBuilder(TranscriberConnection<Model> connection, InteractionPresenter interactionPresenter) {
+		this.connection = connection;
+		this.interactionPresenter = interactionPresenter;
 	}
 
 	@Override
 	public void buildFromSelectionAndTarget(final ModelComponent livePanel,
 			JPopupMenu popup, final ModelComponent selection,
 			final ModelComponent target, final Point dropPointOnTarget, final Rectangle dropBoundsOnTarget) {
-		Runner runner = new Runner() {
+		ActionRunner runner = new ActionRunner() {
 			@Override
-			public void run(Runnable runnable) {
-				runnable.run();
-				branch.close();
+			public void run(final Object action) {
+				connection.trigger(new TranscriberRunnable<Model>() {
+					@SuppressWarnings("unchecked")
+					@Override
+					public void run(TranscriberCollector<Model> collector) {
+						interactionPresenter.reset(collector);
+						
+						((TranscriberRunnable<Model>)action).run(collector);
+						collector.enlistCommit();
+						collector.flush();
+					}
+				});
 			}
 		};
 		
 		CompositeMenuBuilder transactionTargetContentMapBuilder = new CompositeMenuBuilder();
 		
-		transactionTargetContentMapBuilder.addMenuBuilder("Tell Color", new Runnable() {
+		transactionTargetContentMapBuilder.addMenuBuilder("Tell Color", new TranscriberRunnable<Model>() {
 			@Override
-			public void run() {
-				PropogationContext propCtx = new PropogationContext();
-				
-				branch.execute(propCtx, new DualCommandFactory<Model>() {
+			public void run(TranscriberCollector<Model> collector) {
+				collector.execute(new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
@@ -60,6 +74,14 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 	
 	@Override
 	public void cancelPopup(LivePanel livePanel) {
-		branch.reject();
+//		branch.reject();
+		connection.trigger(new TranscriberRunnable<Model>() {
+			public void run(TranscriberCollector<Model> collector) {
+				interactionPresenter.reset(collector);
+				
+				collector.enlistReject();
+				collector.flush();
+			}
+		});
 	}
 }

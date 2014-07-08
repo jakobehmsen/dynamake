@@ -231,6 +231,7 @@ public abstract class Model implements Serializable, Observer {
 		while(ctxTransactionToUndo != ctxTransactionToUndoTill) {
 			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, null, isolatingCollector);
 			undoStack.pop();
+			ctxTransactionToUndo = undoStack.peek();
 		}
 	}
 	
@@ -262,6 +263,7 @@ public abstract class Model implements Serializable, Observer {
 		while(ctxTransactionToRedo != ctxTransactionToRedoTillæ) {
 			ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, null, isolatingCollector);
 			redoStack.pop();
+			ctxTransactionToRedo = redoStack.peek();
 		}
 	}
 	
@@ -363,14 +365,14 @@ public abstract class Model implements Serializable, Observer {
 //			innerBranch.close();
 		} else if(change instanceof TellProperty && changeDistance == 1) {
 			// Side-effect
-			TranscriberBranch<Model> innerBranch = branch.branch();
+//			TranscriberBranch<Model> innerBranch = branch.branch();
 			
 			TellProperty tellProperty = (TellProperty)change;
 			Object value = getProperty(tellProperty.name);
 			if(value != null)
-				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0, innerBranch, collector);
+				sendChanged(new Model.PropertyChanged(tellProperty.name, value), propCtx, propDistance, 0, null, collector);
 
-			innerBranch.close();
+//			innerBranch.close();
 		} else {
 			modelChanged(sender, change, propCtx, propDistance, changeDistance, branch, collector);
 		}
