@@ -94,10 +94,6 @@ public class ModelTranscriber {
 		return new CompositeModelLocation(getModelLocation(), otherLocation);
 	}
 
-	public TranscriberBranch<Model> createBranch() {
-		return transcriber.createBranch();
-	}
-
 	public TranscriberConnection<Model> createConnection() {
 		return transcriber.createConnection(new FlushHandler<Model>() {
 			@Override
