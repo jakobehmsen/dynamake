@@ -147,17 +147,10 @@ public class CanvasModel extends Model {
 			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(prevalentSystem);
 			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(prevalentSystem);
 			Model model = (Model)canvasSource.getModel(indexInSource);
-			
-			TranscriberBranch<Model> removeBranch = branch.branch();
-			TranscriberBranch<Model> addBranch = branch.branch();
 
 			int indexOfModel = canvasSource.indexOfModel(model);
-			canvasSource.removeModel(indexOfModel, propCtx, 0, removeBranch, collector);
-			
-			canvasTarget.addModel(indexInTarget, model, propCtx, 0, addBranch, collector);
-			
-			removeBranch.close();
-			addBranch.close();
+			canvasSource.removeModel(indexOfModel, propCtx, 0, null, collector);
+			canvasTarget.addModel(indexInTarget, model, propCtx, 0, null, collector);
 		}
 	}
 	

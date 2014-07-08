@@ -35,7 +35,6 @@ import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.FlushHandler;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.TranscriberBranch;
 import dynamake.transcription.TranscriberCollector;
