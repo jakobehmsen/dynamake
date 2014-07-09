@@ -294,15 +294,18 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					while(!commands.isEmpty()) {
 						Object command = commands.pop();
 						
+						final ArrayList<Object> innerEnlistings = new ArrayList<Object>();
 						Collector<T> collector = new Collector<T>() {
 							@Override
 							public void enlist(DualCommandFactory<T> transactionFactory) {
-								enlistings.add(transactionFactory);
+//								enlistings.add(transactionFactory);
+								innerEnlistings.add(transactionFactory);
 							}
 							
 							@Override
 							public void execute( DualCommandFactory<T> transactionFactory) {
-								commands.add(transactionFactory);
+//								commands.add(transactionFactory);
+								innerEnlistings.add(transactionFactory);
 							}
 							
 							@Override
@@ -317,17 +320,19 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							@Override
 							public void enlistReject() {
-								enlistings.add(0);
+//								enlistings.add(0);
+								innerEnlistings.add(0);
 							}
 							
 							@Override
 							public void enlistCommit() {
-								enlistings.add(1);
+//								enlistings.add(1);
+								innerEnlistings.add(1);
 							}
 							
 							@Override
 							public void flush() {
-								commands.add(2);
+//								commands.add(2);
 							}
 						};
 						
@@ -358,6 +363,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							}
 						} else if(command instanceof Trigger) {
 							((Trigger<T>)command).run(collector);
+						}
+						
+						if(innerEnlistings.size() > 0) {
+							commands.addAll(innerEnlistings);
 						}
 					}
 

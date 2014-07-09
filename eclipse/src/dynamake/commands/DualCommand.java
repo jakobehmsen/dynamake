@@ -6,7 +6,6 @@ import java.util.Date;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-// TODO: Consider renaming this type of command to ReversibleCommand and reflect this on the DualCommand* types.
 public interface DualCommand<T> extends Serializable {
 	public void executeForwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector);
 	public void executeBackwardOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector);
