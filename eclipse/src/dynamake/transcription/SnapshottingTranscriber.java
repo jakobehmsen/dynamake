@@ -270,7 +270,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private static class Connection<T> implements dynamake.transcription.Connection<T> {
 		private TriggerHandler<T> triggerHandler;
 		private SnapshottingTranscriber<T> transcriber;
-		private ArrayList<Object> enlistings = new ArrayList<Object>();
 		private ArrayList<DualCommand<T>> flushedTransactions = new ArrayList<DualCommand<T>>();
 		private HashSet<T> affectedModels = new HashSet<T>();
 		
@@ -336,10 +335,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								break;
 							case 1: // commit
 								doCommit();
-								break;
-							case 2: // flush
-								commands.addAll(enlistings);
-								enlistings.clear();
 								break;
 							}
 						} else if(command instanceof DualCommandFactory) {
@@ -411,13 +406,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			}
 		}
 		
-		@SuppressWarnings("unchecked")
 		private void doReject() {
-			final ArrayList<Object> currentEnlistings = Connection.this.enlistings;
-			
-			Connection.this.enlistings = new ArrayList<Object>();
-			
 			PropogationContext propCtx = new PropogationContext();
+			
+			final ArrayList<Runnable> onAfterNextTrigger = new ArrayList<Runnable>();
 			
 			Collector<T> isolatedCollector = new Collector<T>() {
 				@Override
@@ -428,7 +420,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				@Override
 				public void afterNextTrigger(Runnable runnable) {
-					currentEnlistings.add(runnable);
+					onAfterNextTrigger.add(runnable);
 				}
 
 				@Override
@@ -445,17 +437,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				transaction.executeBackwardOn(propCtx, transcriber.prevalentSystem, null, isolatedCollector);
 			
 			flushedTransactions.clear();
-			
-			while(currentEnlistings.size() > 0) {
-				ArrayList<Object> enlistingsClone = (ArrayList<Object>)currentEnlistings.clone();
-				currentEnlistings.clear();
-				
-				for(Object enlisting: enlistingsClone) {
-					if(enlisting instanceof Trigger) {
-						Trigger<T> trigger = (Trigger<T>)enlisting;
-						trigger.run(isolatedCollector);
-					}
-				}
+
+			if(onAfterNextTrigger.size() > 0) {
+				triggerHandler.handleAfterTrigger(onAfterNextTrigger);
+				onAfterNextTrigger.clear();
 			}
 		}
 	}
