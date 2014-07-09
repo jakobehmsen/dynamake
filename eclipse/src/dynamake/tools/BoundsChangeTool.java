@@ -61,7 +61,7 @@ public abstract class BoundsChangeTool implements Tool {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, selection, targetOver, droppedBounds.getLocation());
+								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation());
 							}
 						});
 					} else {
@@ -114,6 +114,7 @@ public abstract class BoundsChangeTool implements Tool {
 	
 	private Point mouseDown;
 	private ModelComponent viewPressedOn;
+	private ModelComponent source;
 	private RelativePosition relativePosition;
 	private TargetPresenter targetPresenter;
 	private InteractionPresenter interactionPresenter;
@@ -124,6 +125,7 @@ public abstract class BoundsChangeTool implements Tool {
 
 		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			viewPressedOn = targetModelComponent;
+			source = ModelComponent.Util.getParent(targetModelComponent);
 			
 			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
 			
@@ -170,7 +172,7 @@ public abstract class BoundsChangeTool implements Tool {
 			ModelComponent newTargetOver = getTargetOver(productionPanel, modelOver, interactionPresenter.getSelection());
 			targetPresenter.update(newTargetOver, collector);
 			
-			Rectangle newEffectBounds = relativePosition.resize(
+			final Rectangle newEffectBounds = relativePosition.resize(
 				interactionPresenter.getSelectionFrameLocation(), 
 				interactionPresenter.getSelectionFrameSize(), 
 				mouseDown, 

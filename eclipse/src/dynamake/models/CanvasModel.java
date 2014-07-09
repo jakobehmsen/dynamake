@@ -398,8 +398,9 @@ public class CanvasModel extends Model {
 							public void createDualCommands(
 									List<DualCommand<Model>> dualCommands) {
 								ModelComponent modelToMove = dropped;
+								ModelComponent source = ModelComponent.Util.getParent(modelToMove);
 								ModelComponent target = CanvasPanel.this;
-								appendMoveTransaction(dualCommands, (LivePanel)livePanel, modelToMove, target, droppedBounds.getLocation());
+								appendMoveTransaction(dualCommands, (LivePanel)livePanel, source, modelToMove, target, droppedBounds.getLocation());
 							}
 						});
 					}
@@ -484,12 +485,12 @@ public class CanvasModel extends Model {
 		));
 	}
 	
-	public static void appendMoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent modelToMove, ModelComponent target, final Point moveLocation) {
+	public static void appendMoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation) {
 		Location canvasSourceLocation = modelToMove.getModelTranscriber().getParent().getModelLocation();
 		ModelLocation canvasTargetLocation = target.getModelTranscriber().getModelLocation();
 		
 		int indexTarget = ((CanvasModel)target.getModelBehind()).getModelCount();
-		CanvasModel sourceCanvas = (CanvasModel)ModelComponent.Util.getParent(modelToMove).getModelBehind();
+		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
 		int indexSource = sourceCanvas.indexOfModel(modelToMove.getModelBehind());
 		CanvasModel targetCanvas = (CanvasModel)target.getModelBehind();
 		

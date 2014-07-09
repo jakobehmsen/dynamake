@@ -1,13 +1,10 @@
 package dynamake.tools;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
@@ -23,7 +20,6 @@ import dynamake.dragndrop.DragDragDropPopupBuilder;
 import dynamake.dragndrop.DragDropPopupBuilder;
 import dynamake.dragndrop.TellDragDropPopupBuilder;
 import dynamake.dragndrop.ViewDragDropPopupBuilder;
-import dynamake.models.Binding;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.LiveModel;
 import dynamake.models.Model;
@@ -35,7 +31,6 @@ public class InteractionPresenter {
 	public static final Color SELECTION_COLOR = Color.GRAY;
 	
 	private ProductionPanel productionPanel;
-	private Binding<Component> selectionBoundsBinding;
 	private ModelComponent selection;
 	private JPanel selectionFrame;
 	private JPanel effectFrame;
@@ -98,9 +93,6 @@ public class InteractionPresenter {
 		// </Don't remove>
 		
 		this.selection = view;
-		
-		if(selectionBoundsBinding != null)
-			selectionBoundsBinding.releaseBinding();
 		
 		if(this.selection != null) {
 			if(selectionFrame == null) {
@@ -217,47 +209,6 @@ public class InteractionPresenter {
 //					System.out.println("Changed selection bounds");
 				}
 			});
-			
-			selectionBoundsBinding = new Binding<Component>() {
-				private Component component;
-				private ComponentListener listener;
-				
-				{
-					component = (JComponent)selection;
-					listener = new ComponentListener() {
-						@Override
-						public void componentShown(ComponentEvent arg0) { }
-						
-						@Override
-						public void componentResized(ComponentEvent arg0) {
-							Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-							localSelectionFrame.setBounds(selectionBounds);
-							productionPanel.livePanel.repaint();
-						}
-						
-						@Override
-						public void componentMoved(ComponentEvent arg0) {
-							Rectangle selectionBounds = SwingUtilities.convertRectangle(((JComponent)view).getParent(), ((JComponent)view).getBounds(), productionPanel);
-							localSelectionFrame.setBounds(selectionBounds);
-							productionPanel.livePanel.repaint();
-						}
-						
-						@Override
-						public void componentHidden(ComponentEvent arg0) { }
-					};
-					((JComponent)selection).addComponentListener(listener);
-				}
-				
-				@Override
-				public void releaseBinding() {
-					component.removeComponentListener(listener);
-				}
-				
-				@Override
-				public Component getBindingTarget() {
-					return component;
-				}
-			};
 		} else {
 			if(selectionFrame != null)
 				clearFocus(runner);
@@ -275,9 +226,6 @@ public class InteractionPresenter {
 	
 	private void clearFocus(Runner runner) {
 		if(selectionFrame != null) {
-			if(selectionBoundsBinding != null)
-				selectionBoundsBinding.releaseBinding();
-			
 			final JPanel localSelectionFrame = selectionFrame;
 //			branch.onFinished(new Runnable() {
 //				@Override
