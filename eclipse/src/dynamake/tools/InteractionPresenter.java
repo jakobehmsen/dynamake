@@ -76,15 +76,6 @@ public class InteractionPresenter {
 		createEffectFrame(selectionBounds, runner);
 	}
 	
-//	private void select(final ModelComponent view, final TranscriberBranch<Model> branch) {
-//		select(view, new Runner() {
-//			@Override
-//			public void run(Runnable runnable) {
-//				branch.onFinished(runnable);
-//			}
-//		});
-//	}
-	
 	private void select(final ModelComponent view, Runner runner) {
 		// <Don't remove>
 		// Whether the following check is necessary or not has not been decided yet, so don't remove the code
@@ -171,19 +162,10 @@ public class InteractionPresenter {
 
 				selectionFrame = localSelectionFrame;
 				
-//				branch.onFinished(new Runnable() {
-//					@Override
-//					public void run() {
-//						productionPanel.add(localSelectionFrame);
-////						System.out.println("Added selectionFrame");
-//					}
-//				});
-				
 				runner.run(new Runnable() {
 					@Override
 					public void run() {
 						productionPanel.add(localSelectionFrame);
-//						System.out.println("Added selectionFrame");
 					}
 				});
 			}
@@ -215,25 +197,9 @@ public class InteractionPresenter {
 		}
 	}
 	
-//	private void clearFocus(final TranscriberBranch<Model> branch) {
-//		clearFocus(new Runner() {
-//			@Override
-//			public void run(Runnable runnable) {
-//				branch.onFinished(runnable);
-//			}
-//		});
-//	}
-	
 	private void clearFocus(Runner runner) {
 		if(selectionFrame != null) {
 			final JPanel localSelectionFrame = selectionFrame;
-//			branch.onFinished(new Runnable() {
-//				@Override
-//				public void run() {
-//					productionPanel.remove(localSelectionFrame);
-////					System.out.println("Removed selectionFrame");
-//				}
-//			});
 			runner.run(new Runnable() {
 				@Override
 				public void run() {
@@ -245,25 +211,14 @@ public class InteractionPresenter {
 		}
 	}
 	
-//	private void clearEffectFrameOnBranch(final TranscriberBranch<Model> branch) {
-//		clearEffectFrameOnBranch(new Runner() {
-//			@Override
-//			public void run(Runnable runnable) {
-//				branch.onFinished(runnable);
-//			}
-//		});
-//	}
-	
 	private void clearEffectFrameOnBranch(Runner runner) {
 		if(effectFrame != null) {
 			final JPanel localEffectFrame = effectFrame;
 			effectFrame = null;
-//			initialEffectBounds = null;
 			runner.run(new Runnable() {
 				@Override
 				public void run() {
 					productionPanel.remove(localEffectFrame);
-//					System.out.println("Removed effect frame");
 				}
 			});
 		} else {
@@ -277,7 +232,6 @@ public class InteractionPresenter {
 			localEffectFrame.setBackground(new Color(0, 0, 0, 0));
 			localEffectFrame.setBounds(creationBounds);
 			
-//			Color effectColor = LiveModel.ToolButton.getColorForButton(productionPanel.editPanelMouseAdapter.buttonPressed);
 			Color effectColor = LiveModel.ToolButton.avgColorOfButtons(productionPanel.editPanelMouseAdapter.buttonsPressed);
 			effectColor = effectColor.darker();
 			localEffectFrame.setBorder(BorderFactory.createCompoundBorder(
@@ -285,10 +239,7 @@ public class InteractionPresenter {
 				BorderFactory.createDashedBorder(Color.WHITE, 2.0f, 2.0f, 1.5f, false)
 			));
 			
-//			addFocusMouseListener(productionPanel, localEffectFrame, "effectFrame");
-			
 			effectFrame = localEffectFrame;
-//			initialEffectBounds = creationBounds;
 			
 			// Ensure effect frame is shown in front of selection frame
 			if(selectionFrame != null) {
@@ -321,7 +272,6 @@ public class InteractionPresenter {
 					@Override
 					public void run() {
 						productionPanel.add(localEffectFrame);
-//						System.out.println("Created effect frame.");
 					}
 				});
 			}
@@ -430,7 +380,6 @@ public class InteractionPresenter {
 	
 	private void showPopupForSelection(final JComponent popupMenuInvoker, final Point pointOnInvoker, final ModelComponent targetOver, final DragDropPopupBuilder popupBuilder) {
 		if(selection != null) {
-//			System.out.println("Here@popup");
 			JPopupMenu transactionsPopupMenu = new JPopupMenu() {
 				/**
 				 * 

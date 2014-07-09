@@ -1,5 +1,6 @@
 package dynamake.models;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -97,15 +98,30 @@ public class ModelTranscriber {
 			@Override
 			public void handleAfterTrigger(final List<Runnable> runnables) {
 				if(componentToRepaint != null) {
-					SwingUtilities.invokeLater(new Runnable() {
-						@Override
-						public void run() {
-							for(Runnable r: runnables)
-								r.run();
-							
-							componentToRepaint.repaint();
-						}
-					});
+//					SwingUtilities.invokeLater(new Runnable() {
+//						@Override
+//						public void run() {
+//							for(Runnable r: runnables)
+//								r.run();
+//							
+//							componentToRepaint.repaint();
+//						}
+//					});
+
+					try {
+						SwingUtilities.invokeAndWait(new Runnable() {
+							@Override
+							public void run() {
+								for(Runnable r: runnables)
+									r.run();
+								
+								componentToRepaint.repaint();
+							}
+						});
+					} catch (InvocationTargetException | InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			}
 		});

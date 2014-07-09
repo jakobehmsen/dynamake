@@ -15,8 +15,11 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import dynamake.commands.ContextualTransaction;
 import dynamake.commands.DualCommand;
@@ -279,6 +282,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			this.transcriber = transcriber;
 			this.triggerHandler = triggerHandler;
 		}
+		
+		private Future<Boolean> future;
 
 		@Override
 		public void trigger(final Trigger<T> trigger) {
@@ -354,7 +359,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					}
 
 					if(onAfterNextTrigger.size() > 0) {
+//						CountDownLatch latch = new CountDownLatch(0);
 						triggerHandler.handleAfterTrigger(onAfterNextTrigger);
+//						latch.await();
 					}
 				}
 			});
