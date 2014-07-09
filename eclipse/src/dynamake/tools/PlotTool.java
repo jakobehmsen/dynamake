@@ -24,7 +24,6 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.factories.CanvasModelFactory;
 import dynamake.models.factories.Factory;
 import dynamake.transcription.DualCommandFactory;
-import dynamake.transcription.RepaintRunBuilder;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 
@@ -139,9 +138,7 @@ public class PlotTool implements Tool {
 		if(mouseDown != null) {
 			final Rectangle plotBoundsInProductionPanel = interactionPresenter.getPlotBounds(mouseDown, e.getPoint());
 			
-			RepaintRunBuilder runBuilder = new RepaintRunBuilder(productionPanel.livePanel);
-			interactionPresenter.changeEffectFrameDirect2(plotBoundsInProductionPanel, runBuilder);
-			runBuilder.execute();
+			interactionPresenter.changeEffectFrameDirect2(plotBoundsInProductionPanel, collector);
 		}
 	}
 

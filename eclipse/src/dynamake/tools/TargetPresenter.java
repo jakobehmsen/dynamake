@@ -11,7 +11,6 @@ import javax.swing.SwingUtilities;
 import dynamake.delegates.Runner;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.transcription.RunBuilder;
 import dynamake.transcription.Collector;
 
 public class TargetPresenter {
@@ -35,15 +34,6 @@ public class TargetPresenter {
 			@Override
 			public void run(Runnable runnable) {
 				collector.afterNextTrigger(runnable);
-			}
-		});
-	}
-	
-	public void update(ModelComponent newTargetOver, final RunBuilder runBuilder) {
-		update(newTargetOver, new Runner() {
-			@Override
-			public void run(Runnable runnable) {
-				runBuilder.addRunnable(runnable);
 			}
 		});
 	}
@@ -95,15 +85,6 @@ public class TargetPresenter {
 			@Override
 			public void run(Runnable runnable) {
 				collector.afterNextTrigger(runnable);
-			}
-		});
-	}
-	
-	public void reset(final RunBuilder runBuilder) {
-		reset(new Runner() {
-			@Override
-			public void run(Runnable runnable) {
-				runBuilder.addRunnable(runnable);
 			}
 		});
 	}

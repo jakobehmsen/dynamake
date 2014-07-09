@@ -28,7 +28,6 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.LiveModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.transcription.RunBuilder;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 
@@ -406,15 +405,6 @@ public class InteractionPresenter {
 			@Override
 			public void run(Runnable runnable) {
 				collector.afterNextTrigger(runnable);
-			}
-		});
-	}
-	
-	public void changeEffectFrameDirect2(final Rectangle newBounds, final RunBuilder runBuilder) {
-		changeEffectFrameDirect2(newBounds, new Runner() {
-			@Override
-			public void run(Runnable runnable) {
-				runBuilder.addRunnable(runnable);
 			}
 		});
 	}
