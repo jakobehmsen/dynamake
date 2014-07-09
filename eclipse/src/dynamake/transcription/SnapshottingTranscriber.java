@@ -81,13 +81,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		
 		if(journalExisted) {
 			ArrayList<ContextualTransaction<T>> transactions = readJournal(prevalanceDirectory + "/" + journalFile);
-			replay(transactions, new PropogationContext(), prevalentSystem);
+			replay(transactions, prevalentSystem);
 			// Update the number of enlisted transactions which is used in the snapshotting logic
 			transactionEnlistingCount += transactions.size();
 		}
 	}
 	
-	private static <T> Snapshot<T> loadAndReplay(PropogationContext propCtx, Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath) throws ClassNotFoundException, IOException {
+	private static <T> Snapshot<T> loadAndReplay(Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath) throws ClassNotFoundException, IOException {
 		Snapshot<T> snapshot;
 		
 		Path snapshotFilePath = Paths.get(snapshotPath);
@@ -100,7 +100,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			snapshot = new Snapshot<T>(prevalantSystem);
 		}
 		
-		replay(propCtx, snapshot.prevalentSystem, journalPath);
+		replay(snapshot.prevalentSystem, journalPath);
 		
 		return snapshot;
 	}
@@ -128,7 +128,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static <T> void replay(ArrayList<ContextualTransaction<T>> transactions, PropogationContext propCtx, T prevalentSystem) {
+	private static <T> void replay(ArrayList<ContextualTransaction<T>> transactions, T prevalentSystem) {
+		PropogationContext propCtx = new PropogationContext();
+		
 		for(ContextualTransaction<T> ctxTransaction: transactions) {
 			DualCommand<T> transaction = ctxTransaction.transaction;
 
@@ -143,9 +145,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		}
 	}
 	
-	private static <T> void replay(PropogationContext propCtx, T prevalentSystem, String journalPath) throws ClassNotFoundException, IOException {
+	private static <T> void replay(T prevalentSystem, String journalPath) throws ClassNotFoundException, IOException {
 		ArrayList<ContextualTransaction<T>> transactions = readJournal(journalPath);
-		replay(transactions, new PropogationContext(), prevalentSystem);
+		replay(transactions, prevalentSystem);
 	}
 	
 	private static class Snapshot<T> implements Serializable {
@@ -173,7 +175,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		return snapshot;
 	}
 	
-	private static <T> void saveSnapshot(PropogationContext propCtx, Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath) throws ClassNotFoundException, IOException, ParseException {
+	private static <T> void saveSnapshot(Func0<T> prevalantSystemFunc, String journalPath, String snapshotPath) throws ClassNotFoundException, IOException, ParseException {
 		// Close journal
 		Path currentJournalFilePath = Paths.get(journalPath);
 
@@ -192,7 +194,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			java.nio.file.Files.move(currentSnapshotFilePath, closedSnapshotFilePath);
 		
 		// Load copy of last snapshot (if any) and replay missing transactions;
-		Snapshot<T> snapshot = loadAndReplay(propCtx, prevalantSystemFunc, closedJournalFilePath.toString(), closedSnapshotFilePath.toString());
+		Snapshot<T> snapshot = loadAndReplay(prevalantSystemFunc, closedJournalFilePath.toString(), closedSnapshotFilePath.toString());
 		
 		// Save modified snapshot
 		FileOutputStream fileOutput = new FileOutputStream(snapshotPath, true);
@@ -204,15 +206,15 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		objectOutput.close();
 	}
 	
-	private void saveSnapshot(PropogationContext propCtx) throws ClassNotFoundException, IOException, ParseException {
-		saveSnapshot(propCtx, prevalentSystemFunc, prevalanceDirectory + "/" + journalFile, prevalanceDirectory + "/" + snapshotFile);
+	private void saveSnapshot() throws ClassNotFoundException, IOException, ParseException {
+		saveSnapshot(prevalentSystemFunc, prevalanceDirectory + "/" + journalFile, prevalanceDirectory + "/" + snapshotFile);
 	}
 
 	public void executeTransient(Runnable runnable) {
 		transactionExecutor.execute(runnable);
 	}
 	
-	public void persistTransaction(final PropogationContext propCtx, final ContextualTransaction<T> transaction) {
+	public void persistTransaction(final ContextualTransaction<T> transaction) {
 		journalLogger.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -240,7 +242,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						// Could be separated into the following:
 						// Close latest journal and snapshot 
 						// With other execution service: Save snapshot based on closed journal and snapshot
-						saveSnapshot(propCtx);
+						saveSnapshot();
 					} catch (ClassNotFoundException | IOException
 							| ParseException e) {
 						// TODO Auto-generated catch block
@@ -277,8 +279,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			this.transcriber = transcriber;
 			this.triggerHandler = triggerHandler;
 		}
-		
-		private PropogationContext propCtx = new PropogationContext();
 
 		@Override
 		public void trigger(final Trigger<T> trigger) {
@@ -286,6 +286,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				@SuppressWarnings("unchecked")
 				@Override
 				public void run() {
+					PropogationContext propCtx = new PropogationContext();
 					final LinkedList<Object> commands = new LinkedList<Object>();
 					commands.add(trigger);
 					
@@ -400,7 +401,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				}
 
 				System.out.println("Committed connection: " + Connection.this);
-				transcriber.persistTransaction(propCtx, ctxTransaction);
+				transcriber.persistTransaction(ctxTransaction);
 				affectedModels.clear();
 			}
 		}
