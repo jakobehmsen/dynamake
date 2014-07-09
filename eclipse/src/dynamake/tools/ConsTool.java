@@ -86,7 +86,6 @@ public class ConsTool implements Tool {
 				interactionPresenter = null;
 
 				collector.enlistCommit();
-				collector.flush();
 			}
 		} else {
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
@@ -106,7 +105,6 @@ public class ConsTool implements Tool {
 						productionPanel.livePanel.repaint();
 					}
 				});
-				collector.flush();
 			}
 		}
 
@@ -151,8 +149,6 @@ public class ConsTool implements Tool {
 		targetPresenter.update(modelOver, collector);
 		
 		mouseDown = e.getPoint();
-
-		collector.flush();
 	}
 
 	@Override
@@ -169,8 +165,6 @@ public class ConsTool implements Tool {
 			final int y = cursorLocationInProductionPanel.y - height / 2;
 			
 			interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), collector);
-
-			collector.flush();
 		}
 	}
 

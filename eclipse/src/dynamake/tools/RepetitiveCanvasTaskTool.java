@@ -32,7 +32,6 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 		targetPresenter = null;
 		
 		collector.enlistCommit();
-		collector.flush();
 	}
 	
 //	private TranscriberBranch<Model> branch;
@@ -59,8 +58,6 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 		);
 		
 		targetPresenter.update(canvas, collector);
-
-		collector.flush();
 	}
 
 	@Override
@@ -75,8 +72,6 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 						createDualCommandsForSingleTask(productionPanel, dualCommands, modelOverParent, modelOver);
 					}
 				});
-
-				collector.flush();
 			}
 		}
 	}

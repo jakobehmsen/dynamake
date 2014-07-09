@@ -303,7 +303,6 @@ public class LiveModel extends Model {
 									}
 								});
 								collector.enlistCommit();
-								collector.flush();
 							}
 						});
 						
@@ -507,7 +506,6 @@ public class LiveModel extends Model {
 								
 								toolToRollback.rollback(productionPanel, collector);
 								collector.enlistReject();
-								collector.flush();
 							}
 							
 							buttonsPressed.add(button);

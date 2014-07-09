@@ -84,7 +84,6 @@ public class PenTool implements Tool {
 		targetPresenter = null;
 		
 		collector.enlistCommit();
-		collector.flush();
 	}
 	
 	private TargetPresenter targetPresenter;
@@ -114,7 +113,6 @@ public class PenTool implements Tool {
 		);
 		
 		targetPresenter.update(canvas, collector);
-		collector.flush();
 	}
 
 	@Override
@@ -137,7 +135,6 @@ public class PenTool implements Tool {
 			@Override
 			public void run() { }
 		});
-		collector.flush();
 	}
 
 	@Override

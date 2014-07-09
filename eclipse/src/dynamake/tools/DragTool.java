@@ -81,8 +81,6 @@ public class DragTool implements Tool {
 		targetPresenter.update(modelOver, collector);
 		
 		mouseDown = e.getPoint();
-		
-		collector.flush();
 	}
 
 	@Override
@@ -99,8 +97,6 @@ public class DragTool implements Tool {
 			final int y = interactionPresenter.getSelectionFrameLocation().y + (cursorLocationInProductionPanel.y - mouseDown.y);
 			
 			interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), collector);
-
-			collector.flush();
 		}
 	}
 

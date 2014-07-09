@@ -32,9 +32,6 @@ public class ViewTool implements Tool {
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
 		interactionPresenter.showPopupForSelectionView(productionPanel, e.getPoint(), null, connection, interactionPresenter);
-		
-		collector.enlistCommit();
-		collector.flush();
 	}
 	
 	private InteractionPresenter interactionPresenter;
@@ -47,8 +44,6 @@ public class ViewTool implements Tool {
 			interactionPresenter = new InteractionPresenter(productionPanel);
 			interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
 		}
-		
-		collector.flush();
 	}
 
 	@Override

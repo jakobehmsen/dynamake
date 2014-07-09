@@ -7,5 +7,4 @@ public interface Collector<T> {
 	void registerAffectedModel(T model);
 	void enlistReject();
 	void enlistCommit();
-	void flush();
 }

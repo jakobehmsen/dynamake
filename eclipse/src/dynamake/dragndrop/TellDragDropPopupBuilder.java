@@ -44,7 +44,6 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 						
 						((Trigger<Model>)action).run(collector);
 						collector.enlistCommit();
-						collector.flush();
 					}
 				});
 			}
@@ -76,7 +75,6 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 				interactionPresenter.reset(collector);
 				
 				collector.enlistReject();
-				collector.flush();
 			}
 		});
 	}

@@ -107,8 +107,6 @@ public abstract class BoundsChangeTool implements Tool {
 			}
 			
 			mouseDown = null;
-
-			collector.flush();
 		}
 	}
 
@@ -163,8 +161,6 @@ public abstract class BoundsChangeTool implements Tool {
 			targetPresenter.update(newTargetOver, collector);
 			
 			mouseDown = e.getPoint();
-			
-			collector.flush();
 		}
 	}
 
@@ -182,8 +178,6 @@ public abstract class BoundsChangeTool implements Tool {
 				e.getPoint());
 			
 			interactionPresenter.changeEffectFrameDirect2(newEffectBounds, collector);
-
-			collector.flush();
 		}
 	}
 	

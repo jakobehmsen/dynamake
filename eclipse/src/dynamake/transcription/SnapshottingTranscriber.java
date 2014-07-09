@@ -329,11 +329,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 //								enlistings.add(1);
 								innerEnlistings.add(1);
 							}
-							
-							@Override
-							public void flush() {
-//								commands.add(2);
-							}
 						};
 						
 						if(command instanceof Integer) {
@@ -448,9 +443,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				@Override
 				public void enlistCommit() { }
-				
-				@Override
-				public void flush() { }
 			};
 			
 			for(DualCommand<T> transaction: flushedTransactions)

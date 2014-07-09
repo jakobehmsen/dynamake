@@ -82,8 +82,6 @@ public class BindTool implements Tool {
 		}
 		
 		mouseDown = null;
-
-		collector.flush();
 	}
 	
 	private Point mouseDown;
@@ -118,8 +116,6 @@ public class BindTool implements Tool {
 		targetPresenter.update(modelOver, collector);
 		
 		mouseDown = e.getPoint();
-
-		collector.flush();
 	}
 
 	@Override
@@ -135,8 +131,6 @@ public class BindTool implements Tool {
 		final int y = interactionPresenter.getSelectionFrameLocation().y + (cursorLocationInProductionPanel.y - mouseDown.y);
 		
 		interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), collector);
-
-		collector.flush();
 	}
 
 	@Override

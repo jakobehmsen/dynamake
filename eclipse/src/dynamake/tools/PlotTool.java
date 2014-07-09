@@ -111,7 +111,6 @@ public class PlotTool implements Tool {
 			interactionPresenter = null;
 			
 			collector.enlistCommit();
-			collector.flush();
 			
 			mouseDown = null;
 		}
@@ -129,8 +128,6 @@ public class PlotTool implements Tool {
 			interactionPresenter = new InteractionPresenter(productionPanel);
 			interactionPresenter.selectFromEmpty(modelOver, referencePoint, collector);
 		}
-		
-		collector.flush();
 	}
 
 	@Override

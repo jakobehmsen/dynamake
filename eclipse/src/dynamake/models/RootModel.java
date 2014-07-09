@@ -189,7 +189,6 @@ public class RootModel extends Model {
 							}
 						});
 						collector.enlistCommit();
-						collector.flush();
 					}
 				});
 			}
@@ -278,7 +277,6 @@ public class RootModel extends Model {
 							}
 						});
 						collector.enlistCommit();
-						collector.flush();
 					}
 				});
 			}

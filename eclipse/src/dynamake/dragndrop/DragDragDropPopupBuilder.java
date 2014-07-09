@@ -61,7 +61,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 						
 						((Trigger<Model>)action).run(collector);
 						collector.enlistCommit();
-						collector.flush();
 					}
 				});
 			}
@@ -96,7 +95,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 						
 						((Trigger<Model>)action).run(collector);
 						collector.enlistCommit();
-						collector.flush();
 					}
 				});
 			}
@@ -181,7 +179,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				interactionPresenter.reset(collector);
 				
 				collector.enlistReject();
-				collector.flush();
 			}
 		});
 	}

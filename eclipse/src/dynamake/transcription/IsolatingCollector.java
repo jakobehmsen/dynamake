@@ -36,9 +36,4 @@ public class IsolatingCollector<T> implements Collector<T> {
 	public void enlistCommit() {
 		collector.enlistCommit();
 	}
-	
-	@Override
-	public void flush() {
-		collector.flush();
-	}
 }

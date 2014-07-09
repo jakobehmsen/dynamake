@@ -18,7 +18,4 @@ public class NullCollector<T> implements Collector<T> {
 
 	@Override
 	public void enlistCommit() { }
-	
-	@Override
-	public void flush() { }
 }

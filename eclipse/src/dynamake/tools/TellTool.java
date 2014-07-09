@@ -34,7 +34,6 @@ public class TellTool implements Tool {
 		interactionPresenter.showPopupForSelectionTell(productionPanel, e.getPoint(), null, connection, interactionPresenter);
 		
 		collector.enlistCommit();
-		collector.flush();
 	}
 	
 	private InteractionPresenter interactionPresenter;
@@ -47,8 +46,6 @@ public class TellTool implements Tool {
 			interactionPresenter = new InteractionPresenter(productionPanel);
 			interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
 		}
-		
-		collector.flush();
 	}
 
 	@Override
