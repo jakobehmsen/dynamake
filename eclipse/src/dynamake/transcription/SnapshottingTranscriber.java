@@ -359,7 +359,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 
 					if(onAfterNextTrigger.size() > 0) {
 						triggerHandler.handleAfterTrigger(onAfterNextTrigger);
-						onAfterNextTrigger.clear();
 					}
 				}
 			});
@@ -440,7 +439,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 
 			if(onAfterNextTrigger.size() > 0) {
 				triggerHandler.handleAfterTrigger(onAfterNextTrigger);
-				onAfterNextTrigger.clear();
 			}
 		}
 	}
