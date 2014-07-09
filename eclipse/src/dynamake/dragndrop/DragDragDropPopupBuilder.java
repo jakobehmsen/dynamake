@@ -106,7 +106,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionSelectionGeneralMapBuilder.addMenuBuilder("Unforward to", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.enlist(new DualCommandFactory<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Location observableLocation = selection.getModelTranscriber().getModelLocation();
@@ -124,7 +124,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionSelectionGeneralMapBuilder.addMenuBuilder("Forward to", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.enlist(new DualCommandFactory<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Location observableLocation = selection.getModelTranscriber().getModelLocation();
@@ -143,7 +143,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionSelectionGeneralMapBuilder.addMenuBuilder("Inject", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.enlist(new DualCommandFactory<Model>() {
+				collector.execute(new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(
 							List<DualCommand<Model>> dualCommands) {

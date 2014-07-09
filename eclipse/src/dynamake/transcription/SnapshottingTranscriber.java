@@ -298,12 +298,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						final ArrayList<Object> collectedCommands = new ArrayList<Object>();
 						Collector<T> collector = new Collector<T>() {
 							@Override
-							public void enlist(DualCommandFactory<T> transactionFactory) {
-								collectedCommands.add(transactionFactory);
-							}
-							
-							@Override
-							public void execute( DualCommandFactory<T> transactionFactory) {
+							public void execute(DualCommandFactory<T> transactionFactory) {
 								collectedCommands.add(transactionFactory);
 							}
 							
@@ -412,9 +407,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			final ArrayList<Runnable> onAfterNextTrigger = new ArrayList<Runnable>();
 			
 			Collector<T> isolatedCollector = new Collector<T>() {
-				@Override
-				public void enlist(DualCommandFactory<T> transactionFactory) { }
-				
 				@Override
 				public void execute(DualCommandFactory<T> transactionFactory) { }
 				

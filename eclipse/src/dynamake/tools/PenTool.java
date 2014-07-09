@@ -65,7 +65,7 @@ public class PenTool implements Tool {
 		final ModelComponent target = targetPresenter.getTargetOver();
 		final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)target);
 		
-		collector.enlist(new DualCommandFactory<Model>() {
+		collector.execute(new DualCommandFactory<Model>() {
 			@Override
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				CanvasModel canvasModel = (CanvasModel)target.getModelBehind();

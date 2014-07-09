@@ -54,7 +54,7 @@ public class ConsTool implements Tool {
 				if(interactionPresenter.getSelection().getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 					final ModelComponent selection = interactionPresenter.getSelection();
 
-					collector.enlist(new DualCommandFactory<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Location observableLocation = selection.getModelTranscriber().getModelLocation();
@@ -68,7 +68,7 @@ public class ConsTool implements Tool {
 					});
 				} else {
 					final ModelComponent selection = interactionPresenter.getSelection();
-					collector.enlist(new DualCommandFactory<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Location observableLocation = selection.getModelTranscriber().getModelLocation();

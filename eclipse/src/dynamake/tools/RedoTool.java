@@ -28,7 +28,7 @@ public class RedoTool implements Tool {
 
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
-		collector.enlist(new DualCommandFactory<Model>() {
+		collector.execute(new DualCommandFactory<Model>() {
 			@Override
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				dualCommands.add(

@@ -609,7 +609,7 @@ public abstract class Model implements Serializable, Observer {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.enlist(new DualCommandFactory<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
@@ -629,7 +629,7 @@ public abstract class Model implements Serializable, Observer {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.enlist(new DualCommandFactory<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(

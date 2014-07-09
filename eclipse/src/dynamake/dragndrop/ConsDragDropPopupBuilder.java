@@ -62,7 +62,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			connection.trigger(new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.enlist(implicitDropAction);
+					collector.execute(implicitDropAction);
 					collector.enlistCommit();
 				}
 			});
@@ -73,7 +73,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionTargetContentMapBuilder.addMenuBuilder("Unforward to", new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.enlist(new DualCommandFactory<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
@@ -88,7 +88,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionTargetContentMapBuilder.addMenuBuilder("Forward to", new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.enlist(new DualCommandFactory<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
@@ -109,7 +109,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.enlist(new DualCommandFactory<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								CanvasModel canvasModel = (CanvasModel)target.getModelBehind();

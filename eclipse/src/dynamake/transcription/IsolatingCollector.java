@@ -6,14 +6,9 @@ public class IsolatingCollector<T> implements Collector<T> {
 	public IsolatingCollector(Collector<T> collector) {
 		this.collector = collector;
 	}
-	
-	@Override
-	public void execute(DualCommandFactory<T> transactionFactory) {
-		// Do nothing which means side effects aren't collected
-	}
 
 	@Override
-	public void enlist(DualCommandFactory<T> transactionFactory) {
+	public void execute(DualCommandFactory<T> transactionFactory) {
 		// Do nothing which means side effects aren't collected
 	}
 

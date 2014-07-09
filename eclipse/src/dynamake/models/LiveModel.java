@@ -256,7 +256,7 @@ public class LiveModel extends Model {
 						connection.trigger(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
-								collector.enlist(new DualCommandFactory<Model>() {
+								collector.execute(new DualCommandFactory<Model>() {
 									@Override
 									public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 										List<Integer> currentButtons = ToolButton.this.buttons;
