@@ -279,7 +279,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		}
 		
 		private PropogationContext propCtx = new PropogationContext();
-		private ArrayList<Runnable> onAfterNextTrigger = new ArrayList<Runnable>();
 
 		@Override
 		public void trigger(final Trigger<T> trigger) {
@@ -290,19 +289,21 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					final LinkedList<Object> commands = new LinkedList<Object>();
 					commands.add(trigger);
 					
+					final ArrayList<Runnable> onAfterNextTrigger = new ArrayList<Runnable>();
+					
 					while(!commands.isEmpty()) {
 						Object command = commands.pop();
 						
-						final ArrayList<Object> innerEnlistings = new ArrayList<Object>();
+						final ArrayList<Object> collectedCommands = new ArrayList<Object>();
 						Collector<T> collector = new Collector<T>() {
 							@Override
 							public void enlist(DualCommandFactory<T> transactionFactory) {
-								innerEnlistings.add(transactionFactory);
+								collectedCommands.add(transactionFactory);
 							}
 							
 							@Override
 							public void execute( DualCommandFactory<T> transactionFactory) {
-								innerEnlistings.add(transactionFactory);
+								collectedCommands.add(transactionFactory);
 							}
 							
 							@Override
@@ -317,12 +318,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							@Override
 							public void enlistReject() {
-								innerEnlistings.add(0);
+								collectedCommands.add(0);
 							}
 							
 							@Override
 							public void enlistCommit() {
-								innerEnlistings.add(1);
+								collectedCommands.add(1);
 							}
 						};
 						
@@ -351,14 +352,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							((Trigger<T>)command).run(collector);
 						}
 						
-						if(innerEnlistings.size() > 0) {
-							commands.addAll(0, innerEnlistings);
+						if(collectedCommands.size() > 0) {
+							commands.addAll(0, collectedCommands);
 						}
 					}
 
 					if(onAfterNextTrigger.size() > 0) {
-						final ArrayList<Runnable> localOnFlush = new ArrayList<Runnable>(onAfterNextTrigger);
-						triggerHandler.handleAfterTrigger(localOnFlush);
+						triggerHandler.handleAfterTrigger(onAfterNextTrigger);
 						onAfterNextTrigger.clear();
 					}
 				}
