@@ -85,7 +85,7 @@ public class ConsTool implements Tool {
 				interactionPresenter.reset(collector);
 				interactionPresenter = null;
 
-				collector.enlistCommit();
+				collector.commit();
 			}
 		} else {
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
@@ -97,7 +97,7 @@ public class ConsTool implements Tool {
 				targetPresenter = null;
 				interactionPresenter.reset(collector);
 				interactionPresenter = null;
-				collector.enlistReject();
+				collector.reject();
 				
 				collector.afterNextTrigger(new Runnable() {
 					@Override

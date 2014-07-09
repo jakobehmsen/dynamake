@@ -31,7 +31,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 		targetPresenter.reset(collector);
 		targetPresenter = null;
 		
-		collector.enlistCommit();
+		collector.commit();
 	}
 	
 //	private TranscriberBranch<Model> branch;

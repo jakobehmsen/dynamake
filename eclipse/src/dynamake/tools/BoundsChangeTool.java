@@ -98,12 +98,12 @@ public abstract class BoundsChangeTool implements Tool {
 				interactionPresenter.reset(collector);
 				interactionPresenter = null;
 				
-				collector.enlistCommit();
+				collector.commit();
 			} else {
 				interactionPresenter.reset(collector);
 				interactionPresenter = null;
 				
-				collector.enlistReject();
+				collector.reject();
 			}
 			
 			mouseDown = null;

@@ -11,8 +11,8 @@ public class NullCollector<T> implements Collector<T> {
 	public void registerAffectedModel(T model) { }
 
 	@Override
-	public void enlistReject() { }
+	public void reject() { }
 
 	@Override
-	public void enlistCommit() { }
+	public void commit() { }
 }

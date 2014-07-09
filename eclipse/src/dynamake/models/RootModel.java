@@ -188,7 +188,7 @@ public class RootModel extends Model {
 								}
 							}
 						});
-						collector.enlistCommit();
+						collector.commit();
 					}
 				});
 			}
@@ -276,7 +276,7 @@ public class RootModel extends Model {
 								dualCommands.add(createDualCommand());
 							}
 						});
-						collector.enlistCommit();
+						collector.commit();
 					}
 				});
 			}

@@ -39,7 +39,7 @@ public class UndoTool implements Tool {
 				);
 			}
 		});
-		collector.enlistCommit();
+		collector.commit();
 	}
 
 	@Override

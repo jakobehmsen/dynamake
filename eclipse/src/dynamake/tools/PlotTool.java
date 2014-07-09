@@ -110,7 +110,7 @@ public class PlotTool implements Tool {
 			interactionPresenter.reset(collector);
 			interactionPresenter = null;
 			
-			collector.enlistCommit();
+			collector.commit();
 			
 			mouseDown = null;
 		}

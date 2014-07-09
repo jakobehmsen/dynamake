@@ -23,12 +23,12 @@ public class IsolatingCollector<T> implements Collector<T> {
 	}
 
 	@Override
-	public void enlistReject() {
-		collector.enlistReject();
+	public void reject() {
+		collector.reject();
 	}
 
 	@Override
-	public void enlistCommit() {
-		collector.enlistCommit();
+	public void commit() {
+		collector.commit();
 	}
 }

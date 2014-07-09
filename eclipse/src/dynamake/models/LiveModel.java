@@ -302,7 +302,7 @@ public class LiveModel extends Model {
 										}
 									}
 								});
-								collector.enlistCommit();
+								collector.commit();
 							}
 						});
 						
@@ -505,7 +505,7 @@ public class LiveModel extends Model {
 								final Tool toolToRollback = toolBeingApplied;
 								
 								toolToRollback.rollback(productionPanel, collector);
-								collector.enlistReject();
+								collector.reject();
 							}
 							
 							buttonsPressed.add(button);

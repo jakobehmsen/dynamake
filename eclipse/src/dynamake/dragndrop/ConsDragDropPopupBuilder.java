@@ -50,7 +50,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						interactionPresenter.reset(collector);
 						
 						((Trigger<Model>)action).run(collector);
-						collector.enlistCommit();
+						collector.commit();
 					}
 				});
 			}
@@ -63,7 +63,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				@Override
 				public void run(Collector<Model> collector) {
 					collector.execute(implicitDropAction);
-					collector.enlistCommit();
+					collector.commit();
 				}
 			});
 		} else {
@@ -145,7 +145,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				targetPresenter.reset(collector);
 				interactionPresenter.reset(collector);
 				
-				collector.enlistReject();
+				collector.reject();
 			}
 		});
 	}

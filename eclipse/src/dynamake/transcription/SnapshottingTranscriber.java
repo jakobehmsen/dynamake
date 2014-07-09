@@ -313,12 +313,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							}
 							
 							@Override
-							public void enlistReject() {
+							public void reject() {
 								collectedCommands.add(0);
 							}
 							
 							@Override
-							public void enlistCommit() {
+							public void commit() {
 								collectedCommands.add(1);
 							}
 						};
@@ -419,10 +419,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				public void registerAffectedModel(T model) { }
 				
 				@Override
-				public void enlistReject() { }
+				public void reject() { }
 				
 				@Override
-				public void enlistCommit() { }
+				public void commit() { }
 			};
 			
 			for(DualCommand<T> transaction: flushedTransactions)

@@ -618,7 +618,7 @@ public abstract class Model implements Serializable, Observer {
 								));
 							}
 						});
-						collector.enlistCommit();
+						collector.commit();
 					}
 				});
 			}
@@ -638,7 +638,7 @@ public abstract class Model implements Serializable, Observer {
 								));
 							}
 						});
-						collector.enlistCommit();
+						collector.commit();
 					}
 				});
 			}

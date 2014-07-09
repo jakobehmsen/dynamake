@@ -39,7 +39,7 @@ public class RedoTool implements Tool {
 				);
 			}
 		});
-		collector.enlistCommit();
+		collector.commit();
 	}
 
 	@Override
