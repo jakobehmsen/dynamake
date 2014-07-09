@@ -298,13 +298,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						Collector<T> collector = new Collector<T>() {
 							@Override
 							public void enlist(DualCommandFactory<T> transactionFactory) {
-//								enlistings.add(transactionFactory);
 								innerEnlistings.add(transactionFactory);
 							}
 							
 							@Override
 							public void execute( DualCommandFactory<T> transactionFactory) {
-//								commands.add(transactionFactory);
 								innerEnlistings.add(transactionFactory);
 							}
 							
@@ -320,13 +318,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							@Override
 							public void enlistReject() {
-//								enlistings.add(0);
 								innerEnlistings.add(0);
 							}
 							
 							@Override
 							public void enlistCommit() {
-//								enlistings.add(1);
 								innerEnlistings.add(1);
 							}
 						};
@@ -361,7 +357,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						}
 						
 						if(innerEnlistings.size() > 0) {
-							commands.addAll(innerEnlistings);
+							commands.addAll(0, innerEnlistings);
 						}
 					}
 
