@@ -409,9 +409,17 @@ public class LiveModel extends Model {
 			this.buttons = buttons;
 			update();
 		}
+
+		public void showAsActive() {
+			setBackground(TOP_BUTTON_BACKGROUND_COLOR.brighter());
+		}
+
+		public void showAsPassive() {
+			setBackground(TOP_BUTTON_BACKGROUND_COLOR);
+		}
 	}
 	
-	private static JComponent createToolButton(final LiveModel model, final ModelTranscriber modelTranscriber, ButtonGroup group, List<Integer> buttons, final int tool, final String text) {
+	private static ToolButton createToolButton(final LiveModel model, final ModelTranscriber modelTranscriber, ButtonGroup group, List<Integer> buttons, final int tool, final String text) {
 		return new ToolButton(tool, buttons, text, model, modelTranscriber);
 	}
 	
@@ -480,6 +488,15 @@ public class LiveModel extends Model {
 				}
 			}
 			
+			private ToolButton getToolButton(List<Integer> buttons) {
+				int toolForButton = productionPanel.livePanel.model.getToolForButtons(buttons);
+				if(toolForButton != -1) {
+					return productionPanel.livePanel.buttonTools[toolForButton];
+				} else {
+					return null;
+				}
+			}
+			
 			public ModelComponent getModelOver(MouseEvent e) {
 				Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
 				JComponent componentOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
@@ -506,6 +523,10 @@ public class LiveModel extends Model {
 								
 								toolToRollback.rollback(productionPanel, collector);
 								collector.reject();
+								
+								ToolButton toolButton = getToolButton(buttonsPressed);
+								if(toolButton != null)
+									toolButton.showAsPassive();
 							}
 							
 							buttonsPressed.add(button);
@@ -516,6 +537,10 @@ public class LiveModel extends Model {
 							final Tool toolToApply = toolBeingApplied;
 							
 							toolToApply.mousePressed(productionPanel, e, modelOver, toolConnection, collector);
+							
+							ToolButton toolButton = getToolButton(buttonsPressed);
+							if(toolButton != null)
+								toolButton.showAsActive();
 						}
 					}
 				});
@@ -547,6 +572,10 @@ public class LiveModel extends Model {
 							if(buttonsDown == 0) {
 								final Tool toolToApply = toolBeingApplied;
 								toolToApply.mouseReleased(productionPanel, e, modelOver, toolConnection, collector);
+								
+								ToolButton toolButton = getToolButton(buttonsPressed);
+								if(toolButton != null)
+									toolButton.showAsPassive();
 								
 								buttonsPressed.clear();
 							}
@@ -601,7 +630,7 @@ public class LiveModel extends Model {
 		public ProductionPanel productionPanel;
 		public ViewManager viewManager;
 		private ModelTranscriber modelTranscriber;
-		private JComponent[] buttonTools;
+		private ToolButton[] buttonTools;
 		private final Binding<ModelComponent> contentView;
 		
 		public LivePanel(final ModelComponent rootView, LiveModel model, ModelTranscriber modelTranscriber, final ViewManager viewManager) {
@@ -688,7 +717,7 @@ public class LiveModel extends Model {
 		@Override
 		public void initialize() {
 			Tool[] tools = viewManager.getTools();
-			buttonTools = new JComponent[tools.length];
+			buttonTools = new ToolButton[tools.length];
 			ButtonGroup group = new ButtonGroup();
 
 			for(int i = 0; i < tools.length; i++) {
