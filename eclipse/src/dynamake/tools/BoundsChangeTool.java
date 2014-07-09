@@ -43,7 +43,7 @@ public abstract class BoundsChangeTool implements Tool {
 			ModelComponent newTargetOver = targetPresenter.getTargetOver();
 
 			final ModelComponent localViewPressedOn = viewPressedOn;
-			final Rectangle currentBounds = SwingUtilities.convertRectangle(interactionPresenter.getSelectionFrame(), interactionPresenter.getSelectionFrameBounds(), (JComponent)source);
+			final Rectangle currentBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getSelectionFrameBounds(), (JComponent)source);
 			collector.afterNextTrigger(new Runnable() {
 				@Override
 				public void run() {
