@@ -40,9 +40,19 @@ public abstract class BoundsChangeTool implements Tool {
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
 		if(viewPressedOn != null) {
-			viewPressedOn = null;
-
 			ModelComponent newTargetOver = targetPresenter.getTargetOver();
+
+			final ModelComponent localViewPressedOn = viewPressedOn;
+			final Rectangle currentBounds = interactionPresenter.getSelectionFrameBounds();
+			collector.afterNextTrigger(new Runnable() {
+				@Override
+				public void run() {
+					((JComponent)source).add((JComponent)localViewPressedOn);
+					((JComponent)localViewPressedOn).setBounds(currentBounds);
+				}
+			});
+			
+			viewPressedOn = null;
 			
 			targetPresenter.reset(collector);
 			targetPresenter = null;
@@ -90,7 +100,7 @@ public abstract class BoundsChangeTool implements Tool {
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							appendDualCommandsForResize(dualCommands, selection, newBounds);
+							appendDualCommandsForResize(dualCommands, selection, currentBounds, newBounds);
 						}
 					});
 				}
@@ -110,7 +120,7 @@ public abstract class BoundsChangeTool implements Tool {
 		}
 	}
 
-	protected abstract void appendDualCommandsForResize(List<DualCommand<Model>> dualCommands, ModelComponent selection, Rectangle newBounds);
+	protected abstract void appendDualCommandsForResize(List<DualCommand<Model>> dualCommands, ModelComponent selection, Rectangle currentBounds, Rectangle newBounds);
 	
 	private Point mouseDown;
 	private ModelComponent viewPressedOn;
@@ -163,6 +173,15 @@ public abstract class BoundsChangeTool implements Tool {
 			targetPresenter.update(newTargetOver, collector);
 			
 			mouseDown = e.getPoint();
+
+			final ModelComponent localViewPressedOn = viewPressedOn;
+			collector.afterNextTrigger(new Runnable() {
+				@Override
+				public void run() {
+					productionPanel.add((JComponent)localViewPressedOn);
+					((JComponent)localViewPressedOn).setBounds(interactionPresenter.getEffectFrameBounds());
+				}
+			});
 		}
 	}
 
@@ -180,6 +199,14 @@ public abstract class BoundsChangeTool implements Tool {
 				e.getPoint());
 			
 			interactionPresenter.changeEffectFrameDirect2(newEffectBounds, collector);
+			
+			final ModelComponent localViewPressedOn = viewPressedOn;
+			collector.afterNextTrigger(new Runnable() {
+				@Override
+				public void run() {
+					((JComponent)localViewPressedOn).setBounds(newEffectBounds);
+				}
+			});
 		}
 	}
 	
@@ -197,7 +224,7 @@ public abstract class BoundsChangeTool implements Tool {
 				newTargetOver = ModelComponent.Util.closestModelComponent(((JComponent)newTargetOver).getParent());
 		} else {
 			// Resizing
-			newTargetOver = ModelComponent.Util.closestModelComponent(((JComponent)selection).getParent());
+			newTargetOver = source;//ModelComponent.Util.closestModelComponent(((JComponent)selection).getParent());
 		}
 		
 		newTargetOver = ModelComponent.Util.closestCanvasModelComponent(newTargetOver);

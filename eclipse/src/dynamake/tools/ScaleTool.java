@@ -16,7 +16,7 @@ public class ScaleTool extends BoundsChangeTool {
 	@Override
 	protected void appendDualCommandsForResize(
 			List<DualCommand<Model>> dualCommands, ModelComponent selection,
-			Rectangle newBounds) {
+			Rectangle currentBounds, Rectangle newBounds) {
 		selection.getModelBehind().appendScale(newBounds, dualCommands);
 	}
 }

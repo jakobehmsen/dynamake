@@ -22,10 +22,10 @@ public class EditTool extends BoundsChangeTool {
 
 	@Override
 	protected void appendDualCommandsForResize(
-			List<DualCommand<Model>> dualCommands, ModelComponent selection, Rectangle newBounds) {
+			List<DualCommand<Model>> dualCommands, ModelComponent selection, Rectangle currentBounds, Rectangle newBounds) {
 		ModelTranscriber selectionModelTranscriber = selection.getModelTranscriber();
 		Model selectionModel = selection.getModelBehind();
-		Rectangle currentBounds = ((JComponent)selection).getBounds();
+//		Rectangle currentBounds = ((JComponent)selection).getBounds();
 		
 		if(currentBounds.x != newBounds.x) {
 			dualCommands.add(new DualCommandPair<Model>(
