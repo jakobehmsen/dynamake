@@ -43,7 +43,7 @@ public abstract class BoundsChangeTool implements Tool {
 			ModelComponent newTargetOver = targetPresenter.getTargetOver();
 
 			final ModelComponent localViewPressedOn = viewPressedOn;
-			final Rectangle currentBounds = interactionPresenter.getSelectionFrameBounds();
+			final Rectangle currentBounds = SwingUtilities.convertRectangle(interactionPresenter.getSelectionFrame(), interactionPresenter.getSelectionFrameBounds(), (JComponent)source);
 			collector.afterNextTrigger(new Runnable() {
 				@Override
 				public void run() {
@@ -94,8 +94,7 @@ public abstract class BoundsChangeTool implements Tool {
 					}
 				} else {
 					// Changing bounds within the same canvas
-					JComponent parent = (JComponent)((JComponent)selection).getParent();
-					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), parent);
+					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), (JComponent)newTargetOver);
 					
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
