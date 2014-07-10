@@ -12,7 +12,6 @@ import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.ModelTranscriber;
 import dynamake.numbers.Fraction;
 
 public class EditTool extends BoundsChangeTool {

@@ -875,7 +875,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public void appendScale(ModelLocation location, final Rectangle newBounds, List<DualCommand<Model>> dualCommands) {
-		// TODO:
+		// TODO: Consider the following
 		// What if one or more of the contained models are removed and, afterwards, an undone of the scale is requested?
 		// I.e., one or more of the embedded scale transaction will fail in the current setup.
 		Fraction currentWidth = (Fraction)getProperty("Width");
