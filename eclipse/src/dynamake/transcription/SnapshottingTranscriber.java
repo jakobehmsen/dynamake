@@ -23,6 +23,7 @@ import dynamake.commands.ContextualTransaction;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandSequence;
 import dynamake.delegates.Func0;
+import dynamake.delegates.Holder;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelLocator;
@@ -343,8 +344,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						} else if(command instanceof DualCommandFactory) {
 							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)command;
 							
+							Holder<Model> referenceHolder = new Holder<Model>();
 							ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
-							transactionFactory.createDualCommands(dualCommands);
+							transactionFactory.createDualCommands(referenceHolder, dualCommands);
 	
 							for(DualCommand<T> transaction: dualCommands) {
 								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, collector);

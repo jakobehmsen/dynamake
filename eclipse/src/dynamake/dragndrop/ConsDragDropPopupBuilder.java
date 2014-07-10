@@ -8,6 +8,7 @@ import javax.swing.JPopupMenu;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.delegates.Holder;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.CanvasModel;
@@ -75,7 +76,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
 									new Model.RemoveObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation()),
 									new Model.AddObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation())
@@ -90,7 +91,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
 									new Model.AddObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation()),
 									new Model.RemoveObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation())
@@ -111,7 +112,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 								CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 								Location canvasModelLocation = target.getModelTranscriber().getModelLocation();
 								int index = canvasModel.getModelCount();

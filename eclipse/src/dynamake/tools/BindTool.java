@@ -12,6 +12,7 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.delegates.Holder;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -51,7 +52,7 @@ public class BindTool implements Tool {
 			if(selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 				collector.execute(new DualCommandFactory<Model>() {
 					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 						Location observableLocation = selection.getModelTranscriber().getModelLocation();
 						Location observerLocation = targetModelComponent.getModelTranscriber().getModelLocation();
 						
@@ -64,7 +65,7 @@ public class BindTool implements Tool {
 			} else {
 				collector.execute(new DualCommandFactory<Model>() {
 					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 						Location observableLocation = selection.getModelTranscriber().getModelLocation();
 						Location observerLocation = targetModelComponent.getModelTranscriber().getModelLocation();
 						

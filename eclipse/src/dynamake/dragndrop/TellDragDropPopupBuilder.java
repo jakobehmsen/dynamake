@@ -9,6 +9,7 @@ import javax.swing.JPopupMenu;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.commands.TellPropertyTransaction;
+import dynamake.delegates.Holder;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Model;
@@ -56,7 +57,7 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run(Collector<Model> collector) {
 				collector.execute(new DualCommandFactory<Model>() {
 					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
 							new TellPropertyTransaction(selection.getModelTranscriber().getModelLocation(), Model.PROPERTY_COLOR),
 							new TellPropertyTransaction(selection.getModelTranscriber().getModelLocation(), Model.PROPERTY_COLOR)

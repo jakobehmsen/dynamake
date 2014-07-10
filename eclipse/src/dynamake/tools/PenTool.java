@@ -15,6 +15,7 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.delegates.Holder;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -67,7 +68,7 @@ public class PenTool implements Tool {
 		
 		collector.execute(new DualCommandFactory<Model>() {
 			@Override
-			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+			public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 				CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 				Location canvasModelLocation = target.getModelTranscriber().getModelLocation();
 				int index = canvasModel.getModelCount();

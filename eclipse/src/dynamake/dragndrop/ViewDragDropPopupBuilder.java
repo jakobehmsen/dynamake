@@ -8,6 +8,7 @@ import javax.swing.JPopupMenu;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.delegates.Holder;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Model;
@@ -55,7 +56,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run(Collector<Model> collector) {
 				collector.execute(new DualCommandFactory<Model>() {
 					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;
@@ -73,7 +74,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run(Collector<Model> collector) {
 				collector.execute(new DualCommandFactory<Model>() {
 					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;

@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.delegates.Holder;
 import dynamake.models.CanvasModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -70,7 +71,7 @@ public abstract class BoundsChangeTool implements Tool {
 						
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation());
 							}
 						});
@@ -80,7 +81,7 @@ public abstract class BoundsChangeTool implements Tool {
 						
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
 									new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), "X", new Fraction(droppedBounds.x)), 
 									new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), "X", selection.getModelBehind().getProperty("X"))
@@ -98,7 +99,7 @@ public abstract class BoundsChangeTool implements Tool {
 					
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 							appendDualCommandsForResize(dualCommands, selection, currentBounds, newBounds);
 						}
 					});

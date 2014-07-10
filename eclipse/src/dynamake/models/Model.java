@@ -27,6 +27,7 @@ import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
+import dynamake.delegates.Holder;
 import dynamake.menubuilders.ColorMenuBuilder;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.CloneDeepFactory;
@@ -348,7 +349,7 @@ public abstract class Model implements Serializable, Observer {
 			
 			collector.execute(new DualCommandFactory<Model>() {
 				@Override
-				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+				public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 					Location modelLocation = getLocator().locate();
 					Object currentValue = getProperty(setProperty.name);
 					
@@ -611,7 +612,7 @@ public abstract class Model implements Serializable, Observer {
 					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
 									new MouseUpTransaction(view.getModelTranscriber().getModelLocation()), 
 									new MouseUpTransaction(view.getModelTranscriber().getModelLocation())
@@ -631,7 +632,7 @@ public abstract class Model implements Serializable, Observer {
 					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
 										new MouseDownTransaction(view.getModelTranscriber().getModelLocation()), 
 										new MouseDownTransaction(view.getModelTranscriber().getModelLocation())
@@ -726,7 +727,7 @@ public abstract class Model implements Serializable, Observer {
 					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 								Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
 								dualCommands.add(new DualCommandPair<Model>(
 									new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, color),
@@ -766,7 +767,7 @@ public abstract class Model implements Serializable, Observer {
 
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
 							Location targetCanvasLocation = target.getModelTranscriber().getModelLocation();
 							Factory factory = new CloneIsolatedFactory(dropped.getModelTranscriber().getModelLocation());
@@ -785,7 +786,7 @@ public abstract class Model implements Serializable, Observer {
 
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
 							Location targetCanvasLocation = target.getModelTranscriber().getModelLocation();
 							Factory factory = new CloneDeepFactory(dropped.getModelTranscriber().getModelLocation());

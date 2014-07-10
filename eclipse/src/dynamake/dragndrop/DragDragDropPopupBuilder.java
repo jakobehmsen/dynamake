@@ -11,6 +11,7 @@ import dynamake.commands.DejectTransaction;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.commands.InjectTransaction;
+import dynamake.delegates.Holder;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Location;
@@ -108,7 +109,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				public void run(Collector<Model> collector) {
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 							Location observableLocation = selection.getModelTranscriber().getModelLocation();
 							Location observerLocation = target.getModelTranscriber().getModelLocation();
 							
@@ -126,7 +127,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				public void run(Collector<Model> collector) {
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 							Location observableLocation = selection.getModelTranscriber().getModelLocation();
 							Location observerLocation = target.getModelTranscriber().getModelLocation();
 							
@@ -146,7 +147,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				collector.execute(new DualCommandFactory<Model>() {
 					@Override
 					public void createDualCommands(
-							List<DualCommand<Model>> dualCommands) {
+							Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
 							new InjectTransaction(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation()),
 							new DejectTransaction(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation())

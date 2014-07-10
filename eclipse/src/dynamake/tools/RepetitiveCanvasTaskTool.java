@@ -6,6 +6,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 import dynamake.commands.DualCommand;
+import dynamake.delegates.Holder;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
@@ -68,7 +69,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 			if(modelOverParent == canvas) {
 				collector.execute(new DualCommandFactory<Model>() {
 					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
 						createDualCommandsForSingleTask(productionPanel, dualCommands, modelOverParent, modelOver);
 					}
 				});

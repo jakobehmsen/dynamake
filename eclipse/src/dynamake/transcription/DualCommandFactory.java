@@ -3,6 +3,8 @@ package dynamake.transcription;
 import java.util.List;
 
 import dynamake.commands.DualCommand;
+import dynamake.delegates.Holder;
+import dynamake.models.Model;
 
 public interface DualCommandFactory<T> {
 //	DualCommand<T> createDualCommand();
@@ -14,5 +16,5 @@ public interface DualCommandFactory<T> {
 	// canvas location, creation bounds, factory
 	// and takes the arguments to create the backward transaction
 	// index ***THIS ARGUMENT MAY BE DERIVED***
-	void createDualCommands(List<DualCommand<T>> dualCommands);
+	void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<T>> dualCommands);
 }
