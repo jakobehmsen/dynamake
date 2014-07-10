@@ -278,6 +278,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		public final int type;
 		public Object operand1;
 		
+		public Instruction(int type) {
+			this.type = type;
+			this.operand1 = null;
+		}
+		
 		public Instruction(int type, Object operand1) {
 			this.type = type;
 			this.operand1 = operand1;
@@ -329,12 +334,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							@Override
 							public void reject() {
-								collectedCommands.add(0);
+								collectedCommands.add(new Instruction(Instruction.OPCODE_REJECT));
 							}
 							
 							@Override
 							public void commit() {
-								collectedCommands.add(1);
+								collectedCommands.add(new Instruction(Instruction.OPCODE_COMMIT));
 							}
 
 							@Override
@@ -350,14 +355,14 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							}
 						};
 						
-						if(command instanceof Integer) {
-							int i = (int)command;
+						if(command instanceof Instruction) {
+							Instruction i = (Instruction)command;
 							
-							switch(i) {
-							case 0: // reject
+							switch(i.type) {
+							case Instruction.OPCODE_REJECT:
 								doReject();
 								break;
-							case 1: // commit
+							case Instruction.OPCODE_COMMIT:
 								doCommit();
 								break;
 							}
