@@ -321,6 +321,18 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							public void commit() {
 								collectedCommands.add(1);
 							}
+
+							@Override
+							public void pushReference(T model) {
+								// TODO Auto-generated method stub
+								
+							}
+
+							@Override
+							public void popReference() {
+								// TODO Auto-generated method stub
+								
+							}
 						};
 						
 						if(command instanceof Integer) {
@@ -425,6 +437,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				@Override
 				public void commit() { }
+
+				@Override
+				public void pushReference(T model) { }
+
+				@Override
+				public void popReference() { }
 			};
 			
 			for(DualCommand<T> transaction: flushedTransactions)

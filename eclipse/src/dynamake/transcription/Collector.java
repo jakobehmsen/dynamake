@@ -6,4 +6,7 @@ public interface Collector<T> {
 	void registerAffectedModel(T model);
 	void reject();
 	void commit();
+	
+	void pushReference(T model);
+	void popReference();
 }
