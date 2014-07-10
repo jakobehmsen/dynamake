@@ -14,6 +14,7 @@ import javax.swing.SwingUtilities;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.models.CanvasModel;
+import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
@@ -21,6 +22,7 @@ import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.DualCommandFactory2;
 
 public abstract class BoundsChangeTool implements Tool {
 	@Override
@@ -96,10 +98,29 @@ public abstract class BoundsChangeTool implements Tool {
 					// Changing bounds within the same canvas
 					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), (JComponent)newTargetOver);
 					
-					collector.execute(new DualCommandFactory<Model>() {
+//					collector.execute(new DualCommandFactory<Model>() {
+//						@Override
+//						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//							appendDualCommandsForResize(dualCommands, selection, currentBounds, newBounds);
+//						}
+//					});
+					
+					collector.execute(new DualCommandFactory2<Model>() {
+						
+						
+//						@Override
+//						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//							appendDualCommandsForResize(dualCommands, selection, currentBounds, newBounds);
+//						}
+
 						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							appendDualCommandsForResize(dualCommands, selection, currentBounds, newBounds);
+						public Model getReference() {
+							return selection.getModelBehind();
+						}
+
+						@Override
+						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+							appendDualCommandsForResize(dualCommands, location, selection, currentBounds, newBounds);
 						}
 					});
 				}
@@ -119,7 +140,7 @@ public abstract class BoundsChangeTool implements Tool {
 		}
 	}
 
-	protected abstract void appendDualCommandsForResize(List<DualCommand<Model>> dualCommands, ModelComponent selection, Rectangle currentBounds, Rectangle newBounds);
+	protected abstract void appendDualCommandsForResize(List<DualCommand<Model>> dualCommands, Location location, ModelComponent selection, Rectangle currentBounds, Rectangle newBounds);
 	
 	private Point mouseDown;
 	private ModelComponent viewPressedOn;
