@@ -8,7 +8,7 @@ public class IsolatingCollector<T> implements Collector<T> {
 	}
 
 	@Override
-	public void execute(DualCommandFactory<T> transactionFactory) {
+	public void execute(Object command) {
 		// Do nothing which means side effects aren't collected
 	}
 

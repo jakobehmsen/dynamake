@@ -2,7 +2,7 @@ package dynamake.transcription;
 
 public class NullCollector<T> implements Collector<T> {
 	@Override
-	public void execute(DualCommandFactory<T> transactionFactory) { }
+	public void execute(Object command) { }
 
 	@Override
 	public void afterNextTrigger(Runnable runnable) { }

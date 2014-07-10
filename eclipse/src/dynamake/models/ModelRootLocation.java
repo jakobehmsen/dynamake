@@ -1,7 +1,7 @@
 package dynamake.models;
 
 
-class ModelRootLocation implements ModelLocation {
+public class ModelRootLocation implements ModelLocation {
 	/**
 	 * 
 	 */
@@ -14,6 +14,6 @@ class ModelRootLocation implements ModelLocation {
 
 	@Override
 	public Location getModelComponentLocation() {
-		return new RootLocation();
+		return new ViewRootLocation();
 	}
 }

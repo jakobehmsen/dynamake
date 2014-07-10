@@ -35,6 +35,7 @@ import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
+import dynamake.transcription.DualCommandFactory2;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
@@ -244,7 +245,7 @@ public abstract class Model implements Serializable, Observer {
 		
 		DualCommand<Model> ctxTransactionToUndo = undoStack.pop();
 
-		ctxTransactionToUndo.executeBackwardOn(propCtx, prevalentSystem, null, isolatingCollector);
+		ctxTransactionToUndo.executeBackwardOn(propCtx, this, null, isolatingCollector);
 
 		redoStack.push(ctxTransactionToUndo);
 	}
@@ -287,7 +288,7 @@ public abstract class Model implements Serializable, Observer {
 		
 		DualCommand<Model> ctxTransactionToRedo = redoStack.pop();
 
-		ctxTransactionToRedo.executeForwardOn(propCtx, prevalentSystem, null, isolatingCollector);
+		ctxTransactionToRedo.executeForwardOn(propCtx, this, null, isolatingCollector);
 
 		undoStack.push(ctxTransactionToRedo);
 	}
@@ -573,8 +574,10 @@ public abstract class Model implements Serializable, Observer {
 								@Override
 								public void run() {
 									targetComponent.setBackground((Color)propertyChanged.value);
+									System.out.println("Change background");
 								}
 							});
+							break;
 						}
 						case COMPONENT_COLOR_FOREGROUND: {
 							collector.afterNextTrigger(new Runnable() {
@@ -583,6 +586,7 @@ public abstract class Model implements Serializable, Observer {
 									targetComponent.setForeground((Color)propertyChanged.value);
 								}
 							});
+							break;
 						}
 						}
 					}
@@ -752,13 +756,29 @@ public abstract class Model implements Serializable, Observer {
 				return new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
+//						collector.execute(new DualCommandFactory<Model>() {
+//							@Override
+//							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//								Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
+//								dualCommands.add(new DualCommandPair<Model>(
+//									new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, color),
+//									new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, currentColor)
+//								));
+//							}
+//						});
+						
+						collector.execute(new DualCommandFactory2<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public Model getReference() {
+								return model;
+							}
+
+							@Override
+							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 								Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
 								dualCommands.add(new DualCommandPair<Model>(
-									new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, color),
-									new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, currentColor)
+									new Model.SetPropertyTransaction(location, PROPERTY_COLOR, color),
+									new Model.SetPropertyTransaction(location, PROPERTY_COLOR, currentColor)
 								));
 							}
 						});

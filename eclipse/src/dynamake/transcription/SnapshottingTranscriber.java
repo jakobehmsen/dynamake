@@ -28,9 +28,11 @@ import dynamake.delegates.Func0;
 import dynamake.delegates.Holder;
 import dynamake.models.Location;
 import dynamake.models.Model;
+import dynamake.models.ModelLocation;
 import dynamake.models.ModelLocator;
+import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
-import dynamake.models.RootLocation;
+import dynamake.models.ViewRootLocation;
 
 public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private Func0<T> prevalentSystemFunc;
@@ -155,7 +157,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				Location referenceLocation = entry.getKey(); // location from root to reference
 				ArrayList<DualCommand<T>> transactionsFromReferenceLocation = entry.getValue();
 				
-				Model reference = (Model)referenceLocation.getChild(referenceLocation);
+				Model reference = (Model)referenceLocation.getChild(prevalentSystem);
 				// Update the log of each affected model isolately; no transaction is cross-model
 				DualCommandSequence<T> transactionFromReference = new DualCommandSequence<T>(transactionsFromReferenceLocation);
 				reference.log2((DualCommandSequence<Model>)transactionFromReference);
@@ -334,8 +336,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						final ArrayList<Object> collectedCommands = new ArrayList<Object>();
 						Collector<T> collector = new Collector<T>() {
 							@Override
-							public void execute(DualCommandFactory<T> transactionFactory) {
-								collectedCommands.add(transactionFactory);
+							public void execute(Object command) {
+								collectedCommands.add(command);
 							}
 							
 							@Override
@@ -383,8 +385,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						} else if(command instanceof DualCommandFactory2) {
 							DualCommandFactory2<T> transactionFactory = (DualCommandFactory2<T>)command;
 							T reference = transactionFactory.getReference();
-							Location locationFromRoot = ((Model)reference).getLocator().locate();
-							Location locationFromReference = new RootLocation();
+							ModelLocation locationFromRoot = ((Model)reference).getLocator().locate();
+							ModelLocation locationFromReference = new ModelRootLocation();
 							
 							ArrayList<DualCommand<T>> dualCommandsFromRoot = new ArrayList<DualCommand<T>>();
 							ArrayList<DualCommand<T>> dualCommandsFromReference = new ArrayList<DualCommand<T>>();
@@ -400,7 +402,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								flushedTransactionsFromReference = new ArrayList<DualCommand<T>>();
 								flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
 							}
-							flushedTransactionsFromReference.addAll(flushedTransactionsFromReference);
+							flushedTransactionsFromReference.addAll(dualCommandsFromReference);
 							
 //							flushedTransactionsFromReferences.add(new TransactionFromReference<T>(reference, dualCommandsFromReference));
 							for(DualCommand<T> dualCommandFromRoot: dualCommandsFromRoot)
@@ -446,8 +448,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					((Model)reference).log2((DualCommandSequence<Model>)transactionFromReference);
 					
 					Location referenceLocation = ((Model)reference).getLocator().locate();
+					Model m = (Model)referenceLocation.getChild(transcriber.prevalentSystem);
 					transactionsFromReferenceLocations.put(referenceLocation, flushedTransactionsFromReference);
 				}
+				
+				flushedTransactionsFromReferences.clear();
 				
 				ContextualTransaction<T> ctxTransaction = new ContextualTransaction<T>(transactionsFromRoot, transactionsFromReferenceLocations);
 				
@@ -494,7 +499,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			
 			Collector<T> isolatedCollector = new Collector<T>() {
 				@Override
-				public void execute(DualCommandFactory<T> transactionFactory) { }
+				public void execute(Object command) { }
 				
 				@Override
 				public void afterNextTrigger(Runnable runnable) {

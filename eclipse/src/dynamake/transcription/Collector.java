@@ -1,7 +1,7 @@
 package dynamake.transcription;
 
 public interface Collector<T> {
-	void execute(DualCommandFactory<T> transactionFactory);
+	void execute(Object command);
 	void afterNextTrigger(Runnable runnable);
 	void registerAffectedModel(T model);
 	void reject();
