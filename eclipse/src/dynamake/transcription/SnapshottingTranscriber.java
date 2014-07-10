@@ -269,6 +269,21 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		return prevalentSystem;
 	}
 	
+	private static class Instruction {
+		public static final int OPCODE_COMMIT = 0;
+		public static final int OPCODE_REJECT = 1;
+		public static final int OPCODE_PUSH_REFERENCE = 2;
+		public static final int OPCODE_POP_REFERENCE = 3;
+		
+		public final int type;
+		public Object operand1;
+		
+		public Instruction(int type, Object operand1) {
+			this.type = type;
+			this.operand1 = operand1;
+		}
+	}
+	
 	private static class Connection<T> implements dynamake.transcription.Connection<T> {
 		private TriggerHandler<T> triggerHandler;
 		private SnapshottingTranscriber<T> transcriber;
