@@ -226,14 +226,14 @@ public class Primitive extends Model {
 	}
 	
 	@Override
-	protected void modelAppendScale(Fraction hChange, Fraction vChange,
-			List<DualCommand<Model>> dualCommands) {
+	protected void modelAppendScale(ModelLocation location, Fraction hChange,
+			Fraction vChange, List<DualCommand<Model>> dualCommands) {
 		Fraction fontSize = (Fraction)getProperty("FontSize");
 		if(fontSize == null)
 			fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(hChange);
 		
-		dualCommands.add(SetPropertyTransaction.createDual(this, "FontSize", fontSize));
+		dualCommands.add(SetPropertyTransaction.createDual(location, this, "FontSize", fontSize));
 	}
 	
 	@Override

@@ -7,6 +7,7 @@ import dynamake.commands.DualCommand;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
+import dynamake.models.ModelLocation;
 
 public class ScaleTool extends BoundsChangeTool {
 	@Override
@@ -18,6 +19,6 @@ public class ScaleTool extends BoundsChangeTool {
 	protected void appendDualCommandsForResize(
 			List<DualCommand<Model>> dualCommands, Location location,
 			ModelComponent selection, Rectangle currentBounds, Rectangle newBounds) {
-		selection.getModelBehind().appendScale(newBounds, dualCommands);
+		selection.getModelBehind().appendScale((ModelLocation)location, newBounds, dualCommands);
 	}
 }

@@ -60,9 +60,11 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
-	protected void modelAppendScale(Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
+	protected void modelAppendScale(ModelLocation location, Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
 		for(Model model: models) {
-			model.appendScale(hChange, vChange, dualCommands);
+			int indexOfModel = indexOfModel(model);
+			ModelLocation childLocation = new CompositeModelLocation(location, new IndexLocation(indexOfModel));
+			model.appendScale(childLocation, hChange, vChange, dualCommands);
 		}
 	}
 	

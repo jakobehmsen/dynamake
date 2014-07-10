@@ -120,6 +120,13 @@ public abstract class Model implements Serializable, Observer {
 				new SetPropertyTransaction(modelLocation, name, model.getProperty(name))
 			);
 		}
+		
+		public static DualCommand<Model> createDual(Location modelLocation, Model model, String name, Object value) {
+			return new DualCommandPair<Model>(
+				new SetPropertyTransaction(modelLocation, name, value), 
+				new SetPropertyTransaction(modelLocation, name, model.getProperty(name))
+			);
+		}
 	}
 	
 	public static class SetPropertyOnRootTransaction implements Command<Model> {
@@ -867,22 +874,25 @@ public abstract class Model implements Serializable, Observer {
 		return view >= value;
 	}
 
-	public void appendScale(final Rectangle newBounds, List<DualCommand<Model>> dualCommands) {
+	public void appendScale(ModelLocation location, final Rectangle newBounds, List<DualCommand<Model>> dualCommands) {
+		// TODO:
+		// What if one or more of the contained models are removed and, afterwards, an undone of the scale is requested?
+		// I.e., one or more of the embedded scale transaction will fail in the current setup.
 		Fraction currentWidth = (Fraction)getProperty("Width");
 		Fraction currentHeight = (Fraction)getProperty("Height");
 		
-		dualCommands.add(SetPropertyTransaction.createDual(Model.this, "X", new Fraction(newBounds.x)));
-		dualCommands.add(SetPropertyTransaction.createDual(Model.this, "Y", new Fraction(newBounds.y)));
-		dualCommands.add(SetPropertyTransaction.createDual(Model.this, "Width", new Fraction(newBounds.width)));
-		dualCommands.add(SetPropertyTransaction.createDual(Model.this, "Height", new Fraction(newBounds.height)));
+		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "X", new Fraction(newBounds.x)));
+		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "Y", new Fraction(newBounds.y)));
+		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "Width", new Fraction(newBounds.width)));
+		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "Height", new Fraction(newBounds.height)));
 		
 		Fraction hChange = new Fraction(newBounds.width).divide(currentWidth);
 		Fraction vChange = new Fraction(newBounds.height).divide(currentHeight);
 
-		modelAppendScale(hChange, vChange, dualCommands);
+		modelAppendScale(location, hChange, vChange, dualCommands);
 	}
 
-	public void appendScale(final Fraction hChange, final Fraction vChange, List<DualCommand<Model>> dualCommands) {
+	public void appendScale(ModelLocation location, final Fraction hChange, final Fraction vChange, List<DualCommand<Model>> dualCommands) {
 		Fraction currentX = (Fraction)getProperty("X");
 		Fraction currentY = (Fraction)getProperty("Y");
 		Fraction currentWidth = (Fraction)getProperty("Width");
@@ -893,15 +903,15 @@ public abstract class Model implements Serializable, Observer {
 		Fraction newWidth = currentWidth.multiply(hChange);
 		Fraction newHeight = currentHeight.multiply(vChange);
 		
-		dualCommands.add(SetPropertyTransaction.createDual(Model.this, "X", newX));
-		dualCommands.add(SetPropertyTransaction.createDual(Model.this, "Y", newY));
-		dualCommands.add(SetPropertyTransaction.createDual(Model.this, "Width", newWidth));
-		dualCommands.add(SetPropertyTransaction.createDual(Model.this, "Height", newHeight));
+		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "X", newX));
+		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "Y", newY));
+		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "Width", newWidth));
+		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "Height", newHeight));
 		
-		modelAppendScale(hChange, vChange, dualCommands);
+		modelAppendScale(location, hChange, vChange, dualCommands);
 	}
 	
-	protected void modelAppendScale(Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
+	protected void modelAppendScale(ModelLocation location, Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
 		
 	}
 }
