@@ -137,15 +137,28 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		PropogationContext propCtx = new PropogationContext();
 		
 		for(ContextualTransaction<T> ctxTransaction: transactions) {
-			DualCommand<T> transaction = ctxTransaction.transaction;
-
-			transaction.executeForwardOn(propCtx, prevalentSystem, null, new NullCollector<T>());
+//			DualCommand<T> transaction = ctxTransaction.transaction;
+//
+//			transaction.executeForwardOn(propCtx, prevalentSystem, null, new NullCollector<T>());
+//			
+//			for(Location affectedModelLocation: ctxTransaction.affectedModelLocations) {
+//				// TODO: Abstracted the following code to reduce coupling to models.
+//				// What kind of interface could be applicable here?
+//				Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
+//				affectedModel.log((ContextualTransaction<Model>)ctxTransaction);
+//			}
+//			
+			for(DualCommand<T> transaction: ctxTransaction.transactionsFromRoot)
+				transaction.executeForwardOn(propCtx, prevalentSystem, null, new NullCollector<T>());
 			
-			for(Location affectedModelLocation: ctxTransaction.affectedModelLocations) {
-				// TODO: Abstracted the following code to reduce coupling to models.
-				// What kind of interface could be applicable here?
-				Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
-				affectedModel.log((ContextualTransaction<Model>)ctxTransaction);
+			for(Map.Entry<Location, ArrayList<DualCommand<T>>> entry: ctxTransaction.transactionsFromReferenceLocations.entrySet()) {
+				Location referenceLocation = entry.getKey(); // location from root to reference
+				ArrayList<DualCommand<T>> transactionsFromReferenceLocation = entry.getValue();
+				
+				Model reference = (Model)referenceLocation.getChild(referenceLocation);
+				// Update the log of each affected model isolately; no transaction is cross-model
+				DualCommandSequence<T> transactionFromReference = new DualCommandSequence<T>(transactionsFromReferenceLocation);
+				reference.log2((DualCommandSequence<Model>)transactionFromReference);
 			}
 		}
 	}
@@ -360,10 +373,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						} else if(command instanceof DualCommandFactory) {
 							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)command;
 							
-							Holder<T> referenceHolder = new Holder<T>();
 							ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
 							transactionFactory.createDualCommands(dualCommands);
-							T reference = referenceHolder.call();
 	
 							for(DualCommand<T> transaction: dualCommands) {
 								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, collector);
@@ -415,15 +426,16 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		@SuppressWarnings("unchecked")
 		private void doCommit() {
 			if(flushedTransactionsFromRoot.size() > 0) {
-				ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
+				ArrayList<DualCommand<T>> transactionsFromRoot = new ArrayList<DualCommand<T>>();
 
 				for(DualCommand<T> transaction: flushedTransactionsFromRoot)
-					dualCommands.add(transaction);
+					transactionsFromRoot.add(transaction);
 					
-				DualCommand<T>[] dualCommandArray = dualCommands.toArray(new DualCommand[dualCommands.size()]);
 				flushedTransactionsFromRoot.clear();
 				
-				DualCommandSequence<T> transaction = new DualCommandSequence<T>(dualCommandArray);
+//				DualCommandSequence<T> transaction = new DualCommandSequence<T>(dualCommandArray);
+				
+				Hashtable<Location, ArrayList<DualCommand<T>>> transactionsFromReferenceLocations = new Hashtable<Location, ArrayList<DualCommand<T>>>();
 				
 				for(Map.Entry<T, ArrayList<DualCommand<T>>> entry: flushedTransactionsFromReferences.entrySet()) {
 					T reference = entry.getKey();
@@ -431,38 +443,43 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					
 					// Update the log of each affected model isolately; no transaction is cross-model
 					DualCommandSequence<T> transactionFromReference = new DualCommandSequence<>(flushedTransactionsFromReference);
-					((Model)reference).log2(transactionFromReference);
+					((Model)reference).log2((DualCommandSequence<Model>)transactionFromReference);
+					
+					Location referenceLocation = ((Model)reference).getLocator().locate();
+					transactionsFromReferenceLocations.put(referenceLocation, flushedTransactionsFromReference);
 				}
+				
+				ContextualTransaction<T> ctxTransaction = new ContextualTransaction<T>(transactionsFromRoot, transactionsFromReferenceLocations);
 				
 				// Both the transaction from root and the transactions from references should be persisted such
 				// that the history of the models can be updated during replay
 				
-				ArrayList<Location> affectedModelLocations = new ArrayList<Location>();
-				for(T affectedModel: affectedModels) {
-					// TODO: Decouple from Model further
-					// E.g. by introducing an interface for the getLocator() method 
-					Model affectedModelAsModel = (Model)affectedModel;
-					ModelLocator locator = affectedModelAsModel.getLocator();
-					if(locator != null) {
-						// Only affected models which still "physically" exists are collected for
-						// affected models to persist along with the transaction.
-						affectedModelLocations.add(locator.locate());
-					}
-				}
-				
-				ContextualTransaction<T> ctxTransaction = new ContextualTransaction<T>(transaction, affectedModelLocations);
-				
-				for(T affectedModel: affectedModels) {
-					// TODO: Decouple from Model further
-					// E.g. by introducing an interface for the log(...) method 
-					Model affectedModelAsModel = (Model)affectedModel;
-					ModelLocator locator = affectedModelAsModel.getLocator();
-					if(locator != null) {
-						// Only affected models which still "physically" exists are collected for
-						// affected models to persist along with the transaction.
-						affectedModelAsModel.log((ContextualTransaction<Model>)ctxTransaction);
-					}
-				}
+//				ArrayList<Location> affectedModelLocations = new ArrayList<Location>();
+//				for(T affectedModel: affectedModels) {
+//					// TODO: Decouple from Model further
+//					// E.g. by introducing an interface for the getLocator() method 
+//					Model affectedModelAsModel = (Model)affectedModel;
+//					ModelLocator locator = affectedModelAsModel.getLocator();
+//					if(locator != null) {
+//						// Only affected models which still "physically" exists are collected for
+//						// affected models to persist along with the transaction.
+//						affectedModelLocations.add(locator.locate());
+//					}
+//				}
+//				
+//				ContextualTransaction<T> ctxTransaction = new ContextualTransaction<T>(transaction, affectedModelLocations);
+//				
+//				for(T affectedModel: affectedModels) {
+//					// TODO: Decouple from Model further
+//					// E.g. by introducing an interface for the log(...) method 
+//					Model affectedModelAsModel = (Model)affectedModel;
+//					ModelLocator locator = affectedModelAsModel.getLocator();
+//					if(locator != null) {
+//						// Only affected models which still "physically" exists are collected for
+//						// affected models to persist along with the transaction.
+//						affectedModelAsModel.log((ContextualTransaction<Model>)ctxTransaction);
+//					}
+//				}
 
 				System.out.println("Committed connection: " + Connection.this);
 				transcriber.persistTransaction(ctxTransaction);

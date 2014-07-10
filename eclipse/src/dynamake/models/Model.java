@@ -156,12 +156,13 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public void log(ContextualTransaction<Model> ctxTransaction) {
-		undoStack.add(ctxTransaction);
-		redoStack.clear();
+//		undoStack.add(ctxTransaction);
+//		redoStack.clear();
 	}
 	
-	public void log2(Object transactionFromReference) {
-		
+	public void log2(DualCommand<Model> transactionFromReference) {
+		undoStack.add(transactionFromReference);
+		redoStack.clear();
 	}
 	
 	public static class UndoTransaction implements Command<Model> {
@@ -204,69 +205,91 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
+//	public void undo(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector) {
+//		if(undoStack.isEmpty())
+//			return;
+//		
+//		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
+//		
+//		// Could probably be cached somehow; perhaps during application load?
+//		final ArrayList<Model> affectedModels = new ArrayList<Model>();
+//		for(Location affectedModelLocation: ctxTransactionToUndo.affectedModelLocations) {
+//			Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
+//			affectedModels.add(affectedModel);
+//		}
+//		
+//		for(Model affectedModel: affectedModels) {
+//			affectedModel.undoTill(propCtx, prevalentSystem, isolatingCollector, ctxTransactionToUndo);
+//			affectedModel.undoStack.pop();
+//		}
+//		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatingCollector);
+//
+//		for(Model affectedModel: affectedModels)
+//			affectedModel.redoStack.push(ctxTransactionToUndo);
+//	}
+//	
+//	private void undoTill(
+//		PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector, ContextualTransaction<Model> ctxTransactionToUndoTill) {
+//		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
+//		while(ctxTransactionToUndo != ctxTransactionToUndoTill) {
+//			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatingCollector);
+//			undoStack.pop();
+//			ctxTransactionToUndo = undoStack.peek();
+//		}
+//	}
+	
 	public void undo(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector) {
 		if(undoStack.isEmpty())
 			return;
 		
-		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
-		
-		// Could probably be cached somehow; perhaps during application load?
-		final ArrayList<Model> affectedModels = new ArrayList<Model>();
-		for(Location affectedModelLocation: ctxTransactionToUndo.affectedModelLocations) {
-			Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
-			affectedModels.add(affectedModel);
-		}
-		
-		for(Model affectedModel: affectedModels) {
-			affectedModel.undoTill(propCtx, prevalentSystem, isolatingCollector, ctxTransactionToUndo);
-			affectedModel.undoStack.pop();
-		}
-		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatingCollector);
+		DualCommand<Model> ctxTransactionToUndo = undoStack.pop();
 
-		for(Model affectedModel: affectedModels)
-			affectedModel.redoStack.push(ctxTransactionToUndo);
+		ctxTransactionToUndo.executeBackwardOn(propCtx, prevalentSystem, null, isolatingCollector);
+
+		redoStack.push(ctxTransactionToUndo);
 	}
 	
-	private void undoTill(
-		PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector, ContextualTransaction<Model> ctxTransactionToUndoTill) {
-		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
-		while(ctxTransactionToUndo != ctxTransactionToUndoTill) {
-			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatingCollector);
-			undoStack.pop();
-			ctxTransactionToUndo = undoStack.peek();
-		}
-	}
+//	public void redo(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector) {
+//		if(redoStack.isEmpty())
+//			return;
+//		
+//		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
+//		
+//		// Could probably be cached somehow; perhaps during application load?
+//		final ArrayList<Model> affectedModels = new ArrayList<Model>();
+//		for(Location affectedModelLocation: ctxTransactionToRedo.affectedModelLocations) {
+//			Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
+//			affectedModels.add(affectedModel);
+//		}
+//
+//		for(Model affectedModel: affectedModels) {
+//			affectedModel.redoTill(propCtx, prevalentSystem, isolatingCollector, ctxTransactionToRedo);
+//			affectedModel.redoStack.pop();
+//		}
+//		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatingCollector);
+//
+//		for(Model affectedModel: affectedModels)
+//			affectedModel.undoStack.push(ctxTransactionToRedo);
+//	}
+//	
+//	private void redoTill(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector, ContextualTransaction<Model> ctxTransactionToRedoTillæ) {
+//		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
+//		while(ctxTransactionToRedo != ctxTransactionToRedoTillæ) {
+//			ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatingCollector);
+//			redoStack.pop();
+//			ctxTransactionToRedo = redoStack.peek();
+//		}
+//	}
 	
 	public void redo(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector) {
 		if(redoStack.isEmpty())
 			return;
 		
-		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
-		
-		// Could probably be cached somehow; perhaps during application load?
-		final ArrayList<Model> affectedModels = new ArrayList<Model>();
-		for(Location affectedModelLocation: ctxTransactionToRedo.affectedModelLocations) {
-			Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
-			affectedModels.add(affectedModel);
-		}
+		DualCommand<Model> ctxTransactionToRedo = redoStack.pop();
 
-		for(Model affectedModel: affectedModels) {
-			affectedModel.redoTill(propCtx, prevalentSystem, isolatingCollector, ctxTransactionToRedo);
-			affectedModel.redoStack.pop();
-		}
-		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatingCollector);
+		ctxTransactionToRedo.executeForwardOn(propCtx, prevalentSystem, null, isolatingCollector);
 
-		for(Model affectedModel: affectedModels)
-			affectedModel.undoStack.push(ctxTransactionToRedo);
-	}
-	
-	private void redoTill(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector, ContextualTransaction<Model> ctxTransactionToRedoTillæ) {
-		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
-		while(ctxTransactionToRedo != ctxTransactionToRedoTillæ) {
-			ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatingCollector);
-			redoStack.pop();
-			ctxTransactionToRedo = redoStack.peek();
-		}
+		undoStack.push(ctxTransactionToRedo);
 	}
 	
 	public void setLocator(ModelLocator locator) {
@@ -277,8 +300,8 @@ public abstract class Model implements Serializable, Observer {
 		return locator;
 	}
 	
-	private Stack<ContextualTransaction<Model>> undoStack = new Stack<ContextualTransaction<Model>>();
-	private Stack<ContextualTransaction<Model>> redoStack = new Stack<ContextualTransaction<Model>>();
+	private Stack<DualCommand<Model>> undoStack = new Stack<DualCommand<Model>>();
+	private Stack<DualCommand<Model>> redoStack = new Stack<DualCommand<Model>>();
 	private ModelLocator locator;
 	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
 	
@@ -451,8 +474,8 @@ public abstract class Model implements Serializable, Observer {
 		observers = (ArrayList<Observer>)ois.readObject();
 		observees = (ArrayList<Observer>)ois.readObject();
 		properties = (Hashtable<String, Object>)ois.readObject();
-		undoStack = (Stack<ContextualTransaction<Model>>)ois.readObject();
-		redoStack = (Stack<ContextualTransaction<Model>>)ois.readObject();
+		undoStack = (Stack<DualCommand<Model>>)ois.readObject();
+		redoStack = (Stack<DualCommand<Model>>)ois.readObject();
 	}
 
 	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
