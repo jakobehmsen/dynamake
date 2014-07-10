@@ -31,14 +31,4 @@ public class IsolatingCollector<T> implements Collector<T> {
 	public void commit() {
 		collector.commit();
 	}
-
-	@Override
-	public void pushReference(T model) {
-		// Do nothing which means side effects aren't collected
-	}
-
-	@Override
-	public void popReference() {
-		// Do nothing which means side effects aren't collected
-	}
 }

@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -272,21 +273,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private static class Instruction {
 		public static final int OPCODE_COMMIT = 0;
 		public static final int OPCODE_REJECT = 1;
-		public static final int OPCODE_PUSH_REFERENCE = 2;
-		public static final int OPCODE_POP_REFERENCE = 3;
-		
-		public final int type;
-		public Object operand1;
-		
-		public Instruction(int type) {
-			this.type = type;
-			this.operand1 = null;
-		}
-		
-		public Instruction(int type, Object operand1) {
-			this.type = type;
-			this.operand1 = operand1;
-		}
 	}
 	
 	private static class Connection<T> implements dynamake.transcription.Connection<T> {
@@ -334,31 +320,19 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							@Override
 							public void reject() {
-								collectedCommands.add(new Instruction(Instruction.OPCODE_REJECT));
+								collectedCommands.add(Instruction.OPCODE_REJECT);
 							}
 							
 							@Override
 							public void commit() {
-								collectedCommands.add(new Instruction(Instruction.OPCODE_COMMIT));
-							}
-
-							@Override
-							public void pushReference(T model) {
-								// TODO Auto-generated method stub
-								
-							}
-
-							@Override
-							public void popReference() {
-								// TODO Auto-generated method stub
-								
+								collectedCommands.add(Instruction.OPCODE_COMMIT);
 							}
 						};
 						
-						if(command instanceof Instruction) {
-							Instruction i = (Instruction)command;
+						if(command instanceof Integer) {
+							int i = (int)command;
 							
-							switch(i.type) {
+							switch(i) {
 							case Instruction.OPCODE_REJECT:
 								doReject();
 								break;
@@ -457,12 +431,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				@Override
 				public void commit() { }
-
-				@Override
-				public void pushReference(T model) { }
-
-				@Override
-				public void popReference() { }
 			};
 			
 			for(DualCommand<T> transaction: flushedTransactions)
