@@ -23,7 +23,6 @@ import dynamake.commands.UnwrapTransaction;
 import dynamake.commands.WrapTransaction;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
-import dynamake.delegates.Holder;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
@@ -350,7 +349,7 @@ public class CanvasModel extends Model {
 				public void run(Collector<Model> collector) {
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
-						public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Location canvasLocation = modelTranscriber.getModelLocation();
 							
 							CanvasModel.appendRemoveTransaction(dualCommands, livePanel, child, canvasLocation, model);
@@ -372,7 +371,7 @@ public class CanvasModel extends Model {
 					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
-							public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								CanvasModel.appendUnwrapTransaction(dualCommands, CanvasPanel.this);
 							}
 						});
@@ -397,7 +396,7 @@ public class CanvasModel extends Model {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(
-									Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
+									List<DualCommand<Model>> dualCommands) {
 								ModelComponent modelToMove = dropped;
 								ModelComponent source = ModelComponent.Util.getParent(modelToMove);
 								ModelComponent target = CanvasPanel.this;

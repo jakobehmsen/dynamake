@@ -1,7 +1,6 @@
 package dynamake.models;
 
-
-class ViewRootLocation implements Location {
+public class RootLocation implements Location {
 	@Override
 	public Object getChild(Object holder) {
 		return holder;

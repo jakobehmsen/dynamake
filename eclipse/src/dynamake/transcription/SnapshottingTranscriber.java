@@ -14,7 +14,9 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +30,7 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelLocator;
 import dynamake.models.PropogationContext;
+import dynamake.models.RootLocation;
 
 public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private Func0<T> prevalentSystemFunc;
@@ -279,8 +282,21 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private static class Connection<T> implements dynamake.transcription.Connection<T> {
 		private TriggerHandler<T> triggerHandler;
 		private SnapshottingTranscriber<T> transcriber;
-		private ArrayList<DualCommand<T>> flushedTransactions = new ArrayList<DualCommand<T>>();
+		private ArrayList<DualCommand<T>> flushedTransactionsFromRoot = new ArrayList<DualCommand<T>>();
+//		private ArrayList<TransactionFromReference<T>> flushedTransactionsFromReferences = new ArrayList<TransactionFromReference<T>>();
+		private Hashtable<T, ArrayList<DualCommand<T>>> flushedTransactionsFromReferences = new Hashtable<T, ArrayList<DualCommand<T>>>();
 		private HashSet<T> affectedModels = new HashSet<T>();
+		
+		private static class TransactionFromReference<T> {
+			public final T reference;
+			public final ArrayList<DualCommand<T>> commands;
+			
+			public TransactionFromReference(T reference, ArrayList<DualCommand<T>> commands) {
+
+				this.reference = reference;
+				this.commands = commands;
+			}
+		}
 		
 		public Connection(SnapshottingTranscriber<T> transcriber, TriggerHandler<T> triggerHandler) {
 			this.transcriber = transcriber;
@@ -344,14 +360,40 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						} else if(command instanceof DualCommandFactory) {
 							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)command;
 							
-							Holder<Model> referenceHolder = new Holder<Model>();
+							Holder<T> referenceHolder = new Holder<T>();
 							ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
-							transactionFactory.createDualCommands(referenceHolder, dualCommands);
+							transactionFactory.createDualCommands(dualCommands);
+							T reference = referenceHolder.call();
 	
 							for(DualCommand<T> transaction: dualCommands) {
 								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, collector);
-								flushedTransactions.add(transaction);
+								flushedTransactionsFromRoot.add(transaction);
 							}
+						} else if(command instanceof DualCommandFactory2) {
+							DualCommandFactory2<T> transactionFactory = (DualCommandFactory2<T>)command;
+							T reference = transactionFactory.getReference();
+							Location locationFromRoot = ((Model)reference).getLocator().locate();
+							Location locationFromReference = new RootLocation();
+							
+							ArrayList<DualCommand<T>> dualCommandsFromRoot = new ArrayList<DualCommand<T>>();
+							ArrayList<DualCommand<T>> dualCommandsFromReference = new ArrayList<DualCommand<T>>();
+							
+							transactionFactory.createDualCommands(locationFromRoot, dualCommandsFromRoot);
+							transactionFactory.createDualCommands(locationFromReference, dualCommandsFromReference);
+							
+							for(DualCommand<T> dualCommandFromReference: dualCommandsFromReference)
+								dualCommandFromReference.executeForwardOn(propCtx, reference, null, collector);
+
+							ArrayList<DualCommand<T>> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
+							if(flushedTransactionsFromReference == null) {
+								flushedTransactionsFromReference = new ArrayList<DualCommand<T>>();
+								flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
+							}
+							flushedTransactionsFromReference.addAll(flushedTransactionsFromReference);
+							
+//							flushedTransactionsFromReferences.add(new TransactionFromReference<T>(reference, dualCommandsFromReference));
+							for(DualCommand<T> dualCommandFromRoot: dualCommandsFromRoot)
+								flushedTransactionsFromRoot.add(dualCommandFromRoot);
 						} else if(command instanceof Trigger) {
 							((Trigger<T>)command).run(collector);
 						}
@@ -372,11 +414,28 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		
 		@SuppressWarnings("unchecked")
 		private void doCommit() {
-			if(flushedTransactions.size() > 0) {
-				DualCommand<T>[] dualCommandArray = flushedTransactions.toArray(new DualCommand[flushedTransactions.size()]);
-				flushedTransactions.clear();
+			if(flushedTransactionsFromRoot.size() > 0) {
+				ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
+
+				for(DualCommand<T> transaction: flushedTransactionsFromRoot)
+					dualCommands.add(transaction);
+					
+				DualCommand<T>[] dualCommandArray = dualCommands.toArray(new DualCommand[dualCommands.size()]);
+				flushedTransactionsFromRoot.clear();
 				
 				DualCommandSequence<T> transaction = new DualCommandSequence<T>(dualCommandArray);
+				
+				for(Map.Entry<T, ArrayList<DualCommand<T>>> entry: flushedTransactionsFromReferences.entrySet()) {
+					T reference = entry.getKey();
+					ArrayList<DualCommand<T>> flushedTransactionsFromReference = entry.getValue();
+					
+					// Update the log of each affected model isolately; no transaction is cross-model
+					DualCommandSequence<T> transactionFromReference = new DualCommandSequence<>(flushedTransactionsFromReference);
+					((Model)reference).log2(transactionFromReference);
+				}
+				
+				// Both the transaction from root and the transactions from references should be persisted such
+				// that the history of the models can be updated during replay
 				
 				ArrayList<Location> affectedModelLocations = new ArrayList<Location>();
 				for(T affectedModel: affectedModels) {
@@ -434,11 +493,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				@Override
 				public void commit() { }
 			};
-			
-			for(DualCommand<T> transaction: flushedTransactions)
+
+			for(DualCommand<T> transaction: flushedTransactionsFromRoot)
 				transaction.executeBackwardOn(propCtx, transcriber.prevalentSystem, null, isolatedCollector);
 			
-			flushedTransactions.clear();
+			flushedTransactionsFromRoot.clear();
 
 			if(onAfterNextTrigger.size() > 0) {
 				triggerHandler.handleAfterTrigger(onAfterNextTrigger);

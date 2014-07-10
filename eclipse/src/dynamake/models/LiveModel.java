@@ -33,7 +33,6 @@ import dynamake.commands.Command;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
-import dynamake.delegates.Holder;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
@@ -259,7 +258,7 @@ public class LiveModel extends Model {
 							public void run(Collector<Model> collector) {
 								collector.execute(new DualCommandFactory<Model>() {
 									@Override
-									public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
+									public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 										List<Integer> currentButtons = ToolButton.this.buttons;
 										
 										Location modelLocation = ToolButton.this.modelTranscriber.getModelLocation();

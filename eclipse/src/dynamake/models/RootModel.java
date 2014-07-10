@@ -19,7 +19,6 @@ import javax.swing.JFrame;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
-import dynamake.delegates.Holder;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.DualCommandFactory;
@@ -163,7 +162,7 @@ public class RootModel extends Model {
 					public void run(Collector<Model> collector) {
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
-							public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								if(newLocation != null) {
 									dualCommands.add(new DualCommandPair<Model>(
 										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "X", newLocation.x),
@@ -273,7 +272,7 @@ public class RootModel extends Model {
 							}
 							
 							@Override
-							public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(createDualCommand());
 							}
 						});

@@ -12,7 +12,6 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
-import dynamake.delegates.Holder;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -57,7 +56,7 @@ public class ConsTool implements Tool {
 
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
-						public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Location observableLocation = selection.getModelTranscriber().getModelLocation();
 							Location observerLocation = targetModelComponent.getModelTranscriber().getModelLocation();
 							
@@ -71,7 +70,7 @@ public class ConsTool implements Tool {
 					final ModelComponent selection = interactionPresenter.getSelection();
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
-						public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							Location observableLocation = selection.getModelTranscriber().getModelLocation();
 							Location observerLocation = targetModelComponent.getModelTranscriber().getModelLocation();
 							

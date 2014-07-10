@@ -15,7 +15,6 @@ import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.commands.UnwrapToLocationsTransaction;
 import dynamake.commands.WrapTransaction;
-import dynamake.delegates.Holder;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -66,7 +65,7 @@ public class PlotTool implements Tool {
 				if(componentsWithinBounds.size() > 0) {
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
-						public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							CanvasModel target = (CanvasModel)selection.getModelBehind();
 							Location targetLocation = selection.getModelTranscriber().getModelLocation();
 							int indexOfWrapper = target.getModelCount() - componentsWithinBounds.size();
@@ -92,7 +91,7 @@ public class PlotTool implements Tool {
 					
 					collector.execute(new DualCommandFactory<Model>() {
 						@Override
-						public void createDualCommands(Holder<Model> referenceHolder, List<DualCommand<Model>> dualCommands) {
+						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 							ModelComponent target = selection;
 							
 							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
