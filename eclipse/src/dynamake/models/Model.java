@@ -22,10 +22,8 @@ import java.util.Stack;
 import javax.swing.JComponent;
 
 import dynamake.commands.Command;
-import dynamake.commands.ContextualTransaction;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
-import dynamake.commands.DualCommandSequence;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.menubuilders.ColorMenuBuilder;
@@ -156,12 +154,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void log(ContextualTransaction<Model> ctxTransaction) {
-//		undoStack.add(ctxTransaction);
-//		redoStack.clear();
-	}
-	
-	public void log2(DualCommand<Model> transactionFromReference) {
+	public void log(DualCommand<Model> transactionFromReference) {
 		undoStack.add(transactionFromReference);
 		redoStack.clear();
 	}
@@ -206,39 +199,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-//	public void undo(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector) {
-//		if(undoStack.isEmpty())
-//			return;
-//		
-//		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
-//		
-//		// Could probably be cached somehow; perhaps during application load?
-//		final ArrayList<Model> affectedModels = new ArrayList<Model>();
-//		for(Location affectedModelLocation: ctxTransactionToUndo.affectedModelLocations) {
-//			Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
-//			affectedModels.add(affectedModel);
-//		}
-//		
-//		for(Model affectedModel: affectedModels) {
-//			affectedModel.undoTill(propCtx, prevalentSystem, isolatingCollector, ctxTransactionToUndo);
-//			affectedModel.undoStack.pop();
-//		}
-//		ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatingCollector);
-//
-//		for(Model affectedModel: affectedModels)
-//			affectedModel.redoStack.push(ctxTransactionToUndo);
-//	}
-//	
-//	private void undoTill(
-//		PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector, ContextualTransaction<Model> ctxTransactionToUndoTill) {
-//		ContextualTransaction<Model> ctxTransactionToUndo = undoStack.peek();
-//		while(ctxTransactionToUndo != ctxTransactionToUndoTill) {
-//			ctxTransactionToUndo.transaction.executeBackwardOn(propCtx, prevalentSystem, null, isolatingCollector);
-//			undoStack.pop();
-//			ctxTransactionToUndo = undoStack.peek();
-//		}
-//	}
-	
 	public void undo(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector) {
 		if(undoStack.isEmpty())
 			return;
@@ -249,38 +209,6 @@ public abstract class Model implements Serializable, Observer {
 
 		redoStack.push(ctxTransactionToUndo);
 	}
-	
-//	public void redo(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector) {
-//		if(redoStack.isEmpty())
-//			return;
-//		
-//		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
-//		
-//		// Could probably be cached somehow; perhaps during application load?
-//		final ArrayList<Model> affectedModels = new ArrayList<Model>();
-//		for(Location affectedModelLocation: ctxTransactionToRedo.affectedModelLocations) {
-//			Model affectedModel = (Model)affectedModelLocation.getChild(prevalentSystem);
-//			affectedModels.add(affectedModel);
-//		}
-//
-//		for(Model affectedModel: affectedModels) {
-//			affectedModel.redoTill(propCtx, prevalentSystem, isolatingCollector, ctxTransactionToRedo);
-//			affectedModel.redoStack.pop();
-//		}
-//		ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatingCollector);
-//
-//		for(Model affectedModel: affectedModels)
-//			affectedModel.undoStack.push(ctxTransactionToRedo);
-//	}
-//	
-//	private void redoTill(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector, ContextualTransaction<Model> ctxTransactionToRedoTillæ) {
-//		ContextualTransaction<Model> ctxTransactionToRedo = redoStack.peek();
-//		while(ctxTransactionToRedo != ctxTransactionToRedoTillæ) {
-//			ctxTransactionToRedo.transaction.executeForwardOn(propCtx, prevalentSystem, null, isolatingCollector);
-//			redoStack.pop();
-//			ctxTransactionToRedo = redoStack.peek();
-//		}
-//	}
 	
 	public void redo(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector) {
 		if(redoStack.isEmpty())
@@ -756,17 +684,6 @@ public abstract class Model implements Serializable, Observer {
 				return new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-//						collector.execute(new DualCommandFactory<Model>() {
-//							@Override
-//							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//								Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
-//								dualCommands.add(new DualCommandPair<Model>(
-//									new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, color),
-//									new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), PROPERTY_COLOR, currentColor)
-//								));
-//							}
-//						});
-						
 						collector.execute(new DualCommandFactory2<Model>() {
 							@Override
 							public Model getReference() {
