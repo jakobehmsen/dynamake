@@ -373,6 +373,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								break;
 							}
 						} else if(command instanceof DualCommandFactory) {
+							// Used when no transactions are to be logged on any models
+							// E.g. when performing undo/redo
 							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)command;
 							
 							ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();

@@ -863,6 +863,9 @@ public abstract class Model implements Serializable, Observer {
 		// I.e., all property values are immutable
 		clone.properties.putAll(this.properties);
 		
+		clone.undoStack.addAll(this.undoStack);
+		clone.redoStack.addAll(this.redoStack);
+		
 		return clone;
 	}
 	
