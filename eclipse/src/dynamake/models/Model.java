@@ -874,8 +874,7 @@ public abstract class Model implements Serializable, Observer {
 		return view >= value;
 	}
 
-	public void scale(Fraction xDelta, Fraction tDelta, Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		System.out.println("scale");
+	public void resize(Fraction xDelta, Fraction tDelta, Fraction widthDelta, Fraction heightDelta, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		Fraction currentX = (Fraction)getProperty("X");
 		Fraction currentY = (Fraction)getProperty("Y");
 		Fraction newX = currentX.add(xDelta);
@@ -883,7 +882,23 @@ public abstract class Model implements Serializable, Observer {
 
 		Fraction currentWidth = (Fraction)getProperty("Width");
 		Fraction currentHeight = (Fraction)getProperty("Height");
+		Fraction newWidth = currentWidth.add(widthDelta);
+		Fraction newHeight = currentHeight.add(heightDelta);
 		
+		setProperty("X", newX, propCtx, propDistance, collector);
+		setProperty("Y", newY, propCtx, propDistance, collector);
+		setProperty("Width", newWidth, propCtx, propDistance, collector);
+		setProperty("Height", newHeight, propCtx, propDistance, collector);
+	}
+
+	public void scale(Fraction xDelta, Fraction tDelta, Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		Fraction currentX = (Fraction)getProperty("X");
+		Fraction currentY = (Fraction)getProperty("Y");
+		Fraction newX = currentX.add(xDelta);
+		Fraction newY = currentY.add(tDelta);
+
+		Fraction currentWidth = (Fraction)getProperty("Width");
+		Fraction currentHeight = (Fraction)getProperty("Height");
 		Fraction newWidth = currentWidth.multiply(hChange);
 		Fraction newHeight = currentHeight.multiply(vChange);
 		

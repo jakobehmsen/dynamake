@@ -8,6 +8,7 @@ import javax.swing.JComponent;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.commands.ResizeCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -23,59 +24,25 @@ public class EditTool extends BoundsChangeTool {
 	@Override
 	protected void appendDualCommandsForResize(
 			List<DualCommand<Model>> dualCommands, Location location, ModelComponent selection, Rectangle currentBounds, Rectangle newBounds) {
-		Model selectionModel = selection.getModelBehind();
-//		Rectangle currentBounds = ((JComponent)selection).getBounds();
+		Fraction currentX = (Fraction)selection.getModelBehind().getProperty("X");
+		Fraction currentY = (Fraction)selection.getModelBehind().getProperty("Y");
 		
-		if(currentBounds.x != newBounds.x) {
-			dualCommands.add(new DualCommandPair<Model>(
-				new Model.SetPropertyTransaction(location, "X", new Fraction(newBounds.x)), 
-				new Model.SetPropertyTransaction(location, "X", selectionModel.getProperty("X"))
-			));
-			
-			if(selectionModel instanceof CanvasModel) {
-				for(Component childComponent: ((JComponent)selection).getComponents()) {
-					ModelComponent child = (ModelComponent)childComponent;
-					int offset = currentBounds.x - newBounds.x;
-					Number newX = ((Fraction)child.getModelBehind().getProperty("X")).add(new Fraction(offset));
-					dualCommands.add(new DualCommandPair<Model>(
-						new Model.SetPropertyTransaction(location, "X", newX), 
-						new Model.SetPropertyTransaction(location, "X", selectionModel.getProperty("X"))
-					));
-				}
-			}
-		}
-
-		if(currentBounds.y != newBounds.y) {
-			dualCommands.add(new DualCommandPair<Model>(
-				new Model.SetPropertyTransaction(location, "Y", new Fraction(newBounds.y)), 
-				new Model.SetPropertyTransaction(location, "Y", selectionModel.getProperty("Y"))
-			));
-			
-			if(selectionModel instanceof CanvasModel) {
-				for(Component childComponent: ((JComponent)selection).getComponents()) {
-					ModelComponent child = (ModelComponent)childComponent;
-					int offset = currentBounds.y - newBounds.y;
-					Number newY = ((Fraction)child.getModelBehind().getProperty("Y")).add(new Fraction(offset));
-					dualCommands.add(new DualCommandPair<Model>(
-						new Model.SetPropertyTransaction(location, "Y", newY), 
-						new Model.SetPropertyTransaction(location, "Y", selectionModel.getProperty("Y"))
-					));
-				}
-			}
-		}
-
-		if(currentBounds.width != newBounds.width) {
-			dualCommands.add(new DualCommandPair<Model>(
-				new Model.SetPropertyTransaction(location, "Width", new Fraction(newBounds.width)), 
-				new Model.SetPropertyTransaction(location, "Width", selectionModel.getProperty("Width"))
-			));
-		}
-
-		if(currentBounds.height != newBounds.height) {
-			dualCommands.add(new DualCommandPair<Model>(
-				new Model.SetPropertyTransaction(location, "Height", new Fraction(newBounds.height)), 
-				new Model.SetPropertyTransaction(location, "Height", selectionModel.getProperty("Height"))
-			));
-		}
+		Fraction xDeltaForward = new Fraction(newBounds.x).subtract(currentX);
+		Fraction yDeltaForward = new Fraction(newBounds.y).subtract(currentY);
+		Fraction xDeltaBackward = currentX.subtract(new Fraction(newBounds.x));
+		Fraction yDeltaBackward = currentY.subtract(new Fraction(newBounds.y));
+		
+		Fraction currentWidth = (Fraction)selection.getModelBehind().getProperty("Width");
+		Fraction currentHeight = (Fraction)selection.getModelBehind().getProperty("Height");
+		
+		Fraction widthDeltaForward = new Fraction(newBounds.width).subtract(currentWidth);
+		Fraction heightDeltaForward = new Fraction(newBounds.height).subtract(currentHeight);
+		Fraction widthDeltaBackward = currentWidth.subtract(new Fraction(newBounds.width));
+		Fraction heightDeltaBackward = currentHeight.subtract(new Fraction(newBounds.height));
+		
+		dualCommands.add(new DualCommandPair<Model>(
+			new ResizeCommand(location, xDeltaForward, yDeltaForward, widthDeltaForward, heightDeltaForward),
+			new ResizeCommand(location, xDeltaBackward, yDeltaBackward, widthDeltaBackward, heightDeltaBackward)
+		));
 	}
 }
