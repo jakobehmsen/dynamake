@@ -498,6 +498,42 @@ public class CanvasModel extends Model {
 		));
 	}
 	
+	public static void appendMoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, ModelLocation canvasSourceLocation, ModelLocation canvasTargetLocation) {
+		int indexTarget = ((CanvasModel)target.getModelBehind()).getModelCount();
+		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
+		int indexSource = sourceCanvas.indexOfModel(modelToMove.getModelBehind());
+		CanvasModel targetCanvas = (CanvasModel)target.getModelBehind();
+		
+		ModelLocation canvasTargetLocationAfter;
+		int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
+		if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
+			// If target canvas is contained with the source canvas, then special care needs to be taken as
+			// to predicting the location of target canvas after the move has taken place:
+			// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
+			int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
+			canvasTargetLocationAfter = new CompositeModelLocation(canvasSourceLocation, new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
+		} else {
+			canvasTargetLocationAfter = canvasTargetLocation;
+		}
+		
+		Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
+		
+		dualCommands.add(new DualCommandPair<Model>(
+			new CanvasModel.MoveModelTransaction(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
+			new CanvasModel.MoveModelTransaction(canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource)
+		));
+		
+		dualCommands.add(new DualCommandPair<Model>(
+			new Model.SetPropertyTransaction(modelLocationAfterMove, "X", new Fraction(moveLocation.x)), 
+			new Model.SetPropertyTransaction(modelLocationAfterMove, "X", modelToMove.getModelBehind().getProperty("X"))
+		));
+		
+		dualCommands.add(new DualCommandPair<Model>(
+			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
+			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
+		));
+	}
+	
 	public static void appendMoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation) {
 		Location canvasSourceLocation = modelToMove.getModelTranscriber().getParent().getModelLocation();
 		ModelLocation canvasTargetLocation = target.getModelTranscriber().getModelLocation();

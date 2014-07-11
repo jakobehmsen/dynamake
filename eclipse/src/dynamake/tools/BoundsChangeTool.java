@@ -72,11 +72,35 @@ public abstract class BoundsChangeTool implements Tool {
 
 						final ModelComponent targetOver = newTargetOver;
 						
-						// Reference is closest common ancestor
-						collector.execute(new DualCommandFactory<Model>() {
+//						// Reference is closest common ancestor
+//						collector.execute(new DualCommandFactory<Model>() {
+//							@Override
+//							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+//								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation());
+//							}
+//						});
+						
+						collector.execute(new DualCommandFactory2<Model>() {
+							ModelComponent referenceMC;
+							
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation());
+							public Model getReference() {
+								referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
+								return referenceMC.getModelBehind();
+							}
+
+							@Override
+							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+								ModelLocation locationOfSource = new CompositeModelLocation(
+									(ModelLocation)location,
+									ModelComponent.Util.locationFromAncestor(referenceMC, source)
+								);
+								ModelLocation locationOfTarget = new CompositeModelLocation(
+									(ModelLocation)location,
+									ModelComponent.Util.locationFromAncestor(referenceMC, targetOver)
+								);
+								
+								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 							}
 						});
 					} else {

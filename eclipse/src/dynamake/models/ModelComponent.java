@@ -3,6 +3,8 @@ package dynamake.models;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
@@ -23,10 +25,25 @@ public interface ModelComponent {
 	
 	public static class Util {
 		public static ModelComponent getParent(ModelComponent view) {
-			Component parent = ((Component)view).getParent();
-			while(parent != null && !(parent instanceof ModelComponent))
+//			Component parent = ((Component)view).getParent();
+//			
+//			while(parent != null && !(parent instanceof ModelComponent)) {
+//				parent = parent.getParent();
+//			}
+//			
+//			return (ModelComponent)parent;
+
+			Component parent = (Component)view;
+			
+			while(true) {
 				parent = parent.getParent();
-			return (ModelComponent)parent;
+				
+				if(parent == null)
+					return null;
+				
+				if(parent instanceof ModelComponent)
+					return (ModelComponent)parent;
+			}
 		}
 		
 		public static ModelComponent closestModelComponent(Component component) {
@@ -39,6 +56,57 @@ public interface ModelComponent {
 			while(!(((ModelComponent)view).getModelBehind() instanceof CanvasModel))
 				view = closestModelComponent(((Component)view).getParent());
 			return (ModelComponent)view;
+		}
+
+		public static ModelComponent closestCommonAncestor(ModelComponent first, ModelComponent second) {
+			HashSet<ModelComponent> secondAncestors = new HashSet<ModelComponent>();
+			
+			ModelComponent secondParent = getParent(second);
+			
+			while(secondParent != null) {
+				secondAncestors.add(secondParent);
+				secondParent = getParent(secondParent);
+			}
+
+			// Start at first, because second may be contained within first
+			// and, thus, first may be an ancestor of second
+			ModelComponent firstParent = first;//getParent(first);
+			
+			while(firstParent != null) {
+				if(secondAncestors.contains(firstParent))
+					return firstParent;
+
+				firstParent = getParent(firstParent);
+			}
+
+			return null;
+		}
+
+		public static ModelLocation locationFromAncestor(ModelComponent ancestor, ModelComponent child) {
+			if(child == ancestor)
+				return new ModelRootLocation();
+			
+			ArrayList<ModelComponent> ancestorsClosestToFarthest = new ArrayList<ModelComponent>();
+
+			ModelComponent parent = getParent(child);
+			while(true) {
+				ancestorsClosestToFarthest.add(parent);
+				if(parent == ancestor)
+					break;
+				parent = getParent(parent);
+			}
+			
+			ModelLocation location = ((CanvasModel)ancestorsClosestToFarthest.get(0).getModelBehind()).getLocationOf(child.getModelBehind());
+			
+			for(int i = 1; i < ancestorsClosestToFarthest.size(); i++) {
+				ModelComponent currentAncestor = ancestorsClosestToFarthest.get(i - 1);
+				location = new CompositeModelLocation(
+					location,
+					((CanvasModel)ancestorsClosestToFarthest.get(i).getModelBehind()).getLocationOf(currentAncestor.getModelBehind())
+				);
+			}
+					
+			return location;
 		}
 	}
 
