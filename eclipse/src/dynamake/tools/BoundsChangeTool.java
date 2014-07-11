@@ -14,10 +14,12 @@ import javax.swing.SwingUtilities;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.models.CanvasModel;
+import dynamake.models.CompositeModelLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.models.ModelLocation;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
@@ -89,7 +91,10 @@ public abstract class BoundsChangeTool implements Tool {
 
 							@Override
 							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-								Location locationOfMovedModel = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
+								Location locationOfMovedModel = new CompositeModelLocation(
+									(ModelLocation)location,
+									((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind())
+								);
 								
 								dualCommands.add(new DualCommandPair<Model>(
 									new Model.SetPropertyTransaction(locationOfMovedModel, "X", new Fraction(droppedBounds.x)), 
