@@ -623,6 +623,17 @@ public class CanvasModel extends Model {
 
 		@Override
 		public Object getChild(Object holder) {
+			/*
+			Instead of using indexes to locate models, id's relative to the canvas should be used.
+			This is not so much due to the potential efficiency gains in complex canvases, but
+			more due to effectiveness. More specifically, it is due to models being moved across
+			canvases meaning the index-lookup quickly becomes ineffective from an identity viewpoint.
+			By using id's, which are unique to canvases, it may be possible to track down models, by
+			keeping of the models moved out of canvases (their id's) and where to and their id in the
+			target canvases.
+			If the index is coupled with a particular version of the canvas, it may function as a
+			unique identifier, though. 
+			*/
 			return ((CanvasModel)holder).models.get(index);
 		}
 
