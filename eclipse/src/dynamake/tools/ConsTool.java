@@ -53,33 +53,10 @@ public class ConsTool implements Tool {
 				
 				if(interactionPresenter.getSelection().getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 					final ModelComponent selection = interactionPresenter.getSelection();
-
-					collector.execute(new DualCommandFactory<Model>() {
-						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							Location observableLocation = selection.getModelTranscriber().getModelLocation();
-							Location observerLocation = targetModelComponent.getModelTranscriber().getModelLocation();
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
-								new Model.AddObserver(observableLocation, observerLocation) // Absolute location
-							));
-						}
-					});
+					Model.executeRemoveObserver(collector, selection, targetModelComponent);
 				} else {
 					final ModelComponent selection = interactionPresenter.getSelection();
-					collector.execute(new DualCommandFactory<Model>() {
-						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							Location observableLocation = selection.getModelTranscriber().getModelLocation();
-							Location observerLocation = targetModelComponent.getModelTranscriber().getModelLocation();
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.AddObserver(observableLocation, observerLocation), // Absolute location
-								new Model.RemoveObserver(observableLocation, observerLocation) // Absolute location
-							));
-						}
-					});
+					Model.executeAddObserver(collector, selection, targetModelComponent);
 				}
 				
 				interactionPresenter.reset(collector);
