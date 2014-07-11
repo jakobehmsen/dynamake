@@ -18,9 +18,7 @@ public class ScaleTool extends BoundsChangeTool {
 	}
 	
 	@Override
-	protected void appendDualCommandsForResize(
-			List<DualCommand<Model>> dualCommands, Location location,
-			ModelComponent selection, Rectangle currentBounds, Rectangle newBounds) {
+	protected void appendDualCommandsForResize(List<DualCommand<Model>> dualCommands, Location location, ModelComponent selection, Rectangle newBounds) {
 		Fraction currentX = (Fraction)selection.getModelBehind().getProperty("X");
 		Fraction currentY = (Fraction)selection.getModelBehind().getProperty("Y");
 		

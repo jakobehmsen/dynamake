@@ -1,15 +1,11 @@
 package dynamake.tools;
 
-import java.awt.Component;
 import java.awt.Rectangle;
 import java.util.List;
-
-import javax.swing.JComponent;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.commands.ResizeCommand;
-import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -22,8 +18,7 @@ public class EditTool extends BoundsChangeTool {
 	}
 
 	@Override
-	protected void appendDualCommandsForResize(
-			List<DualCommand<Model>> dualCommands, Location location, ModelComponent selection, Rectangle currentBounds, Rectangle newBounds) {
+	protected void appendDualCommandsForResize(List<DualCommand<Model>> dualCommands, Location location, ModelComponent selection, Rectangle newBounds) {
 		Fraction currentX = (Fraction)selection.getModelBehind().getProperty("X");
 		Fraction currentY = (Fraction)selection.getModelBehind().getProperty("Y");
 		
