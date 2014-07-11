@@ -72,14 +72,7 @@ public abstract class BoundsChangeTool implements Tool {
 
 						final ModelComponent targetOver = newTargetOver;
 						
-//						// Reference is closest common ancestor
-//						collector.execute(new DualCommandFactory<Model>() {
-//							@Override
-//							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation());
-//							}
-//						});
-						
+						// Reference is closest common ancestor
 						collector.execute(new DualCommandFactory2<Model>() {
 							ModelComponent referenceMC;
 							

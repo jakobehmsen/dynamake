@@ -30,6 +30,7 @@ import dynamake.models.factories.AsIsFactory;
 import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.DualCommandFactory;
+import dynamake.transcription.DualCommandFactory2;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Trigger;
@@ -406,14 +407,34 @@ public class CanvasModel extends Model {
 				menuBuilder.addMenuBuilder("Move", new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
+						final ModelComponent modelToMove = dropped;
+						
+						// Reference is closest common ancestor
+						collector.execute(new DualCommandFactory2<Model>() {
+							ModelComponent source;
+							ModelComponent targetOver;
+							ModelComponent referenceMC;
+							
 							@Override
-							public void createDualCommands(
-									List<DualCommand<Model>> dualCommands) {
-								ModelComponent modelToMove = dropped;
-								ModelComponent source = ModelComponent.Util.getParent(modelToMove);
-								ModelComponent target = CanvasPanel.this;
-								appendMoveTransaction(dualCommands, (LivePanel)livePanel, source, modelToMove, target, droppedBounds.getLocation());
+							public Model getReference() {
+								ModelComponent.Util.getParent(modelToMove);
+								targetOver = CanvasPanel.this;
+								referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
+								return referenceMC.getModelBehind();
+							}
+
+							@Override
+							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+								ModelLocation locationOfSource = new CompositeModelLocation(
+									(ModelLocation)location,
+									ModelComponent.Util.locationFromAncestor(referenceMC, source)
+								);
+								ModelLocation locationOfTarget = new CompositeModelLocation(
+									(ModelLocation)location,
+									ModelComponent.Util.locationFromAncestor(referenceMC, targetOver)
+								);
+								
+								CanvasModel.appendMoveTransaction(dualCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 							}
 						});
 					}
