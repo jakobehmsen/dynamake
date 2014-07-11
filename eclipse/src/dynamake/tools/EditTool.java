@@ -19,6 +19,7 @@ public class EditTool extends BoundsChangeTool {
 
 	@Override
 	protected void appendDualCommandsForResize(List<DualCommand<Model>> dualCommands, Location location, ModelComponent selection, Rectangle newBounds) {
+		// TODO: The x and t deltas should be performed negatively on each of the immediately contained models
 		Fraction currentX = (Fraction)selection.getModelBehind().getProperty("X");
 		Fraction currentY = (Fraction)selection.getModelBehind().getProperty("Y");
 		

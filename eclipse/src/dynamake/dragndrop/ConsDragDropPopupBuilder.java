@@ -73,30 +73,14 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				transactionTargetContentMapBuilder.addMenuBuilder("Unforward to", new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
-							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-								dualCommands.add(new DualCommandPair<Model>(
-									new Model.RemoveObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation()),
-									new Model.AddObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation())
-								));
-							}
-						});
+						Model.executeRemoveObserver(collector, selection, target);
 					}
 				});
 			} else {
 				transactionTargetContentMapBuilder.addMenuBuilder("Forward to", new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
-							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-								dualCommands.add(new DualCommandPair<Model>(
-									new Model.AddObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation()),
-									new Model.RemoveObserver(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation())
-								));
-							}
-						});
+						Model.executeAddObserver(collector, selection, target);
 					}
 				});
 			}
