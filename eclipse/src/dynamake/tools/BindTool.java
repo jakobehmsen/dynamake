@@ -51,59 +51,9 @@ public class BindTool implements Tool {
 		
 		if(targetModelComponent != null && selection != targetModelComponent) {
 			if(selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
-				collector.execute(new DualCommandFactory2<Model>() {
-					ModelComponent referenceMC;
-					
-					@Override
-					public Model getReference() {
-						referenceMC = ModelComponent.Util.closestCommonAncestor(selection, targetModelComponent);
-						return referenceMC.getModelBehind();
-					}
-					
-					@Override
-					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-						ModelLocation observableLocation = new CompositeModelLocation(
-							(ModelLocation)location,
-							ModelComponent.Util.locationFromAncestor(referenceMC, selection)
-						);
-						ModelLocation observerLocation = new CompositeModelLocation(
-							(ModelLocation)location,
-							ModelComponent.Util.locationFromAncestor(referenceMC, targetModelComponent)
-						);
-						
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.RemoveObserver(observableLocation, observerLocation),
-							new Model.AddObserver(observableLocation, observerLocation)
-						));
-					}
-				});
+				Model.executeRemoveObserver(collector, selection, targetModelComponent);
 			} else {
-				collector.execute(new DualCommandFactory2<Model>() {
-					ModelComponent referenceMC;
-					
-					@Override
-					public Model getReference() {
-						referenceMC = ModelComponent.Util.closestCommonAncestor(selection, targetModelComponent);
-						return referenceMC.getModelBehind();
-					}
-					
-					@Override
-					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-						ModelLocation observableLocation = new CompositeModelLocation(
-							(ModelLocation)location,
-							ModelComponent.Util.locationFromAncestor(referenceMC, selection)
-						);
-						ModelLocation observerLocation = new CompositeModelLocation(
-							(ModelLocation)location,
-							ModelComponent.Util.locationFromAncestor(referenceMC, targetModelComponent)
-						);
-						
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.AddObserver(observableLocation, observerLocation),
-							new Model.RemoveObserver(observableLocation, observerLocation)
-						));
-					}
-				});
+				Model.executeAddObserver(collector, selection, targetModelComponent);
 			}
 			
 			collector.commit();

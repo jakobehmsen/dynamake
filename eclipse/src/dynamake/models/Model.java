@@ -973,4 +973,62 @@ public abstract class Model implements Serializable, Observer {
 	protected void modelAppendScale(ModelLocation location, Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
 		
 	}
+
+	public static void executeRemoveObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
+		collector.execute(new DualCommandFactory2<Model>() {
+			ModelComponent referenceMC;
+			
+			@Override
+			public Model getReference() {
+				referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
+				return referenceMC.getModelBehind();
+			}
+			
+			@Override
+			public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+				ModelLocation observableLocation = new CompositeModelLocation(
+					(ModelLocation)location,
+					ModelComponent.Util.locationFromAncestor(referenceMC, observable)
+				);
+				ModelLocation observerLocation = new CompositeModelLocation(
+					(ModelLocation)location,
+					ModelComponent.Util.locationFromAncestor(referenceMC, observer)
+				);
+				
+				dualCommands.add(new DualCommandPair<Model>(
+					new Model.RemoveObserver(observableLocation, observerLocation),
+					new Model.AddObserver(observableLocation, observerLocation)
+				));
+			}
+		});
+	}
+
+	public static void executeAddObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
+		collector.execute(new DualCommandFactory2<Model>() {
+			ModelComponent referenceMC;
+			
+			@Override
+			public Model getReference() {
+				referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
+				return referenceMC.getModelBehind();
+			}
+			
+			@Override
+			public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+				ModelLocation observableLocation = new CompositeModelLocation(
+					(ModelLocation)location,
+					ModelComponent.Util.locationFromAncestor(referenceMC, observable)
+				);
+				ModelLocation observerLocation = new CompositeModelLocation(
+					(ModelLocation)location,
+					ModelComponent.Util.locationFromAncestor(referenceMC, observer)
+				);
+				
+				dualCommands.add(new DualCommandPair<Model>(
+					new Model.AddObserver(observableLocation, observerLocation),
+					new Model.RemoveObserver(observableLocation, observerLocation)
+				));
+			}
+		});
+	}
 }
