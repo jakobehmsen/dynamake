@@ -12,13 +12,15 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.models.CompositeModelLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
+import dynamake.models.ModelLocation;
 import dynamake.models.LiveModel.ProductionPanel;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.DualCommandFactory2;
 
 public class BindTool implements Tool {
 	@Override
@@ -49,28 +51,56 @@ public class BindTool implements Tool {
 		
 		if(targetModelComponent != null && selection != targetModelComponent) {
 			if(selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
-				collector.execute(new DualCommandFactory<Model>() {
+				collector.execute(new DualCommandFactory2<Model>() {
+					ModelComponent referenceMC;
+					
 					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						Location observableLocation = selection.getModelTranscriber().getModelLocation();
-						Location observerLocation = targetModelComponent.getModelTranscriber().getModelLocation();
+					public Model getReference() {
+						referenceMC = ModelComponent.Util.closestCommonAncestor(selection, targetModelComponent);
+						return referenceMC.getModelBehind();
+					}
+					
+					@Override
+					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+						ModelLocation observableLocation = new CompositeModelLocation(
+							(ModelLocation)location,
+							ModelComponent.Util.locationFromAncestor(referenceMC, selection)
+						);
+						ModelLocation observerLocation = new CompositeModelLocation(
+							(ModelLocation)location,
+							ModelComponent.Util.locationFromAncestor(referenceMC, targetModelComponent)
+						);
 						
 						dualCommands.add(new DualCommandPair<Model>(
-							new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
-							new Model.AddObserver(observableLocation, observerLocation) // Absolute location
+							new Model.RemoveObserver(observableLocation, observerLocation),
+							new Model.AddObserver(observableLocation, observerLocation)
 						));
 					}
 				});
 			} else {
-				collector.execute(new DualCommandFactory<Model>() {
+				collector.execute(new DualCommandFactory2<Model>() {
+					ModelComponent referenceMC;
+					
 					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-						Location observableLocation = selection.getModelTranscriber().getModelLocation();
-						Location observerLocation = targetModelComponent.getModelTranscriber().getModelLocation();
+					public Model getReference() {
+						referenceMC = ModelComponent.Util.closestCommonAncestor(selection, targetModelComponent);
+						return referenceMC.getModelBehind();
+					}
+					
+					@Override
+					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+						ModelLocation observableLocation = new CompositeModelLocation(
+							(ModelLocation)location,
+							ModelComponent.Util.locationFromAncestor(referenceMC, selection)
+						);
+						ModelLocation observerLocation = new CompositeModelLocation(
+							(ModelLocation)location,
+							ModelComponent.Util.locationFromAncestor(referenceMC, targetModelComponent)
+						);
 						
 						dualCommands.add(new DualCommandPair<Model>(
-							new Model.AddObserver(observableLocation, observerLocation), // Absolute location
-							new Model.RemoveObserver(observableLocation, observerLocation) // Absolute location
+							new Model.AddObserver(observableLocation, observerLocation),
+							new Model.RemoveObserver(observableLocation, observerLocation)
 						));
 					}
 				});
