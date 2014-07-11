@@ -21,7 +21,6 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.ModelLocation;
 import dynamake.numbers.Fraction;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.DualCommandFactory2;
@@ -72,14 +71,7 @@ public abstract class BoundsChangeTool implements Tool {
 
 						final ModelComponent targetOver = newTargetOver;
 						
-//						// Reference is closest common ancestor
-//						collector.execute(new DualCommandFactory<Model>() {
-//							@Override
-//							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-//								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation());
-//							}
-//						});
-						
+						// Reference is closest common ancestor
 						collector.execute(new DualCommandFactory2<Model>() {
 							ModelComponent referenceMC;
 							
