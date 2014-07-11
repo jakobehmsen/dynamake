@@ -61,13 +61,20 @@ public abstract class BoundsChangeTool implements Tool {
 			targetPresenter = null;
 			
 			final ModelComponent selection = interactionPresenter.getSelection();
+			final Rectangle selectionBounds = interactionPresenter.getSelectionFrameBounds();
+			final Rectangle effectBounds = interactionPresenter.getEffectFrameBounds();
+
+			interactionPresenter.reset(collector);
+			interactionPresenter = null;
 			
-			if(!interactionPresenter.getSelectionFrameBounds().equals(interactionPresenter.getEffectFrameBounds())) {
+			collector.flushNextTrigger();
+			
+			if(!selectionBounds.equals(effectBounds)) {
 				if(relativePosition.isInCenter()) {
 					if(newTargetOver.getModelTranscriber() != selection.getModelTranscriber().getParent()) {
 						// Moving to other canvas
 						final Rectangle droppedBounds = SwingUtilities.convertRectangle(
-							productionPanel, interactionPresenter.getEffectFrameBounds(), (JComponent)newTargetOver);
+							productionPanel, effectBounds, (JComponent)newTargetOver);
 
 						final ModelComponent targetOver = newTargetOver;
 						
@@ -97,7 +104,7 @@ public abstract class BoundsChangeTool implements Tool {
 						});
 					} else {
 						// Moving within same canvas
-						final Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), (JComponent)newTargetOver);
+						final Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, effectBounds, (JComponent)newTargetOver);
 						
 						collector.execute(new DualCommandFactory2<Model>() {
 							@Override
@@ -125,7 +132,7 @@ public abstract class BoundsChangeTool implements Tool {
 					}
 				} else {
 					// Changing bounds within the same canvas
-					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), (JComponent)newTargetOver);
+					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, effectBounds, (JComponent)newTargetOver);
 					
 					collector.execute(new DualCommandFactory2<Model>() {
 						@Override
@@ -140,13 +147,13 @@ public abstract class BoundsChangeTool implements Tool {
 					});
 				}
 
-				interactionPresenter.reset(collector);
-				interactionPresenter = null;
+//				interactionPresenter.reset(collector);
+//				interactionPresenter = null;
 				
 				collector.commit();
 			} else {
-				interactionPresenter.reset(collector);
-				interactionPresenter = null;
+//				interactionPresenter.reset(collector);
+//				interactionPresenter = null;
 				
 				collector.reject();
 			}
