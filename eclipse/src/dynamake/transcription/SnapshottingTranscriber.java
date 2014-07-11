@@ -277,6 +277,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private static class Instruction {
 		public static final int OPCODE_COMMIT = 0;
 		public static final int OPCODE_REJECT = 1;
+		public static final int OPCODE_FLUSH_NEXT_TRIGGER = 2;
 	}
 	
 	private static class Connection<T> implements dynamake.transcription.Connection<T> {
@@ -332,6 +333,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							public void commit() {
 								collectedCommands.add(Instruction.OPCODE_COMMIT);
 							}
+							
+							@Override
+							public void flushNextTrigger() {
+								collectedCommands.add(Instruction.OPCODE_FLUSH_NEXT_TRIGGER);
+							}
 						};
 						
 						if(command instanceof Integer) {
@@ -343,6 +349,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								break;
 							case Instruction.OPCODE_COMMIT:
 								doCommit();
+								break;
+							case Instruction.OPCODE_FLUSH_NEXT_TRIGGER:
+								if(onAfterNextTrigger.size() > 0) {
+									triggerHandler.handleAfterTrigger(new ArrayList<Runnable>(onAfterNextTrigger));
+									onAfterNextTrigger.clear();
+								}
 								break;
 							}
 						} else if(command instanceof DualCommandFactory) {
@@ -453,6 +465,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				@Override
 				public void commit() { }
+				
+				@Override
+				public void flushNextTrigger() { }
 			};
 
 			for(DualCommand<T> transaction: flushedTransactionsFromRoot)

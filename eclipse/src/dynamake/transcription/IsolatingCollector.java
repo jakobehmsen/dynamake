@@ -31,4 +31,9 @@ public class IsolatingCollector<T> implements Collector<T> {
 	public void commit() {
 		collector.commit();
 	}
+	
+	@Override
+	public void flushNextTrigger() {
+		collector.flushNextTrigger();
+	}
 }
