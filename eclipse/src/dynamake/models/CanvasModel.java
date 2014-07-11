@@ -60,6 +60,12 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
+	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		for(Model model: models)
+			model.scale(hChange, vChange, propCtx, propDistance, collector);
+	}
+	
+	@Override
 	protected void modelAppendScale(ModelLocation location, Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
 		for(Model model: models) {
 			int indexOfModel = indexOfModel(model);

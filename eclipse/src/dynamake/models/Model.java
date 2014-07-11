@@ -874,6 +874,50 @@ public abstract class Model implements Serializable, Observer {
 		return view >= value;
 	}
 
+	public void scale(Fraction xDelta, Fraction tDelta, Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		System.out.println("scale");
+		Fraction currentX = (Fraction)getProperty("X");
+		Fraction currentY = (Fraction)getProperty("Y");
+		Fraction newX = currentX.add(xDelta);
+		Fraction newY = currentY.add(tDelta);
+
+		Fraction currentWidth = (Fraction)getProperty("Width");
+		Fraction currentHeight = (Fraction)getProperty("Height");
+		
+		Fraction newWidth = currentWidth.multiply(hChange);
+		Fraction newHeight = currentHeight.multiply(vChange);
+		
+		setProperty("X", newX, propCtx, propDistance, collector);
+		setProperty("Y", newY, propCtx, propDistance, collector);
+		setProperty("Width", newWidth, propCtx, propDistance, collector);
+		setProperty("Height", newHeight, propCtx, propDistance, collector);
+
+		modelScale(hChange, vChange, propCtx, propDistance, collector);
+	}
+	
+	public void scale(final Fraction hChange, final Fraction vChange, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		Fraction currentX = (Fraction)getProperty("X");
+		Fraction currentY = (Fraction)getProperty("Y");
+		Fraction currentWidth = (Fraction)getProperty("Width");
+		Fraction currentHeight = (Fraction)getProperty("Height");
+		
+		Fraction newX = currentX.multiply(hChange);
+		Fraction newY = currentY.multiply(vChange);
+		Fraction newWidth = currentWidth.multiply(hChange);
+		Fraction newHeight = currentHeight.multiply(vChange);
+		
+		setProperty("X", newX, propCtx, propDistance, collector);
+		setProperty("Y", newY, propCtx, propDistance, collector);
+		setProperty("Width", newWidth, propCtx, propDistance, collector);
+		setProperty("Height", newHeight, propCtx, propDistance, collector);
+
+		modelScale(hChange, vChange, propCtx, propDistance, collector);
+	}
+	
+	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		
+	}
+
 	public void appendScale(ModelLocation location, final Rectangle newBounds, List<DualCommand<Model>> dualCommands) {
 		// TODO: Consider the following
 		// What if one or more of the contained models are removed and, afterwards, an undone of the scale is requested?
