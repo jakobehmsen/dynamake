@@ -308,6 +308,11 @@ public class CanvasModel extends Model {
 		return models.indexOf(model);
 	}
 	
+	public ModelLocation getLocationOf(Model model) {
+		int indexOfModel = indexOfModel(model);
+		return new IndexLocation(indexOfModel);
+	}
+	
 	private static class CanvasPanel extends JLayeredPane implements ModelComponent {
 		/**
 		 * 

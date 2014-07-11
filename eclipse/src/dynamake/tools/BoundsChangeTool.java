@@ -70,6 +70,7 @@ public abstract class BoundsChangeTool implements Tool {
 
 						final ModelComponent targetOver = newTargetOver;
 						
+						// Reference is closest common ancestor
 						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
@@ -80,16 +81,23 @@ public abstract class BoundsChangeTool implements Tool {
 						// Moving within same canvas
 						final Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getEffectFrameBounds(), (JComponent)newTargetOver);
 						
-						collector.execute(new DualCommandFactory<Model>() {
+						collector.execute(new DualCommandFactory2<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public Model getReference() {
+								return source.getModelBehind();
+							}
+
+							@Override
+							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+								Location locationOfMovedModel = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
+								
 								dualCommands.add(new DualCommandPair<Model>(
-									new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), "X", new Fraction(droppedBounds.x)), 
-									new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), "X", selection.getModelBehind().getProperty("X"))
+									new Model.SetPropertyTransaction(locationOfMovedModel, "X", new Fraction(droppedBounds.x)), 
+									new Model.SetPropertyTransaction(locationOfMovedModel, "X", selection.getModelBehind().getProperty("X"))
 								));
 								dualCommands.add(new DualCommandPair<Model>(
-									new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), "Y", new Fraction(droppedBounds.y)), 
-									new Model.SetPropertyTransaction(selection.getModelTranscriber().getModelLocation(), "Y", selection.getModelBehind().getProperty("Y"))
+									new Model.SetPropertyTransaction(locationOfMovedModel, "Y", new Fraction(droppedBounds.y)), 
+									new Model.SetPropertyTransaction(locationOfMovedModel, "Y", selection.getModelBehind().getProperty("Y"))
 								));
 							}
 						});
