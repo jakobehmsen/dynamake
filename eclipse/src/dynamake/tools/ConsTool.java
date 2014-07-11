@@ -5,19 +5,14 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.commands.DualCommand;
-import dynamake.commands.DualCommandPair;
 import dynamake.models.CanvasModel;
-import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 

@@ -5,22 +5,15 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.commands.DualCommand;
-import dynamake.commands.DualCommandPair;
-import dynamake.models.CompositeModelLocation;
-import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.ModelLocation;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory2;
 
 public class BindTool implements Tool {
 	@Override
