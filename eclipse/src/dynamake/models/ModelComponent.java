@@ -60,8 +60,10 @@ public interface ModelComponent {
 
 		public static ModelComponent closestCommonAncestor(ModelComponent first, ModelComponent second) {
 			HashSet<ModelComponent> secondAncestors = new HashSet<ModelComponent>();
-			
-			ModelComponent secondParent = getParent(second);
+
+			// Start at second, because first may be contained within second
+			// and, thus, second may be an ancestor of first
+			ModelComponent secondParent = second;//getParent(second);
 			
 			while(secondParent != null) {
 				secondAncestors.add(secondParent);
@@ -101,8 +103,8 @@ public interface ModelComponent {
 			for(int i = 1; i < ancestorsClosestToFarthest.size(); i++) {
 				ModelComponent currentAncestor = ancestorsClosestToFarthest.get(i - 1);
 				location = new CompositeModelLocation(
-					location,
-					((CanvasModel)ancestorsClosestToFarthest.get(i).getModelBehind()).getLocationOf(currentAncestor.getModelBehind())
+					((CanvasModel)ancestorsClosestToFarthest.get(i).getModelBehind()).getLocationOf(currentAncestor.getModelBehind()),
+					location
 				);
 			}
 					
