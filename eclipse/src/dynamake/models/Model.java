@@ -172,17 +172,21 @@ public abstract class Model implements Serializable, Observer {
 		 */
 		private static final long serialVersionUID = 1L;
 		private Location modelLocation;
+		private boolean isolate;
 
-		public UndoTransaction(Location modelLocation) {
+		public UndoTransaction(Location modelLocation, boolean isolate) {
 			this.modelLocation = modelLocation;
+			this.isolate = isolate;
 		}
 
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
-			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<Model>(collector);
-			model.undo(propCtx, prevalentSystem, isolatingCollector);
+			if(isolate)
+				collector = new IsolatingCollector<Model>(collector);
+			
+			model.undo(propCtx, prevalentSystem, collector);
 		}
 	}
 	
@@ -192,38 +196,42 @@ public abstract class Model implements Serializable, Observer {
 		 */
 		private static final long serialVersionUID = 1L;
 		private Location modelLocation;
+		private boolean isolate;
 
-		public RedoTransaction(Location modelLocation) {
+		public RedoTransaction(Location modelLocation, boolean isolate) {
 			this.modelLocation = modelLocation;
+			this.isolate = isolate;
 		}
 
 		@Override
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
-
-			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<Model>(collector);
-			model.redo(propCtx, prevalentSystem, isolatingCollector);
+			
+			if(isolate)
+				collector = new IsolatingCollector<Model>(collector);
+			
+			model.redo(propCtx, prevalentSystem, collector);
 		}
 	}
 	
-	public void undo(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector) {
+	public void undo(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector) {
 		if(undoStack.isEmpty())
 			return;
 		
 		DualCommand<Model> ctxTransactionToUndo = undoStack.pop();
 
-		ctxTransactionToUndo.executeBackwardOn(propCtx, this, null, isolatingCollector);
+		ctxTransactionToUndo.executeBackwardOn(propCtx, this, null, collector);
 
 		redoStack.push(ctxTransactionToUndo);
 	}
 	
-	public void redo(PropogationContext propCtx, Model prevalentSystem, IsolatingCollector<Model> isolatingCollector) {
+	public void redo(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector) {
 		if(redoStack.isEmpty())
 			return;
 		
 		DualCommand<Model> ctxTransactionToRedo = redoStack.pop();
 
-		ctxTransactionToRedo.executeForwardOn(propCtx, this, null, isolatingCollector);
+		ctxTransactionToRedo.executeForwardOn(propCtx, this, null, collector);
 
 		undoStack.push(ctxTransactionToRedo);
 	}

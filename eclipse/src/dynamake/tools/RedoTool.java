@@ -33,7 +33,7 @@ public class RedoTool implements Tool {
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				dualCommands.add(
 					new DualCommandPair<Model>(
-						new Model.RedoTransaction(modelOver.getModelTranscriber().getModelLocation()),
+						new Model.RedoTransaction(modelOver.getModelTranscriber().getModelLocation(), false),
 						new Command.Null<Model>()
 					)
 				);
