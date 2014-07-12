@@ -386,10 +386,19 @@ public class CanvasModel extends Model {
 				menuBuilder.addMenuBuilder("Unwrap", new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
+						collector.execute(new DualCommandFactory2<Model>() {
+							ModelComponent parent;
+							
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-								CanvasModel.appendUnwrapTransaction(dualCommands, CanvasPanel.this);
+							public Model getReference() {
+								// If this canvas is unwrapped, then it is unwrapped into its parent
+								parent = ModelComponent.Util.getParent(CanvasPanel.this);
+								return parent.getModelBehind();
+							}
+							
+							@Override
+							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+								CanvasModel.appendUnwrapTransaction(dualCommands, CanvasPanel.this, parent, location);
 							}
 						});
 					}
