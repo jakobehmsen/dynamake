@@ -146,7 +146,9 @@ public class PlotTool implements Tool {
 
 	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
-		interactionPresenter.reset(collector);
-		interactionPresenter = null;
+		if(mouseDown != null) {
+			interactionPresenter.reset(collector);
+			interactionPresenter = null;
+		}
 	}
 }
