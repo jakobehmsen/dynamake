@@ -479,6 +479,39 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+	public static void appendUnwrapTransaction(List<DualCommand<Model>> dualCommands, ModelComponent toUnwrap, ModelComponent parent, Location targetLocation) {
+		CanvasModel target = (CanvasModel)parent.getModelBehind();
+		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
+		int indexOfWrapper = target.indexOfModel(modelToBeUnwrapped);
+		ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
+		Rectangle creationBoundsInSelection = new Rectangle(
+			((Number)modelToBeUnwrapped.getProperty("X")).intValue(),
+			((Number)modelToBeUnwrapped.getProperty("Y")).intValue(),
+			((Number)modelToBeUnwrapped.getProperty("Width")).intValue(),
+			((Number)modelToBeUnwrapped.getProperty("Height")).intValue()
+		);
+		
+		// Derive the an array of the locations at which the unwrapped models are to be placed
+		// within the target canvas
+		int indexOfModelInTarget = target.getModelCount();
+		if(target.indexOfModel(modelToBeUnwrapped) != -1)
+			indexOfModelInTarget--; // Decrement, since modelToBeUnwrapped will be removed
+		Location[] modelLocations = new Location[modelToBeUnwrapped.models.size()];
+		for(int i = 0; i < modelLocations.length; i++) {
+			Location viewLocation = new CompositeModelLocation(
+				(ModelLocation)targetLocation,
+				new CanvasModel.IndexLocation(indexOfModelInTarget)
+			);
+			modelLocations[i] = viewLocation;
+			indexOfModelInTarget++;
+		}
+		
+		dualCommands.add(new DualCommandPair<Model>(
+			new UnwrapTransaction(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
+			new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations)
+		));
+	}
+	
 	public static void appendUnwrapTransaction(List<DualCommand<Model>> dualCommands, ModelComponent toUnwrap) {
 		ModelComponent parent = ModelComponent.Util.getParent(toUnwrap);
 		CanvasModel target = (CanvasModel)parent.getModelBehind();
