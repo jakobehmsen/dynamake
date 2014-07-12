@@ -13,15 +13,17 @@ import dynamake.commands.DualCommandPair;
 import dynamake.commands.InjectTransaction;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
+import dynamake.models.CompositeModelLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
+import dynamake.models.ModelLocation;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.DualCommandFactory2;
 import dynamake.transcription.Trigger;
 
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
@@ -121,13 +123,29 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionSelectionGeneralMapBuilder.addMenuBuilder("Inject", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new DualCommandFactory<Model>() {
+				collector.execute(new DualCommandFactory2<Model>() {
+					ModelComponent referenceMC;
+					
 					@Override
-					public void createDualCommands(
-							List<DualCommand<Model>> dualCommands) {
+					public Model getReference() {
+						referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
+						return referenceMC.getModelBehind();
+					}
+					
+					@Override
+					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+						ModelLocation locationOfSelection = new CompositeModelLocation(
+							(ModelLocation)location,
+							ModelComponent.Util.locationFromAncestor(referenceMC, selection)
+						);
+						ModelLocation locationOfTarget = new CompositeModelLocation(
+							(ModelLocation)location,
+							ModelComponent.Util.locationFromAncestor(referenceMC, target)
+						);
+							
 						dualCommands.add(new DualCommandPair<Model>(
-							new InjectTransaction(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation()),
-							new DejectTransaction(selection.getModelTranscriber().getModelLocation(), target.getModelTranscriber().getModelLocation())
+							new InjectTransaction(locationOfSelection, locationOfTarget),
+							new DejectTransaction(locationOfSelection, locationOfTarget)
 						));
 					}
 				});
