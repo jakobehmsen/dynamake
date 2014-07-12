@@ -106,36 +106,14 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionSelectionGeneralMapBuilder.addMenuBuilder("Unforward to", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.execute(new DualCommandFactory<Model>() {
-						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							Location observableLocation = selection.getModelTranscriber().getModelLocation();
-							Location observerLocation = target.getModelTranscriber().getModelLocation();
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.RemoveObserver(observableLocation, observerLocation), // Absolute location
-								new Model.AddObserver(observableLocation, observerLocation) // Absolute location
-							));
-						}
-					});
+					Model.executeRemoveObserver(collector, selection, target);
 				}
 			});
 		} else {
 			transactionSelectionGeneralMapBuilder.addMenuBuilder("Forward to", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.execute(new DualCommandFactory<Model>() {
-						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							Location observableLocation = selection.getModelTranscriber().getModelLocation();
-							Location observerLocation = target.getModelTranscriber().getModelLocation();
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.AddObserver(observableLocation, observerLocation), // Absolute location
-								new Model.RemoveObserver(observableLocation, observerLocation) // Absolute location
-							));
-						}
-					});
+					Model.executeAddObserver(collector, selection, target);
 				}
 			});
 		}
