@@ -29,7 +29,6 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.AsIsFactory;
 import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.DualCommandFactory2;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
@@ -467,11 +466,6 @@ public class CanvasModel extends Model {
 		@Override
 		public ModelTranscriber getModelTranscriber() {
 			return modelTranscriber;
-		}
-
-		@Override
-		public DualCommandFactory<Model> getImplicitDropAction(ModelComponent target) {
-			return null;
 		}
 		
 		@Override

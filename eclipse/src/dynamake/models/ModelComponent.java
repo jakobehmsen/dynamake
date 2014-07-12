@@ -9,7 +9,6 @@ import java.util.HashSet;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
-import dynamake.transcription.DualCommandFactory;
 
 /**
  * Assumed only to be implemented by JComponent (or JFrame) class extensions.
@@ -112,6 +111,5 @@ public interface ModelComponent {
 		}
 	}
 
-	DualCommandFactory<Model> getImplicitDropAction(ModelComponent target);
 	void visitTree(Action1<ModelComponent> visitAction);
 }

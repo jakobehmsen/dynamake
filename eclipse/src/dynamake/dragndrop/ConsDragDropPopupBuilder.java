@@ -21,7 +21,6 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.PrimitiveSingletonFactory;
 import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.DualCommandFactory2;
@@ -58,92 +57,80 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				});
 			}
 		};
+
+		CompositeMenuBuilder transactionTargetContentMapBuilder = new CompositeMenuBuilder();
 		
-		final DualCommandFactory<Model> implicitDropAction = selection.getImplicitDropAction(target);
-		
-		if(implicitDropAction != null) {
-			connection.trigger(new Trigger<Model>() {
+		if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
+			transactionTargetContentMapBuilder.addMenuBuilder("Unforward to", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.execute(implicitDropAction);
-					collector.commit();
+					Model.executeRemoveObserver(collector, selection, target);
 				}
 			});
 		} else {
-			CompositeMenuBuilder transactionTargetContentMapBuilder = new CompositeMenuBuilder();
-			
-			if(selection.getModelBehind().isObservedBy(target.getModelBehind())) {
-				transactionTargetContentMapBuilder.addMenuBuilder("Unforward to", new Trigger<Model>() {
-					@Override
-					public void run(Collector<Model> collector) {
-						Model.executeRemoveObserver(collector, selection, target);
-					}
-				});
-			} else {
-				transactionTargetContentMapBuilder.addMenuBuilder("Forward to", new Trigger<Model>() {
-					@Override
-					public void run(Collector<Model> collector) {
-						Model.executeAddObserver(collector, selection, target);
-					}
-				});
-			}
-			transactionTargetContentMapBuilder.appendTo(popup, runner, "Selection to target");
-			popup.addSeparator();
-			
-			CompositeMenuBuilder transactionObserverContentMapBuilder = new CompositeMenuBuilder();
-			for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
-				final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
-				transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new Trigger<Model>() {
-					@Override
-					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory2<Model>() {
-							ModelComponent referenceMC;
-							
-							@Override
-							public Model getReference() {
-								// Common ancestor among what?
-								// The observer is not created yet
-								// Probably, it is the common ancestor among the observable and the target canvas
-								// Well, that is at least the current decision
-								referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
-								return referenceMC.getModelBehind();
-							}
-							
-							@Override
-							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-								ModelLocation observableLocation = new CompositeModelLocation(
-									(ModelLocation)location,
-									ModelComponent.Util.locationFromAncestor(referenceMC, selection)
-								);
-								ModelLocation canvasModelLocation = new CompositeModelLocation(
-									(ModelLocation)location,
-									ModelComponent.Util.locationFromAncestor(referenceMC, target)
-								);
-								CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-								int index = canvasModel.getModelCount();
-								Location addedPrimitiveLocation = new CompositeModelLocation(
-									canvasModelLocation,
-									new CanvasModel.IndexLocation(index)
-								);
-								
-								// Add
-								dualCommands.add(new DualCommandPair<Model>(
-									new CanvasModel.AddModelTransaction(canvasModelLocation, dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl)), 
-									new CanvasModel.RemoveModelTransaction(canvasModelLocation, index)
-								));
-
-								// Bind
-								dualCommands.add(new DualCommandPair<Model>(
-									new Model.AddObserver(observableLocation, addedPrimitiveLocation),
-									new Model.RemoveObserver(observableLocation, addedPrimitiveLocation)
-								));
-							}
-						});
-					}
-				});
-			}
-			transactionObserverContentMapBuilder.appendTo(popup, runner, "Observation");
+			transactionTargetContentMapBuilder.addMenuBuilder("Forward to", new Trigger<Model>() {
+				@Override
+				public void run(Collector<Model> collector) {
+					Model.executeAddObserver(collector, selection, target);
+				}
+			});
 		}
+		transactionTargetContentMapBuilder.appendTo(popup, runner, "Selection to target");
+		popup.addSeparator();
+		
+		CompositeMenuBuilder transactionObserverContentMapBuilder = new CompositeMenuBuilder();
+		for(int i = 0; i < Primitive.getImplementationSingletons().length; i++) {
+			final Primitive.Implementation primImpl = Primitive.getImplementationSingletons()[i];
+			transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new Trigger<Model>() {
+				@Override
+				public void run(Collector<Model> collector) {
+					collector.execute(new DualCommandFactory2<Model>() {
+						ModelComponent referenceMC;
+						
+						@Override
+						public Model getReference() {
+							// Common ancestor among what?
+							// The observer is not created yet
+							// Probably, it is the common ancestor among the observable and the target canvas
+							// Well, that is at least the current decision
+							referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
+							return referenceMC.getModelBehind();
+						}
+						
+						@Override
+						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+							ModelLocation observableLocation = new CompositeModelLocation(
+								(ModelLocation)location,
+								ModelComponent.Util.locationFromAncestor(referenceMC, selection)
+							);
+							ModelLocation canvasModelLocation = new CompositeModelLocation(
+								(ModelLocation)location,
+								ModelComponent.Util.locationFromAncestor(referenceMC, target)
+							);
+							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
+							int index = canvasModel.getModelCount();
+							Location addedPrimitiveLocation = new CompositeModelLocation(
+								canvasModelLocation,
+								new CanvasModel.IndexLocation(index)
+							);
+							
+							// Add
+							dualCommands.add(new DualCommandPair<Model>(
+								new CanvasModel.AddModelTransaction(canvasModelLocation, dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl)), 
+								new CanvasModel.RemoveModelTransaction(canvasModelLocation, index)
+							));
+
+							// Bind
+							dualCommands.add(new DualCommandPair<Model>(
+								new Model.AddObserver(observableLocation, addedPrimitiveLocation),
+								new Model.RemoveObserver(observableLocation, addedPrimitiveLocation)
+							));
+						}
+					});
+				}
+			});
+		}
+		transactionObserverContentMapBuilder.appendTo(popup, runner, "Observation");
 	}
 
 	@Override

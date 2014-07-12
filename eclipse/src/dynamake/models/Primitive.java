@@ -17,7 +17,6 @@ import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.numbers.Fraction;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 
 public class Primitive extends Model {
@@ -310,11 +309,6 @@ public class Primitive extends Model {
 		public void appendDropTargetTransactions(ModelComponent livePanel,
 				ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder) {
 
-		}
-		
-		@Override
-		public DualCommandFactory<Model> getImplicitDropAction(ModelComponent target) {
-			return null;
 		}
 
 		@Override

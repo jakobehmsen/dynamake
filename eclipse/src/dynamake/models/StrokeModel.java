@@ -17,7 +17,6 @@ import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.numbers.Fraction;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 
 public class StrokeModel extends Model {
@@ -128,13 +127,6 @@ public class StrokeModel extends Model {
 		public void initialize() {
 			// TODO Auto-generated method stub
 			
-		}
-
-		@Override
-		public DualCommandFactory<Model> getImplicitDropAction(
-				ModelComponent target) {
-			// TODO Auto-generated method stub
-			return null;
 		}
 
 		@Override

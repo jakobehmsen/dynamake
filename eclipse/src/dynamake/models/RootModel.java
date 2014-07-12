@@ -97,11 +97,6 @@ public class RootModel extends Model {
 		public void appendDropTargetTransactions(ModelComponent livePanel,
 			ModelComponent dropped, Rectangle droppedBounds, Point dropPoint, CompositeMenuBuilder menuBuilder) {
 		}
-
-		@Override
-		public DualCommandFactory<Model> getImplicitDropAction(ModelComponent target) {
-			return null;
-		}
 		
 		@Override
 		public void initialize() {

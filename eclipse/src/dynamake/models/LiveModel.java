@@ -769,11 +769,6 @@ public class LiveModel extends Model {
 		public void releaseBinding() {
 			removableListener.releaseBinding();
 		}
-
-		@Override
-		public DualCommandFactory<Model> getImplicitDropAction(ModelComponent target) {
-			return null;
-		}
 		
 		@Override
 		public void visitTree(Action1<ModelComponent> visitAction) {
