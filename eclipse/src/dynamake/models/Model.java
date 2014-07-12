@@ -309,16 +309,20 @@ public abstract class Model implements Serializable, Observer {
 		if(change instanceof SetProperty && changeDistance == 1) {
 			// Side-effect
 			final SetProperty setProperty = (SetProperty)change;
-			
-			collector.execute(new DualCommandFactory<Model>() {
+
+			collector.execute(new DualCommandFactory2<Model>() {
 				@Override
-				public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-					Location modelLocation = getLocator().locate();
+				public Model getReference() {
+					return Model.this;
+				}
+				
+				@Override
+				public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 					Object currentValue = getProperty(setProperty.name);
 					
 					dualCommands.add(new DualCommandPair<Model>(
-						new SetPropertyTransaction(modelLocation, setProperty.name, setProperty.value),
-						new SetPropertyTransaction(modelLocation, setProperty.name, currentValue)
+						new SetPropertyTransaction(location, setProperty.name, setProperty.value),
+						new SetPropertyTransaction(location, setProperty.name, currentValue)
 					));
 				}
 			});
