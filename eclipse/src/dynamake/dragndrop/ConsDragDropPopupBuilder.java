@@ -129,13 +129,13 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 								// Add
 								dualCommands.add(new DualCommandPair<Model>(
 									new CanvasModel.AddModelTransaction(canvasModelLocation, dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl)), 
-									new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+									new CanvasModel.RemoveModelTransaction(canvasModelLocation, index)
 								));
 
 								// Bind
 								dualCommands.add(new DualCommandPair<Model>(
-									new Model.AddObserver(observableLocation, addedPrimitiveLocation), // Absolute location
-									new Model.RemoveObserver(observableLocation, addedPrimitiveLocation) // Absolute location
+									new Model.AddObserver(observableLocation, addedPrimitiveLocation),
+									new Model.RemoveObserver(observableLocation, addedPrimitiveLocation)
 								));
 							}
 						});

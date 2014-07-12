@@ -82,8 +82,10 @@ public class Primitive extends Model {
 				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
-						Color darkenedColor = ((Color)atom.value).darker();
-						receiver.sendChanged(new Model.Atom(darkenedColor), propCtx, propDistance, 0, collector);
+						if(atom.value != null) {
+							Color darkenedColor = ((Color)atom.value).darker();
+							receiver.sendChanged(new Model.Atom(darkenedColor), propCtx, propDistance, 0, collector);
+						}
 					}
 				}
 			},
@@ -102,8 +104,10 @@ public class Primitive extends Model {
 				public void execute(Model receiver, Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 					if(change instanceof Model.Atom) {
 						Model.Atom atom = (Model.Atom)change;
-						Color brightenedColor = ((Color)atom.value).brighter();
-						receiver.sendChanged(new Model.Atom(brightenedColor), propCtx, propDistance, 0, collector);
+						if(atom.value != null) {
+							Color brightenedColor = ((Color)atom.value).brighter();
+							receiver.sendChanged(new Model.Atom(brightenedColor), propCtx, propDistance, 0, collector);
+						}
 					}
 				}
 			},
