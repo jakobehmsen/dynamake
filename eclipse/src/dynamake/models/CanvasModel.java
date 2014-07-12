@@ -361,12 +361,15 @@ public class CanvasModel extends Model {
 			menuBuilder.addMenuBuilder("Remove", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.execute(new DualCommandFactory<Model>() {
+					collector.execute(new DualCommandFactory2<Model>() {
 						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-							Location canvasLocation = modelTranscriber.getModelLocation();
-							
-							CanvasModel.appendRemoveTransaction(dualCommands, livePanel, child, canvasLocation, model);
+						public Model getReference() {
+							return model;
+						}
+						
+						@Override
+						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+							CanvasModel.appendRemoveTransaction(dualCommands, livePanel, child, location, model);
 						}
 					});
 				}
