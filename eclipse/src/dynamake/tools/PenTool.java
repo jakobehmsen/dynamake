@@ -26,6 +26,7 @@ import dynamake.models.factories.StrokeModelFactory;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.DualCommandFactory2;
 
 public class PenTool implements Tool {
 	@Override
@@ -65,17 +66,21 @@ public class PenTool implements Tool {
 		final ModelComponent target = targetPresenter.getTargetOver();
 		final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)target);
 		
-		collector.execute(new DualCommandFactory<Model>() {
+		collector.execute(new DualCommandFactory2<Model>() {
 			@Override
-			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+			public Model getReference() {
+				return target.getModelBehind();
+			}
+			
+			@Override
+			public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 				CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-				Location canvasModelLocation = target.getModelTranscriber().getModelLocation();
 				int index = canvasModel.getModelCount();
 				Factory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation);
 				
 				dualCommands.add(new DualCommandPair<Model>(
-					new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInContainer, factory), 
-					new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+					new CanvasModel.AddModelTransaction(location, creationBoundsInContainer, factory), 
+					new CanvasModel.RemoveModelTransaction(location, index)
 				));
 			}
 		});
