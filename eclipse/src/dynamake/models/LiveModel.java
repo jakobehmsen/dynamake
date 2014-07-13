@@ -39,6 +39,7 @@ import dynamake.tools.Tool;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.DualCommandFactory2;
 import dynamake.transcription.Trigger;
 
 public class LiveModel extends Model {
@@ -256,19 +257,22 @@ public class LiveModel extends Model {
 						connection.trigger(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
-								collector.execute(new DualCommandFactory<Model>() {
+								collector.execute(new DualCommandFactory2<Model>() {
 									@Override
-									public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+									public Model getReference() {
+										return ToolButton.this.liveModel;
+									}
+									
+									@Override
+									public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 										List<Integer> currentButtons = ToolButton.this.buttons;
-										
-										Location modelLocation = ToolButton.this.modelTranscriber.getModelLocation();
 										
 										if(localButtonsPressed.equals(currentButtons)) {
 											// If the indicated combination is the same as the current combination, then remove
 											// the current binding
 											dualCommands.add(new DualCommandPair<Model>(
-												new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, ToolButton.this.tool),
-												new BindButtonsToToolCommand(modelLocation, localButtonsPressed, ToolButton.this.tool)
+												new RemoveButtonsToToolBindingCommand(location, localButtonsPressed, ToolButton.this.tool),
+												new BindButtonsToToolCommand(location, localButtonsPressed, ToolButton.this.tool)
 											));
 										} else {
 											int previousToolForNewButton = ToolButton.this.liveModel.getToolForButtons(localButtonsPressed);
@@ -276,27 +280,27 @@ public class LiveModel extends Model {
 											if(previousToolForNewButton != -1) {
 												// If the new buttons are associated to another tool, then remove that binding
 												dualCommands.add(new DualCommandPair<Model>(
-													new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, previousToolForNewButton), 
-													new BindButtonsToToolCommand(modelLocation, localButtonsPressed, previousToolForNewButton))
+													new RemoveButtonsToToolBindingCommand(location, localButtonsPressed, previousToolForNewButton), 
+													new BindButtonsToToolCommand(location, localButtonsPressed, previousToolForNewButton))
 												);
 											}
 											
 											if(currentButtons.size() > 0) {
 												// If this tool is associated to buttons, then remove that binding before
 												dualCommands.add(new DualCommandPair<Model>(
-													new RemoveButtonsToToolBindingCommand(modelLocation, currentButtons, ToolButton.this.tool), 
-													new BindButtonsToToolCommand(modelLocation, currentButtons, ToolButton.this.tool))
+													new RemoveButtonsToToolBindingCommand(location, currentButtons, ToolButton.this.tool), 
+													new BindButtonsToToolCommand(location, currentButtons, ToolButton.this.tool))
 												);
 												
 												// adding the replacement binding
 												dualCommands.add(new DualCommandPair<Model>(
-													new BindButtonsToToolCommand(modelLocation, localButtonsPressed, ToolButton.this.tool), 
-													new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, ToolButton.this.tool))
+													new BindButtonsToToolCommand(location, localButtonsPressed, ToolButton.this.tool), 
+													new RemoveButtonsToToolBindingCommand(location, localButtonsPressed, ToolButton.this.tool))
 												);
 											} else {
 												dualCommands.add(new DualCommandPair<Model>(
-													new BindButtonsToToolCommand(modelLocation, localButtonsPressed, ToolButton.this.tool), 
-													new RemoveButtonsToToolBindingCommand(modelLocation, localButtonsPressed, ToolButton.this.tool)
+													new BindButtonsToToolCommand(location, localButtonsPressed, ToolButton.this.tool), 
+													new RemoveButtonsToToolBindingCommand(location, localButtonsPressed, ToolButton.this.tool)
 												));
 											}
 										}
