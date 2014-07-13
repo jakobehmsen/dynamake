@@ -777,15 +777,25 @@ public abstract class Model implements Serializable, Observer {
 				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
 
-					collector.execute(new DualCommandFactory<Model>() {
+					collector.execute(new DualCommandFactory2<Model>() {
 						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						public Model getReference() {
+							return target.getModelBehind();
+						}
+
+						@Override
+						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
-							Location targetCanvasLocation = target.getModelTranscriber().getModelLocation();
-							Factory factory = new CloneDeepFactory(dropped.getModelTranscriber().getModelLocation());
+							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
+							ModelLocation fromTargetToCCA = ModelComponent.Util.locationToAncestor((ModelLocation)location, cca, target);
+							ModelLocation fromCCAToDropped = ModelComponent.Util.locationFromAncestor(fromTargetToCCA, cca, dropped);
+							// Probably, the "version" of dropped to be cloned is important
+							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
+							Location droppedLocation = fromCCAToDropped;
+							Factory factory = new CloneDeepFactory(droppedLocation);
 							dualCommands.add(new DualCommandPair<Model>(
-								new CanvasModel.AddModelTransaction(targetCanvasLocation, creationBounds, factory),
-								new CanvasModel.RemoveModelTransaction(targetCanvasLocation, cloneIndex)
+								new CanvasModel.AddModelTransaction(location, creationBounds, factory),
+								new CanvasModel.RemoveModelTransaction(location, cloneIndex)
 							));
 						}
 					});
