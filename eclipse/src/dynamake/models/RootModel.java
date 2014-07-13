@@ -262,19 +262,19 @@ public class RootModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
-							public DualCommand<Model> createDualCommand() {
-								Location modelLocation = modelTranscriber.getModelLocation();
-								Integer currentState = (Integer)RootModel.this.getProperty("State");
-								return new DualCommandPair<Model>(
-									new Model.SetPropertyOnRootTransaction(modelLocation, "State", newState),
-									new Model.SetPropertyOnRootTransaction(modelLocation, "State", currentState)
-								);
+						collector.execute(new DualCommandFactory2<Model>() {
+							@Override
+							public Model getReference() {
+								return RootModel.this;
 							}
 							
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
-								dualCommands.add(createDualCommand());
+							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+								Integer currentState = (Integer)RootModel.this.getProperty("State");
+								dualCommands.add(new DualCommandPair<Model>(
+									new Model.SetPropertyOnRootTransaction(location, "State", newState),
+									new Model.SetPropertyOnRootTransaction(location, "State", currentState)
+								));
 							}
 						});
 						collector.commit();
