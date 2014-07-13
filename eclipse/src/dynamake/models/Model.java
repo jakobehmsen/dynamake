@@ -588,12 +588,17 @@ public abstract class Model implements Serializable, Observer {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
+						collector.execute(new DualCommandFactory2<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public Model getReference() {
+								return view.getModelBehind();
+							}
+
+							@Override
+							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
-									new MouseUpTransaction(view.getModelTranscriber().getModelLocation()), 
-									new MouseUpTransaction(view.getModelTranscriber().getModelLocation())
+									new MouseUpTransaction(location), 
+									new MouseUpTransaction(location)
 								));
 							}
 						});
@@ -608,12 +613,17 @@ public abstract class Model implements Serializable, Observer {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
+						collector.execute(new DualCommandFactory2<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public Model getReference() {
+								return view.getModelBehind();
+							}
+
+							@Override
+							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
-										new MouseDownTransaction(view.getModelTranscriber().getModelLocation()), 
-										new MouseDownTransaction(view.getModelTranscriber().getModelLocation())
+									new MouseDownTransaction(location), 
+									new MouseDownTransaction(location)
 								));
 							}
 						});
