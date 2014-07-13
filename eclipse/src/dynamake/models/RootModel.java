@@ -24,6 +24,7 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.DualCommandFactory2;
 import dynamake.transcription.Trigger;
 
 public class RootModel extends Model {
@@ -155,30 +156,35 @@ public class RootModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
+						collector.execute(new DualCommandFactory2<Model>() {
 							@Override
-							public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+							public Model getReference() {
+								return rootModel;
+							}
+							
+							@Override
+							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 								if(newLocation != null) {
 									dualCommands.add(new DualCommandPair<Model>(
-										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "X", newLocation.x),
-										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "X", rootModel.getProperty("X"))
+										new Model.SetPropertyTransaction(location, "X", newLocation.x),
+										new Model.SetPropertyTransaction(location, "X", rootModel.getProperty("X"))
 									));
 									
 									dualCommands.add(new DualCommandPair<Model>(
-										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Y", newLocation.y),
-										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Y", rootModel.getProperty("Y"))
+										new Model.SetPropertyTransaction(location, "Y", newLocation.y),
+										new Model.SetPropertyTransaction(location, "Y", rootModel.getProperty("Y"))
 									));
 								}
 								
 								if(newSize != null) {
 									dualCommands.add(new DualCommandPair<Model>(
-										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Width", newSize.width),
-										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Width", rootModel.getProperty("Width"))
+										new Model.SetPropertyTransaction(location, "Width", newSize.width),
+										new Model.SetPropertyTransaction(location, "Width", rootModel.getProperty("Width"))
 									));
 			
 									dualCommands.add(new DualCommandPair<Model>(
-										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Height", newSize.height),
-										new Model.SetPropertyTransaction(modelTranscriber.getModelLocation(), "Height", rootModel.getProperty("Height"))
+										new Model.SetPropertyTransaction(location, "Height", newSize.height),
+										new Model.SetPropertyTransaction(location, "Height", rootModel.getProperty("Height"))
 									));
 								}
 							}
