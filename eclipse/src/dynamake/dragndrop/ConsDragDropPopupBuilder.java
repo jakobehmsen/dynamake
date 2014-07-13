@@ -99,14 +99,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						
 						@Override
 						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-							ModelLocation observableLocation = new CompositeModelLocation(
-								(ModelLocation)location,
-								ModelComponent.Util.locationFromAncestor(referenceMC, selection)
-							);
-							ModelLocation canvasModelLocation = new CompositeModelLocation(
-								(ModelLocation)location,
-								ModelComponent.Util.locationFromAncestor(referenceMC, target)
-							);
+							ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, selection);
+							ModelLocation canvasModelLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, target);
+							
 							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 							int index = canvasModel.getModelCount();
 							Location addedPrimitiveLocation = new CompositeModelLocation(

@@ -83,9 +83,9 @@ public interface ModelComponent {
 			return null;
 		}
 
-		public static ModelLocation locationFromAncestor(ModelComponent ancestor, ModelComponent child) {
+		public static ModelLocation locationFromAncestor(ModelLocation head, ModelComponent ancestor, ModelComponent child) {
 			if(child == ancestor)
-				return new ModelRootLocation();
+				return head;
 			
 			ArrayList<ModelComponent> ancestorsClosestToFarthest = new ArrayList<ModelComponent>();
 
@@ -107,7 +107,34 @@ public interface ModelComponent {
 				);
 			}
 					
-			return location;
+			return new CompositeModelLocation(head, location);
+		}
+
+		public static ModelLocation locationToAncestor(ModelLocation head, ModelComponent ancestor, ModelComponent child) {
+			if(child == ancestor)
+				return head;
+			
+			ArrayList<ModelComponent> ancestorsClosestToFarthest = new ArrayList<ModelComponent>();
+
+			ModelComponent parent = getParent(child);
+			while(true) {
+				ancestorsClosestToFarthest.add(parent);
+				if(parent == ancestor)
+					break;
+				parent = getParent(parent);
+			}
+			
+			ModelLocation location = ((CanvasModel)ancestorsClosestToFarthest.get(0).getModelBehind()).getLocationOf(child.getModelBehind());
+			
+			for(int i = 1; i < ancestorsClosestToFarthest.size(); i++) {
+				ModelComponent currentAncestor = ancestorsClosestToFarthest.get(i - 1);
+				location = new CompositeModelLocation(
+					location,
+					((CanvasModel)ancestorsClosestToFarthest.get(i).getModelBehind()).getLocationOf(currentAncestor.getModelBehind())
+				);
+			}
+					
+			return new CompositeModelLocation(head, location);
 		}
 	}
 

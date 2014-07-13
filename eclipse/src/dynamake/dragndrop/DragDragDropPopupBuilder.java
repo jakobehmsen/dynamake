@@ -134,14 +134,8 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 					
 					@Override
 					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-						ModelLocation locationOfSelection = new CompositeModelLocation(
-							(ModelLocation)location,
-							ModelComponent.Util.locationFromAncestor(referenceMC, selection)
-						);
-						ModelLocation locationOfTarget = new CompositeModelLocation(
-							(ModelLocation)location,
-							ModelComponent.Util.locationFromAncestor(referenceMC, target)
-						);
+						ModelLocation locationOfSelection = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, selection);
+						ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, target);
 							
 						dualCommands.add(new DualCommandPair<Model>(
 							new InjectTransaction(locationOfSelection, locationOfTarget),

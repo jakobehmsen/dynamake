@@ -90,14 +90,17 @@ public abstract class BoundsChangeTool implements Tool {
 
 							@Override
 							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-								ModelLocation locationOfSource = new CompositeModelLocation(
-									(ModelLocation)location,
-									ModelComponent.Util.locationFromAncestor(referenceMC, source)
-								);
-								ModelLocation locationOfTarget = new CompositeModelLocation(
-									(ModelLocation)location,
-									ModelComponent.Util.locationFromAncestor(referenceMC, targetOver)
-								);
+//								ModelLocation locationOfSource = new CompositeModelLocation(
+//									(ModelLocation)location,
+//									ModelComponent.Util.locationFromAncestor(referenceMC, source)
+//								);
+//								ModelLocation locationOfTarget = new CompositeModelLocation(
+//									(ModelLocation)location,
+//									ModelComponent.Util.locationFromAncestor(referenceMC, targetOver)
+//								);
+								
+								ModelLocation locationOfSource = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, source);
+								ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, targetOver);
 								
 								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 							}
