@@ -25,6 +25,7 @@ import dynamake.models.factories.Factory;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.DualCommandFactory2;
 
 public class PlotTool implements Tool {
 	@Override
@@ -88,18 +89,23 @@ public class PlotTool implements Tool {
 				} else {
 					final Factory factory = new CanvasModelFactory();
 					
-					collector.execute(new DualCommandFactory<Model>() {
+					collector.execute(new DualCommandFactory2<Model>() {
 						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						public Model getReference() {
+							return selection.getModelBehind();
+						}
+						
+						@Override
+						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 							ModelComponent target = selection;
 							
 							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-							Location canvasModelLocation = target.getModelTranscriber().getModelLocation();
 							int index = canvasModel.getModelCount();
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new CanvasModel.AddModelTransaction(canvasModelLocation, creationBoundsInSelection, factory), 
-								new CanvasModel.RemoveModelTransaction(canvasModelLocation, index) // Relative location
+								new CanvasModel.AddModelTransaction(location, creationBoundsInSelection, factory), 
+								new CanvasModel.RemoveModelTransaction(location, index)
+								// The model removed here, should be cloned before removing and then used for the redo in an as-is factory
 							));
 						}
 					});
