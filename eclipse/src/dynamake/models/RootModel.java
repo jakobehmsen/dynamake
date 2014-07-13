@@ -21,7 +21,6 @@ import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.DualCommandFactory2;
