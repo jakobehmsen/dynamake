@@ -514,6 +514,26 @@ public class LiveModel extends Model {
 			private Connection<Model> toolConnection;
 			
 			public void mousePressed(final MouseEvent e) {
+				// Check whether there is an active tool which must be rolled back
+				// because a new combination of button is recognized
+				toolConnection.trigger(new Trigger<Model>() {
+					@Override
+					public void run(Collector<Model> collector) {
+						int button = e.getButton();
+						
+						if(!buttonsPressed.contains(button) && buttonsPressed.size() > 0) {
+							final Tool toolToRollback = toolBeingApplied;
+							
+							toolToRollback.rollback(productionPanel, collector);
+							collector.reject();
+							
+							ToolButton toolButton = getToolButton(buttonsPressed);
+							if(toolButton != null)
+								toolButton.showAsPassive();
+						}
+					}
+				});
+				
 				toolConnection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
@@ -522,17 +542,6 @@ public class LiveModel extends Model {
 						int button = e.getButton();
 						
 						if(!buttonsPressed.contains(button)) {
-							if(buttonsPressed.size() > 0) {
-								final Tool toolToRollback = toolBeingApplied;
-								
-								toolToRollback.rollback(productionPanel, collector);
-								collector.reject();
-								
-								ToolButton toolButton = getToolButton(buttonsPressed);
-								if(toolButton != null)
-									toolButton.showAsPassive();
-							}
-							
 							buttonsPressed.add(button);
 							Collections.sort(buttonsPressed);
 							toolBeingApplied = getTool(buttonsPressed);
@@ -582,6 +591,7 @@ public class LiveModel extends Model {
 									toolButton.showAsPassive();
 								
 								buttonsPressed.clear();
+								toolBeingApplied = null;
 							}
 						}
 					}
