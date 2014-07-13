@@ -11,6 +11,7 @@ import dynamake.commands.DualCommandPair;
 import dynamake.commands.TellPropertyTransaction;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
+import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.LivePanel;
@@ -18,6 +19,7 @@ import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.DualCommandFactory2;
 import dynamake.transcription.Trigger;
 
 public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
@@ -54,12 +56,17 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Tell Color", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new DualCommandFactory<Model>() {
+				collector.execute(new DualCommandFactory2<Model>() {
 					@Override
-					public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+					public Model getReference() {
+						return selection.getModelBehind();
+					}
+					
+					@Override
+					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 						dualCommands.add(new DualCommandPair<Model>(
-							new TellPropertyTransaction(selection.getModelTranscriber().getModelLocation(), Model.PROPERTY_COLOR),
-							new TellPropertyTransaction(selection.getModelTranscriber().getModelLocation(), Model.PROPERTY_COLOR)
+							new TellPropertyTransaction(location, Model.PROPERTY_COLOR),
+							new TellPropertyTransaction(location, Model.PROPERTY_COLOR)
 						));
 					}
 				});
