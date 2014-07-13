@@ -200,12 +200,6 @@ public class PenTool implements Tool {
 	}
 
 	@Override
-	public void paint(Graphics g) {
-//		StrokeModel.setupGraphics(g);
-//		((Graphics2D)g).draw(shape);
-	}
-
-	@Override
 	public void rollback(final ProductionPanel productionPanel, Collector<Model> collector) {
 		targetPresenter.reset(collector);
 		targetPresenter = null;

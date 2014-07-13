@@ -49,8 +49,5 @@ public class UndoTool implements Tool {
 	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) { }
 
 	@Override
-	public void paint(Graphics g) { }
-
-	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) { }
 }

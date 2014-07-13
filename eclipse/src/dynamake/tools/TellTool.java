@@ -54,11 +54,6 @@ public class TellTool implements Tool {
 	}
 
 	@Override
-	public void paint(Graphics g) {
-
-	}
-
-	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
 		interactionPresenter.reset(collector);
 		interactionPresenter = null;

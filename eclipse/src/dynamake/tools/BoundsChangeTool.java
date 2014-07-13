@@ -276,11 +276,6 @@ public abstract class BoundsChangeTool implements Tool {
 		
 		return newTargetOver;
 	}
-
-	@Override
-	public void paint(Graphics g) {
-
-	}
 	
 	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {

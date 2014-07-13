@@ -101,11 +101,6 @@ public class DragTool implements Tool {
 	}
 
 	@Override
-	public void paint(Graphics g) {
-
-	}
-
-	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
 		targetPresenter.reset(collector);
 		interactionPresenter.reset(collector);

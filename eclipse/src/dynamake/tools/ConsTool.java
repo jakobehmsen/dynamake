@@ -141,11 +141,6 @@ public class ConsTool implements Tool {
 	}
 
 	@Override
-	public void paint(Graphics g) {
-
-	}
-
-	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
 		targetPresenter.reset(collector);
 		targetPresenter = null;

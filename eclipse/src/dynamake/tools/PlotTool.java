@@ -140,11 +140,6 @@ public class PlotTool implements Tool {
 	}
 
 	@Override
-	public void paint(Graphics g) {
-
-	}
-
-	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
 		if(mouseDown != null) {
 			interactionPresenter.reset(collector);

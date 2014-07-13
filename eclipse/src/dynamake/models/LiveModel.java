@@ -483,9 +483,6 @@ public class LiveModel extends Model {
 						public String getName() { return null; }
 						
 						@Override
-						public void paint(Graphics g) { }
-						
-						@Override
 						public void rollback(ProductionPanel productionPanel, Collector<Model> collector) { }
 					};
 				}
@@ -622,12 +619,6 @@ public class LiveModel extends Model {
 			
 			this.setOpaque(true);
 			this.setBackground(new Color(0, 0, 0, 0));
-		}
-		
-		@Override
-		public void paint(Graphics g) {
-			super.paint(g);
-			editPanelMouseAdapter.getTool(editPanelMouseAdapter.buttonsPressed).paint(g);
 		}
 	}
 	

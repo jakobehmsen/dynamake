@@ -23,7 +23,5 @@ public interface Tool {
 
 	void mouseDragged(LiveModel.ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection);
 
-	void paint(Graphics g);
-
 	void rollback(ProductionPanel productionPanel, Collector<Model> collector);
 }
