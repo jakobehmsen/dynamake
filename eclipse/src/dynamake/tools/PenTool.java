@@ -7,6 +7,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D;
+import java.awt.geom.Path2D.Double;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class PenTool implements Tool {
 	}
 	
 	private ArrayList<Point> points;
-	private Path2D.Double shape;
+//	private Path2D.Double shape;
 
 	@Override
 	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
@@ -51,7 +52,7 @@ public class PenTool implements Tool {
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
 		final ArrayList<Point> pointsForCreation = points;
 		// Deriving bounds for shape composition is different than the below:
-		final Rectangle creationBoundsInProductionPanelSource = shape.getBounds();
+		final Rectangle creationBoundsInProductionPanelSource = strokeComponent.shape.getBounds();
 		final Rectangle creationBoundsInProductionPanel = 
 			new Rectangle(
 				creationBoundsInProductionPanelSource.x - (int)StrokeModel.STROKE_SIZE, 
@@ -61,7 +62,15 @@ public class PenTool implements Tool {
 		);
 		
 		points = null;
-		shape = null;
+		
+		final StrokeComponent localStrokeComponent = strokeComponent;
+		collector.afterNextTrigger(new Runnable() {
+			@Override
+			public void run() {
+				productionPanel.remove(localStrokeComponent);
+			}
+		});
+		strokeComponent = null;
 		
 		final ModelComponent target = targetPresenter.getTargetOver();
 		final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)target);
@@ -91,14 +100,60 @@ public class PenTool implements Tool {
 		collector.commit();
 	}
 	
+	private static class StrokeComponent extends JComponent {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public Path2D.Double shape;
+
+		public StrokeComponent() {
+			shape = new Path2D.Double();
+		}
+		
+		@Override
+		protected void paintComponent(Graphics g) {
+			StrokeModel.setupGraphics(g);
+			((Graphics2D)g).draw(shape);
+		}
+		
+		@Override
+		public void paint(Graphics g) {
+			StrokeModel.setupGraphics(g);
+			((Graphics2D)g).draw(shape);
+		}
+		
+		@Override
+		public void paintAll(Graphics g) {
+			StrokeModel.setupGraphics(g);
+			((Graphics2D)g).draw(shape);
+		}
+		
+		@Override
+		public void paintComponents(Graphics g) {
+			// TODO Auto-generated method stub
+			super.paintComponents(g);
+		}
+	}
+	
+	private StrokeComponent strokeComponent;
 	private TargetPresenter targetPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
+	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
 		points = new ArrayList<Point>();
-		shape = new Path2D.Double();
+		strokeComponent = new StrokeComponent();
+		strokeComponent.setSize(productionPanel.getSize());
+		
 		points.add(e.getPoint());
-		shape.moveTo(e.getX(), e.getY());
+		
+		collector.afterNextTrigger(new Runnable() {
+			@Override
+			public void run() {
+				strokeComponent.shape.moveTo(e.getX(), e.getY());
+				productionPanel.add(strokeComponent);
+			}
+		});
 		
 		ModelComponent canvas = ModelComponent.Util.closestCanvasModelComponent(modelOver);
 
@@ -121,9 +176,8 @@ public class PenTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) {
+	public void mouseDragged(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) {
 		points.add(e.getPoint());
-		shape.lineTo(e.getX(), e.getY());
 		
 		// TODO: Only repaint the area necessary here!!!
 //		final Rectangle creationBoundsInProductionPanelSource = shape.getBounds();
@@ -136,21 +190,32 @@ public class PenTool implements Tool {
 //		);
 		
 		// This provokes a repaint request
+		final StrokeComponent localStrokeComponent = strokeComponent;
 		collector.afterNextTrigger(new Runnable() {
 			@Override
-			public void run() { }
+			public void run() { 
+				localStrokeComponent.shape.lineTo(e.getX(), e.getY());
+			}
 		});
 	}
 
 	@Override
 	public void paint(Graphics g) {
-		StrokeModel.setupGraphics(g);
-		((Graphics2D)g).draw(shape);
+//		StrokeModel.setupGraphics(g);
+//		((Graphics2D)g).draw(shape);
 	}
 
 	@Override
-	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
+	public void rollback(final ProductionPanel productionPanel, Collector<Model> collector) {
 		targetPresenter.reset(collector);
 		targetPresenter = null;
+
+		final StrokeComponent localStrokeComponent = strokeComponent;
+		collector.afterNextTrigger(new Runnable() {
+			@Override
+			public void run() {
+				productionPanel.remove(localStrokeComponent);
+			}
+		});
 	}
 }
