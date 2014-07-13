@@ -405,6 +405,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					if(onAfterNextTrigger.size() > 0) {
 						triggerHandler.handleAfterTrigger(onAfterNextTrigger);
 					}
+					
+//					System.out.println("Finished trigger");
 				}
 			});
 		}
@@ -437,7 +439,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				ContextualTransaction<T> ctxTransaction = new ContextualTransaction<T>(transactionsFromRoot, transactionsFromReferenceLocations);
 
-				System.out.println("Committed connection: " + Connection.this);
+				System.out.println("Committed connection");
 				transcriber.persistTransaction(ctxTransaction);
 				affectedModels.clear();
 			}
@@ -473,7 +475,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			for(DualCommand<T> transaction: flushedTransactionsFromRoot)
 				transaction.executeBackwardOn(propCtx, transcriber.prevalentSystem, null, isolatedCollector);
 			
-			System.out.println("Rejected connection: " + Connection.this);
+			System.out.println("Rejected connection");
 			
 			flushedTransactionsFromRoot.clear();
 			flushedTransactionsFromReferences.clear();

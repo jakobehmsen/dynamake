@@ -47,6 +47,7 @@ public class TargetPresenter {
 					@Override
 					public void run() {
 						container.remove(oldTargetFrame);
+//						System.out.println("Removed targetFrame");
 					}
 				});
 			}
@@ -74,6 +75,7 @@ public class TargetPresenter {
 					@Override
 					public void run() {
 						container.add(localTargetFrame);
+//						System.out.println("Added targetFrame");
 					}
 				});
 			}
@@ -97,6 +99,7 @@ public class TargetPresenter {
 				@Override
 				public void run() {
 					container.remove(targetFrame);
+//					System.out.println("Removed targetFrame");
 				}
 			});
 		}

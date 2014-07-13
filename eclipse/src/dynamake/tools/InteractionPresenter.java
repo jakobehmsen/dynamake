@@ -166,6 +166,7 @@ public class InteractionPresenter {
 					@Override
 					public void run() {
 						productionPanel.add(localSelectionFrame);
+//						System.out.println("Added selectionFrame");
 					}
 				});
 			}
@@ -219,6 +220,7 @@ public class InteractionPresenter {
 				@Override
 				public void run() {
 					productionPanel.remove(localEffectFrame);
+					System.out.println("Removed effectFrame");
 				}
 			});
 		} else {
@@ -264,6 +266,7 @@ public class InteractionPresenter {
 								indexOfSelectionFrame = i;
 						}
 						productionPanel.add(localEffectFrame, indexOfSelectionFrame);
+//						System.out.println("Added effectFrame");
 //						System.out.println("Created effect frame (after reordering).");
 					}
 				});
@@ -272,6 +275,7 @@ public class InteractionPresenter {
 					@Override
 					public void run() {
 						productionPanel.add(localEffectFrame);
+//						System.out.println("Added effectFrame");
 					}
 				});
 			}
