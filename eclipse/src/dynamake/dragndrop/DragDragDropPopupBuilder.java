@@ -13,7 +13,6 @@ import dynamake.commands.DualCommandPair;
 import dynamake.commands.InjectTransaction;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
-import dynamake.models.CompositeModelLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
