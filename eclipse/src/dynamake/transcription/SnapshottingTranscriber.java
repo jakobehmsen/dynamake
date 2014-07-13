@@ -473,7 +473,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			for(DualCommand<T> transaction: flushedTransactionsFromRoot)
 				transaction.executeBackwardOn(propCtx, transcriber.prevalentSystem, null, isolatedCollector);
 			
+			System.out.println("Rejected connection: " + Connection.this);
+			
 			flushedTransactionsFromRoot.clear();
+			flushedTransactionsFromReferences.clear();
+			affectedModels.clear();
 
 			if(onAfterNextTrigger.size() > 0) {
 				triggerHandler.handleAfterTrigger(onAfterNextTrigger);
