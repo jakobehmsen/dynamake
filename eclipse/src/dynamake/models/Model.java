@@ -89,7 +89,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class SetPropertyTransaction implements Command<Model> {
+	public static class SetPropertyCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -99,7 +99,7 @@ public abstract class Model implements Serializable, Observer {
 		private String name;
 		private Object value;
 		
-		public SetPropertyTransaction(Location modelLocation, String name, Object value) {
+		public SetPropertyCommand(Location modelLocation, String name, Object value) {
 			this.modelLocation = modelLocation;
 			this.name = name;
 			this.value = value;
@@ -115,20 +115,20 @@ public abstract class Model implements Serializable, Observer {
 		public static DualCommand<Model> createDual(Model model, String name, Object value) {
 			Location modelLocation = model.getLocator().locate();
 			return new DualCommandPair<Model>(
-				new SetPropertyTransaction(modelLocation, name, value), 
-				new SetPropertyTransaction(modelLocation, name, model.getProperty(name))
+				new SetPropertyCommand(modelLocation, name, value), 
+				new SetPropertyCommand(modelLocation, name, model.getProperty(name))
 			);
 		}
 		
 		public static DualCommand<Model> createDual(Location modelLocation, Model model, String name, Object value) {
 			return new DualCommandPair<Model>(
-				new SetPropertyTransaction(modelLocation, name, value), 
-				new SetPropertyTransaction(modelLocation, name, model.getProperty(name))
+				new SetPropertyCommand(modelLocation, name, value), 
+				new SetPropertyCommand(modelLocation, name, model.getProperty(name))
 			);
 		}
 	}
 	
-	public static class SetPropertyOnRootTransaction implements Command<Model> {
+	public static class SetPropertyOnRootCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -138,7 +138,7 @@ public abstract class Model implements Serializable, Observer {
 		private String name;
 		private Object value;
 		
-		public SetPropertyOnRootTransaction(Location modelLocation, String name, Object value) {
+		public SetPropertyOnRootCommand(Location modelLocation, String name, Object value) {
 			this.modelLocation = modelLocation;
 			this.name = name;
 			this.value = value;
@@ -154,8 +154,8 @@ public abstract class Model implements Serializable, Observer {
 		public static DualCommand<Model> createDual(Model model, String name, Object value) {
 			Location modelLocation = model.getLocator().locate();
 			return new DualCommandPair<Model>(
-				new SetPropertyOnRootTransaction(modelLocation, name, value), 
-				new SetPropertyOnRootTransaction(modelLocation, name, model.getProperty(name))
+				new SetPropertyOnRootCommand(modelLocation, name, value), 
+				new SetPropertyOnRootCommand(modelLocation, name, model.getProperty(name))
 			);
 		}
 	}
@@ -165,7 +165,7 @@ public abstract class Model implements Serializable, Observer {
 		redoStack.clear();
 	}
 	
-	public static class UndoTransaction implements Command<Model> {
+	public static class UndoCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -173,7 +173,7 @@ public abstract class Model implements Serializable, Observer {
 		private Location modelLocation;
 		private boolean isolate;
 
-		public UndoTransaction(Location modelLocation, boolean isolate) {
+		public UndoCommand(Location modelLocation, boolean isolate) {
 			this.modelLocation = modelLocation;
 			this.isolate = isolate;
 		}
@@ -189,7 +189,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class RedoTransaction implements Command<Model> {
+	public static class RedoCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -197,7 +197,7 @@ public abstract class Model implements Serializable, Observer {
 		private Location modelLocation;
 		private boolean isolate;
 
-		public RedoTransaction(Location modelLocation, boolean isolate) {
+		public RedoCommand(Location modelLocation, boolean isolate) {
 			this.modelLocation = modelLocation;
 			this.isolate = isolate;
 		}
@@ -263,7 +263,7 @@ public abstract class Model implements Serializable, Observer {
 		return properties.get(name);
 	}
 	
-	public static class AddObserver implements Command<Model> {
+	public static class AddObserverCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -271,7 +271,7 @@ public abstract class Model implements Serializable, Observer {
 		private Location observableLocation;
 		private Location observerLocation;
 		
-		public AddObserver(Location observableLocation, Location observerLocation) {
+		public AddObserverCommand(Location observableLocation, Location observerLocation) {
 			this.observableLocation = observableLocation;
 			this.observerLocation = observerLocation;
 		}
@@ -287,7 +287,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class RemoveObserver implements Command<Model> {
+	public static class RemoveObserverCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -295,7 +295,7 @@ public abstract class Model implements Serializable, Observer {
 		private Location observableLocation;
 		private Location observerLocation;
 		
-		public RemoveObserver(Location observableLocation, Location observerLocation) {
+		public RemoveObserverCommand(Location observableLocation, Location observerLocation) {
 			this.observableLocation = observableLocation;
 			this.observerLocation = observerLocation;
 		}
@@ -328,8 +328,8 @@ public abstract class Model implements Serializable, Observer {
 					Object currentValue = getProperty(setProperty.name);
 					
 					dualCommands.add(new DualCommandPair<Model>(
-						new SetPropertyTransaction(location, setProperty.name, setProperty.value),
-						new SetPropertyTransaction(location, setProperty.name, currentValue)
+						new SetPropertyCommand(location, setProperty.name, setProperty.value),
+						new SetPropertyCommand(location, setProperty.name, currentValue)
 					));
 				}
 			});
@@ -541,7 +541,7 @@ public abstract class Model implements Serializable, Observer {
 		});
 	}
 	
-	private static class MouseUpTransaction implements Command<Model> {
+	private static class MouseUpCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -549,7 +549,7 @@ public abstract class Model implements Serializable, Observer {
 		
 		private Location modelLocation;
 		
-		public MouseUpTransaction(Location modelLocation) {
+		public MouseUpCommand(Location modelLocation) {
 			this.modelLocation = modelLocation;
 		}
 
@@ -560,7 +560,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	private static class MouseDownTransaction implements Command<Model> {
+	private static class MouseDownCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -568,7 +568,7 @@ public abstract class Model implements Serializable, Observer {
 		
 		private Location modelLocation;
 		
-		public MouseDownTransaction(Location modelLocation) {
+		public MouseDownCommand(Location modelLocation) {
 			this.modelLocation = modelLocation;
 		}
 
@@ -596,8 +596,8 @@ public abstract class Model implements Serializable, Observer {
 							@Override
 							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
-									new MouseUpTransaction(location), 
-									new MouseUpTransaction(location)
+									new MouseUpCommand(location), 
+									new MouseUpCommand(location)
 								));
 							}
 						});
@@ -621,8 +621,8 @@ public abstract class Model implements Serializable, Observer {
 							@Override
 							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 								dualCommands.add(new DualCommandPair<Model>(
-									new MouseDownTransaction(location), 
-									new MouseDownTransaction(location)
+									new MouseDownCommand(location), 
+									new MouseDownCommand(location)
 								));
 							}
 						});
@@ -722,8 +722,8 @@ public abstract class Model implements Serializable, Observer {
 							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 								Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
 								dualCommands.add(new DualCommandPair<Model>(
-									new Model.SetPropertyTransaction(location, PROPERTY_COLOR, color),
-									new Model.SetPropertyTransaction(location, PROPERTY_COLOR, currentColor)
+									new Model.SetPropertyCommand(location, PROPERTY_COLOR, color),
+									new Model.SetPropertyCommand(location, PROPERTY_COLOR, currentColor)
 								));
 							}
 						});
@@ -774,8 +774,8 @@ public abstract class Model implements Serializable, Observer {
 							Location droppedLocation = fromCCAToDropped;
 							Factory factory = new CloneIsolatedFactory(droppedLocation);
 							dualCommands.add(new DualCommandPair<Model>(
-								new CanvasModel.AddModelTransaction(location, creationBounds, factory),
-								new CanvasModel.RemoveModelTransaction(location, cloneIndex)
+								new CanvasModel.AddModelCommand(location, creationBounds, factory),
+								new CanvasModel.RemoveModelCommand(location, cloneIndex)
 							));
 						}
 					});
@@ -803,8 +803,8 @@ public abstract class Model implements Serializable, Observer {
 							Location droppedLocation = fromCCAToDropped;
 							Factory factory = new CloneDeepFactory(droppedLocation);
 							dualCommands.add(new DualCommandPair<Model>(
-								new CanvasModel.AddModelTransaction(location, creationBounds, factory),
-								new CanvasModel.RemoveModelTransaction(location, cloneIndex)
+								new CanvasModel.AddModelCommand(location, creationBounds, factory),
+								new CanvasModel.RemoveModelCommand(location, cloneIndex)
 							));
 						}
 					});
@@ -981,10 +981,10 @@ public abstract class Model implements Serializable, Observer {
 		Fraction currentWidth = (Fraction)getProperty("Width");
 		Fraction currentHeight = (Fraction)getProperty("Height");
 		
-		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "X", new Fraction(newBounds.x)));
-		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "Y", new Fraction(newBounds.y)));
-		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "Width", new Fraction(newBounds.width)));
-		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "Height", new Fraction(newBounds.height)));
+		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "X", new Fraction(newBounds.x)));
+		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "Y", new Fraction(newBounds.y)));
+		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "Width", new Fraction(newBounds.width)));
+		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "Height", new Fraction(newBounds.height)));
 		
 		Fraction hChange = new Fraction(newBounds.width).divide(currentWidth);
 		Fraction vChange = new Fraction(newBounds.height).divide(currentHeight);
@@ -1003,10 +1003,10 @@ public abstract class Model implements Serializable, Observer {
 		Fraction newWidth = currentWidth.multiply(hChange);
 		Fraction newHeight = currentHeight.multiply(vChange);
 		
-		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "X", newX));
-		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "Y", newY));
-		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "Width", newWidth));
-		dualCommands.add(SetPropertyTransaction.createDual(location, Model.this, "Height", newHeight));
+		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "X", newX));
+		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "Y", newY));
+		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "Width", newWidth));
+		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "Height", newHeight));
 		
 		modelAppendScale(location, hChange, vChange, dualCommands);
 	}
@@ -1031,8 +1031,8 @@ public abstract class Model implements Serializable, Observer {
 				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observer);
 				
 				dualCommands.add(new DualCommandPair<Model>(
-					new Model.RemoveObserver(observableLocation, observerLocation),
-					new Model.AddObserver(observableLocation, observerLocation)
+					new Model.RemoveObserverCommand(observableLocation, observerLocation),
+					new Model.AddObserverCommand(observableLocation, observerLocation)
 				));
 			}
 		});
@@ -1054,8 +1054,8 @@ public abstract class Model implements Serializable, Observer {
 				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observer);
 				
 				dualCommands.add(new DualCommandPair<Model>(
-					new Model.AddObserver(observableLocation, observerLocation),
-					new Model.RemoveObserver(observableLocation, observerLocation)
+					new Model.AddObserverCommand(observableLocation, observerLocation),
+					new Model.RemoveObserverCommand(observableLocation, observerLocation)
 				));
 			}
 		});

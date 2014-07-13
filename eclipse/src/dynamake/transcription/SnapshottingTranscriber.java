@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import dynamake.commands.ContextualTransaction;
+import dynamake.commands.ContextualCommand;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandSequence;
 import dynamake.delegates.Func0;
@@ -83,7 +83,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			prevalentSystem = prevalentSystemFunc.call();
 		
 		if(journalExisted) {
-			ArrayList<ContextualTransaction<T>> transactions = readJournal(prevalanceDirectory + "/" + journalFile);
+			ArrayList<ContextualCommand<T>> transactions = readJournal(prevalanceDirectory + "/" + journalFile);
 			replay(transactions, prevalentSystem);
 			// Update the number of enlisted transactions which is used in the snapshotting logic
 			transactionEnlistingCount += transactions.size();
@@ -108,8 +108,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		return snapshot;
 	}
 	
-	private static <T> ArrayList<ContextualTransaction<T>> readJournal(String journalPath) throws ClassNotFoundException, IOException {
-		ArrayList<ContextualTransaction<T>> transactions = new ArrayList<ContextualTransaction<T>>();
+	private static <T> ArrayList<ContextualCommand<T>> readJournal(String journalPath) throws ClassNotFoundException, IOException {
+		ArrayList<ContextualCommand<T>> transactions = new ArrayList<ContextualCommand<T>>();
 		
 		FileInputStream fileOutput = new FileInputStream(journalPath);
 		BufferedInputStream bufferedOutput = new BufferedInputStream(fileOutput);
@@ -119,7 +119,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				// Should be read in chunks
 				ObjectInputStream objectOutput = new ObjectInputStream(bufferedOutput);
 				@SuppressWarnings("unchecked")
-				ContextualTransaction<T> transaction = (ContextualTransaction<T>)objectOutput.readObject();
+				ContextualCommand<T> transaction = (ContextualCommand<T>)objectOutput.readObject();
 					
 				transactions.add(transaction);
 			}
@@ -131,10 +131,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static <T> void replay(ArrayList<ContextualTransaction<T>> transactions, T prevalentSystem) {
+	private static <T> void replay(ArrayList<ContextualCommand<T>> transactions, T prevalentSystem) {
 		PropogationContext propCtx = new PropogationContext();
 		
-		for(ContextualTransaction<T> ctxTransaction: transactions) {
+		for(ContextualCommand<T> ctxTransaction: transactions) {
 			for(DualCommand<T> transaction: ctxTransaction.transactionsFromRoot)
 				transaction.executeForwardOn(propCtx, prevalentSystem, null, new NullCollector<T>());
 			
@@ -151,7 +151,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	private static <T> void replay(T prevalentSystem, String journalPath) throws ClassNotFoundException, IOException {
-		ArrayList<ContextualTransaction<T>> transactions = readJournal(journalPath);
+		ArrayList<ContextualCommand<T>> transactions = readJournal(journalPath);
 		replay(transactions, prevalentSystem);
 	}
 	
@@ -219,7 +219,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		transactionExecutor.execute(runnable);
 	}
 	
-	public void persistTransaction(final ContextualTransaction<T> transaction) {
+	public void persistTransaction(final ContextualCommand<T> transaction) {
 		journalLogger.execute(new Runnable() {
 			@Override
 			public void run() {
@@ -437,7 +437,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				flushedTransactionsFromReferences.clear();
 				
-				ContextualTransaction<T> ctxTransaction = new ContextualTransaction<T>(transactionsFromRoot, transactionsFromReferenceLocations);
+				ContextualCommand<T> ctxTransaction = new ContextualCommand<T>(transactionsFromRoot, transactionsFromReferenceLocations);
 
 				System.out.println("Committed connection");
 				transcriber.persistTransaction(ctxTransaction);

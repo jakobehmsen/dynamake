@@ -32,7 +32,7 @@ public class UndoTool implements Tool {
 			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
 				dualCommands.add(
 					new DualCommandPair<Model>(
-						new Model.UndoTransaction(modelOver.getModelTranscriber().getModelLocation(), false),
+						new Model.UndoCommand(modelOver.getModelTranscriber().getModelLocation(), false),
 						new Command.Null<Model>()
 					)
 				);

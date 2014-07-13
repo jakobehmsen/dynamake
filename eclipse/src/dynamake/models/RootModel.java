@@ -166,25 +166,25 @@ public class RootModel extends Model {
 							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 								if(newLocation != null) {
 									dualCommands.add(new DualCommandPair<Model>(
-										new Model.SetPropertyTransaction(location, "X", newLocation.x),
-										new Model.SetPropertyTransaction(location, "X", rootModel.getProperty("X"))
+										new Model.SetPropertyCommand(location, "X", newLocation.x),
+										new Model.SetPropertyCommand(location, "X", rootModel.getProperty("X"))
 									));
 									
 									dualCommands.add(new DualCommandPair<Model>(
-										new Model.SetPropertyTransaction(location, "Y", newLocation.y),
-										new Model.SetPropertyTransaction(location, "Y", rootModel.getProperty("Y"))
+										new Model.SetPropertyCommand(location, "Y", newLocation.y),
+										new Model.SetPropertyCommand(location, "Y", rootModel.getProperty("Y"))
 									));
 								}
 								
 								if(newSize != null) {
 									dualCommands.add(new DualCommandPair<Model>(
-										new Model.SetPropertyTransaction(location, "Width", newSize.width),
-										new Model.SetPropertyTransaction(location, "Width", rootModel.getProperty("Width"))
+										new Model.SetPropertyCommand(location, "Width", newSize.width),
+										new Model.SetPropertyCommand(location, "Width", rootModel.getProperty("Width"))
 									));
 			
 									dualCommands.add(new DualCommandPair<Model>(
-										new Model.SetPropertyTransaction(location, "Height", newSize.height),
-										new Model.SetPropertyTransaction(location, "Height", rootModel.getProperty("Height"))
+										new Model.SetPropertyCommand(location, "Height", newSize.height),
+										new Model.SetPropertyCommand(location, "Height", rootModel.getProperty("Height"))
 									));
 								}
 							}
@@ -272,8 +272,8 @@ public class RootModel extends Model {
 							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 								Integer currentState = (Integer)RootModel.this.getProperty("State");
 								dualCommands.add(new DualCommandPair<Model>(
-									new Model.SetPropertyOnRootTransaction(location, "State", newState),
-									new Model.SetPropertyOnRootTransaction(location, "State", currentState)
+									new Model.SetPropertyOnRootCommand(location, "State", newState),
+									new Model.SetPropertyOnRootCommand(location, "State", currentState)
 								));
 							}
 						});

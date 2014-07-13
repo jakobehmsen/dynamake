@@ -7,7 +7,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class TellPropertyTransaction implements Command<Model> {
+public class TellPropertyCommand implements Command<Model> {
 	/**
 	 * 
 	 */
@@ -16,7 +16,7 @@ public class TellPropertyTransaction implements Command<Model> {
 	private Location modelLocation;
 	private String propertyName;
 	
-	public TellPropertyTransaction(Location modelLocation, String propertyName) {
+	public TellPropertyCommand(Location modelLocation, String propertyName) {
 		this.modelLocation = modelLocation;
 		this.propertyName = propertyName;
 	}

@@ -10,7 +10,7 @@ import dynamake.models.PropogationContext;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.Collector;
 
-public class UnwrapToLocationsTransaction implements Command<Model> {
+public class UnwrapToLocationsCommand implements Command<Model> {
 	/**
 	 * 
 	 */
@@ -20,7 +20,7 @@ public class UnwrapToLocationsTransaction implements Command<Model> {
 	private int[] modelIndexes;
 	private Rectangle creationBounds;
 	
-	public UnwrapToLocationsTransaction(Location targetLocation, Location wrapperLocationInTarget, int[] modelIndexes, Rectangle creationBounds) {
+	public UnwrapToLocationsCommand(Location targetLocation, Location wrapperLocationInTarget, int[] modelIndexes, Rectangle creationBounds) {
 		this.targetLocation = targetLocation;
 		this.wrapperLocationInTarget = wrapperLocationInTarget;
 		this.modelIndexes = modelIndexes;

@@ -12,8 +12,8 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
-import dynamake.commands.UnwrapToLocationsTransaction;
-import dynamake.commands.WrapTransaction;
+import dynamake.commands.UnwrapToLocationsCommand;
+import dynamake.commands.WrapCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeModelLocation;
 import dynamake.models.Location;
@@ -89,8 +89,8 @@ public class PlotTool implements Tool {
 							}
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new WrapTransaction(location, creationBoundsInSelection, modelLocations), 
-								new UnwrapToLocationsTransaction(location, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
+								new WrapCommand(location, creationBoundsInSelection, modelLocations), 
+								new UnwrapToLocationsCommand(location, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
 							));
 						}
 					});
@@ -111,8 +111,8 @@ public class PlotTool implements Tool {
 							int index = canvasModel.getModelCount();
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new CanvasModel.AddModelTransaction(location, creationBoundsInSelection, factory), 
-								new CanvasModel.RemoveModelTransaction(location, index)
+								new CanvasModel.AddModelCommand(location, creationBoundsInSelection, factory), 
+								new CanvasModel.RemoveModelCommand(location, index)
 								// The model removed here, should be cloned before removing and then used for the redo in an as-is factory
 							));
 						}

@@ -7,7 +7,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class DejectTransaction implements Command<Model> {
+public class DejectCommand implements Command<Model> {
 	/**
 	 * 
 	 */
@@ -16,7 +16,7 @@ public class DejectTransaction implements Command<Model> {
 	private Location sourceLocation;
 	private Location targetLocation;
 
-	public DejectTransaction(Location sourceLocation, Location targetLocation) {
+	public DejectCommand(Location sourceLocation, Location targetLocation) {
 		this.sourceLocation = sourceLocation;
 		this.targetLocation = targetLocation;
 	}

@@ -19,8 +19,8 @@ import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
-import dynamake.commands.UnwrapTransaction;
-import dynamake.commands.WrapTransaction;
+import dynamake.commands.UnwrapCommand;
+import dynamake.commands.WrapCommand;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
@@ -130,7 +130,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class MoveModelTransaction implements Command<Model> {
+	public static class MoveModelCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -141,7 +141,7 @@ public class CanvasModel extends Model {
 		private int indexInSource;
 		private int indexInTarget;
 
-		public MoveModelTransaction(Location canvasSourceLocation, Location canvasTargetLocation, int indexInSource, int indexInTarget) {
+		public MoveModelCommand(Location canvasSourceLocation, Location canvasTargetLocation, int indexInSource, int indexInTarget) {
 			this.canvasSourceLocation = canvasSourceLocation;
 			this.canvasTargetLocation = canvasTargetLocation;
 			this.indexInSource = indexInSource;
@@ -160,7 +160,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class AddModelTransaction implements Command<Model> {
+	public static class AddModelCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -169,7 +169,7 @@ public class CanvasModel extends Model {
 		private Rectangle creationBounds;
 		private Factory factory;
 		
-		public AddModelTransaction(Location canvasLocation, Rectangle creationBounds, Factory factory) {
+		public AddModelCommand(Location canvasLocation, Rectangle creationBounds, Factory factory) {
 			this.canvasLocation = canvasLocation;
 			this.creationBounds = creationBounds;
 			this.factory = factory;
@@ -190,7 +190,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class AddModelAtTransaction implements Command<Model> {
+	public static class AddModelAtCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -200,7 +200,7 @@ public class CanvasModel extends Model {
 		private Factory factory;
 		private int index;
 		
-		public AddModelAtTransaction(Location canvasLocation, Rectangle creationBounds, Factory factory, int index) {
+		public AddModelAtCommand(Location canvasLocation, Rectangle creationBounds, Factory factory, int index) {
 			this.canvasLocation = canvasLocation;
 			this.creationBounds = creationBounds;
 			this.factory = factory;
@@ -223,7 +223,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class AddModelNoCreationBoundsTransaction implements Command<Model> {
+	public static class AddModelNoCreationBoundsCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -232,7 +232,7 @@ public class CanvasModel extends Model {
 		private int index;
 		private Factory factory;
 		
-		public AddModelNoCreationBoundsTransaction(Location canvasLocation, int index, Factory factory) {
+		public AddModelNoCreationBoundsCommand(Location canvasLocation, int index, Factory factory) {
 			this.canvasLocation = canvasLocation;
 			this.index = index;
 			this.factory = factory;
@@ -246,7 +246,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class RemoveModelTransaction implements Command<Model> {
+	public static class RemoveModelCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -254,7 +254,7 @@ public class CanvasModel extends Model {
 		private Location canvasLocation;
 		private int index;
 		
-		public RemoveModelTransaction(Location canvasLocation, int index) {
+		public RemoveModelCommand(Location canvasLocation, int index) {
 			if(index < 0)
 				new String();
 			this.canvasLocation = canvasLocation;
@@ -504,8 +504,8 @@ public class CanvasModel extends Model {
 		}
 		
 		dualCommands.add(new DualCommandPair<Model>(
-			new UnwrapTransaction(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
-			new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations)
+			new UnwrapCommand(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
+			new WrapCommand(targetLocation, creationBoundsInSelection, modelLocations)
 		));
 	}
 	
@@ -531,8 +531,8 @@ public class CanvasModel extends Model {
 		}
 		
 		dualCommands.add(new DualCommandPair<Model>(
-			new UnwrapTransaction(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
-			new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations)
+			new UnwrapCommand(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
+			new WrapCommand(targetLocation, creationBoundsInSelection, modelLocations)
 		));
 	}
 	
@@ -544,10 +544,10 @@ public class CanvasModel extends Model {
 		// The direct structure (clone isolated) (without observers and observees) could probably be used
 		// where this direct structure should, afterwards, be decorated with any missing relations to observers and observees
 		Model childClone = child.getModelBehind().cloneDeep(); // TODO: Fix this: Not a perfect clone
-		Command<Model> backward = new AddModelNoCreationBoundsTransaction(canvasLocation, indexOfModel, new AsIsFactory(childClone));
+		Command<Model> backward = new AddModelNoCreationBoundsCommand(canvasLocation, indexOfModel, new AsIsFactory(childClone));
 		
 		dualCommands.add(new DualCommandPair<Model>(
-			new RemoveModelTransaction(canvasLocation, indexOfModel),
+			new RemoveModelCommand(canvasLocation, indexOfModel),
 			backward
 		));
 	}
@@ -573,18 +573,18 @@ public class CanvasModel extends Model {
 		Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
 		
 		dualCommands.add(new DualCommandPair<Model>(
-			new CanvasModel.MoveModelTransaction(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
-			new CanvasModel.MoveModelTransaction(canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource)
+			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
+			new CanvasModel.MoveModelCommand(canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource)
 		));
 		
 		dualCommands.add(new DualCommandPair<Model>(
-			new Model.SetPropertyTransaction(modelLocationAfterMove, "X", new Fraction(moveLocation.x)), 
-			new Model.SetPropertyTransaction(modelLocationAfterMove, "X", modelToMove.getModelBehind().getProperty("X"))
+			new Model.SetPropertyCommand(modelLocationAfterMove, "X", new Fraction(moveLocation.x)), 
+			new Model.SetPropertyCommand(modelLocationAfterMove, "X", modelToMove.getModelBehind().getProperty("X"))
 		));
 		
 		dualCommands.add(new DualCommandPair<Model>(
-			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
-			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
+			new Model.SetPropertyCommand(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
+			new Model.SetPropertyCommand(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
 		));
 	}
 	
@@ -612,18 +612,18 @@ public class CanvasModel extends Model {
 		Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
 		
 		dualCommands.add(new DualCommandPair<Model>(
-			new CanvasModel.MoveModelTransaction(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
-			new CanvasModel.MoveModelTransaction(canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource)
+			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
+			new CanvasModel.MoveModelCommand(canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource)
 		));
 		
 		dualCommands.add(new DualCommandPair<Model>(
-			new Model.SetPropertyTransaction(modelLocationAfterMove, "X", new Fraction(moveLocation.x)), 
-			new Model.SetPropertyTransaction(modelLocationAfterMove, "X", modelToMove.getModelBehind().getProperty("X"))
+			new Model.SetPropertyCommand(modelLocationAfterMove, "X", new Fraction(moveLocation.x)), 
+			new Model.SetPropertyCommand(modelLocationAfterMove, "X", modelToMove.getModelBehind().getProperty("X"))
 		));
 		
 		dualCommands.add(new DualCommandPair<Model>(
-			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
-			new Model.SetPropertyTransaction(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
+			new Model.SetPropertyCommand(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
+			new Model.SetPropertyCommand(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
 		));
 	}
 	

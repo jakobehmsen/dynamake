@@ -7,7 +7,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class InjectTransaction implements Command<Model> {
+public class InjectCommand implements Command<Model> {
 	/**
 	 * 
 	 */
@@ -16,7 +16,7 @@ public class InjectTransaction implements Command<Model> {
 	private Location sourceLocation;
 	private Location targetLocation;
 
-	public InjectTransaction(Location sourceLocation, Location targetLocation) {
+	public InjectCommand(Location sourceLocation, Location targetLocation) {
 		this.sourceLocation = sourceLocation;
 		this.targetLocation = targetLocation;
 	}

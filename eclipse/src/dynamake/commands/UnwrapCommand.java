@@ -10,7 +10,7 @@ import dynamake.models.PropogationContext;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.Collector;
 
-public class UnwrapTransaction implements Command<Model> {
+public class UnwrapCommand implements Command<Model> {
 	/**
 	 * 
 	 */
@@ -19,7 +19,7 @@ public class UnwrapTransaction implements Command<Model> {
 	private Location wrapperLocationInTarget;
 	private Rectangle creationBounds;
 	
-	public UnwrapTransaction(Location targetLocation, Location wrapperLocationInTarget, Rectangle creationBounds) {
+	public UnwrapCommand(Location targetLocation, Location wrapperLocationInTarget, Rectangle creationBounds) {
 		this.targetLocation = targetLocation;
 		this.wrapperLocationInTarget = wrapperLocationInTarget;
 		this.creationBounds = creationBounds;

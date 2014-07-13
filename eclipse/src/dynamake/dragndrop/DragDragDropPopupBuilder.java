@@ -7,10 +7,10 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 
-import dynamake.commands.DejectTransaction;
+import dynamake.commands.DejectCommand;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
-import dynamake.commands.InjectTransaction;
+import dynamake.commands.InjectCommand;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Location;
@@ -137,8 +137,8 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 						ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, target);
 							
 						dualCommands.add(new DualCommandPair<Model>(
-							new InjectTransaction(locationOfSelection, locationOfTarget),
-							new DejectTransaction(locationOfSelection, locationOfTarget)
+							new InjectCommand(locationOfSelection, locationOfTarget),
+							new DejectCommand(locationOfSelection, locationOfTarget)
 						));
 					}
 				});

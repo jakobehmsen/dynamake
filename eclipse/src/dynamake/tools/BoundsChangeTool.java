@@ -122,12 +122,12 @@ public abstract class BoundsChangeTool implements Tool {
 								);
 								
 								dualCommands.add(new DualCommandPair<Model>(
-									new Model.SetPropertyTransaction(locationOfMovedModel, "X", new Fraction(droppedBounds.x)), 
-									new Model.SetPropertyTransaction(locationOfMovedModel, "X", selection.getModelBehind().getProperty("X"))
+									new Model.SetPropertyCommand(locationOfMovedModel, "X", new Fraction(droppedBounds.x)), 
+									new Model.SetPropertyCommand(locationOfMovedModel, "X", selection.getModelBehind().getProperty("X"))
 								));
 								dualCommands.add(new DualCommandPair<Model>(
-									new Model.SetPropertyTransaction(locationOfMovedModel, "Y", new Fraction(droppedBounds.y)), 
-									new Model.SetPropertyTransaction(locationOfMovedModel, "Y", selection.getModelBehind().getProperty("Y"))
+									new Model.SetPropertyCommand(locationOfMovedModel, "Y", new Fraction(droppedBounds.y)), 
+									new Model.SetPropertyCommand(locationOfMovedModel, "Y", selection.getModelBehind().getProperty("Y"))
 								));
 							}
 						});

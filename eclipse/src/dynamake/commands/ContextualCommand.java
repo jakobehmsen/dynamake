@@ -8,7 +8,7 @@ import dynamake.models.Location;
 
 // Instances each represents a pairing of a transaction and the models, which were affected
 // during the original forward execution of the transaction.
-public class ContextualTransaction<T> implements Serializable {
+public class ContextualCommand<T> implements Serializable {
 	/**
 	 * 
 	 */
@@ -25,7 +25,7 @@ public class ContextualTransaction<T> implements Serializable {
 	public final ArrayList<DualCommand<T>> transactionsFromRoot;
 	public final Hashtable<Location, ArrayList<DualCommand<T>>> transactionsFromReferenceLocations;
 
-	public ContextualTransaction(ArrayList<DualCommand<T>> transactionsFromRoot, Hashtable<Location, ArrayList<DualCommand<T>>> transactionsFromReferenceLocations) {
+	public ContextualCommand(ArrayList<DualCommand<T>> transactionsFromRoot, Hashtable<Location, ArrayList<DualCommand<T>>> transactionsFromReferenceLocations) {
 		this.transactionsFromRoot = transactionsFromRoot;
 		this.transactionsFromReferenceLocations = transactionsFromReferenceLocations;
 	}

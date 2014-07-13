@@ -66,8 +66,8 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;
 						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyTransaction(location, Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
-							new Model.SetPropertyTransaction(location, Model.PROPERTY_VIEW, currentView)
+							new Model.SetPropertyCommand(location, Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
+							new Model.SetPropertyCommand(location, Model.PROPERTY_VIEW, currentView)
 						));
 					}
 				});
@@ -89,8 +89,8 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;
 						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyTransaction(location, Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
-							new Model.SetPropertyTransaction(location, Model.PROPERTY_VIEW, currentView)
+							new Model.SetPropertyCommand(location, Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
+							new Model.SetPropertyCommand(location, Model.PROPERTY_VIEW, currentView)
 						));
 					}
 				});

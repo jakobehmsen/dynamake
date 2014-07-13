@@ -11,7 +11,7 @@ import dynamake.numbers.Fraction;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 
-public class WrapTransaction implements Command<Model> {
+public class WrapCommand implements Command<Model> {
 	/**
 	 * 
 	 */
@@ -20,7 +20,7 @@ public class WrapTransaction implements Command<Model> {
 	private Rectangle creationBounds;
 	private Location[] modelLocations;
 	
-	public WrapTransaction(Location canvasLocation, Rectangle creationBounds, Location[] modelLocations) {
+	public WrapCommand(Location canvasLocation, Rectangle creationBounds, Location[] modelLocations) {
 		this.targetLocation = canvasLocation;
 		this.creationBounds = creationBounds;
 		this.modelLocations = modelLocations;
