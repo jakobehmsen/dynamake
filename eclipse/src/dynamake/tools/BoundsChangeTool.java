@@ -285,11 +285,27 @@ public abstract class BoundsChangeTool implements Tool {
 	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
 		if(mouseDown != null) {
+			final ModelComponent localViewPressedOn = viewPressedOn;
+			final Rectangle currentBounds = SwingUtilities.convertRectangle(productionPanel, interactionPresenter.getSelectionFrameBounds(), (JComponent)source);
+			collector.afterNextTrigger(new Runnable() {
+				@Override
+				public void run() {
+					((JComponent)source).add((JComponent)localViewPressedOn);
+					((JComponent)localViewPressedOn).setBounds(currentBounds);
+				}
+			});
+			
 			targetPresenter.reset(collector);
 			targetPresenter = null;
 	
 			interactionPresenter.reset(collector);
 			interactionPresenter = null;
+			
+			viewPressedOn = null;
+			
+			mouseDown = null;
+			
+			collector.flushNextTrigger();
 		}
 	}
 }
