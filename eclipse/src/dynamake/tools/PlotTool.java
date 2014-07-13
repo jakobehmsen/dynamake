@@ -15,6 +15,7 @@ import dynamake.commands.DualCommandPair;
 import dynamake.commands.UnwrapToLocationsTransaction;
 import dynamake.commands.WrapTransaction;
 import dynamake.models.CanvasModel;
+import dynamake.models.CompositeModelLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -63,11 +64,15 @@ public class PlotTool implements Tool {
 				final ModelComponent selection = interactionPresenter.getSelection();
 				// Wrap if one more models are contained within the effect frame
 				if(componentsWithinBounds.size() > 0) {
-					collector.execute(new DualCommandFactory<Model>() {
+					collector.execute(new DualCommandFactory2<Model>() {
 						@Override
-						public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+						public Model getReference() {
+							return selection.getModelBehind();
+						}
+						
+						@Override
+						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 							CanvasModel target = (CanvasModel)selection.getModelBehind();
-							Location targetLocation = selection.getModelTranscriber().getModelLocation();
 							int indexOfWrapper = target.getModelCount() - componentsWithinBounds.size();
 							ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
 							
@@ -76,13 +81,16 @@ public class PlotTool implements Tool {
 							int[] modelIndexes = new int[componentsWithinBounds.size()];
 							for(int i = 0; i < modelLocations.length; i++) {
 								ModelComponent view = componentsWithinBounds.get(i);
-								modelLocations[i] = view.getModelTranscriber().getModelLocation();
+								modelLocations[i] = new CompositeModelLocation(
+									(ModelLocation)location,
+									target.getLocationOf(view.getModelBehind())
+								);
 								modelIndexes[i] = target.indexOfModel(view.getModelBehind());
 							}
 							
 							dualCommands.add(new DualCommandPair<Model>(
-								new WrapTransaction(targetLocation, creationBoundsInSelection, modelLocations), 
-								new UnwrapToLocationsTransaction(targetLocation, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
+								new WrapTransaction(location, creationBoundsInSelection, modelLocations), 
+								new UnwrapToLocationsTransaction(location, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
 							));
 						}
 					});
