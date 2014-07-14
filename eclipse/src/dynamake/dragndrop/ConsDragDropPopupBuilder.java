@@ -23,7 +23,7 @@ import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory2;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
@@ -84,7 +84,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.execute(new DualCommandFactory2<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						ModelComponent referenceMC;
 						
 						@Override

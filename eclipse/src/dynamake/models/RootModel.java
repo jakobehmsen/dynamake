@@ -23,7 +23,7 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory2;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class RootModel extends Model {
@@ -155,7 +155,7 @@ public class RootModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory2<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return rootModel;
@@ -261,7 +261,7 @@ public class RootModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory2<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return RootModel.this;

@@ -14,7 +14,7 @@ For 2), a location centered around the told reference (see below).
 Further, such instances each are able to tell which model is supposed to act as a reference. A reference
 is used to maintain isolated model history. Lastly, the built transactions are to be transcribed.
 */
-public interface DualCommandFactory2<T> {
+public interface DualCommandFactory<T> {
 	T getReference();
 	void createDualCommands(Location location, List<DualCommand<T>> dualCommands);
 }

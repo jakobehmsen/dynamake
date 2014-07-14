@@ -25,7 +25,7 @@ import dynamake.models.factories.CanvasModelFactory;
 import dynamake.models.factories.Factory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory2;
+import dynamake.transcription.DualCommandFactory;
 
 public class PlotTool implements Tool {
 	@Override
@@ -63,7 +63,7 @@ public class PlotTool implements Tool {
 				final ModelComponent selection = interactionPresenter.getSelection();
 				// Wrap if one more models are contained within the effect frame
 				if(componentsWithinBounds.size() > 0) {
-					collector.execute(new DualCommandFactory2<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return selection.getModelBehind();
@@ -96,7 +96,7 @@ public class PlotTool implements Tool {
 				} else {
 					final Factory factory = new CanvasModelFactory();
 					
-					collector.execute(new DualCommandFactory2<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return selection.getModelBehind();

@@ -357,8 +357,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								}
 								break;
 							}
-						} if(command instanceof DualCommandFactory2) {
-							DualCommandFactory2<T> transactionFactory = (DualCommandFactory2<T>)command;
+						} if(command instanceof DualCommandFactory) {
+							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)command;
 							T reference = transactionFactory.getReference();
 							boolean affectModelHistory = !(transactionFactory instanceof TranscribeOnlyDualCommandFactory);
 							

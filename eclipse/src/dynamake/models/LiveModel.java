@@ -37,7 +37,7 @@ import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory2;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class LiveModel extends Model {
@@ -255,7 +255,7 @@ public class LiveModel extends Model {
 						connection.trigger(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
-								collector.execute(new DualCommandFactory2<Model>() {
+								collector.execute(new DualCommandFactory<Model>() {
 									@Override
 									public Model getReference() {
 										return ToolButton.this.liveModel;

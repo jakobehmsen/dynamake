@@ -15,7 +15,7 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
-import dynamake.transcription.DualCommandFactory2;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.Trigger;
@@ -54,7 +54,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Appliance", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new DualCommandFactory2<Model>() {
+				collector.execute(new DualCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return selection.getModelBehind();
@@ -77,7 +77,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Engineering", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new DualCommandFactory2<Model>() {
+				collector.execute(new DualCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return selection.getModelBehind();

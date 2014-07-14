@@ -11,7 +11,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory2;
+import dynamake.transcription.DualCommandFactory;
 
 public abstract class RepetitiveCanvasTaskTool implements Tool {
 	@Override
@@ -65,7 +65,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 			final ModelComponent modelOverParent = ModelComponent.Util.getParent(modelOver);
 			
 			if(modelOverParent == canvas) {
-				collector.execute(new DualCommandFactory2<Model>() {
+				collector.execute(new DualCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return modelOverParent.getModelBehind();

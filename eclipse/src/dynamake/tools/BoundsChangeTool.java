@@ -22,7 +22,7 @@ import dynamake.models.ModelLocation;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory2;
+import dynamake.transcription.DualCommandFactory;
 
 public abstract class BoundsChangeTool implements Tool {
 	@Override
@@ -78,7 +78,7 @@ public abstract class BoundsChangeTool implements Tool {
 						final ModelComponent targetOver = newTargetOver;
 						
 						// Reference is closest common ancestor
-						collector.execute(new DualCommandFactory2<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							ModelComponent referenceMC;
 							
 							@Override
@@ -108,7 +108,7 @@ public abstract class BoundsChangeTool implements Tool {
 						// Moving within same canvas
 						final Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, effectBounds, (JComponent)newTargetOver);
 						
-						collector.execute(new DualCommandFactory2<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return source.getModelBehind();
@@ -136,7 +136,7 @@ public abstract class BoundsChangeTool implements Tool {
 					// Changing bounds within the same canvas
 					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, effectBounds, (JComponent)newTargetOver);
 					
-					collector.execute(new DualCommandFactory2<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return selection.getModelBehind();

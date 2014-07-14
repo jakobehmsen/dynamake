@@ -25,7 +25,7 @@ import dynamake.models.factories.Factory;
 import dynamake.models.factories.StrokeModelFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory2;
+import dynamake.transcription.DualCommandFactory;
 
 public class PenTool implements Tool {
 	@Override
@@ -73,7 +73,7 @@ public class PenTool implements Tool {
 		final ModelComponent target = targetPresenter.getTargetOver();
 		final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)target);
 		
-		collector.execute(new DualCommandFactory2<Model>() {
+		collector.execute(new DualCommandFactory<Model>() {
 			@Override
 			public Model getReference() {
 				return target.getModelBehind();

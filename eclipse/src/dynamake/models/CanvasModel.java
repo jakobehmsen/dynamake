@@ -29,7 +29,7 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.AsIsFactory;
 import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
-import dynamake.transcription.DualCommandFactory2;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Trigger;
@@ -360,7 +360,7 @@ public class CanvasModel extends Model {
 			menuBuilder.addMenuBuilder("Remove", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.execute(new DualCommandFactory2<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return model;
@@ -385,7 +385,7 @@ public class CanvasModel extends Model {
 				menuBuilder.addMenuBuilder("Unwrap", new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory2<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							ModelComponent parent;
 							
 							@Override
@@ -421,7 +421,7 @@ public class CanvasModel extends Model {
 						final ModelComponent modelToMove = dropped;
 						
 						// Reference is closest common ancestor
-						collector.execute(new DualCommandFactory2<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							ModelComponent source;
 							ModelComponent targetOver;
 							ModelComponent referenceMC;

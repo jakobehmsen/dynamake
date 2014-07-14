@@ -32,7 +32,7 @@ import dynamake.models.factories.CloneDeepFactory;
 import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
-import dynamake.transcription.DualCommandFactory2;
+import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
@@ -317,7 +317,7 @@ public abstract class Model implements Serializable, Observer {
 			// Side-effect
 			final SetProperty setProperty = (SetProperty)change;
 
-			collector.execute(new DualCommandFactory2<Model>() {
+			collector.execute(new DualCommandFactory<Model>() {
 				@Override
 				public Model getReference() {
 					return Model.this;
@@ -587,7 +587,7 @@ public abstract class Model implements Serializable, Observer {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory2<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return view.getModelBehind();
@@ -612,7 +612,7 @@ public abstract class Model implements Serializable, Observer {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory2<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return view.getModelBehind();
@@ -712,7 +712,7 @@ public abstract class Model implements Serializable, Observer {
 				return new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory2<Model>() {
+						collector.execute(new DualCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return model;
@@ -757,7 +757,7 @@ public abstract class Model implements Serializable, Observer {
 				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
 
-					collector.execute(new DualCommandFactory2<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return target.getModelBehind();
@@ -786,7 +786,7 @@ public abstract class Model implements Serializable, Observer {
 				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
 
-					collector.execute(new DualCommandFactory2<Model>() {
+					collector.execute(new DualCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return target.getModelBehind();
@@ -1016,7 +1016,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void executeRemoveObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
-		collector.execute(new DualCommandFactory2<Model>() {
+		collector.execute(new DualCommandFactory<Model>() {
 			ModelComponent referenceMC;
 			
 			@Override
@@ -1039,7 +1039,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void executeAddObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
-		collector.execute(new DualCommandFactory2<Model>() {
+		collector.execute(new DualCommandFactory<Model>() {
 			ModelComponent referenceMC;
 			
 			@Override
