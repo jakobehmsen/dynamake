@@ -372,27 +372,44 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						} else if(command instanceof DualCommandFactory2) {
 							DualCommandFactory2<T> transactionFactory = (DualCommandFactory2<T>)command;
 							T reference = transactionFactory.getReference();
+							boolean affectModelHistory = !(transactionFactory instanceof TranscribeOnlyDualCommandFactory);
+							
 							ModelLocation locationFromRoot = ((Model)reference).getLocator().locate();
-							ModelLocation locationFromReference = new ModelRootLocation();
 							
-							ArrayList<DualCommand<T>> dualCommandsFromRoot = new ArrayList<DualCommand<T>>();
-							ArrayList<DualCommand<T>> dualCommandsFromReference = new ArrayList<DualCommand<T>>();
-							
-							transactionFactory.createDualCommands(locationFromRoot, dualCommandsFromRoot);
-							transactionFactory.createDualCommands(locationFromReference, dualCommandsFromReference);
-							
-							for(DualCommand<T> dualCommandFromReference: dualCommandsFromReference)
-								dualCommandFromReference.executeForwardOn(propCtx, reference, null, collector);
-
-							ArrayList<DualCommand<T>> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
-							if(flushedTransactionsFromReference == null) {
-								flushedTransactionsFromReference = new ArrayList<DualCommand<T>>();
-								flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
+							if(affectModelHistory) {
+								System.out.println("Affect model history");
+								ModelLocation locationFromReference = new ModelRootLocation();
+								
+								ArrayList<DualCommand<T>> commandsFromRoot = new ArrayList<DualCommand<T>>();
+								ArrayList<DualCommand<T>> commandsFromReference = new ArrayList<DualCommand<T>>();
+								
+								transactionFactory.createDualCommands(locationFromRoot, commandsFromRoot);
+								transactionFactory.createDualCommands(locationFromReference, commandsFromReference);
+								
+								for(DualCommand<T> dualCommandFromReference: commandsFromReference)
+									dualCommandFromReference.executeForwardOn(propCtx, reference, null, collector);
+	
+								ArrayList<DualCommand<T>> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
+								if(flushedTransactionsFromReference == null) {
+									flushedTransactionsFromReference = new ArrayList<DualCommand<T>>();
+									flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
+								}
+								flushedTransactionsFromReference.addAll(commandsFromReference);
+	
+								for(DualCommand<T> dualCommandFromRoot: commandsFromRoot)
+									flushedTransactionsFromRoot.add(dualCommandFromRoot);
+							} else {
+								System.out.println("Don't affect model history");
+								// Used when no transactions are to be logged on any models
+								// E.g. when performing undo/redo
+								ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
+								transactionFactory.createDualCommands(locationFromRoot, dualCommands);
+		
+								for(DualCommand<T> transaction: dualCommands) {
+									transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, collector);
+									flushedTransactionsFromRoot.add(transaction);
+								}
 							}
-							flushedTransactionsFromReference.addAll(dualCommandsFromReference);
-
-							for(DualCommand<T> dualCommandFromRoot: dualCommandsFromRoot)
-								flushedTransactionsFromRoot.add(dualCommandFromRoot);
 						} else if(command instanceof Trigger) {
 							((Trigger<T>)command).run(collector);
 						}
