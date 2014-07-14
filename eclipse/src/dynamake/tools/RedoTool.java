@@ -3,7 +3,6 @@ package dynamake.tools;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-import dynamake.commands.Command;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.models.Location;
@@ -39,7 +38,7 @@ public class RedoTool implements Tool {
 				dualCommands.add(
 					new DualCommandPair<Model>(
 						new Model.RedoCommand(location, false),
-						new Command.Null<Model>()
+						new Model.UndoCommand(location, false)
 					)
 				);
 			}
