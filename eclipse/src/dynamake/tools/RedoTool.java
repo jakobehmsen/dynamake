@@ -6,12 +6,15 @@ import java.util.List;
 import dynamake.commands.Command;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.DualCommandFactory2;
+import dynamake.transcription.TranscribeOnlyDualCommandFactory;
 
 public class RedoTool implements Tool {
 @Override
@@ -27,12 +30,17 @@ public class RedoTool implements Tool {
 
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
-		collector.execute(new DualCommandFactory<Model>() {
+		collector.execute(new TranscribeOnlyDualCommandFactory<Model>() {
 			@Override
-			public void createDualCommands(List<DualCommand<Model>> dualCommands) {
+			public Model getReference() {
+				return modelOver.getModelBehind();
+			}
+			
+			@Override
+			public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 				dualCommands.add(
 					new DualCommandPair<Model>(
-						new Model.RedoCommand(modelOver.getModelTranscriber().getModelLocation(), false),
+						new Model.RedoCommand(location, false),
 						new Command.Null<Model>()
 					)
 				);
