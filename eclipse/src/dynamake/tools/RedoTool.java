@@ -12,7 +12,6 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.TranscribeOnlyDualCommandFactory;
 
 public class RedoTool implements Tool {
