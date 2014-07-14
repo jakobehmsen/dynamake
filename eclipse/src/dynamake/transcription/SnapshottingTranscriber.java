@@ -357,19 +357,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								}
 								break;
 							}
-						} else if(command instanceof DualCommandFactory) {
-							// Used when no transactions are to be logged on any models
-							// E.g. when performing undo/redo
-							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)command;
-							
-							ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
-							transactionFactory.createDualCommands(dualCommands);
-	
-							for(DualCommand<T> transaction: dualCommands) {
-								transaction.executeForwardOn(propCtx, transcriber.prevalentSystem, null, collector);
-								flushedTransactionsFromRoot.add(transaction);
-							}
-						} else if(command instanceof DualCommandFactory2) {
+						} if(command instanceof DualCommandFactory2) {
 							DualCommandFactory2<T> transactionFactory = (DualCommandFactory2<T>)command;
 							T reference = transactionFactory.getReference();
 							boolean affectModelHistory = !(transactionFactory instanceof TranscribeOnlyDualCommandFactory);
