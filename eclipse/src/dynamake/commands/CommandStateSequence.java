@@ -19,7 +19,7 @@ public class CommandStateSequence<T> implements CommandState<T> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public CommandStateSequence(ArrayList<T> commandStateList) {
+	public CommandStateSequence(ArrayList<CommandState<T>> commandStateList) {
 		commandStates = (CommandState<T>[])commandStateList.toArray(new CommandState[commandStateList.size()]);
 	}
 
