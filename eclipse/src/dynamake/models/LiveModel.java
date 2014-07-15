@@ -29,8 +29,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import dynamake.commands.Command;
+import dynamake.commands.Command2;
+import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.commands.PendingCommandState;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.Factory;
@@ -118,6 +122,28 @@ public class LiveModel extends Model {
 		}
 	}
 	
+	public static class BindButtonsToToolCommand2 implements Command2<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private List<Integer> buttons;
+		private int tool;
+
+		public BindButtonsToToolCommand2(List<Integer> buttons, int tool) {
+			this.buttons = buttons;
+			this.tool = tool;
+		}
+		
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			LiveModel liveModel = (LiveModel)location.getChild(prevalentSystem);
+			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, collector);
+			
+			return null;
+		}
+	}
+	
 	public static class RemoveButtonsToToolBindingCommand implements Command<Model> {
 		/**
 		 * 
@@ -137,6 +163,28 @@ public class LiveModel extends Model {
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
 			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
 			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, collector);
+		}
+	}
+	
+	public static class RemoveButtonsToToolBindingCommand2 implements Command2<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private List<Integer> buttons;
+		private int tool;
+
+		public RemoveButtonsToToolBindingCommand2(List<Integer> buttons, int tool) {
+			this.buttons = buttons;
+			this.tool = tool;
+		}
+		
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			LiveModel liveModel = (LiveModel)location.getChild(prevalentSystem);
+			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, collector);
+			
+			return null;
 		}
 	}
 	
@@ -255,50 +303,103 @@ public class LiveModel extends Model {
 						connection.trigger(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
-								collector.execute(new DualCommandFactory<Model>() {
+//								collector.execute(new DualCommandFactory<Model>() {
+//									@Override
+//									public Model getReference() {
+//										return ToolButton.this.liveModel;
+//									}
+//									
+//									@Override
+//									public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//										List<Integer> currentButtons = ToolButton.this.buttons;
+//										
+//										if(localButtonsPressed.equals(currentButtons)) {
+//											// If the indicated combination is the same as the current combination, then remove
+//											// the current binding
+//											dualCommands.add(new DualCommandPair<Model>(
+//												new RemoveButtonsToToolBindingCommand(location, localButtonsPressed, ToolButton.this.tool),
+//												new BindButtonsToToolCommand(location, localButtonsPressed, ToolButton.this.tool)
+//											));
+//										} else {
+//											int previousToolForNewButton = ToolButton.this.liveModel.getToolForButtons(localButtonsPressed);
+//											
+//											if(previousToolForNewButton != -1) {
+//												// If the new buttons are associated to another tool, then remove that binding
+//												dualCommands.add(new DualCommandPair<Model>(
+//													new RemoveButtonsToToolBindingCommand(location, localButtonsPressed, previousToolForNewButton), 
+//													new BindButtonsToToolCommand(location, localButtonsPressed, previousToolForNewButton))
+//												);
+//											}
+//											
+//											if(currentButtons.size() > 0) {
+//												// If this tool is associated to buttons, then remove that binding before
+//												dualCommands.add(new DualCommandPair<Model>(
+//													new RemoveButtonsToToolBindingCommand(location, currentButtons, ToolButton.this.tool), 
+//													new BindButtonsToToolCommand(location, currentButtons, ToolButton.this.tool))
+//												);
+//												
+//												// adding the replacement binding
+//												dualCommands.add(new DualCommandPair<Model>(
+//													new BindButtonsToToolCommand(location, localButtonsPressed, ToolButton.this.tool), 
+//													new RemoveButtonsToToolBindingCommand(location, localButtonsPressed, ToolButton.this.tool))
+//												);
+//											} else {
+//												dualCommands.add(new DualCommandPair<Model>(
+//													new BindButtonsToToolCommand(location, localButtonsPressed, ToolButton.this.tool), 
+//													new RemoveButtonsToToolBindingCommand(location, localButtonsPressed, ToolButton.this.tool)
+//												));
+//											}
+//										}
+//									}
+//								});
+//								collector.commit();
+//							}
+//						});
+								
+								collector.execute(new CommandStateFactory<Model>() {
 									@Override
 									public Model getReference() {
 										return ToolButton.this.liveModel;
 									}
 									
 									@Override
-									public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+									public void createDualCommands(List<CommandState<Model>> commandStates) {
 										List<Integer> currentButtons = ToolButton.this.buttons;
 										
 										if(localButtonsPressed.equals(currentButtons)) {
 											// If the indicated combination is the same as the current combination, then remove
 											// the current binding
-											dualCommands.add(new DualCommandPair<Model>(
-												new RemoveButtonsToToolBindingCommand(location, localButtonsPressed, ToolButton.this.tool),
-												new BindButtonsToToolCommand(location, localButtonsPressed, ToolButton.this.tool)
+											commandStates.add(new PendingCommandState<Model>(
+												new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool),
+												new BindButtonsToToolCommand2(localButtonsPressed, ToolButton.this.tool)
 											));
 										} else {
 											int previousToolForNewButton = ToolButton.this.liveModel.getToolForButtons(localButtonsPressed);
 											
 											if(previousToolForNewButton != -1) {
 												// If the new buttons are associated to another tool, then remove that binding
-												dualCommands.add(new DualCommandPair<Model>(
-													new RemoveButtonsToToolBindingCommand(location, localButtonsPressed, previousToolForNewButton), 
-													new BindButtonsToToolCommand(location, localButtonsPressed, previousToolForNewButton))
+												commandStates.add(new PendingCommandState<Model>(
+													new RemoveButtonsToToolBindingCommand2(localButtonsPressed, previousToolForNewButton), 
+													new BindButtonsToToolCommand2(localButtonsPressed, previousToolForNewButton))
 												);
 											}
 											
 											if(currentButtons.size() > 0) {
 												// If this tool is associated to buttons, then remove that binding before
-												dualCommands.add(new DualCommandPair<Model>(
-													new RemoveButtonsToToolBindingCommand(location, currentButtons, ToolButton.this.tool), 
-													new BindButtonsToToolCommand(location, currentButtons, ToolButton.this.tool))
+												commandStates.add(new PendingCommandState<Model>(
+													new RemoveButtonsToToolBindingCommand2(currentButtons, ToolButton.this.tool), 
+													new BindButtonsToToolCommand2(currentButtons, ToolButton.this.tool))
 												);
 												
 												// adding the replacement binding
-												dualCommands.add(new DualCommandPair<Model>(
-													new BindButtonsToToolCommand(location, localButtonsPressed, ToolButton.this.tool), 
-													new RemoveButtonsToToolBindingCommand(location, localButtonsPressed, ToolButton.this.tool))
+												commandStates.add(new PendingCommandState<Model>(
+													new BindButtonsToToolCommand2(localButtonsPressed, ToolButton.this.tool), 
+													new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool))
 												);
 											} else {
-												dualCommands.add(new DualCommandPair<Model>(
-													new BindButtonsToToolCommand(location, localButtonsPressed, ToolButton.this.tool), 
-													new RemoveButtonsToToolBindingCommand(location, localButtonsPressed, ToolButton.this.tool)
+												commandStates.add(new PendingCommandState<Model>(
+													new BindButtonsToToolCommand2(localButtonsPressed, ToolButton.this.tool), 
+													new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool)
 												));
 											}
 										}
