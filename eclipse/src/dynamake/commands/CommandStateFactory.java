@@ -6,5 +6,5 @@ import dynamake.models.Location;
 
 public interface CommandStateFactory<T> {
 	T getReference();
-	void createDualCommands(Location location, List<CommandState<T>> dualCommands);
+	void createDualCommands(Location location, List<CommandState<T>> commandStates);
 }
