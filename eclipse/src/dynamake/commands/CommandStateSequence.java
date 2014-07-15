@@ -3,6 +3,7 @@ package dynamake.commands;
 import java.util.ArrayList;
 import java.util.Date;
 
+import dynamake.models.Location;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
@@ -24,12 +25,12 @@ public class CommandStateSequence<T> implements CommandState<T> {
 	}
 
 	@Override
-	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector) {
+	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector, Location location) {
 		@SuppressWarnings("unchecked")
 		CommandState<T>[] newCommandStates = (CommandState<T>[])new CommandState[commandStates.length];
 		
 		for(int i = 0; i < commandStates.length; i++)
-			newCommandStates[i] = commandStates[i].executeOn(propCtx, prevalentSystem, executionTime, collector);
+			newCommandStates[i] = commandStates[i].executeOn(propCtx, prevalentSystem, executionTime, collector, location);
 
 		return new CommandStateSequence<T>(newCommandStates);
 	}

@@ -2,6 +2,7 @@ package dynamake.commands;
 
 import java.util.Date;
 
+import dynamake.models.Location;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
@@ -56,8 +57,8 @@ public class PendingCommandState<T> implements CommandState<T> {
 	}
 
 	@Override
-	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector) {
-		Object output = command.executeOn(propCtx, prevalentSystem, executionTime, collector);
+	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector, Location location) {
+		Object output = command.executeOn(propCtx, prevalentSystem, executionTime, collector, location);
 		
 		return new ReversibleCommand<T>(output, backFactory, forthFactory);
 	}
