@@ -1,5 +1,7 @@
 package dynamake.commands;
 
-public interface Command2Factory<T> {
+import java.io.Serializable;
+
+public interface Command2Factory<T> extends Serializable {
 	Command2<T> createCommand(Object output);
 }
