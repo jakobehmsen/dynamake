@@ -6,7 +6,7 @@ import java.util.Date;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class FactoryCommandPair<T> implements DualCommand2<T> {
+public class FactoryCommandPair<T> implements CommandState<T> {
 	/**
 	 * 
 	 */
@@ -20,7 +20,7 @@ public class FactoryCommandPair<T> implements DualCommand2<T> {
 	}
 
 	@Override
-	public DualCommand2<T> executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector) {
+	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector) {
 		ArrayList<Command<T>> commands = new ArrayList<Command<T>>();
 		forthFactory.createCommands(commands);
 		
