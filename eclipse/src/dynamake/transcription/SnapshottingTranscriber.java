@@ -18,26 +18,20 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import com.sun.jmx.remote.util.OrderClassLoaders;
 
 import dynamake.commands.CommandStateSequence;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.DualCommand;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
-import dynamake.commands.DualCommandSequence;
-import dynamake.commands.PendingCommandState;
 import dynamake.delegates.Func0;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelLocation;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
-import dynamake.models.RootModel;
 
 public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private Func0<T> prevalentSystemFunc;
@@ -454,7 +448,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							ArrayList<CommandState<T>> undoables = new ArrayList<CommandState<T>>();
 							for(CommandState<T> pendingCommand: pendingCommands) {
 								// Each command in pending state should return a command in undoable state
-								@SuppressWarnings("unused")
 								CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, null, collector, locationFromReference);
 								undoables.add(undoableCommand);
 							}
@@ -556,7 +549,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				Location locationFromReference = new ModelRootLocation();
 				for(CommandState<T> undoable: transaction.undoables) {
 					@SuppressWarnings("unused")
-					CommandState<T> redoable = undoable.executeOn(propCtx, transcriber.prevalentSystem, null, isolatedCollector, locationFromReference);
+					CommandState<T> redoable = undoable.executeOn(propCtx, transaction.reference, null, isolatedCollector, locationFromReference);
 				}
 			}
 			

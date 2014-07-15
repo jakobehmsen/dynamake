@@ -10,7 +10,6 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.commands.Command;
 import dynamake.commands.Command2;
 import dynamake.commands.Command2Factory;
 import dynamake.commands.CommandState;

@@ -32,8 +32,6 @@ import dynamake.commands.Command;
 import dynamake.commands.Command2;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
-import dynamake.commands.DualCommand;
-import dynamake.commands.DualCommandPair;
 import dynamake.commands.PendingCommandState;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
@@ -41,7 +39,6 @@ import dynamake.models.factories.Factory;
 import dynamake.tools.Tool;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class LiveModel extends Model {

@@ -23,7 +23,6 @@ import javax.swing.JComponent;
 
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateSequence;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
