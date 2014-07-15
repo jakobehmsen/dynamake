@@ -22,6 +22,8 @@ import java.util.Stack;
 import javax.swing.JComponent;
 
 import dynamake.commands.Command;
+import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateSequence;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.delegates.Action1;
@@ -161,8 +163,8 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public void log(DualCommand<Model> transactionFromReference) {
-		undoStack.add(transactionFromReference);
-		redoStack.clear();
+//		undoStack.add(transactionFromReference);
+//		redoStack.clear();
 	}
 	
 	public static class UndoCommand implements Command<Model> {
@@ -217,22 +219,27 @@ public abstract class Model implements Serializable, Observer {
 		if(undoStack.isEmpty())
 			return;
 		
-		DualCommand<Model> ctxTransactionToUndo = undoStack.pop();
+		CommandState<Model> ctxTransactionToUndo = undoStack.pop();
 
-		ctxTransactionToUndo.executeBackwardOn(propCtx, this, null, collector);
+		CommandState<Model> redoable = ctxTransactionToUndo.executeOn(propCtx, this, null, collector, new ModelRootLocation());
 
-		redoStack.push(ctxTransactionToUndo);
+		redoStack.push(redoable);
 	}
 	
 	public void redo(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector) {
 		if(redoStack.isEmpty())
 			return;
 		
-		DualCommand<Model> ctxTransactionToRedo = redoStack.pop();
+		CommandState<Model> ctxTransactionToRedo = redoStack.pop();
 
-		ctxTransactionToRedo.executeForwardOn(propCtx, this, null, collector);
+		CommandState<Model> undoable = ctxTransactionToRedo.executeOn(propCtx, this, null, collector, new ModelRootLocation());
 
-		undoStack.push(ctxTransactionToRedo);
+		undoStack.push(undoable);
+	}
+
+	public void log(CommandState<Model> transactionFromReference) {
+		undoStack.add(transactionFromReference);
+		redoStack.clear();
 	}
 	
 	public void setLocator(ModelLocator locator) {
@@ -243,8 +250,8 @@ public abstract class Model implements Serializable, Observer {
 		return locator;
 	}
 	
-	private Stack<DualCommand<Model>> undoStack = new Stack<DualCommand<Model>>();
-	private Stack<DualCommand<Model>> redoStack = new Stack<DualCommand<Model>>();
+	private Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
+	private Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
 	private ModelLocator locator;
 	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
 	
@@ -421,8 +428,8 @@ public abstract class Model implements Serializable, Observer {
 		observers = (ArrayList<Observer>)ois.readObject();
 		observees = (ArrayList<Observer>)ois.readObject();
 		properties = (Hashtable<String, Object>)ois.readObject();
-		undoStack = (Stack<DualCommand<Model>>)ois.readObject();
-		redoStack = (Stack<DualCommand<Model>>)ois.readObject();
+		undoStack = (Stack<CommandState<Model>>)ois.readObject();
+		redoStack = (Stack<CommandState<Model>>)ois.readObject();
 	}
 
 	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
