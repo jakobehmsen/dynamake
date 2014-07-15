@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import javax.swing.JLayeredPane;
 
 import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
+import dynamake.commands.Command2;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.commands.UnwrapCommand;
@@ -190,6 +192,50 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+	public static class AddModelCommand2 implements Command2<Model> {
+		public static class Output implements Serializable {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			public final int index;
+
+			public Output(int index) {
+				this.index = index;
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Rectangle creationBounds;
+		private Factory factory;
+		
+		public AddModelCommand2(Rectangle creationBounds, Factory factory) {
+			this.creationBounds = creationBounds;
+			this.factory = factory;
+		}
+		
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
+			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, collector);
+
+			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
+			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, isolatedCollector);
+			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, isolatedCollector);
+			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, isolatedCollector);
+			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, isolatedCollector);
+			
+			canvas.addModel(model, new PropogationContext(), 0, collector);
+			
+			int index = canvas.getModelCount() - 1;
+			
+			return new Output(index);
+		}
+	}
+	
 	public static class AddModelAtCommand implements Command<Model> {
 		/**
 		 * 
@@ -267,6 +313,30 @@ public class CanvasModel extends Model {
 			Model modelToRemove = canvas.getModel(index);
 			canvas.removeModel(index, propCtx, 0, collector);
 			modelToRemove.beRemoved();
+		}
+	}
+	
+	public static class RemoveModelCommand2 implements Command2<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private int index;
+		
+		public RemoveModelCommand2(int index) {
+			if(index < 0)
+				new String();
+			this.index = index;
+		}
+		
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
+			Model modelToRemove = canvas.getModel(index);
+			canvas.removeModel(index, propCtx, 0, collector);
+			modelToRemove.beRemoved();
+			
+			return null;
 		}
 	}
 	

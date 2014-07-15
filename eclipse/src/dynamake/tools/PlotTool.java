@@ -10,8 +10,14 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
+import dynamake.commands.Command;
+import dynamake.commands.Command2;
+import dynamake.commands.Command2Factory;
+import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.commands.PendingCommandState;
 import dynamake.commands.UnwrapToLocationsCommand;
 import dynamake.commands.WrapCommand;
 import dynamake.models.CanvasModel;
@@ -96,23 +102,49 @@ public class PlotTool implements Tool {
 				} else {
 					final Factory factory = new CanvasModelFactory();
 					
-					collector.execute(new DualCommandFactory<Model>() {
+//					collector.execute(new DualCommandFactory<Model>() {
+//						@Override
+//						public Model getReference() {
+//							return selection.getModelBehind();
+//						}
+//						
+//						@Override
+//						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//							ModelComponent target = selection;
+//							
+//							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
+//							int index = canvasModel.getModelCount();
+//							
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new CanvasModel.AddModelCommand(location, creationBoundsInSelection, factory), 
+//								new CanvasModel.RemoveModelCommand(location, index)
+//								// The model removed here, should be cloned before removing and then used for the redo in an as-is factory
+//							));
+//						}
+//					});
+					
+					collector.execute(new CommandStateFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return selection.getModelBehind();
 						}
 						
 						@Override
-						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-							ModelComponent target = selection;
-							
-							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-							int index = canvasModel.getModelCount();
-							
-							dualCommands.add(new DualCommandPair<Model>(
-								new CanvasModel.AddModelCommand(location, creationBoundsInSelection, factory), 
-								new CanvasModel.RemoveModelCommand(location, index)
-								// The model removed here, should be cloned before removing and then used for the redo in an as-is factory
+						public void createDualCommands(List<CommandState<Model>> commandStates) {
+							commandStates.add(new PendingCommandState<Model>(
+								new CanvasModel.AddModelCommand2(creationBoundsInSelection, factory),
+//								(Command2Factory<Model>)null
+								// For some strange reason, the following command 2 factory is not serializable (error occurs during persistence in transcriber)
+								new Command2Factory<Model>() {
+									/**
+									 * 
+									 */
+									private static final long serialVersionUID = 1L;
+
+									public Command2<Model> createCommand(Object output) {
+										return new CanvasModel.RemoveModelCommand2(((CanvasModel.AddModelCommand2.Output)output).index);
+									}
+								}
 							));
 						}
 					});
