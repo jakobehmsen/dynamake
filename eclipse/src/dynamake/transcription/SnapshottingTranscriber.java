@@ -22,6 +22,8 @@ import java.util.concurrent.Executors;
 
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.DualCommand;
+import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommandSequence;
 import dynamake.delegates.Func0;
 import dynamake.models.Location;
@@ -357,7 +359,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								}
 								break;
 							}
-						} if(command instanceof DualCommandFactory) {
+						} else if(command instanceof DualCommandFactory) {
 							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)command;
 							T reference = transactionFactory.getReference();
 							boolean affectModelHistory = !(transactionFactory instanceof TranscribeOnlyDualCommandFactory);
@@ -398,6 +400,29 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									flushedTransactionsFromRoot.add(transaction);
 								}
 							}
+						} else if(command instanceof CommandStateFactory) {
+							CommandStateFactory<T> transactionFactory = (CommandStateFactory<T>)command;
+							T reference = transactionFactory.getReference();
+							
+							ModelLocation locationFromRoot = ((Model)reference).getLocator().locate();
+							ModelLocation locationFromReference = new ModelRootLocation();
+							
+							ArrayList<CommandState<T>> pendingCommandsFromRoot = new ArrayList<CommandState<T>>();
+							ArrayList<CommandState<T>> pendingCommandsReference = new ArrayList<CommandState<T>>();
+							
+							// If location was part of the executeOn invocation, location is probably no
+							// necessary for creating dual commands. Further, then, it is probably not necessary
+							// to create two sequences of pendingCommands.
+							transactionFactory.createDualCommands(locationFromRoot, pendingCommandsFromRoot);
+							transactionFactory.createDualCommands(locationFromReference, pendingCommandsReference);
+							
+							// Should be in pending state
+							for(CommandState<T> pendingCommand: pendingCommandsReference) {
+								// Each command in pending state should return a command in undoable state
+								CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, null, collector);
+							}
+							
+							
 						} else if(command instanceof Trigger) {
 							((Trigger<T>)command).run(collector);
 						}
