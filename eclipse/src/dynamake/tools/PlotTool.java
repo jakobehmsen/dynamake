@@ -99,7 +99,6 @@ public class PlotTool implements Tool {
 						}
 					});
 				} else {
-					final Factory factory = new CanvasModelFactory();
 					
 //					collector.execute(new DualCommandFactory<Model>() {
 //						@Override
@@ -130,20 +129,10 @@ public class PlotTool implements Tool {
 						
 						@Override
 						public void createDualCommands(List<CommandState<Model>> commandStates) {
+							Factory factory = new CanvasModelFactory();
 							commandStates.add(new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand2(creationBoundsInSelection, factory),
-//								(Command2Factory<Model>)null
-								// For some strange reason, the following command 2 factory is not serializable (error occurs during persistence in transcriber)
-								new Command2Factory<Model>() {
-									/**
-									 * 
-									 */
-									private static final long serialVersionUID = 1L;
-
-									public Command2<Model> createCommand(Object output) {
-										return new CanvasModel.RemoveModelCommand2(((CanvasModel.AddModelCommand2.Output)output).index);
-									}
-								}
+								new CanvasModel.RemoveModelCommand2.Factory()
 							));
 						}
 					});

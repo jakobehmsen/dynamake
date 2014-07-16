@@ -19,6 +19,7 @@ import javax.swing.JLayeredPane;
 import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.Command2;
+import dynamake.commands.Command2Factory;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.commands.UnwrapCommand;
@@ -317,6 +318,19 @@ public class CanvasModel extends Model {
 	}
 	
 	public static class RemoveModelCommand2 implements Command2<Model> {
+		public static final class Factory implements Command2Factory<Model>  
+		{
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Command2<Model> createCommand(Object output) {
+				return new CanvasModel.RemoveModelCommand2(((CanvasModel.AddModelCommand2.Output)output).index);
+			}
+		}
+		
 		/**
 		 * 
 		 */
