@@ -36,6 +36,7 @@ import dynamake.models.factories.CloneDeepFactory;
 import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
+import dynamake.numbers.RectangleF;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
@@ -316,8 +317,24 @@ public abstract class Model implements Serializable, Observer {
 		sendChanged(new PropertyChanged(name, value), propCtx, propDistance, 0, collector);
 	}
 	
+	public void setBounds(RectangleF bounds, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		setProperty("X", bounds.x, propCtx, propDistance, collector);
+		setProperty("Y", bounds.y, propCtx, propDistance, collector);
+		setProperty("Width", bounds.width, propCtx, propDistance, collector);
+		setProperty("Height", bounds.height, propCtx, propDistance, collector);
+	}
+	
 	public Object getProperty(String name) {
 		return properties.get(name);
+	}
+	
+	public RectangleF getBounds() {
+		Fraction x = (Fraction)getProperty("X");
+		Fraction y = (Fraction)getProperty("Y");
+		Fraction width = (Fraction)getProperty("Width");
+		Fraction height = (Fraction)getProperty("Height");
+		
+		return new RectangleF(x, y, width, height);
 	}
 	
 	public static class AddObserverCommand implements Command<Model> {
