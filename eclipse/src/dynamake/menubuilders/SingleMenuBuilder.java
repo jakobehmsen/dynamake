@@ -27,8 +27,6 @@ public class SingleMenuBuilder extends MenuBuilder {
 						runner.run(action);
 					}
 				});
-//				view.execute(action);
-//				action.run();
 			}
 		});
 		menuItems.add(menuItem);

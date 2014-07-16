@@ -13,6 +13,5 @@ public interface DragDropPopupBuilder {
 		ModelComponent livePanel, JPopupMenu popup,
 		ModelComponent selection, ModelComponent target,
 		Point dropPointOnTarget, Rectangle dropBoundsOnTarget);
-
 	void cancelPopup(LivePanel livePanel);
 }

@@ -34,7 +34,6 @@ public class PenTool implements Tool {
 	}
 	
 	private ArrayList<Point> points;
-//	private Path2D.Double shape;
 
 	@Override
 	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
