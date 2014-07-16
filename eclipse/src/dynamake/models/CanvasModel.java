@@ -222,6 +222,12 @@ public class CanvasModel extends Model {
 			@Override
 			public Command2<Model> createCommand(Object output) {
 				Model model = ((RemoveModelCommand2.Output)output).model;
+				// TODO: Consider the following:
+				// What if the model what observing/being observed before its removal?
+				// What if the model's observers/observees aren't all in existence anymore?
+				// What if the model's observers/observees are restored after this model is restored?
+				// Are all of the above cases possible?
+				// Perhaps, the best solution would be to save the history and replay this history?
 				Fraction x = (Fraction)model.getProperty("X");
 				Fraction y = (Fraction)model.getProperty("Y");
 				Fraction width = (Fraction)model.getProperty("Width");
