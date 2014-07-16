@@ -132,8 +132,13 @@ public class PlotTool implements Tool {
 							Factory factory = new CanvasModelFactory();
 							commandStates.add(new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand2(creationBoundsInSelection, factory),
-								new CanvasModel.RemoveModelCommand2.Factory()
+								new CanvasModel.RemoveModelCommand2.AfterAdd(),
+								new CanvasModel.AddModelCommand2.AfterRemove()
 							));
+//							commandStates.add(new PendingCommandState<Model>(
+//								new CanvasModel.AddModelCommand2(creationBoundsInSelection, factory),
+//								new CanvasModel.RemoveModelCommand2.AfterAdd()
+//							));
 						}
 					});
 				}

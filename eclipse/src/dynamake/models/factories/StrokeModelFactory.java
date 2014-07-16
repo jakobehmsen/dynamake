@@ -22,14 +22,16 @@ public class StrokeModelFactory implements Factory {
 	
 	private Point offset;
 	private ArrayList<Point> points;
+	private Rectangle creationBounds;
 
-	public StrokeModelFactory(Point offset, ArrayList<Point> points) {
+	public StrokeModelFactory(Point offset, ArrayList<Point> points, Rectangle creationBounds) {
 		this.offset = offset;
 		this.points = points;
+		this.creationBounds = creationBounds;
 	}
 
 	@Override
-	public Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		return new StrokeModel(creationBounds.getSize(), offset, points);
 	}
 }

@@ -83,7 +83,7 @@ public class PenTool implements Tool {
 			public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
 				CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 				int index = canvasModel.getModelCount();
-				Factory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation);
+				Factory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation, creationBoundsInContainer);
 				
 				dualCommands.add(new DualCommandPair<Model>(
 					new CanvasModel.AddModelCommand(location, creationBoundsInContainer, factory), 

@@ -4,6 +4,12 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -181,7 +187,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, collector);
+			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, isolatedCollector);
@@ -206,28 +212,61 @@ public class CanvasModel extends Model {
 			}
 		}
 		
+		public static final class AfterRemove implements Command2Factory<Model>  
+		{
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Command2<Model> createCommand(Object output) {
+				Model model = ((RemoveModelCommand2.Output)output).model;
+				Fraction x = (Fraction)model.getProperty("X");
+				Fraction y = (Fraction)model.getProperty("Y");
+				Fraction width = (Fraction)model.getProperty("Width");
+				Fraction height = (Fraction)model.getProperty("Height");
+				
+				return new CanvasModel.AddModelCommand2(x, y, width, height, new AsIsFactory(model));
+			}
+		}
+		
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private Rectangle creationBounds;
+		private Fraction xCreation;
+		private Fraction yCreation;
+		private Fraction widthCreation;
+		private Fraction heightCreation;
 		private Factory factory;
 		
+		public AddModelCommand2(Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, Factory factory) {
+			this.xCreation = xCreation;
+			this.yCreation = yCreation;
+			this.widthCreation = widthCreation;
+			this.heightCreation = heightCreation;
+			this.factory = factory;
+		}
+		
 		public AddModelCommand2(Rectangle creationBounds, Factory factory) {
-			this.creationBounds = creationBounds;
+			this.xCreation = new Fraction(creationBounds.x);
+			this.yCreation = new Fraction(creationBounds.y);
+			this.widthCreation = new Fraction(creationBounds.width);
+			this.heightCreation = new Fraction(creationBounds.height);
 			this.factory = factory;
 		}
 		
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, collector);
+			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
-			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, isolatedCollector);
-			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, isolatedCollector);
-			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, isolatedCollector);
-			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, isolatedCollector);
+			model.setProperty("X", xCreation, propCtx, 0, isolatedCollector);
+			model.setProperty("Y", yCreation, propCtx, 0, isolatedCollector);
+			model.setProperty("Width", widthCreation, propCtx, 0, isolatedCollector);
+			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
 			
 			canvas.addModel(model, new PropogationContext(), 0, collector);
 			
@@ -257,7 +296,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, creationBounds, propCtx, 0, collector);
+			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector);
 
 			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<>(collector);
 
@@ -288,7 +327,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, null, propCtx, 0, collector);
+			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector);
 			canvas.addModel(index, model, new PropogationContext(), 0, collector);
 		}
 	}
@@ -318,7 +357,51 @@ public class CanvasModel extends Model {
 	}
 	
 	public static class RemoveModelCommand2 implements Command2<Model> {
-		public static final class Factory implements Command2Factory<Model>  
+		public static class Output implements Serializable {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			public final int index;
+//			public final byte[] serialization;
+			public final Model model;
+
+			public Output(int index, Model model) {
+				this.index = index;
+				this.model = model;
+				
+//				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//				ObjectOutputStream out = null;
+//				byte[] result = null;
+//				try {
+//					out = new ObjectOutputStream(bos);   
+//					out.writeObject(model);
+//					result = bos.toByteArray();
+//					out.close();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
+//				serialization = result;
+			}
+			
+//			public Model getModel() {
+//				ByteArrayInputStream bis = new ByteArrayInputStream(serialization);
+//				ObjectInputStream in = null;
+//				Model result = null;
+//				try {
+//					in = new ObjectInputStream(bis);
+//					result = (Model)in.readObject();
+//					in.close();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				} catch (ClassNotFoundException e) {
+//					e.printStackTrace();
+//				}
+//				return result;
+//			}
+		}
+		
+		public static final class AfterAdd implements Command2Factory<Model>  
 		{
 			/**
 			 * 
@@ -350,7 +433,7 @@ public class CanvasModel extends Model {
 			canvas.removeModel(index, propCtx, 0, collector);
 			modelToRemove.beRemoved();
 			
-			return null;
+			return new Output(index, modelToRemove);
 		}
 	}
 	

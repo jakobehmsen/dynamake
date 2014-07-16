@@ -1,6 +1,5 @@
 package dynamake.models.factories;
 
-import java.awt.Rectangle;
 
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -24,7 +23,7 @@ public class AsIsFactory implements Factory {
 	}
 
 	@Override
-	public Model create(Model rootModel, Rectangle creationBounds, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		return model;
 	}
 }
