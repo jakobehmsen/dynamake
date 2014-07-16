@@ -3,6 +3,7 @@ package dynamake.tools;
 import java.awt.Rectangle;
 import java.util.List;
 
+import dynamake.commands.CommandState;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.commands.ScaleCommand;
@@ -39,5 +40,11 @@ public class ScaleTool extends BoundsChangeTool {
 			new ScaleCommand(location, xDeltaForward, yDeltaForward, hChangeForward, vChangeForward), 
 			new ScaleCommand(location, xDeltaBackward, yDeltaBackward, hChangeBackward, vChangeBackward)
 		));
+	}
+
+	@Override
+	protected void appendCommandStatesForResize(List<CommandState<Model>> commandStates, ModelComponent selection, Rectangle newBounds) {
+		// TODO Auto-generated method stub
+		
 	}
 }

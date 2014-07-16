@@ -127,15 +127,27 @@ public abstract class BoundsChangeTool implements Tool {
 					// Changing bounds within the same canvas
 					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, effectBounds, (JComponent)newTargetOver);
 					
-					collector.execute(new DualCommandFactory<Model>() {
+//					collector.execute(new DualCommandFactory<Model>() {
+//						@Override
+//						public Model getReference() {
+//							return selection.getModelBehind();
+//						}
+//
+//						@Override
+//						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//							appendDualCommandsForResize(dualCommands, location, selection, newBounds);
+//						}
+//					});
+					
+					collector.execute(new CommandStateFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return selection.getModelBehind();
 						}
 
 						@Override
-						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-							appendDualCommandsForResize(dualCommands, location, selection, newBounds);
+						public void createDualCommands(List<CommandState<Model>> commandStates) {
+							appendCommandStatesForResize(commandStates, selection, newBounds);
 						}
 					});
 				}
@@ -150,6 +162,7 @@ public abstract class BoundsChangeTool implements Tool {
 	}
 
 	protected abstract void appendDualCommandsForResize(List<DualCommand<Model>> dualCommands, Location location, ModelComponent selection, Rectangle newBounds);
+	protected abstract void appendCommandStatesForResize(List<CommandState<Model>> commandStates, ModelComponent selection, Rectangle newBounds);
 	
 	private Point mouseDown;
 	private ModelComponent viewPressedOn;
