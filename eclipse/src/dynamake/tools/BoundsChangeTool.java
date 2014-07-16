@@ -10,6 +10,8 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
+import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.models.CanvasModel;
@@ -77,8 +79,35 @@ public abstract class BoundsChangeTool implements Tool {
 
 						final ModelComponent targetOver = newTargetOver;
 						
+//						// Reference is closest common ancestor
+//						collector.execute(new DualCommandFactory<Model>() {
+//							ModelComponent referenceMC;
+//							
+//							@Override
+//							public Model getReference() {
+//								referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
+//								return referenceMC.getModelBehind();
+//							}
+//
+//							@Override
+//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+////								ModelLocation locationOfSource = new CompositeModelLocation(
+////									(ModelLocation)location,
+////									ModelComponent.Util.locationFromAncestor(referenceMC, source)
+////								);
+////								ModelLocation locationOfTarget = new CompositeModelLocation(
+////									(ModelLocation)location,
+////									ModelComponent.Util.locationFromAncestor(referenceMC, targetOver)
+////								);
+//								
+//								ModelLocation locationOfSource = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, source);
+//								ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, targetOver);
+//								
+//								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
+//							}
+//						});
 						// Reference is closest common ancestor
-						collector.execute(new DualCommandFactory<Model>() {
+						collector.execute(new CommandStateFactory<Model>() {
 							ModelComponent referenceMC;
 							
 							@Override
@@ -88,7 +117,7 @@ public abstract class BoundsChangeTool implements Tool {
 							}
 
 							@Override
-							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(List<CommandState<Model>> commandStates) {
 //								ModelLocation locationOfSource = new CompositeModelLocation(
 //									(ModelLocation)location,
 //									ModelComponent.Util.locationFromAncestor(referenceMC, source)
@@ -98,10 +127,10 @@ public abstract class BoundsChangeTool implements Tool {
 //									ModelComponent.Util.locationFromAncestor(referenceMC, targetOver)
 //								);
 								
-								ModelLocation locationOfSource = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, source);
-								ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, targetOver);
+								ModelLocation locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
+								ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
-								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
+								CanvasModel.appendMoveTransaction2(commandStates, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 							}
 						});
 					} else {

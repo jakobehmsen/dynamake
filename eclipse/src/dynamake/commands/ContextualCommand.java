@@ -6,6 +6,8 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 
 import dynamake.models.Location;
+import dynamake.transcription.SnapshottingTranscriber;
+import dynamake.transcription.SnapshottingTranscriber.Connection.LocationCommandsPair;
 
 // Instances each represents a pairing of a transaction and the models, which were affected
 // during the original forward execution of the transaction.
@@ -34,10 +36,11 @@ public class ContextualCommand<T> implements Serializable {
 //	public static final class LocationCommandPair
 	
 //	public final ArrayList<CommandState<T>> transactionsFromRoot;
-	public final LinkedHashMap<Location, CommandState<T>> transactionsFromRoot;
+//	public final LinkedHashMap<Location, CommandState<T>> transactionsFromRoot;
+	public final ArrayList<SnapshottingTranscriber.Connection.LocationCommandsPair<T>> transactionsFromRoot;
 	public final Hashtable<Location, ArrayList<CommandState<T>>> transactionsFromReferenceLocations;
 
-	public ContextualCommand(LinkedHashMap<Location, CommandState<T>> transactionsFromRoot, Hashtable<Location, ArrayList<CommandState<T>>> transactionsFromReferenceLocations) {
+	public ContextualCommand(ArrayList<SnapshottingTranscriber.Connection.LocationCommandsPair<T>> transactionsFromRoot, Hashtable<Location, ArrayList<CommandState<T>>> transactionsFromReferenceLocations) {
 		this.transactionsFromRoot = transactionsFromRoot;
 		this.transactionsFromReferenceLocations = transactionsFromReferenceLocations;
 	}

@@ -26,8 +26,11 @@ import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.Command2;
 import dynamake.commands.Command2Factory;
+import dynamake.commands.CommandState;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.commands.PendingCommandState;
+import dynamake.commands.RelativeCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.commands.WrapCommand;
 import dynamake.delegates.Action1;
@@ -166,6 +169,67 @@ public class CanvasModel extends Model {
 			int indexOfModel = canvasSource.indexOfModel(model);
 			canvasSource.removeModel(indexOfModel, propCtx, 0, collector);
 			canvasTarget.addModel(indexInTarget, model, propCtx, 0, collector);
+		}
+	}
+	
+	public static class MoveModelCommand2 implements Command2<Model> {
+		public static class AfterMove implements Command2Factory<Model> {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Command2<Model> createCommand(Object output) {
+				MoveModelCommand2.Output moveOutput = (MoveModelCommand2.Output)output;
+				return new MoveModelCommand2(moveOutput.canvasTargetLocation, moveOutput.canvasSourceLocation, moveOutput.movedToIndex);
+			}
+		}
+		
+		public static class Output implements Serializable {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			public final Location canvasSourceLocation;
+			public final Location canvasTargetLocation;
+			public final int movedToIndex;
+			
+			public Output(Location canvasSourceLocation, Location canvasTargetLocation, int movedToIndex) {
+				this.canvasSourceLocation = canvasSourceLocation;
+				this.canvasTargetLocation = canvasTargetLocation;
+				this.movedToIndex = movedToIndex;
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private Location canvasSourceLocation;
+		private Location canvasTargetLocation;
+		private int indexInSource;
+		private int indexInTarget;
+
+		public MoveModelCommand2(Location canvasSourceLocation, Location canvasTargetLocation, int indexInSource) {
+			this.canvasSourceLocation = canvasSourceLocation;
+			this.canvasTargetLocation = canvasTargetLocation;
+			this.indexInSource = indexInSource;
+		}
+
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			CanvasModel canvasSource = (CanvasModel)CompositeModelLocation.getChild(prevalentSystem, location, canvasSourceLocation);
+			CanvasModel canvasTarget = (CanvasModel)CompositeModelLocation.getChild(prevalentSystem, location, canvasTargetLocation);
+			Model model = (Model)canvasSource.getModel(indexInSource);
+
+			int indexOfModel = canvasSource.indexOfModel(model);
+			canvasSource.removeModel(indexOfModel, propCtx, 0, collector);
+			canvasTarget.addModel(indexInTarget, model, propCtx, 0, collector);
+			int movedToIndex = canvasTarget.indexOfModel(model);
+			
+			return new Output(canvasSourceLocation, canvasTargetLocation, movedToIndex);
 		}
 	}
 	
@@ -758,6 +822,43 @@ public class CanvasModel extends Model {
 		dualCommands.add(new DualCommandPair<Model>(
 			new Model.SetPropertyCommand(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
 			new Model.SetPropertyCommand(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
+		));
+	}
+	
+	public static void appendMoveTransaction2(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, ModelLocation canvasSourceLocation, ModelLocation canvasTargetLocation) {
+		int indexTarget = ((CanvasModel)target.getModelBehind()).getModelCount();
+		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
+		int indexSource = sourceCanvas.indexOfModel(modelToMove.getModelBehind());
+		CanvasModel targetCanvas = (CanvasModel)target.getModelBehind();
+		
+		ModelLocation canvasTargetLocationAfter;
+		int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
+		if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
+			// If target canvas is contained with the source canvas, then special care needs to be taken as
+			// to predicting the location of target canvas after the move has taken place:
+			// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
+			int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
+			canvasTargetLocationAfter = new CompositeModelLocation(canvasSourceLocation, new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
+		} else {
+			canvasTargetLocationAfter = canvasTargetLocation;
+		}
+		
+		Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
+		
+		commandStates.add(new PendingCommandState<Model>(
+			new CanvasModel.MoveModelCommand2(canvasSourceLocation, canvasTargetLocation, indexSource), 
+			new CanvasModel.MoveModelCommand2.AfterMove(),
+			new CanvasModel.MoveModelCommand2.AfterMove()
+		));
+		
+		commandStates.add(new PendingCommandState<Model>(
+			new RelativeCommand<Model>(modelLocationAfterMove, new Model.SetPropertyCommand2("X", new Fraction(moveLocation.x))),
+			new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand2.AfterSetProperty())
+		));
+		
+		commandStates.add(new PendingCommandState<Model>(
+			new RelativeCommand<Model>(modelLocationAfterMove, new Model.SetPropertyCommand2("Y", new Fraction(moveLocation.y))),
+			new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand2.AfterSetProperty())
 		));
 	}
 	

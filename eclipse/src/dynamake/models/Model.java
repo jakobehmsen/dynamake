@@ -23,6 +23,7 @@ import javax.swing.JComponent;
 
 import dynamake.commands.Command;
 import dynamake.commands.Command2;
+import dynamake.commands.Command2Factory;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
@@ -115,6 +116,73 @@ public abstract class Model implements Serializable, Observer {
 			Model model = (Model)modelLocation.getChild(prevalentSystem);
 			
 			model.setProperty(name, value, propCtx, 0, collector);
+		}
+		
+		public static DualCommand<Model> createDual(Model model, String name, Object value) {
+			Location modelLocation = model.getLocator().locate();
+			return new DualCommandPair<Model>(
+				new SetPropertyCommand(modelLocation, name, value), 
+				new SetPropertyCommand(modelLocation, name, model.getProperty(name))
+			);
+		}
+		
+		public static DualCommand<Model> createDual(Location modelLocation, Model model, String name, Object value) {
+			return new DualCommandPair<Model>(
+				new SetPropertyCommand(modelLocation, name, value), 
+				new SetPropertyCommand(modelLocation, name, model.getProperty(name))
+			);
+		}
+	}
+	
+	public static class SetPropertyCommand2 implements Command2<Model> {
+		public static class AfterSetProperty implements Command2Factory<Model> {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Command2<Model> createCommand(Object output) {
+				SetPropertyCommand2.Output setPropertyOutput = (SetPropertyCommand2.Output)output;
+				return new SetPropertyCommand2(setPropertyOutput.name, setPropertyOutput.previousValue);
+			}
+		}
+		
+		public static class Output implements Serializable {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			public final String name;
+			public final Object previousValue;
+			
+			public Output(String name, Object previousValue) {
+				this.name = name;
+				this.previousValue = previousValue;
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private String name;
+		private Object value;
+		
+		public SetPropertyCommand2(String name, Object value) {
+			this.name = name;
+			this.value = value;
+		}
+		
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			Model model = (Model)location.getChild(prevalentSystem);
+			
+			Object previousValue = model.getProperty(name);
+			model.setProperty(name, value, propCtx, 0, collector);
+			
+			return new Output(name, previousValue);
 		}
 		
 		public static DualCommand<Model> createDual(Model model, String name, Object value) {

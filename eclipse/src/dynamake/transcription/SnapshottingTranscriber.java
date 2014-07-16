@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import dynamake.commands.CommandStateSequence;
+import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.DualCommand;
 import dynamake.commands.CommandState;
@@ -141,10 +141,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 //			for(DualCommand<T> transaction: ctxTransaction.transactionsFromRoot)
 //				transaction.executeForwardOn(propCtx, prevalentSystem, null, new NullCollector<T>());
 			
-			for(Map.Entry<Location, CommandState<T>> entry: ctxTransaction.transactionsFromRoot.entrySet()) {
-				Location location = entry.getKey();
-				CommandState<T> transaction = entry.getValue();
-				transaction.executeOn(propCtx, prevalentSystem, null, new NullCollector<T>(), location);
+//			for(Map.Entry<Location, CommandState<T>> entry: ctxTransaction.transactionsFromRoot.entrySet()) {
+			for(SnapshottingTranscriber.Connection.LocationCommandsPair<T> entry: ctxTransaction.transactionsFromRoot) {
+				Location location = entry.location;
+				for(CommandState<T> transaction: entry.pending)
+					transaction.executeOn(propCtx, prevalentSystem, null, new NullCollector<T>(), location);
 			}
 			
 //			for(Map.Entry<Location, ArrayList<DualCommand<T>>> entry: ctxTransaction.transactionsFromReferenceLocations.entrySet()) {
@@ -163,8 +164,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				Model reference = (Model)referenceLocation.getChild(prevalentSystem);
 				// Update the log of each affected model isolately; no transaction is cross-model
-				CommandStateSequence<T> transactionFromReference = new CommandStateSequence<T>(transactionsFromReferenceLocation);
-				reference.log((CommandStateSequence<Model>)transactionFromReference);
+				RevertingCommandStateSequence<T> transactionFromReference = RevertingCommandStateSequence.reverse(transactionsFromReferenceLocation);
+				reference.log((RevertingCommandStateSequence<Model>)transactionFromReference);
 			}
 		}
 	}
@@ -299,10 +300,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		public static final int OPCODE_FLUSH_NEXT_TRIGGER = 2;
 	}
 	
-	private static class Connection<T> implements dynamake.transcription.Connection<T> {
+	public static class Connection<T> implements dynamake.transcription.Connection<T> {
 		private TriggerHandler<T> triggerHandler;
 		private SnapshottingTranscriber<T> transcriber;
-		private LinkedHashMap<Location, CommandState<T>> flushedTransactionsFromRoot = new LinkedHashMap<Location, CommandState<T>>();
+//		private LinkedHashMap<Location, CommandState<T>> flushedTransactionsFromRoot = new LinkedHashMap<Location, CommandState<T>>();
+		private ArrayList<LocationCommandsPair<T>> flushedTransactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
 		private Hashtable<T, ArrayList<CommandState<T>>> flushedTransactionsFromReferences = new Hashtable<T, ArrayList<CommandState<T>>>();
 		private ArrayList<UndoableCommandFromReference<T>> flushedUndoableTransactionsFromReferences = new ArrayList<UndoableCommandFromReference<T>>();
 		private HashSet<T> affectedModels = new HashSet<T>();
@@ -310,6 +312,20 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		public Connection(SnapshottingTranscriber<T> transcriber, TriggerHandler<T> triggerHandler) {
 			this.transcriber = transcriber;
 			this.triggerHandler = triggerHandler;
+		}
+		
+		public static class LocationCommandsPair<T> implements Serializable {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			public final Location location;
+			public final ArrayList<CommandState<T>> pending;
+			
+			public LocationCommandsPair(Location location, ArrayList<CommandState<T>> pending) {
+				this.location = location;
+				this.pending = pending;
+			}
 		}
 		
 		private static class UndoableCommandFromReference<T> {
@@ -466,8 +482,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							} else
 								System.out.println("Don't affect model history");
 
-							for(CommandState<T> dualCommandFromRoot: pendingCommands)
-								flushedTransactionsFromRoot.put(locationFromRoot, dualCommandFromRoot);
+							flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands));
+//							for(CommandState<T> dualCommandFromRoot: pendingCommands)
+//								flushedTransactionsFromRoot.put(locationFromRoot, dualCommandFromRoot);
 						} else if(command instanceof Trigger) {
 							((Trigger<T>)command).run(collector);
 						}
@@ -489,9 +506,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		@SuppressWarnings("unchecked")
 		private void doCommit() {
 			if(flushedTransactionsFromRoot.size() > 0) {
-				LinkedHashMap<Location, CommandState<T>> transactionsFromRoot = new LinkedHashMap<Location, CommandState<T>>();
+//				LinkedHashMap<Location, CommandState<T>> transactionsFromRoot = new LinkedHashMap<Location, CommandState<T>>();
+				ArrayList<LocationCommandsPair<T>> transactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
 
-				transactionsFromRoot.putAll(flushedTransactionsFromRoot);
+				transactionsFromRoot.addAll(flushedTransactionsFromRoot);
 //				for(CommandState<T> transaction: flushedTransactionsFromRoot.entrySet())
 //					transactionsFromRoot.add(transaction);
 					
@@ -504,7 +522,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					ArrayList<CommandState<T>> flushedTransactionsFromReference = entry.getValue();
 					
 					// Update the log of each affected model isolately; no transaction is cross-model
-					CommandStateSequence<T> transactionFromReference = new CommandStateSequence<T>(flushedTransactionsFromReference);
+					RevertingCommandStateSequence<T> transactionFromReference = RevertingCommandStateSequence.reverse(flushedTransactionsFromReference);
 					((Model)reference).log((CommandState<Model>)transactionFromReference);
 					
 					Location referenceLocation = ((Model)reference).getLocator().locate();
