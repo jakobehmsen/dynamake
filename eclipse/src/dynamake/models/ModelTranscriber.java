@@ -40,11 +40,6 @@ public class ModelTranscriber {
 			return new CompositeModelLocation(parent.getModelLocation(), (ModelLocation)locator.locate());
 		return (ModelLocation)locator.locate();
 	}
-	
-	// TODO: Consider: Could be replaced by a using a TranscribtionBranch without committing?
-	public void executeTransient(Runnable runnable) {
-		transcriber.executeTransient(runnable);
-	}
 
 	public ModelTranscriber extend(final ModelLocator locator) {
 		ModelTranscriber extended = new ModelTranscriber(transcriber, locator);
