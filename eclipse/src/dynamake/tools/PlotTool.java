@@ -10,31 +10,21 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.commands.Command2;
-import dynamake.commands.Command2Factory;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
-import dynamake.commands.DualCommand;
-import dynamake.commands.DualCommandPair;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.UnwrapToLocationsCommand;
 import dynamake.commands.UnwrapToLocationsCommand2;
-import dynamake.commands.WrapCommand;
 import dynamake.commands.WrapCommand2;
 import dynamake.models.CanvasModel;
-import dynamake.models.CanvasModel.AddModelCommand2.AfterRemove;
-import dynamake.models.CompositeModelLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.ModelLocation;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.factories.CanvasModelFactory;
 import dynamake.models.factories.Factory;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory;
 
 public class PlotTool implements Tool {
 	@Override
@@ -72,37 +62,6 @@ public class PlotTool implements Tool {
 				final ModelComponent selection = interactionPresenter.getSelection();
 				// Wrap if one more models are contained within the effect frame
 				if(componentsWithinBounds.size() > 0) {
-//					collector.execute(new DualCommandFactory<Model>() {
-//						@Override
-//						public Model getReference() {
-//							return selection.getModelBehind();
-//						}
-//						
-//						@Override
-//						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//							CanvasModel target = (CanvasModel)selection.getModelBehind();
-//							int indexOfWrapper = target.getModelCount() - componentsWithinBounds.size();
-//							ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
-//							
-//							// Each of the model locations should be moved from target to wrapper
-//							Location[] modelLocations = new Location[componentsWithinBounds.size()];
-//							int[] modelIndexes = new int[componentsWithinBounds.size()];
-//							for(int i = 0; i < modelLocations.length; i++) {
-//								ModelComponent view = componentsWithinBounds.get(i);
-//								modelLocations[i] = new CompositeModelLocation(
-//									(ModelLocation)location,
-//									target.getLocationOf(view.getModelBehind())
-//								);
-//								modelIndexes[i] = target.indexOfModel(view.getModelBehind());
-//							}
-//							
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new WrapCommand(location, creationBoundsInSelection, modelLocations), 
-//								new UnwrapToLocationsCommand(location, wrapperLocationInTarget, modelIndexes, creationBoundsInSelection)
-//							));
-//						}
-//					});
-					
 					collector.execute(new CommandStateFactory<Model>() {
 						@Override
 						public Model getReference() {
@@ -127,28 +86,6 @@ public class PlotTool implements Tool {
 						}
 					});
 				} else {
-					
-//					collector.execute(new DualCommandFactory<Model>() {
-//						@Override
-//						public Model getReference() {
-//							return selection.getModelBehind();
-//						}
-//						
-//						@Override
-//						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//							ModelComponent target = selection;
-//							
-//							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-//							int index = canvasModel.getModelCount();
-//							
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new CanvasModel.AddModelCommand(location, creationBoundsInSelection, factory), 
-//								new CanvasModel.RemoveModelCommand(location, index)
-//								// The model removed here, should be cloned before removing and then used for the redo in an as-is factory
-//							));
-//						}
-//					});
-					
 					collector.execute(new CommandStateFactory<Model>() {
 						@Override
 						public Model getReference() {
@@ -163,10 +100,6 @@ public class PlotTool implements Tool {
 								new CanvasModel.RemoveModelCommand2.AfterAdd(),
 								new CanvasModel.AddModelCommand2.AfterRemove()
 							));
-//							commandStates.add(new PendingCommandState<Model>(
-//								new CanvasModel.AddModelCommand2(creationBoundsInSelection, factory),
-//								new CanvasModel.RemoveModelCommand2.AfterAdd()
-//							));
 						}
 					});
 				}

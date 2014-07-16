@@ -4,12 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -439,36 +433,7 @@ public class CanvasModel extends Model {
 			public Output(int index, Model model) {
 				this.index = index;
 				this.model = model;
-				
-//				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//				ObjectOutputStream out = null;
-//				byte[] result = null;
-//				try {
-//					out = new ObjectOutputStream(bos);   
-//					out.writeObject(model);
-//					result = bos.toByteArray();
-//					out.close();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//				serialization = result;
 			}
-			
-//			public Model getModel() {
-//				ByteArrayInputStream bis = new ByteArrayInputStream(serialization);
-//				ObjectInputStream in = null;
-//				Model result = null;
-//				try {
-//					in = new ObjectInputStream(bis);
-//					result = (Model)in.readObject();
-//					in.close();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				} catch (ClassNotFoundException e) {
-//					e.printStackTrace();
-//				}
-//				return result;
-//			}
 		}
 		
 		public static final class AfterAdd implements Command2Factory<Model>  
