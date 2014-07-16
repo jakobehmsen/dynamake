@@ -433,6 +433,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							T reference = transactionFactory.getReference();
 							
 							ModelLocation locationFromRoot = ((Model)reference).getLocator().locate();
+							boolean affectModelHistory = !(transactionFactory instanceof TranscribeOnlyCommandStateFactory);
+							
 							ModelLocation locationFromReference = new ModelRootLocation();
 							
 							ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
@@ -453,12 +455,16 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							}
 							flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
 							
-							ArrayList<CommandState<T>> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
-							if(flushedTransactionsFromReference == null) {
-								flushedTransactionsFromReference = new ArrayList<CommandState<T>>();
-								flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
-							}
-							flushedTransactionsFromReference.addAll(pendingCommands);
+							if(affectModelHistory) {
+								System.out.println("Affect model history");
+								ArrayList<CommandState<T>> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
+								if(flushedTransactionsFromReference == null) {
+									flushedTransactionsFromReference = new ArrayList<CommandState<T>>();
+									flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
+								}
+								flushedTransactionsFromReference.addAll(undoables);
+							} else
+								System.out.println("Don't affect model history");
 
 							for(CommandState<T> dualCommandFromRoot: pendingCommands)
 								flushedTransactionsFromRoot.put(locationFromRoot, dualCommandFromRoot);
@@ -506,6 +512,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				}
 				
 				flushedTransactionsFromReferences.clear();
+				flushedUndoableTransactionsFromReferences.clear();
 				
 				ContextualCommand<T> ctxTransaction = new ContextualCommand<T>(transactionsFromRoot, transactionsFromReferenceLocations);
 
@@ -557,6 +564,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			
 			flushedTransactionsFromRoot.clear();
 			flushedTransactionsFromReferences.clear();
+			flushedUndoableTransactionsFromReferences.clear();
 			affectedModels.clear();
 
 			if(onAfterNextTrigger.size() > 0) {

@@ -22,6 +22,7 @@ import java.util.Stack;
 import javax.swing.JComponent;
 
 import dynamake.commands.Command;
+import dynamake.commands.Command2;
 import dynamake.commands.CommandState;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
@@ -190,6 +191,30 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
+	public static class UndoCommand2 implements Command2<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private boolean isolate;
+
+		public UndoCommand2(boolean isolate) {
+			this.isolate = isolate;
+		}
+
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			Model model = (Model)location.getChild(prevalentSystem);
+			
+			if(isolate)
+				collector = new IsolatingCollector<Model>(collector);
+			
+			model.undo(propCtx, prevalentSystem, collector);
+			
+			return null;
+		}
+	}
+	
 	public static class RedoCommand implements Command<Model> {
 		/**
 		 * 
@@ -211,6 +236,30 @@ public abstract class Model implements Serializable, Observer {
 				collector = new IsolatingCollector<Model>(collector);
 			
 			model.redo(propCtx, prevalentSystem, collector);
+		}
+	}
+	
+	public static class RedoCommand2 implements Command2<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private boolean isolate;
+
+		public RedoCommand2(boolean isolate) {
+			this.isolate = isolate;
+		}
+
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			Model model = (Model)location.getChild(prevalentSystem);
+			
+			if(isolate)
+				collector = new IsolatingCollector<Model>(collector);
+			
+			model.redo(propCtx, prevalentSystem, collector);
+			
+			return null;
 		}
 	}
 	
