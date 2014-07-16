@@ -12,7 +12,6 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
-import dynamake.commands.DualCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.models.CanvasModel;
@@ -24,7 +23,6 @@ import dynamake.models.ModelLocation;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory;
 
 public abstract class BoundsChangeTool implements Tool {
 	@Override
@@ -127,18 +125,6 @@ public abstract class BoundsChangeTool implements Tool {
 					// Changing bounds within the same canvas
 					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, effectBounds, (JComponent)newTargetOver);
 					
-//					collector.execute(new DualCommandFactory<Model>() {
-//						@Override
-//						public Model getReference() {
-//							return selection.getModelBehind();
-//						}
-//
-//						@Override
-//						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//							appendDualCommandsForResize(dualCommands, location, selection, newBounds);
-//						}
-//					});
-					
 					collector.execute(new CommandStateFactory<Model>() {
 						@Override
 						public Model getReference() {
@@ -161,7 +147,6 @@ public abstract class BoundsChangeTool implements Tool {
 		}
 	}
 
-	protected abstract void appendDualCommandsForResize(List<DualCommand<Model>> dualCommands, Location location, ModelComponent selection, Rectangle newBounds);
 	protected abstract void appendCommandStatesForResize(List<CommandState<Model>> commandStates, ModelComponent selection, Rectangle newBounds);
 	
 	private Point mouseDown;
