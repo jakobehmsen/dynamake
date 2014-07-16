@@ -13,11 +13,9 @@ import javax.swing.SwingUtilities;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
-import dynamake.commands.DualCommandPair;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.models.CanvasModel;
-import dynamake.models.CompositeModelLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -80,34 +78,7 @@ public abstract class BoundsChangeTool implements Tool {
 							productionPanel, effectBounds, (JComponent)newTargetOver);
 
 						final ModelComponent targetOver = newTargetOver;
-						
-//						// Reference is closest common ancestor
-//						collector.execute(new DualCommandFactory<Model>() {
-//							ModelComponent referenceMC;
-//							
-//							@Override
-//							public Model getReference() {
-//								referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
-//								return referenceMC.getModelBehind();
-//							}
-//
-//							@Override
-//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-////								ModelLocation locationOfSource = new CompositeModelLocation(
-////									(ModelLocation)location,
-////									ModelComponent.Util.locationFromAncestor(referenceMC, source)
-////								);
-////								ModelLocation locationOfTarget = new CompositeModelLocation(
-////									(ModelLocation)location,
-////									ModelComponent.Util.locationFromAncestor(referenceMC, targetOver)
-////								);
-//								
-//								ModelLocation locationOfSource = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, source);
-//								ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, targetOver);
-//								
-//								CanvasModel.appendMoveTransaction(dualCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
-//							}
-//						});
+
 						// Reference is closest common ancestor
 						collector.execute(new CommandStateFactory<Model>() {
 							ModelComponent referenceMC;
@@ -120,15 +91,6 @@ public abstract class BoundsChangeTool implements Tool {
 
 							@Override
 							public void createDualCommands(List<CommandState<Model>> commandStates) {
-//								ModelLocation locationOfSource = new CompositeModelLocation(
-//									(ModelLocation)location,
-//									ModelComponent.Util.locationFromAncestor(referenceMC, source)
-//								);
-//								ModelLocation locationOfTarget = new CompositeModelLocation(
-//									(ModelLocation)location,
-//									ModelComponent.Util.locationFromAncestor(referenceMC, targetOver)
-//								);
-								
 								ModelLocation locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
 								ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
@@ -138,31 +100,7 @@ public abstract class BoundsChangeTool implements Tool {
 					} else {
 						// Moving within same canvas
 						final Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, effectBounds, (JComponent)newTargetOver);
-						
-//						collector.execute(new DualCommandFactory<Model>() {
-//							@Override
-//							public Model getReference() {
-//								return source.getModelBehind();
-//							}
-//
-//							@Override
-//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//								Location locationOfMovedModel = new CompositeModelLocation(
-//									(ModelLocation)location,
-//									((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind())
-//								);
-//								
-//								dualCommands.add(new DualCommandPair<Model>(
-//									new Model.SetPropertyCommand(locationOfMovedModel, "X", new Fraction(droppedBounds.x)), 
-//									new Model.SetPropertyCommand(locationOfMovedModel, "X", selection.getModelBehind().getProperty("X"))
-//								));
-//								dualCommands.add(new DualCommandPair<Model>(
-//									new Model.SetPropertyCommand(locationOfMovedModel, "Y", new Fraction(droppedBounds.y)), 
-//									new Model.SetPropertyCommand(locationOfMovedModel, "Y", selection.getModelBehind().getProperty("Y"))
-//								));
-//							}
-//						});
-						
+
 						collector.execute(new CommandStateFactory<Model>() {
 							@Override
 							public Model getReference() {
@@ -172,16 +110,7 @@ public abstract class BoundsChangeTool implements Tool {
 							@Override
 							public void createDualCommands(List<CommandState<Model>> commandStates) {
 								Location locationOfMovedModel = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
-								
-//								dualCommands.add(new DualCommandPair<Model>(
-//									new Model.SetPropertyCommand(locationOfMovedModel, "X", new Fraction(droppedBounds.x)), 
-//									new Model.SetPropertyCommand(locationOfMovedModel, "X", selection.getModelBehind().getProperty("X"))
-//								));
-//								dualCommands.add(new DualCommandPair<Model>(
-//									new Model.SetPropertyCommand(locationOfMovedModel, "Y", new Fraction(droppedBounds.y)), 
-//									new Model.SetPropertyCommand(locationOfMovedModel, "Y", selection.getModelBehind().getProperty("Y"))
-//								));
-								
+
 								commandStates.add(new PendingCommandState<Model>(
 									new RelativeCommand<Model>(locationOfMovedModel, new Model.SetPropertyCommand2("X", new Fraction(droppedBounds.x))),
 									new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand2.AfterSetProperty())
@@ -210,15 +139,9 @@ public abstract class BoundsChangeTool implements Tool {
 						}
 					});
 				}
-
-//				interactionPresenter.reset(collector);
-//				interactionPresenter = null;
 				
 				collector.commit();
 			} else {
-//				interactionPresenter.reset(collector);
-//				interactionPresenter = null;
-				
 				collector.reject();
 			}
 			
