@@ -24,4 +24,9 @@ public class CompositeModelLocation implements ModelLocation {
 	public Location getModelComponentLocation() {
 		return new CompositeLocation<Model>(head.getModelComponentLocation(), tail.getModelComponentLocation());
 	}
+	
+	public static Object getChild(Object holder, Location head, Location tail) {
+		Object headObj = head.getChild(holder);
+		return tail.getChild(headObj);
+	}
 }
