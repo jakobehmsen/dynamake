@@ -14,6 +14,8 @@ import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.commands.PendingCommandState;
+import dynamake.commands.RelativeCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeModelLocation;
 import dynamake.models.Location;
@@ -137,26 +139,57 @@ public abstract class BoundsChangeTool implements Tool {
 						// Moving within same canvas
 						final Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, effectBounds, (JComponent)newTargetOver);
 						
-						collector.execute(new DualCommandFactory<Model>() {
+//						collector.execute(new DualCommandFactory<Model>() {
+//							@Override
+//							public Model getReference() {
+//								return source.getModelBehind();
+//							}
+//
+//							@Override
+//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//								Location locationOfMovedModel = new CompositeModelLocation(
+//									(ModelLocation)location,
+//									((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind())
+//								);
+//								
+//								dualCommands.add(new DualCommandPair<Model>(
+//									new Model.SetPropertyCommand(locationOfMovedModel, "X", new Fraction(droppedBounds.x)), 
+//									new Model.SetPropertyCommand(locationOfMovedModel, "X", selection.getModelBehind().getProperty("X"))
+//								));
+//								dualCommands.add(new DualCommandPair<Model>(
+//									new Model.SetPropertyCommand(locationOfMovedModel, "Y", new Fraction(droppedBounds.y)), 
+//									new Model.SetPropertyCommand(locationOfMovedModel, "Y", selection.getModelBehind().getProperty("Y"))
+//								));
+//							}
+//						});
+						
+						collector.execute(new CommandStateFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return source.getModelBehind();
 							}
 
 							@Override
-							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-								Location locationOfMovedModel = new CompositeModelLocation(
-									(ModelLocation)location,
-									((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind())
-								);
+							public void createDualCommands(List<CommandState<Model>> commandStates) {
+								Location locationOfMovedModel = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
 								
-								dualCommands.add(new DualCommandPair<Model>(
-									new Model.SetPropertyCommand(locationOfMovedModel, "X", new Fraction(droppedBounds.x)), 
-									new Model.SetPropertyCommand(locationOfMovedModel, "X", selection.getModelBehind().getProperty("X"))
+//								dualCommands.add(new DualCommandPair<Model>(
+//									new Model.SetPropertyCommand(locationOfMovedModel, "X", new Fraction(droppedBounds.x)), 
+//									new Model.SetPropertyCommand(locationOfMovedModel, "X", selection.getModelBehind().getProperty("X"))
+//								));
+//								dualCommands.add(new DualCommandPair<Model>(
+//									new Model.SetPropertyCommand(locationOfMovedModel, "Y", new Fraction(droppedBounds.y)), 
+//									new Model.SetPropertyCommand(locationOfMovedModel, "Y", selection.getModelBehind().getProperty("Y"))
+//								));
+								
+								commandStates.add(new PendingCommandState<Model>(
+									new RelativeCommand<Model>(locationOfMovedModel, new Model.SetPropertyCommand2("X", new Fraction(droppedBounds.x))),
+									new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand2.AfterSetProperty())
 								));
-								dualCommands.add(new DualCommandPair<Model>(
-									new Model.SetPropertyCommand(locationOfMovedModel, "Y", new Fraction(droppedBounds.y)), 
-									new Model.SetPropertyCommand(locationOfMovedModel, "Y", selection.getModelBehind().getProperty("Y"))
+								
+								commandStates.add(new PendingCommandState<Model>(
+									new RelativeCommand<Model>(locationOfMovedModel, new Model.SetPropertyCommand2("Y", new Fraction(droppedBounds.y))),
+									new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand2.AfterSetProperty())
 								));
 							}
 						});
