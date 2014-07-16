@@ -24,8 +24,10 @@ import javax.swing.JComponent;
 import dynamake.commands.Command;
 import dynamake.commands.Command2;
 import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.commands.PendingCommandState;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.menubuilders.ColorMenuBuilder;
@@ -341,6 +343,35 @@ public abstract class Model implements Serializable, Observer {
 			// TODO: Consider whether a change should be sent out here
 		}
 	}
+
+	public static class AddObserverCommand2 implements Command2<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location observableLocation;
+		private Location observerLocation;
+		
+		public AddObserverCommand2(Location observableLocation, Location observerLocation) {
+			this.observableLocation = observableLocation;
+			this.observerLocation = observerLocation;
+		}
+
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			Model observable = (Model)new CompositeModelLocation((ModelLocation)location, (ModelLocation)observableLocation).getChild(rootPrevalentSystem);
+			Model observer = (Model)new CompositeModelLocation((ModelLocation)location, (ModelLocation)observerLocation).getChild(rootPrevalentSystem);
+			
+//			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
+//			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
+			
+			observable.addObserver(observer);
+			System.out.println(observer + " now observes " + observable);
+			
+			// TODO: Consider whether a change should be sent out here
+			return null;
+		}
+	}
 	
 	public static class RemoveObserverCommand implements Command<Model> {
 		/**
@@ -363,6 +394,35 @@ public abstract class Model implements Serializable, Observer {
 			observable.removeObserver(observer);
 			
 			// TODO: Consider whether a change should be sent out here
+		}
+	}
+
+	public static class RemoveObserverCommand2 implements Command2<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location observableLocation;
+		private Location observerLocation;
+		
+		public RemoveObserverCommand2(Location observableLocation, Location observerLocation) {
+			this.observableLocation = observableLocation;
+			this.observerLocation = observerLocation;
+		}
+
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			Model observable = (Model)new CompositeModelLocation((ModelLocation)location, (ModelLocation)observableLocation).getChild(rootPrevalentSystem);
+			Model observer = (Model)new CompositeModelLocation((ModelLocation)location, (ModelLocation)observerLocation).getChild(rootPrevalentSystem);
+			
+//			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
+//			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
+			
+			observable.removeObserver(observer);
+			System.out.println(observer + " no longer observes " + observable);
+			
+			// TODO: Consider whether a change should be sent out here
+			return null;
 		}
 	}
 	
@@ -1071,7 +1131,28 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void executeRemoveObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
-		collector.execute(new DualCommandFactory<Model>() {
+//		collector.execute(new DualCommandFactory<Model>() {
+//			ModelComponent referenceMC;
+//			
+//			@Override
+//			public Model getReference() {
+//				referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
+//				return referenceMC.getModelBehind();
+//			}
+//			
+//			@Override
+//			public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//				ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observable);
+//				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observer);
+//				
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new Model.RemoveObserverCommand(observableLocation, observerLocation),
+//					new Model.AddObserverCommand(observableLocation, observerLocation)
+//				));
+//			}
+//		});
+		
+		collector.execute(new CommandStateFactory<Model>() {
 			ModelComponent referenceMC;
 			
 			@Override
@@ -1081,20 +1162,41 @@ public abstract class Model implements Serializable, Observer {
 			}
 			
 			@Override
-			public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-				ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observable);
-				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observer);
+			public void createDualCommands(List<CommandState<Model>> commandStates) {
+				ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
+				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
-				dualCommands.add(new DualCommandPair<Model>(
-					new Model.RemoveObserverCommand(observableLocation, observerLocation),
-					new Model.AddObserverCommand(observableLocation, observerLocation)
+				commandStates.add(new PendingCommandState<Model>(
+					new Model.RemoveObserverCommand2(observableLocation, observerLocation),
+					new Model.AddObserverCommand2(observableLocation, observerLocation)
 				));
 			}
 		});
 	}
 
 	public static void executeAddObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
-		collector.execute(new DualCommandFactory<Model>() {
+//		collector.execute(new DualCommandFactory<Model>() {
+//			ModelComponent referenceMC;
+//			
+//			@Override
+//			public Model getReference() {
+//				referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
+//				return referenceMC.getModelBehind();
+//			}
+//			
+//			@Override
+//			public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//				ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observable);
+//				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observer);
+//				
+//				dualCommands.add(new DualCommandPair<Model>(
+//					new Model.AddObserverCommand(observableLocation, observerLocation),
+//					new Model.RemoveObserverCommand(observableLocation, observerLocation)
+//				));
+//			}
+//		});
+		
+		collector.execute(new CommandStateFactory<Model>() {
 			ModelComponent referenceMC;
 			
 			@Override
@@ -1104,13 +1206,13 @@ public abstract class Model implements Serializable, Observer {
 			}
 			
 			@Override
-			public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-				ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observable);
-				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observer);
+			public void createDualCommands(List<CommandState<Model>> commandStates) {
+				ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
+				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
-				dualCommands.add(new DualCommandPair<Model>(
-					new Model.AddObserverCommand(observableLocation, observerLocation),
-					new Model.RemoveObserverCommand(observableLocation, observerLocation)
+				commandStates.add(new PendingCommandState<Model>(
+					new Model.AddObserverCommand2(observableLocation, observerLocation),
+					new Model.RemoveObserverCommand2(observableLocation, observerLocation)
 				));
 			}
 		});
