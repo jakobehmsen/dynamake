@@ -12,7 +12,6 @@ import javax.swing.JLabel;
 
 import resources.ResourceManager;
 
-import dynamake.commands.DualCommand;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
@@ -236,16 +235,6 @@ public class Primitive extends Model {
 		fontSize = fontSize.multiply(hChange);
 		
 		setProperty("FontSize", fontSize, propCtx, propDistance, collector);
-	}
-	
-	@Override
-	protected void modelAppendScale(ModelLocation location, Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
-		Fraction fontSize = (Fraction)getProperty("FontSize");
-		if(fontSize == null)
-			fontSize = new Fraction(12);
-		fontSize = fontSize.multiply(hChange);
-		
-		dualCommands.add(SetPropertyCommand.createDual(location, this, "FontSize", fontSize));
 	}
 	
 	@Override

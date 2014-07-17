@@ -9,8 +9,6 @@ import javax.swing.JPopupMenu;
 import dynamake.commands.Command2;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
-import dynamake.commands.DualCommand;
-import dynamake.commands.DualCommandPair;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.TellPropertyCommand;
 import dynamake.commands.TellPropertyCommand2;

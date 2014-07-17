@@ -26,8 +26,6 @@ import dynamake.commands.Command2;
 import dynamake.commands.Command2Factory;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
-import dynamake.commands.DualCommand;
-import dynamake.commands.DualCommandPair;
 import dynamake.commands.PendingCommandState;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
@@ -94,45 +92,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class SetPropertyCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		
-		private Location modelLocation;
-		private String name;
-		private Object value;
-		
-		public SetPropertyCommand(Location modelLocation, String name, Object value) {
-			this.modelLocation = modelLocation;
-			this.name = name;
-			this.value = value;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
-			Model model = (Model)modelLocation.getChild(prevalentSystem);
-			
-			model.setProperty(name, value, propCtx, 0, collector);
-		}
-		
-		public static DualCommand<Model> createDual(Model model, String name, Object value) {
-			Location modelLocation = model.getLocator().locate();
-			return new DualCommandPair<Model>(
-				new SetPropertyCommand(modelLocation, name, value), 
-				new SetPropertyCommand(modelLocation, name, model.getProperty(name))
-			);
-		}
-		
-		public static DualCommand<Model> createDual(Location modelLocation, Model model, String name, Object value) {
-			return new DualCommandPair<Model>(
-				new SetPropertyCommand(modelLocation, name, value), 
-				new SetPropertyCommand(modelLocation, name, model.getProperty(name))
-			);
-		}
-	}
-	
 	public static class SetPropertyCommand2 implements Command2<Model> {
 		public static class AfterSetProperty implements Command2Factory<Model> {
 			/**
@@ -183,21 +142,6 @@ public abstract class Model implements Serializable, Observer {
 			
 			return new Output(name, previousValue);
 		}
-		
-		public static DualCommand<Model> createDual(Model model, String name, Object value) {
-			Location modelLocation = model.getLocator().locate();
-			return new DualCommandPair<Model>(
-				new SetPropertyCommand(modelLocation, name, value), 
-				new SetPropertyCommand(modelLocation, name, model.getProperty(name))
-			);
-		}
-		
-		public static DualCommand<Model> createDual(Location modelLocation, Model model, String name, Object value) {
-			return new DualCommandPair<Model>(
-				new SetPropertyCommand(modelLocation, name, value), 
-				new SetPropertyCommand(modelLocation, name, model.getProperty(name))
-			);
-		}
 	}
 	
 	public static class SetPropertyOnRootCommand implements Command<Model> {
@@ -222,19 +166,6 @@ public abstract class Model implements Serializable, Observer {
 			
 			model.setProperty(name, value, propCtx, 0, collector);
 		}
-		
-		public static DualCommand<Model> createDual(Model model, String name, Object value) {
-			Location modelLocation = model.getLocator().locate();
-			return new DualCommandPair<Model>(
-				new SetPropertyOnRootCommand(modelLocation, name, value), 
-				new SetPropertyOnRootCommand(modelLocation, name, model.getProperty(name))
-			);
-		}
-	}
-	
-	public void log(DualCommand<Model> transactionFromReference) {
-//		undoStack.add(transactionFromReference);
-//		redoStack.clear();
 	}
 	
 	public static class UndoCommand implements Command<Model> {
@@ -1285,47 +1216,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		
-	}
-
-	public void appendScale(ModelLocation location, final Rectangle newBounds, List<DualCommand<Model>> dualCommands) {
-		// TODO: Consider the following
-		// What if one or more of the contained models are removed and, afterwards, an undone of the scale is requested?
-		// I.e., one or more of the embedded scale transaction will fail in the current setup.
-		Fraction currentWidth = (Fraction)getProperty("Width");
-		Fraction currentHeight = (Fraction)getProperty("Height");
-		
-		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "X", new Fraction(newBounds.x)));
-		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "Y", new Fraction(newBounds.y)));
-		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "Width", new Fraction(newBounds.width)));
-		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "Height", new Fraction(newBounds.height)));
-		
-		Fraction hChange = new Fraction(newBounds.width).divide(currentWidth);
-		Fraction vChange = new Fraction(newBounds.height).divide(currentHeight);
-
-		modelAppendScale(location, hChange, vChange, dualCommands);
-	}
-
-	public void appendScale(ModelLocation location, final Fraction hChange, final Fraction vChange, List<DualCommand<Model>> dualCommands) {
-		Fraction currentX = (Fraction)getProperty("X");
-		Fraction currentY = (Fraction)getProperty("Y");
-		Fraction currentWidth = (Fraction)getProperty("Width");
-		Fraction currentHeight = (Fraction)getProperty("Height");
-		
-		Fraction newX = currentX.multiply(hChange);
-		Fraction newY = currentY.multiply(vChange);
-		Fraction newWidth = currentWidth.multiply(hChange);
-		Fraction newHeight = currentHeight.multiply(vChange);
-		
-		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "X", newX));
-		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "Y", newY));
-		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "Width", newWidth));
-		dualCommands.add(SetPropertyCommand.createDual(location, Model.this, "Height", newHeight));
-		
-		modelAppendScale(location, hChange, vChange, dualCommands);
-	}
-	
-	protected void modelAppendScale(ModelLocation location, Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
 		
 	}
 

@@ -11,8 +11,6 @@ import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DejectCommand;
 import dynamake.commands.DejectCommand2;
-import dynamake.commands.DualCommand;
-import dynamake.commands.DualCommandPair;
 import dynamake.commands.InjectCommand;
 import dynamake.commands.InjectCommand2;
 import dynamake.commands.PendingCommandState;

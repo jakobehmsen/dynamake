@@ -22,7 +22,6 @@ import java.util.concurrent.Executors;
 
 import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.commands.ContextualCommand;
-import dynamake.commands.DualCommand;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.delegates.Func0;

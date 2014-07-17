@@ -18,8 +18,6 @@ import javax.swing.JFrame;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
-import dynamake.commands.DualCommand;
-import dynamake.commands.DualCommandPair;
 import dynamake.commands.PendingCommandState;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;

@@ -22,8 +22,6 @@ import dynamake.commands.Command2;
 import dynamake.commands.Command2Factory;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
-import dynamake.commands.DualCommand;
-import dynamake.commands.DualCommandPair;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.UnwrapCommand;
@@ -73,15 +71,6 @@ public class CanvasModel extends Model {
 	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(Model model: models)
 			model.scale(hChange, vChange, propCtx, propDistance, collector);
-	}
-	
-	@Override
-	protected void modelAppendScale(ModelLocation location, Fraction hChange, Fraction vChange, List<DualCommand<Model>> dualCommands) {
-		for(Model model: models) {
-			int indexOfModel = indexOfModel(model);
-			ModelLocation childLocation = new CompositeModelLocation(location, new IndexLocation(indexOfModel));
-			model.appendScale(childLocation, hChange, vChange, dualCommands);
-		}
 	}
 	
 	@Override
@@ -735,39 +724,6 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static void appendUnwrapTransaction(List<DualCommand<Model>> dualCommands, ModelComponent toUnwrap, ModelComponent parent, Location targetLocation) {
-		CanvasModel target = (CanvasModel)parent.getModelBehind();
-		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
-		int indexOfWrapper = target.indexOfModel(modelToBeUnwrapped);
-		ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
-		Rectangle creationBoundsInSelection = new Rectangle(
-			((Number)modelToBeUnwrapped.getProperty("X")).intValue(),
-			((Number)modelToBeUnwrapped.getProperty("Y")).intValue(),
-			((Number)modelToBeUnwrapped.getProperty("Width")).intValue(),
-			((Number)modelToBeUnwrapped.getProperty("Height")).intValue()
-		);
-		
-		// Derive the an array of the locations at which the unwrapped models are to be placed
-		// within the target canvas
-		int indexOfModelInTarget = target.getModelCount();
-		if(target.indexOfModel(modelToBeUnwrapped) != -1)
-			indexOfModelInTarget--; // Decrement, since modelToBeUnwrapped will be removed
-		Location[] modelLocations = new Location[modelToBeUnwrapped.models.size()];
-		for(int i = 0; i < modelLocations.length; i++) {
-			Location viewLocation = new CompositeModelLocation(
-				(ModelLocation)targetLocation,
-				new CanvasModel.IndexLocation(indexOfModelInTarget)
-			);
-			modelLocations[i] = viewLocation;
-			indexOfModelInTarget++;
-		}
-		
-		dualCommands.add(new DualCommandPair<Model>(
-			new UnwrapCommand(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
-			new WrapCommand(targetLocation, creationBoundsInSelection, modelLocations)
-		));
-	}
-	
 	public static void appendUnwrapTransaction2(List<CommandState<Model>> commandStates, ModelComponent toUnwrap, ModelComponent parent) {
 		CanvasModel target = (CanvasModel)parent.getModelBehind();
 		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
@@ -812,49 +768,6 @@ public class CanvasModel extends Model {
 //		));
 	}
 	
-//	public static void appendUnwrapTransaction(List<DualCommand<Model>> dualCommands, ModelComponent toUnwrap) {
-//		ModelComponent parent = ModelComponent.Util.getParent(toUnwrap);
-//		CanvasModel target = (CanvasModel)parent.getModelBehind();
-//		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
-//		Location targetLocation = parent.getModelTranscriber().getModelLocation();
-//		int indexOfWrapper = target.indexOfModel(modelToBeUnwrapped);
-//		ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
-//		Rectangle creationBoundsInSelection = new Rectangle(
-//			((Number)modelToBeUnwrapped.getProperty("X")).intValue(),
-//			((Number)modelToBeUnwrapped.getProperty("Y")).intValue(),
-//			((Number)modelToBeUnwrapped.getProperty("Width")).intValue(),
-//			((Number)modelToBeUnwrapped.getProperty("Height")).intValue()
-//		);
-//		
-//		// Each of the model locations should be moved from target to wrapper
-//		Location[] modelLocations = new Location[modelToBeUnwrapped.models.size()];
-//		for(int i = 0; i < modelLocations.length; i++) {
-//			ModelComponent view = (ModelComponent)((JComponent)toUnwrap).getComponent(i);
-//			modelLocations[i] = view.getModelTranscriber().getModelLocation();
-//		}
-//		
-//		dualCommands.add(new DualCommandPair<Model>(
-//			new UnwrapCommand(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
-//			new WrapCommand(targetLocation, creationBoundsInSelection, modelLocations)
-//		));
-//	}
-	
-	public static void appendRemoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent child, Location canvasLocation, CanvasModel model) {
-		int indexOfModel = model.indexOfModel(child.getModelBehind());
-		
-		// TODO: Make the backward transaction
-		// The removed model should probably be reconstructed
-		// The direct structure (clone isolated) (without observers and observees) could probably be used
-		// where this direct structure should, afterwards, be decorated with any missing relations to observers and observees
-		Model childClone = child.getModelBehind().cloneDeep(); // TODO: Fix this: Not a perfect clone
-		Command<Model> backward = new AddModelNoCreationBoundsCommand(canvasLocation, indexOfModel, new AsIsFactory(childClone));
-		
-		dualCommands.add(new DualCommandPair<Model>(
-			new RemoveModelCommand(canvasLocation, indexOfModel),
-			backward
-		));
-	}
-	
 	public static void appendRemoveTransaction2(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent child, CanvasModel model) {
 		int indexOfModel = model.indexOfModel(child.getModelBehind());
 		
@@ -862,42 +775,6 @@ public class CanvasModel extends Model {
 			new RemoveModelCommand2(indexOfModel),
 			new AddModelCommand2.AfterRemove(),
 			new RemoveModelCommand2.AfterAdd()
-		));
-	}
-	
-	public static void appendMoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, ModelLocation canvasSourceLocation, ModelLocation canvasTargetLocation) {
-		int indexTarget = ((CanvasModel)target.getModelBehind()).getModelCount();
-		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
-		int indexSource = sourceCanvas.indexOfModel(modelToMove.getModelBehind());
-		CanvasModel targetCanvas = (CanvasModel)target.getModelBehind();
-		
-		ModelLocation canvasTargetLocationAfter;
-		int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
-		if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
-			// If target canvas is contained with the source canvas, then special care needs to be taken as
-			// to predicting the location of target canvas after the move has taken place:
-			// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
-			int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
-			canvasTargetLocationAfter = new CompositeModelLocation(canvasSourceLocation, new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
-		} else {
-			canvasTargetLocationAfter = canvasTargetLocation;
-		}
-		
-		Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
-		
-		dualCommands.add(new DualCommandPair<Model>(
-			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
-			new CanvasModel.MoveModelCommand(canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource)
-		));
-		
-		dualCommands.add(new DualCommandPair<Model>(
-			new Model.SetPropertyCommand(modelLocationAfterMove, "X", new Fraction(moveLocation.x)), 
-			new Model.SetPropertyCommand(modelLocationAfterMove, "X", modelToMove.getModelBehind().getProperty("X"))
-		));
-		
-		dualCommands.add(new DualCommandPair<Model>(
-			new Model.SetPropertyCommand(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
-			new Model.SetPropertyCommand(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
 		));
 	}
 	
@@ -935,45 +812,6 @@ public class CanvasModel extends Model {
 		commandStates.add(new PendingCommandState<Model>(
 			new RelativeCommand<Model>(modelLocationAfterMove, new Model.SetPropertyCommand2("Y", new Fraction(moveLocation.y))),
 			new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand2.AfterSetProperty())
-		));
-	}
-	
-	public static void appendMoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation) {
-		Location canvasSourceLocation = modelToMove.getModelTranscriber().getParent().getModelLocation();
-		ModelLocation canvasTargetLocation = target.getModelTranscriber().getModelLocation();
-		
-		int indexTarget = ((CanvasModel)target.getModelBehind()).getModelCount();
-		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
-		int indexSource = sourceCanvas.indexOfModel(modelToMove.getModelBehind());
-		CanvasModel targetCanvas = (CanvasModel)target.getModelBehind();
-		
-		ModelLocation canvasTargetLocationAfter;
-		int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
-		if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
-			// If target canvas is contained with the source canvas, then special care needs to be taken as
-			// to predicting the location of target canvas after the move has taken place:
-			// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
-			int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
-			canvasTargetLocationAfter = modelToMove.getModelTranscriber().getParent().extendLocation(new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
-		} else {
-			canvasTargetLocationAfter = canvasTargetLocation;
-		}
-		
-		Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
-		
-		dualCommands.add(new DualCommandPair<Model>(
-			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, indexSource, indexTarget), 
-			new CanvasModel.MoveModelCommand(canvasTargetLocationAfter, canvasSourceLocation, indexTarget, indexSource)
-		));
-		
-		dualCommands.add(new DualCommandPair<Model>(
-			new Model.SetPropertyCommand(modelLocationAfterMove, "X", new Fraction(moveLocation.x)), 
-			new Model.SetPropertyCommand(modelLocationAfterMove, "X", modelToMove.getModelBehind().getProperty("X"))
-		));
-		
-		dualCommands.add(new DualCommandPair<Model>(
-			new Model.SetPropertyCommand(modelLocationAfterMove, "Y", new Fraction(moveLocation.y)), 
-			new Model.SetPropertyCommand(modelLocationAfterMove, "Y", modelToMove.getModelBehind().getProperty("Y"))
 		));
 	}
 	

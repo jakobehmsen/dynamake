@@ -3,7 +3,6 @@ package dynamake.tools;
 import java.util.List;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.DualCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
