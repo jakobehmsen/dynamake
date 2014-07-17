@@ -56,16 +56,13 @@ public class CanvasModel extends Model {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-//	private ArrayList<Model> models;
 	private int nextId;
 	private ArrayList<Entry> models;
 	
 	public CanvasModel() {
-//		models = new ArrayList<Model>();
 		models = new ArrayList<Entry>();
 	}
 	
-//	public CanvasModel(ArrayList<Model> models) {
 	public CanvasModel(ArrayList<Entry> models) {
 		this.models = models;
 	}
@@ -82,7 +79,6 @@ public class CanvasModel extends Model {
 	
 	@Override
 	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		for(Model model: models)
 		for(Entry entry: models)
 			entry.model.scale(hChange, vChange, propCtx, propDistance, collector);
 	}
@@ -219,31 +215,6 @@ public class CanvasModel extends Model {
 				this.index = index;
 			}
 		}
-		
-//		public static final class AfterRemove implements CommandFactory<Model>  
-//		{
-//			/**
-//			 * 
-//			 */
-//			private static final long serialVersionUID = 1L;
-//
-//			@Override
-//			public Command<Model> createCommand(Object output) {
-//				Model model = ((RemoveModelCommand.Output)output).model;
-//				// TODO: Consider the following:
-//				// What if the model what observing/being observed before its removal?
-//				// What if the model's observers/observees aren't all in existence anymore?
-//				// What if the model's observers/observees are restored after this model is restored?
-//				// Are all of the above cases possible?
-//				// Perhaps, the best solution would be to save the history and replay this history?
-//				Fraction x = (Fraction)model.getProperty("X");
-//				Fraction y = (Fraction)model.getProperty("Y");
-//				Fraction width = (Fraction)model.getProperty("Width");
-//				Fraction height = (Fraction)model.getProperty("Height");
-//				
-//				return new CanvasModel.AddModelCommand(x, y, width, height, new AsIsFactory(model));
-//			}
-//		}
 		
 		/**
 		 * 
@@ -411,8 +382,6 @@ public class CanvasModel extends Model {
 	}
 	
 	public void restoreModel(Object id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		addModel(models.size(), model, propCtx, propDistance, collector);
-		
 		int index = models.size();
 		models.add(index, new Entry(id, model));
 		collector.registerAffectedModel(this);
@@ -447,16 +416,7 @@ public class CanvasModel extends Model {
 		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 	
-//	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, int indexInTarget, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		int indexOfModel = canvasSource.indexOfModel(model);
-//		canvasSource.models.remove(indexOfModel);
-//		canvasSource.sendChanged(new RemovedModelChange(indexOfModel, model), propCtx, propDistance, 0, collector);
-//		canvasTarget.models.add(indexInTarget, model);
-//		canvasTarget.sendChanged(new AddedModelChange(indexInTarget, model), propCtx, propDistance, 0, collector);
-//	}
-	
 	public int indexOfModel(Model model) {
-//		return models.indexOf(model);
 		for(int i = 0; i < models.size(); i++) {
 			if(models.get(i).model == model)
 				return i;
@@ -467,13 +427,11 @@ public class CanvasModel extends Model {
 	
 	public Location getLocationOf(Model model) {
 		int indexOfModel = indexOfModel(model);
-//		return new IndexLocation(indexOfModel);
 		Object id = models.get(indexOfModel).id;
 		return new IdLocation(id);
 	}
 
 	public Location getNextLocation() {
-//		return new IndexLocation(models.size());
 		return new IdLocation(nextId);
 	}
 	
@@ -635,8 +593,7 @@ public class CanvasModel extends Model {
 	public static void appendUnwrapTransaction2(List<CommandState<Model>> commandStates, ModelComponent toUnwrap, ModelComponent parent) {
 		CanvasModel target = (CanvasModel)parent.getModelBehind();
 		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
-//		int indexOfWrapper = target.indexOfModel(modelToBeUnwrapped);
-		Location wrapperLocationInTarget = target.getLocationOf(modelToBeUnwrapped);// new CanvasModel.IndexLocation(indexOfWrapper);
+		Location wrapperLocationInTarget = target.getLocationOf(modelToBeUnwrapped);
 		RectangleF creationBoundsInSelection = new RectangleF(
 			(Fraction)modelToBeUnwrapped.getProperty("X"),
 			(Fraction)modelToBeUnwrapped.getProperty("Y"),
@@ -662,22 +619,10 @@ public class CanvasModel extends Model {
 	}
 	
 	public static void appendMoveTransaction2(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation) {
-//		int indexTarget = ((CanvasModel)target.getModelBehind()).getModelCount();
 		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
 		int indexSource = sourceCanvas.indexOfModel(modelToMove.getModelBehind());
-//		CanvasModel targetCanvas = (CanvasModel)target.getModelBehind();
 		
-		Location canvasTargetLocationAfter;
-//		int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
-//		if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
-//			// If target canvas is contained with the source canvas, then special care needs to be taken as
-//			// to predicting the location of target canvas after the move has taken place:
-//			// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
-//			int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
-//			canvasTargetLocationAfter = new CompositeLocation(canvasSourceLocation, new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
-//		} else {
-			canvasTargetLocationAfter = canvasTargetLocation;
-//		}
+		Location canvasTargetLocationAfter = canvasTargetLocation;
 		
 		Location modelLocationAfterMove = new CompositeLocation(canvasTargetLocationAfter, ((CanvasModel)target.getModelBehind()).getNextLocation());
 		
@@ -710,38 +655,8 @@ public class CanvasModel extends Model {
 		@Override
 		public Location locate() {
 			return canvasModel.getLocationOf(model);
-//			int index = canvasModel.indexOfModel(model);
-//			return new IndexLocation(index);
 		}
 	}
-	
-//	private static class IndexLocation implements Location {
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//		private int index;
-//		
-//		public IndexLocation(int index) {
-//			this.index = index;
-//		}
-//
-//		@Override
-//		public Object getChild(Object holder) {
-//			/*
-//			Instead of using indexes to locate models, id's relative to the canvas should be used.
-//			This is not so much due to the potential efficiency gains in complex canvases, but
-//			more due to effectiveness. More specifically, it is due to models being moved across
-//			canvases meaning the index-lookup quickly becomes ineffective from an identity viewpoint.
-//			By using id's, which are unique to canvases, it may be possible to track down models, by
-//			keeping of the models moved out of canvases (their id's) and where to and their id in the
-//			target canvases.
-//			If the index is coupled with a particular version of the canvas, it may function as a
-//			unique identifier, though. 
-//			*/
-//			return ((CanvasModel)holder).getModel(index);
-//		}
-//	}
 	
 	public static class IdLocation implements Location {
 		/**
@@ -865,9 +780,6 @@ public class CanvasModel extends Model {
 	}
 
 	public Model getModelById(Object id) {
-		// TODO Auto-generated method stub
-//		return null;
-		
 		for(Entry entry: models) {
 			if(entry.id.equals(id))
 				return entry.model;
