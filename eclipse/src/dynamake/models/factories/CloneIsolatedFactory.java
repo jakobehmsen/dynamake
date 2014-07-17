@@ -25,8 +25,6 @@ public class CloneIsolatedFactory implements Factory {
 
 	@Override
 	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-//		PropogationContext propCtx = new PropogationContext();
-		
 		Model model = (Model)CompositeModelLocation.getChild(rootModel, location, modelLocation);
 		Model clone = model.cloneIsolated();
 		

@@ -1,6 +1,7 @@
 package dynamake.models.factories;
 
 
+import dynamake.models.CompositeModelLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -24,9 +25,7 @@ public class CloneDeepFactory implements Factory {
 
 	@Override
 	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-//		PropogationContext propCtx = new PropogationContext();
-		
-		Model model = (Model)modelLocation.getChild(rootModel);
+		Model model = (Model)CompositeModelLocation.getChild(rootModel, location, modelLocation);
 		Model clone = model.cloneDeep();
 		
 		return clone;
