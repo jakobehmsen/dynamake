@@ -23,7 +23,6 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class TellDragDropPopupBuilder implements DragDropPopupBuilder {

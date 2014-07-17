@@ -18,7 +18,6 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.Trigger;

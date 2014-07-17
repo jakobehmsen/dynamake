@@ -27,7 +27,6 @@ import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
