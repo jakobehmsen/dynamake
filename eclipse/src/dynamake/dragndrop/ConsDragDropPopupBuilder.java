@@ -6,8 +6,11 @@ import java.util.List;
 
 import javax.swing.JPopupMenu;
 
+import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.commands.PendingCommandState;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.CanvasModel;
@@ -17,6 +20,7 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.ModelLocation;
 import dynamake.models.Primitive;
+import dynamake.models.CanvasModel.AddModelCommand2.AfterRemove;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.PrimitiveSingletonFactory;
 import dynamake.tools.InteractionPresenter;
@@ -84,7 +88,46 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.execute(new DualCommandFactory<Model>() {
+//					collector.execute(new DualCommandFactory<Model>() {
+//						ModelComponent referenceMC;
+//						
+//						@Override
+//						public Model getReference() {
+//							// Common ancestor among what?
+//							// The observer is not created yet
+//							// Probably, it is the common ancestor among the observable and the target canvas
+//							// Well, that is at least the current decision
+//							referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
+//							return referenceMC.getModelBehind();
+//						}
+//						
+//						@Override
+//						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//							ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, selection);
+//							ModelLocation canvasModelLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, target);
+//							
+//							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
+//							int index = canvasModel.getModelCount();
+//							Location addedPrimitiveLocation = new CompositeModelLocation(
+//								canvasModelLocation,
+//								new CanvasModel.IndexLocation(index)
+//							);
+//							
+//							// Add
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new CanvasModel.AddModelCommand(canvasModelLocation, dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)), 
+//								new CanvasModel.RemoveModelCommand(canvasModelLocation, index)
+//							));
+//
+//							// Bind
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new Model.AddObserverCommand(observableLocation, addedPrimitiveLocation),
+//								new Model.RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
+//							));
+//						}
+//					});
+					
+					collector.execute(new CommandStateFactory<Model>() {
 						ModelComponent referenceMC;
 						
 						@Override
@@ -98,9 +141,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						}
 						
 						@Override
-						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-							ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, selection);
-							ModelLocation canvasModelLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, target);
+						public void createDualCommands(List<CommandState<Model>> commandStates) {
+							ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
+							ModelLocation canvasModelLocation = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 							
 							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 							int index = canvasModel.getModelCount();
@@ -110,15 +153,16 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							);
 							
 							// Add
-							dualCommands.add(new DualCommandPair<Model>(
-								new CanvasModel.AddModelCommand(canvasModelLocation, dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)), 
-								new CanvasModel.RemoveModelCommand(canvasModelLocation, index)
+							commandStates.add(new PendingCommandState<Model>(
+								new CanvasModel.AddModelCommand2(dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)), 
+								new CanvasModel.RemoveModelCommand2.AfterAdd(),
+								new CanvasModel.AddModelCommand2.AfterRemove()
 							));
 
 							// Bind
-							dualCommands.add(new DualCommandPair<Model>(
-								new Model.AddObserverCommand(observableLocation, addedPrimitiveLocation),
-								new Model.RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
+							commandStates.add(new PendingCommandState<Model>(
+								new Model.AddObserverCommand2(observableLocation, addedPrimitiveLocation),
+								new Model.RemoveObserverCommand2(observableLocation, addedPrimitiveLocation)
 							));
 						}
 					});
