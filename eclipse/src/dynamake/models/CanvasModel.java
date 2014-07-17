@@ -629,6 +629,25 @@ public class CanvasModel extends Model {
 			return ((CanvasModel)holder).models.get(index);
 		}
 	}
+	
+	public static class IdLocation implements Location {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Object id;
+
+		public IdLocation(Object id) {
+			this.id = id;
+		}
+		
+		@Override
+		public Object getChild(Object holder) {
+			Model model = ((CanvasModel)holder).getModelById(id);
+
+			return model;
+		}
+	}
 
 	private void addModelComponent(
 			final ModelComponent rootView, 
@@ -730,6 +749,11 @@ public class CanvasModel extends Model {
 		});
 		
 		modelToRemovableListenerMap.put(model, removableListener);
+	}
+
+	public Model getModelById(Object id) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
