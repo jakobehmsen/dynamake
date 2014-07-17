@@ -158,13 +158,6 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	private static class ViewFieldContentLocation implements Location {
-		@Override
-		public Object getChild(Object holder) {
-			return ((LivePanel)holder).contentView.getBindingTarget();
-		}
-	}
-	
 	private static final int BUTTON_FONT_SIZE = 13;
 	private static final Color TOP_BACKGROUND_COLOR = new Color(90, 90, 90);
 	private static final Color TOP_BUTTON_BACKGROUND_COLOR = TOP_BACKGROUND_COLOR;

@@ -115,13 +115,6 @@ public class RootModel extends Model {
 		}
 	}
 	
-	private static class ViewFieldContentLocation implements Location {
-		@Override
-		public Object getChild(Object holder) {
-			return ((FrameModel)holder).getContentPane().getComponent(0);
-		}
-	}
-	
 	private static class BoundsChangeHandler extends MouseAdapter implements ComponentListener {
 		private RootModel rootModel;
 		private ModelTranscriber modelTranscriber;

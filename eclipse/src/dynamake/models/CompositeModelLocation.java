@@ -1,7 +1,5 @@
 package dynamake.models;
 
-import dynamake.models.ModelTranscriber.CompositeLocation;
-
 public class CompositeModelLocation implements ModelLocation {
 	/**
 	 * 

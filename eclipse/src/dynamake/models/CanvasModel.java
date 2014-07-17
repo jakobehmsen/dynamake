@@ -629,21 +629,6 @@ public class CanvasModel extends Model {
 			return ((CanvasModel)holder).models.get(index);
 		}
 	}
-	
-	private static class ViewIndexLocation implements Location {
-		private int index;
-		
-		public ViewIndexLocation(int index) {
-			this.index = index;
-		}
-
-		@Override
-		public Object getChild(Object holder) {
-			// Is the model at index visible? If so, then return the corresponding model. If not, then return null.
-			Model model = ((CanvasPanel)holder).model.models.get(index);
-			return ((CanvasPanel)holder).modelToModelComponentMap.get(model).getBindingTarget();
-		}
-	}
 
 	private void addModelComponent(
 			final ModelComponent rootView, 
