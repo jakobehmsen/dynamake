@@ -9,4 +9,16 @@ import dynamake.transcription.Collector;
 
 public interface Command2<T> extends Serializable {
 	Object executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector, Location location);
+	
+	public static class Null<T> implements Command2<T> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public Object executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector, Location location) {
+			return null;
+		}
+	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.swing.JPopupMenu;
 
+import dynamake.commands.Command2;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
@@ -84,7 +85,7 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 					public void createDualCommands(List<CommandState<Model>> commandStates) {
 						commandStates.add(new PendingCommandState<Model>(
 							new TellPropertyCommand2(Model.PROPERTY_COLOR),
-							new TellPropertyCommand2(Model.PROPERTY_COLOR)
+							new Command2.Null<Model>()
 						));
 					}
 				});
