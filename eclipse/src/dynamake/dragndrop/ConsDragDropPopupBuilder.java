@@ -102,10 +102,10 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							Location canvasModelLocation = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 							
 							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-							int index = canvasModel.getModelCount();
+							
 							Location addedPrimitiveLocation = new CompositeLocation(
 								canvasModelLocation,
-								new CanvasModel.IndexLocation(index)
+								canvasModel.getNextLocation()
 							);
 							
 							// Add
@@ -114,7 +114,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.AddModelCommand.AfterRemove()
 							));
-
+							
 							// Bind
 							commandStates.add(new PendingCommandState<Model>(
 								new Model.AddObserverCommand(observableLocation, addedPrimitiveLocation),

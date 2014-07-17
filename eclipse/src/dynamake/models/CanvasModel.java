@@ -391,6 +391,10 @@ public class CanvasModel extends Model {
 		int indexOfModel = indexOfModel(model);
 		return new IndexLocation(indexOfModel);
 	}
+
+	public Location getNextLocation() {
+		return new IndexLocation(models.size());
+	}
 	
 	private static class CanvasPanel extends JLayeredPane implements ModelComponent {
 		/**
@@ -550,8 +554,8 @@ public class CanvasModel extends Model {
 	public static void appendUnwrapTransaction2(List<CommandState<Model>> commandStates, ModelComponent toUnwrap, ModelComponent parent) {
 		CanvasModel target = (CanvasModel)parent.getModelBehind();
 		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
-		int indexOfWrapper = target.indexOfModel(modelToBeUnwrapped);
-		Location wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
+//		int indexOfWrapper = target.indexOfModel(modelToBeUnwrapped);
+		Location wrapperLocationInTarget = target.getLocationOf(modelToBeUnwrapped);// new CanvasModel.IndexLocation(indexOfWrapper);
 		RectangleF creationBoundsInSelection = new RectangleF(
 			(Fraction)modelToBeUnwrapped.getProperty("X"),
 			(Fraction)modelToBeUnwrapped.getProperty("Y"),
@@ -577,24 +581,24 @@ public class CanvasModel extends Model {
 	}
 	
 	public static void appendMoveTransaction2(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation) {
-		int indexTarget = ((CanvasModel)target.getModelBehind()).getModelCount();
+//		int indexTarget = ((CanvasModel)target.getModelBehind()).getModelCount();
 		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
 		int indexSource = sourceCanvas.indexOfModel(modelToMove.getModelBehind());
-		CanvasModel targetCanvas = (CanvasModel)target.getModelBehind();
+//		CanvasModel targetCanvas = (CanvasModel)target.getModelBehind();
 		
 		Location canvasTargetLocationAfter;
-		int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
-		if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
-			// If target canvas is contained with the source canvas, then special care needs to be taken as
-			// to predicting the location of target canvas after the move has taken place:
-			// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
-			int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
-			canvasTargetLocationAfter = new CompositeLocation(canvasSourceLocation, new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
-		} else {
+//		int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
+//		if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
+//			// If target canvas is contained with the source canvas, then special care needs to be taken as
+//			// to predicting the location of target canvas after the move has taken place:
+//			// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
+//			int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
+//			canvasTargetLocationAfter = new CompositeLocation(canvasSourceLocation, new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
+//		} else {
 			canvasTargetLocationAfter = canvasTargetLocation;
-		}
+//		}
 		
-		Location modelLocationAfterMove = new CompositeLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
+		Location modelLocationAfterMove = new CompositeLocation(canvasTargetLocationAfter, ((CanvasModel)target.getModelBehind()).getNextLocation());
 		
 		commandStates.add(new PendingCommandState<Model>(
 			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, indexSource), 
@@ -613,7 +617,7 @@ public class CanvasModel extends Model {
 		));
 	}
 	
-	public static class IndexLocator implements Locator {
+	private static class IndexLocator implements Locator {
 		private CanvasModel canvasModel;
 		private Model model;
 
@@ -629,7 +633,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class IndexLocation implements Location {
+	private static class IndexLocation implements Location {
 		/**
 		 * 
 		 */
