@@ -2,6 +2,7 @@ package dynamake.tools;
 
 import java.util.List;
 
+import dynamake.commands.CommandState;
 import dynamake.commands.DualCommand;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.CanvasModel;
@@ -20,5 +21,14 @@ public class UnwrapTool extends RepetitiveCanvasTaskTool {
 		if(modelOver.getModelBehind() instanceof CanvasModel && ((CanvasModel)modelOver.getModelBehind()).getModelCount() > 0) {
 			CanvasModel.appendUnwrapTransaction(dualCommands, modelOver, canvas, canvasLocation);
 		}
+	}
+
+	@Override
+	protected void createCommandStatesForSingleTask(
+			ProductionPanel productionPanel,
+			List<CommandState<Model>> commandStates, ModelComponent canvas,
+			ModelComponent modelOver) {
+		// TODO Auto-generated method stub
+		
 	}
 }

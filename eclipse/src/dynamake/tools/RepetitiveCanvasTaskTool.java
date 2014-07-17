@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -65,15 +67,27 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 			final ModelComponent modelOverParent = ModelComponent.Util.getParent(modelOver);
 			
 			if(modelOverParent == canvas) {
-				collector.execute(new DualCommandFactory<Model>() {
+//				collector.execute(new DualCommandFactory<Model>() {
+//					@Override
+//					public Model getReference() {
+//						return modelOverParent.getModelBehind();
+//					}
+//					
+//					@Override
+//					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//						createDualCommandsForSingleTask(productionPanel, dualCommands, modelOverParent, location, modelOver);
+//					}
+//				});
+				
+				collector.execute(new CommandStateFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return modelOverParent.getModelBehind();
 					}
 					
 					@Override
-					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-						createDualCommandsForSingleTask(productionPanel, dualCommands, modelOverParent, location, modelOver);
+					public void createDualCommands(List<CommandState<Model>> commandStates) {
+						createCommandStatesForSingleTask(productionPanel, commandStates, modelOverParent, modelOver);
 					}
 				});
 			}
@@ -87,4 +101,5 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 	}
 	
 	protected abstract void createDualCommandsForSingleTask(ProductionPanel productionPanel, List<DualCommand<Model>> dualCommands, ModelComponent canvas, Location canvasLocation, ModelComponent modelOver);
+	protected abstract void createCommandStatesForSingleTask(ProductionPanel productionPanel, List<CommandState<Model>> commandStates, ModelComponent canvas, ModelComponent modelOver);
 }
