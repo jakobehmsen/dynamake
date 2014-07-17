@@ -602,7 +602,23 @@ public class CanvasModel extends Model {
 				menuBuilder.addMenuBuilder("Unwrap", new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
+//						collector.execute(new DualCommandFactory<Model>() {
+//							ModelComponent parent;
+//							
+//							@Override
+//							public Model getReference() {
+//								// If this canvas is unwrapped, then it is unwrapped into its parent
+//								parent = ModelComponent.Util.getParent(CanvasPanel.this);
+//								return parent.getModelBehind();
+//							}
+//							
+//							@Override
+//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//								CanvasModel.appendUnwrapTransaction(dualCommands, CanvasPanel.this, parent, location);
+//							}
+//						});
+						
+						collector.execute(new CommandStateFactory<Model>() {
 							ModelComponent parent;
 							
 							@Override
@@ -613,8 +629,8 @@ public class CanvasModel extends Model {
 							}
 							
 							@Override
-							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-								CanvasModel.appendUnwrapTransaction(dualCommands, CanvasPanel.this, parent, location);
+							public void createDualCommands(List<CommandState<Model>> commandStates) {
+								CanvasModel.appendUnwrapTransaction2(commandStates, CanvasPanel.this, parent);
 							}
 						});
 					}
@@ -793,32 +809,32 @@ public class CanvasModel extends Model {
 //		));
 	}
 	
-	public static void appendUnwrapTransaction(List<DualCommand<Model>> dualCommands, ModelComponent toUnwrap) {
-		ModelComponent parent = ModelComponent.Util.getParent(toUnwrap);
-		CanvasModel target = (CanvasModel)parent.getModelBehind();
-		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
-		Location targetLocation = parent.getModelTranscriber().getModelLocation();
-		int indexOfWrapper = target.indexOfModel(modelToBeUnwrapped);
-		ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
-		Rectangle creationBoundsInSelection = new Rectangle(
-			((Number)modelToBeUnwrapped.getProperty("X")).intValue(),
-			((Number)modelToBeUnwrapped.getProperty("Y")).intValue(),
-			((Number)modelToBeUnwrapped.getProperty("Width")).intValue(),
-			((Number)modelToBeUnwrapped.getProperty("Height")).intValue()
-		);
-		
-		// Each of the model locations should be moved from target to wrapper
-		Location[] modelLocations = new Location[modelToBeUnwrapped.models.size()];
-		for(int i = 0; i < modelLocations.length; i++) {
-			ModelComponent view = (ModelComponent)((JComponent)toUnwrap).getComponent(i);
-			modelLocations[i] = view.getModelTranscriber().getModelLocation();
-		}
-		
-		dualCommands.add(new DualCommandPair<Model>(
-			new UnwrapCommand(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
-			new WrapCommand(targetLocation, creationBoundsInSelection, modelLocations)
-		));
-	}
+//	public static void appendUnwrapTransaction(List<DualCommand<Model>> dualCommands, ModelComponent toUnwrap) {
+//		ModelComponent parent = ModelComponent.Util.getParent(toUnwrap);
+//		CanvasModel target = (CanvasModel)parent.getModelBehind();
+//		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
+//		Location targetLocation = parent.getModelTranscriber().getModelLocation();
+//		int indexOfWrapper = target.indexOfModel(modelToBeUnwrapped);
+//		ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
+//		Rectangle creationBoundsInSelection = new Rectangle(
+//			((Number)modelToBeUnwrapped.getProperty("X")).intValue(),
+//			((Number)modelToBeUnwrapped.getProperty("Y")).intValue(),
+//			((Number)modelToBeUnwrapped.getProperty("Width")).intValue(),
+//			((Number)modelToBeUnwrapped.getProperty("Height")).intValue()
+//		);
+//		
+//		// Each of the model locations should be moved from target to wrapper
+//		Location[] modelLocations = new Location[modelToBeUnwrapped.models.size()];
+//		for(int i = 0; i < modelLocations.length; i++) {
+//			ModelComponent view = (ModelComponent)((JComponent)toUnwrap).getComponent(i);
+//			modelLocations[i] = view.getModelTranscriber().getModelLocation();
+//		}
+//		
+//		dualCommands.add(new DualCommandPair<Model>(
+//			new UnwrapCommand(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
+//			new WrapCommand(targetLocation, creationBoundsInSelection, modelLocations)
+//		));
+//	}
 	
 	public static void appendRemoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent child, Location canvasLocation, CanvasModel model) {
 		int indexOfModel = model.indexOfModel(child.getModelBehind());
