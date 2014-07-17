@@ -28,7 +28,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
-import dynamake.commands.Command;
 import dynamake.commands.Command2;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
@@ -97,28 +96,6 @@ public class LiveModel extends Model {
 		sendChanged(new ButtonsToolBindingChanged(buttons, tool), propCtx, propDistance, 0, collector);
 	}
 	
-	public static class BindButtonsToToolCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location modelLocation;
-		private List<Integer> buttons;
-		private int tool;
-
-		public BindButtonsToToolCommand(Location modelLocation, List<Integer> buttons, int tool) {
-			this.modelLocation = modelLocation;
-			this.buttons = buttons;
-			this.tool = tool;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
-			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
-			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, collector);
-		}
-	}
-	
 	public static class BindButtonsToToolCommand2 implements Command2<Model> {
 		/**
 		 * 
@@ -138,28 +115,6 @@ public class LiveModel extends Model {
 			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, collector);
 			
 			return null;
-		}
-	}
-	
-	public static class RemoveButtonsToToolBindingCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location modelLocation;
-		private List<Integer> buttons;
-		private int tool;
-
-		public RemoveButtonsToToolBindingCommand(Location modelLocation, List<Integer> buttons, int tool) {
-			this.modelLocation = modelLocation;
-			this.buttons = buttons;
-			this.tool = tool;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
-			LiveModel liveModel = (LiveModel)modelLocation.getChild(prevalentSystem);
-			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, collector);
 		}
 	}
 	

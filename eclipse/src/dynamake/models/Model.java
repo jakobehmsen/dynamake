@@ -21,7 +21,6 @@ import java.util.Stack;
 
 import javax.swing.JComponent;
 
-import dynamake.commands.Command;
 import dynamake.commands.Command2;
 import dynamake.commands.Command2Factory;
 import dynamake.commands.CommandState;
@@ -143,55 +142,6 @@ public abstract class Model implements Serializable, Observer {
 			return new Output(name, previousValue);
 		}
 	}
-	
-	public static class SetPropertyOnRootCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		
-		private Location modelLocation;
-		private String name;
-		private Object value;
-		
-		public SetPropertyOnRootCommand(Location modelLocation, String name, Object value) {
-			this.modelLocation = modelLocation;
-			this.name = name;
-			this.value = value;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
-			Model model = (Model)modelLocation.getChild(prevalentSystem);
-			
-			model.setProperty(name, value, propCtx, 0, collector);
-		}
-	}
-	
-	public static class UndoCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location modelLocation;
-		private boolean isolate;
-
-		public UndoCommand(Location modelLocation, boolean isolate) {
-			this.modelLocation = modelLocation;
-			this.isolate = isolate;
-		}
-
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
-			Model model = (Model)modelLocation.getChild(prevalentSystem);
-			
-			if(isolate)
-				collector = new IsolatingCollector<Model>(collector);
-			
-			model.undo(propCtx, prevalentSystem, collector);
-		}
-	}
-	
 	public static class UndoCommand2 implements Command2<Model> {
 		/**
 		 * 
@@ -213,30 +163,6 @@ public abstract class Model implements Serializable, Observer {
 			model.undo(propCtx, prevalentSystem, collector);
 			
 			return null;
-		}
-	}
-	
-	public static class RedoCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location modelLocation;
-		private boolean isolate;
-
-		public RedoCommand(Location modelLocation, boolean isolate) {
-			this.modelLocation = modelLocation;
-			this.isolate = isolate;
-		}
-
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
-			Model model = (Model)modelLocation.getChild(prevalentSystem);
-			
-			if(isolate)
-				collector = new IsolatingCollector<Model>(collector);
-			
-			model.redo(propCtx, prevalentSystem, collector);
 		}
 	}
 	
@@ -334,30 +260,6 @@ public abstract class Model implements Serializable, Observer {
 		
 		return new RectangleF(x, y, width, height);
 	}
-	
-	public static class AddObserverCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location observableLocation;
-		private Location observerLocation;
-		
-		public AddObserverCommand(Location observableLocation, Location observerLocation) {
-			this.observableLocation = observableLocation;
-			this.observerLocation = observerLocation;
-		}
-
-		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
-			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
-			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
-			
-			observable.addObserver(observer);
-			
-			// TODO: Consider whether a change should be sent out here
-		}
-	}
 
 	public static class AddObserverCommand2 implements Command2<Model> {
 		/**
@@ -385,30 +287,6 @@ public abstract class Model implements Serializable, Observer {
 			
 			// TODO: Consider whether a change should be sent out here
 			return null;
-		}
-	}
-	
-	public static class RemoveObserverCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location observableLocation;
-		private Location observerLocation;
-		
-		public RemoveObserverCommand(Location observableLocation, Location observerLocation) {
-			this.observableLocation = observableLocation;
-			this.observerLocation = observerLocation;
-		}
-
-		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
-			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
-			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
-			
-			observable.removeObserver(observer);
-			
-			// TODO: Consider whether a change should be sent out here
 		}
 	}
 

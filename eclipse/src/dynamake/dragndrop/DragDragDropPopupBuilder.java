@@ -9,9 +9,7 @@ import javax.swing.JPopupMenu;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
-import dynamake.commands.DejectCommand;
 import dynamake.commands.DejectCommand2;
-import dynamake.commands.InjectCommand;
 import dynamake.commands.InjectCommand2;
 import dynamake.commands.PendingCommandState;
 import dynamake.menubuilders.ActionRunner;

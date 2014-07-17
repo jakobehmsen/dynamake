@@ -17,17 +17,14 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 
 import dynamake.caching.Memoizer1;
-import dynamake.commands.Command;
 import dynamake.commands.Command2;
 import dynamake.commands.Command2Factory;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
-import dynamake.commands.UnwrapCommand;
 import dynamake.commands.UnwrapCommand2;
 import dynamake.commands.UnwrapToLocationsCommand2;
-import dynamake.commands.WrapCommand;
 import dynamake.commands.WrapCommand2;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
@@ -133,36 +130,6 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class MoveModelCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		
-		private Location canvasSourceLocation;
-		private Location canvasTargetLocation;
-		private int indexInSource;
-		private int indexInTarget;
-
-		public MoveModelCommand(Location canvasSourceLocation, Location canvasTargetLocation, int indexInSource, int indexInTarget) {
-			this.canvasSourceLocation = canvasSourceLocation;
-			this.canvasTargetLocation = canvasTargetLocation;
-			this.indexInSource = indexInSource;
-			this.indexInTarget = indexInTarget;
-		}
-
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
-			CanvasModel canvasSource = (CanvasModel)canvasSourceLocation.getChild(prevalentSystem);
-			CanvasModel canvasTarget = (CanvasModel)canvasTargetLocation.getChild(prevalentSystem);
-			Model model = (Model)canvasSource.getModel(indexInSource);
-
-			int indexOfModel = canvasSource.indexOfModel(model);
-			canvasSource.removeModel(indexOfModel, propCtx, 0, collector);
-			canvasTarget.addModel(indexInTarget, model, propCtx, 0, collector);
-		}
-	}
-	
 	public static class MoveModelCommand2 implements Command2<Model> {
 		public static class AfterMove implements Command2Factory<Model> {
 			/**
@@ -220,36 +187,6 @@ public class CanvasModel extends Model {
 			int movedToIndex = canvasTarget.indexOfModel(model);
 			
 			return new Output(canvasSourceLocation, canvasTargetLocation, movedToIndex);
-		}
-	}
-	
-	public static class AddModelCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location canvasLocation;
-		private Rectangle creationBounds;
-		private Factory factory;
-		
-		public AddModelCommand(Location canvasLocation, Rectangle creationBounds, Factory factory) {
-			this.canvasLocation = canvasLocation;
-			this.creationBounds = creationBounds;
-			this.factory = factory;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
-			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, null);
-
-			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
-			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, isolatedCollector);
-			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, isolatedCollector);
-			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, isolatedCollector);
-			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, isolatedCollector);
-			
-			canvas.addModel(model, new PropogationContext(), 0, collector);
 		}
 	}
 	
@@ -333,86 +270,6 @@ public class CanvasModel extends Model {
 			int index = canvas.getModelCount() - 1;
 			
 			return new Output(index);
-		}
-	}
-	
-	public static class AddModelAtCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location canvasLocation;
-		private Rectangle creationBounds;
-		private Factory factory;
-		private int index;
-		
-		public AddModelAtCommand(Location canvasLocation, Rectangle creationBounds, Factory factory, int index) {
-			this.canvasLocation = canvasLocation;
-			this.creationBounds = creationBounds;
-			this.factory = factory;
-			this.index = index;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
-			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, null);
-
-			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<>(collector);
-
-			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, isolatingCollector);
-			model.setProperty("Y", new Fraction(creationBounds.y), propCtx, 0, isolatingCollector);
-			model.setProperty("Width", new Fraction(creationBounds.width), propCtx, 0, isolatingCollector);
-			model.setProperty("Height", new Fraction(creationBounds.height), propCtx, 0, isolatingCollector);
-			
-			canvas.addModel(index, model, new PropogationContext(), 0, collector);
-		}
-	}
-	
-	public static class AddModelNoCreationBoundsCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location canvasLocation;
-		private int index;
-		private Factory factory;
-		
-		public AddModelNoCreationBoundsCommand(Location canvasLocation, int index, Factory factory) {
-			this.canvasLocation = canvasLocation;
-			this.index = index;
-			this.factory = factory;
-		}
-
-		@Override
-		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
-			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, null);
-			canvas.addModel(index, model, new PropogationContext(), 0, collector);
-		}
-	}
-	
-	public static class RemoveModelCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location canvasLocation;
-		private int index;
-		
-		public RemoveModelCommand(Location canvasLocation, int index) {
-			if(index < 0)
-				new String();
-			this.canvasLocation = canvasLocation;
-			this.index = index;
-		}
-		
-		@Override
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector) {
-			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(prevalentSystem);
-			Model modelToRemove = canvas.getModel(index);
-			canvas.removeModel(index, propCtx, 0, collector);
-			modelToRemove.beRemoved();
 		}
 	}
 	

@@ -10,7 +10,6 @@ import dynamake.commands.Command2;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.TellPropertyCommand;
 import dynamake.commands.TellPropertyCommand2;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
