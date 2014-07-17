@@ -21,6 +21,7 @@ import dynamake.commands.Command;
 import dynamake.commands.Command2;
 import dynamake.commands.Command2Factory;
 import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.commands.PendingCommandState;
@@ -562,15 +563,26 @@ public class CanvasModel extends Model {
 			menuBuilder.addMenuBuilder("Remove", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.execute(new DualCommandFactory<Model>() {
+//					collector.execute(new DualCommandFactory<Model>() {
+//						@Override
+//						public Model getReference() {
+//							return model;
+//						}
+//						
+//						@Override
+//						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//							CanvasModel.appendRemoveTransaction(dualCommands, livePanel, child, location, model);
+//						}
+//					});
+					collector.execute(new CommandStateFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return model;
 						}
 						
 						@Override
-						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-							CanvasModel.appendRemoveTransaction(dualCommands, livePanel, child, location, model);
+						public void createDualCommands(List<CommandState<Model>> commandStates) {
+							CanvasModel.appendRemoveTransaction2(commandStates, livePanel, child, model);
 						}
 					});
 				}
