@@ -16,8 +16,11 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.commands.PendingCommandState;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
@@ -155,35 +158,66 @@ public class RootModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
+//						collector.execute(new DualCommandFactory<Model>() {
+//							@Override
+//							public Model getReference() {
+//								return rootModel;
+//							}
+//							
+//							@Override
+//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//								if(newLocation != null) {
+//									dualCommands.add(new DualCommandPair<Model>(
+//										new Model.SetPropertyCommand(location, "X", newLocation.x),
+//										new Model.SetPropertyCommand(location, "X", rootModel.getProperty("X"))
+//									));
+//									
+//									dualCommands.add(new DualCommandPair<Model>(
+//										new Model.SetPropertyCommand(location, "Y", newLocation.y),
+//										new Model.SetPropertyCommand(location, "Y", rootModel.getProperty("Y"))
+//									));
+//								}
+//								
+//								if(newSize != null) {
+//									dualCommands.add(new DualCommandPair<Model>(
+//										new Model.SetPropertyCommand(location, "Width", newSize.width),
+//										new Model.SetPropertyCommand(location, "Width", rootModel.getProperty("Width"))
+//									));
+//			
+//									dualCommands.add(new DualCommandPair<Model>(
+//										new Model.SetPropertyCommand(location, "Height", newSize.height),
+//										new Model.SetPropertyCommand(location, "Height", rootModel.getProperty("Height"))
+//									));
+//								}
+//							}
+//						});
+						collector.execute(new CommandStateFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return rootModel;
 							}
 							
 							@Override
-							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+							public void createDualCommands(List<CommandState<Model>> commandStates) {
 								if(newLocation != null) {
-									dualCommands.add(new DualCommandPair<Model>(
-										new Model.SetPropertyCommand(location, "X", newLocation.x),
-										new Model.SetPropertyCommand(location, "X", rootModel.getProperty("X"))
+									commandStates.add(new PendingCommandState<Model>(
+										new Model.SetPropertyCommand2("X", newLocation.x),
+										new Model.SetPropertyCommand2.AfterSetProperty()
 									));
-									
-									dualCommands.add(new DualCommandPair<Model>(
-										new Model.SetPropertyCommand(location, "Y", newLocation.y),
-										new Model.SetPropertyCommand(location, "Y", rootModel.getProperty("Y"))
+									commandStates.add(new PendingCommandState<Model>(
+										new Model.SetPropertyCommand2("Y", newLocation.y),
+										new Model.SetPropertyCommand2.AfterSetProperty()
 									));
 								}
 								
 								if(newSize != null) {
-									dualCommands.add(new DualCommandPair<Model>(
-										new Model.SetPropertyCommand(location, "Width", newSize.width),
-										new Model.SetPropertyCommand(location, "Width", rootModel.getProperty("Width"))
+									commandStates.add(new PendingCommandState<Model>(
+										new Model.SetPropertyCommand2("Width", newSize.width),
+										new Model.SetPropertyCommand2.AfterSetProperty()
 									));
-			
-									dualCommands.add(new DualCommandPair<Model>(
-										new Model.SetPropertyCommand(location, "Height", newSize.height),
-										new Model.SetPropertyCommand(location, "Height", rootModel.getProperty("Height"))
+									commandStates.add(new PendingCommandState<Model>(
+										new Model.SetPropertyCommand2("Height", newSize.height),
+										new Model.SetPropertyCommand2.AfterSetProperty()
 									));
 								}
 							}
