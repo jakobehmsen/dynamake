@@ -24,11 +24,9 @@ public class UnwrapTool extends RepetitiveCanvasTaskTool {
 	}
 
 	@Override
-	protected void createCommandStatesForSingleTask(
-			ProductionPanel productionPanel,
-			List<CommandState<Model>> commandStates, ModelComponent canvas,
-			ModelComponent modelOver) {
-		// TODO Auto-generated method stub
-		
+	protected void createCommandStatesForSingleTask(ProductionPanel productionPanel, List<CommandState<Model>> commandStates, ModelComponent canvas, ModelComponent modelOver) {
+		if(modelOver.getModelBehind() instanceof CanvasModel && ((CanvasModel)modelOver.getModelBehind()).getModelCount() > 0) {
+			CanvasModel.appendUnwrapTransaction2(commandStates, modelOver, canvas);
+		}
 	}
 }

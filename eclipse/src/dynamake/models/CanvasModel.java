@@ -27,7 +27,10 @@ import dynamake.commands.DualCommandPair;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.UnwrapCommand;
+import dynamake.commands.UnwrapCommand2;
+import dynamake.commands.UnwrapToLocationsCommand2;
 import dynamake.commands.WrapCommand;
+import dynamake.commands.WrapCommand2;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
@@ -36,6 +39,7 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.AsIsFactory;
 import dynamake.models.factories.Factory;
 import dynamake.numbers.Fraction;
+import dynamake.numbers.RectangleF;
 import dynamake.transcription.DualCommandFactory;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
@@ -743,6 +747,50 @@ public class CanvasModel extends Model {
 			new UnwrapCommand(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
 			new WrapCommand(targetLocation, creationBoundsInSelection, modelLocations)
 		));
+	}
+	
+	public static void appendUnwrapTransaction2(List<CommandState<Model>> commandStates, ModelComponent toUnwrap, ModelComponent parent) {
+		CanvasModel target = (CanvasModel)parent.getModelBehind();
+		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
+		int indexOfWrapper = target.indexOfModel(modelToBeUnwrapped);
+		ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
+		RectangleF creationBoundsInSelection = new RectangleF(
+			(Fraction)modelToBeUnwrapped.getProperty("X"),
+			(Fraction)modelToBeUnwrapped.getProperty("Y"),
+			(Fraction)modelToBeUnwrapped.getProperty("Width"),
+			(Fraction)modelToBeUnwrapped.getProperty("Height")
+		);
+//		
+//		// Derive the an array of the locations at which the unwrapped models are to be placed
+//		// within the target canvas
+//		int indexOfModelInTarget = target.getModelCount();
+//		if(target.indexOfModel(modelToBeUnwrapped) != -1)
+//			indexOfModelInTarget--; // Decrement, since modelToBeUnwrapped will be removed
+//		Location[] modelLocations = new Location[modelToBeUnwrapped.models.size()];
+//		for(int i = 0; i < modelLocations.length; i++) {
+//			Location viewLocation = new CanvasModel.IndexLocation(indexOfModelInTarget);
+//			modelLocations[i] = viewLocation;
+//			indexOfModelInTarget++;
+//		}
+		
+//		dualCommands.add(new DualCommandPair<Model>(
+//			new UnwrapCommand(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
+//			new WrapCommand(targetLocation, creationBoundsInSelection, modelLocations)
+//		));
+		
+		commandStates.add(new PendingCommandState<Model>(
+			new UnwrapCommand2(wrapperLocationInTarget, creationBoundsInSelection),
+			new WrapCommand2.AfterUnwrap(),
+			new UnwrapCommand2.AfterWrap()
+		));
+		
+//		commandStates.add(new PendingCommandState<Model>(
+//			new UnwrapCommand2(wrapperLocationInTarget, creationBoundsInSelection),
+//			new WrapCommand2(creationBoundsInSelection, modelLocations)
+////				new WrapCommand2(new RectangleF(creationBoundsInSelection), modelLocations), 
+////				new UnwrapToLocationsCommand2.AfterWrap(),
+////				new WrapCommand2.AfterUnwrap()
+//		));
 	}
 	
 	public static void appendUnwrapTransaction(List<DualCommand<Model>> dualCommands, ModelComponent toUnwrap) {
