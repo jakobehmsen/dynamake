@@ -22,11 +22,7 @@ public class TrimTool extends RepetitiveCanvasTaskTool {
 	}
 
 	@Override
-	protected void createCommandStatesForSingleTask(
-			ProductionPanel productionPanel,
-			List<CommandState<Model>> commandStates, ModelComponent canvas,
-			ModelComponent modelOver) {
-		// TODO Auto-generated method stub
-		
+	protected void createCommandStatesForSingleTask(ProductionPanel productionPanel, List<CommandState<Model>> commandStates, ModelComponent canvas, ModelComponent modelOver) {
+		CanvasModel.appendRemoveTransaction2(commandStates, productionPanel.livePanel, modelOver, (CanvasModel)canvas.getModelBehind());
 	}
 }

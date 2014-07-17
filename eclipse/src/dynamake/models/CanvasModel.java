@@ -754,6 +754,16 @@ public class CanvasModel extends Model {
 		));
 	}
 	
+	public static void appendRemoveTransaction2(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent child, CanvasModel model) {
+		int indexOfModel = model.indexOfModel(child.getModelBehind());
+		
+		commandStates.add(new PendingCommandState<Model>(
+			new RemoveModelCommand2(indexOfModel),
+			new AddModelCommand2.AfterRemove(),
+			new RemoveModelCommand2.AfterAdd()
+		));
+	}
+	
 	public static void appendMoveTransaction(List<DualCommand<Model>> dualCommands, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, ModelLocation canvasSourceLocation, ModelLocation canvasTargetLocation) {
 		int indexTarget = ((CanvasModel)target.getModelBehind()).getModelCount();
 		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
