@@ -5,7 +5,6 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.Serializable;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JLabel;

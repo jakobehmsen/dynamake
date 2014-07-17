@@ -24,7 +24,6 @@ import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.UnwrapCommand;
-import dynamake.commands.UnwrapToLocationsCommand;
 import dynamake.commands.WrapCommand;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;

@@ -18,7 +18,6 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.ModelLocation;
 import dynamake.models.Primitive;
-import dynamake.models.CanvasModel.AddModelCommand.AfterRemove;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.PrimitiveSingletonFactory;
 import dynamake.tools.InteractionPresenter;

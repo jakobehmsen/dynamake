@@ -14,7 +14,6 @@ import dynamake.commands.InjectCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
-import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.ModelLocation;
