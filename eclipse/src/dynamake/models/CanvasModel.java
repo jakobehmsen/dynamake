@@ -122,6 +122,10 @@ public class CanvasModel extends Model {
 		// Assumed that cloning is not necessary for properties
 		// I.e., all property values are immutable
 		clone.properties.putAll(this.properties);
+		
+		clone.undoStack.addAll(this.undoStack);
+		clone.redoStack.addAll(this.redoStack);
+		
 		sourceToCloneMap.put(this, clone);
 		
 		for(Model model: models) {
