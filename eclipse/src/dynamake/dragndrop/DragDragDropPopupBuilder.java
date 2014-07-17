@@ -7,10 +7,15 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 
+import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DejectCommand;
+import dynamake.commands.DejectCommand2;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.commands.InjectCommand;
+import dynamake.commands.InjectCommand2;
+import dynamake.commands.PendingCommandState;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Location;
@@ -122,7 +127,28 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionSelectionGeneralMapBuilder.addMenuBuilder("Inject", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new DualCommandFactory<Model>() {
+//				collector.execute(new DualCommandFactory<Model>() {
+//					ModelComponent referenceMC;
+//					
+//					@Override
+//					public Model getReference() {
+//						referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
+//						return referenceMC.getModelBehind();
+//					}
+//					
+//					@Override
+//					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//						ModelLocation locationOfSelection = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, selection);
+//						ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, target);
+//							
+//						dualCommands.add(new DualCommandPair<Model>(
+//							new InjectCommand(locationOfSelection, locationOfTarget),
+//							new DejectCommand(locationOfSelection, locationOfTarget)
+//						));
+//					}
+//				});
+				
+				collector.execute(new CommandStateFactory<Model>() {
 					ModelComponent referenceMC;
 					
 					@Override
@@ -132,13 +158,13 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 					}
 					
 					@Override
-					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-						ModelLocation locationOfSelection = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, selection);
-						ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, target);
+					public void createDualCommands(List<CommandState<Model>> commandStates) {
+						ModelLocation locationOfSelection = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
+						ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 							
-						dualCommands.add(new DualCommandPair<Model>(
-							new InjectCommand(locationOfSelection, locationOfTarget),
-							new DejectCommand(locationOfSelection, locationOfTarget)
+						commandStates.add(new PendingCommandState<Model>(
+							new InjectCommand2(locationOfSelection, locationOfTarget),
+							new DejectCommand2(locationOfSelection, locationOfTarget)
 						));
 					}
 				});
