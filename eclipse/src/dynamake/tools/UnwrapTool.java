@@ -15,13 +15,6 @@ public class UnwrapTool extends RepetitiveCanvasTaskTool {
 	public String getName() {
 		return "Unwrap";
 	}
-	
-	@Override
-	protected void createDualCommandsForSingleTask(ProductionPanel productionPanel, List<DualCommand<Model>> dualCommands, ModelComponent canvas, Location canvasLocation, ModelComponent modelOver) {
-		if(modelOver.getModelBehind() instanceof CanvasModel && ((CanvasModel)modelOver.getModelBehind()).getModelCount() > 0) {
-			CanvasModel.appendUnwrapTransaction(dualCommands, modelOver, canvas, canvasLocation);
-		}
-	}
 
 	@Override
 	protected void createCommandStatesForSingleTask(ProductionPanel productionPanel, List<CommandState<Model>> commandStates, ModelComponent canvas, ModelComponent modelOver) {
