@@ -295,18 +295,33 @@ public class RootModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
+//						collector.execute(new DualCommandFactory<Model>() {
+//							@Override
+//							public Model getReference() {
+//								return RootModel.this;
+//							}
+//							
+//							@Override
+//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//								Integer currentState = (Integer)RootModel.this.getProperty("State");
+//								dualCommands.add(new DualCommandPair<Model>(
+//									new Model.SetPropertyOnRootCommand(location, "State", newState),
+//									new Model.SetPropertyOnRootCommand(location, "State", currentState)
+//								));
+//							}
+//						});
+						collector.execute(new CommandStateFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return RootModel.this;
 							}
 							
 							@Override
-							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-								Integer currentState = (Integer)RootModel.this.getProperty("State");
-								dualCommands.add(new DualCommandPair<Model>(
-									new Model.SetPropertyOnRootCommand(location, "State", newState),
-									new Model.SetPropertyOnRootCommand(location, "State", currentState)
+							public void createDualCommands(List<CommandState<Model>> commandStates) {
+//								Integer currentState = (Integer)RootModel.this.getProperty("State");
+								commandStates.add(new PendingCommandState<Model>(
+									new Model.SetPropertyCommand2("State", newState),
+									new Model.SetPropertyCommand2.AfterSetProperty()
 								));
 							}
 						});
