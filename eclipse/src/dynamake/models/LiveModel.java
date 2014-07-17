@@ -141,12 +141,12 @@ public class LiveModel extends Model {
 	
 	public static class ContentLocator implements dynamake.models.ModelLocator {
 		@Override
-		public ModelLocation locate() {
+		public Location locate() {
 			return new FieldContentLocation();
 		}
 	}
 	
-	private static class FieldContentLocation implements ModelLocation {
+	private static class FieldContentLocation implements Location {
 		/**
 		 * 
 		 */

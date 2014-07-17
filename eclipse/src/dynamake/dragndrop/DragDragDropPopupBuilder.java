@@ -14,9 +14,9 @@ import dynamake.commands.InjectCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
+import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.ModelLocation;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
@@ -132,8 +132,8 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 					
 					@Override
 					public void createDualCommands(List<CommandState<Model>> commandStates) {
-						ModelLocation locationOfSelection = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
-						ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, target);
+						Location locationOfSelection = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
+						Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 							
 						commandStates.add(new PendingCommandState<Model>(
 							new InjectCommand(locationOfSelection, locationOfTarget),

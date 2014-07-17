@@ -1,7 +1,7 @@
 package dynamake.models;
 
 
-public class ModelRootLocation implements ModelLocation {
+public class ModelRootLocation implements Location {
 	/**
 	 * 
 	 */

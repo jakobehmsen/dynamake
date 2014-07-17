@@ -276,8 +276,8 @@ public abstract class Model implements Serializable, Observer {
 
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
-			Model observable = (Model)new CompositeModelLocation((ModelLocation)location, (ModelLocation)observableLocation).getChild(rootPrevalentSystem);
-			Model observer = (Model)new CompositeModelLocation((ModelLocation)location, (ModelLocation)observerLocation).getChild(rootPrevalentSystem);
+			Model observable = (Model)new CompositeModelLocation(location, observableLocation).getChild(rootPrevalentSystem);
+			Model observer = (Model)new CompositeModelLocation(location, observerLocation).getChild(rootPrevalentSystem);
 			
 			observable.addObserver(observer);
 //			System.out.println(observer + " now observes " + observable);
@@ -302,8 +302,8 @@ public abstract class Model implements Serializable, Observer {
 
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
-			Model observable = (Model)new CompositeModelLocation((ModelLocation)location, (ModelLocation)observableLocation).getChild(rootPrevalentSystem);
-			Model observer = (Model)new CompositeModelLocation((ModelLocation)location, (ModelLocation)observerLocation).getChild(rootPrevalentSystem);
+			Model observable = (Model)new CompositeModelLocation(location, observableLocation).getChild(rootPrevalentSystem);
+			Model observer = (Model)new CompositeModelLocation(location, observerLocation).getChild(rootPrevalentSystem);
 			
 			observable.removeObserver(observer);
 //			System.out.println(observer + " no longer observes " + observable);
@@ -759,8 +759,8 @@ public abstract class Model implements Serializable, Observer {
 						@Override
 						public void createDualCommands(List<CommandState<Model>> commandStates) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
-							ModelLocation fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
-							ModelLocation fromCCAToDropped = new CompositeModelLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
+							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
+							Location fromCCAToDropped = new CompositeModelLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
@@ -788,8 +788,8 @@ public abstract class Model implements Serializable, Observer {
 						@Override
 						public void createDualCommands(List<CommandState<Model>> commandStates) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
-							ModelLocation fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
-							ModelLocation fromCCAToDropped = new CompositeModelLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
+							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
+							Location fromCCAToDropped = new CompositeModelLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
@@ -979,8 +979,8 @@ public abstract class Model implements Serializable, Observer {
 			
 			@Override
 			public void createDualCommands(List<CommandState<Model>> commandStates) {
-				ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
-				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
+				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
+				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
 				commandStates.add(new PendingCommandState<Model>(
 					new Model.RemoveObserverCommand(observableLocation, observerLocation),
@@ -1002,8 +1002,8 @@ public abstract class Model implements Serializable, Observer {
 			
 			@Override
 			public void createDualCommands(List<CommandState<Model>> commandStates) {
-				ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
-				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
+				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
+				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
 				commandStates.add(new PendingCommandState<Model>(
 					new Model.AddObserverCommand(observableLocation, observerLocation),

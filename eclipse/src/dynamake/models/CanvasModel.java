@@ -360,7 +360,7 @@ public class CanvasModel extends Model {
 		return models.indexOf(model);
 	}
 	
-	public ModelLocation getLocationOf(Model model) {
+	public Location getLocationOf(Model model) {
 		int indexOfModel = indexOfModel(model);
 		return new IndexLocation(indexOfModel);
 	}
@@ -488,8 +488,8 @@ public class CanvasModel extends Model {
 
 							@Override
 							public void createDualCommands(List<CommandState<Model>> commandStates) {
-								ModelLocation locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
-								ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
+								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
+								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
 								CanvasModel.appendMoveTransaction2(commandStates, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 							}
@@ -524,7 +524,7 @@ public class CanvasModel extends Model {
 		CanvasModel target = (CanvasModel)parent.getModelBehind();
 		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
 		int indexOfWrapper = target.indexOfModel(modelToBeUnwrapped);
-		ModelLocation wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
+		Location wrapperLocationInTarget = new CanvasModel.IndexLocation(indexOfWrapper);
 		RectangleF creationBoundsInSelection = new RectangleF(
 			(Fraction)modelToBeUnwrapped.getProperty("X"),
 			(Fraction)modelToBeUnwrapped.getProperty("Y"),
@@ -549,13 +549,13 @@ public class CanvasModel extends Model {
 		));
 	}
 	
-	public static void appendMoveTransaction2(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, ModelLocation canvasSourceLocation, ModelLocation canvasTargetLocation) {
+	public static void appendMoveTransaction2(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation) {
 		int indexTarget = ((CanvasModel)target.getModelBehind()).getModelCount();
 		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
 		int indexSource = sourceCanvas.indexOfModel(modelToMove.getModelBehind());
 		CanvasModel targetCanvas = (CanvasModel)target.getModelBehind();
 		
-		ModelLocation canvasTargetLocationAfter;
+		Location canvasTargetLocationAfter;
 		int indexOfTargetCanvasInSource = sourceCanvas.indexOfModel(targetCanvas);
 		if(indexOfTargetCanvasInSource != -1 && indexSource < indexOfTargetCanvasInSource) {
 			// If target canvas is contained with the source canvas, then special care needs to be taken as
@@ -596,13 +596,13 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public ModelLocation locate() {
+		public Location locate() {
 			int index = canvasModel.indexOfModel(model);
 			return new IndexLocation(index);
 		}
 	}
 	
-	public static class IndexLocation implements ModelLocation {
+	public static class IndexLocation implements Location {
 		/**
 		 * 
 		 */

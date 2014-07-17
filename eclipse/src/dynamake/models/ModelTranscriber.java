@@ -35,10 +35,10 @@ public class ModelTranscriber {
 		return locator;
 	}
 	
-	public ModelLocation getModelLocation() {
+	public Location getModelLocation() {
 		if(parent != null)
-			return new CompositeModelLocation(parent.getModelLocation(), (ModelLocation)locator.locate());
-		return (ModelLocation)locator.locate();
+			return new CompositeModelLocation(parent.getModelLocation(), locator.locate());
+		return locator.locate();
 	}
 
 	public ModelTranscriber extend(final ModelLocator locator) {
@@ -60,23 +60,8 @@ public class ModelTranscriber {
 		}
 
 		@Override
-		public ModelLocation locate() {
+		public Location locate() {
 			return new CompositeModelLocation(head.locate(), tail.locate());
-		}
-	}
-	
-	public static class CompositeLocation<T> implements Location {
-		private Location head;
-		private Location tail;
-		
-		public CompositeLocation(Location head, Location tail) {
-			this.head = head;
-			this.tail = tail;
-		}
-
-		@Override
-		public Object getChild(Object holder) {
-			return tail.getChild(head.getChild(holder));
 		}
 	}
 
@@ -84,7 +69,7 @@ public class ModelTranscriber {
 		return new CompositeModelLocator(getModelLocator(), otherLocator); 
 	}
 
-	public ModelLocation extendLocation(ModelLocation otherLocation) {
+	public Location extendLocation(Location otherLocation) {
 		return new CompositeModelLocation(getModelLocation(), otherLocation);
 	}
 

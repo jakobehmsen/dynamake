@@ -1,14 +1,14 @@
 package dynamake.models;
 
-public class CompositeModelLocation implements ModelLocation {
+public class CompositeModelLocation implements Location {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ModelLocation head;
-	private ModelLocation tail;
+	private Location head;
+	private Location tail;
 	
-	public CompositeModelLocation(ModelLocation head, ModelLocation tail) {
+	public CompositeModelLocation(Location head, Location tail) {
 		this.head = head;
 		this.tail = tail;
 	}

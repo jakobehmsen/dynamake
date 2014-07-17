@@ -3,7 +3,7 @@ package dynamake.models;
 
 public class ModelRootLocator implements ModelLocator {
 	@Override
-	public ModelLocation locate() {
+	public Location locate() {
 		return new ModelRootLocation();
 	}
 }

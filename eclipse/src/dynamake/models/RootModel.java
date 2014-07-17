@@ -103,7 +103,7 @@ public class RootModel extends Model {
 		}
 	}
 	
-	private static class FieldContentLocation implements ModelLocation {
+	private static class FieldContentLocation implements Location {
 		/**
 		 * 
 		 */
@@ -225,7 +225,7 @@ public class RootModel extends Model {
 		view.getContentPane().setLayout(new BorderLayout());
 		final Binding<ModelComponent> contentView = content.createView(view, viewManager, modelTranscriber.extend(new ModelLocator() {
 			@Override
-			public ModelLocation locate() {
+			public Location locate() {
 				return new FieldContentLocation();
 			}
 		}));

@@ -19,7 +19,6 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
-import dynamake.models.ModelLocation;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
@@ -89,8 +88,8 @@ public abstract class BoundsChangeTool implements Tool {
 
 							@Override
 							public void createDualCommands(List<CommandState<Model>> commandStates) {
-								ModelLocation locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
-								ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
+								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
+								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
 								CanvasModel.appendMoveTransaction2(commandStates, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 							}

@@ -16,7 +16,6 @@ import dynamake.models.CompositeModelLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.ModelLocation;
 import dynamake.models.Primitive;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.PrimitiveSingletonFactory;
@@ -99,8 +98,8 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						
 						@Override
 						public void createDualCommands(List<CommandState<Model>> commandStates) {
-							ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
-							ModelLocation canvasModelLocation = ModelComponent.Util.locationFromAncestor(referenceMC, target);
+							Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
+							Location canvasModelLocation = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 							
 							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 							int index = canvasModel.getModelCount();

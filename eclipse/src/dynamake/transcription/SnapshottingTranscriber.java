@@ -27,7 +27,6 @@ import dynamake.commands.CommandStateFactory;
 import dynamake.delegates.Func0;
 import dynamake.models.Location;
 import dynamake.models.Model;
-import dynamake.models.ModelLocation;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 
@@ -390,10 +389,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							CommandStateFactory<T> transactionFactory = (CommandStateFactory<T>)command;
 							T reference = transactionFactory.getReference();
 							
-							ModelLocation locationFromRoot = ((Model)reference).getLocator().locate();
+							Location locationFromRoot = ((Model)reference).getLocator().locate();
 							boolean affectModelHistory = !(transactionFactory instanceof TranscribeOnlyCommandStateFactory);
 							
-							ModelLocation locationFromReference = new ModelRootLocation();
+							Location locationFromReference = new ModelRootLocation();
 							
 							ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
 							
