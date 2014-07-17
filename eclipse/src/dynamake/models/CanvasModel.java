@@ -205,7 +205,6 @@ public class CanvasModel extends Model {
 		private Location canvasSourceLocation;
 		private Location canvasTargetLocation;
 		private int indexInSource;
-		private int indexInTarget;
 
 		public MoveModelCommand2(Location canvasSourceLocation, Location canvasTargetLocation, int indexInSource) {
 			this.canvasSourceLocation = canvasSourceLocation;
@@ -221,7 +220,7 @@ public class CanvasModel extends Model {
 
 			int indexOfModel = canvasSource.indexOfModel(model);
 			canvasSource.removeModel(indexOfModel, propCtx, 0, collector);
-			canvasTarget.addModel(indexInTarget, model, propCtx, 0, collector);
+			canvasTarget.addModel(model, propCtx, 0, collector);
 			int movedToIndex = canvasTarget.indexOfModel(model);
 			
 			return new Output(canvasSourceLocation, canvasTargetLocation, movedToIndex);
@@ -634,26 +633,49 @@ public class CanvasModel extends Model {
 					public void run(Collector<Model> collector) {
 						final ModelComponent modelToMove = dropped;
 						
+//						// Reference is closest common ancestor
+//						collector.execute(new DualCommandFactory<Model>() {
+//							ModelComponent source;
+//							ModelComponent targetOver;
+//							ModelComponent referenceMC;
+//							
+//							@Override
+//							public Model getReference() {
+//								ModelComponent.Util.getParent(modelToMove);
+//								targetOver = CanvasPanel.this;
+//								referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
+//								return referenceMC.getModelBehind();
+//							}
+//
+//							@Override
+//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//								ModelLocation locationOfSource = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, source);
+//								ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, targetOver);
+//								
+//								CanvasModel.appendMoveTransaction(dualCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
+//							}
+//						});
+						
 						// Reference is closest common ancestor
-						collector.execute(new DualCommandFactory<Model>() {
+						collector.execute(new CommandStateFactory<Model>() {
 							ModelComponent source;
 							ModelComponent targetOver;
 							ModelComponent referenceMC;
 							
 							@Override
 							public Model getReference() {
-								ModelComponent.Util.getParent(modelToMove);
+								source = ModelComponent.Util.getParent(modelToMove);
 								targetOver = CanvasPanel.this;
 								referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
 								return referenceMC.getModelBehind();
 							}
 
 							@Override
-							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-								ModelLocation locationOfSource = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, source);
-								ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, targetOver);
+							public void createDualCommands(List<CommandState<Model>> commandStates) {
+								ModelLocation locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
+								ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
-								CanvasModel.appendMoveTransaction(dualCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
+								CanvasModel.appendMoveTransaction2(commandStates, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 							}
 						});
 					}
