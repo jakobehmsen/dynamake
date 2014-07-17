@@ -6,6 +6,9 @@ import java.util.List;
 
 import javax.swing.JPopupMenu;
 
+import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandState;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
 import dynamake.menubuilders.ActionRunner;
@@ -54,20 +57,38 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Appliance", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new DualCommandFactory<Model>() {
+//				collector.execute(new DualCommandFactory<Model>() {
+//					@Override
+//					public Model getReference() {
+//						return selection.getModelBehind();
+//					}
+//					
+//					@Override
+//					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
+//						if(currentView == null)
+//							currentView = Model.VIEW_APPLIANCE;
+//						dualCommands.add(new DualCommandPair<Model>(
+//							new Model.SetPropertyCommand(location, Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
+//							new Model.SetPropertyCommand(location, Model.PROPERTY_VIEW, currentView)
+//						));
+//					}
+//				});
+				
+				collector.execute(new CommandStateFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return selection.getModelBehind();
 					}
 					
 					@Override
-					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+					public void createDualCommands(List<CommandState<Model>> commandStates) {
 						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyCommand(location, Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
-							new Model.SetPropertyCommand(location, Model.PROPERTY_VIEW, currentView)
+						commandStates.add(new PendingCommandState<Model>(
+							new Model.SetPropertyCommand2(Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
+							new Model.SetPropertyCommand2(Model.PROPERTY_VIEW, currentView)
 						));
 					}
 				});
@@ -77,20 +98,38 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Engineering", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new DualCommandFactory<Model>() {
+//				collector.execute(new DualCommandFactory<Model>() {
+//					@Override
+//					public Model getReference() {
+//						return selection.getModelBehind();
+//					}
+//					
+//					@Override
+//					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
+//						if(currentView == null)
+//							currentView = Model.VIEW_APPLIANCE;
+//						dualCommands.add(new DualCommandPair<Model>(
+//							new Model.SetPropertyCommand(location, Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
+//							new Model.SetPropertyCommand(location, Model.PROPERTY_VIEW, currentView)
+//						));
+//					}
+//				});
+				
+				collector.execute(new CommandStateFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return selection.getModelBehind();
 					}
 					
 					@Override
-					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+					public void createDualCommands(List<CommandState<Model>> commandStates) {
 						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;
-						dualCommands.add(new DualCommandPair<Model>(
-							new Model.SetPropertyCommand(location, Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
-							new Model.SetPropertyCommand(location, Model.PROPERTY_VIEW, currentView)
+						commandStates.add(new PendingCommandState<Model>(
+							new Model.SetPropertyCommand2(Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
+							new Model.SetPropertyCommand2(Model.PROPERTY_VIEW, currentView)
 						));
 					}
 				});
