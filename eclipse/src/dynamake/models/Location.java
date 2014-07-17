@@ -1,5 +1,7 @@
 package dynamake.models;
 
-public interface Location {
+import java.io.Serializable;
+
+public interface Location extends Serializable {
 	Object getChild(Object holder);
 }
