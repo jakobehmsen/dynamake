@@ -249,7 +249,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector);
+			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, null);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			model.setProperty("X", new Fraction(creationBounds.x), propCtx, 0, isolatedCollector);
@@ -328,7 +328,7 @@ public class CanvasModel extends Model {
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector);
+			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			model.setProperty("X", xCreation, propCtx, 0, isolatedCollector);
@@ -364,7 +364,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector);
+			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, null);
 
 			IsolatingCollector<Model> isolatingCollector = new IsolatingCollector<>(collector);
 
@@ -395,7 +395,7 @@ public class CanvasModel extends Model {
 		@Override
 		public void executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector) {
 			CanvasModel canvas = (CanvasModel)canvasLocation.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector);
+			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, null);
 			canvas.addModel(index, model, new PropogationContext(), 0, collector);
 		}
 	}

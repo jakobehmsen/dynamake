@@ -3,6 +3,7 @@ package dynamake.models.factories;
 
 import java.awt.Rectangle;
 
+import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.Primitive;
 import dynamake.models.PropogationContext;
@@ -30,7 +31,7 @@ public class PrimitiveSingletonFactory implements Factory {
 	}
 	
 	@Override
-	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		Primitive model = new Primitive(implementationSingleton);
 		Fraction fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(new Fraction(creationBounds.height, 35));

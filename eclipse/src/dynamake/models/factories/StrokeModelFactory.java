@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
+import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.StrokeModel;
@@ -31,7 +32,7 @@ public class StrokeModelFactory implements Factory {
 	}
 
 	@Override
-	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		return new StrokeModel(creationBounds.getSize(), offset, points);
 	}
 }

@@ -990,25 +990,49 @@ public abstract class Model implements Serializable, Observer {
 				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
 
-					collector.execute(new DualCommandFactory<Model>() {
+//					collector.execute(new DualCommandFactory<Model>() {
+//						@Override
+//						public Model getReference() {
+//							return target.getModelBehind();
+//						}
+//
+//						@Override
+//						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
+//							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
+//							ModelLocation fromTargetToCCA = ModelComponent.Util.locationToAncestor((ModelLocation)location, cca, target);
+//							ModelLocation fromCCAToDropped = ModelComponent.Util.locationFromAncestor(fromTargetToCCA, cca, dropped);
+//							// Probably, the "version" of dropped to be cloned is important
+//							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
+//							Location droppedLocation = fromCCAToDropped;
+//							Factory factory = new CloneIsolatedFactory(droppedLocation);
+//							dualCommands.add(new DualCommandPair<Model>(
+//								new CanvasModel.AddModelCommand(location, creationBounds, factory),
+//								new CanvasModel.RemoveModelCommand(location, cloneIndex)
+//							));
+//						}
+//					});
+					
+					collector.execute(new CommandStateFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return target.getModelBehind();
 						}
 
 						@Override
-						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
+						public void createDualCommands(List<CommandState<Model>> commandStates) {
+//							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
-							ModelLocation fromTargetToCCA = ModelComponent.Util.locationToAncestor((ModelLocation)location, cca, target);
-							ModelLocation fromCCAToDropped = ModelComponent.Util.locationFromAncestor(fromTargetToCCA, cca, dropped);
+							ModelLocation fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
+							ModelLocation fromCCAToDropped = new CompositeModelLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
 							Factory factory = new CloneIsolatedFactory(droppedLocation);
-							dualCommands.add(new DualCommandPair<Model>(
-								new CanvasModel.AddModelCommand(location, creationBounds, factory),
-								new CanvasModel.RemoveModelCommand(location, cloneIndex)
+							commandStates.add(new PendingCommandState<Model>(
+								new CanvasModel.AddModelCommand2(creationBounds, factory),
+								new CanvasModel.RemoveModelCommand2.AfterAdd(),
+								new CanvasModel.AddModelCommand2.AfterRemove()
 							));
 						}
 					});

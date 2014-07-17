@@ -1,6 +1,7 @@
 package dynamake.models.factories;
 
 
+import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
@@ -23,7 +24,7 @@ public class AsIsFactory implements Factory {
 	}
 
 	@Override
-	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		return model;
 	}
 }
