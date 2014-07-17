@@ -912,18 +912,34 @@ public abstract class Model implements Serializable, Observer {
 				return new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new DualCommandFactory<Model>() {
+//						collector.execute(new DualCommandFactory<Model>() {
+//							@Override
+//							public Model getReference() {
+//								return model;
+//							}
+//
+//							@Override
+//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//								Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
+//								dualCommands.add(new DualCommandPair<Model>(
+//									new Model.SetPropertyCommand(location, PROPERTY_COLOR, color),
+//									new Model.SetPropertyCommand(location, PROPERTY_COLOR, currentColor)
+//								));
+//							}
+//						});
+						
+						collector.execute(new CommandStateFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return model;
 							}
 
 							@Override
-							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-								Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
-								dualCommands.add(new DualCommandPair<Model>(
-									new Model.SetPropertyCommand(location, PROPERTY_COLOR, color),
-									new Model.SetPropertyCommand(location, PROPERTY_COLOR, currentColor)
+							public void createDualCommands(List<CommandState<Model>> dualCommands) {
+//								Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
+								dualCommands.add(new PendingCommandState<Model>(
+									new Model.SetPropertyCommand2(PROPERTY_COLOR, color),
+									new Model.SetPropertyCommand2.AfterSetProperty()
 								));
 							}
 						});
