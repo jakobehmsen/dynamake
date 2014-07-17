@@ -387,32 +387,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								}
 								break;
 							}
-						} else if(command instanceof DualCommandFactory) {
-							DualCommandFactory<T> transactionFactory = (DualCommandFactory<T>)command;
-							T reference = transactionFactory.getReference();
-							boolean affectModelHistory = !(transactionFactory instanceof TranscribeOnlyDualCommandFactory);
-							
-							ModelLocation locationFromRoot = ((Model)reference).getLocator().locate();
-							
-							if(affectModelHistory) {
-								System.out.println("Affect model history");
-								ModelLocation locationFromReference = new ModelRootLocation();
-								
-								ArrayList<DualCommand<T>> commandsFromRoot = new ArrayList<DualCommand<T>>();
-								ArrayList<DualCommand<T>> commandsFromReference = new ArrayList<DualCommand<T>>();
-								
-								transactionFactory.createDualCommands(locationFromRoot, commandsFromRoot);
-								transactionFactory.createDualCommands(locationFromReference, commandsFromReference);
-								
-								for(DualCommand<T> dualCommandFromReference: commandsFromReference)
-									dualCommandFromReference.executeForwardOn(propCtx, reference, null, collector);
-							} else {
-								System.out.println("Don't affect model history");
-								// Used when no transactions are to be logged on any models
-								// E.g. when performing undo/redo
-								ArrayList<DualCommand<T>> dualCommands = new ArrayList<DualCommand<T>>();
-								transactionFactory.createDualCommands(locationFromRoot, dualCommands);
-							}
 						} else if(command instanceof CommandStateFactory) {
 							CommandStateFactory<T> transactionFactory = (CommandStateFactory<T>)command;
 							T reference = transactionFactory.getReference();
