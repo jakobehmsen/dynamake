@@ -6,9 +6,13 @@ import java.util.List;
 
 import javax.swing.JPopupMenu;
 
+import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
 import dynamake.commands.DualCommand;
 import dynamake.commands.DualCommandPair;
+import dynamake.commands.PendingCommandState;
 import dynamake.commands.TellPropertyCommand;
+import dynamake.commands.TellPropertyCommand2;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Location;
@@ -55,17 +59,32 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Tell Color", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new DualCommandFactory<Model>() {
+//				collector.execute(new DualCommandFactory<Model>() {
+//					@Override
+//					public Model getReference() {
+//						return selection.getModelBehind();
+//					}
+//					
+//					@Override
+//					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//						dualCommands.add(new DualCommandPair<Model>(
+//							new TellPropertyCommand(location, Model.PROPERTY_COLOR),
+//							new TellPropertyCommand(location, Model.PROPERTY_COLOR)
+//						));
+//					}
+//				});
+				
+				collector.execute(new CommandStateFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return selection.getModelBehind();
 					}
 					
 					@Override
-					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-						dualCommands.add(new DualCommandPair<Model>(
-							new TellPropertyCommand(location, Model.PROPERTY_COLOR),
-							new TellPropertyCommand(location, Model.PROPERTY_COLOR)
+					public void createDualCommands(List<CommandState<Model>> commandStates) {
+						commandStates.add(new PendingCommandState<Model>(
+							new TellPropertyCommand2(Model.PROPERTY_COLOR),
+							new TellPropertyCommand2(Model.PROPERTY_COLOR)
 						));
 					}
 				});
