@@ -28,7 +28,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
-import dynamake.commands.Command2;
+import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
@@ -96,7 +96,7 @@ public class LiveModel extends Model {
 		sendChanged(new ButtonsToolBindingChanged(buttons, tool), propCtx, propDistance, 0, collector);
 	}
 	
-	public static class BindButtonsToToolCommand2 implements Command2<Model> {
+	public static class BindButtonsToToolCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -104,7 +104,7 @@ public class LiveModel extends Model {
 		private List<Integer> buttons;
 		private int tool;
 
-		public BindButtonsToToolCommand2(List<Integer> buttons, int tool) {
+		public BindButtonsToToolCommand(List<Integer> buttons, int tool) {
 			this.buttons = buttons;
 			this.tool = tool;
 		}
@@ -118,7 +118,7 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	public static class RemoveButtonsToToolBindingCommand2 implements Command2<Model> {
+	public static class RemoveButtonsToToolBindingCommand2 implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -323,7 +323,7 @@ public class LiveModel extends Model {
 											// the current binding
 											commandStates.add(new PendingCommandState<Model>(
 												new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool),
-												new BindButtonsToToolCommand2(localButtonsPressed, ToolButton.this.tool)
+												new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool)
 											));
 										} else {
 											int previousToolForNewButton = ToolButton.this.liveModel.getToolForButtons(localButtonsPressed);
@@ -332,7 +332,7 @@ public class LiveModel extends Model {
 												// If the new buttons are associated to another tool, then remove that binding
 												commandStates.add(new PendingCommandState<Model>(
 													new RemoveButtonsToToolBindingCommand2(localButtonsPressed, previousToolForNewButton), 
-													new BindButtonsToToolCommand2(localButtonsPressed, previousToolForNewButton))
+													new BindButtonsToToolCommand(localButtonsPressed, previousToolForNewButton))
 												);
 											}
 											
@@ -340,17 +340,17 @@ public class LiveModel extends Model {
 												// If this tool is associated to buttons, then remove that binding before
 												commandStates.add(new PendingCommandState<Model>(
 													new RemoveButtonsToToolBindingCommand2(currentButtons, ToolButton.this.tool), 
-													new BindButtonsToToolCommand2(currentButtons, ToolButton.this.tool))
+													new BindButtonsToToolCommand(currentButtons, ToolButton.this.tool))
 												);
 												
 												// adding the replacement binding
 												commandStates.add(new PendingCommandState<Model>(
-													new BindButtonsToToolCommand2(localButtonsPressed, ToolButton.this.tool), 
+													new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
 													new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool))
 												);
 											} else {
 												commandStates.add(new PendingCommandState<Model>(
-													new BindButtonsToToolCommand2(localButtonsPressed, ToolButton.this.tool), 
+													new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
 													new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool)
 												));
 											}

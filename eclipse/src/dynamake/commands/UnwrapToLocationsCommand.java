@@ -11,17 +11,17 @@ import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 
-public class UnwrapToLocationsCommand2 implements Command2<Model> {
-	public static class AfterWrap implements Command2Factory<Model> {
+public class UnwrapToLocationsCommand implements Command<Model> {
+	public static class AfterWrap implements CommandFactory<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Command2<Model> createCommand(Object output) {
-			WrapCommand2.Output wrapOutput = (WrapCommand2.Output)output;
-			return new UnwrapToLocationsCommand2(wrapOutput.wrapperLocationInTarget, wrapOutput.creationBounds);
+		public Command<Model> createCommand(Object output) {
+			WrapCommand.Output wrapOutput = (WrapCommand.Output)output;
+			return new UnwrapToLocationsCommand(wrapOutput.wrapperLocationInTarget, wrapOutput.creationBounds);
 		}
 	}
 	
@@ -46,7 +46,7 @@ public class UnwrapToLocationsCommand2 implements Command2<Model> {
 	private Location wrapperLocationInTarget;
 	private RectangleF creationBounds;
 	
-	public UnwrapToLocationsCommand2(Location wrapperLocationInTarget, RectangleF creationBounds) {
+	public UnwrapToLocationsCommand(Location wrapperLocationInTarget, RectangleF creationBounds) {
 		this.wrapperLocationInTarget = wrapperLocationInTarget;
 		this.creationBounds = creationBounds;
 	}

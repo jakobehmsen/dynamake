@@ -36,8 +36,8 @@ public class RedoTool implements Tool {
 			public void createDualCommands(List<CommandState<Model>> commandStates) {
 				commandStates.add(
 					new PendingCommandState<Model>(
-						new Model.RedoCommand2(false),
-						new Model.UndoCommand2(false)
+						new Model.RedoCommand(false),
+						new Model.UndoCommand(false)
 					)
 				);
 			}

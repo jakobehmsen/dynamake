@@ -7,7 +7,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class TellPropertyCommand2 implements Command2<Model> {
+public class TellPropertyCommand implements Command<Model> {
 	/**
 	 * 
 	 */
@@ -15,7 +15,7 @@ public class TellPropertyCommand2 implements Command2<Model> {
 	
 	private String propertyName;
 	
-	public TellPropertyCommand2(String propertyName) {
+	public TellPropertyCommand(String propertyName) {
 		this.propertyName = propertyName;
 	}
 

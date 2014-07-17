@@ -9,17 +9,17 @@ import dynamake.models.PropogationContext;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.Collector;
 
-public class ScaleCommand2 implements Command2<Model> {
-	public static class AfterScale implements Command2Factory<Model> {
+public class ScaleCommand implements Command<Model> {
+	public static class AfterScale implements CommandFactory<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Command2<Model> createCommand(Object output) {
-			ScaleCommand2.Output resizeOutput = (ScaleCommand2.Output)output;
-			return new ScaleCommand2(
+		public Command<Model> createCommand(Object output) {
+			ScaleCommand.Output resizeOutput = (ScaleCommand.Output)output;
+			return new ScaleCommand(
 				resizeOutput.xDelta.multiply(new Fraction(-1)), 
 				resizeOutput.yDelta.multiply(new Fraction(-1)), 
 				resizeOutput.hChange.multiply(new Fraction(-1)), 
@@ -57,7 +57,7 @@ public class ScaleCommand2 implements Command2<Model> {
 	private Fraction hChange; 
 	private Fraction vChange;
 
-	public ScaleCommand2(Fraction xDelta, Fraction yDelta, Fraction hChange, Fraction vChange) {
+	public ScaleCommand(Fraction xDelta, Fraction yDelta, Fraction hChange, Fraction vChange) {
 		this.xDelta = xDelta;
 		this.yDelta = yDelta;
 		this.hChange = hChange;

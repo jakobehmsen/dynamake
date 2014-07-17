@@ -13,8 +13,8 @@ import javax.swing.SwingUtilities;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.UnwrapToLocationsCommand2;
-import dynamake.commands.WrapCommand2;
+import dynamake.commands.UnwrapToLocationsCommand;
+import dynamake.commands.WrapCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -79,9 +79,9 @@ public class PlotTool implements Tool {
 							}
 							
 							commandStates.add(new PendingCommandState<Model>(
-								new WrapCommand2(new RectangleF(creationBoundsInSelection), modelLocations), 
-								new UnwrapToLocationsCommand2.AfterWrap(),
-								new WrapCommand2.AfterUnwrap()
+								new WrapCommand(new RectangleF(creationBoundsInSelection), modelLocations), 
+								new UnwrapToLocationsCommand.AfterWrap(),
+								new WrapCommand.AfterUnwrap()
 							));
 						}
 					});
@@ -96,9 +96,9 @@ public class PlotTool implements Tool {
 						public void createDualCommands(List<CommandState<Model>> commandStates) {
 							Factory factory = new CanvasModelFactory();
 							commandStates.add(new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand2(creationBoundsInSelection, factory),
-								new CanvasModel.RemoveModelCommand2.AfterAdd(),
-								new CanvasModel.AddModelCommand2.AfterRemove()
+								new CanvasModel.AddModelCommand(creationBoundsInSelection, factory),
+								new CanvasModel.RemoveModelCommand.AfterAdd(),
+								new CanvasModel.AddModelCommand.AfterRemove()
 							));
 						}
 					});

@@ -5,7 +5,7 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.ScaleCommand2;
+import dynamake.commands.ScaleCommand;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.numbers.Fraction;
@@ -35,8 +35,8 @@ public class ScaleTool extends BoundsChangeTool {
 		Fraction vChangeBackward = currentHeight.divide(new Fraction(newBounds.height));
 		
 		commandStates.add(new PendingCommandState<Model>(
-			new ScaleCommand2(xDeltaForward, yDeltaForward, hChangeForward, vChangeForward), 
-			new ScaleCommand2(xDeltaBackward, yDeltaBackward, hChangeBackward, vChangeBackward)
+			new ScaleCommand(xDeltaForward, yDeltaForward, hChangeForward, vChangeForward), 
+			new ScaleCommand(xDeltaBackward, yDeltaBackward, hChangeBackward, vChangeBackward)
 		));
 	}
 }

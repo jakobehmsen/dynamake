@@ -9,23 +9,23 @@ import dynamake.models.ModelLocation;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class RelativeCommand<T> implements Command2<T> {
-	public static class Factory<T> implements Command2Factory<T> {
+public class RelativeCommand<T> implements Command<T> {
+	public static class Factory<T> implements CommandFactory<T> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private Command2Factory<T> commandFactory;
+		private CommandFactory<T> commandFactory;
 
-		public Factory(Command2Factory<T> commandFactory) {
+		public Factory(CommandFactory<T> commandFactory) {
 			this.commandFactory = commandFactory;
 		}
 
 		@Override
-		public Command2<T> createCommand(Object output) {
+		public Command<T> createCommand(Object output) {
 			RelativeCommand.Output relCmdOutput = (RelativeCommand.Output)output;
-			Command2<T> command = commandFactory.createCommand(relCmdOutput.commandOutput);
+			Command<T> command = commandFactory.createCommand(relCmdOutput.commandOutput);
 			return new RelativeCommand<T>(relCmdOutput.tail, command);
 		}
 	}
@@ -49,9 +49,9 @@ public class RelativeCommand<T> implements Command2<T> {
 	 */
 	private static final long serialVersionUID = 1L;
 	private Location tail;
-	private Command2<T> command;
+	private Command<T> command;
 
-	public RelativeCommand(Location tail, Command2<T> command) {
+	public RelativeCommand(Location tail, Command<T> command) {
 		this.tail = tail;
 		this.command = command;
 	}

@@ -5,7 +5,7 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.ResizeCommand2;
+import dynamake.commands.ResizeCommand;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.numbers.Fraction;
@@ -32,8 +32,8 @@ public class EditTool extends BoundsChangeTool {
 		Fraction heightDeltaForward = new Fraction(newBounds.height).subtract(currentHeight);
 		
 		commandStates.add(new PendingCommandState<Model>(
-			new ResizeCommand2(xDeltaForward, yDeltaForward, widthDeltaForward, heightDeltaForward),
-			new ResizeCommand2.AfterResize()
+			new ResizeCommand(xDeltaForward, yDeltaForward, widthDeltaForward, heightDeltaForward),
+			new ResizeCommand.AfterResize()
 		));
 	}
 }

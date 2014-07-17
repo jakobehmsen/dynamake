@@ -21,8 +21,8 @@ import java.util.Stack;
 
 import javax.swing.JComponent;
 
-import dynamake.commands.Command2;
-import dynamake.commands.Command2Factory;
+import dynamake.commands.Command;
+import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
@@ -91,17 +91,17 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class SetPropertyCommand2 implements Command2<Model> {
-		public static class AfterSetProperty implements Command2Factory<Model> {
+	public static class SetPropertyCommand implements Command<Model> {
+		public static class AfterSetProperty implements CommandFactory<Model> {
 			/**
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public Command2<Model> createCommand(Object output) {
-				SetPropertyCommand2.Output setPropertyOutput = (SetPropertyCommand2.Output)output;
-				return new SetPropertyCommand2(setPropertyOutput.name, setPropertyOutput.previousValue);
+			public Command<Model> createCommand(Object output) {
+				SetPropertyCommand.Output setPropertyOutput = (SetPropertyCommand.Output)output;
+				return new SetPropertyCommand(setPropertyOutput.name, setPropertyOutput.previousValue);
 			}
 		}
 		
@@ -127,7 +127,7 @@ public abstract class Model implements Serializable, Observer {
 		private String name;
 		private Object value;
 		
-		public SetPropertyCommand2(String name, Object value) {
+		public SetPropertyCommand(String name, Object value) {
 			this.name = name;
 			this.value = value;
 		}
@@ -142,14 +142,14 @@ public abstract class Model implements Serializable, Observer {
 			return new Output(name, previousValue);
 		}
 	}
-	public static class UndoCommand2 implements Command2<Model> {
+	public static class UndoCommand implements Command<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		private boolean isolate;
 
-		public UndoCommand2(boolean isolate) {
+		public UndoCommand(boolean isolate) {
 			this.isolate = isolate;
 		}
 
@@ -166,14 +166,14 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class RedoCommand2 implements Command2<Model> {
-		/**
+	public static class RedoCommand implements Command<Model> {
+		/*
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		private boolean isolate;
 
-		public RedoCommand2(boolean isolate) {
+		public RedoCommand(boolean isolate) {
 			this.isolate = isolate;
 		}
 
@@ -261,7 +261,7 @@ public abstract class Model implements Serializable, Observer {
 		return new RectangleF(x, y, width, height);
 	}
 
-	public static class AddObserverCommand2 implements Command2<Model> {
+	public static class AddObserverCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -269,7 +269,7 @@ public abstract class Model implements Serializable, Observer {
 		private Location observableLocation;
 		private Location observerLocation;
 		
-		public AddObserverCommand2(Location observableLocation, Location observerLocation) {
+		public AddObserverCommand(Location observableLocation, Location observerLocation) {
 			this.observableLocation = observableLocation;
 			this.observerLocation = observerLocation;
 		}
@@ -290,7 +290,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 
-	public static class RemoveObserverCommand2 implements Command2<Model> {
+	public static class RemoveObserverCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -298,7 +298,7 @@ public abstract class Model implements Serializable, Observer {
 		private Location observableLocation;
 		private Location observerLocation;
 		
-		public RemoveObserverCommand2(Location observableLocation, Location observerLocation) {
+		public RemoveObserverCommand(Location observableLocation, Location observerLocation) {
 			this.observableLocation = observableLocation;
 			this.observerLocation = observerLocation;
 		}
@@ -353,8 +353,8 @@ public abstract class Model implements Serializable, Observer {
 //					Object currentValue = getProperty(setProperty.name);
 					
 					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyCommand2(setProperty.name, setProperty.value),
-						new SetPropertyCommand2.AfterSetProperty()
+						new SetPropertyCommand(setProperty.name, setProperty.value),
+						new SetPropertyCommand.AfterSetProperty()
 					));
 				}
 			});
@@ -566,7 +566,7 @@ public abstract class Model implements Serializable, Observer {
 		});
 	}
 	
-	private static class MouseUpCommand implements Command2<Model> {
+	private static class MouseUpCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -581,7 +581,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	private static class MouseDownCommand implements Command2<Model> {
+	private static class MouseDownCommand implements Command<Model> {
 		/**
 		 * 
 		 */
@@ -635,7 +635,7 @@ public abstract class Model implements Serializable, Observer {
 							public void createDualCommands(List<CommandState<Model>> commandStates) {
 								commandStates.add(new PendingCommandState<Model>(
 									new MouseUpCommand(), 
-									new Command2.Null<Model>()
+									new Command.Null<Model>()
 								));
 							}
 						});
@@ -681,7 +681,7 @@ public abstract class Model implements Serializable, Observer {
 							public void createDualCommands(List<CommandState<Model>> commandStates) {
 								commandStates.add(new PendingCommandState<Model>(
 									new MouseDownCommand(), 
-									new Command2.Null<Model>()
+									new Command.Null<Model>()
 								));
 							}
 						});
@@ -797,8 +797,8 @@ public abstract class Model implements Serializable, Observer {
 							public void createDualCommands(List<CommandState<Model>> dualCommands) {
 //								Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
 								dualCommands.add(new PendingCommandState<Model>(
-									new Model.SetPropertyCommand2(PROPERTY_COLOR, color),
-									new Model.SetPropertyCommand2.AfterSetProperty()
+									new Model.SetPropertyCommand(PROPERTY_COLOR, color),
+									new Model.SetPropertyCommand.AfterSetProperty()
 								));
 							}
 						});
@@ -872,9 +872,9 @@ public abstract class Model implements Serializable, Observer {
 							Location droppedLocation = fromCCAToDropped;
 							Factory factory = new CloneIsolatedFactory(droppedLocation);
 							commandStates.add(new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand2(creationBounds, factory),
-								new CanvasModel.RemoveModelCommand2.AfterAdd(),
-								new CanvasModel.AddModelCommand2.AfterRemove()
+								new CanvasModel.AddModelCommand(creationBounds, factory),
+								new CanvasModel.RemoveModelCommand.AfterAdd(),
+								new CanvasModel.AddModelCommand.AfterRemove()
 							));
 						}
 					});
@@ -925,9 +925,9 @@ public abstract class Model implements Serializable, Observer {
 							Location droppedLocation = fromCCAToDropped;
 							Factory factory = new CloneDeepFactory(droppedLocation);
 							commandStates.add(new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand2(creationBounds, factory),
-								new CanvasModel.RemoveModelCommand2.AfterAdd(),
-								new CanvasModel.AddModelCommand2.AfterRemove()
+								new CanvasModel.AddModelCommand(creationBounds, factory),
+								new CanvasModel.RemoveModelCommand.AfterAdd(),
+								new CanvasModel.AddModelCommand.AfterRemove()
 							));
 						}
 					});
@@ -1134,8 +1134,8 @@ public abstract class Model implements Serializable, Observer {
 				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
 				commandStates.add(new PendingCommandState<Model>(
-					new Model.RemoveObserverCommand2(observableLocation, observerLocation),
-					new Model.AddObserverCommand2(observableLocation, observerLocation)
+					new Model.RemoveObserverCommand(observableLocation, observerLocation),
+					new Model.AddObserverCommand(observableLocation, observerLocation)
 				));
 			}
 		});
@@ -1178,8 +1178,8 @@ public abstract class Model implements Serializable, Observer {
 				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
 				commandStates.add(new PendingCommandState<Model>(
-					new Model.AddObserverCommand2(observableLocation, observerLocation),
-					new Model.RemoveObserverCommand2(observableLocation, observerLocation)
+					new Model.AddObserverCommand(observableLocation, observerLocation),
+					new Model.RemoveObserverCommand(observableLocation, observerLocation)
 				));
 			}
 		});

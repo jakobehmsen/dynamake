@@ -18,7 +18,7 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.ModelLocation;
 import dynamake.models.Primitive;
-import dynamake.models.CanvasModel.AddModelCommand2.AfterRemove;
+import dynamake.models.CanvasModel.AddModelCommand.AfterRemove;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.PrimitiveSingletonFactory;
 import dynamake.tools.InteractionPresenter;
@@ -151,15 +151,15 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							
 							// Add
 							commandStates.add(new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand2(dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)), 
-								new CanvasModel.RemoveModelCommand2.AfterAdd(),
-								new CanvasModel.AddModelCommand2.AfterRemove()
+								new CanvasModel.AddModelCommand(dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)), 
+								new CanvasModel.RemoveModelCommand.AfterAdd(),
+								new CanvasModel.AddModelCommand.AfterRemove()
 							));
 
 							// Bind
 							commandStates.add(new PendingCommandState<Model>(
-								new Model.AddObserverCommand2(observableLocation, addedPrimitiveLocation),
-								new Model.RemoveObserverCommand2(observableLocation, addedPrimitiveLocation)
+								new Model.AddObserverCommand(observableLocation, addedPrimitiveLocation),
+								new Model.RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
 							));
 						}
 					});

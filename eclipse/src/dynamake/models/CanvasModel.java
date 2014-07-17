@@ -17,15 +17,15 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 
 import dynamake.caching.Memoizer1;
-import dynamake.commands.Command2;
-import dynamake.commands.Command2Factory;
+import dynamake.commands.Command;
+import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
-import dynamake.commands.UnwrapCommand2;
-import dynamake.commands.UnwrapToLocationsCommand2;
-import dynamake.commands.WrapCommand2;
+import dynamake.commands.UnwrapCommand;
+import dynamake.commands.UnwrapToLocationsCommand;
+import dynamake.commands.WrapCommand;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
@@ -130,17 +130,17 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class MoveModelCommand2 implements Command2<Model> {
-		public static class AfterMove implements Command2Factory<Model> {
+	public static class MoveModelCommand implements Command<Model> {
+		public static class AfterMove implements CommandFactory<Model> {
 			/**
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public Command2<Model> createCommand(Object output) {
-				MoveModelCommand2.Output moveOutput = (MoveModelCommand2.Output)output;
-				return new MoveModelCommand2(moveOutput.canvasTargetLocation, moveOutput.canvasSourceLocation, moveOutput.movedToIndex);
+			public Command<Model> createCommand(Object output) {
+				MoveModelCommand.Output moveOutput = (MoveModelCommand.Output)output;
+				return new MoveModelCommand(moveOutput.canvasTargetLocation, moveOutput.canvasSourceLocation, moveOutput.movedToIndex);
 			}
 		}
 		
@@ -169,7 +169,7 @@ public class CanvasModel extends Model {
 		private Location canvasTargetLocation;
 		private int indexInSource;
 
-		public MoveModelCommand2(Location canvasSourceLocation, Location canvasTargetLocation, int indexInSource) {
+		public MoveModelCommand(Location canvasSourceLocation, Location canvasTargetLocation, int indexInSource) {
 			this.canvasSourceLocation = canvasSourceLocation;
 			this.canvasTargetLocation = canvasTargetLocation;
 			this.indexInSource = indexInSource;
@@ -190,7 +190,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class AddModelCommand2 implements Command2<Model> {
+	public static class AddModelCommand implements Command<Model> {
 		public static class Output implements Serializable {
 			/**
 			 * 
@@ -203,7 +203,7 @@ public class CanvasModel extends Model {
 			}
 		}
 		
-		public static final class AfterRemove implements Command2Factory<Model>  
+		public static final class AfterRemove implements CommandFactory<Model>  
 		{
 			/**
 			 * 
@@ -211,8 +211,8 @@ public class CanvasModel extends Model {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public Command2<Model> createCommand(Object output) {
-				Model model = ((RemoveModelCommand2.Output)output).model;
+			public Command<Model> createCommand(Object output) {
+				Model model = ((RemoveModelCommand.Output)output).model;
 				// TODO: Consider the following:
 				// What if the model what observing/being observed before its removal?
 				// What if the model's observers/observees aren't all in existence anymore?
@@ -224,7 +224,7 @@ public class CanvasModel extends Model {
 				Fraction width = (Fraction)model.getProperty("Width");
 				Fraction height = (Fraction)model.getProperty("Height");
 				
-				return new CanvasModel.AddModelCommand2(x, y, width, height, new AsIsFactory(model));
+				return new CanvasModel.AddModelCommand(x, y, width, height, new AsIsFactory(model));
 			}
 		}
 		
@@ -238,7 +238,7 @@ public class CanvasModel extends Model {
 		private Fraction heightCreation;
 		private Factory factory;
 		
-		public AddModelCommand2(Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, Factory factory) {
+		public AddModelCommand(Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, Factory factory) {
 			this.xCreation = xCreation;
 			this.yCreation = yCreation;
 			this.widthCreation = widthCreation;
@@ -246,7 +246,7 @@ public class CanvasModel extends Model {
 			this.factory = factory;
 		}
 		
-		public AddModelCommand2(Rectangle creationBounds, Factory factory) {
+		public AddModelCommand(Rectangle creationBounds, Factory factory) {
 			this.xCreation = new Fraction(creationBounds.x);
 			this.yCreation = new Fraction(creationBounds.y);
 			this.widthCreation = new Fraction(creationBounds.width);
@@ -273,7 +273,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class RemoveModelCommand2 implements Command2<Model> {
+	public static class RemoveModelCommand implements Command<Model> {
 		public static class Output implements Serializable {
 			/**
 			 * 
@@ -289,7 +289,7 @@ public class CanvasModel extends Model {
 			}
 		}
 		
-		public static final class AfterAdd implements Command2Factory<Model>  
+		public static final class AfterAdd implements CommandFactory<Model>  
 		{
 			/**
 			 * 
@@ -297,8 +297,8 @@ public class CanvasModel extends Model {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public Command2<Model> createCommand(Object output) {
-				return new CanvasModel.RemoveModelCommand2(((CanvasModel.AddModelCommand2.Output)output).index);
+			public Command<Model> createCommand(Object output) {
+				return new CanvasModel.RemoveModelCommand(((CanvasModel.AddModelCommand.Output)output).index);
 			}
 		}
 		
@@ -308,7 +308,7 @@ public class CanvasModel extends Model {
 		private static final long serialVersionUID = 1L;
 		private int index;
 		
-		public RemoveModelCommand2(int index) {
+		public RemoveModelCommand(int index) {
 			if(index < 0)
 				new String();
 			this.index = index;
@@ -611,9 +611,9 @@ public class CanvasModel extends Model {
 //		));
 		
 		commandStates.add(new PendingCommandState<Model>(
-			new UnwrapCommand2(wrapperLocationInTarget, creationBoundsInSelection),
-			new WrapCommand2.AfterUnwrap(),
-			new UnwrapCommand2.AfterWrap()
+			new UnwrapCommand(wrapperLocationInTarget, creationBoundsInSelection),
+			new WrapCommand.AfterUnwrap(),
+			new UnwrapCommand.AfterWrap()
 		));
 		
 //		commandStates.add(new PendingCommandState<Model>(
@@ -629,9 +629,9 @@ public class CanvasModel extends Model {
 		int indexOfModel = model.indexOfModel(child.getModelBehind());
 		
 		commandStates.add(new PendingCommandState<Model>(
-			new RemoveModelCommand2(indexOfModel),
-			new AddModelCommand2.AfterRemove(),
-			new RemoveModelCommand2.AfterAdd()
+			new RemoveModelCommand(indexOfModel),
+			new AddModelCommand.AfterRemove(),
+			new RemoveModelCommand.AfterAdd()
 		));
 	}
 	
@@ -656,19 +656,19 @@ public class CanvasModel extends Model {
 		Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
 		
 		commandStates.add(new PendingCommandState<Model>(
-			new CanvasModel.MoveModelCommand2(canvasSourceLocation, canvasTargetLocation, indexSource), 
-			new CanvasModel.MoveModelCommand2.AfterMove(),
-			new CanvasModel.MoveModelCommand2.AfterMove()
+			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, indexSource), 
+			new CanvasModel.MoveModelCommand.AfterMove(),
+			new CanvasModel.MoveModelCommand.AfterMove()
 		));
 		
 		commandStates.add(new PendingCommandState<Model>(
-			new RelativeCommand<Model>(modelLocationAfterMove, new Model.SetPropertyCommand2("X", new Fraction(moveLocation.x))),
-			new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand2.AfterSetProperty())
+			new RelativeCommand<Model>(modelLocationAfterMove, new Model.SetPropertyCommand("X", new Fraction(moveLocation.x))),
+			new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand.AfterSetProperty())
 		));
 		
 		commandStates.add(new PendingCommandState<Model>(
-			new RelativeCommand<Model>(modelLocationAfterMove, new Model.SetPropertyCommand2("Y", new Fraction(moveLocation.y))),
-			new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand2.AfterSetProperty())
+			new RelativeCommand<Model>(modelLocationAfterMove, new Model.SetPropertyCommand("Y", new Fraction(moveLocation.y))),
+			new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand.AfterSetProperty())
 		));
 	}
 	

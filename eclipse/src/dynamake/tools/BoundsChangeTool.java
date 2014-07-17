@@ -110,13 +110,13 @@ public abstract class BoundsChangeTool implements Tool {
 								Location locationOfMovedModel = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
 
 								commandStates.add(new PendingCommandState<Model>(
-									new RelativeCommand<Model>(locationOfMovedModel, new Model.SetPropertyCommand2("X", new Fraction(droppedBounds.x))),
-									new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand2.AfterSetProperty())
+									new RelativeCommand<Model>(locationOfMovedModel, new Model.SetPropertyCommand("X", new Fraction(droppedBounds.x))),
+									new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand.AfterSetProperty())
 								));
 								
 								commandStates.add(new PendingCommandState<Model>(
-									new RelativeCommand<Model>(locationOfMovedModel, new Model.SetPropertyCommand2("Y", new Fraction(droppedBounds.y))),
-									new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand2.AfterSetProperty())
+									new RelativeCommand<Model>(locationOfMovedModel, new Model.SetPropertyCommand("Y", new Fraction(droppedBounds.y))),
+									new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand.AfterSetProperty())
 								));
 							}
 						});

@@ -198,23 +198,23 @@ public class RootModel extends Model {
 							public void createDualCommands(List<CommandState<Model>> commandStates) {
 								if(newLocation != null) {
 									commandStates.add(new PendingCommandState<Model>(
-										new Model.SetPropertyCommand2("X", newLocation.x),
-										new Model.SetPropertyCommand2.AfterSetProperty()
+										new Model.SetPropertyCommand("X", newLocation.x),
+										new Model.SetPropertyCommand.AfterSetProperty()
 									));
 									commandStates.add(new PendingCommandState<Model>(
-										new Model.SetPropertyCommand2("Y", newLocation.y),
-										new Model.SetPropertyCommand2.AfterSetProperty()
+										new Model.SetPropertyCommand("Y", newLocation.y),
+										new Model.SetPropertyCommand.AfterSetProperty()
 									));
 								}
 								
 								if(newSize != null) {
 									commandStates.add(new PendingCommandState<Model>(
-										new Model.SetPropertyCommand2("Width", newSize.width),
-										new Model.SetPropertyCommand2.AfterSetProperty()
+										new Model.SetPropertyCommand("Width", newSize.width),
+										new Model.SetPropertyCommand.AfterSetProperty()
 									));
 									commandStates.add(new PendingCommandState<Model>(
-										new Model.SetPropertyCommand2("Height", newSize.height),
-										new Model.SetPropertyCommand2.AfterSetProperty()
+										new Model.SetPropertyCommand("Height", newSize.height),
+										new Model.SetPropertyCommand.AfterSetProperty()
 									));
 								}
 							}
@@ -317,8 +317,8 @@ public class RootModel extends Model {
 							public void createDualCommands(List<CommandState<Model>> commandStates) {
 //								Integer currentState = (Integer)RootModel.this.getProperty("State");
 								commandStates.add(new PendingCommandState<Model>(
-									new Model.SetPropertyCommand2("State", newState),
-									new Model.SetPropertyCommand2.AfterSetProperty()
+									new Model.SetPropertyCommand("State", newState),
+									new Model.SetPropertyCommand.AfterSetProperty()
 								));
 							}
 						});

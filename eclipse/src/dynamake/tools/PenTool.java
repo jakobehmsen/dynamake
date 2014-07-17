@@ -82,9 +82,9 @@ public class PenTool implements Tool {
 				Factory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation, creationBoundsInContainer);
 				
 				commandStates.add(new PendingCommandState<Model>(
-					new CanvasModel.AddModelCommand2(creationBoundsInContainer, factory),
-					new CanvasModel.RemoveModelCommand2.AfterAdd(),
-					new CanvasModel.AddModelCommand2.AfterRemove()
+					new CanvasModel.AddModelCommand(creationBoundsInContainer, factory),
+					new CanvasModel.RemoveModelCommand.AfterAdd(),
+					new CanvasModel.AddModelCommand.AfterRemove()
 				));
 			}
 		});
