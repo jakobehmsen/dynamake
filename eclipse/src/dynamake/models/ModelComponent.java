@@ -92,7 +92,7 @@ public interface ModelComponent {
 			
 			for(int i = 1; i < ancestorsClosestToFarthest.size(); i++) {
 				ModelComponent currentAncestor = ancestorsClosestToFarthest.get(i - 1);
-				location = new CompositeModelLocation(
+				location = new CompositeLocation(
 					((CanvasModel)ancestorsClosestToFarthest.get(i).getModelBehind()).getLocationOf(currentAncestor.getModelBehind()),
 					location
 				);
@@ -119,7 +119,7 @@ public interface ModelComponent {
 			
 			for(int i = 1; i < ancestorsClosestToFarthest.size(); i++) {
 				ModelComponent currentAncestor = ancestorsClosestToFarthest.get(i - 1);
-				location = new CompositeModelLocation(
+				location = new CompositeLocation(
 					location,
 					((CanvasModel)ancestorsClosestToFarthest.get(i).getModelBehind()).getLocationOf(currentAncestor.getModelBehind())
 				);

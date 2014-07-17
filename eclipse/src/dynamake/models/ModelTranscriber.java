@@ -13,10 +13,10 @@ import dynamake.transcription.Connection;
 public class ModelTranscriber {
 	private Transcriber<Model> transcriber;
 	private ModelTranscriber parent;
-	private ModelLocator locator;
+	private Locator locator;
 	private JComponent componentToRepaint;
 	
-	public ModelTranscriber(Transcriber<Model> transcriber, ModelLocator locator) {
+	public ModelTranscriber(Transcriber<Model> transcriber, Locator locator) {
 		this.transcriber = transcriber;
 		this.locator = locator;
 	}
@@ -29,7 +29,7 @@ public class ModelTranscriber {
 		return parent;
 	}
 	
-	public ModelLocator getModelLocator() {
+	public Locator getModelLocator() {
 		if(parent != null)
 			return new CompositeModelLocator(parent.getModelLocator(), locator);
 		return locator;
@@ -37,11 +37,11 @@ public class ModelTranscriber {
 	
 	public Location getModelLocation() {
 		if(parent != null)
-			return new CompositeModelLocation(parent.getModelLocation(), locator.locate());
+			return new CompositeLocation(parent.getModelLocation(), locator.locate());
 		return locator.locate();
 	}
 
-	public ModelTranscriber extend(final ModelLocator locator) {
+	public ModelTranscriber extend(final Locator locator) {
 		ModelTranscriber extended = new ModelTranscriber(transcriber, locator);
 		
 		extended.parent = this;
@@ -50,27 +50,27 @@ public class ModelTranscriber {
 		return extended;
 	}
 	
-	private static class CompositeModelLocator implements ModelLocator {
-		private ModelLocator head;
-		private ModelLocator tail;
+	private static class CompositeModelLocator implements Locator {
+		private Locator head;
+		private Locator tail;
 		
-		public CompositeModelLocator(ModelLocator head, ModelLocator tail) {
+		public CompositeModelLocator(Locator head, Locator tail) {
 			this.head = head;
 			this.tail = tail;
 		}
 
 		@Override
 		public Location locate() {
-			return new CompositeModelLocation(head.locate(), tail.locate());
+			return new CompositeLocation(head.locate(), tail.locate());
 		}
 	}
 
-	public ModelLocator extendLocator(ModelLocator otherLocator) {
+	public Locator extendLocator(Locator otherLocator) {
 		return new CompositeModelLocator(getModelLocator(), otherLocator); 
 	}
 
 	public Location extendLocation(Location otherLocation) {
-		return new CompositeModelLocation(getModelLocation(), otherLocation);
+		return new CompositeLocation(getModelLocation(), otherLocation);
 	}
 
 	public Connection<Model> createConnection() {

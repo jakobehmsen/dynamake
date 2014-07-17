@@ -1,6 +1,6 @@
 package dynamake.models;
 
-public class CompositeModelLocation implements Location {
+public class CompositeLocation implements Location {
 	/**
 	 * 
 	 */
@@ -8,7 +8,7 @@ public class CompositeModelLocation implements Location {
 	private Location head;
 	private Location tail;
 	
-	public CompositeModelLocation(Location head, Location tail) {
+	public CompositeLocation(Location head, Location tail) {
 		this.head = head;
 		this.tail = tail;
 	}

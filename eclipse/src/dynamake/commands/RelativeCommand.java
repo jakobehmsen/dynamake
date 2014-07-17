@@ -3,7 +3,7 @@ package dynamake.commands;
 import java.io.Serializable;
 import java.util.Date;
 
-import dynamake.models.CompositeModelLocation;
+import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
@@ -57,7 +57,7 @@ public class RelativeCommand<T> implements Command<T> {
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector, Location location) {
-		Location commandLocation = new CompositeModelLocation(location, tail);
+		Location commandLocation = new CompositeLocation(location, tail);
 		
 		Object commandOutput = command.executeOn(propCtx, prevalentSystem, executionTime, collector, commandLocation);
 		

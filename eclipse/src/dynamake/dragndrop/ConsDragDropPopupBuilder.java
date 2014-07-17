@@ -12,7 +12,7 @@ import dynamake.commands.PendingCommandState;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.CanvasModel;
-import dynamake.models.CompositeModelLocation;
+import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -103,7 +103,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							
 							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 							int index = canvasModel.getModelCount();
-							Location addedPrimitiveLocation = new CompositeModelLocation(
+							Location addedPrimitiveLocation = new CompositeLocation(
 								canvasModelLocation,
 								new CanvasModel.IndexLocation(index)
 							);

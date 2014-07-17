@@ -139,7 +139,7 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	public static class ContentLocator implements dynamake.models.ModelLocator {
+	public static class ContentLocator implements dynamake.models.Locator {
 		@Override
 		public Location locate() {
 			return new FieldContentLocation();

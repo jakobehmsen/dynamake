@@ -223,7 +223,7 @@ public class RootModel extends Model {
 			view.setExtendedState(state);
 		
 		view.getContentPane().setLayout(new BorderLayout());
-		final Binding<ModelComponent> contentView = content.createView(view, viewManager, modelTranscriber.extend(new ModelLocator() {
+		final Binding<ModelComponent> contentView = content.createView(view, viewManager, modelTranscriber.extend(new Locator() {
 			@Override
 			public Location locate() {
 				return new FieldContentLocation();

@@ -2,7 +2,7 @@ package dynamake.commands;
 
 import java.util.Date;
 
-import dynamake.models.CompositeModelLocation;
+import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -24,8 +24,8 @@ public class InjectCommand implements Command<Model> {
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
-		Model source = (Model)CompositeModelLocation.getChild(prevalentSystem, location, sourceLocation);
-		Model target = (Model)CompositeModelLocation.getChild(prevalentSystem, location, targetLocation);
+		Model source = (Model)CompositeLocation.getChild(prevalentSystem, location, sourceLocation);
+		Model target = (Model)CompositeLocation.getChild(prevalentSystem, location, targetLocation);
 		
 		source.inject(target);
 		

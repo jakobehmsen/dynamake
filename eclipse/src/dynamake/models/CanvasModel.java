@@ -175,8 +175,8 @@ public class CanvasModel extends Model {
 
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
-			CanvasModel canvasSource = (CanvasModel)CompositeModelLocation.getChild(prevalentSystem, location, canvasSourceLocation);
-			CanvasModel canvasTarget = (CanvasModel)CompositeModelLocation.getChild(prevalentSystem, location, canvasTargetLocation);
+			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
+			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
 			Model model = (Model)canvasSource.getModel(indexInSource);
 
 			int indexOfModel = canvasSource.indexOfModel(model);
@@ -562,12 +562,12 @@ public class CanvasModel extends Model {
 			// to predicting the location of target canvas after the move has taken place:
 			// - If index of target canvas > index of model to be moved, then the predicated index of target canvas should 1 less
 			int predictedIndexOfTargetCanvasInSource = indexOfTargetCanvasInSource - 1;
-			canvasTargetLocationAfter = new CompositeModelLocation(canvasSourceLocation, new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
+			canvasTargetLocationAfter = new CompositeLocation(canvasSourceLocation, new CanvasModel.IndexLocation(predictedIndexOfTargetCanvasInSource));
 		} else {
 			canvasTargetLocationAfter = canvasTargetLocation;
 		}
 		
-		Location modelLocationAfterMove = new CompositeModelLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
+		Location modelLocationAfterMove = new CompositeLocation(canvasTargetLocationAfter, new CanvasModel.IndexLocation(indexTarget));
 		
 		commandStates.add(new PendingCommandState<Model>(
 			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, indexSource), 
@@ -586,7 +586,7 @@ public class CanvasModel extends Model {
 		));
 	}
 	
-	public static class IndexLocator implements ModelLocator {
+	public static class IndexLocator implements Locator {
 		private CanvasModel canvasModel;
 		private Model model;
 

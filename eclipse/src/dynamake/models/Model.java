@@ -217,17 +217,17 @@ public abstract class Model implements Serializable, Observer {
 		redoStack.clear();
 	}
 	
-	public void setLocator(ModelLocator locator) {
+	public void setLocator(Locator locator) {
 		this.locator = locator;
 	}
 	
-	public ModelLocator getLocator() {
+	public Locator getLocator() {
 		return locator;
 	}
 	
 	protected Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
 	protected Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
-	private ModelLocator locator;
+	private Locator locator;
 	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
 	
 	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -276,8 +276,8 @@ public abstract class Model implements Serializable, Observer {
 
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
-			Model observable = (Model)new CompositeModelLocation(location, observableLocation).getChild(rootPrevalentSystem);
-			Model observer = (Model)new CompositeModelLocation(location, observerLocation).getChild(rootPrevalentSystem);
+			Model observable = (Model)new CompositeLocation(location, observableLocation).getChild(rootPrevalentSystem);
+			Model observer = (Model)new CompositeLocation(location, observerLocation).getChild(rootPrevalentSystem);
 			
 			observable.addObserver(observer);
 //			System.out.println(observer + " now observes " + observable);
@@ -302,8 +302,8 @@ public abstract class Model implements Serializable, Observer {
 
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
-			Model observable = (Model)new CompositeModelLocation(location, observableLocation).getChild(rootPrevalentSystem);
-			Model observer = (Model)new CompositeModelLocation(location, observerLocation).getChild(rootPrevalentSystem);
+			Model observable = (Model)new CompositeLocation(location, observableLocation).getChild(rootPrevalentSystem);
+			Model observer = (Model)new CompositeLocation(location, observerLocation).getChild(rootPrevalentSystem);
 			
 			observable.removeObserver(observer);
 //			System.out.println(observer + " no longer observes " + observable);
@@ -760,7 +760,7 @@ public abstract class Model implements Serializable, Observer {
 						public void createDualCommands(List<CommandState<Model>> commandStates) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
 							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
-							Location fromCCAToDropped = new CompositeModelLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
+							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
@@ -789,7 +789,7 @@ public abstract class Model implements Serializable, Observer {
 						public void createDualCommands(List<CommandState<Model>> commandStates) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
 							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
-							Location fromCCAToDropped = new CompositeModelLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
+							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
