@@ -84,7 +84,7 @@ public class PenTool implements Tool {
 				commandStates.add(new PendingCommandState<Model>(
 					new CanvasModel.AddModelCommand(creationBoundsInContainer, factory),
 					new CanvasModel.RemoveModelCommand.AfterAdd(),
-					new CanvasModel.AddModelCommand.AfterRemove()
+					new CanvasModel.RestoreModelCommand.AfterRemove()
 				));
 			}
 		});

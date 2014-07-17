@@ -220,30 +220,30 @@ public class CanvasModel extends Model {
 			}
 		}
 		
-		public static final class AfterRemove implements CommandFactory<Model>  
-		{
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Command<Model> createCommand(Object output) {
-				Model model = ((RemoveModelCommand.Output)output).model;
-				// TODO: Consider the following:
-				// What if the model what observing/being observed before its removal?
-				// What if the model's observers/observees aren't all in existence anymore?
-				// What if the model's observers/observees are restored after this model is restored?
-				// Are all of the above cases possible?
-				// Perhaps, the best solution would be to save the history and replay this history?
-				Fraction x = (Fraction)model.getProperty("X");
-				Fraction y = (Fraction)model.getProperty("Y");
-				Fraction width = (Fraction)model.getProperty("Width");
-				Fraction height = (Fraction)model.getProperty("Height");
-				
-				return new CanvasModel.AddModelCommand(x, y, width, height, new AsIsFactory(model));
-			}
-		}
+//		public static final class AfterRemove implements CommandFactory<Model>  
+//		{
+//			/**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = 1L;
+//
+//			@Override
+//			public Command<Model> createCommand(Object output) {
+//				Model model = ((RemoveModelCommand.Output)output).model;
+//				// TODO: Consider the following:
+//				// What if the model what observing/being observed before its removal?
+//				// What if the model's observers/observees aren't all in existence anymore?
+//				// What if the model's observers/observees are restored after this model is restored?
+//				// Are all of the above cases possible?
+//				// Perhaps, the best solution would be to save the history and replay this history?
+//				Fraction x = (Fraction)model.getProperty("X");
+//				Fraction y = (Fraction)model.getProperty("Y");
+//				Fraction width = (Fraction)model.getProperty("Width");
+//				Fraction height = (Fraction)model.getProperty("Height");
+//				
+//				return new CanvasModel.AddModelCommand(x, y, width, height, new AsIsFactory(model));
+//			}
+//		}
 		
 		/**
 		 * 
@@ -290,16 +290,84 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+	public static class RestoreModelCommand implements Command<Model> {
+		public static final class AfterRemove implements CommandFactory<Model>  
+		{
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Command<Model> createCommand(Object output) {
+				Model model = ((RemoveModelCommand.Output)output).model;
+				Object id = ((RemoveModelCommand.Output)output).id;
+				// TODO: Consider the following:
+				// What if the model what observing/being observed before its removal?
+				// What if the model's observers/observees aren't all in existence anymore?
+				// What if the model's observers/observees are restored after this model is restored?
+				// Are all of the above cases possible?
+				// Perhaps, the best solution would be to save the history and replay this history?
+				Fraction x = (Fraction)model.getProperty("X");
+				Fraction y = (Fraction)model.getProperty("Y");
+				Fraction width = (Fraction)model.getProperty("Width");
+				Fraction height = (Fraction)model.getProperty("Height");
+				
+				return new CanvasModel.RestoreModelCommand(id, x, y, width, height, new AsIsFactory(model));
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Object id;
+		private Fraction xCreation;
+		private Fraction yCreation;
+		private Fraction widthCreation;
+		private Fraction heightCreation;
+		private Factory factory;
+		
+		public RestoreModelCommand(Object id, Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, Factory factory) {
+			this.id = id;
+			this.xCreation = xCreation;
+			this.yCreation = yCreation;
+			this.widthCreation = widthCreation;
+			this.heightCreation = heightCreation;
+			this.factory = factory;
+		}
+		
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
+			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
+
+			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
+			model.setProperty("X", xCreation, propCtx, 0, isolatedCollector);
+			model.setProperty("Y", yCreation, propCtx, 0, isolatedCollector);
+			model.setProperty("Width", widthCreation, propCtx, 0, isolatedCollector);
+			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
+			
+			canvas.restoreModel(id, model, new PropogationContext(), 0, collector);
+			
+			int index = canvas.getModelCount() - 1;
+			
+			return new AddModelCommand.Output(index);
+		}
+	}
+	
 	public static class RemoveModelCommand implements Command<Model> {
 		public static class Output implements Serializable {
 			/**
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
+			public final Object id;
 			public final int index;
 			public final Model model;
 
-			public Output(int index, Model model) {
+			public Output(Object id, int index, Model model) {
+				this.id = id;
 				this.index = index;
 				this.model = model;
 			}
@@ -333,12 +401,22 @@ public class CanvasModel extends Model {
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
-			Model modelToRemove = canvas.getModel(index);
+			Entry entry = canvas.models.get(index);
+			Model modelToRemove = entry.model;
 			canvas.removeModel(index, propCtx, 0, collector);
 			modelToRemove.beRemoved();
 			
-			return new Output(index, modelToRemove);
+			return new Output(entry.id, index, modelToRemove);
 		}
+	}
+	
+	public void restoreModel(Object id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		addModel(models.size(), model, propCtx, propDistance, collector);
+		
+		int index = models.size();
+		models.add(index, new Entry(id, model));
+		collector.registerAffectedModel(this);
+		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 	
 	public void addModel(Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -389,11 +467,14 @@ public class CanvasModel extends Model {
 	
 	public Location getLocationOf(Model model) {
 		int indexOfModel = indexOfModel(model);
-		return new IndexLocation(indexOfModel);
+//		return new IndexLocation(indexOfModel);
+		Object id = models.get(indexOfModel).id;
+		return new IdLocation(id);
 	}
 
 	public Location getNextLocation() {
-		return new IndexLocation(models.size());
+//		return new IndexLocation(models.size());
+		return new IdLocation(nextId);
 	}
 	
 	private static class CanvasPanel extends JLayeredPane implements ModelComponent {
@@ -416,7 +497,7 @@ public class CanvasModel extends Model {
 			modelToModelComponentMap = new Memoizer1<Model, Binding<ModelComponent>>(new Func1<Model, Binding<ModelComponent>>() {
 				@Override
 				public Binding<ModelComponent> call(Model model) {
-					final Binding<ModelComponent> modelView = model.createView(rootView, viewManager, modelTranscriber.extend(new IndexLocator(CanvasPanel.this.model, model)));
+					final Binding<ModelComponent> modelView = model.createView(rootView, viewManager, modelTranscriber.extend(new ItemLocator(CanvasPanel.this.model, model)));
 					
 					Rectangle bounds = new Rectangle(
 						((Fraction)model.getProperty("X")).intValue(),
@@ -575,7 +656,7 @@ public class CanvasModel extends Model {
 		
 		commandStates.add(new PendingCommandState<Model>(
 			new RemoveModelCommand(indexOfModel),
-			new AddModelCommand.AfterRemove(),
+			new RestoreModelCommand.AfterRemove(),
 			new RemoveModelCommand.AfterAdd()
 		));
 	}
@@ -617,49 +698,50 @@ public class CanvasModel extends Model {
 		));
 	}
 	
-	private static class IndexLocator implements Locator {
+	private static class ItemLocator implements Locator {
 		private CanvasModel canvasModel;
 		private Model model;
 
-		public IndexLocator(CanvasModel canvasModel, Model model) {
+		public ItemLocator(CanvasModel canvasModel, Model model) {
 			this.canvasModel = canvasModel;
 			this.model = model;
 		}
 
 		@Override
 		public Location locate() {
-			int index = canvasModel.indexOfModel(model);
-			return new IndexLocation(index);
+			return canvasModel.getLocationOf(model);
+//			int index = canvasModel.indexOfModel(model);
+//			return new IndexLocation(index);
 		}
 	}
 	
-	private static class IndexLocation implements Location {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private int index;
-		
-		public IndexLocation(int index) {
-			this.index = index;
-		}
-
-		@Override
-		public Object getChild(Object holder) {
-			/*
-			Instead of using indexes to locate models, id's relative to the canvas should be used.
-			This is not so much due to the potential efficiency gains in complex canvases, but
-			more due to effectiveness. More specifically, it is due to models being moved across
-			canvases meaning the index-lookup quickly becomes ineffective from an identity viewpoint.
-			By using id's, which are unique to canvases, it may be possible to track down models, by
-			keeping of the models moved out of canvases (their id's) and where to and their id in the
-			target canvases.
-			If the index is coupled with a particular version of the canvas, it may function as a
-			unique identifier, though. 
-			*/
-			return ((CanvasModel)holder).getModel(index);
-		}
-	}
+//	private static class IndexLocation implements Location {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//		private int index;
+//		
+//		public IndexLocation(int index) {
+//			this.index = index;
+//		}
+//
+//		@Override
+//		public Object getChild(Object holder) {
+//			/*
+//			Instead of using indexes to locate models, id's relative to the canvas should be used.
+//			This is not so much due to the potential efficiency gains in complex canvases, but
+//			more due to effectiveness. More specifically, it is due to models being moved across
+//			canvases meaning the index-lookup quickly becomes ineffective from an identity viewpoint.
+//			By using id's, which are unique to canvases, it may be possible to track down models, by
+//			keeping of the models moved out of canvases (their id's) and where to and their id in the
+//			target canvases.
+//			If the index is coupled with a particular version of the canvas, it may function as a
+//			unique identifier, though. 
+//			*/
+//			return ((CanvasModel)holder).getModel(index);
+//		}
+//	}
 	
 	public static class IdLocation implements Location {
 		/**
@@ -784,6 +866,13 @@ public class CanvasModel extends Model {
 
 	public Model getModelById(Object id) {
 		// TODO Auto-generated method stub
+//		return null;
+		
+		for(Entry entry: models) {
+			if(entry.id.equals(id))
+				return entry.model;
+		}
+		
 		return null;
 	}
 

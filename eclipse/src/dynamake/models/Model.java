@@ -768,7 +768,7 @@ public abstract class Model implements Serializable, Observer {
 							commandStates.add(new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(creationBounds, factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
-								new CanvasModel.AddModelCommand.AfterRemove()
+								new CanvasModel.RestoreModelCommand.AfterRemove()
 							));
 						}
 					});
@@ -797,7 +797,7 @@ public abstract class Model implements Serializable, Observer {
 							commandStates.add(new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(creationBounds, factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
-								new CanvasModel.AddModelCommand.AfterRemove()
+								new CanvasModel.RestoreModelCommand.AfterRemove()
 							));
 						}
 					});

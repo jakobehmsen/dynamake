@@ -98,7 +98,7 @@ public class PlotTool implements Tool {
 							commandStates.add(new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(creationBoundsInSelection, factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
-								new CanvasModel.AddModelCommand.AfterRemove()
+								new CanvasModel.RestoreModelCommand.AfterRemove()
 							));
 						}
 					});
