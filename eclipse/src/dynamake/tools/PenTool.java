@@ -13,10 +13,10 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.commands.DualCommand;
-import dynamake.commands.DualCommandPair;
+import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandState;
 import dynamake.models.CanvasModel;
-import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.StrokeModel;
@@ -25,7 +25,6 @@ import dynamake.models.factories.Factory;
 import dynamake.models.factories.StrokeModelFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.DualCommandFactory;
 
 public class PenTool implements Tool {
 	@Override
@@ -71,22 +70,21 @@ public class PenTool implements Tool {
 		
 		final ModelComponent target = targetPresenter.getTargetOver();
 		final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)target);
-		
-		collector.execute(new DualCommandFactory<Model>() {
+
+		collector.execute(new CommandStateFactory<Model>() {
 			@Override
 			public Model getReference() {
 				return target.getModelBehind();
 			}
 			
 			@Override
-			public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-				CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-				int index = canvasModel.getModelCount();
+			public void createDualCommands(List<CommandState<Model>> commandStates) {
 				Factory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation, creationBoundsInContainer);
 				
-				dualCommands.add(new DualCommandPair<Model>(
-					new CanvasModel.AddModelCommand(location, creationBoundsInContainer, factory), 
-					new CanvasModel.RemoveModelCommand(location, index)
+				commandStates.add(new PendingCommandState<Model>(
+					new CanvasModel.AddModelCommand2(creationBoundsInContainer, factory),
+					new CanvasModel.RemoveModelCommand2.AfterAdd(),
+					new CanvasModel.AddModelCommand2.AfterRemove()
 				));
 			}
 		});
