@@ -38,17 +38,35 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.Trigger;
 
 public class CanvasModel extends Model {
+	private static class Entry implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public final Object id;
+		public final Model model;
+		
+		public Entry(Object id, Model model) {
+			this.id = id;
+			this.model = model;
+		}
+	}
+	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ArrayList<Model> models;
+//	private ArrayList<Model> models;
+	private int nextId;
+	private ArrayList<Entry> models;
 	
 	public CanvasModel() {
-		models = new ArrayList<Model>();
+//		models = new ArrayList<Model>();
+		models = new ArrayList<Entry>();
 	}
 	
-	public CanvasModel(ArrayList<Model> models) {
+//	public CanvasModel(ArrayList<Model> models) {
+	public CanvasModel(ArrayList<Entry> models) {
 		this.models = models;
 	}
 	
@@ -64,17 +82,18 @@ public class CanvasModel extends Model {
 	
 	@Override
 	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(Model model: models)
-			model.scale(hChange, vChange, propCtx, propDistance, collector);
+//		for(Model model: models)
+		for(Entry entry: models)
+			entry.model.scale(hChange, vChange, propCtx, propDistance, collector);
 	}
 	
 	@Override
 	public Model modelCloneIsolated() {
-		ArrayList<Model> clonedModels = new ArrayList<Model>();
-		
-		for(Model model: models) {
-			Model clone = model.cloneIsolated();
-			clonedModels.add(clone);
+		ArrayList<Entry> clonedModels = new ArrayList<Entry>();
+
+		for(Entry entry: models) {
+			Model clone = entry.model.cloneIsolated();
+			clonedModels.add(new Entry(entry.id, clone));
 		}
 		
 		return new CanvasModel(clonedModels);
@@ -82,15 +101,15 @@ public class CanvasModel extends Model {
 	
 	@Override
 	protected void modelAddContent(HashSet<Model> contained) {
-		for(Model model: models) {
-			model.addContent(contained);
+		for(Entry entry: models) {
+			entry.model.addContent(contained);
 		}
 	}
 	
 	@Override
 	protected void modelBeRemoved() {
-		for(Model model: models) {
-			model.beRemoved();
+		for(Entry entry: models) {
+			entry.model.beRemoved();
 		}
 	}
 
@@ -110,11 +129,11 @@ public class CanvasModel extends Model {
 		clone.redoStack.addAll(this.redoStack);
 		
 		sourceToCloneMap.put(this, clone);
-		
-		for(Model model: models) {
-			model.cloneAndMap(sourceToCloneMap);
-			Model modelClone = sourceToCloneMap.get(model);
-			clone.models.add(modelClone);
+
+		for(Entry entry: models) {
+			entry.model.cloneAndMap(sourceToCloneMap);
+			Model modelClone = sourceToCloneMap.get(entry.model);
+			clone.models.add(new Entry(entry.id, modelClone));
 		}
 	}
 	
@@ -327,11 +346,13 @@ public class CanvasModel extends Model {
 	}
 
 	public Model getModel(int index) {
-		return models.get(index);
+		return models.get(index).model;
 	}
 
 	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		models.add(index, model);
+		int id = nextId++;
+		
+		models.add(index, new Entry(id, model));
 		collector.registerAffectedModel(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
@@ -342,22 +363,28 @@ public class CanvasModel extends Model {
 	}
 	
 	public void removeModel(int index, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		Model model = models.get(index);
+		Model model = models.get(index).model;
 		models.remove(index);
 		collector.registerAffectedModel(this);
 		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 	
-	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, int indexInTarget, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		int indexOfModel = canvasSource.indexOfModel(model);
-		canvasSource.models.remove(indexOfModel);
-		canvasSource.sendChanged(new RemovedModelChange(indexOfModel, model), propCtx, propDistance, 0, collector);
-		canvasTarget.models.add(indexInTarget, model);
-		canvasTarget.sendChanged(new AddedModelChange(indexInTarget, model), propCtx, propDistance, 0, collector);
-	}
+//	public static void move(CanvasModel canvasSource, CanvasModel canvasTarget, Model model, int indexInTarget, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		int indexOfModel = canvasSource.indexOfModel(model);
+//		canvasSource.models.remove(indexOfModel);
+//		canvasSource.sendChanged(new RemovedModelChange(indexOfModel, model), propCtx, propDistance, 0, collector);
+//		canvasTarget.models.add(indexInTarget, model);
+//		canvasTarget.sendChanged(new AddedModelChange(indexInTarget, model), propCtx, propDistance, 0, collector);
+//	}
 	
 	public int indexOfModel(Model model) {
-		return models.indexOf(model);
+//		return models.indexOf(model);
+		for(int i = 0; i < models.size(); i++) {
+			if(models.get(i).model == model)
+				return i;
+		}
+		
+		return -1;
 	}
 	
 	public Location getLocationOf(Model model) {
@@ -626,7 +653,7 @@ public class CanvasModel extends Model {
 			If the index is coupled with a particular version of the canvas, it may function as a
 			unique identifier, though. 
 			*/
-			return ((CanvasModel)holder).models.get(index);
+			return ((CanvasModel)holder).getModel(index);
 		}
 	}
 	
@@ -701,7 +728,7 @@ public class CanvasModel extends Model {
 								ArrayList<Model> shownModelsSequence = new ArrayList<Model>();
 								
 								for(int i = 0; i < models.size(); i++) {
-									Model m = models.get(i);
+									Model m = models.get(i).model;
 									
 									if(view.shownModels.contains(m))
 										shownModelsSequence.add(m);
@@ -770,10 +797,10 @@ public class CanvasModel extends Model {
 		final HashSet<Model> shownModels = new HashSet<Model>();
 		
 		final Hashtable<Model, Model.RemovableListener> modelToRemovableListenerMap = new Hashtable<Model, Model.RemovableListener>();
-		for(final Model model: models) {
+		for(final Entry entry: models) {
 			addModelComponent(
 				rootView, view, modelTranscriber, viewManager, 
-				modelToRemovableListenerMap, model,
+				modelToRemovableListenerMap, entry.model,
 				new Runner() {
 					@Override
 					public void run(Runnable runnable) {
@@ -831,7 +858,7 @@ public class CanvasModel extends Model {
 						Hashtable<Integer, Model> invisibles = new Hashtable<Integer, Model>();
 
 						for(int i = 0; i < view.model.models.size(); i++) {
-							Model m = view.model.models.get(i);
+							Model m = view.model.models.get(i).model;
 							boolean wasFound = false;
 							for(Component mc: view.getComponents()) {
 								if(m == ((ModelComponent)mc).getModelBehind()) {
