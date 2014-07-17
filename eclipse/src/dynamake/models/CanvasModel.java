@@ -25,7 +25,6 @@ import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.commands.WrapCommand;
-import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
@@ -279,7 +278,6 @@ public class CanvasModel extends Model {
 			 */
 			private static final long serialVersionUID = 1L;
 			public final int index;
-//			public final byte[] serialization;
 			public final Model model;
 
 			public Output(int index, Model model) {
@@ -414,17 +412,6 @@ public class CanvasModel extends Model {
 			menuBuilder.addMenuBuilder("Remove", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-//					collector.execute(new DualCommandFactory<Model>() {
-//						@Override
-//						public Model getReference() {
-//							return model;
-//						}
-//						
-//						@Override
-//						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//							CanvasModel.appendRemoveTransaction(dualCommands, livePanel, child, location, model);
-//						}
-//					});
 					collector.execute(new CommandStateFactory<Model>() {
 						@Override
 						public Model getReference() {
@@ -450,22 +437,6 @@ public class CanvasModel extends Model {
 				menuBuilder.addMenuBuilder("Unwrap", new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-//						collector.execute(new DualCommandFactory<Model>() {
-//							ModelComponent parent;
-//							
-//							@Override
-//							public Model getReference() {
-//								// If this canvas is unwrapped, then it is unwrapped into its parent
-//								parent = ModelComponent.Util.getParent(CanvasPanel.this);
-//								return parent.getModelBehind();
-//							}
-//							
-//							@Override
-//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//								CanvasModel.appendUnwrapTransaction(dualCommands, CanvasPanel.this, parent, location);
-//							}
-//						});
-						
 						collector.execute(new CommandStateFactory<Model>() {
 							ModelComponent parent;
 							
@@ -500,30 +471,7 @@ public class CanvasModel extends Model {
 					@Override
 					public void run(Collector<Model> collector) {
 						final ModelComponent modelToMove = dropped;
-						
-//						// Reference is closest common ancestor
-//						collector.execute(new DualCommandFactory<Model>() {
-//							ModelComponent source;
-//							ModelComponent targetOver;
-//							ModelComponent referenceMC;
-//							
-//							@Override
-//							public Model getReference() {
-//								ModelComponent.Util.getParent(modelToMove);
-//								targetOver = CanvasPanel.this;
-//								referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
-//								return referenceMC.getModelBehind();
-//							}
-//
-//							@Override
-//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//								ModelLocation locationOfSource = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, source);
-//								ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, targetOver);
-//								
-//								CanvasModel.appendMoveTransaction(dualCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
-//							}
-//						});
-						
+
 						// Reference is closest common ancestor
 						collector.execute(new CommandStateFactory<Model>() {
 							ModelComponent source;
@@ -570,14 +518,6 @@ public class CanvasModel extends Model {
 		public void initialize() {
 
 		}
-		
-		@Override
-		public void visitTree(Action1<ModelComponent> visitAction) {
-			for(Component child: getComponents())
-				((ModelComponent)child).visitTree(visitAction);
-			
-			visitAction.run(this);
-		}
 	}
 	
 	public static void appendUnwrapTransaction2(List<CommandState<Model>> commandStates, ModelComponent toUnwrap, ModelComponent parent) {
@@ -591,37 +531,12 @@ public class CanvasModel extends Model {
 			(Fraction)modelToBeUnwrapped.getProperty("Width"),
 			(Fraction)modelToBeUnwrapped.getProperty("Height")
 		);
-//		
-//		// Derive the an array of the locations at which the unwrapped models are to be placed
-//		// within the target canvas
-//		int indexOfModelInTarget = target.getModelCount();
-//		if(target.indexOfModel(modelToBeUnwrapped) != -1)
-//			indexOfModelInTarget--; // Decrement, since modelToBeUnwrapped will be removed
-//		Location[] modelLocations = new Location[modelToBeUnwrapped.models.size()];
-//		for(int i = 0; i < modelLocations.length; i++) {
-//			Location viewLocation = new CanvasModel.IndexLocation(indexOfModelInTarget);
-//			modelLocations[i] = viewLocation;
-//			indexOfModelInTarget++;
-//		}
-		
-//		dualCommands.add(new DualCommandPair<Model>(
-//			new UnwrapCommand(targetLocation, wrapperLocationInTarget, creationBoundsInSelection),
-//			new WrapCommand(targetLocation, creationBoundsInSelection, modelLocations)
-//		));
 		
 		commandStates.add(new PendingCommandState<Model>(
 			new UnwrapCommand(wrapperLocationInTarget, creationBoundsInSelection),
 			new WrapCommand.AfterUnwrap(),
 			new UnwrapCommand.AfterWrap()
 		));
-		
-//		commandStates.add(new PendingCommandState<Model>(
-//			new UnwrapCommand2(wrapperLocationInTarget, creationBoundsInSelection),
-//			new WrapCommand2(creationBoundsInSelection, modelLocations)
-////				new WrapCommand2(new RectangleF(creationBoundsInSelection), modelLocations), 
-////				new UnwrapToLocationsCommand2.AfterWrap(),
-////				new WrapCommand2.AfterUnwrap()
-//		));
 	}
 	
 	public static void appendRemoveTransaction2(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent child, CanvasModel model) {

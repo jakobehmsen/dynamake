@@ -84,45 +84,6 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-//					collector.execute(new DualCommandFactory<Model>() {
-//						ModelComponent referenceMC;
-//						
-//						@Override
-//						public Model getReference() {
-//							// Common ancestor among what?
-//							// The observer is not created yet
-//							// Probably, it is the common ancestor among the observable and the target canvas
-//							// Well, that is at least the current decision
-//							referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
-//							return referenceMC.getModelBehind();
-//						}
-//						
-//						@Override
-//						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//							ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, selection);
-//							ModelLocation canvasModelLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, target);
-//							
-//							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-//							int index = canvasModel.getModelCount();
-//							Location addedPrimitiveLocation = new CompositeModelLocation(
-//								canvasModelLocation,
-//								new CanvasModel.IndexLocation(index)
-//							);
-//							
-//							// Add
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new CanvasModel.AddModelCommand(canvasModelLocation, dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)), 
-//								new CanvasModel.RemoveModelCommand(canvasModelLocation, index)
-//							));
-//
-//							// Bind
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new Model.AddObserverCommand(observableLocation, addedPrimitiveLocation),
-//								new Model.RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
-//							));
-//						}
-//					});
-					
 					collector.execute(new CommandStateFactory<Model>() {
 						ModelComponent referenceMC;
 						

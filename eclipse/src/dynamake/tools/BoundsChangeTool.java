@@ -251,7 +251,7 @@ public abstract class BoundsChangeTool implements Tool {
 				newTargetOver = ModelComponent.Util.closestModelComponent(((JComponent)newTargetOver).getParent());
 		} else {
 			// Resizing
-			newTargetOver = source;//ModelComponent.Util.closestModelComponent(((JComponent)selection).getParent());
+			newTargetOver = source;
 		}
 		
 		newTargetOver = ModelComponent.Util.closestCanvasModelComponent(newTargetOver);

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 
 import javax.swing.JComponent;
 
-import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.numbers.Fraction;
@@ -47,7 +46,6 @@ public class StrokeModel extends Model {
 		private Path2D.Double viewShape;
 		private float strokeSize;
 		private Path2D.Double viewShapeSource;
-//		private Image image;
 		private boolean shouldRefreshViewShape;
 
 		public ShapeView(StrokeModel model, ModelTranscriber modelTranscriber) {
@@ -76,12 +74,6 @@ public class StrokeModel extends Model {
 			viewShape.transform(AffineTransform.getScaleInstance(scaleWidth.doubleValue(), scaleHeight.doubleValue()));
 			
 			strokeSize = scaleWidth.add(scaleHeight).divide(new Fraction(2)).floatValue() * STROKE_SIZE;
-			
-//			image = new BufferedImage(currentWidth.intValue(), currentHeight.intValue(), BufferedImage.TYPE_INT_ARGB);
-//			Graphics2D g = (Graphics2D)image.getGraphics();
-//			setupGraphics(g, strokeSize);
-//			g.draw(viewShape);
-//			g.dispose();
 		}
 
 		@Override
@@ -95,17 +87,13 @@ public class StrokeModel extends Model {
 		}
 
 		@Override
-		public void appendContainerTransactions(LivePanel livePanel,
-				CompositeMenuBuilder menuBuilder, ModelComponent child) {
-			// TODO Auto-generated method stub
-			
+		public void appendContainerTransactions(LivePanel livePanel, CompositeMenuBuilder menuBuilder, ModelComponent child) {
+
 		}
 
 		@Override
-		public void appendTransactions(ModelComponent livePanel,
-				CompositeMenuBuilder menuBuilder) {
-			// TODO Auto-generated method stub
-			
+		public void appendTransactions(ModelComponent livePanel, CompositeMenuBuilder menuBuilder) {
+
 		}
 
 		@Override
@@ -119,20 +107,12 @@ public class StrokeModel extends Model {
 		public void appendDropTargetTransactions(ModelComponent livePanel,
 				ModelComponent dropped, Rectangle droppedBounds,
 				Point dropPoint, CompositeMenuBuilder menuBuilder) {
-			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void initialize() {
-			// TODO Auto-generated method stub
-			
-		}
 
-		@Override
-		public void visitTree(Action1<ModelComponent> visitAction) {
-			// TODO Auto-generated method stub
-			
 		}
 		
 		@Override
@@ -143,7 +123,6 @@ public class StrokeModel extends Model {
 			setupGraphics(g, strokeSize);
 			
 			((Graphics2D)g).draw(viewShape);
-//			g.drawImage(image, 0, 0, null);
 		}
 	}
 	
@@ -155,8 +134,6 @@ public class StrokeModel extends Model {
 		Graphics2D g2 = (Graphics2D) g;
         g2.setStroke(new BasicStroke(strokeSize));
         g2.setColor(Color.BLACK);
-//        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-//        g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
 	}
 
 	@Override

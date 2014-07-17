@@ -6,7 +6,6 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 
@@ -24,14 +23,6 @@ public interface ModelComponent {
 	
 	public static class Util {
 		public static ModelComponent getParent(ModelComponent view) {
-//			Component parent = ((Component)view).getParent();
-//			
-//			while(parent != null && !(parent instanceof ModelComponent)) {
-//				parent = parent.getParent();
-//			}
-//			
-//			return (ModelComponent)parent;
-
 			Component parent = (Component)view;
 			
 			while(true) {
@@ -83,33 +74,6 @@ public interface ModelComponent {
 			return null;
 		}
 
-		public static ModelLocation locationFromAncestor(ModelLocation head, ModelComponent ancestor, ModelComponent child) {
-			if(child == ancestor)
-				return head;
-			
-			ArrayList<ModelComponent> ancestorsClosestToFarthest = new ArrayList<ModelComponent>();
-
-			ModelComponent parent = getParent(child);
-			while(true) {
-				ancestorsClosestToFarthest.add(parent);
-				if(parent == ancestor)
-					break;
-				parent = getParent(parent);
-			}
-			
-			ModelLocation location = ((CanvasModel)ancestorsClosestToFarthest.get(0).getModelBehind()).getLocationOf(child.getModelBehind());
-			
-			for(int i = 1; i < ancestorsClosestToFarthest.size(); i++) {
-				ModelComponent currentAncestor = ancestorsClosestToFarthest.get(i - 1);
-				location = new CompositeModelLocation(
-					((CanvasModel)ancestorsClosestToFarthest.get(i).getModelBehind()).getLocationOf(currentAncestor.getModelBehind()),
-					location
-				);
-			}
-					
-			return new CompositeModelLocation(head, location);
-		}
-
 		public static ModelLocation locationFromAncestor(ModelComponent ancestor, ModelComponent child) {
 			if(child == ancestor)
 				return new ModelRootLocation();
@@ -135,33 +99,6 @@ public interface ModelComponent {
 			}
 					
 			return location;
-		}
-
-		public static ModelLocation locationToAncestor(ModelLocation head, ModelComponent ancestor, ModelComponent child) {
-			if(child == ancestor)
-				return head;
-			
-			ArrayList<ModelComponent> ancestorsClosestToFarthest = new ArrayList<ModelComponent>();
-
-			ModelComponent parent = getParent(child);
-			while(true) {
-				ancestorsClosestToFarthest.add(parent);
-				if(parent == ancestor)
-					break;
-				parent = getParent(parent);
-			}
-			
-			ModelLocation location = ((CanvasModel)ancestorsClosestToFarthest.get(0).getModelBehind()).getLocationOf(child.getModelBehind());
-			
-			for(int i = 1; i < ancestorsClosestToFarthest.size(); i++) {
-				ModelComponent currentAncestor = ancestorsClosestToFarthest.get(i - 1);
-				location = new CompositeModelLocation(
-					location,
-					((CanvasModel)ancestorsClosestToFarthest.get(i).getModelBehind()).getLocationOf(currentAncestor.getModelBehind())
-				);
-			}
-					
-			return new CompositeModelLocation(head, location);
 		}
 
 		public static ModelLocation locationToAncestor(ModelComponent ancestor, ModelComponent child) {
@@ -191,6 +128,4 @@ public interface ModelComponent {
 			return location;
 		}
 	}
-
-	void visitTree(Action1<ModelComponent> visitAction);
 }

@@ -111,24 +111,6 @@ public class PenTool implements Tool {
 			StrokeModel.setupGraphics(g);
 			((Graphics2D)g).draw(shape);
 		}
-		
-		@Override
-		public void paint(Graphics g) {
-			StrokeModel.setupGraphics(g);
-			((Graphics2D)g).draw(shape);
-		}
-		
-		@Override
-		public void paintAll(Graphics g) {
-			StrokeModel.setupGraphics(g);
-			((Graphics2D)g).draw(shape);
-		}
-		
-		@Override
-		public void paintComponents(Graphics g) {
-			// TODO Auto-generated method stub
-			super.paintComponents(g);
-		}
 	}
 	
 	private StrokeComponent strokeComponent;

@@ -65,7 +65,6 @@ public class WrapCommand implements Command<Model> {
 		Model[] models = new Model[modelLocations.length];
 		for(int i = 0; i < modelLocations.length; i++) {
 			Model model = (Model)CompositeModelLocation.getChild(prevalentSystem, location, modelLocations[i]);
-//			Model model = (Model)modelLocations[i].getChild(prevalentSystem);
 			
 			models[i] = model;
 		}

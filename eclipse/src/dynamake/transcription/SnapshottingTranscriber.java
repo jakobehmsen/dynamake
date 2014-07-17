@@ -396,7 +396,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							ModelLocation locationFromReference = new ModelRootLocation();
 							
 							ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
-//							ArrayList<CommandState<T>> pendingCommandsReference = new ArrayList<CommandState<T>>();
 							
 							// If location was part of the executeOn invocation, location is probably no
 							// necessary for creating dual commands. Further, then, it is probably not necessary

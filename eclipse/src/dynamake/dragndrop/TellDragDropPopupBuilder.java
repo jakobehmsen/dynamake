@@ -55,21 +55,6 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Tell Color", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-//				collector.execute(new DualCommandFactory<Model>() {
-//					@Override
-//					public Model getReference() {
-//						return selection.getModelBehind();
-//					}
-//					
-//					@Override
-//					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//						dualCommands.add(new DualCommandPair<Model>(
-//							new TellPropertyCommand(location, Model.PROPERTY_COLOR),
-//							new TellPropertyCommand(location, Model.PROPERTY_COLOR)
-//						));
-//					}
-//				});
-				
 				collector.execute(new CommandStateFactory<Model>() {
 					@Override
 					public Model getReference() {

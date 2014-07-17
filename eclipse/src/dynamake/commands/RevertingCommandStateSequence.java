@@ -19,11 +19,6 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 		this.commandStates = commandStates;
 	}
 	
-//	@SuppressWarnings("unchecked")
-//	public RevertingCommandStateSequence(ArrayList<CommandState<T>> commandStateList) {
-//		commandStates = (CommandState<T>[])commandStateList.toArray(new CommandState[commandStateList.size()]);
-//	}
-	
 	public static <T> RevertingCommandStateSequence<T> reverse(CommandState<T>[] commandStates) {
 		@SuppressWarnings("unchecked")
 		CommandState<T>[] newCommandStates = (CommandState<T>[])new CommandState[commandStates.length];
@@ -48,7 +43,6 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 		for(int i = 0; i < commandStates.length; i++)
 			newCommandStates[i] = commandStates[i].executeOn(propCtx, prevalentSystem, executionTime, collector, location);
 
-//		return new RevertingCommandStateSequence<T>(newCommandStates);
 		return reverse(newCommandStates);
 	}
 }

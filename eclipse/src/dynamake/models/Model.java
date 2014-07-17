@@ -279,11 +279,8 @@ public abstract class Model implements Serializable, Observer {
 			Model observable = (Model)new CompositeModelLocation((ModelLocation)location, (ModelLocation)observableLocation).getChild(rootPrevalentSystem);
 			Model observer = (Model)new CompositeModelLocation((ModelLocation)location, (ModelLocation)observerLocation).getChild(rootPrevalentSystem);
 			
-//			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
-//			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
-			
 			observable.addObserver(observer);
-			System.out.println(observer + " now observes " + observable);
+//			System.out.println(observer + " now observes " + observable);
 			
 			// TODO: Consider whether a change should be sent out here
 			return null;
@@ -308,11 +305,8 @@ public abstract class Model implements Serializable, Observer {
 			Model observable = (Model)new CompositeModelLocation((ModelLocation)location, (ModelLocation)observableLocation).getChild(rootPrevalentSystem);
 			Model observer = (Model)new CompositeModelLocation((ModelLocation)location, (ModelLocation)observerLocation).getChild(rootPrevalentSystem);
 			
-//			Model observable = (Model)observableLocation.getChild(rootPrevalentSystem);
-//			Model observer = (Model)observerLocation.getChild(rootPrevalentSystem);
-			
 			observable.removeObserver(observer);
-			System.out.println(observer + " no longer observes " + observable);
+//			System.out.println(observer + " no longer observes " + observable);
 			
 			// TODO: Consider whether a change should be sent out here
 			return null;
@@ -325,23 +319,6 @@ public abstract class Model implements Serializable, Observer {
 			// Side-effect
 			final SetProperty setProperty = (SetProperty)change;
 
-//			collector.execute(new DualCommandFactory<Model>() {
-//				@Override
-//				public Model getReference() {
-//					return Model.this;
-//				}
-//				
-//				@Override
-//				public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//					Object currentValue = getProperty(setProperty.name);
-//					
-//					dualCommands.add(new DualCommandPair<Model>(
-//						new SetPropertyCommand(location, setProperty.name, setProperty.value),
-//						new SetPropertyCommand(location, setProperty.name, currentValue)
-//					));
-//				}
-//			});
-			
 			collector.execute(new CommandStateFactory<Model>() {
 				@Override
 				public Model getReference() {
@@ -350,8 +327,6 @@ public abstract class Model implements Serializable, Observer {
 				
 				@Override
 				public void createDualCommands(List<CommandState<Model>> commandStates) {
-//					Object currentValue = getProperty(setProperty.name);
-					
 					commandStates.add(new PendingCommandState<Model>(
 						new SetPropertyCommand(setProperty.name, setProperty.value),
 						new SetPropertyCommand.AfterSetProperty()
@@ -601,27 +576,7 @@ public abstract class Model implements Serializable, Observer {
 			@Override
 			public void mouseReleased(MouseEvent arg0) {
 				Connection<Model> connection = view.getModelTranscriber().createConnection();
-//				connection.trigger(new Trigger<Model>() {
-//					@Override
-//					public void run(Collector<Model> collector) {
-//						collector.execute(new DualCommandFactory<Model>() {
-//							@Override
-//							public Model getReference() {
-//								return view.getModelBehind();
-//							}
-//
-//							@Override
-//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//								dualCommands.add(new DualCommandPair<Model>(
-//									new MouseUpCommand(location), 
-//									new MouseUpCommand(location)
-//								));
-//							}
-//						});
-//						collector.commit();
-//					}
-//				});
-				
+
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
@@ -647,27 +602,7 @@ public abstract class Model implements Serializable, Observer {
 			@Override
 			public void mousePressed(MouseEvent arg0) {
 				Connection<Model> connection = view.getModelTranscriber().createConnection();
-//				connection.trigger(new Trigger<Model>() {
-//					@Override
-//					public void run(Collector<Model> collector) {
-//						collector.execute(new DualCommandFactory<Model>() {
-//							@Override
-//							public Model getReference() {
-//								return view.getModelBehind();
-//							}
-//
-//							@Override
-//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//								dualCommands.add(new DualCommandPair<Model>(
-//									new MouseDownCommand(location), 
-//									new MouseDownCommand(location)
-//								));
-//							}
-//						});
-//						collector.commit();
-//					}
-//				});
-				
+
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
@@ -771,22 +706,6 @@ public abstract class Model implements Serializable, Observer {
 				return new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-//						collector.execute(new DualCommandFactory<Model>() {
-//							@Override
-//							public Model getReference() {
-//								return model;
-//							}
-//
-//							@Override
-//							public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//								Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
-//								dualCommands.add(new DualCommandPair<Model>(
-//									new Model.SetPropertyCommand(location, PROPERTY_COLOR, color),
-//									new Model.SetPropertyCommand(location, PROPERTY_COLOR, currentColor)
-//								));
-//							}
-//						});
-						
 						collector.execute(new CommandStateFactory<Model>() {
 							@Override
 							public Model getReference() {
@@ -795,7 +714,6 @@ public abstract class Model implements Serializable, Observer {
 
 							@Override
 							public void createDualCommands(List<CommandState<Model>> dualCommands) {
-//								Color currentColor = (Color)model.getProperty(PROPERTY_COLOR);
 								dualCommands.add(new PendingCommandState<Model>(
 									new Model.SetPropertyCommand(PROPERTY_COLOR, color),
 									new Model.SetPropertyCommand.AfterSetProperty()
@@ -831,29 +749,6 @@ public abstract class Model implements Serializable, Observer {
 				@Override
 				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
-
-//					collector.execute(new DualCommandFactory<Model>() {
-//						@Override
-//						public Model getReference() {
-//							return target.getModelBehind();
-//						}
-//
-//						@Override
-//						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
-//							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
-//							ModelLocation fromTargetToCCA = ModelComponent.Util.locationToAncestor((ModelLocation)location, cca, target);
-//							ModelLocation fromCCAToDropped = ModelComponent.Util.locationFromAncestor(fromTargetToCCA, cca, dropped);
-//							// Probably, the "version" of dropped to be cloned is important
-//							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
-//							Location droppedLocation = fromCCAToDropped;
-//							Factory factory = new CloneIsolatedFactory(droppedLocation);
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new CanvasModel.AddModelCommand(location, creationBounds, factory),
-//								new CanvasModel.RemoveModelCommand(location, cloneIndex)
-//							));
-//						}
-//					});
 					
 					collector.execute(new CommandStateFactory<Model>() {
 						@Override
@@ -863,7 +758,6 @@ public abstract class Model implements Serializable, Observer {
 
 						@Override
 						public void createDualCommands(List<CommandState<Model>> commandStates) {
-//							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
 							ModelLocation fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
 							ModelLocation fromCCAToDropped = new CompositeModelLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
@@ -884,29 +778,6 @@ public abstract class Model implements Serializable, Observer {
 				@Override
 				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
-
-//					collector.execute(new DualCommandFactory<Model>() {
-//						@Override
-//						public Model getReference() {
-//							return target.getModelBehind();
-//						}
-//
-//						@Override
-//						public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
-//							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
-//							ModelLocation fromTargetToCCA = ModelComponent.Util.locationToAncestor((ModelLocation)location, cca, target);
-//							ModelLocation fromCCAToDropped = ModelComponent.Util.locationFromAncestor(fromTargetToCCA, cca, dropped);
-//							// Probably, the "version" of dropped to be cloned is important
-//							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
-//							Location droppedLocation = fromCCAToDropped;
-//							Factory factory = new CloneDeepFactory(droppedLocation);
-//							dualCommands.add(new DualCommandPair<Model>(
-//								new CanvasModel.AddModelCommand(location, creationBounds, factory),
-//								new CanvasModel.RemoveModelCommand(location, cloneIndex)
-//							));
-//						}
-//					});
 					
 					collector.execute(new CommandStateFactory<Model>() {
 						@Override
@@ -916,7 +787,6 @@ public abstract class Model implements Serializable, Observer {
 
 						@Override
 						public void createDualCommands(List<CommandState<Model>> commandStates) {
-//							int cloneIndex = ((CanvasModel)target.getModelBehind()).getModelCount();
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
 							ModelLocation fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
 							ModelLocation fromCCAToDropped = new CompositeModelLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
@@ -1098,27 +968,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void executeRemoveObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
-//		collector.execute(new DualCommandFactory<Model>() {
-//			ModelComponent referenceMC;
-//			
-//			@Override
-//			public Model getReference() {
-//				referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
-//				return referenceMC.getModelBehind();
-//			}
-//			
-//			@Override
-//			public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//				ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observable);
-//				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observer);
-//				
-//				dualCommands.add(new DualCommandPair<Model>(
-//					new Model.RemoveObserverCommand(observableLocation, observerLocation),
-//					new Model.AddObserverCommand(observableLocation, observerLocation)
-//				));
-//			}
-//		});
-		
 		collector.execute(new CommandStateFactory<Model>() {
 			ModelComponent referenceMC;
 			
@@ -1142,27 +991,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void executeAddObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
-//		collector.execute(new DualCommandFactory<Model>() {
-//			ModelComponent referenceMC;
-//			
-//			@Override
-//			public Model getReference() {
-//				referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
-//				return referenceMC.getModelBehind();
-//			}
-//			
-//			@Override
-//			public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//				ModelLocation observableLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observable);
-//				ModelLocation observerLocation = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, observer);
-//				
-//				dualCommands.add(new DualCommandPair<Model>(
-//					new Model.AddObserverCommand(observableLocation, observerLocation),
-//					new Model.RemoveObserverCommand(observableLocation, observerLocation)
-//				));
-//			}
-//		});
-		
 		collector.execute(new CommandStateFactory<Model>() {
 			ModelComponent referenceMC;
 			

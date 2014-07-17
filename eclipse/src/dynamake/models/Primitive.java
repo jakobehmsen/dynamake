@@ -303,11 +303,6 @@ public class Primitive extends Model {
 		public void initialize() {
 			
 		}
-		
-		@Override
-		public void visitTree(Action1<ModelComponent> visitAction) {
-			visitAction.run(this);
-		}
 	}
 
 	@Override

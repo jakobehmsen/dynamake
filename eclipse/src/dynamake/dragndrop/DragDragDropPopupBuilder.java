@@ -121,27 +121,6 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionSelectionGeneralMapBuilder.addMenuBuilder("Inject", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-//				collector.execute(new DualCommandFactory<Model>() {
-//					ModelComponent referenceMC;
-//					
-//					@Override
-//					public Model getReference() {
-//						referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
-//						return referenceMC.getModelBehind();
-//					}
-//					
-//					@Override
-//					public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-//						ModelLocation locationOfSelection = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, selection);
-//						ModelLocation locationOfTarget = ModelComponent.Util.locationFromAncestor((ModelLocation)location, referenceMC, target);
-//							
-//						dualCommands.add(new DualCommandPair<Model>(
-//							new InjectCommand(locationOfSelection, locationOfTarget),
-//							new DejectCommand(locationOfSelection, locationOfTarget)
-//						));
-//					}
-//				});
-				
 				collector.execute(new CommandStateFactory<Model>() {
 					ModelComponent referenceMC;
 					
