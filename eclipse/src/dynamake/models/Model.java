@@ -517,19 +517,36 @@ public abstract class Model implements Serializable, Observer {
 			// Side-effect
 			final SetProperty setProperty = (SetProperty)change;
 
-			collector.execute(new DualCommandFactory<Model>() {
+//			collector.execute(new DualCommandFactory<Model>() {
+//				@Override
+//				public Model getReference() {
+//					return Model.this;
+//				}
+//				
+//				@Override
+//				public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
+//					Object currentValue = getProperty(setProperty.name);
+//					
+//					dualCommands.add(new DualCommandPair<Model>(
+//						new SetPropertyCommand(location, setProperty.name, setProperty.value),
+//						new SetPropertyCommand(location, setProperty.name, currentValue)
+//					));
+//				}
+//			});
+			
+			collector.execute(new CommandStateFactory<Model>() {
 				@Override
 				public Model getReference() {
 					return Model.this;
 				}
 				
 				@Override
-				public void createDualCommands(Location location, List<DualCommand<Model>> dualCommands) {
-					Object currentValue = getProperty(setProperty.name);
+				public void createDualCommands(List<CommandState<Model>> commandStates) {
+//					Object currentValue = getProperty(setProperty.name);
 					
-					dualCommands.add(new DualCommandPair<Model>(
-						new SetPropertyCommand(location, setProperty.name, setProperty.value),
-						new SetPropertyCommand(location, setProperty.name, currentValue)
+					commandStates.add(new PendingCommandState<Model>(
+						new SetPropertyCommand2(setProperty.name, setProperty.value),
+						new SetPropertyCommand2.AfterSetProperty()
 					));
 				}
 			});
