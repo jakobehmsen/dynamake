@@ -156,11 +156,6 @@ public class LiveModel extends Model {
 		public Object getChild(Object holder) {
 			return ((LiveModel)holder).content;
 		}
-
-		@Override
-		public Location getModelComponentLocation() {
-			return new ViewFieldContentLocation();
-		}
 	}
 	
 	private static class ViewFieldContentLocation implements Location {

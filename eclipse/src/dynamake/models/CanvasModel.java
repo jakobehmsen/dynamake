@@ -628,11 +628,6 @@ public class CanvasModel extends Model {
 			*/
 			return ((CanvasModel)holder).models.get(index);
 		}
-
-		@Override
-		public Location getModelComponentLocation() {
-			return new ViewIndexLocation(index);
-		}
 	}
 	
 	private static class ViewIndexLocation implements Location {

@@ -113,11 +113,6 @@ public class RootModel extends Model {
 		public Object getChild(Object holder) {
 			return ((RootModel)holder).content;
 		}
-
-		@Override
-		public Location getModelComponentLocation() {
-			return new ViewFieldContentLocation();
-		}
 	}
 	
 	private static class ViewFieldContentLocation implements Location {

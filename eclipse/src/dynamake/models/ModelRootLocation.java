@@ -11,9 +11,4 @@ public class ModelRootLocation implements ModelLocation {
 	public Object getChild(Object holder) {
 		return holder;
 	}
-
-	@Override
-	public Location getModelComponentLocation() {
-		return new ViewRootLocation();
-	}
 }
