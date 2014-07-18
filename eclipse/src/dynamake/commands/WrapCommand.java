@@ -22,7 +22,7 @@ public class WrapCommand implements Command<Model> {
 
 		@Override
 		public Command<Model> createCommand(Object output) {
-			UnwrapToLocationsCommand.Output unwrapOutput = (UnwrapToLocationsCommand.Output)output;
+			UnwrapCommand.Output unwrapOutput = (UnwrapCommand.Output)output;
 			return new WrapCommand(unwrapOutput.creationBounds, unwrapOutput.modelLocations);
 		}
 	}

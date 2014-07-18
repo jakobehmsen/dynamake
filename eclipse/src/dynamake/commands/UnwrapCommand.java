@@ -1,5 +1,6 @@
 package dynamake.commands;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import dynamake.models.CanvasModel;
@@ -20,10 +21,24 @@ public class UnwrapCommand implements Command<Model> {
 		@Override
 		public Command<Model> createCommand(Object output) {
 			WrapCommand.Output wrapOutput = (WrapCommand.Output)output;
-			return new UnwrapToLocationsCommand(wrapOutput.wrapperLocationInTarget, wrapOutput.creationBounds);
+			return new UnwrapCommand(wrapOutput.wrapperLocationInTarget, wrapOutput.creationBounds);
 		}
 	}
+	
+	public static class Output implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public final RectangleF creationBounds;
+		public final Location[] modelLocations;
 
+		public Output(RectangleF creationBounds, Location[] modelLocations) {
+			this.creationBounds = creationBounds;
+			this.modelLocations = modelLocations;
+		}
+	}
+	
 	/**
 	 * 
 	 */
@@ -62,7 +77,7 @@ public class UnwrapCommand implements Command<Model> {
 		for(Model model: models) {
 			Fraction x = (Fraction)model.getProperty("X");
 			Fraction y = (Fraction)model.getProperty("Y");
-
+			
 			model.setProperty("X", x.add(creationBounds.x), propCtx, 0, collector);
 			model.setProperty("Y", y.add(creationBounds.y), propCtx, 0, collector);
 		}
@@ -79,6 +94,6 @@ public class UnwrapCommand implements Command<Model> {
 			modelLocations[i] = target.getLocationOf(model);
 		}
 		
-		return new UnwrapToLocationsCommand.Output(creationBounds, modelLocations);
+		return new Output(creationBounds, modelLocations);
 	}
 }
