@@ -552,7 +552,7 @@ public class CanvasModel extends Model {
 			// The canvas model can be unwrap only if all the following cases are true:
 			// - It has one ore more models contained in itself
 			// - Its parent is a canvas model; i.e. canvases can only be unwrapped into other canvases
-			if(model.models.size() > 0 && ModelComponent.Util.getParent(this).getModelBehind() instanceof CanvasModel) {
+			if(model.getModelCount() > 0 && ModelComponent.Util.getParent(this).getModelBehind() instanceof CanvasModel) {
 				menuBuilder.addMenuBuilder("Unwrap", new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
@@ -787,8 +787,8 @@ public class CanvasModel extends Model {
 								
 								ArrayList<Model> shownModelsSequence = new ArrayList<Model>();
 								
-								for(int i = 0; i < models.size(); i++) {
-									Model m = models.get(i).model;
+								for(int i = 0; i < getModelCount(); i++) {
+									Model m = getModel(i);
 									
 									if(view.shownModels.contains(m))
 										shownModelsSequence.add(m);
@@ -921,8 +921,8 @@ public class CanvasModel extends Model {
 					if(propertyChanged.name.equals(Model.PROPERTY_VIEW)) {
 						Hashtable<Integer, Model> invisibles = new Hashtable<Integer, Model>();
 
-						for(int i = 0; i < view.model.models.size(); i++) {
-							Model m = view.model.models.get(i).model;
+						for(int i = 0; i < view.model.getModelCount(); i++) {
+							Model m = view.model.getModel(i);
 							boolean wasFound = false;
 							for(Component mc: view.getComponents()) {
 								if(m == ((ModelComponent)mc).getModelBehind()) {
@@ -961,7 +961,7 @@ public class CanvasModel extends Model {
 							});
 						}
 						
-						Object[] visibles = new Object[view.model.models.size()];
+						Object[] visibles = new Object[view.model.getModelCount()];
 						for(Component mc: view.getComponents()) {
 							boolean isVisible = shownModels.contains(mc);
 
