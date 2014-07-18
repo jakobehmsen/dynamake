@@ -1041,4 +1041,17 @@ public class CanvasModel extends Model {
 			}
 		};
 	}
+
+	public Location[] getLocations() {
+		Location[] locations = new Location[getModelCount()];
+		for(int i = 0; i < getModelCount(); i++) {
+			Entry entry = getEntry(i);
+			locations[i] = new IdLocation(entry.id);
+		}
+		return locations;
+	}
+
+	private Entry getEntry(int index) {
+		return models.get(index);
+	}
 }

@@ -41,9 +41,10 @@ public class UnwrapCommand implements Command<Model> {
 		CanvasModel target = (CanvasModel)location.getChild(prevalentSystem);
 		CanvasModel wrapper = (CanvasModel)wrapperLocationInTarget.getChild(target);
 		
+		Location[] locationsOfModels = wrapper.getLocations();
 		Model[] models = new Model[wrapper.getModelCount()];
-		for(int i = 0; i <  wrapper.getModelCount(); i++) {
-			Model model = wrapper.getModel(i);
+		for(int i = 0; i <  locationsOfModels.length; i++) {
+			Model model = wrapper.getModelByLocation(locationsOfModels[i]);
 			
 			models[i] = model;
 		}
