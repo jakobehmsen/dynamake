@@ -145,67 +145,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-//	public static class MoveModelCommand implements Command<Model> {
-//		public static class AfterMove implements CommandFactory<Model> {
-//			/**
-//			 * 
-//			 */
-//			private static final long serialVersionUID = 1L;
-//
-//			@Override
-//			public Command<Model> createCommand(Object output) {
-//				MoveModelCommand.Output moveOutput = (MoveModelCommand.Output)output;
-//				return new MoveModelCommand(moveOutput.canvasTargetLocation, moveOutput.canvasSourceLocation, moveOutput.movedToIndex);
-//			}
-//		}
-//		
-//		public static class Output implements Serializable {
-//			/**
-//			 * 
-//			 */
-//			private static final long serialVersionUID = 1L;
-//			public final Location canvasSourceLocation;
-//			public final Location canvasTargetLocation;
-//			public final int movedToIndex;
-//			
-//			public Output(Location canvasSourceLocation, Location canvasTargetLocation, int movedToIndex) {
-//				this.canvasSourceLocation = canvasSourceLocation;
-//				this.canvasTargetLocation = canvasTargetLocation;
-//				this.movedToIndex = movedToIndex;
-//			}
-//		}
-//		
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//		
-//		private Location canvasSourceLocation;
-//		private Location canvasTargetLocation;
-//		private int indexInSource;
-//
-//		public MoveModelCommand(Location canvasSourceLocation, Location canvasTargetLocation, int indexInSource) {
-//			this.canvasSourceLocation = canvasSourceLocation;
-//			this.canvasTargetLocation = canvasTargetLocation;
-//			this.indexInSource = indexInSource;
-//		}
-//
-//		@Override
-//		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
-//			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
-//			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
-//			Model model = (Model)canvasSource.getModel(indexInSource);
-//
-//			int indexOfModel = canvasSource.indexOfModel(model);
-//			canvasSource.removeModel(indexOfModel, propCtx, 0, collector);
-//			canvasTarget.addModel(model, propCtx, 0, collector);
-//			int movedToIndex = canvasTarget.indexOfModel(model);
-//			
-//			return new Output(canvasSourceLocation, canvasTargetLocation, movedToIndex);
-//		}
-//	}
-	
-	public static class MoveModelCommand2 implements Command<Model> {
+	public static class MoveModelCommand implements Command<Model> {
 		public static class Output implements Serializable {
 			/**
 			 * 
@@ -233,7 +173,7 @@ public class CanvasModel extends Model {
 		private Location canvasTargetLocation;
 		private Location locationInSource;
 
-		public MoveModelCommand2(Location canvasSourceLocation, Location canvasTargetLocation, Location locationInSource) {
+		public MoveModelCommand(Location canvasSourceLocation, Location canvasTargetLocation, Location locationInSource) {
 			this.canvasSourceLocation = canvasSourceLocation;
 			this.canvasTargetLocation = canvasTargetLocation;
 			this.locationInSource = locationInSource;
@@ -253,7 +193,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class MoveBackModelCommand2 implements Command<Model> {
+	public static class MoveBackModelCommand implements Command<Model> {
 		public static class AfterMove implements CommandFactory<Model> {
 			/**
 			 * 
@@ -262,8 +202,8 @@ public class CanvasModel extends Model {
 
 			@Override
 			public Command<Model> createCommand(Object output) {
-				MoveModelCommand2.Output moveOutput = (MoveModelCommand2.Output)output;
-				return new MoveBackModelCommand2(moveOutput.canvasTargetLocation, moveOutput.canvasSourceLocation, moveOutput.movedToInTarget, moveOutput.movedFromInSource);
+				MoveModelCommand.Output moveOutput = (MoveModelCommand.Output)output;
+				return new MoveBackModelCommand(moveOutput.canvasTargetLocation, moveOutput.canvasSourceLocation, moveOutput.movedToInTarget, moveOutput.movedFromInSource);
 			}
 		}
 		
@@ -277,7 +217,7 @@ public class CanvasModel extends Model {
 		private Location locationInSource;
 		private Location locationInTarget;
 
-		public MoveBackModelCommand2(Location canvasSourceLocation, Location canvasTargetLocation, Location locationInSource, Location locationInTarget) {
+		public MoveBackModelCommand(Location canvasSourceLocation, Location canvasTargetLocation, Location locationInSource, Location locationInTarget) {
 			this.canvasSourceLocation = canvasSourceLocation;
 			this.canvasTargetLocation = canvasTargetLocation;
 			this.locationInSource = locationInSource;
@@ -293,7 +233,7 @@ public class CanvasModel extends Model {
 			canvasSource.removeModelByLocation(locationInSource, propCtx, 0, collector);
 			canvasTarget.restoreModelByLocation(locationInTarget, model, propCtx, 0, collector);
 			
-			return new MoveModelCommand2.Output(canvasSourceLocation, canvasTargetLocation, locationInSource, locationInTarget);
+			return new MoveModelCommand.Output(canvasSourceLocation, canvasTargetLocation, locationInSource, locationInTarget);
 		}
 	}
 	
@@ -606,7 +546,7 @@ public class CanvasModel extends Model {
 						
 						@Override
 						public void createDualCommands(List<CommandState<Model>> commandStates) {
-							CanvasModel.appendRemoveTransaction2(commandStates, livePanel, child, model);
+							CanvasModel.appendRemoveTransaction(commandStates, livePanel, child, model);
 						}
 					});
 				}
@@ -635,7 +575,7 @@ public class CanvasModel extends Model {
 							
 							@Override
 							public void createDualCommands(List<CommandState<Model>> commandStates) {
-								CanvasModel.appendUnwrapTransaction2(commandStates, CanvasPanel.this, parent);
+								CanvasModel.appendUnwrapTransaction(commandStates, CanvasPanel.this, parent);
 							}
 						});
 					}
@@ -677,7 +617,7 @@ public class CanvasModel extends Model {
 								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
 								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
-								CanvasModel.appendMoveTransaction2(commandStates, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
+								CanvasModel.appendMoveTransaction(commandStates, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 							}
 						});
 					}
@@ -706,7 +646,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static void appendUnwrapTransaction2(List<CommandState<Model>> commandStates, ModelComponent toUnwrap, ModelComponent parent) {
+	public static void appendUnwrapTransaction(List<CommandState<Model>> commandStates, ModelComponent toUnwrap, ModelComponent parent) {
 		CanvasModel target = (CanvasModel)parent.getModelBehind();
 		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
 		Location wrapperLocationInTarget = target.getLocationOf(modelToBeUnwrapped);
@@ -724,8 +664,7 @@ public class CanvasModel extends Model {
 		));
 	}
 	
-	public static void appendRemoveTransaction2(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent child, CanvasModel model) {
-//		int indexOfModel = model.indexOfModel(child.getModelBehind());
+	public static void appendRemoveTransaction(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent child, CanvasModel model) {
 		Location locationOfModel = model.getLocationOf(child.getModelBehind());
 		
 		commandStates.add(new PendingCommandState<Model>(
@@ -735,25 +674,18 @@ public class CanvasModel extends Model {
 		));
 	}
 	
-	public static void appendMoveTransaction2(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation) {
+	public static void appendMoveTransaction(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation) {
 		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
-//		int indexSource = sourceCanvas.indexOfModel(modelToMove.getModelBehind());
 		Location locationInSource = sourceCanvas.getLocationOf(modelToMove.getModelBehind());
 		
 		Location canvasTargetLocationAfter = canvasTargetLocation;
 		
 		Location modelLocationAfterMove = new CompositeLocation(canvasTargetLocationAfter, ((CanvasModel)target.getModelBehind()).getNextLocation());
 		
-//		commandStates.add(new PendingCommandState<Model>(
-//			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, indexSource), 
-//			new CanvasModel.MoveModelCommand.AfterMove(),
-//			new CanvasModel.MoveModelCommand.AfterMove()
-//		));
-		
 		commandStates.add(new PendingCommandState<Model>(
-			new CanvasModel.MoveModelCommand2(canvasSourceLocation, canvasTargetLocation, locationInSource), 
-			new CanvasModel.MoveBackModelCommand2.AfterMove(),
-			new CanvasModel.MoveBackModelCommand2.AfterMove()
+			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, locationInSource), 
+			new CanvasModel.MoveBackModelCommand.AfterMove(),
+			new CanvasModel.MoveBackModelCommand.AfterMove()
 		));
 		
 		commandStates.add(new PendingCommandState<Model>(

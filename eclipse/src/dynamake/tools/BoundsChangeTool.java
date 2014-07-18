@@ -91,7 +91,7 @@ public abstract class BoundsChangeTool implements Tool {
 								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
 								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
-								CanvasModel.appendMoveTransaction2(commandStates, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
+								CanvasModel.appendMoveTransaction(commandStates, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 							}
 						});
 					} else {
