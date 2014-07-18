@@ -104,24 +104,19 @@ public interface ModelComponent {
 		public static Location locationToAncestor(ModelComponent ancestor, ModelComponent child) {
 			if(child == ancestor)
 				return new ModelRootLocation();
-			
-			ArrayList<ModelComponent> ancestorsClosestToFarthest = new ArrayList<ModelComponent>();
 
+			Location location = new ParentLocation();
+			
 			ModelComponent parent = getParent(child);
 			while(true) {
-				ancestorsClosestToFarthest.add(parent);
 				if(parent == ancestor)
 					break;
+				
 				parent = getParent(parent);
-			}
-			
-			Location location = ((CanvasModel)ancestorsClosestToFarthest.get(0).getModelBehind()).getLocationOf(child.getModelBehind());
-			
-			for(int i = 1; i < ancestorsClosestToFarthest.size(); i++) {
-				ModelComponent currentAncestor = ancestorsClosestToFarthest.get(i - 1);
+				
 				location = new CompositeLocation(
-					location,
-					((CanvasModel)ancestorsClosestToFarthest.get(i).getModelBehind()).getLocationOf(currentAncestor.getModelBehind())
+					new ParentLocation(),
+					location
 				);
 			}
 					
