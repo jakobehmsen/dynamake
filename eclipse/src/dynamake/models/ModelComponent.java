@@ -74,6 +74,32 @@ public interface ModelComponent {
 			return null;
 		}
 
+		public static Model closestCommonAncestor(Model first, Model second) {
+			HashSet<Model> secondAncestors = new HashSet<Model>();
+
+			// Start at second, because first may be contained within second
+			// and, thus, second may be an ancestor of first
+			Model secondParent = second;//getParent(second);
+			
+			while(secondParent != null) {
+				secondAncestors.add(secondParent);
+				secondParent = secondParent.getParent();
+			}
+
+			// Start at first, because second may be contained within first
+			// and, thus, first may be an ancestor of second
+			Model firstParent = first;//getParent(first);
+			
+			while(firstParent != null) {
+				if(secondAncestors.contains(firstParent))
+					return firstParent;
+
+				firstParent = firstParent.getParent();
+			}
+
+			return null;
+		}
+
 		public static Location locationFromAncestor(ModelComponent ancestor, ModelComponent child) {
 			return locationFromAncestor(ancestor.getModelBehind(), child.getModelBehind());
 		}
