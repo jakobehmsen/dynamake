@@ -401,6 +401,7 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
+			
 			modelToRemove.beRemoved();
 			
 			// TODO: Consider: Should it be a clone of the removed model instead? 
@@ -411,6 +412,7 @@ public class CanvasModel extends Model {
 	private void restoreModel(Object id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		int index = models.size();
 		models.add(index, new Entry(id, model));
+		model.setParent(this);
 		collector.registerAffectedModel(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
@@ -440,6 +442,7 @@ public class CanvasModel extends Model {
 		int id = nextId++;
 		
 		models.add(index, new Entry(id, model));
+		model.setParent(this);
 		collector.registerAffectedModel(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
@@ -452,6 +455,7 @@ public class CanvasModel extends Model {
 	public void removeModel(int index, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		Model model = models.get(index).model;
 		models.remove(index);
+		model.setParent(null);
 		collector.registerAffectedModel(this);
 		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
@@ -836,7 +840,6 @@ public class CanvasModel extends Model {
 		});
 		
 		modelToRemovableListenerMap.put(model, removableListener);
-		model.setParent(view.model);
 	}
 
 	public Model getModelById(Object id) {
@@ -907,7 +910,6 @@ public class CanvasModel extends Model {
 					// Mark the model physically non-existent at this point in the current branch
 					// (this may change before committing the branch)
 					removedMC.getModelBehind().setLocator(null);
-					removedMC.getModelBehind().setParent(null);
 					
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
 					removableListener.releaseBinding();
