@@ -2,6 +2,7 @@ package dynamake.commands;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Hashtable;
 
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
@@ -21,7 +22,7 @@ public class UnwrapCommand implements Command<Model> {
 		@Override
 		public Command<Model> createCommand(Object output) {
 			WrapCommand.Output wrapOutput = (WrapCommand.Output)output;
-			return new UnwrapCommand(wrapOutput.wrapperLocationInTarget, wrapOutput.creationBounds);
+			return new UnwrapCommand(wrapOutput.wrapperLocationInTarget, wrapOutput.creationBounds, wrapOutput.wrapperToSourceLocations);
 		}
 	}
 	
@@ -30,10 +31,12 @@ public class UnwrapCommand implements Command<Model> {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		public final Location wrapperLocation;
 		public final RectangleF creationBounds;
 		public final Location[] modelLocations;
 
-		public Output(RectangleF creationBounds, Location[] modelLocations) {
+		public Output(Location wrapperLocation, RectangleF creationBounds, Location[] modelLocations) {
+			this.wrapperLocation = wrapperLocation;
 			this.creationBounds = creationBounds;
 			this.modelLocations = modelLocations;
 		}
@@ -45,10 +48,16 @@ public class UnwrapCommand implements Command<Model> {
 	private static final long serialVersionUID = 1L;
 	private Location wrapperLocationInTarget;
 	private RectangleF creationBounds;
+	private Hashtable<Location, Location> wrapperToSourceLocations;
 	
 	public UnwrapCommand(Location wrapperLocationInTarget, RectangleF creationBounds) {
+		this(wrapperLocationInTarget, creationBounds, new Hashtable<Location, Location>());
+	}
+	
+	public UnwrapCommand(Location wrapperLocationInTarget, RectangleF creationBounds, Hashtable<Location, Location> wrapperToSourceLocations) {
 		this.wrapperLocationInTarget = wrapperLocationInTarget;
 		this.creationBounds = creationBounds;
+		this.wrapperToSourceLocations = wrapperToSourceLocations;
 	}
 
 	@Override
@@ -56,10 +65,10 @@ public class UnwrapCommand implements Command<Model> {
 		CanvasModel target = (CanvasModel)location.getChild(prevalentSystem);
 		CanvasModel wrapper = (CanvasModel)wrapperLocationInTarget.getChild(target);
 		
-		Location[] locationsOfModels = wrapper.getLocations();
+		Location[] locationsInWrapper = wrapper.getLocations();
 		Model[] models = new Model[wrapper.getModelCount()];
-		for(int i = 0; i <  locationsOfModels.length; i++) {
-			Model model = wrapper.getModelByLocation(locationsOfModels[i]);
+		for(int i = 0; i <  locationsInWrapper.length; i++) {
+			Model model = wrapper.getModelByLocation(locationsInWrapper[i]);
 			
 			models[i] = model;
 		}
@@ -85,7 +94,15 @@ public class UnwrapCommand implements Command<Model> {
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
 			Model model = models[i];
-			target.addModel(model, propCtx, 0, collector);
+			Location locationInWrapper = locationsInWrapper[i];
+			Location locationInSource = wrapperToSourceLocations.get(locationInWrapper);
+			// If wrapped model was part of a previous wrapping
+			if(locationInSource != null)
+				// then restore id
+				target.restoreModelByLocation(locationInSource, model, propCtx, 0, collector);
+			else
+				// otherwise, it is new and should be given a new location
+				target.addModel(model, propCtx, 0, collector);
 		}
 		
 		Location[] modelLocations = new Location[models.length];
@@ -94,6 +111,6 @@ public class UnwrapCommand implements Command<Model> {
 			modelLocations[i] = target.getLocationOf(model);
 		}
 		
-		return new Output(creationBounds, modelLocations);
+		return new Output(wrapperLocationInTarget, creationBounds, modelLocations);
 	}
 }

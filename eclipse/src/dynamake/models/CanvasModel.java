@@ -23,6 +23,7 @@ import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
+import dynamake.commands.RewrapCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.commands.WrapCommand;
@@ -398,25 +399,22 @@ public class CanvasModel extends Model {
 		private Location locationOfModelToRemove;
 		
 		public RemoveModelCommand(Location locationOfModelToRemove) {
-//			if(index < 0)
-//				new String();
 			this.locationOfModelToRemove = locationOfModelToRemove;
 		}
 		
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
-//			Entry entry = canvas.models.get(index);
 			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
-//			canvas.removeModel(index, propCtx, 0, collector);
 			modelToRemove.beRemoved();
 			
+			// TODO: Consider: Should it be a clone of the removed model instead? 
 			return new Output(locationOfModelToRemove, modelToRemove);
 		}
 	}
 	
-	public void restoreModel(Object id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	private void restoreModel(Object id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		int index = models.size();
 		models.add(index, new Entry(id, model));
 		collector.registerAffectedModel(this);
@@ -660,7 +658,7 @@ public class CanvasModel extends Model {
 		
 		commandStates.add(new PendingCommandState<Model>(
 			new UnwrapCommand(wrapperLocationInTarget, creationBoundsInSelection),
-			new WrapCommand.AfterUnwrap(),
+			new RewrapCommand.AfterUnwrap(),
 			new UnwrapCommand.AfterWrap()
 		));
 	}
@@ -731,6 +729,16 @@ public class CanvasModel extends Model {
 			Model model = ((CanvasModel)holder).getModelById(id);
 
 			return model;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof IdLocation && this.id.equals(((IdLocation)obj).id);
+		}
+		
+		@Override
+		public int hashCode() {
+			return id.hashCode();
 		}
 	}
 

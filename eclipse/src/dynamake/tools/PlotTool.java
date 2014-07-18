@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.RewrapCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.commands.WrapCommand;
 import dynamake.models.CanvasModel;
@@ -81,7 +82,7 @@ public class PlotTool implements Tool {
 							commandStates.add(new PendingCommandState<Model>(
 								new WrapCommand(new RectangleF(creationBoundsInSelection), modelLocations), 
 								new UnwrapCommand.AfterWrap(),
-								new WrapCommand.AfterUnwrap()
+								new RewrapCommand.AfterUnwrap()
 							));
 						}
 					});
