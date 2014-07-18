@@ -303,10 +303,10 @@ public class CanvasModel extends Model {
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
-			public final int index;
+			public final Location location;
 
-			public Output(int index) {
-				this.index = index;
+			public Output(Location location) {
+				this.location = location;
 			}
 		}
 		
@@ -348,10 +348,11 @@ public class CanvasModel extends Model {
 			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
 			
 			canvas.addModel(model, new PropogationContext(), 0, collector);
+			Location addedModelLocation = canvas.getLocationOf(model);
 			
-			int index = canvas.getModelCount() - 1;
+//			int index = canvas.getModelCount() - 1;
 			
-			return new Output(index);
+			return new Output(addedModelLocation);
 		}
 	}
 	
@@ -366,7 +367,7 @@ public class CanvasModel extends Model {
 			@Override
 			public Command<Model> createCommand(Object output) {
 				Model model = ((RemoveModelCommand.Output)output).model;
-				Object id = ((RemoveModelCommand.Output)output).id;
+				Location location = ((RemoveModelCommand.Output)output).location;
 				// TODO: Consider the following:
 				// What if the model what observing/being observed before its removal?
 				// What if the model's observers/observees aren't all in existence anymore?
@@ -378,7 +379,7 @@ public class CanvasModel extends Model {
 				Fraction width = (Fraction)model.getProperty("Width");
 				Fraction height = (Fraction)model.getProperty("Height");
 				
-				return new CanvasModel.RestoreModelCommand(id, x, y, width, height, new AsIsFactory(model));
+				return new CanvasModel.RestoreModelCommand(location, x, y, width, height, new AsIsFactory(model));
 			}
 		}
 		
@@ -386,15 +387,15 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private Object id;
+		private Location modelLocationToRestore;
 		private Fraction xCreation;
 		private Fraction yCreation;
 		private Fraction widthCreation;
 		private Fraction heightCreation;
 		private Factory factory;
 		
-		public RestoreModelCommand(Object id, Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, Factory factory) {
-			this.id = id;
+		public RestoreModelCommand(Location modelLocationToRestore, Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, Factory factory) {
+			this.modelLocationToRestore = modelLocationToRestore;
 			this.xCreation = xCreation;
 			this.yCreation = yCreation;
 			this.widthCreation = widthCreation;
@@ -413,11 +414,11 @@ public class CanvasModel extends Model {
 			model.setProperty("Width", widthCreation, propCtx, 0, isolatedCollector);
 			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
 			
-			canvas.restoreModel(id, model, new PropogationContext(), 0, collector);
+			canvas.restoreModelByLocation(modelLocationToRestore, model, new PropogationContext(), 0, collector);
 			
-			int index = canvas.getModelCount() - 1;
+//			int index = canvas.getModelCount() - 1;
 			
-			return new AddModelCommand.Output(index);
+			return new AddModelCommand.Output(modelLocationToRestore);
 		}
 	}
 	
@@ -427,13 +428,11 @@ public class CanvasModel extends Model {
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
-			public final Object id;
-			public final int index;
+			public final Location location;
 			public final Model model;
 
-			public Output(Object id, int index, Model model) {
-				this.id = id;
-				this.index = index;
+			public Output(Location location, Model model) {
+				this.location = location;
 				this.model = model;
 			}
 		}
@@ -447,7 +446,7 @@ public class CanvasModel extends Model {
 
 			@Override
 			public Command<Model> createCommand(Object output) {
-				return new CanvasModel.RemoveModelCommand(((CanvasModel.AddModelCommand.Output)output).index);
+				return new CanvasModel.RemoveModelCommand(((CanvasModel.AddModelCommand.Output)output).location);
 			}
 		}
 		
@@ -455,23 +454,24 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private int index;
+		private Location locationOfModelToRemove;
 		
-		public RemoveModelCommand(int index) {
-			if(index < 0)
-				new String();
-			this.index = index;
+		public RemoveModelCommand(Location locationOfModelToRemove) {
+//			if(index < 0)
+//				new String();
+			this.locationOfModelToRemove = locationOfModelToRemove;
 		}
 		
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
-			Entry entry = canvas.models.get(index);
-			Model modelToRemove = entry.model;
-			canvas.removeModel(index, propCtx, 0, collector);
+//			Entry entry = canvas.models.get(index);
+			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
+			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
+//			canvas.removeModel(index, propCtx, 0, collector);
 			modelToRemove.beRemoved();
 			
-			return new Output(entry.id, index, modelToRemove);
+			return new Output(locationOfModelToRemove, modelToRemove);
 		}
 	}
 	
@@ -725,10 +725,11 @@ public class CanvasModel extends Model {
 	}
 	
 	public static void appendRemoveTransaction2(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent child, CanvasModel model) {
-		int indexOfModel = model.indexOfModel(child.getModelBehind());
+//		int indexOfModel = model.indexOfModel(child.getModelBehind());
+		Location locationOfModel = model.getLocationOf(child.getModelBehind());
 		
 		commandStates.add(new PendingCommandState<Model>(
-			new RemoveModelCommand(indexOfModel),
+			new RemoveModelCommand(locationOfModel),
 			new RestoreModelCommand.AfterRemove(),
 			new RemoveModelCommand.AfterAdd()
 		));
