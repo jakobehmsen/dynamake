@@ -99,6 +99,14 @@ public interface ModelComponent {
 
 			return null;
 		}
+		
+		public static Location locationBetween(Model from, Model to) {
+			Model cca = ModelComponent.Util.closestCommonAncestor(from, to);
+			Location locationFromSelfToCca = ModelComponent.Util.locationToAncestor(cca, from);
+			Location locationFromCcaToObserver = ModelComponent.Util.locationFromAncestor(cca, to);
+			
+			return new CompositeLocation(locationFromSelfToCca, locationFromCcaToObserver);
+		}
 
 		public static Location locationFromAncestor(ModelComponent ancestor, ModelComponent child) {
 			return locationFromAncestor(ancestor.getModelBehind(), child.getModelBehind());
