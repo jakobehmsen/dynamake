@@ -290,8 +290,6 @@ public class CanvasModel extends Model {
 			canvas.addModel(model, new PropogationContext(), 0, collector);
 			Location addedModelLocation = canvas.getLocationOf(model);
 			
-//			int index = canvas.getModelCount() - 1;
-			
 			return new Output(addedModelLocation);
 		}
 	}
@@ -355,8 +353,6 @@ public class CanvasModel extends Model {
 			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
 			
 			canvas.restoreModelByLocation(modelLocationToRestore, model, new PropogationContext(), 0, collector);
-			
-//			int index = canvas.getModelCount() - 1;
 			
 			return new AddModelCommand.Output(modelLocationToRestore);
 		}
