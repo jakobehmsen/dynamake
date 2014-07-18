@@ -47,6 +47,8 @@ public class CanvasModel extends Model {
 		public final Model model;
 		
 		public Entry(Object id, Model model) {
+			if(!(id instanceof Integer))
+				new String();
 			this.id = id;
 			this.model = model;
 		}
@@ -143,20 +145,67 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class MoveModelCommand implements Command<Model> {
-		public static class AfterMove implements CommandFactory<Model> {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Command<Model> createCommand(Object output) {
-				MoveModelCommand.Output moveOutput = (MoveModelCommand.Output)output;
-				return new MoveModelCommand(moveOutput.canvasTargetLocation, moveOutput.canvasSourceLocation, moveOutput.movedToIndex);
-			}
-		}
-		
+//	public static class MoveModelCommand implements Command<Model> {
+//		public static class AfterMove implements CommandFactory<Model> {
+//			/**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = 1L;
+//
+//			@Override
+//			public Command<Model> createCommand(Object output) {
+//				MoveModelCommand.Output moveOutput = (MoveModelCommand.Output)output;
+//				return new MoveModelCommand(moveOutput.canvasTargetLocation, moveOutput.canvasSourceLocation, moveOutput.movedToIndex);
+//			}
+//		}
+//		
+//		public static class Output implements Serializable {
+//			/**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = 1L;
+//			public final Location canvasSourceLocation;
+//			public final Location canvasTargetLocation;
+//			public final int movedToIndex;
+//			
+//			public Output(Location canvasSourceLocation, Location canvasTargetLocation, int movedToIndex) {
+//				this.canvasSourceLocation = canvasSourceLocation;
+//				this.canvasTargetLocation = canvasTargetLocation;
+//				this.movedToIndex = movedToIndex;
+//			}
+//		}
+//		
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//		
+//		private Location canvasSourceLocation;
+//		private Location canvasTargetLocation;
+//		private int indexInSource;
+//
+//		public MoveModelCommand(Location canvasSourceLocation, Location canvasTargetLocation, int indexInSource) {
+//			this.canvasSourceLocation = canvasSourceLocation;
+//			this.canvasTargetLocation = canvasTargetLocation;
+//			this.indexInSource = indexInSource;
+//		}
+//
+//		@Override
+//		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+//			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
+//			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
+//			Model model = (Model)canvasSource.getModel(indexInSource);
+//
+//			int indexOfModel = canvasSource.indexOfModel(model);
+//			canvasSource.removeModel(indexOfModel, propCtx, 0, collector);
+//			canvasTarget.addModel(model, propCtx, 0, collector);
+//			int movedToIndex = canvasTarget.indexOfModel(model);
+//			
+//			return new Output(canvasSourceLocation, canvasTargetLocation, movedToIndex);
+//		}
+//	}
+	
+	public static class MoveModelCommand2 implements Command<Model> {
 		public static class Output implements Serializable {
 			/**
 			 * 
@@ -164,12 +213,14 @@ public class CanvasModel extends Model {
 			private static final long serialVersionUID = 1L;
 			public final Location canvasSourceLocation;
 			public final Location canvasTargetLocation;
-			public final int movedToIndex;
+			public final Location movedFromInSource;
+			public final Location movedToInTarget;
 			
-			public Output(Location canvasSourceLocation, Location canvasTargetLocation, int movedToIndex) {
+			public Output(Location canvasSourceLocation, Location canvasTargetLocation, Location movedFromInSource, Location movedToInTarget) {
 				this.canvasSourceLocation = canvasSourceLocation;
 				this.canvasTargetLocation = canvasTargetLocation;
-				this.movedToIndex = movedToIndex;
+				this.movedFromInSource = movedFromInSource;
+				this.movedToInTarget = movedToInTarget;
 			}
 		}
 		
@@ -180,26 +231,69 @@ public class CanvasModel extends Model {
 		
 		private Location canvasSourceLocation;
 		private Location canvasTargetLocation;
-		private int indexInSource;
+		private Location locationInSource;
 
-		public MoveModelCommand(Location canvasSourceLocation, Location canvasTargetLocation, int indexInSource) {
+		public MoveModelCommand2(Location canvasSourceLocation, Location canvasTargetLocation, Location locationInSource) {
 			this.canvasSourceLocation = canvasSourceLocation;
 			this.canvasTargetLocation = canvasTargetLocation;
-			this.indexInSource = indexInSource;
+			this.locationInSource = locationInSource;
 		}
 
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
 			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
 			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
-			Model model = (Model)canvasSource.getModel(indexInSource);
+			Model model = (Model)canvasSource.getModelByLocation(locationInSource);
 
-			int indexOfModel = canvasSource.indexOfModel(model);
-			canvasSource.removeModel(indexOfModel, propCtx, 0, collector);
+			canvasSource.removeModelByLocation(locationInSource, propCtx, 0, collector);
 			canvasTarget.addModel(model, propCtx, 0, collector);
-			int movedToIndex = canvasTarget.indexOfModel(model);
+			Location locationInTarget = canvasTarget.getLocationOf(model);
 			
-			return new Output(canvasSourceLocation, canvasTargetLocation, movedToIndex);
+			return new Output(canvasSourceLocation, canvasTargetLocation, locationInSource, locationInTarget);
+		}
+	}
+	
+	public static class MoveBackModelCommand2 implements Command<Model> {
+		public static class AfterMove implements CommandFactory<Model> {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Command<Model> createCommand(Object output) {
+				MoveModelCommand2.Output moveOutput = (MoveModelCommand2.Output)output;
+				return new MoveBackModelCommand2(moveOutput.canvasTargetLocation, moveOutput.canvasSourceLocation, moveOutput.movedToInTarget, moveOutput.movedFromInSource);
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private Location canvasSourceLocation;
+		private Location canvasTargetLocation;
+		private Location locationInSource;
+		private Location locationInTarget;
+
+		public MoveBackModelCommand2(Location canvasSourceLocation, Location canvasTargetLocation, Location locationInSource, Location locationInTarget) {
+			this.canvasSourceLocation = canvasSourceLocation;
+			this.canvasTargetLocation = canvasTargetLocation;
+			this.locationInSource = locationInSource;
+			this.locationInTarget = locationInTarget;
+		}
+
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
+			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
+			Model model = (Model)canvasSource.getModelByLocation(locationInSource);
+
+			canvasSource.removeModelByLocation(locationInSource, propCtx, 0, collector);
+			canvasTarget.restoreModelByLocation(locationInTarget, model, propCtx, 0, collector);
+			
+			return new MoveModelCommand2.Output(canvasSourceLocation, canvasTargetLocation, locationInSource, locationInTarget);
 		}
 	}
 	
@@ -387,13 +481,26 @@ public class CanvasModel extends Model {
 		collector.registerAffectedModel(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
-	
+
+	public void restoreModelByLocation(Location location, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		restoreModel(((IdLocation)location).id, model, propCtx, propDistance, collector);
+	}
+
+	public void removeModelByLocation(Location location, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		int indexOf = getIndexOfModelById(((IdLocation)location).id);
+		removeModel(indexOf, propCtx, propDistance, collector);
+	}
+
 	public void addModel(Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		addModel(models.size(), model, propCtx, propDistance, collector);
 	}
 
 	public Model getModel(int index) {
 		return models.get(index).model;
+	}
+	
+	public Model getModelByLocation(Location location) {
+		return getModelById(((IdLocation)location).id);
 	}
 
 	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -419,6 +526,15 @@ public class CanvasModel extends Model {
 	public int indexOfModel(Model model) {
 		for(int i = 0; i < models.size(); i++) {
 			if(models.get(i).model == model)
+				return i;
+		}
+		
+		return -1;
+	}
+
+	private int getIndexOfModelById(Object id) {
+		for(int i = 0; i < models.size(); i++) {
+			if(models.get(i).id.equals(id))
 				return i;
 		}
 		
@@ -620,16 +736,23 @@ public class CanvasModel extends Model {
 	
 	public static void appendMoveTransaction2(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation) {
 		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
-		int indexSource = sourceCanvas.indexOfModel(modelToMove.getModelBehind());
+//		int indexSource = sourceCanvas.indexOfModel(modelToMove.getModelBehind());
+		Location locationInSource = sourceCanvas.getLocationOf(modelToMove.getModelBehind());
 		
 		Location canvasTargetLocationAfter = canvasTargetLocation;
 		
 		Location modelLocationAfterMove = new CompositeLocation(canvasTargetLocationAfter, ((CanvasModel)target.getModelBehind()).getNextLocation());
 		
+//		commandStates.add(new PendingCommandState<Model>(
+//			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, indexSource), 
+//			new CanvasModel.MoveModelCommand.AfterMove(),
+//			new CanvasModel.MoveModelCommand.AfterMove()
+//		));
+		
 		commandStates.add(new PendingCommandState<Model>(
-			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, indexSource), 
-			new CanvasModel.MoveModelCommand.AfterMove(),
-			new CanvasModel.MoveModelCommand.AfterMove()
+			new CanvasModel.MoveModelCommand2(canvasSourceLocation, canvasTargetLocation, locationInSource), 
+			new CanvasModel.MoveBackModelCommand2.AfterMove(),
+			new CanvasModel.MoveBackModelCommand2.AfterMove()
 		));
 		
 		commandStates.add(new PendingCommandState<Model>(

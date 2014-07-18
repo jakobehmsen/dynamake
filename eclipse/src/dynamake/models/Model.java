@@ -136,6 +136,9 @@ public abstract class Model implements Serializable, Observer {
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
 			Model model = (Model)location.getChild(prevalentSystem);
 			
+			if(model == null)
+				new String();
+			
 			Object previousValue = model.getProperty(name);
 			model.setProperty(name, value, propCtx, 0, collector);
 			
