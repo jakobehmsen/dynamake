@@ -25,8 +25,6 @@ import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.RewrapCommand;
 import dynamake.commands.UnwrapCommand;
-import dynamake.commands.UnwrapCommand;
-import dynamake.commands.WrapCommand;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
