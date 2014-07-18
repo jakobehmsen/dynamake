@@ -34,6 +34,7 @@ public class RootModel extends Model {
 	
 	public RootModel(Model content) {
 		this.content = content;
+		content.setParent(this);
 	}
 	
 	@Override

@@ -228,9 +228,19 @@ public abstract class Model implements Serializable, Observer {
 		return locator;
 	}
 	
+	public void setParent(Model parent) {
+		this.parent = parent;
+//		System.out.println("Set parent of " + this + " to " + parent);
+	}
+	
+	public Model getParent() {
+		return parent;
+	}
+	
 	protected Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
 	protected Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
 	private Locator locator;
+	private Model parent;
 	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
 	
 	public void setProperty(String name, Object value, PropogationContext propCtx, int propDistance, Collector<Model> collector) {

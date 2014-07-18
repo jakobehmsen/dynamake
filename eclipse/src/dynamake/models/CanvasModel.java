@@ -836,6 +836,7 @@ public class CanvasModel extends Model {
 		});
 		
 		modelToRemovableListenerMap.put(model, removableListener);
+		model.setParent(view.model);
 	}
 
 	public Model getModelById(Object id) {
@@ -906,6 +907,7 @@ public class CanvasModel extends Model {
 					// Mark the model physically non-existent at this point in the current branch
 					// (this may change before committing the branch)
 					removedMC.getModelBehind().setLocator(null);
+					removedMC.getModelBehind().setParent(null);
 					
 					Model.RemovableListener removableListener = modelToRemovableListenerMap.get(removedModel);
 					removableListener.releaseBinding();

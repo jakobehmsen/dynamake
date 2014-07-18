@@ -60,6 +60,7 @@ public class LiveModel extends Model {
 	
 	public LiveModel(Model content) {
 		this.content = content;
+		content.setParent(this);
 	}
 	
 	@Override
