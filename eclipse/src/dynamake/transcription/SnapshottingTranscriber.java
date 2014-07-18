@@ -389,6 +389,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							CommandStateFactory<T> transactionFactory = (CommandStateFactory<T>)command;
 							T reference = transactionFactory.getReference();
 							
+							if(((Model)reference).getLocator() == null) {
+								reference = transactionFactory.getReference();
+							}
 							Location locationFromRoot = ((Model)reference).getLocator().locate();
 							boolean affectModelHistory = !(transactionFactory instanceof TranscribeOnlyCommandStateFactory);
 							

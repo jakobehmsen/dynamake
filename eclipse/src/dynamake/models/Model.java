@@ -733,7 +733,7 @@ public abstract class Model implements Serializable, Observer {
 		modelBeRemoved();
 		
 		for(Observer observer: new ArrayList<Observer>(observers)) {
-			observer.removeObservee(this);
+			this.removeObserver(observer);
 		}
 		for(Observer observee: new ArrayList<Observer>(observees)) {
 			if(observee instanceof Model)
