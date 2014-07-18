@@ -75,25 +75,29 @@ public interface ModelComponent {
 		}
 
 		public static Location locationFromAncestor(ModelComponent ancestor, ModelComponent child) {
+			return locationFromAncestor(ancestor.getModelBehind(), child.getModelBehind());
+		}
+
+		public static Location locationFromAncestor(Model ancestor, Model child) {
 			if(child == ancestor)
 				return new ModelRootLocation();
 			
-			ArrayList<ModelComponent> ancestorsClosestToFarthest = new ArrayList<ModelComponent>();
+			ArrayList<Model> ancestorsClosestToFarthest = new ArrayList<Model>();
 
-			ModelComponent parent = getParent(child);
+			Model parent = child.getParent();
 			while(true) {
 				ancestorsClosestToFarthest.add(parent);
 				if(parent == ancestor)
 					break;
-				parent = getParent(parent);
+				parent = parent.getParent();
 			}
 			
-			Location location = ((CanvasModel)ancestorsClosestToFarthest.get(0).getModelBehind()).getLocationOf(child.getModelBehind());
+			Location location = ((CanvasModel)ancestorsClosestToFarthest.get(0)).getLocationOf(child);
 			
 			for(int i = 1; i < ancestorsClosestToFarthest.size(); i++) {
-				ModelComponent currentAncestor = ancestorsClosestToFarthest.get(i - 1);
+				Model currentAncestor = ancestorsClosestToFarthest.get(i - 1);
 				location = new CompositeLocation(
-					((CanvasModel)ancestorsClosestToFarthest.get(i).getModelBehind()).getLocationOf(currentAncestor.getModelBehind()),
+					((CanvasModel)ancestorsClosestToFarthest.get(i)).getLocationOf(currentAncestor),
 					location
 				);
 			}
@@ -102,17 +106,21 @@ public interface ModelComponent {
 		}
 
 		public static Location locationToAncestor(ModelComponent ancestor, ModelComponent child) {
+			return locationToAncestor(ancestor.getModelBehind(), child.getModelBehind());
+		}
+
+		public static Location locationToAncestor(Model ancestor, Model child) {
 			if(child == ancestor)
 				return new ModelRootLocation();
 
 			Location location = new ParentLocation();
 			
-			ModelComponent parent = getParent(child);
+			Model parent = child.getParent();
 			while(true) {
 				if(parent == ancestor)
 					break;
 				
-				parent = getParent(parent);
+				parent = parent.getParent();
 				
 				location = new CompositeLocation(
 					new ParentLocation(),
