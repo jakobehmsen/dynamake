@@ -110,7 +110,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			LiveModel liveModel = (LiveModel)location.getChild(prevalentSystem);
 			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, collector);
 			
@@ -132,7 +132,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			LiveModel liveModel = (LiveModel)location.getChild(prevalentSystem);
 			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, collector);
 			

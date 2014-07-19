@@ -133,7 +133,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			Model model = (Model)location.getChild(prevalentSystem);
 			
 			if(model == null)
@@ -157,7 +157,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			Model model = (Model)location.getChild(prevalentSystem);
 			
 			if(isolate)
@@ -181,7 +181,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			Model model = (Model)location.getChild(prevalentSystem);
 			
 			if(isolate)
@@ -288,7 +288,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
 			Model observable = (Model)new CompositeLocation(location, observableLocation).getChild(rootPrevalentSystem);
 			Model observer = (Model)new CompositeLocation(location, observerLocation).getChild(rootPrevalentSystem);
 			
@@ -314,7 +314,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
 			Model observable = (Model)new CompositeLocation(location, observableLocation).getChild(rootPrevalentSystem);
 			Model observer = (Model)new CompositeLocation(location, observerLocation).getChild(rootPrevalentSystem);
 			
@@ -561,7 +561,7 @@ public abstract class Model implements Serializable, Observer {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
 			Model model = (Model)location.getChild(rootPrevalentSystem);
 			model.sendChanged(new MouseUp(), propCtx, 0, 0, collector);
 			
@@ -576,7 +576,7 @@ public abstract class Model implements Serializable, Observer {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
 			Model model = (Model)location.getChild(rootPrevalentSystem);
 			model.sendChanged(new MouseDown(), propCtx, 0, 0, collector);
 			

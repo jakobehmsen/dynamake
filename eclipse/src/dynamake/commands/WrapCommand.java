@@ -44,7 +44,7 @@ public class WrapCommand implements Command<Model> {
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		CanvasModel target = (CanvasModel)location.getChild(prevalentSystem);
 		CanvasModel wrapper = new CanvasModel();
 		

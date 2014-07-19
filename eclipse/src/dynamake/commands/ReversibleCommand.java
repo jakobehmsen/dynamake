@@ -25,7 +25,7 @@ public class ReversibleCommand<T> implements CommandState<T> {
 	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector, Location location) {
 		Command<T> newCommand = forthFactory.createCommand(output);
 		
-		Object newOutput = newCommand.executeOn(propCtx, prevalentSystem, executionTime, collector, location);
+		Object newOutput = newCommand.executeOn(propCtx, prevalentSystem, collector, location);
 		
 		// Reverse factories to create antagonistic command
 		return new ReversibleCommand<T>(newOutput, backFactory, forthFactory);

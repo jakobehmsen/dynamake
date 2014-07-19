@@ -182,7 +182,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
 			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
 			Model model = (Model)canvasSource.getModelByLocation(locationInSource);
@@ -227,7 +227,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
 			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
 			Model model = (Model)canvasSource.getModelByLocation(locationInSource);
@@ -279,7 +279,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
 			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
 
@@ -347,7 +347,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model model = (Model)factory.create(prevalentSystem, propCtx, 0, collector, location);
 
@@ -360,7 +360,7 @@ public class CanvasModel extends Model {
 			canvas.restoreModelByLocation(modelLocationToRestore, model, new PropogationContext(), 0, collector);
 			
 			for(Command<Model> restoreCommand: restoreCommands) {
-				restoreCommand.executeOn(propCtx, prevalentSystem, executionTime, isolatedCollector, location);
+				restoreCommand.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
 			}
 			
 			return new AddModelCommand.Output(modelLocationToRestore);
@@ -408,7 +408,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
 			
