@@ -4,6 +4,11 @@ public class ReflectToolFactory<T extends Tool> implements ToolFactory {
 	private String name;
 	private Class<T> c;
 
+	public ReflectToolFactory(String name, Class<T> c) {
+		this.name = name;
+		this.c = c;
+	}
+
 	@Override
 	public String getName() {
 		return name;
