@@ -7,7 +7,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class CanvasModelFactory implements Factory {
+public class CanvasModelFactory implements ModelFactory {
 	/**
 	 * 
 	 */

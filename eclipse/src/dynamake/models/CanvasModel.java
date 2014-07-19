@@ -30,7 +30,7 @@ import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.AsIsFactory;
-import dynamake.models.factories.Factory;
+import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.IsolatingCollector;
@@ -258,9 +258,9 @@ public class CanvasModel extends Model {
 		private Fraction yCreation;
 		private Fraction widthCreation;
 		private Fraction heightCreation;
-		private Factory factory;
+		private ModelFactory factory;
 		
-		public AddModelCommand(Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, Factory factory) {
+		public AddModelCommand(Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, ModelFactory factory) {
 			this.xCreation = xCreation;
 			this.yCreation = yCreation;
 			this.widthCreation = widthCreation;
@@ -268,7 +268,7 @@ public class CanvasModel extends Model {
 			this.factory = factory;
 		}
 		
-		public AddModelCommand(Rectangle creationBounds, Factory factory) {
+		public AddModelCommand(Rectangle creationBounds, ModelFactory factory) {
 			this.xCreation = new Fraction(creationBounds.x);
 			this.yCreation = new Fraction(creationBounds.y);
 			this.widthCreation = new Fraction(creationBounds.width);
@@ -331,10 +331,10 @@ public class CanvasModel extends Model {
 		private Fraction yCreation;
 		private Fraction widthCreation;
 		private Fraction heightCreation;
-		private Factory factory;
+		private ModelFactory factory;
 		private ArrayList<Command<Model>> restoreCommands;
 		
-		public RestoreModelCommand(Location modelLocationToRestore, Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, Factory factory, ArrayList<Command<Model>> restoreCommands) {
+		public RestoreModelCommand(Location modelLocationToRestore, Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, ModelFactory factory, ArrayList<Command<Model>> restoreCommands) {
 			this.modelLocationToRestore = modelLocationToRestore;
 			this.xCreation = xCreation;
 			this.yCreation = yCreation;

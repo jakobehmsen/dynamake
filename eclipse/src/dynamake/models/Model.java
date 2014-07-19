@@ -32,7 +32,7 @@ import dynamake.menubuilders.ColorMenuBuilder;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.CloneDeepFactory;
 import dynamake.models.factories.CloneIsolatedFactory;
-import dynamake.models.factories.Factory;
+import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.IsolatingCollector;
@@ -793,7 +793,7 @@ public abstract class Model implements Serializable, Observer {
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
-							Factory factory = new CloneIsolatedFactory(droppedLocation);
+							ModelFactory factory = new CloneIsolatedFactory(droppedLocation);
 							commandStates.add(new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(creationBounds, factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
@@ -822,7 +822,7 @@ public abstract class Model implements Serializable, Observer {
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
-							Factory factory = new CloneDeepFactory(droppedLocation);
+							ModelFactory factory = new CloneDeepFactory(droppedLocation);
 							commandStates.add(new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(creationBounds, factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),

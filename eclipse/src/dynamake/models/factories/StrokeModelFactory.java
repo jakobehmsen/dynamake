@@ -10,7 +10,7 @@ import dynamake.models.PropogationContext;
 import dynamake.models.StrokeModel;
 import dynamake.transcription.Collector;
 
-public class StrokeModelFactory implements Factory {
+public class StrokeModelFactory implements ModelFactory {
 	/**
 	 * 
 	 */

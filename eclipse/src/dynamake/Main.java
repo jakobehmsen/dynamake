@@ -29,7 +29,7 @@ import dynamake.models.RootModel;
 import dynamake.models.ModelTranscriber;
 import dynamake.models.ViewManager;
 import dynamake.models.factories.CanvasModelFactory;
-import dynamake.models.factories.Factory;
+import dynamake.models.factories.ModelFactory;
 import dynamake.tools.BindTool;
 import dynamake.tools.ConsTool;
 import dynamake.tools.DragTool;
@@ -80,7 +80,7 @@ public class Main {
 			
 //			loadResources();
 			
-			ArrayList<Factory> factoryBuilder = new ArrayList<Factory>();
+			ArrayList<ModelFactory> factoryBuilder = new ArrayList<ModelFactory>();
 			
 //			factoryBuilder.add(new TextModelFactory());
 			factoryBuilder.add(new CanvasModelFactory());
@@ -90,7 +90,7 @@ public class Main {
 //			for(Primitive.Implementation implementationSingleton: Primitive.getImplementationSingletons())
 //				factoryBuilder.add(new PrimitiveSingletonFactory(implementationSingleton));
 			
-			final Factory[] factories = new Factory[factoryBuilder.size()];
+			final ModelFactory[] factories = new ModelFactory[factoryBuilder.size()];
 			factoryBuilder.toArray(factories);
 			
 //			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
@@ -110,7 +110,7 @@ public class Main {
 			});
 			ViewManager rootViewManager = new ViewManager() {
 				@Override
-				public Factory[] getFactories() {
+				public ModelFactory[] getFactories() {
 					return factories;
 				}
 				

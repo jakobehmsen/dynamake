@@ -21,7 +21,7 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.StrokeModel;
 import dynamake.models.LiveModel.ProductionPanel;
-import dynamake.models.factories.Factory;
+import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.StrokeModelFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
@@ -79,7 +79,7 @@ public class PenTool implements Tool {
 			
 			@Override
 			public void createDualCommands(List<CommandState<Model>> commandStates) {
-				Factory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation, creationBoundsInContainer);
+				ModelFactory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation, creationBoundsInContainer);
 				
 				commandStates.add(new PendingCommandState<Model>(
 					new CanvasModel.AddModelCommand(creationBoundsInContainer, factory),

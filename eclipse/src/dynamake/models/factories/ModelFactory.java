@@ -7,7 +7,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public interface Factory extends Serializable {
+public interface ModelFactory extends Serializable {
 	// Should provide parametric information?
 	// - In general, constraints?
 	
@@ -16,7 +16,7 @@ public interface Factory extends Serializable {
 	String getName();
 	Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location);
 	
-	public static class Constant implements Factory {
+	public static class Constant implements ModelFactory {
 		/**
 		 * 
 		 */

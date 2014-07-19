@@ -33,7 +33,7 @@ import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.menubuilders.CompositeMenuBuilder;
-import dynamake.models.factories.Factory;
+import dynamake.models.factories.ModelFactory;
 import dynamake.tools.Tool;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
@@ -633,7 +633,7 @@ public class LiveModel extends Model {
 			
 			ViewManager newViewManager = new ViewManager() {
 				@Override
-				public Factory[] getFactories() {
+				public ModelFactory[] getFactories() {
 					return viewManager.getFactories();
 				}
 				
@@ -722,7 +722,7 @@ public class LiveModel extends Model {
 			}
 		}
 		
-		public Factory[] getFactories() {
+		public ModelFactory[] getFactories() {
 			return viewManager.getFactories();
 		}
 

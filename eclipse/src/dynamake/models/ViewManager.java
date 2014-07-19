@@ -1,9 +1,9 @@
 package dynamake.models;
 
-import dynamake.models.factories.Factory;
+import dynamake.models.factories.ModelFactory;
 import dynamake.tools.Tool;
 
 public interface ViewManager {
-	Factory[] getFactories();
+	ModelFactory[] getFactories();
 	Tool[] getTools();
 }

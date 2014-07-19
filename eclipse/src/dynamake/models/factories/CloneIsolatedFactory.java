@@ -7,7 +7,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class CloneIsolatedFactory implements Factory {
+public class CloneIsolatedFactory implements ModelFactory {
 	/**
 	 * 
 	 */

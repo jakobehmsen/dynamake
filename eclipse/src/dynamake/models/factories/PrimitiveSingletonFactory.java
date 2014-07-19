@@ -12,7 +12,7 @@ import dynamake.numbers.Fraction;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 
-public class PrimitiveSingletonFactory implements Factory {
+public class PrimitiveSingletonFactory implements ModelFactory {
 	/**
 	 * 
 	 */
