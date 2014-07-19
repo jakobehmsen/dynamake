@@ -116,27 +116,6 @@ public class Main {
 					return factories;
 				}
 				
-				private Tool[] tools = new Tool[] {
-					new EditTool(),
-					new PlotTool(),
-					new UnwrapTool(),
-					new BindTool(),
-					new DragTool(),
-					new ConsTool(),
-					new TellTool(),
-					new ViewTool(),
-					new ScaleTool(),
-					new PenTool(),
-					new TrimTool(),
-					new UndoTool(),
-					new RedoTool()
-				}; 
-				
-				@Override
-				public Tool[] getTools() {
-					return tools;
-				}
-				
 				private ToolFactory[] toolFactories = new ToolFactory[] {
 					new ReflectToolFactory<EditTool>("Edit", EditTool.class),
 					new ReflectToolFactory<PlotTool>("Plot", PlotTool.class),

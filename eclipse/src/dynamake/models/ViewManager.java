@@ -6,6 +6,5 @@ import dynamake.tools.ToolFactory;
 
 public interface ViewManager {
 	ModelFactory[] getFactories();
-	Tool[] getTools();
 	ToolFactory[] getToolFactories();
 }
