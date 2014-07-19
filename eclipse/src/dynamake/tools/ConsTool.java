@@ -39,11 +39,8 @@ public class ConsTool implements Tool {
 			
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
 				interactionPresenter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, connection, targetPresenter, interactionPresenter);
-				targetPresenter = null;
-				interactionPresenter = null;
 			} else {
 				targetPresenter.reset(collector);
-				targetPresenter = null;
 				
 				if(interactionPresenter.getSelection().getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 					final ModelComponent selection = interactionPresenter.getSelection();
@@ -54,20 +51,15 @@ public class ConsTool implements Tool {
 				}
 				
 				interactionPresenter.reset(collector);
-				interactionPresenter = null;
 
 				collector.commit();
 			}
 		} else {
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
 				interactionPresenter.showPopupForSelectionCons(productionPanel, e.getPoint(), targetModelComponent, connection, targetPresenter, interactionPresenter);
-				targetPresenter = null;
-				interactionPresenter = null;
 			} else {
 				targetPresenter.reset(collector);
-				targetPresenter = null;
 				interactionPresenter.reset(collector);
-				interactionPresenter = null;
 				collector.reject();
 				
 				collector.afterNextTrigger(new Runnable() {
@@ -142,9 +134,6 @@ public class ConsTool implements Tool {
 	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
 		targetPresenter.reset(collector);
-		targetPresenter = null;
-
 		interactionPresenter.reset(collector);
-		interactionPresenter = null;
 	}
 }
