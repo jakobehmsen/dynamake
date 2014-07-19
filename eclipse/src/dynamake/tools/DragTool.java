@@ -39,11 +39,6 @@ public class DragTool implements Tool {
 		} else {
 			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, connection, targetPresenter, interactionPresenter);
 		}
-
-		targetPresenter = null;
-		interactionPresenter = null;
-
-		mouseDown = null;
 	}
 	
 	private Point mouseDown;
