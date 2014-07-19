@@ -55,6 +55,5 @@ public class TellTool implements Tool {
 	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
 		interactionPresenter.reset(collector);
-		interactionPresenter = null;
 	}
 }
