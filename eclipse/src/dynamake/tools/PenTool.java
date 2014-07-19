@@ -57,8 +57,6 @@ public class PenTool implements Tool {
 				creationBoundsInProductionPanelSource.height + (int)StrokeModel.STROKE_SIZE * 2
 		);
 		
-		points = null;
-		
 		final StrokeComponent localStrokeComponent = strokeComponent;
 		collector.afterNextTrigger(new Runnable() {
 			@Override
@@ -66,7 +64,6 @@ public class PenTool implements Tool {
 				productionPanel.remove(localStrokeComponent);
 			}
 		});
-		strokeComponent = null;
 		
 		final ModelComponent target = targetPresenter.getTargetOver();
 		final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)target);
@@ -90,7 +87,6 @@ public class PenTool implements Tool {
 		});
 
 		targetPresenter.reset(collector);
-		targetPresenter = null;
 		
 		collector.commit();
 	}
@@ -179,7 +175,6 @@ public class PenTool implements Tool {
 	@Override
 	public void rollback(final ProductionPanel productionPanel, Collector<Model> collector) {
 		targetPresenter.reset(collector);
-		targetPresenter = null;
 
 		final StrokeComponent localStrokeComponent = strokeComponent;
 		collector.afterNextTrigger(new Runnable() {
