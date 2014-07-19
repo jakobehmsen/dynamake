@@ -35,11 +35,9 @@ public class BindTool implements Tool {
 		final ModelComponent targetModelComponent = modelOver;
 		
 		targetPresenter.reset(collector);
-		targetPresenter = null;
 
 		final ModelComponent selection = interactionPresenter.getSelection();
 		interactionPresenter.reset(collector);
-		interactionPresenter = null;
 		
 		if(targetModelComponent != null && selection != targetModelComponent) {
 			if(selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
@@ -52,8 +50,6 @@ public class BindTool implements Tool {
 		} else {
 			collector.reject();
 		}
-		
-		mouseDown = null;
 	}
 	
 	private Point mouseDown;
@@ -108,9 +104,6 @@ public class BindTool implements Tool {
 	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
 		targetPresenter.reset(collector);
-		targetPresenter = null;
-
 		interactionPresenter.reset(collector);
-		interactionPresenter = null;
 	}
 }
