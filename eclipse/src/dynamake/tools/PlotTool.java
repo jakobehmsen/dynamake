@@ -131,7 +131,7 @@ public class PlotTool implements Tool {
 		if(mouseDown != null) {
 			final Rectangle plotBoundsInProductionPanel = interactionPresenter.getPlotBounds(mouseDown, e.getPoint());
 			
-			interactionPresenter.changeEffectFrameDirect2(plotBoundsInProductionPanel, collector);
+			interactionPresenter.changeEffectFrameDirect(plotBoundsInProductionPanel, collector);
 		}
 	}
 

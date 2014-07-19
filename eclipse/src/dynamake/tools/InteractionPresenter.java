@@ -302,8 +302,8 @@ public class InteractionPresenter {
 		return effectFrame.getBounds();
 	}
 	
-	public void changeEffectFrameDirect2(final Rectangle newBounds, final Collector<Model> collector) {
-		changeEffectFrameDirect2(newBounds, new Runner() {
+	public void changeEffectFrameDirect(final Rectangle newBounds, final Collector<Model> collector) {
+		changeEffectFrameDirect(newBounds, new Runner() {
 			@Override
 			public void run(Runnable runnable) {
 				collector.afterNextTrigger(runnable);
@@ -311,7 +311,7 @@ public class InteractionPresenter {
 		});
 	}
 	
-	public void changeEffectFrameDirect2(final Rectangle newBounds, Runner runner) {
+	public void changeEffectFrameDirect(final Rectangle newBounds, Runner runner) {
 		if(effectFrame != null) {
 			final JPanel localEffectFrame = effectFrame;
 			

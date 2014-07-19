@@ -127,7 +127,7 @@ public class ConsTool implements Tool {
 			final int x = cursorLocationInProductionPanel.x - width / 2;
 			final int y = cursorLocationInProductionPanel.y - height / 2;
 			
-			interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), collector);
+			interactionPresenter.changeEffectFrameDirect(new Rectangle(x, y, width, height), collector);
 		}
 	}
 

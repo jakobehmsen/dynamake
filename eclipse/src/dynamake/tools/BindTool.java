@@ -98,7 +98,7 @@ public class BindTool implements Tool {
 		final int x = interactionPresenter.getSelectionFrameLocation().x + (cursorLocationInProductionPanel.x - mouseDown.x);
 		final int y = interactionPresenter.getSelectionFrameLocation().y + (cursorLocationInProductionPanel.y - mouseDown.y);
 		
-		interactionPresenter.changeEffectFrameDirect2(new Rectangle(x, y, width, height), collector);
+		interactionPresenter.changeEffectFrameDirect(new Rectangle(x, y, width, height), collector);
 	}
 
 	@Override

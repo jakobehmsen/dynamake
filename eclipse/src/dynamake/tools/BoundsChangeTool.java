@@ -218,7 +218,7 @@ public abstract class BoundsChangeTool implements Tool {
 				interactionPresenter.getEffectFrameBounds(), 
 				e.getPoint());
 			
-			interactionPresenter.changeEffectFrameDirect2(newEffectBounds, collector);
+			interactionPresenter.changeEffectFrameDirect(newEffectBounds, collector);
 			
 			final ModelComponent localViewPressedOn = viewPressedOn;
 			collector.afterNextTrigger(new Runnable() {
