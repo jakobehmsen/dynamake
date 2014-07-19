@@ -7,7 +7,6 @@ import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 import javax.swing.BorderFactory;
@@ -28,8 +27,6 @@ import dynamake.models.ModelRootLocator;
 import dynamake.models.RootModel;
 import dynamake.models.ModelTranscriber;
 import dynamake.models.ViewManager;
-import dynamake.models.factories.CanvasModelFactory;
-import dynamake.models.factories.ModelFactory;
 import dynamake.tools.BindTool;
 import dynamake.tools.ConsTool;
 import dynamake.tools.DragTool;

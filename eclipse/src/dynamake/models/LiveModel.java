@@ -33,7 +33,6 @@ import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.menubuilders.CompositeMenuBuilder;
-import dynamake.models.factories.ModelFactory;
 import dynamake.tools.Tool;
 import dynamake.tools.ToolFactory;
 import dynamake.transcription.Collector;
