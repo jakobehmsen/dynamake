@@ -25,10 +25,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
-		canvas = null;
-
 		targetPresenter.reset(collector);
-		targetPresenter = null;
 		
 		collector.commit();
 	}
@@ -82,7 +79,6 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
 		targetPresenter.reset(collector);
-		targetPresenter = null;
 	}
 	
 	protected abstract void createCommandStatesForSingleTask(ProductionPanel productionPanel, List<CommandState<Model>> commandStates, ModelComponent canvas, ModelComponent modelOver);
