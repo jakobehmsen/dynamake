@@ -1,7 +1,5 @@
 package dynamake.commands;
 
-import java.util.Date;
-
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;

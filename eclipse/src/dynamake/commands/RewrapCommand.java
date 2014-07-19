@@ -1,6 +1,5 @@
 package dynamake.commands;
 
-import java.util.Date;
 import java.util.Hashtable;
 
 import dynamake.models.CanvasModel;

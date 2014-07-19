@@ -1,7 +1,6 @@
 package dynamake.commands;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Hashtable;
 
 import dynamake.models.CanvasModel;
