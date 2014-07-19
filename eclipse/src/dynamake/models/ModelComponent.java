@@ -102,6 +102,7 @@ public interface ModelComponent {
 		
 		public static Location locationBetween(Model from, Model to) {
 			Model cca = ModelComponent.Util.closestCommonAncestor(from, to);
+			
 			Location locationFromSelfToCca = ModelComponent.Util.locationToAncestor(cca, from);
 			Location locationFromCcaToObserver = ModelComponent.Util.locationFromAncestor(cca, to);
 			

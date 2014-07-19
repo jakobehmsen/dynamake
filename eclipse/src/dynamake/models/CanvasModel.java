@@ -105,9 +105,9 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
-	protected void modelBeRemoved() {
+	protected void modelBeRemoved(Model reference, ArrayList<Command<Model>> restoreCommands) {
 		for(Entry entry: models) {
-			entry.model.beRemoved();
+			entry.model.beRemoved(reference, restoreCommands);
 		}
 	}
 
@@ -306,6 +306,7 @@ public class CanvasModel extends Model {
 			public Command<Model> createCommand(Object output) {
 				Model model = ((RemoveModelCommand.Output)output).model;
 				Location location = ((RemoveModelCommand.Output)output).location;
+				ArrayList<Command<Model>> restoreCommands = ((RemoveModelCommand.Output)output).restoreCommands;
 				// TODO: Consider the following:
 				// What if the model what observing/being observed before its removal?
 				// What if the model's observers/observees aren't all in existence anymore?
@@ -317,7 +318,7 @@ public class CanvasModel extends Model {
 				Fraction width = (Fraction)model.getProperty("Width");
 				Fraction height = (Fraction)model.getProperty("Height");
 				
-				return new CanvasModel.RestoreModelCommand(location, x, y, width, height, new AsIsFactory(model));
+				return new CanvasModel.RestoreModelCommand(location, x, y, width, height, new AsIsFactory(model), restoreCommands);
 			}
 		}
 		
@@ -331,20 +332,22 @@ public class CanvasModel extends Model {
 		private Fraction widthCreation;
 		private Fraction heightCreation;
 		private Factory factory;
+		private ArrayList<Command<Model>> restoreCommands;
 		
-		public RestoreModelCommand(Location modelLocationToRestore, Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, Factory factory) {
+		public RestoreModelCommand(Location modelLocationToRestore, Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, Factory factory, ArrayList<Command<Model>> restoreCommands) {
 			this.modelLocationToRestore = modelLocationToRestore;
 			this.xCreation = xCreation;
 			this.yCreation = yCreation;
 			this.widthCreation = widthCreation;
 			this.heightCreation = heightCreation;
 			this.factory = factory;
+			this.restoreCommands = restoreCommands;
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
-			CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
+			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
+			Model model = (Model)factory.create(prevalentSystem, propCtx, 0, collector, location);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			model.setProperty("X", xCreation, propCtx, 0, isolatedCollector);
@@ -353,6 +356,10 @@ public class CanvasModel extends Model {
 			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
 			
 			canvas.restoreModelByLocation(modelLocationToRestore, model, new PropogationContext(), 0, collector);
+			
+			for(Command<Model> restoreCommand: restoreCommands) {
+				restoreCommand.executeOn(propCtx, prevalentSystem, executionTime, isolatedCollector, location);
+			}
 			
 			return new AddModelCommand.Output(modelLocationToRestore);
 		}
@@ -366,10 +373,12 @@ public class CanvasModel extends Model {
 			private static final long serialVersionUID = 1L;
 			public final Location location;
 			public final Model model;
+			public final ArrayList<Command<Model>> restoreCommands;
 
-			public Output(Location location, Model model) {
+			public Output(Location location, Model model, ArrayList<Command<Model>> restoreCommands) {
 				this.location = location;
 				this.model = model;
+				this.restoreCommands = restoreCommands;
 			}
 		}
 		
@@ -400,12 +409,14 @@ public class CanvasModel extends Model {
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Date executionTime, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
+			
+			ArrayList<Command<Model>> restoreCommands = new ArrayList<Command<Model>>();
+			modelToRemove.beRemoved(canvas, restoreCommands);
+			
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			
-			modelToRemove.beRemoved();
-			
 			// TODO: Consider: Should it be a clone of the removed model instead? 
-			return new Output(locationOfModelToRemove, modelToRemove);
+			return new Output(locationOfModelToRemove, modelToRemove, restoreCommands);
 		}
 	}
 	
