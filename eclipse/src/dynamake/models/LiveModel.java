@@ -449,7 +449,6 @@ public class LiveModel extends Model {
 			private Tool createToolForApplication(List<Integer> buttons) {
 				int toolForButton = productionPanel.livePanel.model.getToolForButtons(buttons);
 				if(toolForButton != -1) {
-//					return productionPanel.livePanel.viewManager.getTools()[toolForButton];
 					return productionPanel.livePanel.viewManager.getToolFactories()[toolForButton].createTool();
 				} else {
 					return new Tool() {
@@ -697,7 +696,6 @@ public class LiveModel extends Model {
 		
 		@Override
 		public void initialize() {
-//			Tool[] tools = viewManager.getTools();
 			ToolFactory[] toolFactories = viewManager.getToolFactories();
 			buttonTools = new ToolButton[toolFactories.length];
 			ButtonGroup group = new ButtonGroup();

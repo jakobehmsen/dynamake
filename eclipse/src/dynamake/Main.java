@@ -39,7 +39,6 @@ import dynamake.tools.PlotTool;
 import dynamake.tools.RedoTool;
 import dynamake.tools.ScaleTool;
 import dynamake.tools.TellTool;
-import dynamake.tools.Tool;
 import dynamake.tools.ToolFactory;
 import dynamake.tools.TrimTool;
 import dynamake.tools.UndoTool;
@@ -52,15 +51,6 @@ import dynamake.transcription.Transcriber;
 public class Main {
 	public static void main(String[] args) {
 		try {
-//			Fraction f = new Fraction(1, 9);
-//			Fraction f2 = new Fraction(6, 1);
-//			
-//			System.out.println(f.add(f2));
-//			
-//			if(1 != 2) {
-//				return;
-//			}
-			
 			// Can be used for intercepting mouse events?
 //			JFrame.setDefaultLookAndFeelDecorated(true);
 			
@@ -80,32 +70,17 @@ public class Main {
 			});
 			loadIndicator.setVisible(true);
 			
-//			loadResources();
-			
 			ArrayList<ModelFactory> factoryBuilder = new ArrayList<ModelFactory>();
 			
-//			factoryBuilder.add(new TextModelFactory());
 			factoryBuilder.add(new CanvasModelFactory());
-//			factoryBuilder.add(new ButtonModelFactory());
-//			factoryBuilder.add(new TextModelFactory());
-			
-//			for(Primitive.Implementation implementationSingleton: Primitive.getImplementationSingletons())
-//				factoryBuilder.add(new PrimitiveSingletonFactory(implementationSingleton));
 			
 			final ModelFactory[] factories = new ModelFactory[factoryBuilder.size()];
 			factoryBuilder.toArray(factories);
 			
-//			RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
-//			final Prevayler<Model> pModel = PrevaylerFactory.createPrevayler((Model)rootModel);
-//			
-//			final PrevaylerService<Model> prevaylerService = new SnapshottingPrevaylerService<Model>(pModel);
 			final Transcriber<Model> transcriber = new SnapshottingTranscriber<Model>(new Func0<Model>() {
 				@Override
 				public Model call() {
-					// TODO Auto-generated method stub
 					RootModel rootModel = new RootModel(new LiveModel(new CanvasModel()));
-					
-//					rootModel.setLocation(new ModelRootLocation());
 					
 					return rootModel;
 				}
