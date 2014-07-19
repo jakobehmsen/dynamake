@@ -53,17 +53,13 @@ public abstract class BoundsChangeTool implements Tool {
 				}
 			});
 			
-			viewPressedOn = null;
-			
 			targetPresenter.reset(collector);
-			targetPresenter = null;
 			
 			final ModelComponent selection = interactionPresenter.getSelection();
 			final Rectangle selectionBounds = interactionPresenter.getSelectionFrameBounds();
 			final Rectangle effectBounds = interactionPresenter.getEffectFrameBounds();
 
 			interactionPresenter.reset(collector);
-			interactionPresenter = null;
 			
 			collector.flushNextTrigger();
 			
@@ -141,8 +137,6 @@ public abstract class BoundsChangeTool implements Tool {
 			} else {
 				collector.reject();
 			}
-			
-			mouseDown = null;
 		}
 	}
 
@@ -272,14 +266,7 @@ public abstract class BoundsChangeTool implements Tool {
 			});
 			
 			targetPresenter.reset(collector);
-			targetPresenter = null;
-	
 			interactionPresenter.reset(collector);
-			interactionPresenter = null;
-			
-			viewPressedOn = null;
-			
-			mouseDown = null;
 			
 			collector.flushNextTrigger();
 		}
