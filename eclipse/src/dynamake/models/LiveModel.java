@@ -630,20 +630,8 @@ public class LiveModel extends Model {
 			this.model = model;
 			this.viewManager = viewManager;
 			this.modelTranscriber = modelTranscriber;
-			
-			ViewManager newViewManager = new ViewManager() {
-				@Override
-				public ModelFactory[] getFactories() {
-					return viewManager.getFactories();
-				}
-				
-				@Override
-				public Tool[] getTools() {
-					return null;
-				}
-			};
 
-			contentView = model.getContent().createView(rootView, newViewManager, modelTranscriber.extend(new ContentLocator()));
+			contentView = model.getContent().createView(rootView, viewManager, modelTranscriber.extend(new ContentLocator()));
 
 			productionPanel = new ProductionPanel(this, contentView);
 			
