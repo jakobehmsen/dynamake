@@ -118,21 +118,22 @@ public class CanvasModel extends Model {
 
 	@Override
 	protected void cloneAndMap(Hashtable<Model, Model> sourceToCloneMap) {
-		CanvasModel clone = new CanvasModel();
-		clone.properties = new Hashtable<String, Object>();
+		CanvasModel canvasClone = new CanvasModel();
+		canvasClone.properties = new Hashtable<String, Object>();
 		// Assumed that cloning is not necessary for properties
 		// I.e., all property values are immutable
-		clone.properties.putAll(this.properties);
+		canvasClone.properties.putAll(this.properties);
 		
-		clone.undoStack.addAll(this.undoStack);
-		clone.redoStack.addAll(this.redoStack);
+		canvasClone.undoStack.addAll(this.undoStack);
+		canvasClone.redoStack.addAll(this.redoStack);
 		
-		sourceToCloneMap.put(this, clone);
+		sourceToCloneMap.put(this, canvasClone);
 
 		for(Entry entry: models) {
 			entry.model.cloneAndMap(sourceToCloneMap);
 			Model modelClone = sourceToCloneMap.get(entry.model);
-			clone.models.add(new Entry(entry.id, modelClone));
+			canvasClone.models.add(new Entry(entry.id, modelClone));
+			modelClone.setParent(canvasClone);
 		}
 	}
 	
