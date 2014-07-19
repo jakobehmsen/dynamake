@@ -107,11 +107,8 @@ public class PlotTool implements Tool {
 			}
 
 			interactionPresenter.reset(collector);
-			interactionPresenter = null;
 			
 			collector.commit();
-			
-			mouseDown = null;
 		}
 	}
 	
@@ -142,7 +139,6 @@ public class PlotTool implements Tool {
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
 		if(mouseDown != null) {
 			interactionPresenter.reset(collector);
-			interactionPresenter = null;
 		}
 	}
 }
