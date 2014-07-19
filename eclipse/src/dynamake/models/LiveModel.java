@@ -35,6 +35,7 @@ import dynamake.commands.PendingCommandState;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.ModelFactory;
 import dynamake.tools.Tool;
+import dynamake.tools.ToolFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.Trigger;
@@ -448,7 +449,8 @@ public class LiveModel extends Model {
 			private Tool getTool(List<Integer> buttons) {
 				int toolForButton = productionPanel.livePanel.model.getToolForButtons(buttons);
 				if(toolForButton != -1) {
-					return productionPanel.livePanel.viewManager.getTools()[toolForButton];
+//					return productionPanel.livePanel.viewManager.getTools()[toolForButton];
+					return productionPanel.livePanel.viewManager.getToolFactories()[toolForButton].createTool();
 				} else {
 					return new Tool() {
 						@Override
@@ -695,14 +697,15 @@ public class LiveModel extends Model {
 		
 		@Override
 		public void initialize() {
-			Tool[] tools = viewManager.getTools();
-			buttonTools = new ToolButton[tools.length];
+//			Tool[] tools = viewManager.getTools();
+			ToolFactory[] toolFactories = viewManager.getToolFactories();
+			buttonTools = new ToolButton[toolFactories.length];
 			ButtonGroup group = new ButtonGroup();
 
-			for(int i = 0; i < tools.length; i++) {
-				Tool tool = tools[i];
+			for(int i = 0; i < toolFactories.length; i++) {
+				ToolFactory toolFactory = toolFactories[i];
 				List<Integer> buttons = model.getButtonsForTool(i);
-				buttonTools[i] = createToolButton(model, modelTranscriber, group, buttons, i, tool.getName());
+				buttonTools[i] = createToolButton(model, modelTranscriber, group, buttons, i, toolFactory.getName());
 			}
 			
 			for(JComponent buttonTool: buttonTools) {

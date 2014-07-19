@@ -17,6 +17,8 @@ public class ReflectToolFactory<T extends Tool> implements ToolFactory {
 	@Override
 	public Tool createTool() {
 		try {
+			
+//			System.out.println("Create tool " + name);
 			return c.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
