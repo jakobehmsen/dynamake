@@ -9,6 +9,7 @@ import javax.swing.JPopupMenu;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.RelativeCommand;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.CanvasModel;
@@ -108,11 +109,18 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 								canvasModel.getNextLocation()
 							);
 							
+//							// Add
+//							commandStates.add(new PendingCommandState<Model>(
+//								new CanvasModel.AddModelCommand(dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)), 
+//								new CanvasModel.RemoveModelCommand.AfterAdd(),
+//								new CanvasModel.RestoreModelCommand.AfterRemove()
+//							));
+							
 							// Add
 							commandStates.add(new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand(dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)), 
-								new CanvasModel.RemoveModelCommand.AfterAdd(),
-								new CanvasModel.RestoreModelCommand.AfterRemove()
+								new RelativeCommand<Model>(canvasModelLocation, new CanvasModel.AddModelCommand(dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget))), 
+								new RelativeCommand.Factory<Model>(new CanvasModel.RemoveModelCommand.AfterAdd()),
+								new RelativeCommand.Factory<Model>(new CanvasModel.RestoreModelCommand.AfterRemove())
 							));
 							
 							// Bind
