@@ -446,7 +446,7 @@ public class LiveModel extends Model {
 				toolConnection = productionPanel.livePanel.getModelTranscriber().createConnection();
 			}
 			
-			private Tool getTool(List<Integer> buttons) {
+			private Tool createToolForApplication(List<Integer> buttons) {
 				int toolForButton = productionPanel.livePanel.model.getToolForButtons(buttons);
 				if(toolForButton != -1) {
 //					return productionPanel.livePanel.viewManager.getTools()[toolForButton];
@@ -529,7 +529,7 @@ public class LiveModel extends Model {
 						if(!buttonsPressed.contains(button)) {
 							buttonsPressed.add(button);
 							Collections.sort(buttonsPressed);
-							toolBeingApplied = getTool(buttonsPressed);
+							toolBeingApplied = createToolForApplication(buttonsPressed);
 							
 							final ModelComponent modelOver = getModelOver(e);
 							final Tool toolToApply = toolBeingApplied;
