@@ -87,14 +87,15 @@ public class CanvasModel extends Model {
 	
 	@Override
 	public Model modelCloneIsolated() {
-		ArrayList<Entry> clonedModels = new ArrayList<Entry>();
+		CanvasModel canvasClone = new CanvasModel(); 
 
 		for(Entry entry: models) {
-			Model clone = entry.model.cloneIsolated();
-			clonedModels.add(new Entry(entry.id, clone));
+			Model modelClone = entry.model.cloneIsolated();
+			canvasClone.models.add(new Entry(entry.id, modelClone));
+			modelClone.setParent(canvasClone);
 		}
 		
-		return new CanvasModel(clonedModels);
+		return canvasClone;
 	}
 	
 	@Override
