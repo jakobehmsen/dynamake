@@ -109,13 +109,6 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 								canvasModel.getNextLocation()
 							);
 							
-//							// Add
-//							commandStates.add(new PendingCommandState<Model>(
-//								new CanvasModel.AddModelCommand(dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)), 
-//								new CanvasModel.RemoveModelCommand.AfterAdd(),
-//								new CanvasModel.RestoreModelCommand.AfterRemove()
-//							));
-							
 							// Add
 							commandStates.add(new PendingCommandState<Model>(
 								new RelativeCommand<Model>(canvasModelLocation, new CanvasModel.AddModelCommand(dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget))), 
