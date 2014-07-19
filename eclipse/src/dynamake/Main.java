@@ -40,10 +40,12 @@ import dynamake.tools.RedoTool;
 import dynamake.tools.ScaleTool;
 import dynamake.tools.TellTool;
 import dynamake.tools.Tool;
+import dynamake.tools.ToolFactory;
 import dynamake.tools.TrimTool;
 import dynamake.tools.UndoTool;
 import dynamake.tools.ViewTool;
 import dynamake.tools.UnwrapTool;
+import dynamake.tools.ReflectToolFactory;
 import dynamake.transcription.SnapshottingTranscriber;
 import dynamake.transcription.Transcriber;
 
@@ -124,8 +126,6 @@ public class Main {
 					new TellTool(),
 					new ViewTool(),
 					new ScaleTool(),
-//					new TextTool(),
-//					new WriteTool(),
 					new PenTool(),
 					new TrimTool(),
 					new UndoTool(),
@@ -135,6 +135,27 @@ public class Main {
 				@Override
 				public Tool[] getTools() {
 					return tools;
+				}
+				
+				private ToolFactory[] toolFactories = new ToolFactory[] {
+					new ReflectToolFactory<EditTool>("Edit", EditTool.class),
+					new ReflectToolFactory<PlotTool>("Plot", PlotTool.class),
+					new ReflectToolFactory<UnwrapTool>("Unwrap", UnwrapTool.class),
+					new ReflectToolFactory<BindTool>("Bind", BindTool.class),
+					new ReflectToolFactory<DragTool>("Drag", DragTool.class),
+					new ReflectToolFactory<ConsTool>("Cons", ConsTool.class),
+					new ReflectToolFactory<TellTool>("Tell", TellTool.class),
+					new ReflectToolFactory<ViewTool>("View", ViewTool.class),
+					new ReflectToolFactory<ScaleTool>("Scale", ScaleTool.class),
+					new ReflectToolFactory<PenTool>("Pen", PenTool.class),
+					new ReflectToolFactory<TrimTool>("Trim", TrimTool.class),
+					new ReflectToolFactory<UndoTool>("Undo", UndoTool.class),
+					new ReflectToolFactory<RedoTool>("Redo", RedoTool.class)
+				};
+				
+				@Override
+				public ToolFactory[] getToolFactories() {
+					return toolFactories;
 				}
 			};
 			ModelTranscriber rootModelTranscriber = new ModelTranscriber(transcriber, new ModelRootLocator());
