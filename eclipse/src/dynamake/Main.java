@@ -70,13 +70,6 @@ public class Main {
 			});
 			loadIndicator.setVisible(true);
 			
-			ArrayList<ModelFactory> factoryBuilder = new ArrayList<ModelFactory>();
-			
-			factoryBuilder.add(new CanvasModelFactory());
-			
-			final ModelFactory[] factories = new ModelFactory[factoryBuilder.size()];
-			factoryBuilder.toArray(factories);
-			
 			final Transcriber<Model> transcriber = new SnapshottingTranscriber<Model>(new Func0<Model>() {
 				@Override
 				public Model call() {
@@ -86,11 +79,6 @@ public class Main {
 				}
 			});
 			ViewManager rootViewManager = new ViewManager() {
-				@Override
-				public ModelFactory[] getFactories() {
-					return factories;
-				}
-				
 				private ToolFactory[] toolFactories = new ToolFactory[] {
 					new ReflectToolFactory<EditTool>("Edit", EditTool.class),
 					new ReflectToolFactory<PlotTool>("Plot", PlotTool.class),

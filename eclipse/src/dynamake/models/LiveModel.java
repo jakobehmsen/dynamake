@@ -710,10 +710,6 @@ public class LiveModel extends Model {
 				topPanel.add(buttonTool);
 			}
 		}
-		
-		public ModelFactory[] getFactories() {
-			return viewManager.getFactories();
-		}
 
 		@Override
 		public Model getModelBehind() {
