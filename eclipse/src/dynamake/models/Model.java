@@ -231,6 +231,12 @@ public abstract class Model implements Serializable, Observer {
 	public void log(CommandState<Model> transactionFromReference) {
 		undoStack.add(transactionFromReference);
 		redoStack.clear();
+		
+		// TODO: How to send a change that's been logged?
+		// Currently, these changes are logged when a connection is committed
+		// Perhaps, logs should be performed immediately and then later be rolled back if necessary?
+		// - but how will a change be composed of multiple smaller changes then?
+		//sendChanged(change, propCtx, propDistance, changeDistance, collector)
 	}
 	
 	public void setLocator(Locator locator) {
