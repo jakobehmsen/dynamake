@@ -40,6 +40,9 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.Trigger;
 
+/**
+ * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.
+ */
 public abstract class Model implements Serializable, Observer {
 	public static class HistoryChange {
 		public static final int TYPE_LOG = 0;
