@@ -12,8 +12,8 @@ import dynamake.transcription.Collector;
  * 
  * Further, when such instances are executed, a new command state is returned representing the state of a command in state relation context.
  * For now, such relation context is as follows: pending => (undoable => redoable)*
- *
- * @param <T>
+ 
+ * @param <T> The type of object that instances of implementers should support execution on.
  */
 public interface CommandState<T> extends Serializable {
 	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location);
