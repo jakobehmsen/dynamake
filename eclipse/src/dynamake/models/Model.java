@@ -20,6 +20,7 @@ import java.util.Stack;
 
 import javax.swing.JComponent;
 
+import dynamake.commands.AddObserverCommand;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
@@ -192,32 +193,6 @@ public abstract class Model implements Serializable, Observer {
 		Fraction height = (Fraction)getProperty("Height");
 		
 		return new RectangleF(x, y, width, height);
-	}
-
-	public static class AddObserverCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location observableLocation;
-		private Location observerLocation;
-		
-		public AddObserverCommand(Location observableLocation, Location observerLocation) {
-			this.observableLocation = observableLocation;
-			this.observerLocation = observerLocation;
-		}
-
-		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
-			Model observable = (Model)new CompositeLocation(location, observableLocation).getChild(rootPrevalentSystem);
-			Model observer = (Model)new CompositeLocation(location, observerLocation).getChild(rootPrevalentSystem);
-			
-			observable.addObserver(observer);
-//			System.out.println(observer + " now observes " + observable);
-			
-			// TODO: Consider whether a change should be sent out here
-			return null;
-		}
 	}
 
 	public static class RemoveObserverCommand implements Command<Model> {
@@ -933,7 +908,7 @@ public abstract class Model implements Serializable, Observer {
 				
 				commandStates.add(new PendingCommandState<Model>(
 					new Model.RemoveObserverCommand(observableLocation, observerLocation),
-					new Model.AddObserverCommand(observableLocation, observerLocation)
+					new AddObserverCommand(observableLocation, observerLocation)
 				));
 			}
 		});
@@ -955,7 +930,7 @@ public abstract class Model implements Serializable, Observer {
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
 				commandStates.add(new PendingCommandState<Model>(
-					new Model.AddObserverCommand(observableLocation, observerLocation),
+					new AddObserverCommand(observableLocation, observerLocation),
 					new Model.RemoveObserverCommand(observableLocation, observerLocation)
 				));
 			}

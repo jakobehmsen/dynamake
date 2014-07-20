@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.swing.JPopupMenu;
 
+import dynamake.commands.AddObserverCommand;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
@@ -118,7 +119,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							
 							// Bind
 							commandStates.add(new PendingCommandState<Model>(
-								new Model.AddObserverCommand(observableLocation, addedPrimitiveLocation),
+								new AddObserverCommand(observableLocation, addedPrimitiveLocation),
 								new Model.RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
 							));
 						}
