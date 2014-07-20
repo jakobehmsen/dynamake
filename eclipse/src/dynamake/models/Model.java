@@ -40,6 +40,20 @@ import dynamake.transcription.Connection;
 import dynamake.transcription.Trigger;
 
 public abstract class Model implements Serializable, Observer {
+	public static class HistoryChange {
+		public static final int TYPE_LOG = 0;
+		public static final int TYPE_UNDO = 1;
+		public static final int TYPE_REDO = 2;
+		
+		public final int type;
+		public final CommandState<Model> change;
+		
+		public HistoryChange(int type, CommandState<Model> change) {
+			this.type = type;
+			this.change = change;
+		}
+	}
+	
 	public static class TellProperty {
 		public final String name;
 
