@@ -10,11 +10,6 @@ import dynamake.models.LiveModel.ProductionPanel;
 
 public class TrimTool extends RepetitiveCanvasTaskTool {
 	@Override
-	public String getName() {
-		return "Trim";
-	}
-
-	@Override
 	protected void createCommandStatesForSingleTask(ProductionPanel productionPanel, List<CommandState<Model>> commandStates, ModelComponent canvas, ModelComponent modelOver) {
 		CanvasModel.appendRemoveTransaction(commandStates, productionPanel.livePanel, modelOver, (CanvasModel)canvas.getModelBehind());
 	}

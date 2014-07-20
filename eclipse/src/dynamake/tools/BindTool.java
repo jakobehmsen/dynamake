@@ -16,11 +16,6 @@ import dynamake.transcription.Connection;
 
 public class BindTool implements Tool {
 	@Override
-	public String getName() {
-		return "Bind";
-	}
-
-	@Override
 	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
 
 	}

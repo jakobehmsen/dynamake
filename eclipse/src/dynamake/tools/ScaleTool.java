@@ -12,11 +12,6 @@ import dynamake.numbers.Fraction;
 
 public class ScaleTool extends BoundsChangeTool {
 	@Override
-	public String getName() {
-		return "Scale";
-	}
-
-	@Override
 	protected void appendCommandStatesForResize(List<CommandState<Model>> commandStates, ModelComponent selection, Rectangle newBounds) {
 		Fraction currentX = (Fraction)selection.getModelBehind().getProperty("X");
 		Fraction currentY = (Fraction)selection.getModelBehind().getProperty("Y");

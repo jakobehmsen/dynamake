@@ -17,11 +17,6 @@ import dynamake.transcription.Connection;
 
 public class ConsTool implements Tool {
 	@Override
-	public String getName() {
-		return "Cons";
-	}
-
-	@Override
 	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
 
 	}

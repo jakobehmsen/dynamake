@@ -14,11 +14,6 @@ import dynamake.transcription.Connection;
 
 public class TellTool implements Tool {
 	@Override
-	public String getName() {
-		return "Tell";
-	}
-
-	@Override
 	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
 
 	}

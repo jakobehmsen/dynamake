@@ -12,11 +12,6 @@ import dynamake.numbers.Fraction;
 
 public class EditTool extends BoundsChangeTool {
 	@Override
-	public String getName() {
-		return "Edit";
-	}
-
-	@Override
 	protected void appendCommandStatesForResize(List<CommandState<Model>> commandStates, ModelComponent selection, Rectangle newBounds) {
 		// TODO: The x and t deltas should be performed negatively on each of the immediately contained models
 		Fraction currentX = (Fraction)selection.getModelBehind().getProperty("X");

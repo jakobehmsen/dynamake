@@ -27,11 +27,6 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 
 public class PenTool implements Tool {
-	@Override
-	public String getName() {
-		return "Pen";
-	}
-	
 	private ArrayList<Point> points;
 
 	@Override

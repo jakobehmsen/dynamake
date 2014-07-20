@@ -13,11 +13,6 @@ import dynamake.transcription.Connection;
 import dynamake.transcription.TranscribeOnlyCommandStateFactory;
 
 public class UndoTool implements Tool {
-@Override
-	public String getName() {
-		return "Undo";
-	}
-
 	@Override
 	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) { }
 

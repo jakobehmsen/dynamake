@@ -466,9 +466,6 @@ public class LiveModel extends Model {
 						public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) { }
 						
 						@Override
-						public String getName() { return null; }
-						
-						@Override
 						public void rollback(ProductionPanel productionPanel, Collector<Model> collector) { }
 					};
 				}
