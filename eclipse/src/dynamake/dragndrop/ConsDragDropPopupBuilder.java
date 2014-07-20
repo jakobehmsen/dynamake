@@ -11,6 +11,7 @@ import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
+import dynamake.commands.RemoveObserverCommand;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.CanvasModel;
@@ -120,7 +121,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							// Bind
 							commandStates.add(new PendingCommandState<Model>(
 								new AddObserverCommand(observableLocation, addedPrimitiveLocation),
-								new Model.RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
+								new RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
 							));
 						}
 					});

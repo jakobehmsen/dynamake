@@ -25,6 +25,7 @@ import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.RemoveObserverCommand;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
@@ -195,32 +196,6 @@ public abstract class Model implements Serializable, Observer {
 		return new RectangleF(x, y, width, height);
 	}
 
-	public static class RemoveObserverCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location observableLocation;
-		private Location observerLocation;
-		
-		public RemoveObserverCommand(Location observableLocation, Location observerLocation) {
-			this.observableLocation = observableLocation;
-			this.observerLocation = observerLocation;
-		}
-
-		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
-			Model observable = (Model)new CompositeLocation(location, observableLocation).getChild(rootPrevalentSystem);
-			Model observer = (Model)new CompositeLocation(location, observerLocation).getChild(rootPrevalentSystem);
-			
-			observable.removeObserver(observer);
-//			System.out.println(observer + " no longer observes " + observable);
-			
-			// TODO: Consider whether a change should be sent out here
-			return null;
-		}
-	}
-	
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		if(change instanceof SetProperty && changeDistance == 1) {
@@ -907,7 +882,7 @@ public abstract class Model implements Serializable, Observer {
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
 				commandStates.add(new PendingCommandState<Model>(
-					new Model.RemoveObserverCommand(observableLocation, observerLocation),
+					new RemoveObserverCommand(observableLocation, observerLocation),
 					new AddObserverCommand(observableLocation, observerLocation)
 				));
 			}
@@ -931,7 +906,7 @@ public abstract class Model implements Serializable, Observer {
 				
 				commandStates.add(new PendingCommandState<Model>(
 					new AddObserverCommand(observableLocation, observerLocation),
-					new Model.RemoveObserverCommand(observableLocation, observerLocation)
+					new RemoveObserverCommand(observableLocation, observerLocation)
 				));
 			}
 		});
