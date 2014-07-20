@@ -34,7 +34,6 @@ import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
-import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.Trigger;
@@ -101,30 +100,6 @@ public abstract class Model implements Serializable, Observer {
 		public SetProperty(String name, Object value) {
 			this.name = name;
 			this.value = value;
-		}
-	}
-	
-	public static class RedoCommand implements Command<Model> {
-		/*
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private boolean isolate;
-
-		public RedoCommand(boolean isolate) {
-			this.isolate = isolate;
-		}
-
-		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-			Model model = (Model)location.getChild(prevalentSystem);
-			
-			if(isolate)
-				collector = new IsolatingCollector<Model>(collector);
-			
-			model.redo(propCtx, prevalentSystem, 0, collector);
-			
-			return null;
 		}
 	}
 	

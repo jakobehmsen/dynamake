@@ -5,6 +5,7 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.RedoCommand;
 import dynamake.commands.UndoCommand;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -26,7 +27,7 @@ public class RedoTool implements Tool {
 			public void createDualCommands(List<CommandState<Model>> commandStates) {
 				commandStates.add(
 					new PendingCommandState<Model>(
-						new Model.RedoCommand(false),
+						new RedoCommand(false),
 						new UndoCommand(false)
 					)
 				);

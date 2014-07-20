@@ -5,6 +5,7 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.RedoCommand;
 import dynamake.commands.UndoCommand;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -27,7 +28,7 @@ public class UndoTool implements Tool {
 				commandStates.add(
 					new PendingCommandState<Model>(
 						new UndoCommand(false),
-						new Model.RedoCommand(false)
+						new RedoCommand(false)
 					)
 				);
 			}
