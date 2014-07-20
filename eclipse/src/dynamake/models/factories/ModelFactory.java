@@ -7,6 +7,9 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
+/**
+ * Instances of implementors are supposed to be able to create models and describes the kind of model.
+ */
 public interface ModelFactory extends Serializable {
 	// Should provide parametric information?
 	// - In general, constraints?
