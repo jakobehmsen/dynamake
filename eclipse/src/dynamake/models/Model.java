@@ -210,30 +210,30 @@ public abstract class Model implements Serializable, Observer {
 		if(undoStack.isEmpty())
 			return;
 		
-		CommandState<Model> ctxTransactionToUndo = undoStack.pop();
+		CommandState<Model> toUndo = undoStack.pop();
 
-		CommandState<Model> redoable = ctxTransactionToUndo.executeOn(propCtx, this, null, collector, new ModelRootLocation());
+		CommandState<Model> redoable = toUndo.executeOn(propCtx, this, null, collector, new ModelRootLocation());
 
 		redoStack.push(redoable);
 		
-		sendChanged(new HistoryChange(HistoryChange.TYPE_UNDO, ctxTransactionToUndo), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryChange(HistoryChange.TYPE_UNDO, toUndo), propCtx, propDistance, 0, collector);
 	}
 	
 	public void redo(PropogationContext propCtx, Model prevalentSystem, int propDistance, Collector<Model> collector) {
 		if(redoStack.isEmpty())
 			return;
 		
-		CommandState<Model> ctxTransactionToRedo = redoStack.pop();
+		CommandState<Model> toRedo = redoStack.pop();
 
-		CommandState<Model> undoable = ctxTransactionToRedo.executeOn(propCtx, this, null, collector, new ModelRootLocation());
+		CommandState<Model> undoable = toRedo.executeOn(propCtx, this, null, collector, new ModelRootLocation());
 
 		undoStack.push(undoable);
 		
-		sendChanged(new HistoryChange(HistoryChange.TYPE_REDO, ctxTransactionToRedo), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryChange(HistoryChange.TYPE_REDO, toRedo), propCtx, propDistance, 0, collector);
 	}
 
-	public void log(CommandState<Model> transactionFromReference) {
-		undoStack.add(transactionFromReference);
+	public void log(CommandState<Model> change) {
+		undoStack.add(change);
 		redoStack.clear();
 		
 		// TODO: How to send a change that's been logged?
