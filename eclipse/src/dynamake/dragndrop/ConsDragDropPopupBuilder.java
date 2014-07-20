@@ -8,7 +8,7 @@ import javax.swing.JPopupMenu;
 
 import dynamake.commands.AddObserverCommand;
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.RemoveObserverCommand;
@@ -86,7 +86,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.execute(new CommandStateFactory<Model>() {
+					collector.execute(new PendingCommandFactory<Model>() {
 						ModelComponent referenceMC;
 						
 						@Override
@@ -100,7 +100,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						}
 						
 						@Override
-						public void createDualCommands(List<CommandState<Model>> commandStates) {
+						public void createPendingCommand(List<CommandState<Model>> commandStates) {
 							Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
 							Location canvasModelLocation = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 							

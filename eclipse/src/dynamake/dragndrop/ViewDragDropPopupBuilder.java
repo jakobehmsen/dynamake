@@ -7,7 +7,7 @@ import java.util.List;
 import javax.swing.JPopupMenu;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.menubuilders.ActionRunner;
@@ -54,14 +54,14 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Appliance", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new CommandStateFactory<Model>() {
+				collector.execute(new PendingCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return selection.getModelBehind();
 					}
 					
 					@Override
-					public void createDualCommands(List<CommandState<Model>> commandStates) {
+					public void createPendingCommand(List<CommandState<Model>> commandStates) {
 						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;
@@ -77,14 +77,14 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Engineering", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new CommandStateFactory<Model>() {
+				collector.execute(new PendingCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return selection.getModelBehind();
 					}
 					
 					@Override
-					public void createDualCommands(List<CommandState<Model>> commandStates) {
+					public void createPendingCommand(List<CommandState<Model>> commandStates) {
 						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;

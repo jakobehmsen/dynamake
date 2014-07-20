@@ -23,7 +23,7 @@ import javax.swing.JComponent;
 import dynamake.commands.AddObserverCommand;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
 import dynamake.commands.SetPropertyCommand;
@@ -205,14 +205,14 @@ public abstract class Model implements Serializable, Observer {
 			// Side-effect
 			final SetProperty setProperty = (SetProperty)change;
 
-			collector.execute(new CommandStateFactory<Model>() {
+			collector.execute(new PendingCommandFactory<Model>() {
 				@Override
 				public Model getReference() {
 					return Model.this;
 				}
 				
 				@Override
-				public void createDualCommands(List<CommandState<Model>> commandStates) {
+				public void createPendingCommand(List<CommandState<Model>> commandStates) {
 					commandStates.add(new PendingCommandState<Model>(
 						new SetPropertyCommand(setProperty.name, setProperty.value),
 						new SetPropertyCommand.AfterSetProperty()
@@ -466,14 +466,14 @@ public abstract class Model implements Serializable, Observer {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new CommandStateFactory<Model>() {
+						collector.execute(new PendingCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return view.getModelBehind();
 							}
 
 							@Override
-							public void createDualCommands(List<CommandState<Model>> commandStates) {
+							public void createPendingCommand(List<CommandState<Model>> commandStates) {
 								commandStates.add(new PendingCommandState<Model>(
 									new MouseUpCommand(), 
 									new Command.Null<Model>()
@@ -492,14 +492,14 @@ public abstract class Model implements Serializable, Observer {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new CommandStateFactory<Model>() {
+						collector.execute(new PendingCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return view.getModelBehind();
 							}
 
 							@Override
-							public void createDualCommands(List<CommandState<Model>> commandStates) {
+							public void createPendingCommand(List<CommandState<Model>> commandStates) {
 								commandStates.add(new PendingCommandState<Model>(
 									new MouseDownCommand(), 
 									new Command.Null<Model>()
@@ -592,14 +592,14 @@ public abstract class Model implements Serializable, Observer {
 				return new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new CommandStateFactory<Model>() {
+						collector.execute(new PendingCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return model;
 							}
 
 							@Override
-							public void createDualCommands(List<CommandState<Model>> dualCommands) {
+							public void createPendingCommand(List<CommandState<Model>> dualCommands) {
 								dualCommands.add(new PendingCommandState<Model>(
 									new SetPropertyCommand(PROPERTY_COLOR, color),
 									new SetPropertyCommand.AfterSetProperty()
@@ -652,14 +652,14 @@ public abstract class Model implements Serializable, Observer {
 				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
 					
-					collector.execute(new CommandStateFactory<Model>() {
+					collector.execute(new PendingCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return target.getModelBehind();
 						}
 
 						@Override
-						public void createDualCommands(List<CommandState<Model>> commandStates) {
+						public void createPendingCommand(List<CommandState<Model>> commandStates) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
 							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
 							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
@@ -681,14 +681,14 @@ public abstract class Model implements Serializable, Observer {
 				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
 					
-					collector.execute(new CommandStateFactory<Model>() {
+					collector.execute(new PendingCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return target.getModelBehind();
 						}
 
 						@Override
-						public void createDualCommands(List<CommandState<Model>> commandStates) {
+						public void createPendingCommand(List<CommandState<Model>> commandStates) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
 							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
 							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
@@ -870,7 +870,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void executeRemoveObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
-		collector.execute(new CommandStateFactory<Model>() {
+		collector.execute(new PendingCommandFactory<Model>() {
 			ModelComponent referenceMC;
 			
 			@Override
@@ -880,7 +880,7 @@ public abstract class Model implements Serializable, Observer {
 			}
 			
 			@Override
-			public void createDualCommands(List<CommandState<Model>> commandStates) {
+			public void createPendingCommand(List<CommandState<Model>> commandStates) {
 				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
@@ -893,7 +893,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void executeAddObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
-		collector.execute(new CommandStateFactory<Model>() {
+		collector.execute(new PendingCommandFactory<Model>() {
 			ModelComponent referenceMC;
 			
 			@Override
@@ -903,7 +903,7 @@ public abstract class Model implements Serializable, Observer {
 			}
 			
 			@Override
-			public void createDualCommands(List<CommandState<Model>> commandStates) {
+			public void createPendingCommand(List<CommandState<Model>> commandStates) {
 				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				

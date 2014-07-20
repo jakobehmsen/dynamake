@@ -24,7 +24,7 @@ public class RedoTool implements Tool {
 			}
 			
 			@Override
-			public void createDualCommands(List<CommandState<Model>> commandStates) {
+			public void createPendingCommand(List<CommandState<Model>> commandStates) {
 				commandStates.add(
 					new PendingCommandState<Model>(
 						new RedoCommand(false),

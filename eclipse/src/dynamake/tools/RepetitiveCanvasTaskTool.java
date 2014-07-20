@@ -5,7 +5,7 @@ import java.awt.event.MouseEvent;
 import java.util.List;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
@@ -51,14 +51,14 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 			final ModelComponent modelOverParent = ModelComponent.Util.getParent(modelOver);
 			
 			if(modelOverParent == canvas) {
-				collector.execute(new CommandStateFactory<Model>() {
+				collector.execute(new PendingCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return modelOverParent.getModelBehind();
 					}
 					
 					@Override
-					public void createDualCommands(List<CommandState<Model>> commandStates) {
+					public void createPendingCommand(List<CommandState<Model>> commandStates) {
 						createCommandStatesForSingleTask(productionPanel, commandStates, modelOverParent, modelOver);
 					}
 				});

@@ -14,7 +14,7 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.models.CanvasModel;
 import dynamake.models.Model;
@@ -53,14 +53,14 @@ public class PenTool implements Tool {
 		final ModelComponent target = targetPresenter.getTargetOver();
 		final Rectangle creationBoundsInContainer = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, (JComponent)target);
 
-		collector.execute(new CommandStateFactory<Model>() {
+		collector.execute(new PendingCommandFactory<Model>() {
 			@Override
 			public Model getReference() {
 				return target.getModelBehind();
 			}
 			
 			@Override
-			public void createDualCommands(List<CommandState<Model>> commandStates) {
+			public void createPendingCommand(List<CommandState<Model>> commandStates) {
 				ModelFactory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation, creationBoundsInContainer);
 				
 				commandStates.add(new PendingCommandState<Model>(

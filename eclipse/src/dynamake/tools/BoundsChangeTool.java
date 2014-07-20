@@ -11,7 +11,7 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.SetPropertyCommand;
@@ -60,7 +60,7 @@ public abstract class BoundsChangeTool implements Tool {
 						final ModelComponent targetOver = newTargetOver;
 
 						// Reference is closest common ancestor
-						collector.execute(new CommandStateFactory<Model>() {
+						collector.execute(new PendingCommandFactory<Model>() {
 							ModelComponent referenceMC;
 							
 							@Override
@@ -70,7 +70,7 @@ public abstract class BoundsChangeTool implements Tool {
 							}
 
 							@Override
-							public void createDualCommands(List<CommandState<Model>> commandStates) {
+							public void createPendingCommand(List<CommandState<Model>> commandStates) {
 								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
 								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
@@ -81,14 +81,14 @@ public abstract class BoundsChangeTool implements Tool {
 						// Moving within same canvas
 						final Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, effectBounds, (JComponent)newTargetOver);
 
-						collector.execute(new CommandStateFactory<Model>() {
+						collector.execute(new PendingCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return source.getModelBehind();
 							}
 
 							@Override
-							public void createDualCommands(List<CommandState<Model>> commandStates) {
+							public void createPendingCommand(List<CommandState<Model>> commandStates) {
 								Location locationOfMovedModel = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
 
 								commandStates.add(new PendingCommandState<Model>(
@@ -107,14 +107,14 @@ public abstract class BoundsChangeTool implements Tool {
 					// Changing bounds within the same canvas
 					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, effectBounds, (JComponent)newTargetOver);
 					
-					collector.execute(new CommandStateFactory<Model>() {
+					collector.execute(new PendingCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return selection.getModelBehind();
 						}
 
 						@Override
-						public void createDualCommands(List<CommandState<Model>> commandStates) {
+						public void createPendingCommand(List<CommandState<Model>> commandStates) {
 							appendCommandStatesForResize(commandStates, selection, newBounds);
 						}
 					});

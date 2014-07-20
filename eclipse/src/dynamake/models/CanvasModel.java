@@ -19,7 +19,7 @@ import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.RewrapCommand;
@@ -548,14 +548,14 @@ public class CanvasModel extends Model {
 			menuBuilder.addMenuBuilder("Remove", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.execute(new CommandStateFactory<Model>() {
+					collector.execute(new PendingCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return model;
 						}
 						
 						@Override
-						public void createDualCommands(List<CommandState<Model>> commandStates) {
+						public void createPendingCommand(List<CommandState<Model>> commandStates) {
 							CanvasModel.appendRemoveTransaction(commandStates, livePanel, child, model);
 						}
 					});
@@ -573,7 +573,7 @@ public class CanvasModel extends Model {
 				menuBuilder.addMenuBuilder("Unwrap", new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new CommandStateFactory<Model>() {
+						collector.execute(new PendingCommandFactory<Model>() {
 							ModelComponent parent;
 							
 							@Override
@@ -584,7 +584,7 @@ public class CanvasModel extends Model {
 							}
 							
 							@Override
-							public void createDualCommands(List<CommandState<Model>> commandStates) {
+							public void createPendingCommand(List<CommandState<Model>> commandStates) {
 								CanvasModel.appendUnwrapTransaction(commandStates, CanvasPanel.this, parent);
 							}
 						});
@@ -609,7 +609,7 @@ public class CanvasModel extends Model {
 						final ModelComponent modelToMove = dropped;
 
 						// Reference is closest common ancestor
-						collector.execute(new CommandStateFactory<Model>() {
+						collector.execute(new PendingCommandFactory<Model>() {
 							ModelComponent source;
 							ModelComponent targetOver;
 							ModelComponent referenceMC;
@@ -623,7 +623,7 @@ public class CanvasModel extends Model {
 							}
 
 							@Override
-							public void createDualCommands(List<CommandState<Model>> commandStates) {
+							public void createPendingCommand(List<CommandState<Model>> commandStates) {
 								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
 								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								

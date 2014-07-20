@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 import dynamake.delegates.Func0;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -385,8 +385,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								}
 								break;
 							}
-						} else if(command instanceof CommandStateFactory) {
-							CommandStateFactory<T> transactionFactory = (CommandStateFactory<T>)command;
+						} else if(command instanceof PendingCommandFactory) {
+							PendingCommandFactory<T> transactionFactory = (PendingCommandFactory<T>)command;
 							T reference = transactionFactory.getReference();
 							
 							if(((Model)reference).getLocator() == null) {
@@ -402,7 +402,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							// If location was part of the executeOn invocation, location is probably no
 							// necessary for creating dual commands. Further, then, it is probably not necessary
 							// to create two sequences of pendingCommands.
-							transactionFactory.createDualCommands(pendingCommands);
+							transactionFactory.createPendingCommand(pendingCommands);
 							
 							// Should be in pending state
 							ArrayList<CommandState<T>> undoables = new ArrayList<CommandState<T>>();

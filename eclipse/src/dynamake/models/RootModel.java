@@ -17,7 +17,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.menubuilders.CompositeMenuBuilder;
@@ -139,14 +139,14 @@ public class RootModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new CommandStateFactory<Model>() {
+						collector.execute(new PendingCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return rootModel;
 							}
 							
 							@Override
-							public void createDualCommands(List<CommandState<Model>> commandStates) {
+							public void createPendingCommand(List<CommandState<Model>> commandStates) {
 								if(newLocation != null) {
 									commandStates.add(new PendingCommandState<Model>(
 										new SetPropertyCommand("X", newLocation.x),
@@ -243,14 +243,14 @@ public class RootModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new CommandStateFactory<Model>() {
+						collector.execute(new PendingCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
 								return RootModel.this;
 							}
 							
 							@Override
-							public void createDualCommands(List<CommandState<Model>> commandStates) {
+							public void createPendingCommand(List<CommandState<Model>> commandStates) {
 								commandStates.add(new PendingCommandState<Model>(
 									new SetPropertyCommand("State", newState),
 									new SetPropertyCommand.AfterSetProperty()

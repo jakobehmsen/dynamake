@@ -29,7 +29,7 @@ import javax.swing.border.Border;
 
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.tools.Tool;
@@ -242,14 +242,14 @@ public class LiveModel extends Model {
 						connection.trigger(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
-								collector.execute(new CommandStateFactory<Model>() {
+								collector.execute(new PendingCommandFactory<Model>() {
 									@Override
 									public Model getReference() {
 										return ToolButton.this.liveModel;
 									}
 									
 									@Override
-									public void createDualCommands(List<CommandState<Model>> commandStates) {
+									public void createPendingCommand(List<CommandState<Model>> commandStates) {
 										List<Integer> currentButtons = ToolButton.this.buttons;
 										
 										if(localButtonsPressed.equals(currentButtons)) {

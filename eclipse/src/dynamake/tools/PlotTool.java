@@ -11,7 +11,7 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RewrapCommand;
 import dynamake.commands.UnwrapCommand;
@@ -48,14 +48,14 @@ public class PlotTool implements Tool {
 				final ModelComponent selection = interactionPresenter.getSelection();
 				// Wrap if one more models are contained within the effect frame
 				if(componentsWithinBounds.size() > 0) {
-					collector.execute(new CommandStateFactory<Model>() {
+					collector.execute(new PendingCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return selection.getModelBehind();
 						}
 						
 						@Override
-						public void createDualCommands(List<CommandState<Model>> commandStates) {
+						public void createPendingCommand(List<CommandState<Model>> commandStates) {
 							CanvasModel target = (CanvasModel)selection.getModelBehind();
 							
 							Location[] modelLocations = new Location[componentsWithinBounds.size()];
@@ -72,14 +72,14 @@ public class PlotTool implements Tool {
 						}
 					});
 				} else {
-					collector.execute(new CommandStateFactory<Model>() {
+					collector.execute(new PendingCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
 							return selection.getModelBehind();
 						}
 						
 						@Override
-						public void createDualCommands(List<CommandState<Model>> commandStates) {
+						public void createPendingCommand(List<CommandState<Model>> commandStates) {
 							ModelFactory factory = new CanvasModelFactory();
 							commandStates.add(new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(creationBoundsInSelection, factory),

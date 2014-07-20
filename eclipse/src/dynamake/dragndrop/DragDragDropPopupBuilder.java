@@ -8,7 +8,7 @@ import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.DejectCommand;
 import dynamake.commands.InjectCommand;
 import dynamake.commands.PendingCommandState;
@@ -121,7 +121,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionSelectionGeneralMapBuilder.addMenuBuilder("Inject", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new CommandStateFactory<Model>() {
+				collector.execute(new PendingCommandFactory<Model>() {
 					ModelComponent referenceMC;
 					
 					@Override
@@ -131,7 +131,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 					}
 					
 					@Override
-					public void createDualCommands(List<CommandState<Model>> commandStates) {
+					public void createPendingCommand(List<CommandState<Model>> commandStates) {
 						Location locationOfSelection = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
 						Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 							

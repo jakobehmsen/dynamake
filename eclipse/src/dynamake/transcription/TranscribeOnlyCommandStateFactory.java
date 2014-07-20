@@ -1,7 +1,7 @@
 package dynamake.transcription;
 
-import dynamake.commands.CommandStateFactory;
+import dynamake.commands.PendingCommandFactory;
 
-public interface TranscribeOnlyCommandStateFactory<T> extends CommandStateFactory<T> {
+public interface TranscribeOnlyCommandStateFactory<T> extends PendingCommandFactory<T> {
 
 }
