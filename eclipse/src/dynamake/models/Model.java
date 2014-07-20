@@ -176,7 +176,7 @@ public abstract class Model implements Serializable, Observer {
 			if(isolate)
 				collector = new IsolatingCollector<Model>(collector);
 			
-			model.undo(propCtx, prevalentSystem, collector);
+			model.undo(propCtx, prevalentSystem, 0, collector);
 			
 			return null;
 		}
@@ -200,13 +200,13 @@ public abstract class Model implements Serializable, Observer {
 			if(isolate)
 				collector = new IsolatingCollector<Model>(collector);
 			
-			model.redo(propCtx, prevalentSystem, collector);
+			model.redo(propCtx, prevalentSystem, 0, collector);
 			
 			return null;
 		}
 	}
 	
-	public void undo(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector) {
+	public void undo(PropogationContext propCtx, Model prevalentSystem, int propDistance, Collector<Model> collector) {
 		if(undoStack.isEmpty())
 			return;
 		
@@ -217,7 +217,7 @@ public abstract class Model implements Serializable, Observer {
 		redoStack.push(redoable);
 	}
 	
-	public void redo(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector) {
+	public void redo(PropogationContext propCtx, Model prevalentSystem, int propDistance, Collector<Model> collector) {
 		if(redoStack.isEmpty())
 			return;
 		
