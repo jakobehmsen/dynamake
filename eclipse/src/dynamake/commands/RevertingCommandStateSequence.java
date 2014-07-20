@@ -1,7 +1,6 @@
 package dynamake.commands;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import dynamake.models.Location;
 import dynamake.models.PropogationContext;
@@ -35,13 +34,13 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 	}
 
 	@Override
-	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector, Location location) {
+	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location) {
 		// The new command states are reverted for undo/redo support
 		@SuppressWarnings("unchecked")
 		CommandState<T>[] newCommandStates = (CommandState<T>[])new CommandState[commandStates.length];
 		
 		for(int i = 0; i < commandStates.length; i++)
-			newCommandStates[i] = commandStates[i].executeOn(propCtx, prevalentSystem, executionTime, collector, location);
+			newCommandStates[i] = commandStates[i].executeOn(propCtx, prevalentSystem, collector, location);
 
 		return reverse(newCommandStates);
 	}

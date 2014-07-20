@@ -1,7 +1,6 @@
 package dynamake.commands;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import dynamake.models.Location;
 import dynamake.models.PropogationContext;
@@ -73,7 +72,7 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 	}
 
 	@Override
-	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Date executionTime, Collector<T> collector, Location location) {
+	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location) {
 		Object output = command.executeOn(propCtx, prevalentSystem, collector, location);
 		
 		return new ReversibleCommand<T>(output, backFactory, forthFactory);

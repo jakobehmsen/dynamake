@@ -138,7 +138,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			for(SnapshottingTranscriber.Connection.LocationCommandsPair<T> entry: ctxTransaction.transactionsFromRoot) {
 				Location location = entry.location;
 				for(CommandState<T> transaction: entry.pending)
-					transaction.executeOn(propCtx, prevalentSystem, null, new NullCollector<T>(), location);
+					transaction.executeOn(propCtx, prevalentSystem, new NullCollector<T>(), location);
 			}
 			
 			for(Map.Entry<Location, ArrayList<CommandState<T>>> entry: ctxTransaction.transactionsFromReferenceLocations.entrySet()) {
@@ -408,7 +408,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							ArrayList<CommandState<T>> undoables = new ArrayList<CommandState<T>>();
 							for(CommandState<T> pendingCommand: pendingCommands) {
 								// Each command in pending state should return a command in undoable state
-								CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, null, collector, locationFromReference);
+								CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, collector, locationFromReference);
 								undoables.add(undoableCommand);
 							}
 							flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
@@ -508,7 +508,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				Location locationFromReference = new ModelRootLocation();
 				for(CommandState<T> undoable: transaction.undoables) {
 					@SuppressWarnings("unused")
-					CommandState<T> redoable = undoable.executeOn(propCtx, transaction.reference, null, isolatedCollector, locationFromReference);
+					CommandState<T> redoable = undoable.executeOn(propCtx, transaction.reference, isolatedCollector, locationFromReference);
 				}
 			}
 			

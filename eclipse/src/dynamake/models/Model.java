@@ -212,7 +212,7 @@ public abstract class Model implements Serializable, Observer {
 		
 		CommandState<Model> toUndo = undoStack.pop();
 
-		CommandState<Model> redoable = toUndo.executeOn(propCtx, this, null, collector, new ModelRootLocation());
+		CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
 
 		redoStack.push(redoable);
 		
@@ -225,7 +225,7 @@ public abstract class Model implements Serializable, Observer {
 		
 		CommandState<Model> toRedo = redoStack.pop();
 
-		CommandState<Model> undoable = toRedo.executeOn(propCtx, this, null, collector, new ModelRootLocation());
+		CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
 
 		undoStack.push(undoable);
 		
