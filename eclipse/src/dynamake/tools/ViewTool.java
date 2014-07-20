@@ -14,16 +14,6 @@ import dynamake.transcription.Connection;
 
 public class ViewTool implements Tool {
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
-
-	}
-
-	@Override
-	public void mouseExited(ProductionPanel productionPanel, MouseEvent e, Connection<Model> connection, Collector<Model> collector) {
-
-	}
-
-	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
 		interactionPresenter.showPopupForSelectionView(productionPanel, e.getPoint(), null, connection, interactionPresenter);
 	}

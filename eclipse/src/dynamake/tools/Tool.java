@@ -10,8 +10,6 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 
 public interface Tool {
-	void mouseMoved(LiveModel.ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector);
-	void mouseExited(LiveModel.ProductionPanel productionPanel, MouseEvent e, Connection<Model> connection, Collector<Model> collector);
 	void mouseReleased(LiveModel.ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector);
 	void mousePressed(LiveModel.ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector);
 	void mouseDragged(LiveModel.ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection);

@@ -28,17 +28,7 @@ import dynamake.transcription.Connection;
 
 public class PenTool implements Tool {
 	private ArrayList<Point> points;
-
-	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
-		
-	}
-
-	@Override
-	public void mouseExited(ProductionPanel productionPanel, MouseEvent e, Connection<Model> connection, Collector<Model> collector) {
-
-	}
-
+	
 	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
 		final ArrayList<Point> pointsForCreation = points;

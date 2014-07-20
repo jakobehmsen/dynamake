@@ -25,20 +25,6 @@ import dynamake.transcription.Connection;
 
 public abstract class BoundsChangeTool implements Tool {
 	@Override
-	public void mouseMoved(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
-//		if(productionPanel.editPanelMouseAdapter.selection == modelOver && productionPanel.editPanelMouseAdapter.selection != productionPanel.contentView.getBindingTarget()) {
-//			Point point = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), productionPanel.selectionFrame);
-//			relativePosition = new RelativePosition(point, ((JComponent)modelOver).getSize());
-//			productionPanel.selectionFrame.setCursor(relativePosition.getCursor());
-//		}
-	}
-
-	@Override
-	public void mouseExited(final ProductionPanel productionPanel, MouseEvent e, Connection<Model> connection, Collector<Model> collector) {
-
-	}
-
-	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
 		if(viewPressedOn != null) {
 			ModelComponent newTargetOver = targetPresenter.getTargetOver();

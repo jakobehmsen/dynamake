@@ -16,16 +16,6 @@ import dynamake.transcription.Connection;
 
 public class BindTool implements Tool {
 	@Override
-	public void mouseMoved(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
-
-	}
-
-	@Override
-	public void mouseExited(ProductionPanel productionPanel, MouseEvent e, Connection<Model> connection, Collector<Model> collector) {
-
-	}
-
-	@Override
 	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
 		final ModelComponent targetModelComponent = modelOver;
 		
