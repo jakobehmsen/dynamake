@@ -14,6 +14,7 @@ import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
+import dynamake.commands.SetPropertyCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -91,13 +92,13 @@ public abstract class BoundsChangeTool implements Tool {
 								Location locationOfMovedModel = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
 
 								commandStates.add(new PendingCommandState<Model>(
-									new RelativeCommand<Model>(locationOfMovedModel, new Model.SetPropertyCommand("X", new Fraction(droppedBounds.x))),
-									new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand.AfterSetProperty())
+									new RelativeCommand<Model>(locationOfMovedModel, new SetPropertyCommand("X", new Fraction(droppedBounds.x))),
+									new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 								));
 								
 								commandStates.add(new PendingCommandState<Model>(
-									new RelativeCommand<Model>(locationOfMovedModel, new Model.SetPropertyCommand("Y", new Fraction(droppedBounds.y))),
-									new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand.AfterSetProperty())
+									new RelativeCommand<Model>(locationOfMovedModel, new SetPropertyCommand("Y", new Fraction(droppedBounds.y))),
+									new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 								));
 							}
 						});

@@ -19,6 +19,7 @@ import javax.swing.JFrame;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.SetPropertyCommand;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.Collector;
@@ -148,23 +149,23 @@ public class RootModel extends Model {
 							public void createDualCommands(List<CommandState<Model>> commandStates) {
 								if(newLocation != null) {
 									commandStates.add(new PendingCommandState<Model>(
-										new Model.SetPropertyCommand("X", newLocation.x),
-										new Model.SetPropertyCommand.AfterSetProperty()
+										new SetPropertyCommand("X", newLocation.x),
+										new SetPropertyCommand.AfterSetProperty()
 									));
 									commandStates.add(new PendingCommandState<Model>(
-										new Model.SetPropertyCommand("Y", newLocation.y),
-										new Model.SetPropertyCommand.AfterSetProperty()
+										new SetPropertyCommand("Y", newLocation.y),
+										new SetPropertyCommand.AfterSetProperty()
 									));
 								}
 								
 								if(newSize != null) {
 									commandStates.add(new PendingCommandState<Model>(
-										new Model.SetPropertyCommand("Width", newSize.width),
-										new Model.SetPropertyCommand.AfterSetProperty()
+										new SetPropertyCommand("Width", newSize.width),
+										new SetPropertyCommand.AfterSetProperty()
 									));
 									commandStates.add(new PendingCommandState<Model>(
-										new Model.SetPropertyCommand("Height", newSize.height),
-										new Model.SetPropertyCommand.AfterSetProperty()
+										new SetPropertyCommand("Height", newSize.height),
+										new SetPropertyCommand.AfterSetProperty()
 									));
 								}
 							}
@@ -251,8 +252,8 @@ public class RootModel extends Model {
 							@Override
 							public void createDualCommands(List<CommandState<Model>> commandStates) {
 								commandStates.add(new PendingCommandState<Model>(
-									new Model.SetPropertyCommand("State", newState),
-									new Model.SetPropertyCommand.AfterSetProperty()
+									new SetPropertyCommand("State", newState),
+									new SetPropertyCommand.AfterSetProperty()
 								));
 							}
 						});

@@ -9,6 +9,7 @@ import javax.swing.JPopupMenu;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.SetPropertyCommand;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Model;
@@ -65,8 +66,8 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;
 						commandStates.add(new PendingCommandState<Model>(
-							new Model.SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
-							new Model.SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
+							new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
+							new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
 						));
 					}
 				});
@@ -88,8 +89,8 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;
 						commandStates.add(new PendingCommandState<Model>(
-							new Model.SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
-							new Model.SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
+							new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
+							new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
 						));
 					}
 				});

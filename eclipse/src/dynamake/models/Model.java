@@ -21,10 +21,10 @@ import java.util.Stack;
 import javax.swing.JComponent;
 
 import dynamake.commands.Command;
-import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.SetPropertyCommand;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.menubuilders.ColorMenuBuilder;
@@ -104,60 +104,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class SetPropertyCommand implements Command<Model> {
-		public static class AfterSetProperty implements CommandFactory<Model> {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Command<Model> createCommand(Object output) {
-				SetPropertyCommand.Output setPropertyOutput = (SetPropertyCommand.Output)output;
-				return new SetPropertyCommand(setPropertyOutput.name, setPropertyOutput.previousValue);
-			}
-		}
-		
-		public static class Output implements Serializable {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-			public final String name;
-			public final Object previousValue;
-			
-			public Output(String name, Object previousValue) {
-				this.name = name;
-				this.previousValue = previousValue;
-			}
-		}
-		
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		
-		private String name;
-		private Object value;
-		
-		public SetPropertyCommand(String name, Object value) {
-			this.name = name;
-			this.value = value;
-		}
-		
-		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-			Model model = (Model)location.getChild(prevalentSystem);
-			
-			if(model == null)
-				new String();
-			
-			Object previousValue = model.getProperty(name);
-			model.setProperty(name, value, propCtx, 0, collector);
-			
-			return new Output(name, previousValue);
-		}
-	}
 	public static class UndoCommand implements Command<Model> {
 		/**
 		 * 
@@ -751,8 +697,8 @@ public abstract class Model implements Serializable, Observer {
 							@Override
 							public void createDualCommands(List<CommandState<Model>> dualCommands) {
 								dualCommands.add(new PendingCommandState<Model>(
-									new Model.SetPropertyCommand(PROPERTY_COLOR, color),
-									new Model.SetPropertyCommand.AfterSetProperty()
+									new SetPropertyCommand(PROPERTY_COLOR, color),
+									new SetPropertyCommand.AfterSetProperty()
 								));
 							}
 						});

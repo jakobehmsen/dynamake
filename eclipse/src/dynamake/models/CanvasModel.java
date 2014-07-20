@@ -23,6 +23,7 @@ import dynamake.commands.CommandStateFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.RewrapCommand;
+import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
@@ -698,13 +699,13 @@ public class CanvasModel extends Model {
 		));
 		
 		commandStates.add(new PendingCommandState<Model>(
-			new RelativeCommand<Model>(modelLocationAfterMove, new Model.SetPropertyCommand("X", new Fraction(moveLocation.x))),
-			new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand.AfterSetProperty())
+			new RelativeCommand<Model>(modelLocationAfterMove, new SetPropertyCommand("X", new Fraction(moveLocation.x))),
+			new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 		));
 		
 		commandStates.add(new PendingCommandState<Model>(
-			new RelativeCommand<Model>(modelLocationAfterMove, new Model.SetPropertyCommand("Y", new Fraction(moveLocation.y))),
-			new RelativeCommand.Factory<Model>(new Model.SetPropertyCommand.AfterSetProperty())
+			new RelativeCommand<Model>(modelLocationAfterMove, new SetPropertyCommand("Y", new Fraction(moveLocation.y))),
+			new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 		));
 	}
 	
