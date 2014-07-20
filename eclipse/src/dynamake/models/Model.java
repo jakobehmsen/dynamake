@@ -215,6 +215,8 @@ public abstract class Model implements Serializable, Observer {
 		CommandState<Model> redoable = ctxTransactionToUndo.executeOn(propCtx, this, null, collector, new ModelRootLocation());
 
 		redoStack.push(redoable);
+		
+		sendChanged(new HistoryChange(HistoryChange.TYPE_UNDO, ctxTransactionToUndo), propCtx, propDistance, 0, collector);
 	}
 	
 	public void redo(PropogationContext propCtx, Model prevalentSystem, int propDistance, Collector<Model> collector) {
@@ -226,6 +228,8 @@ public abstract class Model implements Serializable, Observer {
 		CommandState<Model> undoable = ctxTransactionToRedo.executeOn(propCtx, this, null, collector, new ModelRootLocation());
 
 		undoStack.push(undoable);
+		
+		sendChanged(new HistoryChange(HistoryChange.TYPE_REDO, ctxTransactionToRedo), propCtx, propDistance, 0, collector);
 	}
 
 	public void log(CommandState<Model> transactionFromReference) {
