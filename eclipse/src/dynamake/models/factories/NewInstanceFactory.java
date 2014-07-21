@@ -20,8 +20,7 @@ public class NewInstanceFactory implements ModelFactory {
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "New Instance";
 	}
 	
 	@Override

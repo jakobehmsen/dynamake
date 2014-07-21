@@ -35,6 +35,7 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.CloneDeepFactory;
 import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.ModelFactory;
+import dynamake.models.factories.NewInstanceFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
@@ -724,6 +725,7 @@ public abstract class Model implements Serializable, Observer {
 					});
 				}
 			});
+			
 			transactions.addMenuBuilder("Clone Deep", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
@@ -744,6 +746,36 @@ public abstract class Model implements Serializable, Observer {
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
 							ModelFactory factory = new CloneDeepFactory(droppedLocation);
+							commandStates.add(new PendingCommandState<Model>(
+								new CanvasModel.AddModelCommand(creationBounds, factory),
+								new CanvasModel.RemoveModelCommand.AfterAdd(),
+								new CanvasModel.RestoreModelCommand.AfterRemove()
+							));
+						}
+					});
+				}
+			});
+			
+			transactions.addMenuBuilder("New Instance", new Trigger<Model>() {
+				@Override
+				public void run(Collector<Model> collector) {
+					final Rectangle creationBounds = droppedBounds;
+					
+					collector.execute(new PendingCommandFactory<Model>() {
+						@Override
+						public Model getReference() {
+							return target.getModelBehind();
+						}
+
+						@Override
+						public void createPendingCommand(List<CommandState<Model>> commandStates) {
+							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
+							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
+							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
+							// Probably, the "version" of dropped to be cloned is important
+							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
+							Location droppedLocation = fromCCAToDropped;
+							ModelFactory factory = new NewInstanceFactory(droppedLocation);
 							commandStates.add(new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(creationBounds, factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
