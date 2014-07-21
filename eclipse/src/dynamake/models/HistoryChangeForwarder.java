@@ -10,6 +10,7 @@ import dynamake.commands.RedoCommand;
 import dynamake.commands.RemoveLastLogCommand;
 import dynamake.commands.UndoCommand;
 import dynamake.transcription.Collector;
+import dynamake.transcription.TranscribeOnlyCommandStateFactory;
 
 public class HistoryChangeForwarder extends ObserverAdapter {
 	private Model inhereter;
@@ -42,8 +43,6 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 		if(change instanceof Model.HistoryAppendLogChange) {
 			final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
 			
-//			collector.execute(historyAppendLogChange.change);
-			
 			collector.execute(new PendingCommandFactory<Model>() {
 				@Override
 				public Model getReference() {
@@ -55,27 +54,12 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 					commandStates.addAll(historyAppendLogChange.pendingCommands);
 				}
 			});
-			
-//			collector.execute(new PendingCommandFactory<Model>() {
-//				@Override
-//				public Model getReference() {
-//					return inheretee;
-//				}
-//				
-//				@Override
-//				public void createPendingCommand(List<CommandState<Model>> commandStates) {
-//					commandStates.add(new PendingCommandState<Model>(
-//						new AppendLogCommand(historyAppendLogChange.change), 
-//						new RemoveLastLogCommand.AfterAppendLog()
-//					));
-//				}
-//			});
 		} else if(change instanceof Model.HistoryChange) {
 			Model.HistoryChange historyChange = (Model.HistoryChange)change;
 			
 			switch(historyChange.type) {
 			case Model.HistoryChange.TYPE_UNDO:
-				collector.execute(new PendingCommandFactory<Model>() {
+				collector.execute(new TranscribeOnlyCommandStateFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return inheretee;
@@ -92,7 +76,7 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 
 				break;
 			case Model.HistoryChange.TYPE_REDO:
-				collector.execute(new PendingCommandFactory<Model>() {
+				collector.execute(new TranscribeOnlyCommandStateFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return inheretee;
