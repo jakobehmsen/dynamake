@@ -1,5 +1,6 @@
 package dynamake.commands;
 
+import java.io.Serializable;
 import java.util.Stack;
 
 import dynamake.models.Location;
@@ -8,7 +9,11 @@ import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
 public class AppendLogCommand implements Command<Model> {
-	public static class Output {
+	public static class Output implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		public final Stack<CommandState<Model>> redoStack;
 
 		public Output(Stack<CommandState<Model>> redoStack) {

@@ -47,10 +47,10 @@ import dynamake.transcription.Trigger;
  */
 public abstract class Model implements Serializable, Observer {
 	public static class HistoryAppendLogChange {
-		public final CommandState<Model> change;
+		public final ArrayList<CommandState<Model>> pendingCommands;
 		
-		public HistoryAppendLogChange(CommandState<Model> change) {
-			this.change = change;
+		public HistoryAppendLogChange(ArrayList<CommandState<Model>> pendingCommands) {
+			this.pendingCommands = pendingCommands;
 		}
 	}
 	
@@ -164,7 +164,15 @@ public abstract class Model implements Serializable, Observer {
 		redoStack.clear();
 //		System.out.println("Log");
 
-		sendChanged(new HistoryAppendLogChange(change), propCtx, propDistance, 0, collector);
+//		sendChanged(new HistoryAppendLogChange(change), propCtx, propDistance, 0, collector);
+	}
+
+	public void appendLog2(ArrayList<CommandState<Model>> pendingCommands, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		undoStack.add(change);
+//		redoStack.clear();
+//		System.out.println("Log");
+
+		sendChanged(new HistoryAppendLogChange(pendingCommands), propCtx, propDistance, 0, collector);
 	}
 
 	public void removeLastLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {

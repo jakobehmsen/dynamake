@@ -42,6 +42,8 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 		if(change instanceof Model.HistoryAppendLogChange) {
 			final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
 			
+//			collector.execute(historyAppendLogChange.change);
+			
 			collector.execute(new PendingCommandFactory<Model>() {
 				@Override
 				public Model getReference() {
@@ -50,12 +52,24 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 				
 				@Override
 				public void createPendingCommand(List<CommandState<Model>> commandStates) {
-					commandStates.add(new PendingCommandState<Model>(
-						new AppendLogCommand(historyAppendLogChange.change), 
-						new RemoveLastLogCommand.AfterAppendLog()
-					));
+					commandStates.addAll(historyAppendLogChange.pendingCommands);
 				}
 			});
+			
+//			collector.execute(new PendingCommandFactory<Model>() {
+//				@Override
+//				public Model getReference() {
+//					return inheretee;
+//				}
+//				
+//				@Override
+//				public void createPendingCommand(List<CommandState<Model>> commandStates) {
+//					commandStates.add(new PendingCommandState<Model>(
+//						new AppendLogCommand(historyAppendLogChange.change), 
+//						new RemoveLastLogCommand.AfterAppendLog()
+//					));
+//				}
+//			});
 		} else if(change instanceof Model.HistoryChange) {
 			Model.HistoryChange historyChange = (Model.HistoryChange)change;
 			

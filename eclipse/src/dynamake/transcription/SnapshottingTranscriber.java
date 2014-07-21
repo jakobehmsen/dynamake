@@ -427,6 +427,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								// Update the log of each affected model isolately; no transaction is cross-model
 								for(CommandState<T> undoable: undoables)
 									((Model)reference).appendLog((CommandState<Model>)undoable, propCtx, 0, (Collector<Model>)collector);
+								
+								ArrayList<CommandState<Model>> pendingCommandsModel = new ArrayList<CommandState<Model>>();
+								for(CommandState<T> pendingCommand: pendingCommands)
+									pendingCommandsModel.add((CommandState<Model>)pendingCommand);
+								((Model)reference).appendLog2((ArrayList<CommandState<Model>>)pendingCommandsModel, propCtx, 0, (Collector<Model>)collector);
 							} else
 								System.out.println("Don't affect model history");
 

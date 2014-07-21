@@ -28,7 +28,7 @@ public class NewInstanceFactory implements ModelFactory {
 		Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
 		Model instance = inhereter.cloneDeep();
 		
-		inhereter.addObservee(new HistoryChangeForwarder(instance));
+		inhereter.addObserver(new HistoryChangeForwarder(instance));
 		
 		return instance;
 	}
