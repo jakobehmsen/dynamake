@@ -139,12 +139,8 @@ public abstract class Model implements Serializable, Observer {
 		undoStack.add(change);
 		redoStack.clear();
 //		System.out.println("Log");
-		
-		// TODO: How to send a change that's been logged?
-		// Currently, these changes are logged when a connection is committed
-		// Perhaps, logs should be performed immediately and then later be rolled back if necessary?
-		// - but how will a change be composed of multiple smaller changes then?
-		//sendChanged(change, propCtx, propDistance, changeDistance, collector)
+
+		sendChanged(new HistoryChange(HistoryChange.TYPE_LOG, change), propCtx, propDistance, 0, collector);
 	}
 	
 	public void compressLog(int length) {
