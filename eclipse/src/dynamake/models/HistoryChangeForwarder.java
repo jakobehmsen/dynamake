@@ -1,14 +1,20 @@
 package dynamake.models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.commands.AppendLogCommand;
+import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.RemoveLastLogCommand;
+import dynamake.commands.ReversibleCommand;
 import dynamake.commands.UndoCommand;
+import dynamake.models.CanvasModel.AddModelCommand;
+import dynamake.models.CanvasModel.RemoveModelCommand;
+import dynamake.models.factories.ModelFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
 
@@ -51,7 +57,32 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 				
 				@Override
 				public void createPendingCommand(List<CommandState<Model>> commandStates) {
-					commandStates.addAll(historyAppendLogChange.pendingCommands);
+					ArrayList<CommandState<Model>> filteredPendingCommands = new ArrayList<CommandState<Model>>();
+					
+					for(Model.PendingUndoablePair pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs) {
+						Command<Model> command = pendingUndoablePair.pending.getCommand();
+						ReversibleCommand<Model> undoable = pendingUndoablePair.undoable;
+						
+						if(command instanceof AddModelCommand) {
+							AddModelCommand addModelCommand = (AddModelCommand)command;
+							AddModelCommand.Output addModelCommandOutput = (AddModelCommand.Output)undoable.getOutput();
+							// Use same factory
+							// Reuse id (of location / IdLocation)
+
+							filteredPendingCommands.add(new PendingCommandState<Model>(
+								new CanvasModel.RestoreModelCommand(
+									addModelCommandOutput.location, addModelCommand.xCreation, addModelCommand.yCreation, addModelCommand.widthCreation, addModelCommand.heightCreation, 
+									addModelCommand.factory, new ArrayList<Command<Model>>()
+								), 
+								new CanvasModel.RemoveModelCommand.AfterAdd(),
+								new CanvasModel.RestoreModelCommand.AfterRemove()
+							));
+						} else {
+							filteredPendingCommands.add(pendingUndoablePair.pending);
+						}
+					}
+					
+					commandStates.addAll(filteredPendingCommands);
 				}
 			});
 		} else if(change instanceof Model.HistoryChange) {
@@ -104,6 +135,24 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 //				inheretee.rejectLog(historyLogChange.length, propCtx, propDistance, collector);
 				break;
 			}
-		}
+		}/* else if(change instanceof CanvasModel.AddedModelChange) {
+			final CanvasModel.AddedModelChange addedModelChange = (CanvasModel.AddedModelChange)change;
+			
+			collector.execute(new PendingCommandFactory<Model>() {
+				@Override
+				public Model getReference() {
+					return inheretee;
+				}
+				
+				@Override
+				public void createPendingCommand(List<CommandState<Model>> commandStates) {
+					commandStates.addAll(historyAppendLogChange.pendingCommands);
+				}
+			});
+			
+			Model clone = addedModelChange.model
+		} else if(change instanceof CanvasModel.RemovedModelChange) {
+			CanvasModel.RemovedModelChange removedModelChange = (CanvasModel.RemovedModelChange)change;
+		}*/
 	}
 }

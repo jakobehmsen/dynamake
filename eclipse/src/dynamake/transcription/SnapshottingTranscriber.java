@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import dynamake.commands.PendingCommandState;
+import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.CommandState;
@@ -29,6 +31,7 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
+import dynamake.models.Model.PendingUndoablePair;
 
 public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private Func0<T> prevalentSystemFunc;
@@ -428,10 +431,14 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								for(CommandState<T> undoable: undoables)
 									((Model)reference).appendLog((CommandState<Model>)undoable, propCtx, 0, (Collector<Model>)collector);
 								
-								ArrayList<CommandState<Model>> pendingCommandsModel = new ArrayList<CommandState<Model>>();
-								for(CommandState<T> pendingCommand: pendingCommands)
-									pendingCommandsModel.add((CommandState<Model>)pendingCommand);
-								((Model)reference).appendLog2((ArrayList<CommandState<Model>>)pendingCommandsModel, propCtx, 0, (Collector<Model>)collector);
+								ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
+								for(int i = 0; i < pendingCommands.size(); i++) {
+									PendingCommandState<Model> pending = (PendingCommandState<Model>)pendingCommands.get(i);
+									ReversibleCommand<Model> undoable = (ReversibleCommand<Model>)undoables.get(i);
+									PendingUndoablePair pendingUndoablePair = new PendingUndoablePair(pending, undoable);
+									pendingUndoablePairs.add(pendingUndoablePair);
+								}
+								((Model)reference).appendLog2(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
 							} else
 								System.out.println("Don't affect model history");
 

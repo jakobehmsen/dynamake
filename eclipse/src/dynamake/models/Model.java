@@ -26,6 +26,7 @@ import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
+import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.delegates.Action1;
@@ -46,11 +47,21 @@ import dynamake.transcription.Trigger;
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.
  */
 public abstract class Model implements Serializable, Observer {
-	public static class HistoryAppendLogChange {
-		public final ArrayList<CommandState<Model>> pendingCommands;
+	public static class PendingUndoablePair {
+		public final PendingCommandState<Model> pending;
+		public final ReversibleCommand<Model> undoable;
 		
-		public HistoryAppendLogChange(ArrayList<CommandState<Model>> pendingCommands) {
-			this.pendingCommands = pendingCommands;
+		public PendingUndoablePair(PendingCommandState<Model> pending, ReversibleCommand<Model> undoable) {
+			this.pending = pending;
+			this.undoable = undoable;
+		}
+	}
+	
+	public static class HistoryAppendLogChange {
+		public final ArrayList<PendingUndoablePair> pendingUndoablePairs;
+		
+		public HistoryAppendLogChange(ArrayList<PendingUndoablePair> pendingCommands) {
+			this.pendingUndoablePairs = pendingCommands;
 		}
 	}
 	
@@ -167,12 +178,12 @@ public abstract class Model implements Serializable, Observer {
 //		sendChanged(new HistoryAppendLogChange(change), propCtx, propDistance, 0, collector);
 	}
 
-	public void appendLog2(ArrayList<CommandState<Model>> pendingCommands, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void appendLog2(ArrayList<PendingUndoablePair> pendingUndoables, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		undoStack.add(change);
 //		redoStack.clear();
 //		System.out.println("Log");
 
-		sendChanged(new HistoryAppendLogChange(pendingCommands), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryAppendLogChange(pendingUndoables), propCtx, propDistance, 0, collector);
 	}
 
 	public void removeLastLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {

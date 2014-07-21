@@ -256,11 +256,11 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private Fraction xCreation;
-		private Fraction yCreation;
-		private Fraction widthCreation;
-		private Fraction heightCreation;
-		private ModelFactory factory;
+		public final Fraction xCreation;
+		public final Fraction yCreation;
+		public final Fraction widthCreation;
+		public final Fraction heightCreation;
+		public final ModelFactory factory;
 		
 		public AddModelCommand(Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, ModelFactory factory) {
 			this.xCreation = xCreation;
@@ -733,6 +733,10 @@ public class CanvasModel extends Model {
 
 		public IdLocation(Object id) {
 			this.id = id;
+		}
+		
+		public Object getId() {
+			return id;
 		}
 		
 		@Override

@@ -1,6 +1,5 @@
 package dynamake.commands;
 
-
 import dynamake.models.Location;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
@@ -18,6 +17,10 @@ public class ReversibleCommand<T> implements CommandState<T> {
 		this.output = output;
 		this.forthFactory = forthFactory;
 		this.backFactory = backFactory;
+	}
+	
+	public Object getOutput() {
+		return output;
 	}
 
 	@Override
