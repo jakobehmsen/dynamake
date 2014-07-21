@@ -447,7 +447,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			});
 		}
 		
-		@SuppressWarnings("unchecked")
 		private void doCommit() {
 			if(flushedTransactionsFromRoot.size() > 0) {
 				ArrayList<LocationCommandsPair<T>> transactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
@@ -461,10 +460,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				for(Map.Entry<T, ArrayList<CommandState<T>>> entry: flushedTransactionsFromReferences.entrySet()) {
 					T reference = entry.getKey();
 					ArrayList<CommandState<T>> flushedTransactionsFromReference = entry.getValue();
-//					
-//					// Update the log of each affected model isolately; no transaction is cross-model
-//					RevertingCommandStateSequence<T> transactionFromReference = RevertingCommandStateSequence.reverse(flushedTransactionsFromReference);
-//					((Model)reference).log((CommandState<Model>)transactionFromReference);
+
 					((Model)reference).compressLog(flushedTransactionsFromReference.size());
 					
 					Location referenceLocation = ((Model)reference).getLocator().locate();
