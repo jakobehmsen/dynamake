@@ -518,6 +518,14 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			System.out.println("Rejected connection");
 			
 			flushedTransactionsFromRoot.clear();
+			
+			for(Map.Entry<T, ArrayList<CommandState<T>>> entry: flushedTransactionsFromReferences.entrySet()) {
+				T reference = entry.getKey();
+				ArrayList<CommandState<T>> flushedTransactionsFromReference = entry.getValue();
+
+				((Model)reference).cleanupLog(flushedTransactionsFromReference.size());
+			}
+			
 			flushedTransactionsFromReferences.clear();
 			flushedUndoableTransactionsFromReferences.clear();
 			affectedModels.clear();
