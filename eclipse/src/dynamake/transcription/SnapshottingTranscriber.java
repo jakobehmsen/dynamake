@@ -484,6 +484,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			}
 		}
 		
+		@SuppressWarnings("unchecked")
 		private void doReject() {
 			PropogationContext propCtx = new PropogationContext();
 			
@@ -527,7 +528,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				T reference = entry.getKey();
 				ArrayList<CommandState<T>> flushedTransactionsFromReference = entry.getValue();
 
-				((Model)reference).rejectLog(flushedTransactionsFromReference.size());
+				((Model)reference).rejectLog(flushedTransactionsFromReference.size(), propCtx, 0, (Collector<Model>)isolatedCollector);
 			}
 			
 			flushedTransactionsFromReferences.clear();

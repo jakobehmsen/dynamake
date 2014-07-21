@@ -165,7 +165,7 @@ public abstract class Model implements Serializable, Observer {
 		undoStack.add(compressedLogPart);
 	}
 	
-	public void rejectLog(int length) {
+	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(int i = 0; i < length; i++)
 			undoStack.pop();
 	}
