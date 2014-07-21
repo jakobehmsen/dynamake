@@ -152,6 +152,11 @@ public abstract class Model implements Serializable, Observer {
 		undoStack.add(compressedLogPart);
 	}
 	
+	public void cleanupLog(int length) {
+		for(int i = 0; i < length; i++)
+			undoStack.pop();
+	}
+	
 	public void setLocator(Locator locator) {
 		this.locator = locator;
 	}
