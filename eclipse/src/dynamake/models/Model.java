@@ -45,17 +45,22 @@ import dynamake.transcription.Trigger;
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.
  */
 public abstract class Model implements Serializable, Observer {
-	public static class HistoryChange {
-		public static final int TYPE_APPEND_LOG = 0;
-		public static final int TYPE_UNDO = 1;
-		public static final int TYPE_REDO = 2;
-		
-		public final int type;
+	public static class HistoryAppendLogChange {
 		public final CommandState<Model> change;
 		
-		public HistoryChange(int type, CommandState<Model> change) {
-			this.type = type;
+		public HistoryAppendLogChange(CommandState<Model> change) {
 			this.change = change;
+		}
+	}
+	
+	public static class HistoryChange {
+		public static final int TYPE_UNDO = 0;
+		public static final int TYPE_REDO = 1;
+		
+		public final int type;
+		
+		public HistoryChange(int type) {
+			this.type = type;
 		}
 	}
 	
@@ -132,7 +137,7 @@ public abstract class Model implements Serializable, Observer {
 
 		redoStack.push(redoable);
 		
-		sendChanged(new HistoryChange(HistoryChange.TYPE_UNDO, toUndo), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryChange(HistoryChange.TYPE_UNDO), propCtx, propDistance, 0, collector);
 	}
 	
 	public void redo(PropogationContext propCtx, Model prevalentSystem, int propDistance, Collector<Model> collector) {
@@ -145,7 +150,7 @@ public abstract class Model implements Serializable, Observer {
 
 		undoStack.push(undoable);
 		
-		sendChanged(new HistoryChange(HistoryChange.TYPE_REDO, toRedo), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryChange(HistoryChange.TYPE_REDO), propCtx, propDistance, 0, collector);
 	}
 
 	public void appendLog(CommandState<Model> change, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -153,7 +158,7 @@ public abstract class Model implements Serializable, Observer {
 		redoStack.clear();
 //		System.out.println("Log");
 
-		sendChanged(new HistoryChange(HistoryChange.TYPE_APPEND_LOG, change), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryAppendLogChange(change), propCtx, propDistance, 0, collector);
 	}
 	
 	public void commitLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
