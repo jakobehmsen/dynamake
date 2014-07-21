@@ -1,5 +1,14 @@
 package dynamake.models;
 
+import java.util.List;
+
+import dynamake.commands.AppendLogCommand;
+import dynamake.commands.CommandState;
+import dynamake.commands.PendingCommandFactory;
+import dynamake.commands.PendingCommandState;
+import dynamake.commands.RedoCommand;
+import dynamake.commands.RemoveLastLogCommand;
+import dynamake.commands.UndoCommand;
 import dynamake.transcription.Collector;
 
 public class HistoryChangeForwarder extends ObserverAdapter {
@@ -23,18 +32,59 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		if(change instanceof Model.HistoryAppendLogChange) {
-			Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
+			final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
 			
-//			inheretee.appendLog(historyAppendLogChange.change, propCtx, propDistance, collector);
+			collector.execute(new PendingCommandFactory<Model>() {
+				@Override
+				public Model getReference() {
+					return inheretee;
+				}
+				
+				@Override
+				public void createPendingCommand(List<CommandState<Model>> commandStates) {
+					commandStates.add(new PendingCommandState<Model>(
+						new AppendLogCommand(historyAppendLogChange.change), 
+						new RemoveLastLogCommand.AfterAppendLog()
+					));
+				}
+			});
 		} else if(change instanceof Model.HistoryChange) {
 			Model.HistoryChange historyChange = (Model.HistoryChange)change;
 			
 			switch(historyChange.type) {
 			case Model.HistoryChange.TYPE_UNDO:
-//				inheretee.undo(propCtx, propDistance, collector);
+				collector.execute(new PendingCommandFactory<Model>() {
+					@Override
+					public Model getReference() {
+						return inheretee;
+					}
+					
+					@Override
+					public void createPendingCommand(List<CommandState<Model>> commandStates) {
+						commandStates.add(new PendingCommandState<Model>(
+							new UndoCommand(false), 
+							new RedoCommand(false)
+						));
+					}
+				});
+
 				break;
 			case Model.HistoryChange.TYPE_REDO:
-//				inheretee.redo(propCtx, propDistance, collector);
+				collector.execute(new PendingCommandFactory<Model>() {
+					@Override
+					public Model getReference() {
+						return inheretee;
+					}
+					
+					@Override
+					public void createPendingCommand(List<CommandState<Model>> commandStates) {
+						commandStates.add(new PendingCommandState<Model>(
+							new RedoCommand(false),
+							new UndoCommand(false) 
+						));
+					}
+				});
+				
 				break;
 			}
 		} else if(change instanceof Model.HistoryLogChange) {
