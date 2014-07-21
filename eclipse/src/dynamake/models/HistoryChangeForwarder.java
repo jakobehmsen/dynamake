@@ -10,7 +10,7 @@ import dynamake.commands.RedoCommand;
 import dynamake.commands.RemoveLastLogCommand;
 import dynamake.commands.UndoCommand;
 import dynamake.transcription.Collector;
-import dynamake.transcription.TranscribeOnlyCommandStateFactory;
+import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
 
 public class HistoryChangeForwarder extends ObserverAdapter {
 	private Model inhereter;
@@ -59,7 +59,7 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 			
 			switch(historyChange.type) {
 			case Model.HistoryChange.TYPE_UNDO:
-				collector.execute(new TranscribeOnlyCommandStateFactory<Model>() {
+				collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return inheretee;
@@ -76,7 +76,7 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 
 				break;
 			case Model.HistoryChange.TYPE_REDO:
-				collector.execute(new TranscribeOnlyCommandStateFactory<Model>() {
+				collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return inheretee;

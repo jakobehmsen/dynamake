@@ -12,12 +12,12 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.TranscribeOnlyCommandStateFactory;
+import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
 
 public class RedoTool implements Tool {
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
-		collector.execute(new TranscribeOnlyCommandStateFactory<Model> () {
+		collector.execute(new TranscribeOnlyPendingCommandFactory<Model> () {
 			@Override
 			public Model getReference() {
 				return modelOver.getModelBehind();
