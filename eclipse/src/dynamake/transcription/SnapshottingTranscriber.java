@@ -134,11 +134,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private static <T> void replay(ArrayList<ContextualCommand<T>> transactions, T prevalentSystem) {
 		PropogationContext propCtx = new PropogationContext();
 		
+		Collector<T> isolatedCollector = new NullCollector<T>();
+		
 		for(ContextualCommand<T> ctxTransaction: transactions) {
 			for(SnapshottingTranscriber.Connection.LocationCommandsPair<T> entry: ctxTransaction.transactionsFromRoot) {
 				Location location = entry.location;
 				for(CommandState<T> transaction: entry.pending)
-					transaction.executeOn(propCtx, prevalentSystem, new NullCollector<T>(), location);
+					transaction.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
 			}
 			
 			for(Map.Entry<Location, ArrayList<CommandState<T>>> entry: ctxTransaction.transactionsFromReferenceLocations.entrySet()) {
@@ -148,7 +150,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				Model reference = (Model)referenceLocation.getChild(prevalentSystem);
 				// Update the log of each affected model isolately; no transaction is cross-model
 				RevertingCommandStateSequence<T> transactionFromReference = RevertingCommandStateSequence.reverse(transactionsFromReferenceLocation);
-				reference.log((RevertingCommandStateSequence<Model>)transactionFromReference);
+				reference.log(propCtx, (RevertingCommandStateSequence<Model>)transactionFromReference, 0, (Collector<Model>)isolatedCollector);
 			}
 		}
 	}
@@ -424,7 +426,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								
 								// Update the log of each affected model isolately; no transaction is cross-model
 								for(CommandState<T> undoable: undoables)
-									((Model)reference).log((CommandState<Model>)undoable);
+									((Model)reference).log(propCtx, (CommandState<Model>)undoable, 0, (Collector<Model>)collector);
 							} else
 								System.out.println("Don't affect model history");
 

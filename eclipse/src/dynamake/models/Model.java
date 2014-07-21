@@ -135,7 +135,7 @@ public abstract class Model implements Serializable, Observer {
 		sendChanged(new HistoryChange(HistoryChange.TYPE_REDO, toRedo), propCtx, propDistance, 0, collector);
 	}
 
-	public void log(CommandState<Model> change) {
+	public void log(PropogationContext propCtx, CommandState<Model> change, int propDistance, Collector<Model> collector) {
 		undoStack.add(change);
 		redoStack.clear();
 //		System.out.println("Log");
