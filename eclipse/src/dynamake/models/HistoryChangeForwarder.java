@@ -15,6 +15,12 @@ import dynamake.models.CanvasModel.AddModelCommand;
 import dynamake.transcription.Collector;
 import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
 
+/**
+ * Instances each are supposed to forward change made in an inhereter to an inheretee.
+ * The relation is not supposed to be one-to-one between inhereter and inheretee; instead
+ * inheretee are to support isolated changes which are maintained safely even when changes
+ * are forwarded from the inhereter.
+ */
 public class HistoryChangeForwarder extends ObserverAdapter {
 	private Model inhereter;
 	private Model inheretee;
