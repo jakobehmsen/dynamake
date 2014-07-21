@@ -423,8 +423,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								flushedTransactionsFromReference.addAll(undoables);
 								
 								// Update the log of each affected model isolately; no transaction is cross-model
-//								RevertingCommandStateSequence<T> transactionFromReference = RevertingCommandStateSequence.reverse(undoables);
-								
 								for(CommandState<T> undoable: undoables)
 									((Model)reference).log((CommandState<Model>)undoable);
 							} else
