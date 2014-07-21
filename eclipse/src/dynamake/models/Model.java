@@ -46,7 +46,7 @@ import dynamake.transcription.Trigger;
  */
 public abstract class Model implements Serializable, Observer {
 	public static class HistoryChange {
-		public static final int TYPE_LOG = 0;
+		public static final int TYPE_APPEND_LOG = 0;
 		public static final int TYPE_UNDO = 1;
 		public static final int TYPE_REDO = 2;
 		
@@ -140,7 +140,7 @@ public abstract class Model implements Serializable, Observer {
 		redoStack.clear();
 //		System.out.println("Log");
 
-		sendChanged(new HistoryChange(HistoryChange.TYPE_LOG, change), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryChange(HistoryChange.TYPE_APPEND_LOG, change), propCtx, propDistance, 0, collector);
 	}
 	
 	public void commitLog(int length) {
