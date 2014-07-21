@@ -15,11 +15,6 @@ public class StrokeModelFactory implements ModelFactory {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	@Override
-	public String getName() {
-		return "Stroke";
-	}
 	
 	private Point offset;
 	private ArrayList<Point> points;

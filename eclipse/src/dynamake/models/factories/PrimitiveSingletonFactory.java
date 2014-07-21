@@ -24,11 +24,6 @@ public class PrimitiveSingletonFactory implements ModelFactory {
 		this.implementationSingleton = implementationSingleton;
 		this.creationBounds = creationBounds;
 	}
-
-	@Override
-	public String getName() {
-		return implementationSingleton.getName();
-	}
 	
 	@Override
 	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {

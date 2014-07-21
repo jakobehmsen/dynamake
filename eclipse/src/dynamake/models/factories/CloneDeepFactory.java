@@ -19,11 +19,6 @@ public class CloneDeepFactory implements ModelFactory {
 	}
 
 	@Override
-	public String getName() {
-		return "Close Deep";
-	}
-
-	@Override
 	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		Model model = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
 		Model clone = model.cloneDeep();

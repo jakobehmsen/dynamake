@@ -19,11 +19,6 @@ public class AsIsFactory implements ModelFactory {
 	}
 
 	@Override
-	public String getName() {
-		return "As is";
-	}
-
-	@Override
 	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		return model;
 	}

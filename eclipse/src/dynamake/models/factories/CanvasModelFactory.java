@@ -14,11 +14,6 @@ public class CanvasModelFactory implements ModelFactory {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public String getName() {
-		return "Canvas";
-	}
-
-	@Override
 	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		return new CanvasModel();
 	}

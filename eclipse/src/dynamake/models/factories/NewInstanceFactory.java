@@ -18,11 +18,6 @@ public class NewInstanceFactory implements ModelFactory {
 	public NewInstanceFactory(Location modelLocation) {
 		this.modelLocation = modelLocation;
 	}
-
-	@Override
-	public String getName() {
-		return "New Instance";
-	}
 	
 	@Override
 	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
