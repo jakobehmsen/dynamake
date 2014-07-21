@@ -23,11 +23,9 @@ public interface ModelFactory extends Serializable {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private String name;
 		private Model value;
 
-		public Constant(String name, Model value) {
-			this.name = name;
+		public Constant(Model value) {
 			this.value = value;
 		}
 
