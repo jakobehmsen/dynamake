@@ -11,9 +11,7 @@ import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.ReversibleCommand;
 import dynamake.commands.UndoCommand;
-import dynamake.commands.UnforwardHistoryCommand;
 import dynamake.models.CanvasModel.AddModelCommand;
-import dynamake.models.factories.ModelFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
 
