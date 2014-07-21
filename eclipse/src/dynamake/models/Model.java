@@ -138,6 +138,7 @@ public abstract class Model implements Serializable, Observer {
 	public void log(CommandState<Model> change) {
 		undoStack.add(change);
 		redoStack.clear();
+//		System.out.println("Log");
 		
 		// TODO: How to send a change that's been logged?
 		// Currently, these changes are logged when a connection is committed
