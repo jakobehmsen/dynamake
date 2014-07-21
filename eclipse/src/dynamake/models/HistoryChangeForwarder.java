@@ -58,6 +58,16 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
+		/*
+		How to support maintaining local changes in inhereter in a safe way?
+		Should some sort of log (not just undo- and redo stack) be maintained, where the parts of the inhereter
+		is kept seperate from the parts of the inheretee?
+		Then, when the inhereter is changed, the following procedure occurs:
+		- The inheretee parts are rolled back
+		- The new inheterer parts are played on the inheretee
+		- The inheretee parts are replayed 
+		*/
+		
 		if(change instanceof Model.HistoryAppendLogChange) {
 			final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
 			
