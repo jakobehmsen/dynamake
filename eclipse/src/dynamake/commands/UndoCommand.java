@@ -24,7 +24,7 @@ public class UndoCommand implements Command<Model> {
 		if(isolate)
 			collector = new IsolatingCollector<Model>(collector);
 		
-		model.undo(propCtx, prevalentSystem, 0, collector);
+		model.undo(propCtx, 0, collector);
 		
 		return null;
 	}

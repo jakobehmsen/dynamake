@@ -127,7 +127,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void undo(PropogationContext propCtx, Model prevalentSystem, int propDistance, Collector<Model> collector) {
+	public void undo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(undoStack.isEmpty())
 			return;
 		
@@ -140,7 +140,7 @@ public abstract class Model implements Serializable, Observer {
 		sendChanged(new HistoryChange(HistoryChange.TYPE_UNDO), propCtx, propDistance, 0, collector);
 	}
 	
-	public void redo(PropogationContext propCtx, Model prevalentSystem, int propDistance, Collector<Model> collector) {
+	public void redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(redoStack.isEmpty())
 			return;
 		

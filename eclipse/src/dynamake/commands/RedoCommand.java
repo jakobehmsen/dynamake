@@ -24,7 +24,7 @@ public class RedoCommand implements Command<Model> {
 		if(isolate)
 			collector = new IsolatingCollector<Model>(collector);
 		
-		model.redo(propCtx, prevalentSystem, 0, collector);
+		model.redo(propCtx, 0, collector);
 		
 		return null;
 	}
