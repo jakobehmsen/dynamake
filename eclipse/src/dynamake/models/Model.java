@@ -150,12 +150,7 @@ public abstract class Model implements Serializable, Observer {
 			compressedLogPartAsArray[i] = undoStack.pop();
 		RevertingCommandStateSequence<Model> compressedLogPart = new RevertingCommandStateSequence<Model>(compressedLogPartAsArray);
 		undoStack.add(compressedLogPart);
-	}	
-	
-//	public void compressLog(CommandState<Model> compressedLogPart) {
-//		undoStack.add(compressedLogPart);
-//		redoStack.clear();
-//	}
+	}
 	
 	public void setLocator(Locator locator) {
 		this.locator = locator;
