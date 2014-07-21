@@ -1,5 +1,6 @@
 package dynamake.models.factories;
 
+import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.HistoryChangeForwarder;
 import dynamake.models.Location;
@@ -29,7 +30,20 @@ public class NewInstanceFactory implements ModelFactory {
 		Model instance = inhereter.cloneDeep();
 		
 		inhereter.addObserver(new HistoryChangeForwarder(instance));
+		if(inhereter instanceof CanvasModel)
+			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance);
 		
 		return instance;
+	}
+	
+	private void forwardHistoryChangesToContainedModels(CanvasModel inhereterCanvas, CanvasModel inhereteeCanvas) {
+		for(Location location: inhereterCanvas.getLocations()) {
+			Model inhereterModel = inhereterCanvas.getModelByLocation(location);
+			Model inhereteeModel = inhereteeCanvas.getModelByLocation(location);
+			
+			inhereterModel.addObserver(new HistoryChangeForwarder(inhereteeModel));
+			if(inhereterModel instanceof CanvasModel)
+				forwardHistoryChangesToContainedModels((CanvasModel)inhereterModel, (CanvasModel)inhereterModel);
+		}
 	}
 }
