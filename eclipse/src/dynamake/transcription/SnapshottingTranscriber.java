@@ -452,6 +452,17 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		@SuppressWarnings("unchecked")
 		private void doCommit() {
 			if(flushedTransactionsFromRoot.size() > 0) {
+				PropogationContext propCtx = new PropogationContext();
+				
+				final ArrayList<Runnable> onAfterNextTrigger = new ArrayList<Runnable>();
+				
+				Collector<T> isolatedCollector = new NullCollector<T>() {
+					@Override
+					public void afterNextTrigger(Runnable runnable) {
+						onAfterNextTrigger.add(runnable);
+					}
+				};
+				
 				ArrayList<LocationCommandsPair<T>> transactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
 
 				transactionsFromRoot.addAll(flushedTransactionsFromRoot);
@@ -459,9 +470,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				flushedTransactionsFromRoot.clear();
 				
 				Hashtable<Location, ArrayList<CommandState<T>>> transactionsFromReferenceLocations = new Hashtable<Location, ArrayList<CommandState<T>>>();
-
-				PropogationContext propCtx = new PropogationContext();
-				Collector<T> isolatedCollector = new NullCollector<T>();
 				
 				for(Map.Entry<T, ArrayList<CommandState<T>>> entry: flushedTransactionsFromReferences.entrySet()) {
 					T reference = entry.getKey();
@@ -481,6 +489,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				System.out.println("Committed connection");
 				transcriber.persistTransaction(ctxTransaction);
 				affectedModels.clear();
+				
+				if(onAfterNextTrigger.size() > 0) {
+					triggerHandler.handleAfterTrigger(onAfterNextTrigger);
+				}
 			}
 		}
 		
@@ -490,26 +502,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			
 			final ArrayList<Runnable> onAfterNextTrigger = new ArrayList<Runnable>();
 			
-			Collector<T> isolatedCollector = new Collector<T>() {
-				@Override
-				public void execute(Object command) { }
-				
+			Collector<T> isolatedCollector = new NullCollector<T>() {
 				@Override
 				public void afterNextTrigger(Runnable runnable) {
 					onAfterNextTrigger.add(runnable);
 				}
-
-				@Override
-				public void registerAffectedModel(T model) { }
-				
-				@Override
-				public void reject() { }
-				
-				@Override
-				public void commit() { }
-				
-				@Override
-				public void flushNextTrigger() { }
 			};
 
 			for(UndoableCommandFromReference<T> transaction: flushedUndoableTransactionsFromReferences) {
