@@ -3,17 +3,16 @@ package dynamake.models;
 import java.util.ArrayList;
 import java.util.List;
 
-import dynamake.commands.AppendLogCommand;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
+import dynamake.commands.ForwardHistoryCommand;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
-import dynamake.commands.RemoveLastLogCommand;
 import dynamake.commands.ReversibleCommand;
 import dynamake.commands.UndoCommand;
+import dynamake.commands.UnforwardHistoryCommand;
 import dynamake.models.CanvasModel.AddModelCommand;
-import dynamake.models.CanvasModel.RemoveModelCommand;
 import dynamake.models.factories.ModelFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
@@ -42,6 +41,15 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 	
 	public boolean forwardsFrom(Model model) {
 		return inhereter == model;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof HistoryChangeForwarder) {
+			HistoryChangeForwarder historyChangeForwarder = (HistoryChangeForwarder)obj;
+			return this.inhereter == historyChangeForwarder.inhereter && this.inheretee == historyChangeForwarder.inheretee;
+		}
+		return false;
 	}
 
 	@Override
@@ -76,6 +84,17 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 								), 
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
+							));
+							
+							Location locationOfInhereter = ModelComponent.Util.locationBetween(inheretee, inhereter);
+							Location locationOfAddedInInhereter = new CompositeLocation(locationOfInhereter, addModelCommandOutput.location);
+							Location locationOfAddedInInheretee = addModelCommandOutput.location;
+							
+							// Embed a history change forwarder to forward between the added model of inhereter to the added model of inheretee
+							filteredPendingCommands.add(new PendingCommandState<Model>(
+								new ForwardHistoryCommand(locationOfAddedInInhereter, locationOfAddedInInheretee), 
+								new Command.Null<Model>()
+//								new UnforwardHistoryCommand(locationOfAddedInInhereter, locationOfAddedInInheretee)
 							));
 						} else {
 							filteredPendingCommands.add(pendingUndoablePair.pending);

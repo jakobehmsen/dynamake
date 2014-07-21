@@ -403,6 +403,11 @@ public abstract class Model implements Serializable, Observer {
 		observer.removeObservee(this);
 	}
 	
+	public void removeObserverLike(Observer observer) {
+		observers.remove(observer);
+		observer.removeObservee(this);
+	}
+	
 	public void addObservee(Observer observee) {
 		observees.add(observee);
 	}
