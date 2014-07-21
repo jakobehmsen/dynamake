@@ -148,7 +148,7 @@ public abstract class Model implements Serializable, Observer {
 		sendChanged(new HistoryChange(HistoryChange.TYPE_REDO, toRedo), propCtx, propDistance, 0, collector);
 	}
 
-	public void appendLog(PropogationContext propCtx, CommandState<Model> change, int propDistance, Collector<Model> collector) {
+	public void appendLog(CommandState<Model> change, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		undoStack.add(change);
 		redoStack.clear();
 //		System.out.println("Log");
@@ -156,7 +156,7 @@ public abstract class Model implements Serializable, Observer {
 		sendChanged(new HistoryChange(HistoryChange.TYPE_APPEND_LOG, change), propCtx, propDistance, 0, collector);
 	}
 	
-	public void commitLog(int length) {
+	public void commitLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
 		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length]; 
 		for(int i = 0; i < length; i++)

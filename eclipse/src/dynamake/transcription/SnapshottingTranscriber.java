@@ -150,7 +150,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				Model reference = (Model)referenceLocation.getChild(prevalentSystem);
 				// Update the log of each affected model isolately; no transaction is cross-model
 				RevertingCommandStateSequence<T> transactionFromReference = RevertingCommandStateSequence.reverse(transactionsFromReferenceLocation);
-				reference.appendLog(propCtx, (RevertingCommandStateSequence<Model>)transactionFromReference, 0, (Collector<Model>)isolatedCollector);
+				reference.appendLog((RevertingCommandStateSequence<Model>)transactionFromReference, propCtx, 0, (Collector<Model>)isolatedCollector);
 			}
 		}
 	}
@@ -426,7 +426,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								
 								// Update the log of each affected model isolately; no transaction is cross-model
 								for(CommandState<T> undoable: undoables)
-									((Model)reference).appendLog(propCtx, (CommandState<Model>)undoable, 0, (Collector<Model>)collector);
+									((Model)reference).appendLog((CommandState<Model>)undoable, propCtx, 0, (Collector<Model>)collector);
 							} else
 								System.out.println("Don't affect model history");
 
@@ -449,6 +449,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			});
 		}
 		
+		@SuppressWarnings("unchecked")
 		private void doCommit() {
 			if(flushedTransactionsFromRoot.size() > 0) {
 				ArrayList<LocationCommandsPair<T>> transactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
@@ -458,12 +459,15 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				flushedTransactionsFromRoot.clear();
 				
 				Hashtable<Location, ArrayList<CommandState<T>>> transactionsFromReferenceLocations = new Hashtable<Location, ArrayList<CommandState<T>>>();
+
+				PropogationContext propCtx = new PropogationContext();
+				Collector<T> isolatedCollector = new NullCollector<T>();
 				
 				for(Map.Entry<T, ArrayList<CommandState<T>>> entry: flushedTransactionsFromReferences.entrySet()) {
 					T reference = entry.getKey();
 					ArrayList<CommandState<T>> flushedTransactionsFromReference = entry.getValue();
 
-					((Model)reference).commitLog(flushedTransactionsFromReference.size());
+					((Model)reference).commitLog(flushedTransactionsFromReference.size(), propCtx, 0, (Collector<Model>)isolatedCollector);
 					
 					Location referenceLocation = ((Model)reference).getLocator().locate();
 					transactionsFromReferenceLocations.put(referenceLocation, flushedTransactionsFromReference);
