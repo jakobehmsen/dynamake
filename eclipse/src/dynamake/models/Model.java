@@ -59,6 +59,19 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
+	public static class HistoryLogChange {
+		public static final int TYPE_COMMIT_LOG = 0;
+		public static final int TYPE_REJECt_LOG = 1;
+		
+		public final int type;
+		public final int length;
+		
+		public HistoryLogChange(int type, int length) {
+			this.type = type;
+			this.length = length;
+		}
+	}
+	
 	public static class TellProperty {
 		public final String name;
 
