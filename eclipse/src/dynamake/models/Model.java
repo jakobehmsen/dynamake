@@ -61,7 +61,7 @@ public abstract class Model implements Serializable, Observer {
 	
 	public static class HistoryLogChange {
 		public static final int TYPE_COMMIT_LOG = 0;
-		public static final int TYPE_REJECt_LOG = 1;
+		public static final int TYPE_REJECT_LOG = 1;
 		
 		public final int type;
 		public final int length;
@@ -170,6 +170,8 @@ public abstract class Model implements Serializable, Observer {
 	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(int i = 0; i < length; i++)
 			undoStack.pop();
+		
+		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_REJECT_LOG, length), propCtx, propDistance, 0, collector);
 	}
 	
 	public void setLocator(Locator locator) {
