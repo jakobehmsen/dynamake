@@ -28,6 +28,14 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 	public void removeObservee(Observer observee) {
 		this.inhereter = null;
 	}
+	
+	public boolean forwardsTo(Model model) {
+		return inheretee == model;
+	}
+	
+	public boolean forwardsFrom(Model model) {
+		return inhereter == model;
+	}
 
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
