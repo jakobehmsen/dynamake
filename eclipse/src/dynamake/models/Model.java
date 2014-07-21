@@ -26,6 +26,7 @@ import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
+import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
@@ -143,6 +144,15 @@ public abstract class Model implements Serializable, Observer {
 		// Perhaps, logs should be performed immediately and then later be rolled back if necessary?
 		// - but how will a change be composed of multiple smaller changes then?
 		//sendChanged(change, propCtx, propDistance, changeDistance, collector)
+	}
+	
+	public void compressLog(int length) {
+		@SuppressWarnings("unchecked")
+		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length]; 
+		for(int i = 0; i < length; i++)
+			compressedLogPartAsArray[i] = undoStack.pop();
+		RevertingCommandStateSequence<Model> compressedLogPart = new RevertingCommandStateSequence<Model>(compressedLogPartAsArray);
+		undoStack.add(compressedLogPart);
 	}
 	
 	public void setLocator(Locator locator) {

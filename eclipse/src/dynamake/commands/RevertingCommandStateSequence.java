@@ -14,7 +14,7 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 	
 	private CommandState<T>[] commandStates;
 	
-	private RevertingCommandStateSequence(CommandState<T>[] commandStates) {
+	public RevertingCommandStateSequence(CommandState<T>[] commandStates) {
 		this.commandStates = commandStates;
 	}
 	
