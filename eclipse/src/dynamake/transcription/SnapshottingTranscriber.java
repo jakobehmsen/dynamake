@@ -150,7 +150,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				Model reference = (Model)referenceLocation.getChild(prevalentSystem);
 				// Update the log of each affected model isolately; no transaction is cross-model
 				RevertingCommandStateSequence<T> transactionFromReference = RevertingCommandStateSequence.reverse(transactionsFromReferenceLocation);
-				reference.log(propCtx, (RevertingCommandStateSequence<Model>)transactionFromReference, 0, (Collector<Model>)isolatedCollector);
+				reference.appendLog(propCtx, (RevertingCommandStateSequence<Model>)transactionFromReference, 0, (Collector<Model>)isolatedCollector);
 			}
 		}
 	}
@@ -426,7 +426,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								
 								// Update the log of each affected model isolately; no transaction is cross-model
 								for(CommandState<T> undoable: undoables)
-									((Model)reference).log(propCtx, (CommandState<Model>)undoable, 0, (Collector<Model>)collector);
+									((Model)reference).appendLog(propCtx, (CommandState<Model>)undoable, 0, (Collector<Model>)collector);
 							} else
 								System.out.println("Don't affect model history");
 
@@ -463,7 +463,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					T reference = entry.getKey();
 					ArrayList<CommandState<T>> flushedTransactionsFromReference = entry.getValue();
 
-					((Model)reference).compressLog(flushedTransactionsFromReference.size());
+					((Model)reference).commitLog(flushedTransactionsFromReference.size());
 					
 					Location referenceLocation = ((Model)reference).getLocator().locate();
 					transactionsFromReferenceLocations.put(referenceLocation, flushedTransactionsFromReference);
@@ -523,7 +523,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				T reference = entry.getKey();
 				ArrayList<CommandState<T>> flushedTransactionsFromReference = entry.getValue();
 
-				((Model)reference).cleanupLog(flushedTransactionsFromReference.size());
+				((Model)reference).rejectLog(flushedTransactionsFromReference.size());
 			}
 			
 			flushedTransactionsFromReferences.clear();
