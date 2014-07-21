@@ -163,6 +163,8 @@ public abstract class Model implements Serializable, Observer {
 			compressedLogPartAsArray[i] = undoStack.pop();
 		RevertingCommandStateSequence<Model> compressedLogPart = new RevertingCommandStateSequence<Model>(compressedLogPartAsArray);
 		undoStack.add(compressedLogPart);
+		
+		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length), propCtx, propDistance, 0, collector);
 	}
 	
 	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
