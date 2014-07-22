@@ -151,7 +151,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				Model reference = (Model)referenceLocation.getChild(prevalentSystem);
 				// Update the log of each affected model isolately; no transaction is cross-model
-				reference.appendLog2(transactionsFromReferenceLocation, propCtx, 0, (Collector<Model>)isolatedCollector);
+				reference.appendLog(transactionsFromReferenceLocation, propCtx, 0, (Collector<Model>)isolatedCollector);
 				reference.commitLog(transactionsFromReferenceLocation.size(), propCtx, 0, (Collector<Model>)isolatedCollector);
 			}
 		}
@@ -433,7 +433,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									pendingUndoablePairs.add(pendingUndoablePair);
 								}
 								// Update the log of each affected model isolately; no transaction is cross-model
-								((Model)reference).appendLog2(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
+								((Model)reference).appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
 								flushedTransactionsFromReference.addAll(pendingUndoablePairs);
 							} else
 								System.out.println("Don't affect model history");

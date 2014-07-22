@@ -177,7 +177,7 @@ public abstract class Model implements Serializable, Observer {
 	private int lastCommitIndex;
 	private ArrayList<PendingUndoablePair> log = new ArrayList<Model.PendingUndoablePair>();
 
-	public void appendLog2(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void appendLog(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
 		
 		log.addAll(pendingUndoablePairs);
