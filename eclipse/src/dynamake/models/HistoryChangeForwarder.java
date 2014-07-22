@@ -5,7 +5,7 @@ import java.util.List;
 
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
-import dynamake.commands.ForwardCommand;
+import dynamake.commands.PlayCommand;
 import dynamake.commands.ForwardHistoryCommand;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
@@ -26,9 +26,11 @@ import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
 public class HistoryChangeForwarder extends ObserverAdapter {
 	private Model inhereter;
 	private Model inheretee;
+	private int inhereterLogSize;
 	
 	public HistoryChangeForwarder(Model inheretee) {
 		this.inheretee = inheretee;
+		inhereterLogSize = inheretee.getLogSize();
 	}
 	
 	@Override
@@ -69,9 +71,17 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 		- The new inheterer parts are played on the inheretee
 		- The inheretee parts are replayed 
 		*/
-		final int deltaSize = inheretee.getLogSize() - inhereter.getLogSize();
 		
-		if(deltaSize > 0) {
+		if(!(change instanceof Model.HistoryAppendLogChange || change instanceof Model.HistoryChange/* || change instanceof Model.HistoryLogChange*/))
+			return;
+		
+		int newLogSize = inheretee.getLogSize();
+//		final int deltaSize = inheretee.getLogSize() - inhereter.getLogSize();
+		final int localLogSize = newLogSize - inhereterLogSize;
+//		lastLogSize = newLogSize;
+		final List<Model.PendingUndoablePair> deltaLogPart = inheretee.getLogBackwards(localLogSize);
+		
+		if(localLogSize > 0) {
 			collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 				@Override
 				public Model getReference() {
@@ -81,8 +91,8 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 				@Override
 				public void createPendingCommand(List<CommandState<Model>> commandStates) {
 					commandStates.add(new PendingCommandState<Model>(
-						new RewindCommand(deltaSize),
-						new ForwardCommand(deltaSize)
+						new RewindCommand(localLogSize),
+						new PlayCommand.AfterRewind()
 					));
 				}
 			});
@@ -140,6 +150,8 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 					}
 					
 					commandStates.addAll(filteredPendingCommands);
+					
+					inhereterLogSize += commandStates.size();
 				}
 			});
 		} else if(change instanceof Model.HistoryChange) {
@@ -212,7 +224,7 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 			CanvasModel.RemovedModelChange removedModelChange = (CanvasModel.RemovedModelChange)change;
 		}*/
 		
-		if(deltaSize > 0) {
+		if(localLogSize > 0) {
 			collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 				@Override
 				public Model getReference() {
@@ -222,8 +234,8 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 				@Override
 				public void createPendingCommand(List<CommandState<Model>> commandStates) {
 					commandStates.add(new PendingCommandState<Model>(
-						new ForwardCommand(deltaSize),
-						new RewindCommand(deltaSize)
+						new PlayCommand(deltaLogPart),
+						new RewindCommand(localLogSize)
 					));
 				}
 			});

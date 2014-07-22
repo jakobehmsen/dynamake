@@ -126,6 +126,8 @@ public class CanvasModel extends Model {
 		
 		canvasClone.undoStack.addAll(this.undoStack);
 		canvasClone.redoStack.addAll(this.redoStack);
+		canvasClone.log.addAll(this.log);
+		canvasClone.lastCommitIndex = this.lastCommitIndex;
 		
 		sourceToCloneMap.put(this, canvasClone);
 

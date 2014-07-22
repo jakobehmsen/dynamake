@@ -173,14 +173,16 @@ public abstract class Model implements Serializable, Observer {
 	public Stack<CommandState<Model>> getRedoStack() {
 		return (Stack<CommandState<Model>>)redoStack.clone();
 	}
-	
-	private int lastCommitIndex;
-	private ArrayList<PendingUndoablePair> log = new ArrayList<Model.PendingUndoablePair>();
+
+	private ArrayList<PendingUndoablePair> newLog = new ArrayList<Model.PendingUndoablePair>();
+	protected int lastCommitIndex;
+	protected ArrayList<PendingUndoablePair> log = new ArrayList<Model.PendingUndoablePair>();
 
 	public void appendLog(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
 		
-		log.addAll(pendingUndoablePairs);
+//		log.addAll(pendingUndoablePairs);
+		newLog.addAll(pendingUndoablePairs);
 
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
@@ -194,11 +196,19 @@ public abstract class Model implements Serializable, Observer {
 		this.redoStack.addAll(redoStack);
 	}
 	
+	public void startLog() {
+		
+	}
+	
 	public void commitLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
 		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length];
-		for(int i = lastCommitIndex; i < log.size(); i++)
-			compressedLogPartAsArray[i - lastCommitIndex] = log.get(i).undoable;
+//		for(int i = lastCommitIndex; i < log.size(); i++)
+//			compressedLogPartAsArray[i - lastCommitIndex] = log.get(i).undoable;
+		for(int i = 0; i < length; i++)
+			compressedLogPartAsArray[i] = newLog.get(i).undoable;
+		log.addAll(newLog);
+		newLog.clear();
 		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 		lastCommitIndex = log.size();
 		undoStack.add(compressedLogPart);
@@ -208,7 +218,8 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		log.subList(lastCommitIndex, log.size()).clear();
+		log.subList(newLog.size() - 1, log.size()).clear();
+		newLog.clear();
 		
 		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_REJECT_LOG, length), propCtx, propDistance, 0, collector);
 	}
@@ -221,14 +232,35 @@ public abstract class Model implements Serializable, Observer {
 		
 		lastCommitIndex += steps;
 	}
+	
+	public void play(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		for(int i = 0; i < steps; i++) {
+//			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex + i);
+//			pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+//		}
 
-	public void rewind(int steps, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(int i = steps - 1; i >= 0; i--) {
-			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex + i);
+		lastCommitIndex = log.size();
+//		log.addAll(pendingUndoablePairs);
+		newLog.addAll(pendingUndoablePairs);
+		
+		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
 			pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
 		}
 		
+	}
+
+	public void rewind(int steps, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		for(int i = 0; i < steps; i++) {
+			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex - 1 - i);
+			pendingUndoablePair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
+		}
+		
+		log.subList(log.size() - steps, log.size()).clear();
 		lastCommitIndex -= steps;
+	}
+	
+	public List<PendingUndoablePair> getLogBackwards(int steps) {
+		return new ArrayList<PendingUndoablePair>(log.subList(log.size() - steps, log.size()));
 	}
 
 	public int getLogSize() {
@@ -377,13 +409,13 @@ public abstract class Model implements Serializable, Observer {
 	private void writeObject(ObjectOutputStream ous) throws IOException {
 		ArrayList<Observer> observersToSerialize = new ArrayList<Observer>();
 		for(Observer o: observers) {
-			if(o instanceof Model)
+			if(o instanceof Serializable)
 				observersToSerialize.add(o);
 		}
 		ous.writeObject(observersToSerialize);
 		ArrayList<Observer> observeesToSerialize = new ArrayList<Observer>();
 		for(Observer o: observees) {
-			if(o instanceof Model)
+			if(o instanceof Serializable)
 				observeesToSerialize.add(o);
 		}
 		ous.writeObject(observeesToSerialize);
@@ -391,6 +423,7 @@ public abstract class Model implements Serializable, Observer {
 		ous.writeObject(undoStack);
 		ous.writeObject(redoStack);
 		ous.writeObject(log);
+		ous.writeObject(lastCommitIndex);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -401,6 +434,7 @@ public abstract class Model implements Serializable, Observer {
 		undoStack = (Stack<CommandState<Model>>)ois.readObject();
 		redoStack = (Stack<CommandState<Model>>)ois.readObject();
 		log = (ArrayList<Model.PendingUndoablePair>)ois.readObject();
+		lastCommitIndex = (int)ois.readObject();
 	}
 
 	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
@@ -853,6 +887,8 @@ public abstract class Model implements Serializable, Observer {
 		
 		clone.undoStack.addAll(this.undoStack);
 		clone.redoStack.addAll(this.redoStack);
+		clone.log.addAll(this.log);
+		clone.lastCommitIndex = this.lastCommitIndex;
 		
 		return clone;
 	}

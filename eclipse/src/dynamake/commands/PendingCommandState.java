@@ -78,6 +78,7 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 	@Override
 	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location) {
 		Object output = command.executeOn(propCtx, prevalentSystem, collector, location);
+		System.out.println("Executed " + command);
 		
 		return new ReversibleCommand<T>(output, backFactory, forthFactory);
 	}
