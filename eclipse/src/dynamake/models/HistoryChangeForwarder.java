@@ -72,6 +72,10 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 		- The inheretee parts are replayed 
 		*/
 		
+		/*
+		Somehow, all the changes of embedded models flow up in inhereters and be passed to inheretees
+		*/
+		
 		if(!(change instanceof Model.HistoryAppendLogChange || change instanceof Model.HistoryChange/* || change instanceof Model.HistoryLogChange*/))
 			return;
 		
