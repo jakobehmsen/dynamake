@@ -5,11 +5,13 @@ import java.util.List;
 
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
+import dynamake.commands.ForwardCommand;
 import dynamake.commands.ForwardHistoryCommand;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.ReversibleCommand;
+import dynamake.commands.RewindCommand;
 import dynamake.commands.UndoCommand;
 import dynamake.models.CanvasModel.AddModelCommand;
 import dynamake.transcription.Collector;
@@ -67,6 +69,28 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 		- The new inheterer parts are played on the inheretee
 		- The inheretee parts are replayed 
 		*/
+		final int deltaSize = inheretee.getLogSize() - inhereter.getLogSize();
+		
+		if(deltaSize > 0) {
+			collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
+				@Override
+				public Model getReference() {
+					return inheretee;
+				}
+				
+				@Override
+				public void createPendingCommand(List<CommandState<Model>> commandStates) {
+					commandStates.add(new PendingCommandState<Model>(
+						new RewindCommand(deltaSize),
+						new ForwardCommand(deltaSize)
+					));
+				}
+			});
+		}
+		
+//		if(inhereter.getLogSize() < inheretee.getLogSize()) {
+//			System.out.println("inheretee has local changes");
+//		}
 		
 		if(change instanceof Model.HistoryAppendLogChange) {
 			final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
@@ -187,5 +211,22 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 		} else if(change instanceof CanvasModel.RemovedModelChange) {
 			CanvasModel.RemovedModelChange removedModelChange = (CanvasModel.RemovedModelChange)change;
 		}*/
+		
+		if(deltaSize > 0) {
+			collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
+				@Override
+				public Model getReference() {
+					return inheretee;
+				}
+				
+				@Override
+				public void createPendingCommand(List<CommandState<Model>> commandStates) {
+					commandStates.add(new PendingCommandState<Model>(
+						new ForwardCommand(deltaSize),
+						new RewindCommand(deltaSize)
+					));
+				}
+			});
+		}
 	}
 }
