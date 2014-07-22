@@ -47,7 +47,11 @@ import dynamake.transcription.Trigger;
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.
  */
 public abstract class Model implements Serializable, Observer {
-	public static class PendingUndoablePair {
+	public static class PendingUndoablePair implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		public final PendingCommandState<Model> pending;
 		public final ReversibleCommand<Model> undoable;
 		
@@ -170,20 +174,25 @@ public abstract class Model implements Serializable, Observer {
 		return (Stack<CommandState<Model>>)redoStack.clone();
 	}
 
-	public void appendLog(CommandState<Model> change, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		undoStack.add(change);
-		redoStack.clear();
-//		System.out.println("Log");
+//	public void appendLog(CommandState<Model> change, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		undoStack.add(change);
+//		redoStack.clear();
+////		System.out.println("Log");
+//
+////		sendChanged(new HistoryAppendLogChange(change), propCtx, propDistance, 0, collector);
+//	}
+	
+	private int lastCommitIndex;
+	private ArrayList<PendingUndoablePair> log = new ArrayList<Model.PendingUndoablePair>();
 
-//		sendChanged(new HistoryAppendLogChange(change), propCtx, propDistance, 0, collector);
-	}
-
-	public void appendLog2(ArrayList<PendingUndoablePair> pendingUndoables, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void appendLog2(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		undoStack.add(change);
 //		redoStack.clear();
 //		System.out.println("Log");
+		
+		log.addAll(pendingUndoablePairs);
 
-		sendChanged(new HistoryAppendLogChange(pendingUndoables), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
 
 	public void removeLastLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -198,17 +207,23 @@ public abstract class Model implements Serializable, Observer {
 	public void commitLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
 		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length]; 
-		for(int i = 0; i < length; i++)
-			compressedLogPartAsArray[i] = undoStack.pop();
-		RevertingCommandStateSequence<Model> compressedLogPart = new RevertingCommandStateSequence<Model>(compressedLogPartAsArray);
+//		for(int i = 0; i < length; i++)
+//			compressedLogPartAsArray[i] = undoStack.pop();
+//		RevertingCommandStateSequence<Model> compressedLogPart = new RevertingCommandStateSequence<Model>(compressedLogPartAsArray);
+		for(int i = lastCommitIndex; i < log.size(); i++)
+			compressedLogPartAsArray[i - lastCommitIndex] = log.get(i).undoable;
+		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
+		lastCommitIndex = log.size();
 		undoStack.add(compressedLogPart);
+		redoStack.clear();
 		
 		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length), propCtx, propDistance, 0, collector);
 	}
 	
 	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(int i = 0; i < length; i++)
-			undoStack.pop();
+//		for(int i = 0; i < length; i++)
+//			undoStack.pop();
+		log.subList(lastCommitIndex, log.size()).clear();
 		
 		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_REJECT_LOG, length), propCtx, propDistance, 0, collector);
 	}
@@ -368,6 +383,7 @@ public abstract class Model implements Serializable, Observer {
 		ous.writeObject(properties);
 		ous.writeObject(undoStack);
 		ous.writeObject(redoStack);
+		ous.writeObject(log);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -377,6 +393,7 @@ public abstract class Model implements Serializable, Observer {
 		properties = (Hashtable<String, Object>)ois.readObject();
 		undoStack = (Stack<CommandState<Model>>)ois.readObject();
 		redoStack = (Stack<CommandState<Model>>)ois.readObject();
+		log = (ArrayList<Model.PendingUndoablePair>)ois.readObject();
 	}
 
 	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {

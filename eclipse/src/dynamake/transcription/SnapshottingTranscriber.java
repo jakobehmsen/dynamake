@@ -146,14 +146,16 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					transaction.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
 			}
 			
-			for(Map.Entry<Location, ArrayList<CommandState<T>>> entry: ctxTransaction.transactionsFromReferenceLocations.entrySet()) {
+			for(Map.Entry<Location, ArrayList<Model.PendingUndoablePair>> entry: ctxTransaction.transactionsFromReferenceLocations.entrySet()) {
 				Location referenceLocation = entry.getKey(); // location from root to reference
-				ArrayList<CommandState<T>> transactionsFromReferenceLocation = entry.getValue();
+				ArrayList<Model.PendingUndoablePair> transactionsFromReferenceLocation = entry.getValue();
 				
 				Model reference = (Model)referenceLocation.getChild(prevalentSystem);
 				// Update the log of each affected model isolately; no transaction is cross-model
-				RevertingCommandStateSequence<T> transactionFromReference = RevertingCommandStateSequence.reverse(transactionsFromReferenceLocation);
-				reference.appendLog((RevertingCommandStateSequence<Model>)transactionFromReference, propCtx, 0, (Collector<Model>)isolatedCollector);
+//				RevertingCommandStateSequence<T> transactionFromReference = RevertingCommandStateSequence.reverse(transactionsFromReferenceLocation);
+//				reference.appendLog((RevertingCommandStateSequence<Model>)transactionFromReference, propCtx, 0, (Collector<Model>)isolatedCollector);
+				reference.appendLog2(transactionsFromReferenceLocation, propCtx, 0, (Collector<Model>)isolatedCollector);
+				reference.commitLog(transactionsFromReferenceLocation.size(), propCtx, 0, (Collector<Model>)isolatedCollector);
 			}
 		}
 	}
@@ -292,7 +294,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		private TriggerHandler<T> triggerHandler;
 		private SnapshottingTranscriber<T> transcriber;
 		private ArrayList<LocationCommandsPair<T>> flushedTransactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
-		private Hashtable<T, ArrayList<CommandState<T>>> flushedTransactionsFromReferences = new Hashtable<T, ArrayList<CommandState<T>>>();
+		private Hashtable<T, ArrayList<Model.PendingUndoablePair>> flushedTransactionsFromReferences = new Hashtable<T, ArrayList<Model.PendingUndoablePair>>();
 		private ArrayList<UndoableCommandFromReference<T>> flushedUndoableTransactionsFromReferences = new ArrayList<UndoableCommandFromReference<T>>();
 		private HashSet<T> affectedModels = new HashSet<T>();
 		
@@ -420,16 +422,15 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							if(affectModelHistory) {
 								System.out.println("Affect model history");
-								ArrayList<CommandState<T>> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
+								ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
 								if(flushedTransactionsFromReference == null) {
-									flushedTransactionsFromReference = new ArrayList<CommandState<T>>();
+									flushedTransactionsFromReference = new ArrayList<Model.PendingUndoablePair>();
 									flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
 								}
-								flushedTransactionsFromReference.addAll(undoables);
 								
 								// Update the log of each affected model isolately; no transaction is cross-model
-								for(CommandState<T> undoable: undoables)
-									((Model)reference).appendLog((CommandState<Model>)undoable, propCtx, 0, (Collector<Model>)collector);
+//								for(CommandState<T> undoable: undoables)
+//									((Model)reference).appendLog((CommandState<Model>)undoable, propCtx, 0, (Collector<Model>)collector);
 								
 								ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
 								for(int i = 0; i < pendingCommands.size(); i++) {
@@ -438,7 +439,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									PendingUndoablePair pendingUndoablePair = new PendingUndoablePair(pending, undoable);
 									pendingUndoablePairs.add(pendingUndoablePair);
 								}
+								// Update the log of each affected model isolately; no transaction is cross-model
 								((Model)reference).appendLog2(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
+								flushedTransactionsFromReference.addAll(pendingUndoablePairs);
 							} else
 								System.out.println("Don't affect model history");
 
@@ -481,11 +484,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					
 				flushedTransactionsFromRoot.clear();
 				
-				Hashtable<Location, ArrayList<CommandState<T>>> transactionsFromReferenceLocations = new Hashtable<Location, ArrayList<CommandState<T>>>();
+				Hashtable<Location, ArrayList<Model.PendingUndoablePair>> transactionsFromReferenceLocations = new Hashtable<Location, ArrayList<Model.PendingUndoablePair>>();
 				
-				for(Map.Entry<T, ArrayList<CommandState<T>>> entry: flushedTransactionsFromReferences.entrySet()) {
+				for(Map.Entry<T, ArrayList<Model.PendingUndoablePair>> entry: flushedTransactionsFromReferences.entrySet()) {
 					T reference = entry.getKey();
-					ArrayList<CommandState<T>> flushedTransactionsFromReference = entry.getValue();
+					ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = entry.getValue();
 
 					((Model)reference).commitLog(flushedTransactionsFromReference.size(), propCtx, 0, (Collector<Model>)isolatedCollector);
 					
@@ -533,9 +536,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			
 			flushedTransactionsFromRoot.clear();
 			
-			for(Map.Entry<T, ArrayList<CommandState<T>>> entry: flushedTransactionsFromReferences.entrySet()) {
+			for(Map.Entry<T, ArrayList<Model.PendingUndoablePair>> entry: flushedTransactionsFromReferences.entrySet()) {
 				T reference = entry.getKey();
-				ArrayList<CommandState<T>> flushedTransactionsFromReference = entry.getValue();
+				ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = entry.getValue();
 
 				((Model)reference).rejectLog(flushedTransactionsFromReference.size(), propCtx, 0, (Collector<Model>)isolatedCollector);
 			}
