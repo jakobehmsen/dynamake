@@ -212,6 +212,28 @@ public abstract class Model implements Serializable, Observer {
 		
 		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_REJECT_LOG, length), propCtx, propDistance, 0, collector);
 	}
+
+	public void forward(int steps, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		for(int i = 0; i < steps; i++) {
+			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex + i);
+			pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+		}
+		
+		lastCommitIndex += steps;
+	}
+
+	public void rewind(int steps, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		for(int i = steps - 1; i >= 0; i--) {
+			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex + i);
+			pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+		}
+		
+		lastCommitIndex -= steps;
+	}
+
+	public int getLogSize() {
+		return log.size();
+	}
 	
 	public void setLocator(Locator locator) {
 		this.locator = locator;
