@@ -465,6 +465,16 @@ public abstract class Model implements Serializable, Observer {
 		observers.remove(observer);
 		observer.removeObservee(this);
 	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends Observer> T getObserverOfType(Class<T> c) {
+		for(Observer observer: observers) {
+			if(c.isInstance(observer))
+				return (T)observer;
+		}
+		
+		return null;
+	}
 	
 	public void addObservee(Observer observee) {
 		observees.add(observee);

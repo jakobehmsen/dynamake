@@ -1,5 +1,6 @@
 package dynamake.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,11 @@ import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
  * inheretee are to support isolated changes which are maintained safely even when changes
  * are forwarded from the inhereter.
  */
-public class HistoryChangeForwarder extends ObserverAdapter {
+public class HistoryChangeForwarder extends ObserverAdapter implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Model inhereter;
 	private Model inheretee;
 	private int inhereterLogSize;
@@ -141,6 +146,8 @@ public class HistoryChangeForwarder extends ObserverAdapter {
 							Location locationOfInhereter = ModelComponent.Util.locationBetween(inheretee, inhereter);
 							Location locationOfAddedInInhereter = new CompositeLocation(locationOfInhereter, addModelCommandOutput.location);
 							Location locationOfAddedInInheretee = addModelCommandOutput.location;
+							
+//							HistoryChangeUpwarder upwarder = new HistoryChangeUpwarder(HistoryChangeForwarder.this);
 							
 							// Embed a history change forwarder to forward between the added model of inhereter to the added model of inheretee
 							filteredPendingCommands.add(new PendingCommandState<Model>(
