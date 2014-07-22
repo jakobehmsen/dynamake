@@ -22,7 +22,6 @@ import java.util.concurrent.Executors;
 
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReversibleCommand;
-import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandFactory;
@@ -152,8 +151,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				Model reference = (Model)referenceLocation.getChild(prevalentSystem);
 				// Update the log of each affected model isolately; no transaction is cross-model
-//				RevertingCommandStateSequence<T> transactionFromReference = RevertingCommandStateSequence.reverse(transactionsFromReferenceLocation);
-//				reference.appendLog((RevertingCommandStateSequence<Model>)transactionFromReference, propCtx, 0, (Collector<Model>)isolatedCollector);
 				reference.appendLog2(transactionsFromReferenceLocation, propCtx, 0, (Collector<Model>)isolatedCollector);
 				reference.commitLog(transactionsFromReferenceLocation.size(), propCtx, 0, (Collector<Model>)isolatedCollector);
 			}
@@ -427,10 +424,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									flushedTransactionsFromReference = new ArrayList<Model.PendingUndoablePair>();
 									flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
 								}
-								
-								// Update the log of each affected model isolately; no transaction is cross-model
-//								for(CommandState<T> undoable: undoables)
-//									((Model)reference).appendLog((CommandState<Model>)undoable, propCtx, 0, (Collector<Model>)collector);
 								
 								ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
 								for(int i = 0; i < pendingCommands.size(); i++) {

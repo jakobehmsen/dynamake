@@ -173,21 +173,11 @@ public abstract class Model implements Serializable, Observer {
 	public Stack<CommandState<Model>> getRedoStack() {
 		return (Stack<CommandState<Model>>)redoStack.clone();
 	}
-
-//	public void appendLog(CommandState<Model> change, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		undoStack.add(change);
-//		redoStack.clear();
-////		System.out.println("Log");
-//
-////		sendChanged(new HistoryAppendLogChange(change), propCtx, propDistance, 0, collector);
-//	}
 	
 	private int lastCommitIndex;
 	private ArrayList<PendingUndoablePair> log = new ArrayList<Model.PendingUndoablePair>();
 
 	public void appendLog2(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		undoStack.add(change);
-//		redoStack.clear();
 //		System.out.println("Log");
 		
 		log.addAll(pendingUndoablePairs);
@@ -206,10 +196,7 @@ public abstract class Model implements Serializable, Observer {
 	
 	public void commitLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
-		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length]; 
-//		for(int i = 0; i < length; i++)
-//			compressedLogPartAsArray[i] = undoStack.pop();
-//		RevertingCommandStateSequence<Model> compressedLogPart = new RevertingCommandStateSequence<Model>(compressedLogPartAsArray);
+		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length];
 		for(int i = lastCommitIndex; i < log.size(); i++)
 			compressedLogPartAsArray[i - lastCommitIndex] = log.get(i).undoable;
 		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
@@ -221,8 +208,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		for(int i = 0; i < length; i++)
-//			undoStack.pop();
 		log.subList(lastCommitIndex, log.size()).clear();
 		
 		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_REJECT_LOG, length), propCtx, propDistance, 0, collector);
