@@ -81,6 +81,11 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 		Somehow, all the changes of embedded models flow up in inhereters and be passed to inheretees
 		*/
 		
+		/*
+		How could both of the logs (the log of inhereter and the log of inheretee) be maintained here in this class
+		instead of in model? I.e., can the log in model be moved to history change forwarders?
+		*/
+		
 		if(!(change instanceof Model.HistoryAppendLogChange || change instanceof Model.HistoryChange/* || change instanceof Model.HistoryLogChange*/))
 			return;
 		

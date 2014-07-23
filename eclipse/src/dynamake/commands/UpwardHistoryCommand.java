@@ -28,8 +28,10 @@ public class UpwardHistoryCommand implements Command<Model> {
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model rootInhereter = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfRootInhereter);
 		Model inhereter = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInhereter);
-		Model inheretee = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInheretee);
+//		Model inheretee = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInheretee);
 		
+		// Use locationOfInheretee somehow for the HistoryChangeUpwarder
+		locationOfInheretee.toString();
 		HistoryChangeForwarder historyChangeForwarder = rootInhereter.<HistoryChangeForwarder>getObserverOfType(HistoryChangeForwarder.class);
 		
 		inhereter.addObserver(new HistoryChangeUpwarder(historyChangeForwarder));
