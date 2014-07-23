@@ -17,9 +17,11 @@ import dynamake.commands.RedoCommand;
 import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RewindCommand;
 import dynamake.commands.UndoCommand;
+import dynamake.commands.UnplayCommand;
 import dynamake.models.CanvasModel.AddModelCommand;
 import dynamake.transcription.Collector;
 import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
+import dynamake.transcription.Trigger;
 
 /**
  * Instances each are supposed to forward change made in an inhereter to an inheretee.
@@ -28,6 +30,38 @@ import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
  * are forwarded from the inhereter.
  */
 public class HistoryChangeForwarder extends ObserverAdapter implements Serializable {
+//	public static class SuspendObserveInhereteeCommand implements Command<Model> {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//
+//		@Override
+//		public Object executeOn(PropogationContext propCtx,
+//				Model prevalentSystem, Collector<Model> collector,
+//				Location location) {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
+//		
+//	}
+//	
+//	public static class ResumeObserveInhereteeCommand implements Command<Model> {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//
+//		@Override
+//		public Object executeOn(PropogationContext propCtx,
+//				Model prevalentSystem, Collector<Model> collector,
+//				Location location) {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
+//		
+//	}
+	
 	/**
 	 * 
 	 */
@@ -36,15 +70,18 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 	private Model inheretee;
 	private int inhereterLogSize;
 	
+	private boolean observeInheretee;
+	
 //	private ArrayList<Model.PendingUndoablePair> inhereterLog = new ArrayList<Model.PendingUndoablePair>();
 	// Is it necessary to keep track of inhereter log, here, at all?
-	private ArrayList<ArrayList<Model.PendingUndoablePair>> inhereteeLog = new ArrayList<ArrayList<Model.PendingUndoablePair>>();
+	private ArrayList<Model.PendingUndoablePair> inhereteeLog = new ArrayList<Model.PendingUndoablePair>();
 	
 	public HistoryChangeForwarder(Model inhereter, Model inheretee) {
 		this.inhereter = inhereter;
 		// at this point, inheretee is assumed to be clone of inhereter with no local changes
 		this.inheretee = inheretee;
 		inhereterLogSize = inheretee.getLogSize();
+		observeInheretee = true;
 	}
 	
 	public boolean forwardsTo(Model model) {
@@ -95,7 +132,24 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 	//		lastLogSize = newLogSize;
 			final List<Model.PendingUndoablePair> deltaLogPart = inheretee.getLogBackwards(localLogSize);
 			
-			if(localLogSize > 0) {
+//			if(localLogSize > 0) {
+//				collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
+//					@Override
+//					public Model getReference() {
+//						return inheretee;
+//					}
+//					
+//					@Override
+//					public void createPendingCommand(List<CommandState<Model>> commandStates) {
+//						commandStates.add(new PendingCommandState<Model>(
+//							new RewindCommand(localLogSize),
+//							new PlayCommand.AfterRewind()
+//						));
+//					}
+//				});
+//			}
+			
+			if(inhereteeLog.size() > 0) {
 				collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
@@ -105,12 +159,19 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					@Override
 					public void createPendingCommand(List<CommandState<Model>> commandStates) {
 						commandStates.add(new PendingCommandState<Model>(
-							new RewindCommand(localLogSize),
-							new PlayCommand.AfterRewind()
+							new UnplayCommand(inhereteeLog),
+							new PlayCommand(inhereteeLog)
 						));
 					}
 				});
 			}
+			
+			collector.execute(new Trigger<Model>() {
+				@Override
+				public void run(Collector<Model> collector) {
+					observeInheretee = false;
+				}
+			});
 			
 	//		if(inhereter.getLogSize() < inheretee.getLogSize()) {
 	//			System.out.println("inheretee has local changes");
@@ -165,6 +226,9 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 							}
 						}
 						
+//						// This could probably be replaced by using propogation context or propDistance
+//						for(CommandState<Model> filteredPendingCommand: filteredPendingCommands)
+//							commandStates.add(new ForwardedCommandState<Model>(filteredPendingCommand));
 						commandStates.addAll(filteredPendingCommands);
 						
 						inhereterLogSize += commandStates.size();
@@ -240,7 +304,31 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 				CanvasModel.RemovedModelChange removedModelChange = (CanvasModel.RemovedModelChange)change;
 			}*/
 			
-			if(localLogSize > 0) {
+//			if(localLogSize > 0) {
+//				collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
+//					@Override
+//					public Model getReference() {
+//						return inheretee;
+//					}
+//					
+//					@Override
+//					public void createPendingCommand(List<CommandState<Model>> commandStates) {
+//						commandStates.add(new PendingCommandState<Model>(
+//							new PlayCommand(deltaLogPart),
+//							new RewindCommand(localLogSize)
+//						));
+//					}
+//				});
+//			}
+			
+			collector.execute(new Trigger<Model>() {
+				@Override
+				public void run(Collector<Model> collector) {
+					observeInheretee = true;
+				}
+			});
+			
+			if(inhereteeLog.size() > 0) {
 				collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
@@ -250,17 +338,17 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					@Override
 					public void createPendingCommand(List<CommandState<Model>> commandStates) {
 						commandStates.add(new PendingCommandState<Model>(
-							new PlayCommand(deltaLogPart),
-							new RewindCommand(localLogSize)
+							new PlayCommand(inhereteeLog),
+							new UnplayCommand(inhereteeLog)
 						));
 					}
 				});
 			}
-		} else if(sender == inheretee) {
+		} else if(sender == inheretee && observeInheretee) {
 			if(change instanceof Model.HistoryAppendLogChange) {
 				final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
 				
-				inhereteeLog.add(historyAppendLogChange.pendingUndoablePairs);
+				inhereteeLog.addAll(historyAppendLogChange.pendingUndoablePairs);
 			} else if(change instanceof Model.HistoryChange) {
 				Model.HistoryChange historyChange = (Model.HistoryChange)change;
 				
@@ -275,7 +363,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 						new ConstCommandFactory<Model>(new UndoCommand(false))
 					);
 					
-					inhereteeLog.add(new ArrayList<Model.PendingUndoablePair>(Arrays.asList(new Model.PendingUndoablePair(pending, undoable))));
+					inhereteeLog.add(new Model.PendingUndoablePair(pending, undoable));
 	
 					break;
 				} case Model.HistoryChange.TYPE_REDO: {
@@ -287,8 +375,8 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 						new ConstCommandFactory<Model>(new UndoCommand(false)),
 						new ConstCommandFactory<Model>(new RedoCommand(false))
 					);
-					
-					inhereteeLog.add(new ArrayList<Model.PendingUndoablePair>(Arrays.asList(new Model.PendingUndoablePair(pending, undoable))));
+
+					inhereteeLog.add(new Model.PendingUndoablePair(pending, undoable));
 					
 					break;
 				}
