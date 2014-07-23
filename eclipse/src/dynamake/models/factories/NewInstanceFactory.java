@@ -24,7 +24,7 @@ public class NewInstanceFactory implements ModelFactory {
 		Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
 		Model instance = inhereter.cloneDeep();
 		
-		inhereter.addObserver(new HistoryChangeForwarder(instance));
+		inhereter.addObserver(new HistoryChangeForwarder(inhereter, instance));
 		if(inhereter instanceof CanvasModel)
 			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance);
 		
@@ -36,7 +36,7 @@ public class NewInstanceFactory implements ModelFactory {
 			Model inhereterModel = inhereterCanvas.getModelByLocation(location);
 			Model inhereteeModel = inhereteeCanvas.getModelByLocation(location);
 			
-			inhereterModel.addObserver(new HistoryChangeForwarder(inhereteeModel));
+			inhereterModel.addObserver(new HistoryChangeForwarder(inhereterModel, inhereteeModel));
 			if(inhereterModel instanceof CanvasModel)
 				forwardHistoryChangesToContainedModels((CanvasModel)inhereterModel, (CanvasModel)inhereterModel);
 		}

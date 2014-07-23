@@ -26,7 +26,9 @@ public class UnforwardHistoryCommand implements Command<Model> {
 		Model inhereter = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInhereter);
 		Model inheretee = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInheretee);
 		
-		inhereter.removeObserverLike(new HistoryChangeForwarder(inheretee));
+		inhereter.removeObserverLike(new HistoryChangeForwarder(inhereter, inheretee));
+		inheretee.removeObserverLike(new HistoryChangeForwarder(inhereter, inheretee));
+		
 		
 		return null;
 	}

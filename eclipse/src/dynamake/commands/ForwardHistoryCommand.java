@@ -26,7 +26,8 @@ public class ForwardHistoryCommand implements Command<Model> {
 		Model inhereter = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInhereter);
 		Model inheretee = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInheretee);
 		
-		inhereter.addObserver(new HistoryChangeForwarder(inheretee));
+		inhereter.addObserver(new HistoryChangeForwarder(inhereter, inheretee));
+		inheretee.addObserver(new HistoryChangeForwarder(inhereter, inheretee));
 		
 		return null;
 	}
