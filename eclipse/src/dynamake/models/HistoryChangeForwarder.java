@@ -47,16 +47,6 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 		inhereterLogSize = inheretee.getLogSize();
 	}
 	
-	@Override
-	public void addObservee(Observer observee) {
-		this.inhereter = (Model)observee;
-	}
-	
-	@Override
-	public void removeObservee(Observer observee) {
-		this.inhereter = null;
-	}
-	
 	public boolean forwardsTo(Model model) {
 		return inheretee == model;
 	}
