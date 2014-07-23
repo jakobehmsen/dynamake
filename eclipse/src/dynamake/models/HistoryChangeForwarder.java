@@ -354,6 +354,10 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 				
 				switch(historyChange.type) {
 				case Model.HistoryChange.TYPE_UNDO: {
+					// TODO:
+					// Instead of adding an undo command, indicate one command less of the local history is to
+					// be considered as part of the local history
+					
 					PendingCommandState<Model> pending = new PendingCommandState<Model>(
 						new UndoCommand(false), 
 						new RedoCommand(false)
@@ -367,6 +371,10 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 	
 					break;
 				} case Model.HistoryChange.TYPE_REDO: {
+					// TODO:
+					// Instead of adding an redo command, indicate one more command of the local history is to
+					// be considered as part of the local history
+					
 					PendingCommandState<Model> pending = new PendingCommandState<Model>(
 						new RedoCommand(false),
 						new UndoCommand(false) 
