@@ -23,8 +23,10 @@ public class NewInstanceFactory implements ModelFactory {
 	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
 		Model instance = inhereter.cloneDeep();
-		
-		inhereter.addObserver(new HistoryChangeForwarder(inhereter, instance));
+
+		HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereter, instance);
+		inhereter.addObserver(historyChangeForwarder);
+		instance.addObserver(historyChangeForwarder);
 		if(inhereter instanceof CanvasModel)
 			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance);
 		
@@ -35,8 +37,10 @@ public class NewInstanceFactory implements ModelFactory {
 		for(Location location: inhereterCanvas.getLocations()) {
 			Model inhereterModel = inhereterCanvas.getModelByLocation(location);
 			Model inhereteeModel = inhereteeCanvas.getModelByLocation(location);
-			
-			inhereterModel.addObserver(new HistoryChangeForwarder(inhereterModel, inhereteeModel));
+
+			HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereterModel, inhereteeModel);
+			inhereterModel.addObserver(historyChangeForwarder);
+			inhereteeModel.addObserver(historyChangeForwarder);
 			if(inhereterModel instanceof CanvasModel)
 				forwardHistoryChangesToContainedModels((CanvasModel)inhereterModel, (CanvasModel)inhereterModel);
 		}
