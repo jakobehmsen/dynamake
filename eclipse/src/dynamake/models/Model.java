@@ -233,6 +233,15 @@ public abstract class Model implements Serializable, Observer {
 		lastCommitIndex += steps;
 	}
 	
+	public void unplay(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
+			pendingUndoablePair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
+		}
+		
+		log.subList(log.size() - pendingUndoablePairs.size(), log.size()).clear();
+		lastCommitIndex -= pendingUndoablePairs.size();
+	}
+	
 	public void play(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		for(int i = 0; i < steps; i++) {
 //			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex + i);
