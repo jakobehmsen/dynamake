@@ -17,28 +17,8 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 
 	public PendingCommandState(final Command<T> forthCommand, final Command<T> backCommand) {
 		this(forthCommand, 
-			new CommandFactory<T>() {
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public Command<T> createCommand(Object outputs) {
-					return backCommand;
-				}
-			},
-			new CommandFactory<T>() {
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public Command<T> createCommand(Object outputs) {
-					return forthCommand;
-				}
-			}
+			new ConstCommandFactory<T>(backCommand),
+			new ConstCommandFactory<T>(forthCommand)
 		);
 	}
 
@@ -57,17 +37,7 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 	public PendingCommandState(final Command<T> forthCommand, CommandFactory<T> backFactory) {
 		this(forthCommand, 
 			backFactory,
-			new CommandFactory<T>() {
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public Command<T> createCommand(Object outputs) {
-					return forthCommand;
-				}
-			}
+			new ConstCommandFactory<T>(forthCommand)
 		);
 	}
 
