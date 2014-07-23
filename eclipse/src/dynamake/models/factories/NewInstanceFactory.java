@@ -1,5 +1,8 @@
 package dynamake.models.factories;
 
+import java.util.Stack;
+
+import dynamake.commands.CommandState;
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.HistoryChangeForwarder;
@@ -27,13 +30,15 @@ public class NewInstanceFactory implements ModelFactory {
 		HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereter, instance);
 		inhereter.addObserver(historyChangeForwarder);
 		instance.addObserver(historyChangeForwarder);
+		instance.setProperty("inhereterUndoStack", new Stack<CommandState<Model>>(), propCtx, 0, collector);
+		instance.setProperty("inhereterRedoStack", new Stack<CommandState<Model>>(), propCtx, 0, collector);
 		if(inhereter instanceof CanvasModel)
-			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance);
+			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
 		
 		return instance;
 	}
 	
-	private void forwardHistoryChangesToContainedModels(CanvasModel inhereterCanvas, CanvasModel inhereteeCanvas) {
+	private void forwardHistoryChangesToContainedModels(CanvasModel inhereterCanvas, CanvasModel inhereteeCanvas, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(Location location: inhereterCanvas.getLocations()) {
 			Model inhereterModel = inhereterCanvas.getModelByLocation(location);
 			Model inhereteeModel = inhereteeCanvas.getModelByLocation(location);
@@ -41,8 +46,10 @@ public class NewInstanceFactory implements ModelFactory {
 			HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereterModel, inhereteeModel);
 			inhereterModel.addObserver(historyChangeForwarder);
 			inhereteeModel.addObserver(historyChangeForwarder);
+			inhereteeModel.setProperty("inhereterUndoStack", new Stack<CommandState<Model>>(), propCtx, propDistance, collector);
+			inhereteeModel.setProperty("inhereterRedoStack", new Stack<CommandState<Model>>(), propCtx, propDistance, collector);
 			if(inhereterModel instanceof CanvasModel)
-				forwardHistoryChangesToContainedModels((CanvasModel)inhereterModel, (CanvasModel)inhereterModel);
+				forwardHistoryChangesToContainedModels((CanvasModel)inhereterModel, (CanvasModel)inhereterModel, propCtx, propDistance, collector);
 		}
 	}
 }

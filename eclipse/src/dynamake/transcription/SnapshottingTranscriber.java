@@ -282,9 +282,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	private static class Instruction {
-		public static final int OPCODE_COMMIT = 0;
-		public static final int OPCODE_REJECT = 1;
-		public static final int OPCODE_FLUSH_NEXT_TRIGGER = 2;
+		public static final int OPCODE_PRE_COMMIT = 0;
+		public static final int OPCODE_COMMIT = 1;
+		public static final int OPCODE_REJECT = 2;
+		public static final int OPCODE_FLUSH_NEXT_TRIGGER = 3;
 	}
 	
 	public static class Connection<T> implements dynamake.transcription.Connection<T> {
@@ -363,6 +364,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							@Override
 							public void commit() {
+								collectedCommands.add(Instruction.OPCODE_PRE_COMMIT);
 								collectedCommands.add(Instruction.OPCODE_COMMIT);
 							}
 							
@@ -376,11 +378,19 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							int i = (int)command;
 							
 							switch(i) {
-							case Instruction.OPCODE_REJECT:
-								doReject();
+							case Instruction.OPCODE_PRE_COMMIT:
+								for(Map.Entry<T, ArrayList<Model.PendingUndoablePair>> entry: flushedTransactionsFromReferences.entrySet()) {
+									T reference = entry.getKey();
+									
+									((Model)reference).preCommitLog(propCtx, 0, (Collector<Model>)collector);
+								}
+								
 								break;
 							case Instruction.OPCODE_COMMIT:
 								doCommit();
+								break;
+							case Instruction.OPCODE_REJECT:
+								doReject();
 								break;
 							case Instruction.OPCODE_FLUSH_NEXT_TRIGGER:
 								if(onAfterNextTrigger.size() > 0) {
@@ -417,7 +427,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							}
 							flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
 							
-							if(affectModelHistory) {
+//							if(affectModelHistory) {
 								System.out.println("Affect model history");
 								ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
 								if(flushedTransactionsFromReference == null) {
@@ -432,11 +442,17 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									PendingUndoablePair pendingUndoablePair = new PendingUndoablePair(pending, undoable);
 									pendingUndoablePairs.add(pendingUndoablePair);
 								}
-								// Update the log of each affected model isolately; no transaction is cross-model
-								((Model)reference).appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
-								flushedTransactionsFromReference.addAll(pendingUndoablePairs);
-							} else
-								System.out.println("Don't affect model history");
+								if(affectModelHistory) {
+									System.out.println("Affect model history");
+									// Update the log of each affected model isolately; no transaction is cross-model
+									((Model)reference).appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
+									flushedTransactionsFromReference.addAll(pendingUndoablePairs);
+								} else {
+									System.out.println("Don't affect model history");
+									((Model)reference).postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
+								}
+//							} else
+//								System.out.println("Don't affect model history");
 
 							flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands));
 						} else if(command instanceof Trigger) {
@@ -492,10 +508,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				flushedTransactionsFromReferences.clear();
 				flushedUndoableTransactionsFromReferences.clear();
 				
-				ContextualCommand<T> ctxTransaction = new ContextualCommand<T>(transactionsFromRoot, transactionsFromReferenceLocations);
+				ContextualCommand<T> transactionToPersist = new ContextualCommand<T>(transactionsFromRoot, transactionsFromReferenceLocations);
 
 				System.out.println("Committed connection");
-				transcriber.persistTransaction(ctxTransaction);
+				transcriber.persistTransaction(transactionToPersist);
 				affectedModels.clear();
 				
 				if(onAfterNextTrigger.size() > 0) {

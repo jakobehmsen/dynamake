@@ -1,5 +1,7 @@
 package dynamake.commands;
 
+import java.util.Stack;
+
 import dynamake.models.CompositeLocation;
 import dynamake.models.HistoryChangeForwarder;
 import dynamake.models.Location;
@@ -29,6 +31,8 @@ public class ForwardHistoryCommand implements Command<Model> {
 		HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereter, inheretee);
 		inhereter.addObserver(historyChangeForwarder);
 		inheretee.addObserver(historyChangeForwarder);
+		inheretee.setProperty("inhereterUndoStack", new Stack<CommandState<Model>>(), propCtx, 0, collector);
+		inheretee.setProperty("inhereterRedoStack", new Stack<CommandState<Model>>(), propCtx, 0, collector);
 		
 		return null;
 	}

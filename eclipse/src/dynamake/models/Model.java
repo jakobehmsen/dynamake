@@ -69,6 +69,14 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
+	public static class HistoryAppendLogChange2 {
+		public final List<PendingUndoablePair> pendingUndoablePairs;
+		
+		public HistoryAppendLogChange2(List<PendingUndoablePair> pendingCommands) {
+			this.pendingUndoablePairs = pendingCommands;
+		}
+	}
+	
 	public static class HistoryChange {
 		public static final int TYPE_UNDO = 0;
 		public static final int TYPE_REDO = 1;
@@ -186,6 +194,15 @@ public abstract class Model implements Serializable, Observer {
 
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
+	
+	public void postLog(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		System.out.println("Log");
+		
+//		log.addAll(pendingUndoablePairs);
+//		newLog.addAll(pendingUndoablePairs);
+
+		sendChanged(new HistoryAppendLogChange2(pendingUndoablePairs), propCtx, propDistance, 0, collector);
+	}
 
 	public void removeLastLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		undoStack.pop();
@@ -203,8 +220,6 @@ public abstract class Model implements Serializable, Observer {
 	public void commitLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
 		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length];
-//		for(int i = lastCommitIndex; i < log.size(); i++)
-//			compressedLogPartAsArray[i - lastCommitIndex] = log.get(i).undoable;
 		for(int i = 0; i < length; i++)
 			compressedLogPartAsArray[i] = newLog.get(i).undoable;
 		log.addAll(newLog);
@@ -214,7 +229,11 @@ public abstract class Model implements Serializable, Observer {
 		undoStack.add(compressedLogPart);
 		redoStack.clear();
 		
-		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length), propCtx, propDistance, 0, collector);
+//		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length), propCtx, propDistance, 0, collector);
+	}
+	
+	public void preCommitLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, -1), propCtx, propDistance, 0, collector);
 	}
 	
 	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -242,7 +261,7 @@ public abstract class Model implements Serializable, Observer {
 		
 		redoStack.clear();
 		
-		log.subList(log.size() - pendingUndoablePairs.size(), log.size()).clear();
+//		log.subList(log.size() - pendingUndoablePairs.size(), log.size()).clear();
 		lastCommitIndex -= pendingUndoablePairs.size();
 	}
 	
@@ -496,6 +515,12 @@ public abstract class Model implements Serializable, Observer {
 	public void removeObserverLike(Observer observer) {
 		observers.remove(observer);
 		observer.removeObservee(this);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends Observer> T getObserverOfLike(T observer) {
+		int indexOfObserver = observers.indexOf(observer);
+		return (T)observers.get(indexOfObserver);
 	}
 
 	@SuppressWarnings("unchecked")
