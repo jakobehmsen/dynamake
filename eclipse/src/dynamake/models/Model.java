@@ -62,9 +62,9 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static class HistoryAppendLogChange {
-		public final ArrayList<PendingUndoablePair> pendingUndoablePairs;
+		public final List<PendingUndoablePair> pendingUndoablePairs;
 		
-		public HistoryAppendLogChange(ArrayList<PendingUndoablePair> pendingCommands) {
+		public HistoryAppendLogChange(List<PendingUndoablePair> pendingCommands) {
 			this.pendingUndoablePairs = pendingCommands;
 		}
 	}
@@ -235,8 +235,12 @@ public abstract class Model implements Serializable, Observer {
 	
 	public void unplay(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
-			pendingUndoablePair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
+			CommandState<Model> undoable = undoStack.pop();
+			undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
+//			undoStack.pop();
 		}
+		
+		redoStack.clear();
 		
 		log.subList(log.size() - pendingUndoablePairs.size(), log.size()).clear();
 		lastCommitIndex -= pendingUndoablePairs.size();
@@ -250,12 +254,31 @@ public abstract class Model implements Serializable, Observer {
 
 		lastCommitIndex = log.size();
 //		log.addAll(pendingUndoablePairs);
-		newLog.addAll(pendingUndoablePairs);
+//		newLog.addAll(pendingUndoablePairs);
+		
+		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
+			CommandState<Model> undoable = pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+			undoStack.add(undoable);
+//			newLog.add(new PendingUndoablePair(pendingUndoablePair.pending, (ReversibleCommand<Model>)undoable));
+		}
+	}
+	
+	public void play2(List<PendingUndoablePair> pendingUndoablePairs, boolean log, boolean post, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		for(int i = 0; i < steps; i++) {
+//			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex + i);
+//			pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+//		}
+
+//		log.addAll(pendingUndoablePairs);
+		if(log)
+			newLog.addAll(pendingUndoablePairs);
 		
 		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
 			pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
 		}
 		
+		if(post)
+			sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
 
 	public void rewind(int steps, PropogationContext propCtx, int propDistance, Collector<Model> collector) {

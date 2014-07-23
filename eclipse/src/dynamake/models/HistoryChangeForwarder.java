@@ -19,6 +19,7 @@ import dynamake.commands.RewindCommand;
 import dynamake.commands.UndoCommand;
 import dynamake.commands.UnplayCommand;
 import dynamake.models.CanvasModel.AddModelCommand;
+import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
 import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
 import dynamake.transcription.Trigger;
@@ -72,9 +73,10 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 	
 	private boolean observeInheretee;
 	
-//	private ArrayList<Model.PendingUndoablePair> inhereterLog = new ArrayList<Model.PendingUndoablePair>();
+	private ArrayList<Model.PendingUndoablePair> inhereterLog = new ArrayList<Model.PendingUndoablePair>();
 	// Is it necessary to keep track of inhereter log, here, at all?
 	private ArrayList<Model.PendingUndoablePair> inhereteeLog = new ArrayList<Model.PendingUndoablePair>();
+	private int logSize;
 	
 	public HistoryChangeForwarder(Model inhereter, Model inheretee) {
 		this.inhereter = inhereter;
@@ -101,6 +103,36 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 		return false;
 	}
 
+	private void appendAllToLocalChanges(List<PendingUndoablePair> pendingUndoablePairs) {
+		if(logSize >= inhereteeLog.size())
+			inhereteeLog.addAll(pendingUndoablePairs);
+		else {
+			for(int i = 0; i < pendingUndoablePairs.size(); i++)
+				inhereteeLog.set(logSize + i, pendingUndoablePairs.get(i));
+		}
+		logSize += pendingUndoablePairs.size();
+	}
+
+	private boolean hasLocalChanges() {
+		return logSize > 0;
+	}
+
+	private int localChangeCount() {
+		return logSize;
+	}
+	
+	private void registerUndoInLocalChanges() {
+		logSize--;
+	}
+	
+	private void registerRedoInLocalChanges() {
+		logSize++;
+	}
+	
+	private List<Model.PendingUndoablePair> getLocalChanges() {
+		return new ArrayList<Model.PendingUndoablePair>(inhereteeLog.subList(0, logSize));
+	}
+
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		/*
@@ -122,15 +154,19 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 		instead of in model? I.e., can the log in model be moved to history change forwarders?
 		*/
 		
+		/*
+		How to prevent inheretee to undo inhereted changes? 
+		*/
+		
 		if(!(change instanceof Model.HistoryAppendLogChange || change instanceof Model.HistoryChange))
 			return;
 		
 		if(sender == inhereter) {
-			int newLogSize = inheretee.getLogSize();
+//			int newLogSize = inheretee.getLogSize();
 	//		final int deltaSize = inheretee.getLogSize() - inhereter.getLogSize();
-			final int localLogSize = newLogSize - inhereterLogSize;
+//			final int localLogSize = newLogSize - inhereterLogSize;
 	//		lastLogSize = newLogSize;
-			final List<Model.PendingUndoablePair> deltaLogPart = inheretee.getLogBackwards(localLogSize);
+//			final List<Model.PendingUndoablePair> deltaLogPart = inheretee.getLogBackwards(localLogSize);
 			
 //			if(localLogSize > 0) {
 //				collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
@@ -149,7 +185,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 //				});
 //			}
 			
-			if(inhereteeLog.size() > 0) {
+			if(hasLocalChanges()) {
 				collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
@@ -158,9 +194,16 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					
 					@Override
 					public void createPendingCommand(List<CommandState<Model>> commandStates) {
+						List<Model.PendingUndoablePair> localChanges = getLocalChanges();
+//						for(int i = 0; i < localChangeCount(); i++) {
+//							commandStates.add(new PendingCommandState<Model>(
+//								new UndoCommand(false),
+//								new RedoCommand(false)
+//							));
+//						}
 						commandStates.add(new PendingCommandState<Model>(
-							new UnplayCommand(inhereteeLog),
-							new PlayCommand(inhereteeLog)
+							new UnplayCommand(localChanges),
+							new PlayCommand(localChanges)
 						));
 					}
 				});
@@ -180,7 +223,8 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 			if(change instanceof Model.HistoryAppendLogChange) {
 				final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
 				
-				collector.execute(new PendingCommandFactory<Model>() {
+//				collector.execute(new PendingCommandFactory<Model>() {
+				collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
 						return inheretee;
@@ -231,6 +275,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 //							commandStates.add(new ForwardedCommandState<Model>(filteredPendingCommand));
 						commandStates.addAll(filteredPendingCommands);
 						
+//						inhereterLog.addAll(filteredPendingCommands);
 						inhereterLogSize += commandStates.size();
 					}
 				});
@@ -328,7 +373,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 				}
 			});
 			
-			if(inhereteeLog.size() > 0) {
+			if(hasLocalChanges()) {
 				collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
@@ -348,7 +393,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 			if(change instanceof Model.HistoryAppendLogChange) {
 				final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
 				
-				inhereteeLog.addAll(historyAppendLogChange.pendingUndoablePairs);
+				appendAllToLocalChanges(historyAppendLogChange.pendingUndoablePairs);
 			} else if(change instanceof Model.HistoryChange) {
 				Model.HistoryChange historyChange = (Model.HistoryChange)change;
 				
@@ -357,34 +402,36 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					// TODO:
 					// Instead of adding an undo command, indicate one command less of the local history is to
 					// be considered as part of the local history
+					registerUndoInLocalChanges();
 					
-					PendingCommandState<Model> pending = new PendingCommandState<Model>(
-						new UndoCommand(false), 
-						new RedoCommand(false)
-					);
-					ReversibleCommand<Model> undoable = new ReversibleCommand<Model>(null,
-						new ConstCommandFactory<Model>(new RedoCommand(false)), 
-						new ConstCommandFactory<Model>(new UndoCommand(false))
-					);
-					
-					inhereteeLog.add(new Model.PendingUndoablePair(pending, undoable));
+//					PendingCommandState<Model> pending = new PendingCommandState<Model>(
+//						new UndoCommand(false), 
+//						new RedoCommand(false)
+//					);
+//					ReversibleCommand<Model> undoable = new ReversibleCommand<Model>(null,
+//						new ConstCommandFactory<Model>(new RedoCommand(false)), 
+//						new ConstCommandFactory<Model>(new UndoCommand(false))
+//					);
+//					
+//					inhereteeLog.add(new Model.PendingUndoablePair(pending, undoable));
 	
 					break;
 				} case Model.HistoryChange.TYPE_REDO: {
 					// TODO:
 					// Instead of adding an redo command, indicate one more command of the local history is to
 					// be considered as part of the local history
+					registerRedoInLocalChanges();
 					
-					PendingCommandState<Model> pending = new PendingCommandState<Model>(
-						new RedoCommand(false),
-						new UndoCommand(false) 
-					);
-					ReversibleCommand<Model> undoable = new ReversibleCommand<Model>(null, 
-						new ConstCommandFactory<Model>(new UndoCommand(false)),
-						new ConstCommandFactory<Model>(new RedoCommand(false))
-					);
-
-					inhereteeLog.add(new Model.PendingUndoablePair(pending, undoable));
+//					PendingCommandState<Model> pending = new PendingCommandState<Model>(
+//						new RedoCommand(false),
+//						new UndoCommand(false) 
+//					);
+//					ReversibleCommand<Model> undoable = new ReversibleCommand<Model>(null, 
+//						new ConstCommandFactory<Model>(new UndoCommand(false)),
+//						new ConstCommandFactory<Model>(new RedoCommand(false))
+//					);
+//
+//					inhereteeLog.add(new Model.PendingUndoablePair(pending, undoable));
 					
 					break;
 				}
