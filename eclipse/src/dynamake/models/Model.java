@@ -245,21 +245,6 @@ public abstract class Model implements Serializable, Observer {
 			undoStack.add(undoable);
 		}
 	}
-
-	public void rewind(int steps, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		for(int i = 0; i < steps; i++) {
-//			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex - 1 - i);
-//			pendingUndoablePair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
-//		}
-//		
-//		log.subList(log.size() - steps, log.size()).clear();
-//		lastCommitIndex -= steps;
-	}
-	
-	public List<PendingUndoablePair> getLogBackwards(int steps) {
-//		return new ArrayList<PendingUndoablePair>(log.subList(log.size() - steps, log.size()));´
-		return null;
-	}
 	
 	public void setLocator(Locator locator) {
 		this.locator = locator;
