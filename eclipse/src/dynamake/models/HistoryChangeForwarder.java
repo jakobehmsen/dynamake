@@ -645,27 +645,29 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 
 	//				inheretee.commitLog(historyLogChange.length, propCtx, propDistance, collector);
 					
-					@SuppressWarnings("unchecked")
-					Stack<CommandState<Model>> inhereterUndoStack = (Stack<CommandState<Model>>)inheretee.getProperty("inhereterUndoStack");
-					@SuppressWarnings("unchecked")
-					Stack<CommandState<Model>> inhereterRedoStack = (Stack<CommandState<Model>>)inheretee.getProperty("inhereterRedoStack");
-					
-//					CommandState<Model> redoable = inhereterRedoStack.pop();
-//					CommandState<Model> undoable = redoable.executeOn(propCtx, prevalentSystem, collector, location);
-//					inhereterUndoStack.push(undoable);
-					
-					
-					
-					@SuppressWarnings("unchecked")
-					CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[inhereterNewLog.size()];
-					for(int i = 0; i < inhereterNewLog.size(); i++)
-						compressedLogPartAsArray[i] = inhereterNewLog.get(i).undoable;
-////					log.addAll(newLog);
-					inhereterNewLog.clear();
-					RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
-//					lastCommitIndex = log.size();
-					inhereterUndoStack.add(compressedLogPart);
-					inhereterRedoStack.clear();
+					if(inhereterNewLog.size() > 0) {
+						@SuppressWarnings("unchecked")
+						Stack<CommandState<Model>> inhereterUndoStack = (Stack<CommandState<Model>>)inheretee.getProperty("inhereterUndoStack");
+						@SuppressWarnings("unchecked")
+						Stack<CommandState<Model>> inhereterRedoStack = (Stack<CommandState<Model>>)inheretee.getProperty("inhereterRedoStack");
+						
+	//					CommandState<Model> redoable = inhereterRedoStack.pop();
+	//					CommandState<Model> undoable = redoable.executeOn(propCtx, prevalentSystem, collector, location);
+	//					inhereterUndoStack.push(undoable);
+						
+						
+						
+						@SuppressWarnings("unchecked")
+						CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[inhereterNewLog.size()];
+						for(int i = 0; i < inhereterNewLog.size(); i++)
+							compressedLogPartAsArray[i] = inhereterNewLog.get(i).undoable;
+	////					log.addAll(newLog);
+						inhereterNewLog.clear();
+						RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
+	//					lastCommitIndex = log.size();
+						inhereterUndoStack.add(compressedLogPart);
+						inhereterRedoStack.clear();
+					}
 					
 					break;
 				case Model.HistoryLogChange.TYPE_REJECT_LOG:

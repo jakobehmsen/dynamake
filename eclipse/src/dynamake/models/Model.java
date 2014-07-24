@@ -191,6 +191,7 @@ public abstract class Model implements Serializable, Observer {
 		
 //		log.addAll(pendingUndoablePairs);
 		newLog.addAll(pendingUndoablePairs);
+		redoStack.clear();
 
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
@@ -227,7 +228,7 @@ public abstract class Model implements Serializable, Observer {
 		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 		lastCommitIndex = log.size();
 		undoStack.add(compressedLogPart);
-		redoStack.clear();
+//		redoStack.clear();
 		
 		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length), propCtx, propDistance, 0, collector);
 	}

@@ -429,11 +429,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 //							if(affectModelHistory) {
 								System.out.println("Affect model history");
-								ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
-								if(flushedTransactionsFromReference == null) {
-									flushedTransactionsFromReference = new ArrayList<Model.PendingUndoablePair>();
-									flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
-								}
+//								ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
+//								if(flushedTransactionsFromReference == null) {
+//									flushedTransactionsFromReference = new ArrayList<Model.PendingUndoablePair>();
+//									flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
+//								}
 								
 								ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
 								for(int i = 0; i < pendingCommands.size(); i++) {
@@ -445,6 +445,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								if(affectModelHistory) {
 									System.out.println("Affect model history");
 									// Update the log of each affected model isolately; no transaction is cross-model
+									ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
+									if(flushedTransactionsFromReference == null) {
+										flushedTransactionsFromReference = new ArrayList<Model.PendingUndoablePair>();
+										flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
+									}
 									((Model)reference).appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
 									flushedTransactionsFromReference.addAll(pendingUndoablePairs);
 								} else {
