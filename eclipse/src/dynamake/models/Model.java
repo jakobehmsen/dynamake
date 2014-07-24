@@ -94,10 +94,12 @@ public abstract class Model implements Serializable, Observer {
 		
 		public final int type;
 		public final int length;
+		public final CommandState<Model> compressedLog;
 		
-		public HistoryLogChange(int type, int length) {
+		public HistoryLogChange(int type, int length, CommandState<Model> compressedLog) {
 			this.type = type;
 			this.length = length;
+			this.compressedLog = compressedLog;
 		}
 	}
 	
@@ -221,27 +223,34 @@ public abstract class Model implements Serializable, Observer {
 		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 		undoStack.add(compressedLogPart);
 		
-		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length, compressedLogPart), propCtx, propDistance, 0, collector);
 	}
 	
 	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		newLog.clear();
 		
-		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_REJECT_LOG, length), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_REJECT_LOG, length, null), propCtx, propDistance, 0, collector);
 	}
 	
-	public void unplay(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(@SuppressWarnings("unused") PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
+	public void unplay(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		while(!undoStack.isEmpty()) {
 			CommandState<Model> undoable = undoStack.pop();
 			undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
 		}
 		
 		redoStack.clear();
 	}
+
+//	public void play(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
+//			CommandState<Model> undoable = pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+//			undoStack.add(undoable);
+//		}
+//	}
 	
-	public void play(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
-			CommandState<Model> undoable = pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+	public void play(List<CommandState<Model>> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		for(CommandState<Model> commandState: commandStates) {
+			CommandState<Model> undoable = commandState.executeOn(propCtx, this, collector, new ModelRootLocation());
 			undoStack.add(undoable);
 		}
 	}

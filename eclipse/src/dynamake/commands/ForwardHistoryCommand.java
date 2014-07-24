@@ -1,5 +1,7 @@
 package dynamake.commands;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import dynamake.models.CompositeLocation;
@@ -35,6 +37,7 @@ public class ForwardHistoryCommand implements Command<Model> {
 		inheretee.setProperty("inhereterRedoStack", new Stack<CommandState<Model>>(), propCtx, 0, collector);
 		inheretee.setProperty("observeInheretee", true, propCtx, 0, collector);
 		inheretee.setProperty("doingUndoRedo", false, propCtx, 0, collector);
+		inheretee.setProperty("localChanges", new ArrayList<CommandState<Model>>(), propCtx, 0, collector);
 		
 		return null;
 	}

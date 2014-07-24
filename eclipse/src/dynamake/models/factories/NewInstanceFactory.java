@@ -1,5 +1,6 @@
 package dynamake.models.factories;
 
+import java.util.ArrayList;
 import java.util.Stack;
 
 import dynamake.commands.CommandState;
@@ -34,6 +35,7 @@ public class NewInstanceFactory implements ModelFactory {
 		instance.setProperty("inhereterRedoStack", new Stack<CommandState<Model>>(), propCtx, 0, collector);
 		instance.setProperty("observeInheretee", true, propCtx, 0, collector);
 		instance.setProperty("doingUndoRedo", false, propCtx, 0, collector);
+		instance.setProperty("localChanges", new ArrayList<CommandState<Model>>(), propCtx, 0, collector);
 		if(inhereter instanceof CanvasModel)
 			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
 		
@@ -52,6 +54,7 @@ public class NewInstanceFactory implements ModelFactory {
 			inhereteeModel.setProperty("inhereterRedoStack", new Stack<CommandState<Model>>(), propCtx, propDistance, collector);
 			inhereteeModel.setProperty("observeInheretee", true, propCtx, 0, collector);
 			inhereteeModel.setProperty("doingUndoRedo", false, propCtx, 0, collector);
+			inhereteeModel.setProperty("localChanges", new ArrayList<CommandState<Model>>(), propCtx, 0, collector);
 			if(inhereterModel instanceof CanvasModel)
 				forwardHistoryChangesToContainedModels((CanvasModel)inhereterModel, (CanvasModel)inhereterModel, propCtx, propDistance, collector);
 		}

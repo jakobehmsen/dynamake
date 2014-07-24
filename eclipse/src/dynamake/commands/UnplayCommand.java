@@ -14,16 +14,16 @@ public class UnplayCommand implements Command<Model> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private List<Model.PendingUndoablePair> pendingUndoablePairs;
-
-	public UnplayCommand(List<Model.PendingUndoablePair> pendingUndoablePairs) {
-		this.pendingUndoablePairs = pendingUndoablePairs;
-	}
+//	private List<Model.PendingUndoablePair> pendingUndoablePairs;
+//
+//	public UnplayCommand(List<Model.PendingUndoablePair> pendingUndoablePairs) {
+//		this.pendingUndoablePairs = pendingUndoablePairs;
+//	}
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model model = (Model)location.getChild(prevalentSystem);
-		model.unplay(pendingUndoablePairs, propCtx, 0, collector);
+		model.unplay(propCtx, 0, collector);
 		
 		return null;
 	}

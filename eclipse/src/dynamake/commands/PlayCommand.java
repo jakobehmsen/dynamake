@@ -12,16 +12,21 @@ public class PlayCommand implements Command<Model> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private List<Model.PendingUndoablePair> pendingUndoablePairs;
+//	private List<Model.PendingUndoablePair> pendingUndoablePairs;
+	private List<CommandState<Model>> commandStates;
 
-	public PlayCommand(List<Model.PendingUndoablePair> pendingUndoablePairs) {
-		this.pendingUndoablePairs = pendingUndoablePairs;
+//	public PlayCommand(List<Model.PendingUndoablePair> pendingUndoablePairs) {
+//		this.pendingUndoablePairs = pendingUndoablePairs;
+//	}
+	
+	public PlayCommand(List<CommandState<Model>> commandStates) {
+		this.commandStates = commandStates;
 	}
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model model = (Model)location.getChild(prevalentSystem);
-		model.play(pendingUndoablePairs, propCtx, 0, collector);
+		model.play(commandStates, propCtx, 0, collector);
 		
 		return null;
 	}

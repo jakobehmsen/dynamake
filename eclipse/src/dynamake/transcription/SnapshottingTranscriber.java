@@ -465,7 +465,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									flushedTransactionsFromReference.addAll(pendingUndoablePairs);
 								} else {
 									System.out.println("Don't affect model history");
-									((Model)reference).postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
+									boolean postLog = !(transactionFactory instanceof TranscribeOnlyAndPostNotPendingCommandFactory);
+									if(postLog)
+										((Model)reference).postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
 								}
 //							} else
 //								System.out.println("Don't affect model history");
