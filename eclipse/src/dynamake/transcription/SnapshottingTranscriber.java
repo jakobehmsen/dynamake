@@ -282,7 +282,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	private static class Instruction {
-		public static final int OPCODE_PRE_COMMIT = 0;
+//		public static final int OPCODE_PRE_COMMIT = 0;
 		public static final int OPCODE_COMMIT = 1;
 		public static final int OPCODE_REJECT = 2;
 		public static final int OPCODE_FLUSH_NEXT_TRIGGER = 3;
@@ -364,7 +364,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							@Override
 							public void commit() {
-								collectedCommands.add(Instruction.OPCODE_PRE_COMMIT);
+//								collectedCommands.add(Instruction.OPCODE_PRE_COMMIT);
 								collectedCommands.add(Instruction.OPCODE_COMMIT);
 							}
 							
@@ -378,14 +378,14 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							int i = (int)command;
 							
 							switch(i) {
-							case Instruction.OPCODE_PRE_COMMIT:
-								for(Map.Entry<T, ArrayList<Model.PendingUndoablePair>> entry: flushedTransactionsFromReferences.entrySet()) {
-									T reference = entry.getKey();
-									
-									((Model)reference).preCommitLog(propCtx, 0, (Collector<Model>)collector);
-								}
-								
-								break;
+//							case Instruction.OPCODE_PRE_COMMIT:
+//								for(Map.Entry<T, ArrayList<Model.PendingUndoablePair>> entry: flushedTransactionsFromReferences.entrySet()) {
+//									T reference = entry.getKey();
+//									
+//									((Model)reference).preCommitLog(propCtx, 0, (Collector<Model>)collector);
+//								}
+//								
+//								break;
 							case Instruction.OPCODE_COMMIT:
 								doCommit();
 								break;

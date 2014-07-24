@@ -248,7 +248,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 		How to prevent inheretee to undo inhereted changes? 
 		*/
 		
-		if((change instanceof Model.HistoryAppendLogChange || change instanceof Model.HistoryChange)) {
+		if((change instanceof Model.HistoryAppendLogChange || change instanceof Model.HistoryAppendLogChange2 || change instanceof Model.HistoryChange)) {
 			if(sender == inhereter) {
 	//			int newLogSize = inheretee.getLogSize();
 		//		final int deltaSize = inheretee.getLogSize() - inhereter.getLogSize();
@@ -574,13 +574,16 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					}
 				} else {
 					if(change instanceof Model.HistoryAppendLogChange2) {
-						final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
+						// This point is reached when catching an undo occurring on the inhereter; it shouldn't
+						final Model.HistoryAppendLogChange2 historyAppendLogChange = (Model.HistoryAppendLogChange2)change;
 						
 						inhereterNewLog.addAll(historyAppendLogChange.pendingUndoablePairs);
 					}
 				}
 			}
 		} else if(change instanceof Model.HistoryLogChange) {
+			// If HistoryLogChange (i.e. commit or reject), then it should be safe to assume that it is safe to execute directly
+			// instead of via collector
 			if(sender == inhereter) {
 				Model.HistoryLogChange historyLogChange = (Model.HistoryLogChange)change;
 				
@@ -597,45 +600,69 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 //					inhereterUndoStack.add(compressedLogPart);
 //					inhereterRedoStack.clear();
 					
-					collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
-						@Override
-						public Model getReference() {
-							return inheretee;
-						}
-						
-						@Override
-						public void createPendingCommand(List<CommandState<Model>> commandStates) {
-							@SuppressWarnings("unchecked")
-							CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[inhereterNewLog.size()];
-							for(int i = 0; i < inhereterNewLog.size(); i++)
-								compressedLogPartAsArray[i] = inhereterNewLog.get(i).undoable;
-//							log.addAll(newLog);
-//							inhereterNewLog.clear();
-//							RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
-////							lastCommitIndex = log.size();
-//							inhereterUndoStack.add(compressedLogPart);
-//							inhereterRedoStack.clear();
-							
-							commandStates.add(new PendingCommandState<Model>(
-								new CommitLogInhereterCommand(compressedLogPartAsArray),
-								new Command.Null<Model>()
-							));
-						}
-					});
+//					collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
+//						@Override
+//						public Model getReference() {
+//							return inheretee;
+//						}
+//						
+//						@Override
+//						public void createPendingCommand(List<CommandState<Model>> commandStates) {
+//							@SuppressWarnings("unchecked")
+//							CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[inhereterNewLog.size()];
+//							for(int i = 0; i < inhereterNewLog.size(); i++)
+//								compressedLogPartAsArray[i] = inhereterNewLog.get(i).undoable;
+////							log.addAll(newLog);
+////							inhereterNewLog.clear();
+////							RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
+//////							lastCommitIndex = log.size();
+////							inhereterUndoStack.add(compressedLogPart);
+////							inhereterRedoStack.clear();
+//							
+//							commandStates.add(new PendingCommandState<Model>(
+//								new CommitLogInhereterCommand(compressedLogPartAsArray),
+//								new Command.Null<Model>()
+//							));
+//						}
+//					});
 
 	//				inheretee.commitLog(historyLogChange.length, propCtx, propDistance, collector);
+					
+					@SuppressWarnings("unchecked")
+					Stack<CommandState<Model>> inhereterUndoStack = (Stack<CommandState<Model>>)inheretee.getProperty("inhereterUndoStack");
+					@SuppressWarnings("unchecked")
+					Stack<CommandState<Model>> inhereterRedoStack = (Stack<CommandState<Model>>)inheretee.getProperty("inhereterRedoStack");
+					
+//					CommandState<Model> redoable = inhereterRedoStack.pop();
+//					CommandState<Model> undoable = redoable.executeOn(propCtx, prevalentSystem, collector, location);
+//					inhereterUndoStack.push(undoable);
+					
+					
+					
+					@SuppressWarnings("unchecked")
+					CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[inhereterNewLog.size()];
+					for(int i = 0; i < inhereterNewLog.size(); i++)
+						compressedLogPartAsArray[i] = inhereterNewLog.get(i).undoable;
+////					log.addAll(newLog);
+					inhereterNewLog.clear();
+					RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
+//					lastCommitIndex = log.size();
+					inhereterUndoStack.add(compressedLogPart);
+					inhereterRedoStack.clear();
+					
 					break;
 				case Model.HistoryLogChange.TYPE_REJECT_LOG:
 //					inhereterNewLog.clear();
 					
 					
-					collector.execute(new Trigger<Model>() {
-						@Override
-						public void run(Collector<Model> collector) {
-							inhereterNewLog.clear();
-						}
-					});
+//					collector.execute(new Trigger<Model>() {
+//						@Override
+//						public void run(Collector<Model> collector) {
+//							inhereterNewLog.clear();
+//						}
+//					});
 	//				inheretee.rejectLog(historyLogChange.length, propCtx, propDistance, collector);
+//					inhereterNewLog.clear();
 					break;
 				}
 			}

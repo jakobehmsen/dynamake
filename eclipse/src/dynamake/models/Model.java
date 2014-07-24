@@ -229,12 +229,12 @@ public abstract class Model implements Serializable, Observer {
 		undoStack.add(compressedLogPart);
 		redoStack.clear();
 		
-//		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length), propCtx, propDistance, 0, collector);
 	}
 	
-	public void preCommitLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, -1), propCtx, propDistance, 0, collector);
-	}
+//	public void preCommitLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, -1), propCtx, propDistance, 0, collector);
+//	}
 	
 	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		log.subList(newLog.size() - 1, log.size()).clear();
