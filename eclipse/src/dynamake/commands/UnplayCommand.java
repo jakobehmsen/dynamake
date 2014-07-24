@@ -1,10 +1,12 @@
 package dynamake.commands;
 
+import java.io.Serializable;
 import java.util.List;
 
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
+import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
 
 public class UnplayCommand implements Command<Model> {

@@ -8,18 +8,6 @@ import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
 public class PlayCommand implements Command<Model> {
-	public static class AfterRewind implements CommandFactory<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public Command<Model> createCommand(Object output) {
-			return new PlayCommand(((RewindCommand.Output)output).logPart);
-		}
-	}
-	
 	/**
 	 * 
 	 */
