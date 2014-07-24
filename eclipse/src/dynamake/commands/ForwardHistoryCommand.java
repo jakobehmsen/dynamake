@@ -33,6 +33,8 @@ public class ForwardHistoryCommand implements Command<Model> {
 		inheretee.addObserver(historyChangeForwarder);
 		inheretee.setProperty("inhereterUndoStack", new Stack<CommandState<Model>>(), propCtx, 0, collector);
 		inheretee.setProperty("inhereterRedoStack", new Stack<CommandState<Model>>(), propCtx, 0, collector);
+		inheretee.setProperty("observeInheretee", true, propCtx, 0, collector);
+		inheretee.setProperty("doingUndoRedo", false, propCtx, 0, collector);
 		
 		return null;
 	}

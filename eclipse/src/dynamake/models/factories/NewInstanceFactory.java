@@ -32,6 +32,8 @@ public class NewInstanceFactory implements ModelFactory {
 		instance.addObserver(historyChangeForwarder);
 		instance.setProperty("inhereterUndoStack", new Stack<CommandState<Model>>(), propCtx, 0, collector);
 		instance.setProperty("inhereterRedoStack", new Stack<CommandState<Model>>(), propCtx, 0, collector);
+		instance.setProperty("observeInheretee", true, propCtx, 0, collector);
+		instance.setProperty("doingUndoRedo", false, propCtx, 0, collector);
 		if(inhereter instanceof CanvasModel)
 			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
 		
@@ -48,6 +50,8 @@ public class NewInstanceFactory implements ModelFactory {
 			inhereteeModel.addObserver(historyChangeForwarder);
 			inhereteeModel.setProperty("inhereterUndoStack", new Stack<CommandState<Model>>(), propCtx, propDistance, collector);
 			inhereteeModel.setProperty("inhereterRedoStack", new Stack<CommandState<Model>>(), propCtx, propDistance, collector);
+			inhereteeModel.setProperty("observeInheretee", true, propCtx, 0, collector);
+			inhereteeModel.setProperty("doingUndoRedo", false, propCtx, 0, collector);
 			if(inhereterModel instanceof CanvasModel)
 				forwardHistoryChangesToContainedModels((CanvasModel)inhereterModel, (CanvasModel)inhereterModel, propCtx, propDistance, collector);
 		}
