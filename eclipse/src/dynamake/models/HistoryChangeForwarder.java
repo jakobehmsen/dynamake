@@ -26,38 +26,6 @@ import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
  * are forwarded from the inhereter.
  */
 public class HistoryChangeForwarder extends ObserverAdapter implements Serializable {
-//	public static class SuspendObserveInhereteeCommand implements Command<Model> {
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//
-//		@Override
-//		public Object executeOn(PropogationContext propCtx,
-//				Model prevalentSystem, Collector<Model> collector,
-//				Location location) {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
-//		
-//	}
-//	
-//	public static class ResumeObserveInhereteeCommand implements Command<Model> {
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//
-//		@Override
-//		public Object executeOn(PropogationContext propCtx,
-//				Model prevalentSystem, Collector<Model> collector,
-//				Location location) {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
-//		
-//	}
-	
 	public static class UndoInhereterCommand implements Command<Model> {
 		/**
 		 * 
@@ -120,26 +88,12 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 			
 			Stack<CommandState<Model>> inhereterUndoStack = (Stack<CommandState<Model>>)inheretee.getProperty("inhereterUndoStack");
 			Stack<CommandState<Model>> inhereterRedoStack = (Stack<CommandState<Model>>)inheretee.getProperty("inhereterRedoStack");
-			
-//			CommandState<Model> redoable = inhereterRedoStack.pop();
-//			CommandState<Model> undoable = redoable.executeOn(propCtx, prevalentSystem, collector, location);
-//			inhereterUndoStack.push(undoable);
-			
-			
-			
-//			@SuppressWarnings("unchecked")
-//			CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[inhereterNewLog.size()];
-//			for(int i = 0; i < inhereterNewLog.size(); i++)
-//				compressedLogPartAsArray[i] = inhereterNewLog.get(i).undoable;
-////			log.addAll(newLog);
-//			inhereterNewLog.clear();
+
 			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
-//			lastCommitIndex = log.size();
+
 			inhereterUndoStack.add(compressedLogPart);
 			inhereterRedoStack.clear();
-			
-			
-			
+
 			return null;
 		}
 	}
@@ -150,14 +104,9 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 	private static final long serialVersionUID = 1L;
 	private Model inhereter;
 	private Model inheretee;
-//	private int inhereterLogSize;
-	
-//	private boolean observeInheretee;
-//	private boolean doingUndoRedo;
+
 	
 	private ArrayList<Model.PendingUndoablePair> inhereterNewLog = new ArrayList<Model.PendingUndoablePair>();
-//	private Stack<CommandState<Model>> inhereterUndoStack = new Stack<CommandState<Model>>();
-//	private Stack<CommandState<Model>> inhereterRedoStack = new Stack<CommandState<Model>>();
 	// Is it necessary to keep track of inhereter log, here, at all?
 	private ArrayList<Model.PendingUndoablePair> inhereteeLog = new ArrayList<Model.PendingUndoablePair>();
 	private int logSize;
@@ -166,8 +115,6 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 		this.inhereter = inhereter;
 		// at this point, inheretee is assumed to be clone of inhereter with no local changes
 		this.inheretee = inheretee;
-//		inhereterLogSize = inheretee.getLogSize();
-//		observeInheretee = true;
 	}
 	
 	public boolean forwardsTo(Model model) {
@@ -258,13 +205,6 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					});
 				}
 				
-//				collector.execute(new Trigger<Model>() {
-//					@Override
-//					public void run(Collector<Model> collector) {
-//						observeInheretee = false;
-//					}
-//				});
-				
 				collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 					@Override
 					public Model getReference() {
@@ -333,13 +273,6 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 				} else if(change instanceof Model.HistoryChange) {
 					Model.HistoryChange historyChange = (Model.HistoryChange)change;
 					
-//					collector.execute(new Trigger<Model>() {
-//						@Override
-//						public void run(Collector<Model> collector) {
-//							doingUndoRedo = true;
-//						}
-//					});
-					
 					collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
@@ -392,13 +325,6 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 						break;
 					}
 					
-//					collector.execute(new Trigger<Model>() {
-//						@Override
-//						public void run(Collector<Model> collector) {
-//							doingUndoRedo = false;
-//						}
-//					});
-					
 					collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
@@ -416,13 +342,6 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 				} else if(change instanceof Model.HistoryLogChange) {
 
 				}
-				
-//				collector.execute(new Trigger<Model>() {
-//					@Override
-//					public void run(Collector<Model> collector) {
-//						observeInheretee = true;
-//					}
-//				});
 				
 				collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 					@Override
