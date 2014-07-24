@@ -160,6 +160,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 //	private int inhereterLogSize;
 	
 	private boolean observeInheretee;
+	private boolean doingUndoRedo;
 	
 	private ArrayList<Model.PendingUndoablePair> inhereterNewLog = new ArrayList<Model.PendingUndoablePair>();
 //	private Stack<CommandState<Model>> inhereterUndoStack = new Stack<CommandState<Model>>();
@@ -370,6 +371,13 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 				} else if(change instanceof Model.HistoryChange) {
 					Model.HistoryChange historyChange = (Model.HistoryChange)change;
 					
+					collector.execute(new Trigger<Model>() {
+						@Override
+						public void run(Collector<Model> collector) {
+							doingUndoRedo = true;
+						}
+					});
+					
 					switch(historyChange.type) {
 					case Model.HistoryChange.TYPE_UNDO:
 						collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
@@ -406,6 +414,13 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 						
 						break;
 					}
+					
+					collector.execute(new Trigger<Model>() {
+						@Override
+						public void run(Collector<Model> collector) {
+							doingUndoRedo = false;
+						}
+					});
 				} else if(change instanceof Model.HistoryLogChange) {
 //					Model.HistoryLogChange historyLogChange = (Model.HistoryLogChange)change;
 //					
@@ -573,11 +588,13 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 						}
 					}
 				} else {
-					if(change instanceof Model.HistoryAppendLogChange2) {
-						// This point is reached when catching an undo occurring on the inhereter; it shouldn't
-						final Model.HistoryAppendLogChange2 historyAppendLogChange = (Model.HistoryAppendLogChange2)change;
-						
-						inhereterNewLog.addAll(historyAppendLogChange.pendingUndoablePairs);
+					if(!doingUndoRedo) {
+						if(change instanceof Model.HistoryAppendLogChange2) {
+							// This point is reached when catching an undo occurring on the inhereter; it shouldn't
+							final Model.HistoryAppendLogChange2 historyAppendLogChange = (Model.HistoryAppendLogChange2)change;
+							
+							inhereterNewLog.addAll(historyAppendLogChange.pendingUndoablePairs);
+						}
 					}
 				}
 			}
