@@ -2,30 +2,22 @@ package dynamake.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
 import dynamake.commands.Command;
-import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
-import dynamake.commands.ConstCommandFactory;
 import dynamake.commands.PlayCommand;
 import dynamake.commands.ForwardHistoryCommand;
-import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.RedoCommand;
 import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RevertingCommandStateSequence;
-import dynamake.commands.RewindCommand;
 import dynamake.commands.SetPropertyCommand;
-import dynamake.commands.UndoCommand;
 import dynamake.commands.UnplayCommand;
 import dynamake.models.CanvasModel.AddModelCommand;
 import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
 import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
-import dynamake.transcription.Trigger;
 
 /**
  * Instances each are supposed to forward change made in an inhereter to an inheretee.
@@ -207,10 +199,6 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 
 	private boolean hasLocalChanges() {
 		return logSize > 0;
-	}
-
-	private int localChangeCount() {
-		return logSize;
 	}
 	
 	private void registerUndoInLocalChanges() {

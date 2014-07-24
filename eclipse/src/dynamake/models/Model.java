@@ -220,14 +220,9 @@ public abstract class Model implements Serializable, Observer {
 		newLog.clear();
 		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 		undoStack.add(compressedLogPart);
-//		redoStack.clear();
 		
 		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length), propCtx, propDistance, 0, collector);
 	}
-	
-//	public void preCommitLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, -1), propCtx, propDistance, 0, collector);
-//	}
 	
 	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		newLog.clear();
@@ -236,7 +231,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public void unplay(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
+		for(@SuppressWarnings("unused") PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
 			CommandState<Model> undoable = undoStack.pop();
 			undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
 		}
