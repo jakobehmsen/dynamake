@@ -183,13 +183,10 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	private ArrayList<PendingUndoablePair> newLog = new ArrayList<Model.PendingUndoablePair>();
-	protected int lastCommitIndex;
-	protected ArrayList<PendingUndoablePair> log = new ArrayList<Model.PendingUndoablePair>();
 
 	public void appendLog(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
 		
-//		log.addAll(pendingUndoablePairs);
 		newLog.addAll(pendingUndoablePairs);
 		redoStack.clear();
 
@@ -199,9 +196,6 @@ public abstract class Model implements Serializable, Observer {
 	public void postLog(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
 		
-//		log.addAll(pendingUndoablePairs);
-//		newLog.addAll(pendingUndoablePairs);
-
 		sendChanged(new HistoryAppendLogChange2(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
 
@@ -223,10 +217,8 @@ public abstract class Model implements Serializable, Observer {
 		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length];
 		for(int i = 0; i < length; i++)
 			compressedLogPartAsArray[i] = newLog.get(i).undoable;
-		log.addAll(newLog);
 		newLog.clear();
 		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
-		lastCommitIndex = log.size();
 		undoStack.add(compressedLogPart);
 //		redoStack.clear();
 		
@@ -238,85 +230,40 @@ public abstract class Model implements Serializable, Observer {
 //	}
 	
 	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		log.subList(newLog.size() - 1, log.size()).clear();
 		newLog.clear();
 		
 		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_REJECT_LOG, length), propCtx, propDistance, 0, collector);
-	}
-
-	public void forward(int steps, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(int i = 0; i < steps; i++) {
-			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex + i);
-			pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
-		}
-		
-		lastCommitIndex += steps;
 	}
 	
 	public void unplay(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
 			CommandState<Model> undoable = undoStack.pop();
 			undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
-//			undoStack.pop();
 		}
 		
 		redoStack.clear();
-		
-//		log.subList(log.size() - pendingUndoablePairs.size(), log.size()).clear();
-		lastCommitIndex -= pendingUndoablePairs.size();
 	}
 	
 	public void play(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		for(int i = 0; i < steps; i++) {
-//			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex + i);
-//			pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
-//		}
-
-		lastCommitIndex = log.size();
-//		log.addAll(pendingUndoablePairs);
-//		newLog.addAll(pendingUndoablePairs);
-		
 		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
 			CommandState<Model> undoable = pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
 			undoStack.add(undoable);
-//			newLog.add(new PendingUndoablePair(pendingUndoablePair.pending, (ReversibleCommand<Model>)undoable));
 		}
-	}
-	
-	public void play2(List<PendingUndoablePair> pendingUndoablePairs, boolean log, boolean post, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		for(int i = 0; i < steps; i++) {
-//			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex + i);
-//			pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
-//		}
-
-//		log.addAll(pendingUndoablePairs);
-		if(log)
-			newLog.addAll(pendingUndoablePairs);
-		
-		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
-			pendingUndoablePair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
-		}
-		
-		if(post)
-			sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
 
 	public void rewind(int steps, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(int i = 0; i < steps; i++) {
-			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex - 1 - i);
-			pendingUndoablePair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
-		}
-		
-		log.subList(log.size() - steps, log.size()).clear();
-		lastCommitIndex -= steps;
+//		for(int i = 0; i < steps; i++) {
+//			PendingUndoablePair pendingUndoablePair = log.get(lastCommitIndex - 1 - i);
+//			pendingUndoablePair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
+//		}
+//		
+//		log.subList(log.size() - steps, log.size()).clear();
+//		lastCommitIndex -= steps;
 	}
 	
 	public List<PendingUndoablePair> getLogBackwards(int steps) {
-		return new ArrayList<PendingUndoablePair>(log.subList(log.size() - steps, log.size()));
-	}
-
-	public int getLogSize() {
-		return log.size();
+//		return new ArrayList<PendingUndoablePair>(log.subList(log.size() - steps, log.size()));´
+		return null;
 	}
 	
 	public void setLocator(Locator locator) {
@@ -474,8 +421,6 @@ public abstract class Model implements Serializable, Observer {
 		ous.writeObject(properties);
 		ous.writeObject(undoStack);
 		ous.writeObject(redoStack);
-		ous.writeObject(log);
-		ous.writeObject(lastCommitIndex);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -485,8 +430,6 @@ public abstract class Model implements Serializable, Observer {
 		properties = (Hashtable<String, Object>)ois.readObject();
 		undoStack = (Stack<CommandState<Model>>)ois.readObject();
 		redoStack = (Stack<CommandState<Model>>)ois.readObject();
-		log = (ArrayList<Model.PendingUndoablePair>)ois.readObject();
-		lastCommitIndex = (int)ois.readObject();
 	}
 
 	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
@@ -955,8 +898,6 @@ public abstract class Model implements Serializable, Observer {
 		
 		clone.undoStack.addAll(this.undoStack);
 		clone.redoStack.addAll(this.redoStack);
-		clone.log.addAll(this.log);
-		clone.lastCommitIndex = this.lastCommitIndex;
 		
 		return clone;
 	}
