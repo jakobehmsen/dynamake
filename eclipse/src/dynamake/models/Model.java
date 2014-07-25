@@ -285,6 +285,8 @@ public abstract class Model implements Serializable, Observer {
 	
 	protected Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
 	protected Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
+	protected Stack<List<PendingUndoablePair>> undoStack2 = new Stack<List<PendingUndoablePair>>();
+	protected Stack<List<PendingUndoablePair>> redoStack2 = new Stack<List<PendingUndoablePair>>();
 	private Locator locator;
 	private Model parent;
 	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
