@@ -265,7 +265,7 @@ public abstract class Model implements Serializable, Observer {
 			List<PendingUndoablePair> pairsToRedo = redoStack2.pop();
 			
 			for(PendingUndoablePair pair: pairsToRedo) {
-				// Pending is used to reperform the original command
+				// pending is used to reperform the original command
 				CommandState<Model> undoable = pair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
 				undoablePairs.add(new PendingUndoablePair(pair.pending, (ReversibleCommand<Model>)undoable));
 			}
@@ -273,6 +273,35 @@ public abstract class Model implements Serializable, Observer {
 			undoStack2.push(undoablePairs);
 		}
 	}
+	
+	public void undo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		if(!undoStack2.isEmpty()) {
+			ArrayList<PendingUndoablePair> redoablePairs = new ArrayList<Model.PendingUndoablePair>();
+			List<PendingUndoablePair> pairsToUndo = undoStack2.pop();
+			
+			for(PendingUndoablePair pair: pairsToUndo) {
+				CommandState<Model> redoable = pair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
+				redoablePairs.add(new PendingUndoablePair(pair.pending, (ReversibleCommand<Model>)redoable));
+			}
+			
+			redoStack2.push(redoablePairs);
+		}
+	}	
+	
+	public void redo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		if(!redoStack2.isEmpty()) {
+			ArrayList<PendingUndoablePair> undoablePairs = new ArrayList<Model.PendingUndoablePair>();
+			List<PendingUndoablePair> pairsToRedo = redoStack2.pop();
+			
+			for(PendingUndoablePair pair: pairsToRedo) {
+				// undoable is used to revert using output from the previous command execution
+				CommandState<Model> undoable = pair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
+				undoablePairs.add(new PendingUndoablePair(pair.pending, (ReversibleCommand<Model>)undoable));
+			}
+			
+			undoStack2.push(undoablePairs);
+		}
+	}	
 
 //	public void play(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
