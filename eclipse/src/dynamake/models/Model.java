@@ -244,6 +244,18 @@ public abstract class Model implements Serializable, Observer {
 		
 		redoStack.clear();
 	}
+	
+	public void unplay2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		while(!undoStack2.isEmpty()) {
+			ArrayList<PendingUndoablePair> redoablePairs = new ArrayList<Model.PendingUndoablePair>();
+			List<PendingUndoablePair> pairsToUndo = undoStack2.pop();
+			for(PendingUndoablePair pair: pairsToUndo) {
+				CommandState<Model> redoable = pair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
+				redoablePairs.add(new PendingUndoablePair(pair.pending, (ReversibleCommand<Model>)redoable));
+			}
+			redoStack2.push(redoablePairs);
+		}
+	}
 
 //	public void play(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
