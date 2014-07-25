@@ -28,6 +28,14 @@ import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
  * are forwarded from the inhereter.
  */
 public class HistoryChangeForwarder extends ObserverAdapter implements Serializable {
+	public static class ForwardLogChange {
+		public final List<List<Model.PendingUndoablePair>> newChanges;
+
+		public ForwardLogChange(List<List<PendingUndoablePair>> localChanges) {
+			this.newChanges = localChanges;
+		}
+	}
+	
 	public static class UnplayChange {
 		public final List<List<Model.PendingUndoablePair>> localChanges;
 
@@ -233,7 +241,23 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 		/*
 		How to prevent inheretee to undo inhereted changes? 
 		*/
-		if(change instanceof UnplayChange) {
+		if(change instanceof ForwardLogChange) {
+			ForwardLogChange forwardLogChange = (ForwardLogChange)change;
+			
+			inheretee.unplay2(propCtx, propDistance, collector);
+			
+			inheretee.play2(forwardLogChange.newChanges, propCtx, propDistance, collector);
+			
+			inheretee.replay2(propCtx, propDistance, collector);
+			
+			List<List<PendingUndoablePair>> inhereteeLocalChange = inheretee.getLocalChanges();
+			
+			ArrayList<List<PendingUndoablePair>> changes = new ArrayList<List<PendingUndoablePair>>();
+			changes.addAll(forwardLogChange.newChanges);
+			changes.addAll(inhereteeLocalChange);
+			
+			inheretee.sendChanged(new ForwardLogChange(inhereteeLocalChange), propCtx, propDistance, changeDistance, collector);
+		} else if(change instanceof UnplayChange) {
 			// Unplay the supplied change plus your local change
 			collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
 				@Override
