@@ -301,7 +301,16 @@ public abstract class Model implements Serializable, Observer {
 			
 			undoStack2.push(undoablePairs);
 		}
-	}	
+	}
+	
+	public void play2(List<List<Model.PendingUndoablePair>> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		for(List<Model.PendingUndoablePair> commandStateList: commandStates) {
+			for(Model.PendingUndoablePair commandState: commandStateList) {
+				@SuppressWarnings("unused")
+				CommandState<Model> undoable = commandState.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+			}
+		}
+	}
 
 //	public void play(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs) {
