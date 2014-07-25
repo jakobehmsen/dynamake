@@ -237,12 +237,16 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 								Command<Model> command = pendingUndoablePair.pending.getCommand();
 								ReversibleCommand<Model> undoable = pendingUndoablePair.undoable;
 								
-								if(command instanceof AddModelCommand) {
+								if(false && command instanceof AddModelCommand) {
 									AddModelCommand addModelCommand = (AddModelCommand)command;
 									AddModelCommand.Output addModelCommandOutput = (AddModelCommand.Output)undoable.getOutput();
 									// Use same factory
 									// Reuse id (of location / IdLocation)
+									// Is the above necessary?
+									
 									// THE REUSED ID CANNOT BE USED BY OTHER CREATED MODELS!!!
+									// Is it possible to have some sort of mapping between ids in inhereter and ids in inheretee?
+									// Does this implicate a need to map all locations likewise?
 									
 									filteredPendingCommands.add(new PendingCommandState<Model>(
 										new CanvasModel.RestoreModelCommand(
