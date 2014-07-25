@@ -25,12 +25,14 @@ public class RedoTool implements Tool {
 			
 			@Override
 			public void createPendingCommand(List<CommandState<Model>> commandStates) {
-				commandStates.add(
-					new PendingCommandState<Model>(
-						new RedoCommand(false),
-						new UndoCommand(false)
-					)
-				);
+				if(modelOver.getModelBehind().canRedo()) {
+					commandStates.add(
+						new PendingCommandState<Model>(
+							new RedoCommand(false),
+							new UndoCommand(false)
+						)
+					);
+				}
 			}
 		});
 		collector.commit();
