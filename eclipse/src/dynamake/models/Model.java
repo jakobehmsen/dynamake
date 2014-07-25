@@ -33,6 +33,7 @@ import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.menubuilders.ColorMenuBuilder;
 import dynamake.menubuilders.CompositeMenuBuilder;
+import dynamake.models.Model.PendingUndoablePair;
 import dynamake.models.factories.CloneDeepFactory;
 import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.ModelFactory;
@@ -310,6 +311,18 @@ public abstract class Model implements Serializable, Observer {
 				CommandState<Model> undoable = commandState.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
 			}
 		}
+	}
+
+	public boolean canUndo() {
+		return undoStack.size() > 0;
+	}
+
+	public boolean canRedo() {
+		return redoStack.size() > 0;
+	}
+
+	public List<List<PendingUndoablePair>> getLocalChanges() {
+		return new ArrayList<List<PendingUndoablePair>>(undoStack2);
 	}
 
 //	public void play(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -1155,13 +1168,5 @@ public abstract class Model implements Serializable, Observer {
 				));
 			}
 		});
-	}
-
-	public boolean canUndo() {
-		return undoStack.size() > 0;
-	}
-
-	public boolean canRedo() {
-		return redoStack.size() > 0;
 	}
 }
