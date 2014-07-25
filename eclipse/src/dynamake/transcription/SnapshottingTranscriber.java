@@ -148,9 +148,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				}
 				Model reference = (Model)location.getChild(prevalentSystem);
 				
-				if(entry.affectModelHistory)
+				if(entry.affectModelHistory == 0)
 					reference.appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)isolatedCollector);
-				else
+				else if(entry.affectModelHistory == 1)
 					reference.postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)isolatedCollector);
 			}
 			
@@ -317,9 +317,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			private static final long serialVersionUID = 1L;
 			public final Location location;
 			public final ArrayList<CommandState<T>> pending;
-			public final boolean affectModelHistory;
 			
-			public LocationCommandsPair(Location location, ArrayList<CommandState<T>> pending, boolean affectModelHistory) {
+			public final int affectModelHistory;
+			
+//			public final boolean affectModelHistory;
+			
+			public LocationCommandsPair(Location location, ArrayList<CommandState<T>> pending, int affectModelHistory) {
 				this.location = location;
 				this.pending = pending;
 				this.affectModelHistory = affectModelHistory;
@@ -418,7 +421,14 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								reference = transactionFactory.getReference();
 							}
 							Location locationFromRoot = ((Model)reference).getLocator().locate();
-							boolean affectModelHistory = !(transactionFactory instanceof TranscribeOnlyPendingCommandFactory);
+							int affectModelHistory;
+							
+							if(transactionFactory instanceof TranscribeOnlyAndPostNotPendingCommandFactory)
+								affectModelHistory = 2;
+							else if(transactionFactory instanceof TranscribeOnlyPendingCommandFactory)
+								affectModelHistory = 1;
+							else
+								affectModelHistory = 0;
 							
 							Location locationFromReference = new ModelRootLocation();
 							
@@ -454,21 +464,30 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 										PendingUndoablePair pendingUndoablePair = new PendingUndoablePair(pending, undoable);
 										pendingUndoablePairs.add(pendingUndoablePair);
 									}
-									if(affectModelHistory) {
-//										System.out.println("Affect model history");
-										// Update the log of each affected model isolately; no transaction is cross-model
-										ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
+
+									ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
+									
+									if(affectModelHistory == 0 || affectModelHistory == 1) {
+										// Provoke to be sent out for the reference
 										if(flushedTransactionsFromReference == null) {
 											flushedTransactionsFromReference = new ArrayList<Model.PendingUndoablePair>();
 											flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
 										}
+									}
+									
+									if(affectModelHistory == 0) {
+//										System.out.println("Affect model history");
+										// Update the log of each affected model isolately; no transaction is cross-model
+//										ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
+//										if(flushedTransactionsFromReference == null) {
+//											flushedTransactionsFromReference = new ArrayList<Model.PendingUndoablePair>();
+//											flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
+//										}
 										((Model)reference).appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
 										flushedTransactionsFromReference.addAll(pendingUndoablePairs);
-									} else {
+									} else if(affectModelHistory == 1) {
 //										System.out.println("Don't affect model history");
-										boolean postLog = !(transactionFactory instanceof TranscribeOnlyAndPostNotPendingCommandFactory);
-										if(postLog)
-											((Model)reference).postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
+										((Model)reference).postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
 									}
 	//							} else
 	//								System.out.println("Don't affect model history");

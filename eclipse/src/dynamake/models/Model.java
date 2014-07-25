@@ -216,14 +216,16 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public void commitLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		@SuppressWarnings("unchecked")
-		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length];
-		for(int i = 0; i < length; i++)
-			compressedLogPartAsArray[i] = newLog.get(i).undoable;
+		if(newLog.size() > 0) {
+			@SuppressWarnings("unchecked")
+			CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length];
+			for(int i = 0; i < length; i++)
+				compressedLogPartAsArray[i] = newLog.get(i).undoable;
+			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
+			undoStack.add(compressedLogPart);
+		}
 		ArrayList<PendingUndoablePair> newLogCopy = (ArrayList<PendingUndoablePair>)newLog.clone();
 		newLog.clear();
-		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
-		undoStack.add(compressedLogPart);
 		
 		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length, newLogCopy), propCtx, propDistance, 0, collector);
 	}

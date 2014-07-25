@@ -16,6 +16,7 @@ import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.UndoCommand;
 import dynamake.commands.UnplayCommand;
 import dynamake.models.CanvasModel.AddModelCommand;
+import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
 import dynamake.transcription.TranscribeOnlyAndPostNotPendingCommandFactory;
 import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
@@ -27,6 +28,22 @@ import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
  * are forwarded from the inhereter.
  */
 public class HistoryChangeForwarder extends ObserverAdapter implements Serializable {
+	public static class UnplayChange {
+		public final List<List<Model.PendingUndoablePair>> localChanges;
+
+		public UnplayChange(List<List<PendingUndoablePair>> localChanges) {
+			this.localChanges = localChanges;
+		}
+	}
+	
+	public static class PlayChange {
+		public final List<List<Model.PendingUndoablePair>> localChanges;
+
+		public PlayChange(List<List<PendingUndoablePair>> localChanges) {
+			this.localChanges = localChanges;
+		}
+	}
+	
 	public static class UndoInhereterCommand implements Command<Model> {
 		/**
 		 * 
@@ -216,10 +233,56 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 		/*
 		How to prevent inheretee to undo inhereted changes? 
 		*/
-		
-		if((change instanceof Model.HistoryAppendLogChange /*|| change instanceof Model.HistoryAppendLogChange2*/ /*|| change instanceof Model.HistoryChange*/)) {
+		if(change instanceof UnplayChange) {
+			// Unplay the supplied change plus your local change
+			collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
+				@Override
+				public Model getReference() {
+					return inheretee;
+				}
+				
+				@Override
+				public void createPendingCommand(List<CommandState<Model>> commandStates) {
+					@SuppressWarnings("unchecked")
+					List<List<Model.PendingUndoablePair>> localChanges = getLocalChanges();
+					commandStates.add(new PendingCommandState<Model>(
+						new UnplayCommand(),
+						new PlayCommand(localChanges)
+					));
+				}
+			});
+			
+//			change = new UnplayChange();
+			
+			inheretee.sendChanged(change, propCtx, propDistance, changeDistance, collector);
+		} if(change instanceof PlayChange) {
+			// Play the supplied change plus your local change
+			collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
+				@Override
+				public Model getReference() {
+					return inheretee;
+				}
+				
+				@Override
+				public void createPendingCommand(List<CommandState<Model>> commandStates) {
+					@SuppressWarnings("unchecked")
+					List<List<Model.PendingUndoablePair>> localChanges = getLocalChanges();
+					commandStates.add(new PendingCommandState<Model>(
+						new PlayCommand(localChanges),
+						new UnplayCommand()
+					));
+				}
+			});
+			
+//			change = new PlayChange();
+			
+			inheretee.sendChanged(change, propCtx, propDistance, changeDistance, collector);
+		} else if((change instanceof Model.HistoryAppendLogChange /*|| change instanceof Model.HistoryAppendLogChange2*/ /*|| change instanceof Model.HistoryChange*/)) {
 			if(sender == inhereter) {
 				if(hasLocalChanges()) {
+					// Send Unplay to self
+//					this.changed(inheretee, new UnplayChange(), propCtx, propDistance, changeDistance, collector);
+					System.out.println("Unplay local change in inheretee " + inheretee);
 					collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
@@ -238,12 +301,34 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					});
 				}
 				
-				if(change instanceof Model.HistoryAppendLogChange) {
-					// If not doing undo or redo
-					boolean doingUndoRedo = (boolean)inheretee.getProperty("doingUndoRedo");
+				// If not doing undo or redo
+				boolean doingUndoRedo = (boolean)inheretee.getProperty("doingUndoRedo");
+				
+				if(!doingUndoRedo) {
+					// Forward logged change in inhereter to inheretee
+					collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
+						@Override
+						public Model getReference() {
+							return inheretee;
+						}
+						
+						@Override
+						public void createPendingCommand(List<CommandState<Model>> commandStates) {
+							commandStates.add(new PendingCommandState<Model>(
+								new SetPropertyCommand("observeInheretee", false),
+								new SetPropertyCommand.AfterSetProperty()
+							));
+						}
+					});
 					
-					if(!doingUndoRedo) {
-						// Forward logged change in inhereter to inheretee
+					final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
+					
+					Command<Model> firstCommand = historyAppendLogChange.pendingUndoablePairs.get(0).pending.getCommand();
+					Object firstCommandOutput = historyAppendLogChange.pendingUndoablePairs.get(0).undoable.getOutput();
+					boolean isUndo = firstCommandOutput instanceof UndoCommand.Output;
+					boolean isRedo = firstCommandOutput instanceof RedoCommand.Output;
+					
+					if(isUndo || isRedo) {
 						collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
 							@Override
 							public Model getReference() {
@@ -253,84 +338,14 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 							@Override
 							public void createPendingCommand(List<CommandState<Model>> commandStates) {
 								commandStates.add(new PendingCommandState<Model>(
-									new SetPropertyCommand("observeInheretee", false),
+									new SetPropertyCommand("doingUndoRedo", true),
 									new SetPropertyCommand.AfterSetProperty()
 								));
 							}
 						});
 						
-						final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
-						
-						Object firstCommandOutput = historyAppendLogChange.pendingUndoablePairs.get(0).undoable.getOutput();
-						boolean isUndo = firstCommandOutput instanceof UndoCommand.Output;
-						boolean isRedo = firstCommandOutput instanceof RedoCommand.Output;
-						
-						if(isUndo || isRedo) {
-							collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
-								@Override
-								public Model getReference() {
-									return inheretee;
-								}
-								
-								@Override
-								public void createPendingCommand(List<CommandState<Model>> commandStates) {
-									commandStates.add(new PendingCommandState<Model>(
-										new SetPropertyCommand("doingUndoRedo", true),
-										new SetPropertyCommand.AfterSetProperty()
-									));
-								}
-							});
-							
-							if(isUndo) {
-								System.out.println("Forward undo from inhereter to inheretee");
-								collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
-									@Override
-									public Model getReference() {
-										return inheretee;
-									}
-									
-									@Override
-									public void createPendingCommand(List<CommandState<Model>> commandStates) {
-										commandStates.add(new PendingCommandState<Model>(
-											new UndoInhereterCommand(),
-											new RedoInhereterCommand() 
-										));
-									}
-								});
-							} else if(isRedo) {
-								System.out.println("Forward redo from inhereter to inheretee");
-								collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
-									@Override
-									public Model getReference() {
-										return inheretee;
-									}
-									
-									@Override
-									public void createPendingCommand(List<CommandState<Model>> commandStates) {
-										commandStates.add(new PendingCommandState<Model>(
-											new RedoInhereterCommand(),
-											new UndoInhereterCommand()
-										));
-									}
-								});
-							}
-							
-							collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
-								@Override
-								public Model getReference() {
-									return inheretee;
-								}
-								
-								@Override
-								public void createPendingCommand(List<CommandState<Model>> commandStates) {
-									commandStates.add(new PendingCommandState<Model>(
-										new SetPropertyCommand("doingUndoRedo", false),
-										new SetPropertyCommand.AfterSetProperty()
-									));
-								}
-							});
-						} else {
-							System.out.println("Forward other from inhereter to inheretee");
+						if(isUndo) {
+							System.out.println("Forward undo from inhereter " + inhereter + " to inheretee " + inheretee);
 							collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 								@Override
 								public Model getReference() {
@@ -339,51 +354,26 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 								
 								@Override
 								public void createPendingCommand(List<CommandState<Model>> commandStates) {
-									ArrayList<CommandState<Model>> filteredPendingCommands = new ArrayList<CommandState<Model>>();
-									
-									for(Model.PendingUndoablePair pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs) {
-										Command<Model> command = pendingUndoablePair.pending.getCommand();
-										ReversibleCommand<Model> undoable = pendingUndoablePair.undoable;
-										
-										if(false && command instanceof AddModelCommand) {
-											AddModelCommand addModelCommand = (AddModelCommand)command;
-											AddModelCommand.Output addModelCommandOutput = (AddModelCommand.Output)undoable.getOutput();
-											// Use same factory
-											// Reuse id (of location / IdLocation)
-											// Is the above necessary?
-											
-											// THE REUSED ID CANNOT BE USED BY OTHER CREATED MODELS!!!
-											// Is it possible to have some sort of mapping between ids in inhereter and ids in inheretee?
-											// Does this implicate a need to map all locations likewise?
-											
-											filteredPendingCommands.add(new PendingCommandState<Model>(
-												new CanvasModel.RestoreModelCommand(
-													addModelCommandOutput.location, addModelCommand.xCreation, addModelCommand.yCreation, addModelCommand.widthCreation, addModelCommand.heightCreation, 
-													addModelCommand.factory, new ArrayList<Command<Model>>()
-												), 
-												new CanvasModel.RemoveModelCommand.AfterAdd(),
-												new CanvasModel.RestoreModelCommand.AfterRemove()
-											));
-		
-											// Embed a history upwarder
-											Location locationOfInhereter = ModelComponent.Util.locationBetween(inheretee, inhereter);
-											@SuppressWarnings("unused")
-											Location locationOfAddedInInhereter = new CompositeLocation(locationOfInhereter, addModelCommandOutput.location);
-											@SuppressWarnings("unused")
-											Location locationOfAddedInInheretee = addModelCommandOutput.location;
-											
-		//									// Embed a history change forwarder to forward between the added model of inhereter to the added model of inheretee
-		//									filteredPendingCommands.add(new PendingCommandState<Model>(
-		//										new ForwardHistoryCommand(locationOfAddedInInhereter, locationOfAddedInInheretee), 
-		//										new Command.Null<Model>()
-		//		//								new UnforwardHistoryCommand(locationOfAddedInInhereter, locationOfAddedInInheretee)
-		//									));
-										} else {
-											filteredPendingCommands.add(pendingUndoablePair.pending);
-										}
-									}
-									
-									commandStates.addAll(filteredPendingCommands);
+									commandStates.add(new PendingCommandState<Model>(
+										new UndoInhereterCommand(),
+										new RedoInhereterCommand() 
+									));
+								}
+							});
+						} else if(isRedo) {
+							System.out.println("Forward redo from inhereter " + inhereter + " to inheretee " + inheretee);
+							collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
+								@Override
+								public Model getReference() {
+									return inheretee;
+								}
+								
+								@Override
+								public void createPendingCommand(List<CommandState<Model>> commandStates) {
+									commandStates.add(new PendingCommandState<Model>(
+										new RedoInhereterCommand(),
+										new UndoInhereterCommand()
+									));
 								}
 							});
 						}
@@ -397,86 +387,88 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 							@Override
 							public void createPendingCommand(List<CommandState<Model>> commandStates) {
 								commandStates.add(new PendingCommandState<Model>(
-									new SetPropertyCommand("observeInheretee", true),
+									new SetPropertyCommand("doingUndoRedo", false),
 									new SetPropertyCommand.AfterSetProperty()
 								));
 							}
 						});
+					} else {
+						System.out.println("Forward other from inhereter " + inhereter + " to inheretee " + inheretee);
+						collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
+							@Override
+							public Model getReference() {
+								return inheretee;
+							}
+							
+							@Override
+							public void createPendingCommand(List<CommandState<Model>> commandStates) {
+								ArrayList<CommandState<Model>> filteredPendingCommands = new ArrayList<CommandState<Model>>();
+								
+								for(Model.PendingUndoablePair pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs) {
+									Command<Model> command = pendingUndoablePair.pending.getCommand();
+									ReversibleCommand<Model> undoable = pendingUndoablePair.undoable;
+									
+									if(false && command instanceof AddModelCommand) {
+										AddModelCommand addModelCommand = (AddModelCommand)command;
+										AddModelCommand.Output addModelCommandOutput = (AddModelCommand.Output)undoable.getOutput();
+										// Use same factory
+										// Reuse id (of location / IdLocation)
+										// Is the above necessary?
+										
+										// THE REUSED ID CANNOT BE USED BY OTHER CREATED MODELS!!!
+										// Is it possible to have some sort of mapping between ids in inhereter and ids in inheretee?
+										// Does this implicate a need to map all locations likewise?
+										
+										filteredPendingCommands.add(new PendingCommandState<Model>(
+											new CanvasModel.RestoreModelCommand(
+												addModelCommandOutput.location, addModelCommand.xCreation, addModelCommand.yCreation, addModelCommand.widthCreation, addModelCommand.heightCreation, 
+												addModelCommand.factory, new ArrayList<Command<Model>>()
+											), 
+											new CanvasModel.RemoveModelCommand.AfterAdd(),
+											new CanvasModel.RestoreModelCommand.AfterRemove()
+										));
+	
+										// Embed a history upwarder
+										Location locationOfInhereter = ModelComponent.Util.locationBetween(inheretee, inhereter);
+										@SuppressWarnings("unused")
+										Location locationOfAddedInInhereter = new CompositeLocation(locationOfInhereter, addModelCommandOutput.location);
+										@SuppressWarnings("unused")
+										Location locationOfAddedInInheretee = addModelCommandOutput.location;
+										
+	//									// Embed a history change forwarder to forward between the added model of inhereter to the added model of inheretee
+	//									filteredPendingCommands.add(new PendingCommandState<Model>(
+	//										new ForwardHistoryCommand(locationOfAddedInInhereter, locationOfAddedInInheretee), 
+	//										new Command.Null<Model>()
+	//		//								new UnforwardHistoryCommand(locationOfAddedInInhereter, locationOfAddedInInheretee)
+	//									));
+									} else {
+										filteredPendingCommands.add(pendingUndoablePair.pending);
+									}
+								}
+								
+								commandStates.addAll(filteredPendingCommands);
+							}
+						});
 					}
-				} else if(change instanceof Model.HistoryChange) {
-//					Model.HistoryChange historyChange = (Model.HistoryChange)change;
-//					
-//					collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
-//						@Override
-//						public Model getReference() {
-//							return inheretee;
-//						}
-//						
-//						@Override
-//						public void createPendingCommand(List<CommandState<Model>> commandStates) {
-//							commandStates.add(new PendingCommandState<Model>(
-//								new SetPropertyCommand("doingUndoRedo", true),
-//								new SetPropertyCommand.AfterSetProperty()
-//							));
-//						}
-//					});
-//					
-//					switch(historyChange.type) {
-//					case Model.HistoryChange.TYPE_UNDO:
-//						collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
-//							@Override
-//							public Model getReference() {
-//								return inheretee;
-//							}
-//							
-//							@Override
-//							public void createPendingCommand(List<CommandState<Model>> commandStates) {
-//								commandStates.add(new PendingCommandState<Model>(
-//									new UndoInhereterCommand(),
-//									new RedoInhereterCommand() 
-//								));
-//							}
-//						});
-//		
-//						break;
-//					case Model.HistoryChange.TYPE_REDO:
-//						collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
-//							@Override
-//							public Model getReference() {
-//								return inheretee;
-//							}
-//							
-//							@Override
-//							public void createPendingCommand(List<CommandState<Model>> commandStates) {
-//								commandStates.add(new PendingCommandState<Model>(
-//									new RedoInhereterCommand(),
-//									new UndoInhereterCommand()
-//								));
-//							}
-//						});
-//						
-//						break;
-//					}
-//					
-//					collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
-//						@Override
-//						public Model getReference() {
-//							return inheretee;
-//						}
-//						
-//						@Override
-//						public void createPendingCommand(List<CommandState<Model>> commandStates) {
-//							commandStates.add(new PendingCommandState<Model>(
-//								new SetPropertyCommand("doingUndoRedo", false),
-//								new SetPropertyCommand.AfterSetProperty()
-//							));
-//						}
-//					});
-				} else if(change instanceof Model.HistoryLogChange) {
-
+					
+					collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
+						@Override
+						public Model getReference() {
+							return inheretee;
+						}
+						
+						@Override
+						public void createPendingCommand(List<CommandState<Model>> commandStates) {
+							commandStates.add(new PendingCommandState<Model>(
+								new SetPropertyCommand("observeInheretee", true),
+								new SetPropertyCommand.AfterSetProperty()
+							));
+						}
+					});
 				}
 				
 				if(hasLocalChanges()) {
+					System.out.println("Replay local change in inheretee " + inheretee);
 					collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
 						@Override
 						public Model getReference() {
@@ -495,7 +487,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					});
 				}
 			} else if(sender == inheretee) {
-				// If true, then forwarding 
+				// If false, then forwarding 
 				boolean observeInheretee = (boolean)inheretee.getProperty("observeInheretee");
 				if(observeInheretee) {
 					if(change instanceof Model.HistoryAppendLogChange) {
@@ -509,33 +501,21 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 						boolean isRedo = firstCommandOutput instanceof RedoCommand.Output;
 						
 						if(isUndo) {
+							System.out.println("Undo was performed on inheretee " + inheretee);
 							registerUndoInLocalChanges(propCtx, propDistance, collector);
 						} else if(isRedo) {
+							System.out.println("Redo was performed on inheretee " + inheretee);
 							registerRedoInLocalChanges(propCtx, propDistance, collector);
 						} else {
-							inhereterNewLog.addAll(historyAppendLogChange.pendingUndoablePairs);
+//							inhereterNewLog.addAll(historyAppendLogChange.pendingUndoablePairs);
 						}
-					}/* else if(change instanceof Model.HistoryChange) {
-						Model.HistoryChange historyChange = (Model.HistoryChange)change;
-						
-						switch(historyChange.type) {
-						case Model.HistoryChange.TYPE_UNDO: {
-							registerUndoInLocalChanges();
-			
-							break;
-						} case Model.HistoryChange.TYPE_REDO: {
-							// TODO:
-							registerRedoInLocalChanges();
-							
-							break;
-						}
-						}
-					}*/
+					}
 				} else {
 					boolean doingUndoRedo = (boolean)inheretee.getProperty("doingUndoRedo");
 					if(!doingUndoRedo) {
 //						if(change instanceof Model.HistoryAppendLogChange2) {
 						if(change instanceof Model.HistoryAppendLogChange) {
+							System.out.println("Appended to new inhereter log of inhereter " + inhereter);
 //							final Model.HistoryAppendLogChange2 historyAppendLogChange = (Model.HistoryAppendLogChange2)change;
 							final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
 							
@@ -552,26 +532,12 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 				
 				switch(historyLogChange.type) {
 				case Model.HistoryLogChange.TYPE_COMMIT_LOG:
-					@SuppressWarnings("unchecked")
-					List<List<Model.PendingUndoablePair>> localChanges = (List<List<Model.PendingUndoablePair>>)inheretee.getProperty("localChanges");
-//					localChanges.add(historyLogChange.newLog);
-					appendLocalChange(historyLogChange.newLog, propCtx, propDistance, collector);
-					
-//					if(inhereterNewLog.size() > 0) {
-//						@SuppressWarnings("unchecked")
-//						Stack<CommandState<Model>> inhereterUndoStack = (Stack<CommandState<Model>>)inheretee.getProperty("inhereterUndoStack");
-//						@SuppressWarnings("unchecked")
-//						Stack<CommandState<Model>> inhereterRedoStack = (Stack<CommandState<Model>>)inheretee.getProperty("inhereterRedoStack");
-//						
-//						@SuppressWarnings("unchecked")
-//						CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[inhereterNewLog.size()];
-//						for(int i = 0; i < inhereterNewLog.size(); i++)
-//							compressedLogPartAsArray[i] = inhereterNewLog.get(i).undoable;
-//						inhereterNewLog.clear();
-//						RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
-//						inhereterUndoStack.add(compressedLogPart);
-//						inhereterRedoStack.clear();
-//					}
+					if(historyLogChange.newLog.size() > 0) {
+						System.out.println("Recognized comitting of local change in inheretee" + inheretee);
+						@SuppressWarnings("unchecked")
+						List<List<Model.PendingUndoablePair>> localChanges = (List<List<Model.PendingUndoablePair>>)inheretee.getProperty("localChanges");
+						appendLocalChange(historyLogChange.newLog, propCtx, propDistance, collector);
+					}
 					
 					break;
 				case Model.HistoryLogChange.TYPE_REJECT_LOG:
@@ -583,8 +549,8 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 				
 				switch(historyLogChange.type) {
 				case Model.HistoryLogChange.TYPE_COMMIT_LOG:
-					
 					if(inhereterNewLog.size() > 0) {
+						System.out.println("Comitted new inhereter log of inhereter " + inhereter);
 						@SuppressWarnings("unchecked")
 						Stack<CommandState<Model>> inhereterUndoStack = (Stack<CommandState<Model>>)inheretee.getProperty("inhereterUndoStack");
 						@SuppressWarnings("unchecked")
