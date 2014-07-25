@@ -15,7 +15,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 
-import resources.ResourceManager;
 
 import dynamake.delegates.Func0;
 import dynamake.models.Binding;
@@ -27,6 +26,7 @@ import dynamake.models.ModelRootLocator;
 import dynamake.models.RootModel;
 import dynamake.models.ModelTranscriber;
 import dynamake.models.ViewManager;
+import dynamake.resources.ResourceManager;
 import dynamake.tools.BindTool;
 import dynamake.tools.ConsTool;
 import dynamake.tools.DragTool;

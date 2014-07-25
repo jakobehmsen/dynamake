@@ -282,6 +282,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 							});
 							
 							if(isUndo) {
+								System.out.println("Forward undo from inhereter to inheretee");
 								collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 									@Override
 									public Model getReference() {
@@ -297,6 +298,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 									}
 								});
 							} else if(isRedo) {
+								System.out.println("Forward redo from inhereter to inheretee");
 								collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 									@Override
 									public Model getReference() {
@@ -328,6 +330,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 								}
 							});
 						} else {
+							System.out.println("Forward other from inhereter to inheretee");
 							collector.execute(new TranscribeOnlyPendingCommandFactory<Model>() {
 								@Override
 								public Model getReference() {

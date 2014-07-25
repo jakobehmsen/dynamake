@@ -12,10 +12,10 @@ import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import resources.ResourceManager;
 
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
+import dynamake.resources.ResourceManager;
 
 public class ColorMenuBuilder extends MenuBuilder {
 	private Color initialColor;

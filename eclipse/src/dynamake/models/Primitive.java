@@ -9,12 +9,12 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.JLabel;
 
-import resources.ResourceManager;
 
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.numbers.Fraction;
+import dynamake.resources.ResourceManager;
 import dynamake.transcription.Collector;
 
 public class Primitive extends Model {
