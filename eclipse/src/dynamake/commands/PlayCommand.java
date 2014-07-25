@@ -13,13 +13,13 @@ public class PlayCommand implements Command<Model> {
 	 */
 	private static final long serialVersionUID = 1L;
 //	private List<Model.PendingUndoablePair> pendingUndoablePairs;
-	private List<CommandState<Model>> commandStates;
+	private List<List<Model.PendingUndoablePair>> commandStates;
 
 //	public PlayCommand(List<Model.PendingUndoablePair> pendingUndoablePairs) {
 //		this.pendingUndoablePairs = pendingUndoablePairs;
 //	}
 	
-	public PlayCommand(List<CommandState<Model>> commandStates) {
+	public PlayCommand(List<List<Model.PendingUndoablePair>> commandStates) {
 		this.commandStates = commandStates;
 	}
 

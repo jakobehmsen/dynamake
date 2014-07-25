@@ -1,6 +1,7 @@
 package dynamake.models.factories;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import dynamake.commands.CommandState;
@@ -31,11 +32,7 @@ public class NewInstanceFactory implements ModelFactory {
 		HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereter, instance);
 		inhereter.addObserver(historyChangeForwarder);
 		instance.addObserver(historyChangeForwarder);
-		instance.setProperty("inhereterUndoStack", new Stack<CommandState<Model>>(), propCtx, 0, collector);
-		instance.setProperty("inhereterRedoStack", new Stack<CommandState<Model>>(), propCtx, 0, collector);
-		instance.setProperty("observeInheretee", true, propCtx, 0, collector);
-		instance.setProperty("doingUndoRedo", false, propCtx, 0, collector);
-		instance.setProperty("localChanges", new ArrayList<CommandState<Model>>(), propCtx, 0, collector);
+		historyChangeForwarder.attach(propCtx, propDistance, collector);
 		if(inhereter instanceof CanvasModel)
 			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
 		
@@ -50,11 +47,7 @@ public class NewInstanceFactory implements ModelFactory {
 			HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereterModel, inhereteeModel);
 			inhereterModel.addObserver(historyChangeForwarder);
 			inhereteeModel.addObserver(historyChangeForwarder);
-			inhereteeModel.setProperty("inhereterUndoStack", new Stack<CommandState<Model>>(), propCtx, propDistance, collector);
-			inhereteeModel.setProperty("inhereterRedoStack", new Stack<CommandState<Model>>(), propCtx, propDistance, collector);
-			inhereteeModel.setProperty("observeInheretee", true, propCtx, 0, collector);
-			inhereteeModel.setProperty("doingUndoRedo", false, propCtx, 0, collector);
-			inhereteeModel.setProperty("localChanges", new ArrayList<CommandState<Model>>(), propCtx, 0, collector);
+			historyChangeForwarder.attach(propCtx, propDistance, collector);
 			if(inhereterModel instanceof CanvasModel)
 				forwardHistoryChangesToContainedModels((CanvasModel)inhereterModel, (CanvasModel)inhereterModel, propCtx, propDistance, collector);
 		}
