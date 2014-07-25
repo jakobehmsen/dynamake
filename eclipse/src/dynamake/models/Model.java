@@ -94,12 +94,12 @@ public abstract class Model implements Serializable, Observer {
 		
 		public final int type;
 		public final int length;
-		public final CommandState<Model> compressedLog;
+		public final ArrayList<Model.PendingUndoablePair> newLog;
 		
-		public HistoryLogChange(int type, int length, CommandState<Model> compressedLog) {
+		public HistoryLogChange(int type, int length, ArrayList<Model.PendingUndoablePair> newLog) {
 			this.type = type;
 			this.length = length;
-			this.compressedLog = compressedLog;
+			this.newLog = newLog;
 		}
 	}
 	
@@ -198,7 +198,8 @@ public abstract class Model implements Serializable, Observer {
 	public void postLog(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
 		
-		sendChanged(new HistoryAppendLogChange2(pendingUndoablePairs), propCtx, propDistance, 0, collector);
+//		sendChanged(new HistoryAppendLogChange2(pendingUndoablePairs), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
 
 	public void removeLastLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -219,11 +220,12 @@ public abstract class Model implements Serializable, Observer {
 		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length];
 		for(int i = 0; i < length; i++)
 			compressedLogPartAsArray[i] = newLog.get(i).undoable;
+		ArrayList<PendingUndoablePair> newLogCopy = (ArrayList<PendingUndoablePair>)newLog.clone();
 		newLog.clear();
 		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 		undoStack.add(compressedLogPart);
 		
-		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length, compressedLogPart), propCtx, propDistance, 0, collector);
+		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length, newLogCopy), propCtx, propDistance, 0, collector);
 	}
 	
 	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -248,10 +250,17 @@ public abstract class Model implements Serializable, Observer {
 //		}
 //	}
 	
-	public void play(List<CommandState<Model>> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(CommandState<Model> commandState: commandStates) {
-			CommandState<Model> undoable = commandState.executeOn(propCtx, this, collector, new ModelRootLocation());
-			undoStack.add(undoable);
+	public void play(List<List<Model.PendingUndoablePair>> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		for(CommandState<Model> commandState: commandStates) {
+//			CommandState<Model> undoable = commandState.executeOn(propCtx, this, collector, new ModelRootLocation());
+//			undoStack.add(undoable);
+//		}
+		
+		for(List<Model.PendingUndoablePair> commandStateList: commandStates) {
+			for(Model.PendingUndoablePair commandState: commandStateList) {
+				CommandState<Model> undoable = commandState.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+				undoStack.add(undoable);
+			}
 		}
 	}
 	
@@ -1075,5 +1084,13 @@ public abstract class Model implements Serializable, Observer {
 				));
 			}
 		});
+	}
+
+	public boolean canUndo() {
+		return undoStack.size() > 0;
+	}
+
+	public boolean canRedo() {
+		return redoStack.size() > 0;
 	}
 }
