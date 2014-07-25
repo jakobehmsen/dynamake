@@ -253,7 +253,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				System.out.println("Persisted transaction.");
+//				System.out.println("Persisted transaction.");
 				
 				transactionEnlistingCount++;
 				if(transactionEnlistingCount >= snapshotThreshold) {
@@ -455,7 +455,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 										pendingUndoablePairs.add(pendingUndoablePair);
 									}
 									if(affectModelHistory) {
-										System.out.println("Affect model history");
+//										System.out.println("Affect model history");
 										// Update the log of each affected model isolately; no transaction is cross-model
 										ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
 										if(flushedTransactionsFromReference == null) {
@@ -465,7 +465,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 										((Model)reference).appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
 										flushedTransactionsFromReference.addAll(pendingUndoablePairs);
 									} else {
-										System.out.println("Don't affect model history");
+//										System.out.println("Don't affect model history");
 										boolean postLog = !(transactionFactory instanceof TranscribeOnlyAndPostNotPendingCommandFactory);
 										if(postLog)
 											((Model)reference).postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
@@ -530,7 +530,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				ContextualCommand<T> transactionToPersist = new ContextualCommand<T>(transactionsFromRoot, transactionsFromReferenceLocations);
 
-				System.out.println("Committed connection");
+//				System.out.println("Committed connection");
 				transcriber.persistTransaction(transactionToPersist);
 				affectedModels.clear();
 				

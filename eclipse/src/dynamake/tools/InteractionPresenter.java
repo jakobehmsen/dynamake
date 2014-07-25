@@ -220,7 +220,7 @@ public class InteractionPresenter {
 				@Override
 				public void run() {
 					productionPanel.remove(localEffectFrame);
-					System.out.println("Removed effectFrame");
+//					System.out.println("Removed effectFrame");
 				}
 			});
 		} else {

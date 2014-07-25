@@ -546,7 +546,7 @@ public abstract class Model implements Serializable, Observer {
 								@Override
 								public void run() {
 									targetComponent.setBackground((Color)propertyChanged.value);
-									System.out.println("Change background");
+//									System.out.println("Change background");
 								}
 							});
 							break;
