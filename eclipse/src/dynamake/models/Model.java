@@ -353,10 +353,6 @@ public abstract class Model implements Serializable, Observer {
 		return undoStack2.size();
 	}
 	
-	public void play(List<List<Model.PendingUndoablePair>> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-
-	}
-	
 	public void setLocator(Locator locator) {
 		this.locator = locator;
 	}
