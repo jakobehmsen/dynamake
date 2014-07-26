@@ -303,7 +303,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 			
 			ArrayList<Model.DualCommand> changes = new ArrayList<Model.DualCommand>();
 			changes.addAll(forwardLogChange.newChanges);
-			changes.addAll(inhereteeLocalChange);
+//			changes.addAll(inhereteeLocalChange);
 			
 			inheretee.sendChanged(new ForwardLogChange(changes), propCtx, propDistance, changeDistance, collector);
 		}/* else if(change instanceof UnplayChange) {
