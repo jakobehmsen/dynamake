@@ -8,7 +8,7 @@ import dynamake.commands.AppendToListCommand;
 import dynamake.commands.CommandState;
 import dynamake.commands.CreateAndExecuteFromPropertyCommand;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.PlayBackwardCommand2;
+import dynamake.commands.PlayBackwardCommand;
 import dynamake.commands.PlayForwardCommand2;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.RemovedFromListCommand;
@@ -120,14 +120,14 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					
 					// Play the inherited local changes backwards without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyToOutputCommand("backwardOutput", new PlayBackwardCommand2(forwardLogChange.inheretedLocalChanges)),
+						new SetPropertyToOutputCommand("backwardOutput", new PlayBackwardCommand(forwardLogChange.inheretedLocalChanges)),
 						new PlayForwardCommand2.AfterPlayBackward()
 					));	
 
 					// Do the forwarded change without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
 						new PlayForwardCommand2(forwardLogChange.newChanges),
-						new PlayBackwardCommand2(forwardLogChange.newChanges)
+						new PlayBackwardCommand(forwardLogChange.newChanges)
 					));	
 					
 					// Remember the forwarded change in inheretee
@@ -139,7 +139,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					// Play the inherited local changes forwards without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
 						new SetPropertyToOutputCommand("forwardOutput", new CreateAndExecuteFromPropertyCommand("backwardOutput", new PlayForwardCommand2.AfterPlayBackward())),
-						new CreateAndExecuteFromPropertyCommand("forwardOutput", new PlayBackwardCommand2.AfterPlayForward())
+						new CreateAndExecuteFromPropertyCommand("forwardOutput", new PlayBackwardCommand.AfterPlayForward())
 					));	
 
 					// Cleanup in properties

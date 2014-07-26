@@ -9,7 +9,7 @@ import dynamake.models.PropogationContext;
 import dynamake.models.Model.DualCommand;
 import dynamake.transcription.Collector;
 
-public class PlayBackwardCommand2 implements Command<Model> {
+public class PlayBackwardCommand implements Command<Model> {
 	public static class AfterPlayForward implements CommandFactory<Model> {
 		/**
 		 * 
@@ -19,7 +19,7 @@ public class PlayBackwardCommand2 implements Command<Model> {
 		@Override
 		public Command<Model> createCommand(Object output) {
 			PlayForwardCommand2.Output playForwardOutput = (PlayForwardCommand2.Output)output; 
-			return new PlayBackwardCommand2(playForwardOutput.commands);
+			return new PlayBackwardCommand(playForwardOutput.commands);
 		}
 	}
 
@@ -41,7 +41,7 @@ public class PlayBackwardCommand2 implements Command<Model> {
 	private static final long serialVersionUID = 1L;
 	private List<Model.DualCommand> commands;
 
-	public PlayBackwardCommand2(List<Model.DualCommand> commands) {
+	public PlayBackwardCommand(List<Model.DualCommand> commands) {
 		this.commands = commands;
 	}
 

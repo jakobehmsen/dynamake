@@ -18,7 +18,7 @@ public class PlayForwardCommand2 implements Command<Model> {
 
 		@Override
 		public Command<Model> createCommand(Object output) {
-			PlayBackwardCommand2.Output playBackwardOutput = (PlayBackwardCommand2.Output)output;
+			PlayBackwardCommand.Output playBackwardOutput = (PlayBackwardCommand.Output)output;
 			
 			return new PlayForwardCommand2(playBackwardOutput.commands);
 		}
