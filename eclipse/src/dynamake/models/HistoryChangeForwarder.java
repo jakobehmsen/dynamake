@@ -6,11 +6,12 @@ import java.util.List;
 
 import dynamake.commands.AppendToListCommand;
 import dynamake.commands.CommandState;
-import dynamake.commands.CreateAndExecuteFromProperty;
+import dynamake.commands.CreateAndExecuteFromPropertyCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.RemovedFromListCommand;
 import dynamake.commands.ReplayCommand;
+import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.UndoCommand;
 import dynamake.commands.UnplayCommand;
 import dynamake.transcription.Collector;
@@ -116,7 +117,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					
 					// Play the inherited local changes backwards without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyToOutput("backwardOutput", new PlayBackwardCommand2(forwardLogChange.inheretedLocalChanges)),
+						new SetPropertyToOutputCommand("backwardOutput", new PlayBackwardCommand2(forwardLogChange.inheretedLocalChanges)),
 						new PlayForwardCommand2.AfterPlayBackward()
 					));	
 
@@ -134,8 +135,14 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 
 					// Play the inherited local changes forwards without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyToOutput("forwardOutput", new CreateAndExecuteFromProperty("backwardOutput", new PlayForwardCommand2.AfterPlayBackward())),
-						new CreateAndExecuteFromProperty("forwardOutput", new PlayBackwardCommand2.AfterPlayForward())
+						new SetPropertyToOutputCommand("forwardOutput", new CreateAndExecuteFromPropertyCommand("backwardOutput", new PlayForwardCommand2.AfterPlayBackward())),
+						new CreateAndExecuteFromPropertyCommand("forwardOutput", new PlayBackwardCommand2.AfterPlayForward())
+					));	
+
+					// Cleanup in properties
+					commandStates.add(new PendingCommandState<Model>(
+						new SetPropertyCommand("forwardOutput", null),
+						new SetPropertyCommand.AfterSetProperty()
 					));	
 					
 					// Play the local changes forward
