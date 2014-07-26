@@ -6,11 +6,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
+import dynamake.commands.AppendToListCommand2;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.PlayCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
+import dynamake.commands.RemovedFromListCommand2;
 import dynamake.commands.ReplayCommand2;
 import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RevertingCommandStateSequence;
@@ -271,6 +273,12 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					commandStates.add(new PendingCommandState<Model>(
 						new PlayForwardCommand2(forwardLogChange.newChanges),
 						new PlayBackwardCommand2(forwardLogChange.newChanges)
+					));	
+					
+					// Remember the forwarded change in inheretee
+					commandStates.add(new PendingCommandState<Model>(
+						new AppendToListCommand2<Model.DualCommand>("Inhereted", forwardLogChange.newChanges),
+						new RemovedFromListCommand2.AfterAppendToList<Model.DualCommand>()
 					));
 					
 					// Play the local changes forward

@@ -279,6 +279,8 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public void unplay2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		redoStack2.clear();
+		
 		while(!undoStack2.isEmpty()) {
 			ArrayList<UndoRedoPart> redoablePairs = new ArrayList<UndoRedoPart>();
 			List<UndoRedoPart> pairsToUndo = undoStack2.pop();
@@ -298,8 +300,9 @@ public abstract class Model implements Serializable, Observer {
 			List<UndoRedoPart> pairsToRedo = redoStack2.pop();
 			
 			for(UndoRedoPart pair: pairsToRedo) {
-				// pending is used to reperform the original command
-				CommandState<Model> undoable = pair.origin.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+//				// pending is used to reperform the original command
+//				CommandState<Model> undoable = pair.origin.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+				CommandState<Model> undoable = pair.revertible.executeOn(propCtx, this, collector, new ModelRootLocation());
 				undoablePairs.add(new UndoRedoPart(pair.origin, (ReversibleCommand<Model>)undoable));
 			}
 			
@@ -392,6 +395,7 @@ public abstract class Model implements Serializable, Observer {
 		for(List<UndoRedoPart> pendingUndoablePairList: undoStack2) {
 			for(UndoRedoPart pendingUndoablePair: pendingUndoablePairList) {
 				localChanges.add(new DualCommand(pendingUndoablePair.origin.pending, pendingUndoablePair.origin.undoable));
+//				localChanges.add(new DualCommand(pendingUndoablePair.origin.pending, pendingUndoablePair.origin.undoable));
 			}
 		}
 		
@@ -1242,4 +1246,6 @@ public abstract class Model implements Serializable, Observer {
 			}
 		});
 	}
+
+	public abstract Model cloneBase();
 }

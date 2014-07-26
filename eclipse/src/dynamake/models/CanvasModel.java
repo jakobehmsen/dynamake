@@ -137,6 +137,11 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+	@Override
+	public Model cloneBase() {
+		return new CanvasModel();
+	}
+	
 	public static class RemovedModelChange {
 		public final int index;
 		public final Model model;
@@ -437,6 +442,8 @@ public class CanvasModel extends Model {
 	public void removeModelByLocation(Location location, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		int indexOf = getIndexOfModelById(((IdLocation)location).id);
 		removeModel(indexOf, propCtx, propDistance, collector);
+		
+		System.out.println("Removed model with id " + ((IdLocation)location).id + " in canvas " + this);
 	}
 
 	public void addModel(Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -458,6 +465,8 @@ public class CanvasModel extends Model {
 		model.setParent(this);
 		collector.registerAffectedModel(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
+		
+		System.out.println("Add model with id " + id + " in canvas " + this);
 	}
 	
 	public void removeModel(Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {

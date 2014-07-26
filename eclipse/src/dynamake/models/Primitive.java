@@ -341,4 +341,9 @@ public class Primitive extends Model {
 			}
 		};
 	}
+	
+	@Override
+	public Model cloneBase() {
+		return new Primitive(implementation);
+	}
 }

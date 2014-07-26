@@ -71,6 +71,11 @@ public class LiveModel extends Model {
 		return clone;
 	}
 	
+	@Override
+	public Model cloneBase() {
+		return new LiveModel(content.cloneBase());
+	}
+	
 	public int getToolForButtons(List<Integer> buttons) {
 		Integer tool = buttonsToToolMap.get(buttons);
 		return tool != null ? tool : -1;

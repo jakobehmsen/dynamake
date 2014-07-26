@@ -43,6 +43,11 @@ public class RootModel extends Model {
 		return new RootModel(content.cloneIsolated());
 	}
 	
+	@Override
+	public Model cloneBase() {
+		return new RootModel(content.cloneBase());
+	}
+	
 	private static class FrameModel extends JFrame implements ModelComponent {
 		/**
 		 * 
