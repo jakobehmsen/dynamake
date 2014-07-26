@@ -23,6 +23,7 @@ import javax.swing.JComponent;
 import dynamake.commands.AddObserverCommand;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateSequence;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
@@ -59,6 +60,20 @@ public abstract class Model implements Serializable, Observer {
 		public PendingUndoablePair(PendingCommandState<Model> pending, ReversibleCommand<Model> undoable) {
 			this.pending = pending;
 			this.undoable = undoable;
+		}
+	}
+	
+	public static class DualCommand implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public final CommandState<Model> forward;
+		public final CommandState<Model> backward;
+		
+		public DualCommand(CommandState<Model> forward, CommandState<Model> backward) {
+			this.forward = forward;
+			this.backward = backward;
 		}
 	}
 	
@@ -275,41 +290,73 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void undo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public DualCommand undo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(!undoStack2.isEmpty()) {
 			ArrayList<PendingUndoablePair> redoablePairs = new ArrayList<Model.PendingUndoablePair>();
 			List<PendingUndoablePair> pairsToUndo = undoStack2.pop();
 			
+			ArrayList<CommandState<Model>> forwards = new ArrayList<CommandState<Model>>();
+			ArrayList<CommandState<Model>> backwards = new ArrayList<CommandState<Model>>(); 
+			
 			for(PendingUndoablePair pair: pairsToUndo) {
 				CommandState<Model> redoable = pair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
 				redoablePairs.add(new PendingUndoablePair(pair.pending, (ReversibleCommand<Model>)redoable));
+				
+				forwards.add(pair.undoable);
+				backwards.add(redoable);
 			}
 			
 			redoStack2.push(redoablePairs);
+
+			return new DualCommand(
+				new CommandStateSequence<Model>(forwards),
+				new CommandStateSequence<Model>(backwards)
+			);
 		}
+		
+		return null;
 	}	
 	
-	public void redo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public DualCommand redo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(!redoStack2.isEmpty()) {
 			ArrayList<PendingUndoablePair> undoablePairs = new ArrayList<Model.PendingUndoablePair>();
 			List<PendingUndoablePair> pairsToRedo = redoStack2.pop();
+			
+			ArrayList<CommandState<Model>> forwards = new ArrayList<CommandState<Model>>();
+			ArrayList<CommandState<Model>> backwards = new ArrayList<CommandState<Model>>(); 
 			
 			for(PendingUndoablePair pair: pairsToRedo) {
 				// undoable is used to revert using output from the previous command execution
 				CommandState<Model> undoable = pair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
 				undoablePairs.add(new PendingUndoablePair(pair.pending, (ReversibleCommand<Model>)undoable));
+				
+				forwards.add(pair.undoable);
+				backwards.add(undoable);
 			}
 			
 			undoStack2.push(undoablePairs);
+
+			return new DualCommand(
+				new CommandStateSequence<Model>(forwards),
+				new CommandStateSequence<Model>(backwards)
+			);
+		}
+		
+		return null;
+	}
+	
+	public void play2(List<DualCommand> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		for(DualCommand commandStateList: commandStates) {
+			@SuppressWarnings("unused")
+			CommandState<Model> undoable = commandStateList.forward.executeOn(propCtx, this, collector, new ModelRootLocation());
 		}
 	}
 	
-	public void play2(List<List<Model.PendingUndoablePair>> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(List<Model.PendingUndoablePair> commandStateList: commandStates) {
-			for(Model.PendingUndoablePair commandState: commandStateList) {
-				@SuppressWarnings("unused")
-				CommandState<Model> undoable = commandState.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
-			}
+	public void unplay2(List<DualCommand> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		for(int i = commandStates.size() - 1; i >= 0; i--) {
+			DualCommand commandStateList = commandStates.get(i);
+			@SuppressWarnings("unused")
+			CommandState<Model> undoable = commandStateList.forward.executeOn(propCtx, this, collector, new ModelRootLocation());
 		}
 	}
 
