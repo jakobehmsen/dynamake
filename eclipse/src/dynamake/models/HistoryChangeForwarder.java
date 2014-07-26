@@ -2,30 +2,19 @@ package dynamake.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Stack;
 
 import dynamake.commands.AppendToListCommand2;
-import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.CreateAndExecuteFromProperty;
-import dynamake.commands.PlayCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.RemovedFromListCommand2;
 import dynamake.commands.ReplayCommand2;
-import dynamake.commands.ReversibleCommand;
-import dynamake.commands.RevertingCommandStateSequence;
-import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.UndoCommand;
-import dynamake.commands.UnplayCommand;
 import dynamake.commands.UnplayCommand2;
-import dynamake.models.CanvasModel.AddModelCommand;
-import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
 import dynamake.transcription.TranscribeOnlyAndPostNotPendingCommandFactory;
-import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
 
 /**
  * Instances each are supposed to forward change made in an inhereter to an inheretee.

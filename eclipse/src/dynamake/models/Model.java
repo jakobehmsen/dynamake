@@ -28,13 +28,11 @@ import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
 import dynamake.commands.ReversibleCommand;
-import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.menubuilders.ColorMenuBuilder;
 import dynamake.menubuilders.CompositeMenuBuilder;
-import dynamake.models.Model.PendingUndoablePair;
 import dynamake.models.factories.CloneDeepFactory;
 import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.ModelFactory;
@@ -206,13 +204,13 @@ public abstract class Model implements Serializable, Observer {
 	
 	public void commitLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(newLog.size() > 0) {
-			@SuppressWarnings("unchecked")
 			ArrayList<UndoRedoPart> compressedLogPart = new ArrayList<Model.UndoRedoPart>();
 			for(int i = 0; i < length; i++) {
 				compressedLogPart.add(new UndoRedoPart(newLog.get(i), newLog.get(i).undoable));
 			}
 			undoStack2.add(compressedLogPart);
 		}
+		@SuppressWarnings("unchecked")
 		ArrayList<PendingUndoablePair> newLogCopy = (ArrayList<PendingUndoablePair>)newLog.clone();
 		newLog.clear();
 		

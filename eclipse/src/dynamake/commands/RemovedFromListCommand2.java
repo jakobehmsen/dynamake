@@ -1,9 +1,7 @@
 package dynamake.commands;
 
-import java.io.Serializable;
 import java.util.List;
 
-import dynamake.commands.AppendToListCommand2.Output;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -18,6 +16,7 @@ public class RemovedFromListCommand2<T> implements Command<Model> {
 
 		@Override
 		public Command<Model> createCommand(Object output) {
+			@SuppressWarnings("unchecked")
 			AppendToListCommand2.Output<T> appendToListOutput = (AppendToListCommand2.Output<T>)output;
 			return new RemovedFromListCommand2<T>(appendToListOutput.propertyName, appendToListOutput.start, appendToListOutput.length);
 		}
@@ -40,6 +39,7 @@ public class RemovedFromListCommand2<T> implements Command<Model> {
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model model = (Model)location.getChild(prevalentSystem);
+		@SuppressWarnings("unchecked")
 		List<T> list = (List<T>)model.getProperty(propertyName);
 		list.subList(start, start + length).clear();
 

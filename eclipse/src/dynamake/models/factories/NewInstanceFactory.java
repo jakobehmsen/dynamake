@@ -2,20 +2,14 @@ package dynamake.models.factories;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
-import dynamake.commands.CommandState;
-import dynamake.commands.PendingCommandState;
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.HistoryChangeForwarder;
 import dynamake.models.Location;
 import dynamake.models.Model;
-import dynamake.models.PlayBackwardCommand2;
-import dynamake.models.PlayForwardCommand2;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
-import dynamake.transcription.TranscribeOnlyAndPostNotPendingCommandFactory;
 
 public class NewInstanceFactory implements ModelFactory {
 	/**
@@ -41,6 +35,7 @@ public class NewInstanceFactory implements ModelFactory {
 			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
 		
 		ArrayList<Model.DualCommand> changesToInheret = new ArrayList<Model.DualCommand>();
+		@SuppressWarnings("unchecked")
 		List<Model.DualCommand> inhereterInheretedChanges = (List<Model.DualCommand>)inhereter.getProperty("Inhereted");
 		if(inhereterInheretedChanges != null)
 			changesToInheret.addAll(inhereterInheretedChanges);
@@ -49,21 +44,6 @@ public class NewInstanceFactory implements ModelFactory {
 		
 		instance.playForwards2(changesToInheret, propCtx, propDistance, collector);
 		instance.setProperty("Inhereted", changesToInheret, propCtx, propDistance, collector);
-		
-//		collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
-//			@Override
-//			public Model getReference() {
-//				return instance;
-//			}
-//
-//			@Override
-//			public void createPendingCommand(List<CommandState<Model>> commandStates) {
-//				commandStates.add(new PendingCommandState<Model>(
-//					new PlayForwardCommand2(changeToInheret), 
-//					new PlayBackwardCommand2(changeToInheret)
-//				));
-//			}
-//		});
 		
 		return instance;
 	}

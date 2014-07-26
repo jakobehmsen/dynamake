@@ -40,6 +40,7 @@ public class AppendToListCommand2<T> implements Command<Model> {
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model model = (Model)location.getChild(prevalentSystem);
+		@SuppressWarnings("unchecked")
 		List<T> list = (List<T>)model.getProperty(propertyName);
 		int start = list.size();
 		int length = toAppend.size();
