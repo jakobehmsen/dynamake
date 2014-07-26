@@ -1,15 +1,16 @@
-package dynamake.models;
+package dynamake.commands;
 
 import java.io.Serializable;
 import java.util.List;
 
-import dynamake.commands.Command;
-import dynamake.commands.CommandFactory;
+import dynamake.models.Location;
+import dynamake.models.Model;
+import dynamake.models.PropogationContext;
 import dynamake.models.Model.DualCommand;
 import dynamake.transcription.Collector;
 
-public class PlayBackwardCommand2 implements Command<Model> {
-	public static class AfterPlayForward implements CommandFactory<Model> {
+public class PlayForwardCommand2 implements Command<Model> {
+	public static class AfterPlayBackward implements CommandFactory<Model> {
 		/**
 		 * 
 		 */
@@ -17,11 +18,12 @@ public class PlayBackwardCommand2 implements Command<Model> {
 
 		@Override
 		public Command<Model> createCommand(Object output) {
-			PlayForwardCommand2.Output playForwardOutput = (PlayForwardCommand2.Output)output; 
-			return new PlayBackwardCommand2(playForwardOutput.commands);
+			PlayBackwardCommand2.Output playBackwardOutput = (PlayBackwardCommand2.Output)output;
+			
+			return new PlayForwardCommand2(playBackwardOutput.commands);
 		}
 	}
-
+	
 	public class Output implements Serializable {
 		/**
 		 * 
@@ -40,7 +42,7 @@ public class PlayBackwardCommand2 implements Command<Model> {
 	private static final long serialVersionUID = 1L;
 	private List<Model.DualCommand> commands;
 
-	public PlayBackwardCommand2(List<Model.DualCommand> commands) {
+	public PlayForwardCommand2(List<Model.DualCommand> commands) {
 		this.commands = commands;
 	}
 
@@ -48,7 +50,7 @@ public class PlayBackwardCommand2 implements Command<Model> {
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model model = (Model)location.getChild(prevalentSystem);
 		
-		model.playBackwards2(commands, propCtx, 0, collector);
+		model.playForwards2(commands, propCtx, 0, collector);
 		
 		return null;
 	}

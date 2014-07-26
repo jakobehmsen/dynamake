@@ -1,6 +1,8 @@
-package dynamake.models;
+package dynamake.commands;
 
-import dynamake.commands.Command;
+import dynamake.models.Location;
+import dynamake.models.Model;
+import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
 public class SetPropertyToOutputCommand implements Command<Model> {
