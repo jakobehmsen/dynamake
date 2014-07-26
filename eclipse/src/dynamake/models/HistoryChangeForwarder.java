@@ -9,6 +9,7 @@ import java.util.Stack;
 import dynamake.commands.AppendToListCommand2;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
+import dynamake.commands.CreateAndExecuteFromProperty;
 import dynamake.commands.PlayCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
@@ -34,10 +35,12 @@ import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
  */
 public class HistoryChangeForwarder extends ObserverAdapter implements Serializable {
 	public static class ForwardLogChange {
+		public final List<Model.DualCommand> inheretedLocalChanges;
 		public final List<Model.DualCommand> newChanges;
 
-		public ForwardLogChange(List<Model.DualCommand> localChanges) {
-			this.newChanges = localChanges;
+		public ForwardLogChange(List<Model.DualCommand> inheretedLocalChanges, List<Model.DualCommand> newChanges) {
+			this.inheretedLocalChanges = inheretedLocalChanges;
+			this.newChanges = newChanges;
 		}
 	}
 
@@ -90,11 +93,43 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 				
 				@Override
 				public void createPendingCommand(List<CommandState<Model>> commandStates) {
+					int localChangeCount = inheretee.getLocalChangeCount();
+					
 					// Play the local changes backwards
 					commandStates.add(new PendingCommandState<Model>(
-						new UnplayCommand2(),
-						new ReplayCommand2()
+						new UnplayCommand2(localChangeCount),
+						new ReplayCommand2(localChangeCount)
 					));
+
+//					// Play the inherited local changes backwards without affecting the local changes
+//					commandStates.add(new PendingCommandState<Model>(
+//						new PlayBackwardCommand2(forwardLogChange.inheretedLocalChanges),
+//						new PlayForwardCommand2(forwardLogChange.inheretedLocalChanges)
+//					));	
+//
+//					// Do the forwarded change without affecting the local changes
+//					commandStates.add(new PendingCommandState<Model>(
+//						new PlayForwardCommand2(forwardLogChange.newChanges),
+//						new PlayBackwardCommand2(forwardLogChange.newChanges)
+//					));	
+//					
+//					// Remember the forwarded change in inheretee
+//					commandStates.add(new PendingCommandState<Model>(
+//						new AppendToListCommand2<Model.DualCommand>("Inhereted", forwardLogChange.newChanges),
+//						new RemovedFromListCommand2.AfterAppendToList<Model.DualCommand>()
+//					));
+//
+//					// Play the inherited local changes forwards without affecting the local changes
+//					commandStates.add(new PendingCommandState<Model>(
+//						new PlayForwardCommand2(forwardLogChange.inheretedLocalChanges),
+//						new PlayBackwardCommand2(forwardLogChange.inheretedLocalChanges)
+//					));	
+					
+					// Play the inherited local changes backwards without affecting the local changes
+					commandStates.add(new PendingCommandState<Model>(
+						new SetPropertyToOutput("backwardOutput", new PlayBackwardCommand2(forwardLogChange.inheretedLocalChanges)),
+						new PlayForwardCommand2.AfterPlayBackward()
+					));	
 
 					// Do the forwarded change without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
@@ -107,16 +142,28 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 						new AppendToListCommand2<Model.DualCommand>("Inhereted", forwardLogChange.newChanges),
 						new RemovedFromListCommand2.AfterAppendToList<Model.DualCommand>()
 					));
+
+					// Play the inherited local changes forwards without affecting the local changes
+					commandStates.add(new PendingCommandState<Model>(
+						new SetPropertyToOutput("forwardOutput", new CreateAndExecuteFromProperty("backwardOutput", new PlayForwardCommand2.AfterPlayBackward())),
+						new CreateAndExecuteFromProperty("forwardOutput", new PlayBackwardCommand2.AfterPlayForward())
+					));	
 					
 					// Play the local changes forward
 					commandStates.add(new PendingCommandState<Model>(
-						new ReplayCommand2(),
-						new UnplayCommand2()
+						new ReplayCommand2(localChangeCount),
+						new UnplayCommand2(localChangeCount)
 					));
 				}
 			});
 			
-			inheretee.sendChanged(forwardLogChange, propCtx, propDistance, changeDistance, collector);
+			ArrayList<Model.DualCommand> newInheritedLocalChanges = new ArrayList<Model.DualCommand>(forwardLogChange.inheretedLocalChanges);
+//			List<Model.DualCommand> inheritedChanges = (List<Model.DualCommand>)inhereter.getProperty("Inhereted");
+//			if(inheritedChanges != null)
+//				newInheritedLocalChanges.addAll(inheritedChanges);
+			newInheritedLocalChanges.addAll(inheretee.getLocalChanges());
+			
+			inheretee.sendChanged(new ForwardLogChange(newInheritedLocalChanges, forwardLogChange.newChanges), propCtx, propDistance, changeDistance, collector);
 		} else if((change instanceof Model.HistoryAppendLogChange)) {
 			if(sender == inhereter) {
 				// Forward the logged change in inhereter
@@ -138,7 +185,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					}
 				}
 				
-				this.changed(inhereter, new ForwardLogChange(newChanges), propCtx, propDistance, changeDistance, collector);
+				this.changed(inhereter, new ForwardLogChange(new ArrayList<Model.DualCommand>(), newChanges), propCtx, propDistance, changeDistance, collector);
 				
 			}
 		}
