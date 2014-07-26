@@ -1,11 +1,40 @@
 package dynamake.models;
 
+import java.io.Serializable;
 import java.util.List;
 
 import dynamake.commands.Command;
+import dynamake.commands.CommandFactory;
+import dynamake.models.Model.DualCommand;
 import dynamake.transcription.Collector;
 
 public class PlayForwardCommand2 implements Command<Model> {
+	public static class AfterPlayBackward implements CommandFactory<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public Command<Model> createCommand(Object output) {
+			PlayBackwardCommand2.Output playBackwardOutput = (PlayBackwardCommand2.Output)output;
+			
+			return new PlayForwardCommand2(playBackwardOutput.commands);
+		}
+	}
+	
+	public class Output implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public final List<DualCommand> commands;
+		
+		public Output(List<DualCommand> commands) {
+			this.commands = commands;
+		}
+	}
+
 	/**
 	 * 
 	 */
