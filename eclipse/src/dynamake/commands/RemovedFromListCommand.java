@@ -7,7 +7,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class RemovedFromListCommand2<T> implements Command<Model> {
+public class RemovedFromListCommand<T> implements Command<Model> {
 	public static class AfterAppendToList<T> implements CommandFactory<Model> {
 		/**
 		 * 
@@ -17,8 +17,8 @@ public class RemovedFromListCommand2<T> implements Command<Model> {
 		@Override
 		public Command<Model> createCommand(Object output) {
 			@SuppressWarnings("unchecked")
-			AppendToListCommand2.Output<T> appendToListOutput = (AppendToListCommand2.Output<T>)output;
-			return new RemovedFromListCommand2<T>(appendToListOutput.propertyName, appendToListOutput.start, appendToListOutput.length);
+			AppendToListCommand.Output<T> appendToListOutput = (AppendToListCommand.Output<T>)output;
+			return new RemovedFromListCommand<T>(appendToListOutput.propertyName, appendToListOutput.start, appendToListOutput.length);
 		}
 	}
 
@@ -30,7 +30,7 @@ public class RemovedFromListCommand2<T> implements Command<Model> {
 	private int start;
 	private int length;
 
-	public RemovedFromListCommand2(String propertyName, int start, int length) {
+	public RemovedFromListCommand(String propertyName, int start, int length) {
 		this.propertyName = propertyName;
 		this.start = start;
 		this.length = length;

@@ -8,7 +8,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class AppendToListCommand2<T> implements Command<Model> {
+public class AppendToListCommand<T> implements Command<Model> {
 	public static class Output<T> implements Serializable {
 		/**
 		 * 
@@ -32,7 +32,7 @@ public class AppendToListCommand2<T> implements Command<Model> {
 	private String propertyName;
 	private List<T> toAppend;
 
-	public AppendToListCommand2(String propertyName, List<T> toAppend) {
+	public AppendToListCommand(String propertyName, List<T> toAppend) {
 		this.propertyName = propertyName;
 		this.toAppend = toAppend;
 	}

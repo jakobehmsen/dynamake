@@ -4,15 +4,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import dynamake.commands.AppendToListCommand2;
+import dynamake.commands.AppendToListCommand;
 import dynamake.commands.CommandState;
 import dynamake.commands.CreateAndExecuteFromProperty;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
-import dynamake.commands.RemovedFromListCommand2;
-import dynamake.commands.ReplayCommand2;
+import dynamake.commands.RemovedFromListCommand;
+import dynamake.commands.ReplayCommand;
 import dynamake.commands.UndoCommand;
-import dynamake.commands.UnplayCommand2;
+import dynamake.commands.UnplayCommand;
 import dynamake.transcription.Collector;
 import dynamake.transcription.TranscribeOnlyAndPostNotPendingCommandFactory;
 
@@ -86,8 +86,8 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					
 					// Play the local changes backwards
 					commandStates.add(new PendingCommandState<Model>(
-						new UnplayCommand2(localChangeCount),
-						new ReplayCommand2(localChangeCount)
+						new UnplayCommand(localChangeCount),
+						new ReplayCommand(localChangeCount)
 					));
 
 //					// Play the inherited local changes backwards without affecting the local changes
@@ -128,8 +128,8 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					
 					// Remember the forwarded change in inheretee
 					commandStates.add(new PendingCommandState<Model>(
-						new AppendToListCommand2<Model.DualCommand>("Inhereted", forwardLogChange.newChanges),
-						new RemovedFromListCommand2.AfterAppendToList<Model.DualCommand>()
+						new AppendToListCommand<Model.DualCommand>("Inhereted", forwardLogChange.newChanges),
+						new RemovedFromListCommand.AfterAppendToList<Model.DualCommand>()
 					));
 
 					// Play the inherited local changes forwards without affecting the local changes
@@ -140,8 +140,8 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					
 					// Play the local changes forward
 					commandStates.add(new PendingCommandState<Model>(
-						new ReplayCommand2(localChangeCount),
-						new UnplayCommand2(localChangeCount)
+						new ReplayCommand(localChangeCount),
+						new UnplayCommand(localChangeCount)
 					));
 				}
 			});

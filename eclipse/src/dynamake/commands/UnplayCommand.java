@@ -5,14 +5,14 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class UnplayCommand2 implements Command<Model> {
+public class UnplayCommand implements Command<Model> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private int count;
 
-	public UnplayCommand2(int count) {
+	public UnplayCommand(int count) {
 		this.count = count;
 	}
 

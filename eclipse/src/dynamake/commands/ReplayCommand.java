@@ -5,14 +5,14 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class ReplayCommand2 implements Command<Model> {
+public class ReplayCommand implements Command<Model> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private int count;
 
-	public ReplayCommand2(int count) {
+	public ReplayCommand(int count) {
 		this.count = count;
 	}
 
