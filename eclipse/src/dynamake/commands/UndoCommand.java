@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import dynamake.models.Location;
 import dynamake.models.Model;
+import dynamake.models.Model.DualCommand;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 import dynamake.transcription.IsolatingCollector;
@@ -14,6 +15,11 @@ public class UndoCommand implements Command<Model> {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		public final DualCommand dualCommand;
+		
+		public Output(DualCommand dualCommand) {
+			this.dualCommand = dualCommand;
+		}
 	}
 	
 	/**
@@ -33,8 +39,8 @@ public class UndoCommand implements Command<Model> {
 		if(isolate)
 			collector = new IsolatingCollector<Model>(collector);
 		
-		model.undo(propCtx, 0, collector);
+		DualCommand dualCommand = model.undo2(propCtx, 0, collector);
 		
-		return new Output();
+		return new Output(dualCommand);
 	}
 }
