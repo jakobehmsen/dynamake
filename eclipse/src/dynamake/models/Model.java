@@ -229,10 +229,11 @@ public abstract class Model implements Serializable, Observer {
 
 	}
 	
-	public void unplay2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void unplay2(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		redoStack2.clear();
 		
-		while(!undoStack2.isEmpty()) {
+//		while(!undoStack2.isEmpty()) {
+		for(int i = 0; i < count; i++) {
 			ArrayList<UndoRedoPart> redoablePairs = new ArrayList<UndoRedoPart>();
 			List<UndoRedoPart> pairsToUndo = undoStack2.pop();
 			
@@ -245,8 +246,9 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}	
 	
-	public void replay2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		while(!redoStack2.isEmpty()) {
+	public void replay2(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		while(!redoStack2.isEmpty()) {
+		for(int i = 0; i < count; i++) {
 			ArrayList<UndoRedoPart> undoablePairs = new ArrayList<UndoRedoPart>();
 			List<UndoRedoPart> pairsToRedo = redoStack2.pop();
 			
@@ -347,6 +349,10 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		return localChanges;
+	}
+
+	public int getLocalChangeCount() {
+		return undoStack2.size();
 	}
 	
 	public void play(List<List<Model.PendingUndoablePair>> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
