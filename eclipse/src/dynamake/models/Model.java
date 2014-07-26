@@ -63,6 +63,20 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
+	public static class UndoRedoPart implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public final PendingUndoablePair origin;
+		public final CommandState<Model> revertible;
+		
+		public UndoRedoPart(PendingUndoablePair origin, CommandState<Model> revertible) {
+			this.origin = origin;
+			this.revertible = revertible;
+		}
+	}
+	
 	public static class DualCommand implements Serializable {
 		/**
 		 * 
@@ -169,36 +183,36 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void undo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		if(undoStack.isEmpty())
-			return;
-		
-		CommandState<Model> toUndo = undoStack.pop();
-
-		CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
-
-		redoStack.push(redoable);
-		
-		sendChanged(new HistoryChange(HistoryChange.TYPE_UNDO), propCtx, propDistance, 0, collector);
-	}
+//	public void undo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		if(undoStack.isEmpty())
+//			return;
+//		
+//		CommandState<Model> toUndo = undoStack.pop();
+//
+//		CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
+//
+//		redoStack.push(redoable);
+//		
+//		sendChanged(new HistoryChange(HistoryChange.TYPE_UNDO), propCtx, propDistance, 0, collector);
+//	}
 	
-	public void redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		if(redoStack.isEmpty())
-			return;
-		
-		CommandState<Model> toRedo = redoStack.pop();
-
-		CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
-
-		undoStack.push(undoable);
-		
-		sendChanged(new HistoryChange(HistoryChange.TYPE_REDO), propCtx, propDistance, 0, collector);
-	}
+//	public void redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		if(redoStack.isEmpty())
+//			return;
+//		
+//		CommandState<Model> toRedo = redoStack.pop();
+//
+//		CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
+//
+//		undoStack.push(undoable);
+//		
+//		sendChanged(new HistoryChange(HistoryChange.TYPE_REDO), propCtx, propDistance, 0, collector);
+//	}
 	
-	@SuppressWarnings("unchecked")
-	public Stack<CommandState<Model>> getRedoStack() {
-		return (Stack<CommandState<Model>>)redoStack.clone();
-	}
+//	@SuppressWarnings("unchecked")
+//	public Stack<CommandState<Model>> getRedoStack() {
+//		return (Stack<CommandState<Model>>)redoStack.clone();
+//	}
 
 	private ArrayList<PendingUndoablePair> newLog = new ArrayList<Model.PendingUndoablePair>();
 
@@ -206,7 +220,7 @@ public abstract class Model implements Serializable, Observer {
 //		System.out.println("Log");
 		
 		newLog.addAll(pendingUndoablePairs);
-		redoStack.clear();
+		redoStack2.clear();
 
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
@@ -218,14 +232,14 @@ public abstract class Model implements Serializable, Observer {
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
 
-	public void removeLastLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		undoStack.pop();
-	}
-	
-	public void restoreRedoStack(Stack<CommandState<Model>> redoStack) {
-		this.redoStack.clear();
-		this.redoStack.addAll(redoStack);
-	}
+//	public void removeLastLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		undoStack.pop();
+//	}
+//	
+//	public void restoreRedoStack(Stack<CommandState<Model>> redoStack) {
+//		this.redoStack.clear();
+//		this.redoStack.addAll(redoStack);
+//	}
 	
 	public void startLog() {
 		
@@ -234,11 +248,14 @@ public abstract class Model implements Serializable, Observer {
 	public void commitLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(newLog.size() > 0) {
 			@SuppressWarnings("unchecked")
-			CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length];
-			for(int i = 0; i < length; i++)
-				compressedLogPartAsArray[i] = newLog.get(i).undoable;
-			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
-			undoStack.add(compressedLogPart);
+			ArrayList<UndoRedoPart> compressedLogPart = new ArrayList<Model.UndoRedoPart>();
+//			CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length];
+			for(int i = 0; i < length; i++) {
+				compressedLogPart.add(new UndoRedoPart(newLog.get(i), newLog.get(i).undoable));
+//				compressedLogPartAsArray[i] = newLog.get(i).undoable;
+			}
+//			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
+			undoStack2.add(compressedLogPart);
 		}
 		ArrayList<PendingUndoablePair> newLogCopy = (ArrayList<PendingUndoablePair>)newLog.clone();
 		newLog.clear();
@@ -253,22 +270,22 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public void unplay(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		while(!undoStack.isEmpty()) {
-			CommandState<Model> undoable = undoStack.pop();
-			undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
-		}
-		
-		redoStack.clear();
+//		while(!undoStack.isEmpty()) {
+//			CommandState<Model> undoable = undoStack.pop();
+//			undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
+//		}
+//		
+//		redoStack.clear();
 	}
 	
 	public void unplay2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		while(!undoStack2.isEmpty()) {
-			ArrayList<PendingUndoablePair> redoablePairs = new ArrayList<Model.PendingUndoablePair>();
-			List<PendingUndoablePair> pairsToUndo = undoStack2.pop();
+			ArrayList<UndoRedoPart> redoablePairs = new ArrayList<UndoRedoPart>();
+			List<UndoRedoPart> pairsToUndo = undoStack2.pop();
 			
-			for(PendingUndoablePair pair: pairsToUndo) {
-				CommandState<Model> redoable = pair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
-				redoablePairs.add(new PendingUndoablePair(pair.pending, (ReversibleCommand<Model>)redoable));
+			for(UndoRedoPart pair: pairsToUndo) {
+				CommandState<Model> redoable = pair.revertible.executeOn(propCtx, this, collector, new ModelRootLocation());
+				redoablePairs.add(new UndoRedoPart(pair.origin, (ReversibleCommand<Model>)redoable));
 			}
 			
 			redoStack2.push(redoablePairs);
@@ -277,13 +294,13 @@ public abstract class Model implements Serializable, Observer {
 	
 	public void replay2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		while(!redoStack2.isEmpty()) {
-			ArrayList<PendingUndoablePair> undoablePairs = new ArrayList<Model.PendingUndoablePair>();
-			List<PendingUndoablePair> pairsToRedo = redoStack2.pop();
+			ArrayList<UndoRedoPart> undoablePairs = new ArrayList<UndoRedoPart>();
+			List<UndoRedoPart> pairsToRedo = redoStack2.pop();
 			
-			for(PendingUndoablePair pair: pairsToRedo) {
+			for(UndoRedoPart pair: pairsToRedo) {
 				// pending is used to reperform the original command
-				CommandState<Model> undoable = pair.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
-				undoablePairs.add(new PendingUndoablePair(pair.pending, (ReversibleCommand<Model>)undoable));
+				CommandState<Model> undoable = pair.origin.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+				undoablePairs.add(new UndoRedoPart(pair.origin, (ReversibleCommand<Model>)undoable));
 			}
 			
 			undoStack2.push(undoablePairs);
@@ -292,17 +309,17 @@ public abstract class Model implements Serializable, Observer {
 	
 	public DualCommand undo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(!undoStack2.isEmpty()) {
-			ArrayList<PendingUndoablePair> redoablePairs = new ArrayList<Model.PendingUndoablePair>();
-			List<PendingUndoablePair> pairsToUndo = undoStack2.pop();
+			ArrayList<UndoRedoPart> redoablePairs = new ArrayList<Model.UndoRedoPart>();
+			List<UndoRedoPart> pairsToUndo = undoStack2.pop();
 			
 			ArrayList<CommandState<Model>> forwards = new ArrayList<CommandState<Model>>();
 			ArrayList<CommandState<Model>> backwards = new ArrayList<CommandState<Model>>(); 
 			
-			for(PendingUndoablePair pair: pairsToUndo) {
-				CommandState<Model> redoable = pair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
-				redoablePairs.add(new PendingUndoablePair(pair.pending, (ReversibleCommand<Model>)redoable));
+			for(UndoRedoPart pair: pairsToUndo) {
+				CommandState<Model> redoable = pair.revertible.executeOn(propCtx, this, collector, new ModelRootLocation());
+				redoablePairs.add(new UndoRedoPart(pair.origin, (ReversibleCommand<Model>)redoable));
 				
-				forwards.add(pair.undoable);
+				forwards.add(pair.revertible);
 				backwards.add(redoable);
 			}
 			
@@ -319,18 +336,18 @@ public abstract class Model implements Serializable, Observer {
 	
 	public DualCommand redo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(!redoStack2.isEmpty()) {
-			ArrayList<PendingUndoablePair> undoablePairs = new ArrayList<Model.PendingUndoablePair>();
-			List<PendingUndoablePair> pairsToRedo = redoStack2.pop();
+			ArrayList<UndoRedoPart> undoablePairs = new ArrayList<UndoRedoPart>();
+			List<UndoRedoPart> pairsToRedo = redoStack2.pop();
 			
 			ArrayList<CommandState<Model>> forwards = new ArrayList<CommandState<Model>>();
 			ArrayList<CommandState<Model>> backwards = new ArrayList<CommandState<Model>>(); 
 			
-			for(PendingUndoablePair pair: pairsToRedo) {
+			for(UndoRedoPart pair: pairsToRedo) {
 				// undoable is used to revert using output from the previous command execution
-				CommandState<Model> undoable = pair.undoable.executeOn(propCtx, this, collector, new ModelRootLocation());
-				undoablePairs.add(new PendingUndoablePair(pair.pending, (ReversibleCommand<Model>)undoable));
+				CommandState<Model> undoable = pair.revertible.executeOn(propCtx, this, collector, new ModelRootLocation());
+				undoablePairs.add(new UndoRedoPart(pair.origin, (ReversibleCommand<Model>)undoable));
 				
-				forwards.add(pair.undoable);
+				forwards.add(pair.revertible);
 				backwards.add(undoable);
 			}
 			
@@ -345,14 +362,14 @@ public abstract class Model implements Serializable, Observer {
 		return null;
 	}
 	
-	public void play2(List<DualCommand> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void playForwards2(List<DualCommand> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(DualCommand commandStateList: commandStates) {
 			@SuppressWarnings("unused")
 			CommandState<Model> undoable = commandStateList.forward.executeOn(propCtx, this, collector, new ModelRootLocation());
 		}
 	}
 	
-	public void unplay2(List<DualCommand> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void playBackwards2(List<DualCommand> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(int i = commandStates.size() - 1; i >= 0; i--) {
 			DualCommand commandStateList = commandStates.get(i);
 			@SuppressWarnings("unused")
@@ -361,15 +378,24 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public boolean canUndo() {
-		return undoStack.size() > 0;
+		return undoStack2.size() > 0;
 	}
 
 	public boolean canRedo() {
-		return redoStack.size() > 0;
+		return redoStack2.size() > 0;
 	}
 
-	public List<List<PendingUndoablePair>> getLocalChanges() {
-		return new ArrayList<List<PendingUndoablePair>>(undoStack2);
+	public List<Model.DualCommand> getLocalChanges() {
+//		return new ArrayList<List<PendingUndoablePair>>(undoStack2);
+		ArrayList<Model.DualCommand> localChanges = new ArrayList<Model.DualCommand>();
+		
+		for(List<UndoRedoPart> pendingUndoablePairList: undoStack2) {
+			for(UndoRedoPart pendingUndoablePair: pendingUndoablePairList) {
+				localChanges.add(new DualCommand(pendingUndoablePair.origin.pending, pendingUndoablePair.origin.undoable));
+			}
+		}
+		
+		return localChanges;
 	}
 
 //	public void play(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -385,12 +411,12 @@ public abstract class Model implements Serializable, Observer {
 //			undoStack.add(undoable);
 //		}
 		
-		for(List<Model.PendingUndoablePair> commandStateList: commandStates) {
-			for(Model.PendingUndoablePair commandState: commandStateList) {
-				CommandState<Model> undoable = commandState.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
-				undoStack.add(undoable);
-			}
-		}
+//		for(List<Model.PendingUndoablePair> commandStateList: commandStates) {
+//			for(Model.PendingUndoablePair commandState: commandStateList) {
+//				CommandState<Model> undoable = commandState.pending.executeOn(propCtx, this, collector, new ModelRootLocation());
+//				undoStack.add(undoable);
+//			}
+//		}
 	}
 	
 	public void setLocator(Locator locator) {
@@ -410,10 +436,10 @@ public abstract class Model implements Serializable, Observer {
 		return parent;
 	}
 	
-	protected Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
-	protected Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
-	protected Stack<List<PendingUndoablePair>> undoStack2 = new Stack<List<PendingUndoablePair>>();
-	protected Stack<List<PendingUndoablePair>> redoStack2 = new Stack<List<PendingUndoablePair>>();
+//	protected Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
+//	protected Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
+	protected Stack<List<UndoRedoPart>> undoStack2 = new Stack<List<UndoRedoPart>>();
+	protected Stack<List<UndoRedoPart>> redoStack2 = new Stack<List<UndoRedoPart>>();
 	private Locator locator;
 	private Model parent;
 	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
@@ -548,8 +574,8 @@ public abstract class Model implements Serializable, Observer {
 		}
 		ous.writeObject(observeesToSerialize);
 		ous.writeObject(properties);
-		ous.writeObject(undoStack);
-		ous.writeObject(redoStack);
+		ous.writeObject(undoStack2);
+		ous.writeObject(redoStack2);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -557,8 +583,8 @@ public abstract class Model implements Serializable, Observer {
 		observers = (ArrayList<Observer>)ois.readObject();
 		observees = (ArrayList<Observer>)ois.readObject();
 		properties = (Hashtable<String, Object>)ois.readObject();
-		undoStack = (Stack<CommandState<Model>>)ois.readObject();
-		redoStack = (Stack<CommandState<Model>>)ois.readObject();
+		undoStack2 = (Stack<List<UndoRedoPart>>)ois.readObject();
+		redoStack2 = (Stack<List<UndoRedoPart>>)ois.readObject();
 	}
 
 	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
@@ -1025,8 +1051,8 @@ public abstract class Model implements Serializable, Observer {
 		// I.e., all property values are immutable
 		clone.properties.putAll(this.properties);
 		
-		clone.undoStack.addAll(this.undoStack);
-		clone.redoStack.addAll(this.redoStack);
+		clone.undoStack2.addAll(this.undoStack2);
+		clone.redoStack2.addAll(this.redoStack2);
 		
 		return clone;
 	}
