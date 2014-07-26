@@ -223,10 +223,6 @@ public abstract class Model implements Serializable, Observer {
 		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_REJECT_LOG, length, null), propCtx, propDistance, 0, collector);
 	}
 	
-	public void unplay(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-
-	}
-	
 	public void unplay2(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		redoStack2.clear();
 		
