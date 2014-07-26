@@ -3,7 +3,7 @@ package dynamake.models;
 import dynamake.commands.Command;
 import dynamake.transcription.Collector;
 
-public class SetPropertyToOutput implements Command<Model> {
+public class SetPropertyToOutputCommand implements Command<Model> {
 	/**
 	 * 
 	 */
@@ -11,7 +11,7 @@ public class SetPropertyToOutput implements Command<Model> {
 	private String name;
 	private Command<Model> command;
 
-	public SetPropertyToOutput(String name, Command<Model> command) {
+	public SetPropertyToOutputCommand(String name, Command<Model> command) {
 		this.name = name;
 		this.command = command;
 	}

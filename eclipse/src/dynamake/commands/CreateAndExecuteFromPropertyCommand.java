@@ -5,7 +5,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class CreateAndExecuteFromProperty implements Command<Model> {
+public class CreateAndExecuteFromPropertyCommand implements Command<Model> {
 	/**
 	 * 
 	 */
@@ -13,7 +13,7 @@ public class CreateAndExecuteFromProperty implements Command<Model> {
 	private String name;
 	private CommandFactory<Model> commandFactory;
 
-	public CreateAndExecuteFromProperty(String name, CommandFactory<Model> commandFactory) {
+	public CreateAndExecuteFromPropertyCommand(String name, CommandFactory<Model> commandFactory) {
 		this.name = name;
 		this.commandFactory = commandFactory;
 	}
