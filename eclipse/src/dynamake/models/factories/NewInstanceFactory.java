@@ -81,7 +81,7 @@ public class NewInstanceFactory implements ModelFactory {
 		List<CommandState<Model>> inhereterLocalChanges = inhereter.getLocalChanges();
 		changesToInheret.addAll(inhereterLocalChanges);
 
-		instance.play(changesToInheret, propCtx, propDistance, collector);
+		instance.playThenReverse(changesToInheret, propCtx, propDistance, collector);
 //		instance.playForwards2(changesToInheret, propCtx, propDistance, collector);
 		instance.setProperty("Inhereted", changesToInheret, propCtx, propDistance, collector);
 		

@@ -10,7 +10,7 @@ import dynamake.commands.CommandState;
 import dynamake.commands.CreateAndExecuteFromPropertyCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.PlayBackwardCommand;
-import dynamake.commands.PlayCommand;
+import dynamake.commands.PlayThenReverseCommand;
 import dynamake.commands.PlayForwardCommand2;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.RemovedFromListCommand;
@@ -122,14 +122,14 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					
 					// Play the inherited local changes backwards without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyToOutputCommand("backwardOutput", new PlayCommand(forwardLogChange.inheretedLocalChangesBackwards)),
-						new PlayCommand.AfterPlay()
+						new SetPropertyToOutputCommand("backwardOutput", new PlayThenReverseCommand(forwardLogChange.inheretedLocalChangesBackwards)),
+						new PlayThenReverseCommand.AfterPlay()
 					));	
 
 					// Do the forwarded change without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
-						new PlayCommand(forwardLogChange.newChanges),
-						new PlayCommand.AfterPlay()
+						new PlayThenReverseCommand(forwardLogChange.newChanges),
+						new PlayThenReverseCommand.AfterPlay()
 					));	
 					
 					// Remember the forwarded change in inheretee
@@ -140,8 +140,8 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 
 					// Play the inherited local changes forwards without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyToOutputCommand("forwardOutput", new CreateAndExecuteFromPropertyCommand("backwardOutput", new PlayCommand.AfterPlay())),
-						new CreateAndExecuteFromPropertyCommand("forwardOutput", new PlayCommand.AfterPlay())
+						new SetPropertyToOutputCommand("forwardOutput", new CreateAndExecuteFromPropertyCommand("backwardOutput", new PlayThenReverseCommand.AfterPlay())),
+						new CreateAndExecuteFromPropertyCommand("forwardOutput", new PlayThenReverseCommand.AfterPlay())
 					));	
 
 					// Cleanup in properties

@@ -341,7 +341,7 @@ public abstract class Model implements Serializable, Observer {
 		return null;
 	}
 
-	public List<CommandState<Model>> play(List<CommandState<Model>> toPlay, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public List<CommandState<Model>> playThenReverse(List<CommandState<Model>> toPlay, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		ArrayList<CommandState<Model>> newCommandStates = new ArrayList<CommandState<Model>>();
 		
 		for(CommandState<Model> cs: toPlay) {

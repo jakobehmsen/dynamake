@@ -8,7 +8,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class PlayCommand implements Command<Model> {
+public class PlayThenReverseCommand implements Command<Model> {
 	public static class AfterPlay implements CommandFactory<Model> {
 		/**
 		 * 
@@ -17,9 +17,9 @@ public class PlayCommand implements Command<Model> {
 
 		@Override
 		public Command<Model> createCommand(Object output) {
-			PlayCommand.Output playOutput = (PlayCommand.Output)output;
+			PlayThenReverseCommand.Output playOutput = (PlayThenReverseCommand.Output)output;
 			
-			return new PlayCommand(playOutput.commands);
+			return new PlayThenReverseCommand(playOutput.commands);
 		}
 	}
 	
@@ -41,7 +41,7 @@ public class PlayCommand implements Command<Model> {
 	private static final long serialVersionUID = 1L;
 	private List<CommandState<Model>> commands;
 
-	public PlayCommand(List<CommandState<Model>> commands) {
+	public PlayThenReverseCommand(List<CommandState<Model>> commands) {
 		this.commands = commands;
 	}
 
@@ -50,7 +50,7 @@ public class PlayCommand implements Command<Model> {
 		Model model = (Model)location.getChild(prevalentSystem);
 		System.out.println("Performing play on " + model + "...");
 		
-		List<CommandState<Model>> revertibles = model.play(commands, propCtx, 0, collector);
+		List<CommandState<Model>> revertibles = model.playThenReverse(commands, propCtx, 0, collector);
 		
 		System.out.println("Performed play on " + model);
 		
