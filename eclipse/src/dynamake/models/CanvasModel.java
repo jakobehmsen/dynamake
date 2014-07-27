@@ -4,6 +4,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -308,7 +313,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class RestoreModelCommand implements Command<Model> {
+	public static class RestoreModelCommand implements Command<Model>, Cloneable {
 		public static final class AfterRemove implements CommandFactory<Model>  
 		{
 			/**
@@ -318,7 +323,7 @@ public class CanvasModel extends Model {
 
 			@Override
 			public Command<Model> createCommand(Object output) {
-				Model model = ((RemoveModelCommand.Output)output).model;
+				byte[] modelSerialization = ((RemoveModelCommand.Output)output).modelSerialization;
 				Location location = ((RemoveModelCommand.Output)output).location;
 				ArrayList<Command<Model>> restoreCommands = ((RemoveModelCommand.Output)output).restoreCommands;
 				// TODO: Consider the following:
@@ -327,12 +332,18 @@ public class CanvasModel extends Model {
 				// What if the model's observers/observees are restored after this model is restored?
 				// Are all of the above cases possible?
 				// Perhaps, the best solution would be to save the history and replay this history?
-				Fraction x = (Fraction)model.getProperty("X");
-				Fraction y = (Fraction)model.getProperty("Y");
-				Fraction width = (Fraction)model.getProperty("Width");
-				Fraction height = (Fraction)model.getProperty("Height");
 				
-				return new CanvasModel.RestoreModelCommand(location, x, y, width, height, new AsIsFactory(model), restoreCommands);
+//				Fraction x = (Fraction)model.getProperty("X");
+//				Fraction y = (Fraction)model.getProperty("Y");
+//				Fraction width = (Fraction)model.getProperty("Width");
+//				Fraction height = (Fraction)model.getProperty("Height");
+				
+				Fraction x = null;
+				Fraction y = null;
+				Fraction width = null;
+				Fraction height = null;
+				
+				return new CanvasModel.RestoreModelCommand(location, x, y, width, height, modelSerialization, restoreCommands);
 			}
 		}
 		
@@ -345,23 +356,36 @@ public class CanvasModel extends Model {
 		private Fraction yCreation;
 		private Fraction widthCreation;
 		private Fraction heightCreation;
-		private ModelFactory factory;
+//		private ModelFactory factory;
+		private byte[] modelSerialization;
 		private ArrayList<Command<Model>> restoreCommands;
 		
-		public RestoreModelCommand(Location modelLocationToRestore, Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, ModelFactory factory, ArrayList<Command<Model>> restoreCommands) {
+		public RestoreModelCommand(Location modelLocationToRestore, Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, byte[] modelSerialization, ArrayList<Command<Model>> restoreCommands) {
 			this.modelLocationToRestore = modelLocationToRestore;
 			this.xCreation = xCreation;
 			this.yCreation = yCreation;
 			this.widthCreation = widthCreation;
 			this.heightCreation = heightCreation;
-			this.factory = factory;
+			this.modelSerialization = modelSerialization;
 			this.restoreCommands = restoreCommands;
 		}
 		
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
-			Model model = (Model)factory.create(prevalentSystem, propCtx, 0, collector, location);
+			System.out.println("Performed restore on " + canvas);
+//			Model model = (Model)factory.create(prevalentSystem, propCtx, 0, collector, location);
+			
+			Model model = null;
+			ByteArrayInputStream bis = new ByteArrayInputStream(modelSerialization);
+			ObjectInputStream in;
+			try {
+				in = new ObjectInputStream(bis);
+				model = (Model) in.readObject();
+				in.close();
+			} catch (IOException | ClassNotFoundException e) {
+				e.printStackTrace();
+			}
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 //			model.setProperty("X", xCreation, propCtx, 0, isolatedCollector);
@@ -377,6 +401,11 @@ public class CanvasModel extends Model {
 			
 			return new AddModelCommand.Output(modelLocationToRestore);
 		}
+
+//		public Command<Model> cloneCommand() {
+//			// TODO Auto-generated method stub
+//			return null;
+//		}
 	}
 	
 	public static class RemoveModelCommand implements Command<Model> {
@@ -386,12 +415,12 @@ public class CanvasModel extends Model {
 			 */
 			private static final long serialVersionUID = 1L;
 			public final Location location;
-			public final Model model;
+			public final byte[] modelSerialization;
 			public final ArrayList<Command<Model>> restoreCommands;
 
-			public Output(Location location, Model model, ArrayList<Command<Model>> restoreCommands) {
+			public Output(Location location, byte[] modelSerialization, ArrayList<Command<Model>> restoreCommands) {
 				this.location = location;
-				this.model = model;
+				this.modelSerialization = modelSerialization;
 				this.restoreCommands = restoreCommands;
 			}
 		}
@@ -429,8 +458,20 @@ public class CanvasModel extends Model {
 			
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+			try {
+				ObjectOutputStream out = new ObjectOutputStream(bos);
+				out.writeObject(modelToRemove);
+				out.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			byte[] modelSerialization = bos.toByteArray();
+			
 			// TODO: Consider: Should it be a clone of the removed model instead? 
-			return new Output(locationOfModelToRemove, modelToRemove, restoreCommands);
+			return new Output(locationOfModelToRemove, modelSerialization, restoreCommands);
 		}
 	}
 	

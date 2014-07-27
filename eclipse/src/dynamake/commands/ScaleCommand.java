@@ -66,6 +66,7 @@ public class ScaleCommand implements Command<Model> {
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model model = (Model)location.getChild(prevalentSystem);
+		System.out.println("Performed scale on " + model);
 		
 		model.scale(xDelta, yDelta, hChange, vChange, propCtx, 0, collector);
 		

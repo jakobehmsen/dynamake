@@ -3,6 +3,7 @@ package dynamake.commands;
 import java.io.Serializable;
 
 import dynamake.models.Location;
+import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
@@ -43,6 +44,15 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 
 	public Command<T> getCommand() {
 		return command;
+	}
+
+	public CommandFactory<T> getForthFactory() {
+		return forthFactory;
+	}
+
+	public CommandFactory<T> getBackFactory() {
+		// TODO Auto-generated method stub
+		return backFactory;
 	}
 
 	@Override

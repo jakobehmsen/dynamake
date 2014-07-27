@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.commands.AppendToListCommand;
+import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.CreateAndExecuteFromPropertyCommand;
 import dynamake.commands.PendingCommandState;
@@ -179,7 +180,13 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					newChanges.add(((RedoCommand.Output)firstCommandOutput).command);
 				} else {
 					for(Model.PendingUndoablePair pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs) {
-						newChanges.add(pendingUndoablePair.pending);
+//						// Map each command state to its forward compatible correspondant
+//						if(pendingUndoablePair.pending.getCommand() instanceof CanvasModel.RestoreModelCommand) {
+//							CanvasModel.RestoreModelCommand restoreModelCommand = (CanvasModel.RestoreModelCommand)pendingUndoablePair.pending.getCommand();
+//							Command<Model> commandClone = restoreModelCommand.cloneCommand();
+//							newChanges.add(new PendingCommandState<Model>(commandClone, pendingUndoablePair.pending.getForthFactory(), pendingUndoablePair.pending.getBackFactory()));
+//						} else
+							newChanges.add(pendingUndoablePair.pending);
 					}
 				}
 				

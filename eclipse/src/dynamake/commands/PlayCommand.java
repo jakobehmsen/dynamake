@@ -48,8 +48,11 @@ public class PlayCommand implements Command<Model> {
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model model = (Model)location.getChild(prevalentSystem);
+		System.out.println("Performing play on " + model + "...");
 		
 		List<CommandState<Model>> revertibles = model.play(commands, propCtx, 0, collector);
+		
+		System.out.println("Performed play on " + model);
 		
 		return new Output(revertibles);
 	}
