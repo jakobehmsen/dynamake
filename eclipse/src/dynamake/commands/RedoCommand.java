@@ -15,10 +15,10 @@ public class RedoCommand implements Command<Model> {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		public final DualCommand dualCommand;
+		public final CommandState<Model> command;
 		
-		public Output(DualCommand dualCommand) {
-			this.dualCommand = dualCommand;
+		public Output(CommandState<Model> command) {
+			this.command = command;
 		}
 	}
 	
@@ -39,8 +39,8 @@ public class RedoCommand implements Command<Model> {
 		if(isolate)
 			collector = new IsolatingCollector<Model>(collector);
 		
-		DualCommand dualCommand = model.redo2(propCtx, 0, collector);
+		CommandState<Model> command = model.redo2(propCtx, 0, collector);
 		
-		return new Output(dualCommand);
+		return new Output(command);
 	}
 }

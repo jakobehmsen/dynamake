@@ -9,6 +9,7 @@ import dynamake.commands.CommandState;
 import dynamake.commands.CreateAndExecuteFromPropertyCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.PlayBackwardCommand;
+import dynamake.commands.PlayCommand;
 import dynamake.commands.PlayForwardCommand2;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.RemovedFromListCommand;
@@ -28,10 +29,10 @@ import dynamake.transcription.TranscribeOnlyAndPostNotPendingCommandFactory;
  */
 public class HistoryChangeForwarder extends ObserverAdapter implements Serializable {
 	public static class ForwardLogChange {
-		public final List<Model.DualCommand> inheretedLocalChanges;
-		public final List<Model.DualCommand> newChanges;
+		public final List<CommandState<Model>> inheretedLocalChanges;
+		public final List<CommandState<Model>> newChanges;
 
-		public ForwardLogChange(List<Model.DualCommand> inheretedLocalChanges, List<Model.DualCommand> newChanges) {
+		public ForwardLogChange(List<CommandState<Model>> inheretedLocalChanges, List<CommandState<Model>> newChanges) {
 			this.inheretedLocalChanges = inheretedLocalChanges;
 			this.newChanges = newChanges;
 		}
@@ -120,26 +121,26 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					
 					// Play the inherited local changes backwards without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyToOutputCommand("backwardOutput", new PlayBackwardCommand(forwardLogChange.inheretedLocalChanges)),
-						new PlayForwardCommand2.AfterPlayBackward()
+						new SetPropertyToOutputCommand("backwardOutput", new PlayCommand(forwardLogChange.inheretedLocalChanges)),
+						new PlayCommand.AfterPlay()
 					));	
 
 					// Do the forwarded change without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
-						new PlayForwardCommand2(forwardLogChange.newChanges),
-						new PlayBackwardCommand(forwardLogChange.newChanges)
+						new PlayCommand(forwardLogChange.newChanges),
+						new PlayCommand.AfterPlay()
 					));	
 					
 					// Remember the forwarded change in inheretee
 					commandStates.add(new PendingCommandState<Model>(
-						new AppendToListCommand<Model.DualCommand>("Inhereted", forwardLogChange.newChanges),
+						new AppendToListCommand<CommandState<Model>>("Inhereted", forwardLogChange.newChanges),
 						new RemovedFromListCommand.AfterAppendToList<Model.DualCommand>()
 					));
 
 					// Play the inherited local changes forwards without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyToOutputCommand("forwardOutput", new CreateAndExecuteFromPropertyCommand("backwardOutput", new PlayForwardCommand2.AfterPlayBackward())),
-						new CreateAndExecuteFromPropertyCommand("forwardOutput", new PlayBackwardCommand.AfterPlayForward())
+						new SetPropertyToOutputCommand("forwardOutput", new CreateAndExecuteFromPropertyCommand("backwardOutput", new PlayCommand.AfterPlay())),
+						new CreateAndExecuteFromPropertyCommand("forwardOutput", new PlayCommand.AfterPlay())
 					));	
 
 					// Cleanup in properties
@@ -156,7 +157,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 				}
 			});
 			
-			ArrayList<Model.DualCommand> newInheritedLocalChanges = new ArrayList<Model.DualCommand>(forwardLogChange.inheretedLocalChanges);
+			ArrayList<CommandState<Model>> newInheritedLocalChanges = new ArrayList<CommandState<Model>>(forwardLogChange.inheretedLocalChanges);
 //			List<Model.DualCommand> inheritedChanges = (List<Model.DualCommand>)inhereter.getProperty("Inhereted");
 //			if(inheritedChanges != null)
 //				newInheritedLocalChanges.addAll(inheritedChanges);
@@ -170,21 +171,19 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 				
 				Object firstCommandOutput = historyAppendLogChange.pendingUndoablePairs.get(0).undoable.getOutput();
 				
-				ArrayList<Model.DualCommand> newChanges = new ArrayList<Model.DualCommand>();
+				ArrayList<CommandState<Model>> newChanges = new ArrayList<CommandState<Model>>();
 				
 				if(firstCommandOutput instanceof UndoCommand.Output) {
-					Model.DualCommand pair = ((UndoCommand.Output)firstCommandOutput).dualCommand;
-					newChanges.add(pair);
+					newChanges.add(((UndoCommand.Output)firstCommandOutput).command);
 				} else if(firstCommandOutput instanceof RedoCommand.Output) {
-					Model.DualCommand pair = ((RedoCommand.Output)firstCommandOutput).dualCommand;
-					newChanges.add(pair);
+					newChanges.add(((RedoCommand.Output)firstCommandOutput).command);
 				} else {
 					for(Model.PendingUndoablePair pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs) {
-						newChanges.add(new Model.DualCommand(pendingUndoablePair.pending, pendingUndoablePair.undoable));
+						newChanges.add(pendingUndoablePair.pending);
 					}
 				}
 				
-				this.changed(inhereter, new ForwardLogChange(new ArrayList<Model.DualCommand>(), newChanges), propCtx, propDistance, changeDistance, collector);
+				this.changed(inhereter, new ForwardLogChange(new ArrayList<CommandState<Model>>(), newChanges), propCtx, propDistance, changeDistance, collector);
 				
 			}
 		}

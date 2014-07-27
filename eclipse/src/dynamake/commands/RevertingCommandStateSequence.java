@@ -1,6 +1,7 @@
 package dynamake.commands;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import dynamake.models.Location;
 import dynamake.models.PropogationContext;
@@ -29,7 +30,7 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T> RevertingCommandStateSequence<T> reverse(ArrayList<CommandState<T>> commandStateList) {
+	public static <T> RevertingCommandStateSequence<T> reverse(List<CommandState<T>> commandStateList) {
 		return reverse((CommandState<T>[])commandStateList.toArray(new CommandState[commandStateList.size()]));
 	}
 
@@ -43,5 +44,13 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 			newCommandStates[i] = commandStates[i].executeOn(propCtx, prevalentSystem, collector, location);
 
 		return reverse(newCommandStates);
+	}
+
+	public int getCommandStateCount() {
+		return commandStates.length;
+	}
+
+	public CommandState<T> getCommandState(int index) {
+		return commandStates[index];
 	}
 }
