@@ -132,7 +132,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					// Remember the forwarded change in inheretee
 					commandStates.add(new PendingCommandState<Model>(
 						new AppendToListCommand<CommandState<Model>>("Inhereted", forwardLogChange.newChanges),
-						new RemovedFromListCommand.AfterAppendToList<Model.DualCommand>()
+						new RemovedFromListCommand.AfterAppendToList<CommandState<Model>>()
 					));
 
 					// Play the inherited local changes forwards without affecting the local changes
