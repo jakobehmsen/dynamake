@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import dynamake.models.Location;
 import dynamake.models.Model;
-import dynamake.models.Model.DualCommand;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 import dynamake.transcription.IsolatingCollector;

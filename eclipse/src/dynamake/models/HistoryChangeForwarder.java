@@ -5,13 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.commands.AppendToListCommand;
-import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.CreateAndExecuteFromPropertyCommand;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.PlayBackwardCommand;
 import dynamake.commands.PlayThenReverseCommand;
-import dynamake.commands.PlayForwardCommand2;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.RemovedFromListCommand;
 import dynamake.commands.ReplayCommand;

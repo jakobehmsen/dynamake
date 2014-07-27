@@ -1,6 +1,5 @@
 package dynamake.commands;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.models.Location;
