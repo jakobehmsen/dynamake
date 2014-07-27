@@ -24,7 +24,6 @@ import javax.swing.JComponent;
 import dynamake.commands.AddObserverCommand;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateSequence;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
@@ -214,11 +213,11 @@ public abstract class Model implements Serializable, Observer {
 		if(newLog.size() > 0) {
 			@SuppressWarnings("unchecked")
 			CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[length];
-//			ArrayList<UndoRedoPart> compressedLogPart = new ArrayList<Model.UndoRedoPart>();
+
 			for(int i = 0; i < length; i++) {
 				compressedLogPartAsArray[i] = new UndoRedoPart(newLog.get(i).pending, newLog.get(i).undoable);
-//				compressedLogPart.add(new UndoRedoPart(newLog.get(i), newLog.get(i).undoable));
 			}
+			
 			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 			undoStack2.add(compressedLogPart);
 		}
@@ -236,41 +235,18 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public void unplay2(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		redoStack2.clear();
-		
-//		while(!undoStack2.isEmpty()) {
 		for(int i = 0; i < count; i++) {
-//			ArrayList<UndoRedoPart> redoablePairs = new ArrayList<UndoRedoPart>();
-//			List<UndoRedoPart> pairsToUndo = undoStack2.pop();
 			CommandState<Model> toUndo = undoStack2.pop();
 			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
 			redoStack2.push(redoable);
-			
-//			for(UndoRedoPart pair: pairsToUndo) {
-//				CommandState<Model> redoable = pair.revertible.executeOn(propCtx, this, collector, new ModelRootLocation());
-//				redoablePairs.add(new UndoRedoPart(pair.origin, (ReversibleCommand<Model>)redoable));
-//			}
-//			
-//			redoStack2.push(redoablePairs);
 		}
 	}	
 	
 	public void replay2(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		while(!redoStack2.isEmpty()) {
 		for(int i = 0; i < count; i++) {
 			CommandState<Model> toRedo = redoStack2.pop();
 			CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
 			undoStack2.push(undoable);
-			
-//			ArrayList<UndoRedoPart> undoablePairs = new ArrayList<UndoRedoPart>();
-//			List<UndoRedoPart> pairsToRedo = redoStack2.pop();
-//			
-//			for(UndoRedoPart pair: pairsToRedo) {
-//				CommandState<Model> undoable = pair.revertible.executeOn(propCtx, this, collector, new ModelRootLocation());
-//				undoablePairs.add(new UndoRedoPart(pair.origin, (ReversibleCommand<Model>)undoable));
-//			}
-//			
-//			undoStack2.push(undoablePairs);
 		}
 	}
 	
@@ -281,27 +257,6 @@ public abstract class Model implements Serializable, Observer {
 			redoStack2.push(redoable);
 			
 			return toUndo;
-			
-//			ArrayList<UndoRedoPart> redoablePairs = new ArrayList<Model.UndoRedoPart>();
-//			List<UndoRedoPart> pairsToUndo = undoStack2.pop();
-//			
-//			ArrayList<CommandState<Model>> forwards = new ArrayList<CommandState<Model>>();
-//			ArrayList<CommandState<Model>> backwards = new ArrayList<CommandState<Model>>(); 
-//			
-//			for(UndoRedoPart pair: pairsToUndo) {
-//				CommandState<Model> redoable = pair.revertible.executeOn(propCtx, this, collector, new ModelRootLocation());
-//				redoablePairs.add(new UndoRedoPart(pair.origin, (ReversibleCommand<Model>)redoable));
-//				
-//				forwards.add(pair.revertible);
-//				backwards.add(redoable);
-//			}
-//			
-//			redoStack2.push(redoablePairs);
-//
-//			return new DualCommand(
-//				new CommandStateSequence<Model>(forwards),
-//				new CommandStateSequence<Model>(backwards)
-//			);
 		}
 		
 		return null;
@@ -314,28 +269,6 @@ public abstract class Model implements Serializable, Observer {
 			undoStack2.push(undoable);
 			
 			return toRedo;
-			
-//			ArrayList<UndoRedoPart> undoablePairs = new ArrayList<UndoRedoPart>();
-//			List<UndoRedoPart> pairsToRedo = redoStack2.pop();
-//			
-//			ArrayList<CommandState<Model>> forwards = new ArrayList<CommandState<Model>>();
-//			ArrayList<CommandState<Model>> backwards = new ArrayList<CommandState<Model>>(); 
-//			
-//			for(UndoRedoPart pair: pairsToRedo) {
-//				// undoable is used to revert using output from the previous command execution
-//				CommandState<Model> undoable = pair.revertible.executeOn(propCtx, this, collector, new ModelRootLocation());
-//				undoablePairs.add(new UndoRedoPart(pair.origin, (ReversibleCommand<Model>)undoable));
-//				
-//				forwards.add(pair.revertible);
-//				backwards.add(undoable);
-//			}
-//			
-//			undoStack2.push(undoablePairs);
-//
-//			return new DualCommand(
-//				new CommandStateSequence<Model>(forwards),
-//				new CommandStateSequence<Model>(backwards)
-//			);
 		}
 		
 		return null;
@@ -393,14 +326,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		return origins;
-		
-//		for(List<UndoRedoPart> pendingUndoablePairList: undoStack2) {
-//			for(UndoRedoPart pendingUndoablePair: pendingUndoablePairList) {
-//				localChanges.add(new DualCommand(pendingUndoablePair.origin.pending, pendingUndoablePair.origin.undoable));
-//			}
-//		}
-//		
-//		return localChanges;
 	}
 
 	public List<CommandState<Model>> getLocalChangesBackwards() {
@@ -414,17 +339,10 @@ public abstract class Model implements Serializable, Observer {
 			}
 		}
 		
-//		Collections.reverse(backwards);
+		// TODO: Consider: Should backwards be reversed
+		// TODO: Test model where local history has at least to items 
 		
 		return backwards;
-		
-//		for(List<UndoRedoPart> pendingUndoablePairList: undoStack2) {
-//			for(UndoRedoPart pendingUndoablePair: pendingUndoablePairList) {
-//				localChanges.add(new DualCommand(pendingUndoablePair.origin.pending, pendingUndoablePair.origin.undoable));
-//			}
-//		}
-//		
-//		return localChanges;
 	}
 
 	public int getLocalChangeCount() {
