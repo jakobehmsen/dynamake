@@ -293,6 +293,13 @@ public class CanvasModel extends Model {
 			model.setProperty("Y", yCreation, propCtx, 0, isolatedCollector);
 			model.setProperty("Width", widthCreation, propCtx, 0, isolatedCollector);
 			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
+
+			model.setProperty("XCreation", xCreation, propCtx, 0, isolatedCollector);
+			model.setProperty("YCreation", yCreation, propCtx, 0, isolatedCollector);
+			model.setProperty("WidthCreation", widthCreation, propCtx, 0, isolatedCollector);
+			model.setProperty("HeightCreation", heightCreation, propCtx, 0, isolatedCollector);
+			
+			factory.setup(rootPrevalentSystem, model, propCtx, 0, isolatedCollector, location);
 			
 			canvas.addModel(model, new PropogationContext(), 0, collector);
 			Location addedModelLocation = canvas.getLocationOf(model);
@@ -357,10 +364,10 @@ public class CanvasModel extends Model {
 			Model model = (Model)factory.create(prevalentSystem, propCtx, 0, collector, location);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
-			model.setProperty("X", xCreation, propCtx, 0, isolatedCollector);
-			model.setProperty("Y", yCreation, propCtx, 0, isolatedCollector);
-			model.setProperty("Width", widthCreation, propCtx, 0, isolatedCollector);
-			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
+//			model.setProperty("X", xCreation, propCtx, 0, isolatedCollector);
+//			model.setProperty("Y", yCreation, propCtx, 0, isolatedCollector);
+//			model.setProperty("Width", widthCreation, propCtx, 0, isolatedCollector);
+//			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
 			
 			canvas.restoreModelByLocation(modelLocationToRestore, model, new PropogationContext(), 0, collector);
 			

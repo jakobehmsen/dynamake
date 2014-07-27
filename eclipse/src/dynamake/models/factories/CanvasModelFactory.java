@@ -17,4 +17,7 @@ public class CanvasModelFactory implements ModelFactory {
 	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		return new CanvasModel();
 	}
+	
+	@Override
+	public void setup(Model rootModel, Model modelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
 }

@@ -34,4 +34,7 @@ public class PrimitiveSingletonFactory implements ModelFactory {
 		model.setProperty("FontSize", fontSize, propCtx, propDistance, isolatedCollector);
 		return model;
 	}
+	
+	@Override
+	public void setup(Model rootModel, Model modelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
 }

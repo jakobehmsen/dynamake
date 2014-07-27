@@ -17,6 +17,7 @@ public interface ModelFactory extends Serializable {
 	// With such parameters (and constraints, in general), it would be possible to implicitly support creation of an intermediate CreationModel
 	
 	Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location);
+	void setup(Model rootModel, Model modelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location);
 	
 	public static class Constant implements ModelFactory {
 		/**
@@ -33,5 +34,8 @@ public interface ModelFactory extends Serializable {
 		public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 			return value;
 		}
+		
+		@Override
+		public void setup(Model rootModel, Model modelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
 	}
 }

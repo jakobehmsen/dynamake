@@ -1226,6 +1226,6 @@ public abstract class Model implements Serializable, Observer {
 			}
 		});
 	}
-
+	
 	public abstract Model cloneBase();
 }
