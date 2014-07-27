@@ -332,17 +332,7 @@ public class CanvasModel extends Model {
 				// Are all of the above cases possible?
 				// Perhaps, the best solution would be to save the history and replay this history?
 				
-//				Fraction x = (Fraction)model.getProperty("X");
-//				Fraction y = (Fraction)model.getProperty("Y");
-//				Fraction width = (Fraction)model.getProperty("Width");
-//				Fraction height = (Fraction)model.getProperty("Height");
-				
-				Fraction x = null;
-				Fraction y = null;
-				Fraction width = null;
-				Fraction height = null;
-				
-				return new CanvasModel.RestoreModelCommand(location, x, y, width, height, modelSerialization, restoreCommands);
+				return new CanvasModel.RestoreModelCommand(location, modelSerialization, restoreCommands);
 			}
 		}
 		
@@ -351,20 +341,11 @@ public class CanvasModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private Location modelLocationToRestore;
-		private Fraction xCreation;
-		private Fraction yCreation;
-		private Fraction widthCreation;
-		private Fraction heightCreation;
-//		private ModelFactory factory;
 		private byte[] modelSerialization;
 		private ArrayList<Command<Model>> restoreCommands;
 		
-		public RestoreModelCommand(Location modelLocationToRestore, Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, byte[] modelSerialization, ArrayList<Command<Model>> restoreCommands) {
+		public RestoreModelCommand(Location modelLocationToRestore, byte[] modelSerialization, ArrayList<Command<Model>> restoreCommands) {
 			this.modelLocationToRestore = modelLocationToRestore;
-			this.xCreation = xCreation;
-			this.yCreation = yCreation;
-			this.widthCreation = widthCreation;
-			this.heightCreation = heightCreation;
 			this.modelSerialization = modelSerialization;
 			this.restoreCommands = restoreCommands;
 		}
@@ -373,7 +354,6 @@ public class CanvasModel extends Model {
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			System.out.println("Performed restore on " + canvas);
-//			Model model = (Model)factory.create(prevalentSystem, propCtx, 0, collector, location);
 			
 			Model model = null;
 			ByteArrayInputStream bis = new ByteArrayInputStream(modelSerialization);
@@ -387,10 +367,6 @@ public class CanvasModel extends Model {
 			}
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
-//			model.setProperty("X", xCreation, propCtx, 0, isolatedCollector);
-//			model.setProperty("Y", yCreation, propCtx, 0, isolatedCollector);
-//			model.setProperty("Width", widthCreation, propCtx, 0, isolatedCollector);
-//			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
 			
 			canvas.restoreModelByLocation(modelLocationToRestore, model, new PropogationContext(), 0, collector);
 			
@@ -400,11 +376,6 @@ public class CanvasModel extends Model {
 			
 			return new AddModelCommand.Output(modelLocationToRestore);
 		}
-
-//		public Command<Model> cloneCommand() {
-//			// TODO Auto-generated method stub
-//			return null;
-//		}
 	}
 	
 	public static class RemoveModelCommand implements Command<Model> {
