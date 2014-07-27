@@ -30,11 +30,11 @@ import dynamake.transcription.TranscribeOnlyAndPostNotPendingCommandFactory;
  */
 public class HistoryChangeForwarder extends ObserverAdapter implements Serializable {
 	public static class ForwardLogChange {
-		public final List<CommandState<Model>> inheretedLocalChanges;
+		public final List<CommandState<Model>> inheretedLocalChangesBackwards;
 		public final List<CommandState<Model>> newChanges;
 
-		public ForwardLogChange(List<CommandState<Model>> inheretedLocalChanges, List<CommandState<Model>> newChanges) {
-			this.inheretedLocalChanges = inheretedLocalChanges;
+		public ForwardLogChange(List<CommandState<Model>> inheretedLocalChangesBackwards, List<CommandState<Model>> newChanges) {
+			this.inheretedLocalChangesBackwards = inheretedLocalChangesBackwards;
 			this.newChanges = newChanges;
 		}
 	}
@@ -122,7 +122,7 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 					
 					// Play the inherited local changes backwards without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyToOutputCommand("backwardOutput", new PlayCommand(forwardLogChange.inheretedLocalChanges)),
+						new SetPropertyToOutputCommand("backwardOutput", new PlayCommand(forwardLogChange.inheretedLocalChangesBackwards)),
 						new PlayCommand.AfterPlay()
 					));	
 
@@ -158,13 +158,13 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 				}
 			});
 			
-			ArrayList<CommandState<Model>> newInheritedLocalChanges = new ArrayList<CommandState<Model>>(forwardLogChange.inheretedLocalChanges);
+			ArrayList<CommandState<Model>> newInheritedLocalChangesBackwards = new ArrayList<CommandState<Model>>(forwardLogChange.inheretedLocalChangesBackwards);
 //			List<Model.DualCommand> inheritedChanges = (List<Model.DualCommand>)inhereter.getProperty("Inhereted");
 //			if(inheritedChanges != null)
 //				newInheritedLocalChanges.addAll(inheritedChanges);
-			newInheritedLocalChanges.addAll(inheretee.getLocalChanges());
+			newInheritedLocalChangesBackwards.addAll(inheretee.getLocalChangesBackwards());
 			
-			inheretee.sendChanged(new ForwardLogChange(newInheritedLocalChanges, forwardLogChange.newChanges), propCtx, propDistance, changeDistance, collector);
+			inheretee.sendChanged(new ForwardLogChange(newInheritedLocalChangesBackwards, forwardLogChange.newChanges), propCtx, propDistance, changeDistance, collector);
 		} else if((change instanceof Model.HistoryAppendLogChange)) {
 			if(sender == inhereter) {
 				// Forward the logged change in inhereter

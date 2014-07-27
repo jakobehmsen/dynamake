@@ -400,6 +400,28 @@ public abstract class Model implements Serializable, Observer {
 //		return localChanges;
 	}
 
+	public List<CommandState<Model>> getLocalChangesBackwards() {
+		ArrayList<CommandState<Model>> backwards = new ArrayList<CommandState<Model>>();
+		
+		for(CommandState<Model> undoable: undoStack2) {
+			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
+			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
+				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
+				backwards.add(undoPart.revertible);
+			}
+		}
+		
+		return backwards;
+		
+//		for(List<UndoRedoPart> pendingUndoablePairList: undoStack2) {
+//			for(UndoRedoPart pendingUndoablePair: pendingUndoablePairList) {
+//				localChanges.add(new DualCommand(pendingUndoablePair.origin.pending, pendingUndoablePair.origin.undoable));
+//			}
+//		}
+//		
+//		return localChanges;
+	}
+
 	public int getLocalChangeCount() {
 		return undoStack2.size();
 	}
