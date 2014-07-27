@@ -128,8 +128,8 @@ public class CanvasModel extends Model {
 		// I.e., all property values are immutable
 		canvasClone.properties.putAll(this.properties);
 		
-		canvasClone.undoStack2.addAll(this.undoStack2);
-		canvasClone.redoStack2.addAll(this.redoStack2);
+		canvasClone.undoStack.addAll(this.undoStack);
+		canvasClone.redoStack.addAll(this.redoStack);
 		
 		sourceToCloneMap.put(this, canvasClone);
 

@@ -194,7 +194,7 @@ public abstract class Model implements Serializable, Observer {
 //		System.out.println("Log");
 		
 		newLog.addAll(pendingUndoablePairs);
-		redoStack2.clear();
+		redoStack.clear();
 
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
@@ -219,7 +219,7 @@ public abstract class Model implements Serializable, Observer {
 			}
 			
 			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
-			undoStack2.add(compressedLogPart);
+			undoStack.add(compressedLogPart);
 		}
 		@SuppressWarnings("unchecked")
 		ArrayList<PendingUndoablePair> newLogCopy = (ArrayList<PendingUndoablePair>)newLog.clone();
@@ -236,25 +236,25 @@ public abstract class Model implements Serializable, Observer {
 	
 	public void unplay2(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(int i = 0; i < count; i++) {
-			CommandState<Model> toUndo = undoStack2.pop();
+			CommandState<Model> toUndo = undoStack.pop();
 			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
-			redoStack2.push(redoable);
+			redoStack.push(redoable);
 		}
 	}	
 	
 	public void replay2(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(int i = 0; i < count; i++) {
-			CommandState<Model> toRedo = redoStack2.pop();
+			CommandState<Model> toRedo = redoStack.pop();
 			CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
-			undoStack2.push(undoable);
+			undoStack.push(undoable);
 		}
 	}
 	
 	public CommandState<Model> undo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		if(!undoStack2.isEmpty()) {
-			CommandState<Model> toUndo = undoStack2.pop();
+		if(!undoStack.isEmpty()) {
+			CommandState<Model> toUndo = undoStack.pop();
 			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
-			redoStack2.push(redoable);
+			redoStack.push(redoable);
 			
 			return toUndo;
 		}
@@ -263,10 +263,10 @@ public abstract class Model implements Serializable, Observer {
 	}	
 	
 	public CommandState<Model> redo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		if(!redoStack2.isEmpty()) {
-			CommandState<Model> toRedo = redoStack2.pop();
+		if(!redoStack.isEmpty()) {
+			CommandState<Model> toRedo = redoStack.pop();
 			CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
-			undoStack2.push(undoable);
+			undoStack.push(undoable);
 			
 			return toRedo;
 		}
@@ -288,21 +288,21 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public boolean canUndo() {
-		return undoStack2.size() > 0;
+		return undoStack.size() > 0;
 	}
 
 	public boolean canRedo() {
-		return redoStack2.size() > 0;
+		return redoStack.size() > 0;
 	}
 	
 	public CommandState<Model> getUnplayable() {
-		return RevertingCommandStateSequence.reverse(undoStack2);
+		return RevertingCommandStateSequence.reverse(undoStack);
 	}
 
 	public List<CommandState<Model>> getLocalChanges() {
 		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
 		
-		for(CommandState<Model> undoable: undoStack2) {
+		for(CommandState<Model> undoable: undoStack) {
 			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
 			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
 				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
@@ -316,7 +316,7 @@ public abstract class Model implements Serializable, Observer {
 	public List<CommandState<Model>> getLocalChangesBackwards() {
 		ArrayList<CommandState<Model>> backwards = new ArrayList<CommandState<Model>>();
 		
-		for(CommandState<Model> undoable: undoStack2) {
+		for(CommandState<Model> undoable: undoStack) {
 			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
 			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
 				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
@@ -331,7 +331,7 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public int getLocalChangeCount() {
-		return undoStack2.size();
+		return undoStack.size();
 	}
 	
 	public void setLocator(Locator locator) {
@@ -352,8 +352,8 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	/* Both undo- and stack are assumed to contain RevertingCommandStateSequence<Model> objects */
-	protected Stack<CommandState<Model>> undoStack2 = new Stack<CommandState<Model>>();
-	protected Stack<CommandState<Model>> redoStack2 = new Stack<CommandState<Model>>();
+	protected Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
+	protected Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
 	private Locator locator;
 	private Model parent;
 	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
@@ -488,8 +488,8 @@ public abstract class Model implements Serializable, Observer {
 		}
 		ous.writeObject(observeesToSerialize);
 		ous.writeObject(properties);
-		ous.writeObject(undoStack2);
-		ous.writeObject(redoStack2);
+		ous.writeObject(undoStack);
+		ous.writeObject(redoStack);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -497,8 +497,8 @@ public abstract class Model implements Serializable, Observer {
 		observers = (ArrayList<Observer>)ois.readObject();
 		observees = (ArrayList<Observer>)ois.readObject();
 		properties = (Hashtable<String, Object>)ois.readObject();
-		undoStack2 = (Stack<CommandState<Model>>)ois.readObject();
-		redoStack2 = (Stack<CommandState<Model>>)ois.readObject();
+		undoStack = (Stack<CommandState<Model>>)ois.readObject();
+		redoStack = (Stack<CommandState<Model>>)ois.readObject();
 	}
 
 	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
@@ -965,8 +965,8 @@ public abstract class Model implements Serializable, Observer {
 		// I.e., all property values are immutable
 		clone.properties.putAll(this.properties);
 		
-		clone.undoStack2.addAll(this.undoStack2);
-		clone.redoStack2.addAll(this.redoStack2);
+		clone.undoStack.addAll(this.undoStack);
+		clone.redoStack.addAll(this.redoStack);
 		
 		return clone;
 	}
