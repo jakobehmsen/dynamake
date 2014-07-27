@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -348,6 +349,8 @@ public abstract class Model implements Serializable, Observer {
 			newCommandStates.add(newCS);
 		}
 		
+		Collections.reverse(newCommandStates);
+		
 		return newCommandStates;
 	}
 	
@@ -410,6 +413,8 @@ public abstract class Model implements Serializable, Observer {
 				backwards.add(undoPart.revertible);
 			}
 		}
+		
+//		Collections.reverse(backwards);
 		
 		return backwards;
 		
