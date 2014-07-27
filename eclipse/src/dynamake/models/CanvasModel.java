@@ -353,7 +353,7 @@ public class CanvasModel extends Model {
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
-			System.out.println("Performed restore on " + canvas);
+//			System.out.println("Performed restore on " + canvas);
 			
 			Model model = null;
 			ByteArrayInputStream bis = new ByteArrayInputStream(modelSerialization);
@@ -461,7 +461,7 @@ public class CanvasModel extends Model {
 		int indexOf = getIndexOfModelById(((IdLocation)location).id);
 		removeModel(indexOf, propCtx, propDistance, collector);
 		
-		System.out.println("Removed model with id " + ((IdLocation)location).id + " in canvas " + this);
+//		System.out.println("Removed model with id " + ((IdLocation)location).id + " in canvas " + this);
 	}
 
 	public void addModel(Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -484,7 +484,7 @@ public class CanvasModel extends Model {
 		collector.registerAffectedModel(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
 		
-		System.out.println("Add model with id " + id + " in canvas " + this);
+//		System.out.println("Add model with id " + id + " in canvas " + this);
 	}
 	
 	public void removeModel(Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {

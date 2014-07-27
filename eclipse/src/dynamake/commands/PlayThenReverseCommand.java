@@ -48,11 +48,11 @@ public class PlayThenReverseCommand implements Command<Model> {
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model model = (Model)location.getChild(prevalentSystem);
-		System.out.println("Performing play on " + model + "...");
+//		System.out.println("Performing play on " + model + "...");
 		
 		List<CommandState<Model>> revertibles = model.playThenReverse(commands, propCtx, 0, collector);
 		
-		System.out.println("Performed play on " + model);
+//		System.out.println("Performed play on " + model);
 		
 		return new Output(revertibles);
 	}

@@ -19,11 +19,11 @@ public class ReplayCommand implements Command<Model> {
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model model = (Model)location.getChild(prevalentSystem);
-		System.out.println("Performing replay on " + model + "...");
+//		System.out.println("Performing replay on " + model + "...");
 		
 		model.replay2(count, propCtx, 0, collector);
 		
-		System.out.println("Performed replay on " + model);
+//		System.out.println("Performed replay on " + model);
 		
 		return null;
 	}
