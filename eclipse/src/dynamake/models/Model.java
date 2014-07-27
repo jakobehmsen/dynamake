@@ -286,21 +286,6 @@ public abstract class Model implements Serializable, Observer {
 		
 		return newCommandStates;
 	}
-	
-	public void playForwards2(List<DualCommand> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(DualCommand commandStateList: commandStates) {
-			@SuppressWarnings("unused")
-			CommandState<Model> undoable = commandStateList.forward.executeOn(propCtx, this, collector, new ModelRootLocation());
-		}
-	}
-	
-	public void playBackwards2(List<DualCommand> commandStates, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(int i = commandStates.size() - 1; i >= 0; i--) {
-			DualCommand commandStateList = commandStates.get(i);
-			@SuppressWarnings("unused")
-			CommandState<Model> undoable = commandStateList.forward.executeOn(propCtx, this, collector, new ModelRootLocation());
-		}
-	}
 
 	public boolean canUndo() {
 		return undoStack2.size() > 0;
