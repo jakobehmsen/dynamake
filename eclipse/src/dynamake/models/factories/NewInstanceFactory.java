@@ -3,6 +3,7 @@ package dynamake.models.factories;
 import java.util.ArrayList;
 import java.util.List;
 
+import dynamake.commands.CommandState;
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.HistoryChangeForwarder;
@@ -31,19 +32,21 @@ public class NewInstanceFactory implements ModelFactory {
 		inhereter.addObserver(historyChangeForwarder);
 		instance.addObserver(historyChangeForwarder);
 		historyChangeForwarder.attach(propCtx, propDistance, collector);
-		if(inhereter instanceof CanvasModel)
-			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
 		
-		ArrayList<Model.DualCommand> changesToInheret = new ArrayList<Model.DualCommand>();
+		ArrayList<CommandState<Model>> changesToInheret = new ArrayList<CommandState<Model>>();
 		@SuppressWarnings("unchecked")
-		List<Model.DualCommand> inhereterInheretedChanges = (List<Model.DualCommand>)inhereter.getProperty("Inhereted");
+		List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)inhereter.getProperty("Inhereted");
 		if(inhereterInheretedChanges != null)
 			changesToInheret.addAll(inhereterInheretedChanges);
-		List<Model.DualCommand> inhereterLocalChanges = inhereter.getLocalChanges();
+		List<CommandState<Model>> inhereterLocalChanges = inhereter.getLocalChanges();
 		changesToInheret.addAll(inhereterLocalChanges);
-		
-		instance.playForwards2(changesToInheret, propCtx, propDistance, collector);
+
+		instance.play(changesToInheret, propCtx, propDistance, collector);
+//		instance.playForwards2(changesToInheret, propCtx, propDistance, collector);
 		instance.setProperty("Inhereted", changesToInheret, propCtx, propDistance, collector);
+		
+		if(inhereter instanceof CanvasModel)
+			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
 		
 		return instance;
 	}
