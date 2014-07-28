@@ -140,16 +140,43 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
+	private ArrayList<Observer> observers = new ArrayList<Observer>();
+	private ArrayList<Observer> observees = new ArrayList<Observer>();
+	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
 	/* Both undo- and stack are assumed to contain RevertingCommandStateSequence<Model> objects */
 	protected Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
 	protected Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
-	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
 	private ArrayList<PendingUndoablePair> newLog = new ArrayList<Model.PendingUndoablePair>();
-	private ArrayList<Observer> observers;
-	private ArrayList<Observer> observees;
 	
 	private Locator locator;
 	private Model parent;
+	
+	private void writeObject(ObjectOutputStream ous) throws IOException {
+		ArrayList<Observer> observersToSerialize = new ArrayList<Observer>();
+		for(Observer o: observers) {
+			if(o instanceof Serializable)
+				observersToSerialize.add(o);
+		}
+		ous.writeObject(observersToSerialize);
+		ArrayList<Observer> observeesToSerialize = new ArrayList<Observer>();
+		for(Observer o: observees) {
+			if(o instanceof Serializable)
+				observeesToSerialize.add(o);
+		}
+		ous.writeObject(observeesToSerialize);
+		ous.writeObject(properties);
+		ous.writeObject(undoStack);
+		ous.writeObject(redoStack);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
+		observers = (ArrayList<Observer>)ois.readObject();
+		observees = (ArrayList<Observer>)ois.readObject();
+		properties = (Hashtable<String, Object>)ois.readObject();
+		undoStack = (Stack<CommandState<Model>>)ois.readObject();
+		redoStack = (Stack<CommandState<Model>>)ois.readObject();
+	}
 
 	public void appendLog(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
@@ -409,38 +436,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public abstract Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, ModelTranscriber modelTranscriber);
-	
-	public Model() {
-		observers = new ArrayList<Observer>();
-		observees = new ArrayList<Observer>();
-	}
-	
-	private void writeObject(ObjectOutputStream ous) throws IOException {
-		ArrayList<Observer> observersToSerialize = new ArrayList<Observer>();
-		for(Observer o: observers) {
-			if(o instanceof Serializable)
-				observersToSerialize.add(o);
-		}
-		ous.writeObject(observersToSerialize);
-		ArrayList<Observer> observeesToSerialize = new ArrayList<Observer>();
-		for(Observer o: observees) {
-			if(o instanceof Serializable)
-				observeesToSerialize.add(o);
-		}
-		ous.writeObject(observeesToSerialize);
-		ous.writeObject(properties);
-		ous.writeObject(undoStack);
-		ous.writeObject(redoStack);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException, IOException {
-		observers = (ArrayList<Observer>)ois.readObject();
-		observees = (ArrayList<Observer>)ois.readObject();
-		properties = (Hashtable<String, Object>)ois.readObject();
-		undoStack = (Stack<CommandState<Model>>)ois.readObject();
-		redoStack = (Stack<CommandState<Model>>)ois.readObject();
-	}
 
 	public void setView(int view, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		setProperty(Model.PROPERTY_VIEW, view, propCtx, propDistance, collector);
