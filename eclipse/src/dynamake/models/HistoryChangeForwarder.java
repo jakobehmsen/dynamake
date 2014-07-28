@@ -12,6 +12,7 @@ import dynamake.commands.PlayThenReverseCommand;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.RemovedFromListCommand;
 import dynamake.commands.ReplayCommand;
+import dynamake.commands.ReversibleCommand;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.SetPropertyToOutputCommand;
 import dynamake.commands.UndoCommand;
@@ -47,6 +48,19 @@ public class HistoryChangeForwarder extends ObserverAdapter implements Serializa
 		this.inhereter = inhereter;
 		// at this point, inheretee is assumed to be clone of inhereter with no local changes
 		this.inheretee = inheretee;
+	}
+	
+	public static void createInherited(Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		model.setProperty("Inhereted", new ArrayList<CommandState<Model>>(), propCtx, propDistance, collector);
+	}
+	
+	public static void playAndRememberAsInherited(Model model, CommandState<Model> commandState, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		@SuppressWarnings("unused")
+		ReversibleCommand<Model> reversible = (ReversibleCommand<Model>)commandState.executeOn(propCtx, model, collector, new ModelRootLocation());
+		
+		@SuppressWarnings("unchecked")
+		List<CommandState<Model>> inherited = (List<CommandState<Model>>)model.getProperty("Inhereted");
+		inherited.add(commandState);
 	}
 	
 	public void attach(PropogationContext propCtx, int propDistance, Collector<Model> collector) {

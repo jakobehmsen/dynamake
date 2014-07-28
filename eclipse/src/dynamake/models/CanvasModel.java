@@ -297,6 +297,18 @@ public class CanvasModel extends Model {
 			model.setProperty("Y", yCreation, propCtx, 0, isolatedCollector);
 			model.setProperty("Width", widthCreation, propCtx, 0, isolatedCollector);
 			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
+			
+//			collector.execute(new )
+//			
+//			Location addedModelLocation = canvas.getNextLocation();
+//			collector.execute(new PendingCommandState<Model>(
+//				new RelativeCommand<Model>(addedModelLocation, new SetPropertyCommand("Width", widthCreation)), 
+//				new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
+//			));
+//			collector.execute(new PendingCommandState<Model>(
+//				new RelativeCommand<Model>(addedModelLocation, new SetPropertyCommand("Width", widthCreation)), 
+//				new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
+//			));
 
 			model.setProperty("XCreation", xCreation, propCtx, 0, isolatedCollector);
 			model.setProperty("YCreation", yCreation, propCtx, 0, isolatedCollector);
@@ -322,7 +334,8 @@ public class CanvasModel extends Model {
 
 			@Override
 			public Command<Model> createCommand(Object output) {
-				byte[] modelSerialization = ((RemoveModelCommand.Output)output).modelSerialization;
+				byte[] modelBasedSerialization = ((RemoveModelCommand.Output)output).modelBaseSerialization;
+				List<CommandState<Model>> modelChanges = ((RemoveModelCommand.Output)output).modelChanges; 
 				Location location = ((RemoveModelCommand.Output)output).location;
 				ArrayList<Command<Model>> restoreCommands = ((RemoveModelCommand.Output)output).restoreCommands;
 				// TODO: Consider the following:
@@ -332,7 +345,7 @@ public class CanvasModel extends Model {
 				// Are all of the above cases possible?
 				// Perhaps, the best solution would be to save the history and replay this history?
 				
-				return new CanvasModel.RestoreModelCommand(location, modelSerialization, restoreCommands);
+				return new CanvasModel.RestoreModelCommand(location, modelBasedSerialization, modelChanges, restoreCommands);
 			}
 		}
 		
@@ -341,12 +354,14 @@ public class CanvasModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private Location modelLocationToRestore;
-		private byte[] modelSerialization;
+		private byte[] modelBaseSerialization;
+		private List<CommandState<Model>> modelLocalChanges;
 		private ArrayList<Command<Model>> restoreCommands;
 		
-		public RestoreModelCommand(Location modelLocationToRestore, byte[] modelSerialization, ArrayList<Command<Model>> restoreCommands) {
+		public RestoreModelCommand(Location modelLocationToRestore, byte[] modelBaseSerialization, List<CommandState<Model>> modelLocalChanges, ArrayList<Command<Model>> restoreCommands) {
 			this.modelLocationToRestore = modelLocationToRestore;
-			this.modelSerialization = modelSerialization;
+			this.modelBaseSerialization = modelBaseSerialization;
+			this.modelLocalChanges = modelLocalChanges;
 			this.restoreCommands = restoreCommands;
 		}
 		
@@ -355,20 +370,22 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 //			System.out.println("Performed restore on " + canvas);
 			
-			Model model = null;
-			ByteArrayInputStream bis = new ByteArrayInputStream(modelSerialization);
+			Model modelBase = null;
+			ByteArrayInputStream bis = new ByteArrayInputStream(modelBaseSerialization);
 			ObjectInputStream in;
 			try {
 				in = new ObjectInputStream(bis);
-				model = (Model) in.readObject();
+				modelBase = (Model) in.readObject();
 				in.close();
 			} catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
 			}
+			
+			modelBase.playThenReverse(modelLocalChanges, propCtx, 0, collector);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			
-			canvas.restoreModelByLocation(modelLocationToRestore, model, new PropogationContext(), 0, collector);
+			canvas.restoreModelByLocation(modelLocationToRestore, modelBase, new PropogationContext(), 0, collector);
 			
 			for(Command<Model> restoreCommand: restoreCommands) {
 				restoreCommand.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
@@ -385,12 +402,14 @@ public class CanvasModel extends Model {
 			 */
 			private static final long serialVersionUID = 1L;
 			public final Location location;
-			public final byte[] modelSerialization;
+			public final byte[] modelBaseSerialization;
+			public final List<CommandState<Model>> modelChanges;
 			public final ArrayList<Command<Model>> restoreCommands;
 
-			public Output(Location location, byte[] modelSerialization, ArrayList<Command<Model>> restoreCommands) {
+			public Output(Location location, byte[] modelBaseSerialization, List<CommandState<Model>> modelChanges, ArrayList<Command<Model>> restoreCommands) {
 				this.location = location;
-				this.modelSerialization = modelSerialization;
+				this.modelBaseSerialization = modelBaseSerialization;
+				this.modelChanges = modelChanges;
 				this.restoreCommands = restoreCommands;
 			}
 		}
@@ -432,16 +451,41 @@ public class CanvasModel extends Model {
 
 			try {
 				ObjectOutputStream out = new ObjectOutputStream(bos);
-				out.writeObject(modelToRemove);
+				Model modelBase = modelToRemove.cloneBase();
+				
+				Fraction modelXCreation = (Fraction)modelToRemove.getProperty("XCreation");
+				Fraction modelYCreation = (Fraction)modelToRemove.getProperty("YCreation");
+				Fraction modelWidthCreation = (Fraction)modelToRemove.getProperty("WidthCreation");
+				Fraction modelHeightCreation = (Fraction)modelToRemove.getProperty("HeightCreation");
+				
+				modelBase.setProperty("XCreation", modelXCreation, propCtx, 0, collector);
+				modelBase.setProperty("YCreation", modelYCreation, propCtx, 0, collector);
+				modelBase.setProperty("WidthCreation", modelWidthCreation, propCtx, 0, collector);
+				modelBase.setProperty("HeightCreation", modelHeightCreation, propCtx, 0, collector);
+				
+				modelBase.setProperty("X", modelXCreation, propCtx, 0, collector);
+				modelBase.setProperty("Y", modelYCreation, propCtx, 0, collector);
+				modelBase.setProperty("Width", modelWidthCreation, propCtx, 0, collector);
+				modelBase.setProperty("Height", modelHeightCreation, propCtx, 0, collector);
+				
+				out.writeObject(modelBase);
 				out.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			
-			byte[] modelSerialization = bos.toByteArray();
+			byte[] modelBaseSerialization = bos.toByteArray();
+			
+			ArrayList<CommandState<Model>> modelChanges = new ArrayList<CommandState<Model>>();
+			@SuppressWarnings("unchecked")
+			List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)modelToRemove.getProperty("Inhereted");
+			if(inhereterInheretedChanges != null)
+				modelChanges.addAll(inhereterInheretedChanges);
+			List<CommandState<Model>> inhereterLocalChanges = modelToRemove.getLocalChanges();
+			modelChanges.addAll(inhereterLocalChanges);
 			
 			// TODO: Consider: Should it be a clone of the removed model instead? 
-			return new Output(locationOfModelToRemove, modelSerialization, restoreCommands);
+			return new Output(locationOfModelToRemove, modelBaseSerialization, modelChanges, restoreCommands);
 		}
 	}
 	

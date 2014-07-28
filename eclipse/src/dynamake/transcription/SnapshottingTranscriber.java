@@ -161,7 +161,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				Model reference = (Model)referenceLocation.getChild(prevalentSystem);
 				// Update the log of each affected model isolately; no transaction is cross-model
 //				reference.appendLog(transactionsFromReferenceLocation, propCtx, 0, (Collector<Model>)isolatedCollector);
-				reference.commitLog(transactionsFromReferenceLocation.size(), propCtx, 0, (Collector<Model>)isolatedCollector);
+				reference.commitLog(propCtx, 0, (Collector<Model>)isolatedCollector);
 			}
 		}
 	}
@@ -538,7 +538,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					T reference = entry.getKey();
 					ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = entry.getValue();
 
-					((Model)reference).commitLog(flushedTransactionsFromReference.size(), propCtx, 0, (Collector<Model>)isolatedCollector);
+					((Model)reference).commitLog(propCtx, 0, (Collector<Model>)isolatedCollector);
 					
 					Location referenceLocation = ((Model)reference).getLocator().locate();
 					transactionsFromReferenceLocations.put(referenceLocation, flushedTransactionsFromReference);
