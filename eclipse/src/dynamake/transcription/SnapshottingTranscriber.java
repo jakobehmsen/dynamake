@@ -300,7 +300,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		private ArrayList<LocationCommandsPair<T>> flushedTransactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
 		private HashSet<T> affectedReferences = new HashSet<T>();
 		private ArrayList<UndoableCommandFromReference<T>> flushedUndoableTransactionsFromReferences = new ArrayList<UndoableCommandFromReference<T>>();
-		private HashSet<T> affectedModels = new HashSet<T>();
+		// Probably redundant field
+		// Used in collector to register affected models.
+		// - However, affected models should only be registered if commands are executed upon
+		// - Further the field is only cleared not really used anywhere.
+		private HashSet<T> affectedModels = new HashSet<T>(); 
 		
 		public Connection(SnapshottingTranscriber<T> transcriber, TriggerHandler<T> triggerHandler) {
 			this.transcriber = transcriber;
@@ -446,50 +450,23 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								}
 								flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
 								
-	//							if(affectModelHistory) {
-	//								System.out.println("Affect model history");
-	//								ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
-	//								if(flushedTransactionsFromReference == null) {
-	//									flushedTransactionsFromReference = new ArrayList<Model.PendingUndoablePair>();
-	//									flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
-	//								}
-									
-									ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
-									for(int i = 0; i < pendingCommands.size(); i++) {
-										PendingCommandState<Model> pending = (PendingCommandState<Model>)pendingCommands.get(i);
-										ReversibleCommand<Model> undoable = (ReversibleCommand<Model>)undoables.get(i);
-										PendingUndoablePair pendingUndoablePair = new PendingUndoablePair(pending, undoable);
-										pendingUndoablePairs.add(pendingUndoablePair);
-									}
-									
-									affectedReferences.add(reference);
-
-//									ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = affectedReferences.get(reference);
-//									
-//									if(affectModelHistory == 0 || affectModelHistory == 1) {
-//										// Provoke to be sent out for the reference
-//										if(flushedTransactionsFromReference == null) {
-//											flushedTransactionsFromReference = new ArrayList<Model.PendingUndoablePair>();
-//											affectedReferences.put(reference, flushedTransactionsFromReference);
-//										}
-//									}
-									
-									if(affectModelHistory == 0) {
+								ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
+								for(int i = 0; i < pendingCommands.size(); i++) {
+									PendingCommandState<Model> pending = (PendingCommandState<Model>)pendingCommands.get(i);
+									ReversibleCommand<Model> undoable = (ReversibleCommand<Model>)undoables.get(i);
+									PendingUndoablePair pendingUndoablePair = new PendingUndoablePair(pending, undoable);
+									pendingUndoablePairs.add(pendingUndoablePair);
+								}
+								
+								affectedReferences.add(reference);
+								
+								if(affectModelHistory == 0) {
 //										System.out.println("Affect model history");
-										// Update the log of each affected model isolately; no transaction is cross-model
-//										ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
-//										if(flushedTransactionsFromReference == null) {
-//											flushedTransactionsFromReference = new ArrayList<Model.PendingUndoablePair>();
-//											flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
-//										}
-										((Model)reference).appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
-//										flushedTransactionsFromReference.addAll(pendingUndoablePairs);
-									} else if(affectModelHistory == 1) {
+									((Model)reference).appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
+								} else if(affectModelHistory == 1) {
 //										System.out.println("Don't affect model history");
-										((Model)reference).postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
-									}
-	//							} else
-	//								System.out.println("Don't affect model history");
+									((Model)reference).postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
+								}
 	
 								flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, affectModelHistory));
 							}
