@@ -353,8 +353,7 @@ public class CanvasModel extends Model {
 
 			@Override
 			public Command<Model> createCommand(Object output) {
-				byte[] modelBasedSerialization = ((RemoveModelCommand.Output)output).modelBaseSerialization;
-				List<CommandState<Model>> modelChanges = ((RemoveModelCommand.Output)output).modelChanges; 
+				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
 				Location location = ((RemoveModelCommand.Output)output).location;
 				// TODO: Consider the following:
 				// What if the model what observing/being observed before its removal?
@@ -363,7 +362,7 @@ public class CanvasModel extends Model {
 				// Are all of the above cases possible?
 				// Perhaps, the best solution would be to save the history and replay this history?
 				
-				return new CanvasModel.RestoreModelCommand(location, modelBasedSerialization, modelChanges);
+				return new CanvasModel.RestoreModelCommand(location, restorableModel);
 			}
 		}
 		
@@ -372,13 +371,11 @@ public class CanvasModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private Location modelLocationToRestore;
-		private byte[] modelBaseSerialization;
-		private List<CommandState<Model>> modelLocalChanges;
+		private RestorableModel restorableModel;
 		
-		public RestoreModelCommand(Location modelLocationToRestore, byte[] modelBaseSerialization, List<CommandState<Model>> modelLocalChanges) {
+		public RestoreModelCommand(Location modelLocationToRestore, RestorableModel restorableModel) {
 			this.modelLocationToRestore = modelLocationToRestore;
-			this.modelBaseSerialization = modelBaseSerialization;
-			this.modelLocalChanges = modelLocalChanges;
+			this.restorableModel = restorableModel;
 		}
 		
 		@Override
@@ -386,19 +383,21 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 //			System.out.println("Performed restore on " + canvas);
 			
-			Model modelBase = null;
-			ByteArrayInputStream bis = new ByteArrayInputStream(modelBaseSerialization);
-			ObjectInputStream in;
-			try {
-				in = new ObjectInputStream(bis);
-				modelBase = (Model) in.readObject();
-				in.close();
-			} catch (IOException | ClassNotFoundException e) {
-				e.printStackTrace();
-			}
+//			Model modelBase = null;
+//			ByteArrayInputStream bis = new ByteArrayInputStream(modelBaseSerialization);
+//			ObjectInputStream in;
+//			try {
+//				in = new ObjectInputStream(bis);
+//				modelBase = (Model) in.readObject();
+//				in.close();
+//			} catch (IOException | ClassNotFoundException e) {
+//				e.printStackTrace();
+//			}
+//			
+//			modelBase.playThenReverse(modelLocalChanges, propCtx, 0, collector);
+//			modelBase.setProperty("Inhereted", modelLocalChanges, propCtx, 0, collector);
 			
-			modelBase.playThenReverse(modelLocalChanges, propCtx, 0, collector);
-			modelBase.setProperty("Inhereted", modelLocalChanges, propCtx, 0, collector);
+			Model modelBase = restorableModel.unwrap(propCtx, 0, collector);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			
@@ -415,13 +414,11 @@ public class CanvasModel extends Model {
 			 */
 			private static final long serialVersionUID = 1L;
 			public final Location location;
-			public final byte[] modelBaseSerialization;
-			public final List<CommandState<Model>> modelChanges;
+			public final RestorableModel restorableModel;
 
-			public Output(Location location, byte[] modelBaseSerialization, List<CommandState<Model>> modelChanges) {
+			public Output(Location location, RestorableModel restorableModel) {
 				this.location = location;
-				this.modelBaseSerialization = modelBaseSerialization;
-				this.modelChanges = modelChanges;
+				this.restorableModel = restorableModel;
 			}
 		}
 		
@@ -455,45 +452,32 @@ public class CanvasModel extends Model {
 			
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-			try {
-				ObjectOutputStream out = new ObjectOutputStream(bos);
-				Model modelBase = modelToRemove.cloneBase();
-				
-				Fraction modelXCreation = (Fraction)modelToRemove.getProperty("XCreation");
-				Fraction modelYCreation = (Fraction)modelToRemove.getProperty("YCreation");
-				Fraction modelWidthCreation = (Fraction)modelToRemove.getProperty("WidthCreation");
-				Fraction modelHeightCreation = (Fraction)modelToRemove.getProperty("HeightCreation");
-				
-				modelBase.setProperty("XCreation", modelXCreation, propCtx, 0, collector);
-				modelBase.setProperty("YCreation", modelYCreation, propCtx, 0, collector);
-				modelBase.setProperty("WidthCreation", modelWidthCreation, propCtx, 0, collector);
-				modelBase.setProperty("HeightCreation", modelHeightCreation, propCtx, 0, collector);
-				
-				modelBase.setProperty("X", modelXCreation, propCtx, 0, collector);
-				modelBase.setProperty("Y", modelYCreation, propCtx, 0, collector);
-				modelBase.setProperty("Width", modelWidthCreation, propCtx, 0, collector);
-				modelBase.setProperty("Height", modelHeightCreation, propCtx, 0, collector);
-				
-				out.writeObject(modelBase);
-				out.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+//			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//
+//			try {
+//				ObjectOutputStream out = new ObjectOutputStream(bos);
+//				Model modelBase = modelToRemove.cloneBase();
+//				
+//				out.writeObject(modelBase);
+//				out.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			
+//			byte[] modelBaseSerialization = bos.toByteArray();
+//			
+//			ArrayList<CommandState<Model>> modelChanges = new ArrayList<CommandState<Model>>();
+//			@SuppressWarnings("unchecked")
+//			List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)modelToRemove.getProperty("Inhereted");
+//			if(inhereterInheretedChanges != null)
+//				modelChanges.addAll(inhereterInheretedChanges);
+//			List<CommandState<Model>> inhereterLocalChanges = modelToRemove.getLocalChanges();
+//			modelChanges.addAll(inhereterLocalChanges);
 			
-			byte[] modelBaseSerialization = bos.toByteArray();
-			
-			ArrayList<CommandState<Model>> modelChanges = new ArrayList<CommandState<Model>>();
-			@SuppressWarnings("unchecked")
-			List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)modelToRemove.getProperty("Inhereted");
-			if(inhereterInheretedChanges != null)
-				modelChanges.addAll(inhereterInheretedChanges);
-			List<CommandState<Model>> inhereterLocalChanges = modelToRemove.getLocalChanges();
-			modelChanges.addAll(inhereterLocalChanges);
+			RestorableModel restorableModel = RestorableModel.wrap(modelToRemove);
 			
 			// TODO: Consider: Should it be a clone of the removed model instead? 
-			return new Output(locationOfModelToRemove, modelBaseSerialization, modelChanges);
+			return new Output(locationOfModelToRemove, restorableModel);
 		}
 	}
 	
