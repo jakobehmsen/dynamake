@@ -20,7 +20,7 @@ public class Categorizer<T, U> {
 	public void remove(T category, U item) {
 		List<U> itemsInCategory = categories.get(category);
 		if(itemsInCategory != null)
-			itemsInCategory.remove(category);
+			itemsInCategory.remove(item);
 	}
 	
 	public List<U> getItems(T category) {
@@ -28,5 +28,12 @@ public class Categorizer<T, U> {
 		if(itemsInCategory != null)
 			return new ArrayList<U>(itemsInCategory);
 		return Collections.emptyList();
+	}
+	
+	public boolean containsItem(T category, U item) {
+		List<U> itemsInCategory = categories.get(category);
+		if(itemsInCategory != null)
+			itemsInCategory.contains(item);
+		return false;
 	}
 }
