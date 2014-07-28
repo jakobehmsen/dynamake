@@ -154,11 +154,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					reference.postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)isolatedCollector);
 			}
 			
-			for(Map.Entry<Location, ArrayList<Model.PendingUndoablePair>> entry: ctxTransaction.transactionsFromReferenceLocations.entrySet()) {
-				Location referenceLocation = entry.getKey(); // location from root to reference
-				ArrayList<Model.PendingUndoablePair> transactionsFromReferenceLocation = entry.getValue();
-				
-				Model reference = (Model)referenceLocation.getChild(prevalentSystem);
+			for(Location affectedReferenceLocation: ctxTransaction.affectedReferenceLocations) {
+				Model reference = (Model)affectedReferenceLocation.getChild(prevalentSystem);
 				// Update the log of each affected model isolately; no transaction is cross-model
 //				reference.appendLog(transactionsFromReferenceLocation, propCtx, 0, (Collector<Model>)isolatedCollector);
 				reference.commitLog(propCtx, 0, (Collector<Model>)isolatedCollector);
@@ -301,7 +298,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		private TriggerHandler<T> triggerHandler;
 		private SnapshottingTranscriber<T> transcriber;
 		private ArrayList<LocationCommandsPair<T>> flushedTransactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
-		private Hashtable<T, ArrayList<Model.PendingUndoablePair>> flushedTransactionsFromReferences = new Hashtable<T, ArrayList<Model.PendingUndoablePair>>();
+		private HashSet<T> affectedReferences = new HashSet<T>();
 		private ArrayList<UndoableCommandFromReference<T>> flushedUndoableTransactionsFromReferences = new ArrayList<UndoableCommandFromReference<T>>();
 		private HashSet<T> affectedModels = new HashSet<T>();
 		
@@ -464,16 +461,18 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 										PendingUndoablePair pendingUndoablePair = new PendingUndoablePair(pending, undoable);
 										pendingUndoablePairs.add(pendingUndoablePair);
 									}
-
-									ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = flushedTransactionsFromReferences.get(reference);
 									
-									if(affectModelHistory == 0 || affectModelHistory == 1) {
-										// Provoke to be sent out for the reference
-										if(flushedTransactionsFromReference == null) {
-											flushedTransactionsFromReference = new ArrayList<Model.PendingUndoablePair>();
-											flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
-										}
-									}
+									affectedReferences.add(reference);
+
+//									ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = affectedReferences.get(reference);
+//									
+//									if(affectModelHistory == 0 || affectModelHistory == 1) {
+//										// Provoke to be sent out for the reference
+//										if(flushedTransactionsFromReference == null) {
+//											flushedTransactionsFromReference = new ArrayList<Model.PendingUndoablePair>();
+//											affectedReferences.put(reference, flushedTransactionsFromReference);
+//										}
+//									}
 									
 									if(affectModelHistory == 0) {
 //										System.out.println("Affect model history");
@@ -484,7 +483,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 //											flushedTransactionsFromReferences.put(reference, flushedTransactionsFromReference);
 //										}
 										((Model)reference).appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
-										flushedTransactionsFromReference.addAll(pendingUndoablePairs);
+//										flushedTransactionsFromReference.addAll(pendingUndoablePairs);
 									} else if(affectModelHistory == 1) {
 //										System.out.println("Don't affect model history");
 										((Model)reference).postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
@@ -532,22 +531,19 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					
 				flushedTransactionsFromRoot.clear();
 				
-				Hashtable<Location, ArrayList<Model.PendingUndoablePair>> transactionsFromReferenceLocations = new Hashtable<Location, ArrayList<Model.PendingUndoablePair>>();
+				HashSet<Location> affectedReferenceLocations = new HashSet<Location>();
 				
-				for(Map.Entry<T, ArrayList<Model.PendingUndoablePair>> entry: flushedTransactionsFromReferences.entrySet()) {
-					T reference = entry.getKey();
-					ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = entry.getValue();
-
+				for(T reference: affectedReferences) {
 					((Model)reference).commitLog(propCtx, 0, (Collector<Model>)isolatedCollector);
 					
 					Location referenceLocation = ((Model)reference).getLocator().locate();
-					transactionsFromReferenceLocations.put(referenceLocation, flushedTransactionsFromReference);
+					affectedReferenceLocations.add(referenceLocation);
 				}
 				
-				flushedTransactionsFromReferences.clear();
+				affectedReferences.clear();
 				flushedUndoableTransactionsFromReferences.clear();
 				
-				ContextualCommand<T> transactionToPersist = new ContextualCommand<T>(transactionsFromRoot, transactionsFromReferenceLocations);
+				ContextualCommand<T> transactionToPersist = new ContextualCommand<T>(transactionsFromRoot, affectedReferenceLocations);
 
 //				System.out.println("Committed connection");
 				transcriber.persistTransaction(transactionToPersist);
@@ -583,15 +579,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			System.out.println("Rejected connection");
 			
 			flushedTransactionsFromRoot.clear();
-			
-			for(Map.Entry<T, ArrayList<Model.PendingUndoablePair>> entry: flushedTransactionsFromReferences.entrySet()) {
-				T reference = entry.getKey();
-				ArrayList<Model.PendingUndoablePair> flushedTransactionsFromReference = entry.getValue();
 
-				((Model)reference).rejectLog(flushedTransactionsFromReference.size(), propCtx, 0, (Collector<Model>)isolatedCollector);
+			for(T reference: affectedReferences) {
+				((Model)reference).rejectLog(propCtx, 0, (Collector<Model>)isolatedCollector);
 			}
 			
-			flushedTransactionsFromReferences.clear();
+			affectedReferences.clear();
 			flushedUndoableTransactionsFromReferences.clear();
 			affectedModels.clear();
 

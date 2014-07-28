@@ -209,7 +209,7 @@ public abstract class Model implements Serializable, Observer {
 		newLog.clear();
 	}
 	
-	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void rejectLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		newLog.clear();
 	}
 	

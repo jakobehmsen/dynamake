@@ -2,10 +2,9 @@ package dynamake.commands;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashSet;
 
 import dynamake.models.Location;
-import dynamake.models.Model;
 import dynamake.transcription.SnapshottingTranscriber;
 
 // Instances each represents a pairing of a transaction and the models, which were affected
@@ -17,10 +16,10 @@ public class ContextualCommand<T> implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	public final ArrayList<SnapshottingTranscriber.Connection.LocationCommandsPair<T>> transactionsFromRoot;
-	public final Hashtable<Location, ArrayList<Model.PendingUndoablePair>> transactionsFromReferenceLocations;
+	public final HashSet<Location> affectedReferenceLocations;
 
-	public ContextualCommand(ArrayList<SnapshottingTranscriber.Connection.LocationCommandsPair<T>> transactionsFromRoot, Hashtable<Location, ArrayList<Model.PendingUndoablePair>> transactionsFromReferenceLocations) {
+	public ContextualCommand(ArrayList<SnapshottingTranscriber.Connection.LocationCommandsPair<T>> transactionsFromRoot, HashSet<Location> affectedReferenceLocations) {
 		this.transactionsFromRoot = transactionsFromRoot;
-		this.transactionsFromReferenceLocations = transactionsFromReferenceLocations;
+		this.affectedReferenceLocations = affectedReferenceLocations;
 	}
 }
