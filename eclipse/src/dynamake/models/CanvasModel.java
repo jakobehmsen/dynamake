@@ -4,11 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,8 +14,6 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
-
-import com.sun.org.apache.bcel.internal.generic.NEW;
 
 import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
@@ -39,9 +32,6 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
-import dynamake.transcription.ExPendingCommandFactory;
-import dynamake.transcription.HistoryHandler;
-import dynamake.transcription.InheritedHistoryHandler;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Trigger;
@@ -263,28 +253,11 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-//		private RectangleF creationBounds;
-//		public final Fraction xCreation;
-//		public final Fraction yCreation;
-//		public final Fraction widthCreation;
-//		public final Fraction heightCreation;
 		public final ModelFactory factory;
 		
-		public AddModelCommand(/*Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation,*/ ModelFactory factory) {
-//			this.xCreation = xCreation;
-//			this.yCreation = yCreation;
-//			this.widthCreation = widthCreation;
-//			this.heightCreation = heightCreation;
+		public AddModelCommand(ModelFactory factory) {
 			this.factory = factory;
 		}
-		
-//		public AddModelCommand(/*Rectangle creationBounds, */ModelFactory factory) {
-////			this.xCreation = new Fraction(creationBounds.x);
-////			this.yCreation = new Fraction(creationBounds.y);
-////			this.widthCreation = new Fraction(creationBounds.width);
-////			this.heightCreation = new Fraction(creationBounds.height);
-//			this.factory = factory;
-//		}
 		
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
@@ -292,48 +265,8 @@ public class CanvasModel extends Model {
 			final Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
-//			model.setProperty("X", xCreation, propCtx, 0, isolatedCollector);
-//			model.setProperty("Y", yCreation, propCtx, 0, isolatedCollector);
-//			model.setProperty("Width", widthCreation, propCtx, 0, isolatedCollector);
-//			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
-			
-			
-			// Somehow, the setting up of the initial the initial x, y, width, and height properties should be decoupled
-			// such that it is possible to decide whether to use the creation bounds (or not) and how to use them
-			// E.g. in an inheritance situation the inhereter's original (may be inhereted itself) width and height are to be set before any inherited changes
-			// are played on the inheretee.
-//
-//			model.setProperty("XCreation", xCreation, propCtx, 0, isolatedCollector);
-//			model.setProperty("YCreation", yCreation, propCtx, 0, isolatedCollector);
-//			model.setProperty("WidthCreation", widthCreation, propCtx, 0, isolatedCollector);
-//			model.setProperty("HeightCreation", heightCreation, propCtx, 0, isolatedCollector);
 			
 			final Location addedModelLocation = canvas.getNextLocation();
-			
-//			collector.execute(new ExPendingCommandFactory<Model>() {
-//				@Override
-//				public Model getReference() {
-//					return canvas;
-//				}
-//
-//				@Override
-//				public void createPendingCommand(List<CommandState<Model>> commandStates) {
-//					commandStates.add(new PendingCommandState<Model>(
-//						new RelativeCommand<Model>(addedModelLocation, new SetPropertyCommand("Width", widthCreation)), 
-//						new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
-//					));
-//					
-//					commandStates.add(new PendingCommandState<Model>(
-//						new RelativeCommand<Model>(addedModelLocation, new SetPropertyCommand("Height", heightCreation)), 
-//						new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
-//					));
-//				}
-//
-//				@Override
-//				public HistoryHandler<Model> getHistoryHandler() {
-//					return new InheritedHistoryHandler();
-//				}
-//			});
 			
 			factory.setup(rootPrevalentSystem, model, propCtx, 0, isolatedCollector, location);
 			
@@ -381,25 +314,8 @@ public class CanvasModel extends Model {
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
-//			System.out.println("Performed restore on " + canvas);
-			
-//			Model modelBase = null;
-//			ByteArrayInputStream bis = new ByteArrayInputStream(modelBaseSerialization);
-//			ObjectInputStream in;
-//			try {
-//				in = new ObjectInputStream(bis);
-//				modelBase = (Model) in.readObject();
-//				in.close();
-//			} catch (IOException | ClassNotFoundException e) {
-//				e.printStackTrace();
-//			}
-//			
-//			modelBase.playThenReverse(modelLocalChanges, propCtx, 0, collector);
-//			modelBase.setProperty("Inhereted", modelLocalChanges, propCtx, 0, collector);
 			
 			Model modelBase = restorableModel.unwrap(propCtx, 0, collector);
-
-			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			
 			canvas.restoreModelByLocation(modelLocationToRestore, modelBase, new PropogationContext(), 0, collector);
 			
@@ -452,31 +368,8 @@ public class CanvasModel extends Model {
 			
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			
-//			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//
-//			try {
-//				ObjectOutputStream out = new ObjectOutputStream(bos);
-//				Model modelBase = modelToRemove.cloneBase();
-//				
-//				out.writeObject(modelBase);
-//				out.close();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//			
-//			byte[] modelBaseSerialization = bos.toByteArray();
-//			
-//			ArrayList<CommandState<Model>> modelChanges = new ArrayList<CommandState<Model>>();
-//			@SuppressWarnings("unchecked")
-//			List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)modelToRemove.getProperty("Inhereted");
-//			if(inhereterInheretedChanges != null)
-//				modelChanges.addAll(inhereterInheretedChanges);
-//			List<CommandState<Model>> inhereterLocalChanges = modelToRemove.getLocalChanges();
-//			modelChanges.addAll(inhereterLocalChanges);
-			
 			RestorableModel restorableModel = RestorableModel.wrap(modelToRemove);
 			
-			// TODO: Consider: Should it be a clone of the removed model instead? 
 			return new Output(locationOfModelToRemove, restorableModel);
 		}
 	}

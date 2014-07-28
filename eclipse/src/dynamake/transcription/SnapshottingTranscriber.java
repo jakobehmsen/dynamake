@@ -14,10 +14,8 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -163,7 +161,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			for(Location affectedReferenceLocation: ctxTransaction.affectedReferenceLocations) {
 				Model reference = (Model)affectedReferenceLocation.getChild(prevalentSystem);
 				// Update the log of each affected model isolately; no transaction is cross-model
-//				reference.appendLog(transactionsFromReferenceLocation, propCtx, 0, (Collector<Model>)isolatedCollector);
 				reference.commitLog(propCtx, 0, (Collector<Model>)isolatedCollector);
 				
 				List<HistoryHandler<T>> historyHandlers = referencesToAppliedHistoryHandlers.getItems((T)reference);
@@ -299,10 +296,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	private static class Instruction {
-//		public static final int OPCODE_PRE_COMMIT = 0;
-		public static final int OPCODE_COMMIT = 1;
-		public static final int OPCODE_REJECT = 2;
-		public static final int OPCODE_FLUSH_NEXT_TRIGGER = 3;
+		public static final int OPCODE_COMMIT = 0;
+		public static final int OPCODE_REJECT = 1;
+		public static final int OPCODE_FLUSH_NEXT_TRIGGER = 2;
 	}
 	
 	public static class Connection<T> implements dynamake.transcription.Connection<T> {
@@ -330,10 +326,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			private static final long serialVersionUID = 1L;
 			public final Location location;
 			public final ArrayList<CommandState<T>> pending;
-			
 			public final HistoryHandler<T> historyHandler;
-			
-//			public final boolean affectModelHistory;
 			
 			public LocationCommandsPair(Location location, ArrayList<CommandState<T>> pending, HistoryHandler<T> historyHandler) {
 				this.location = location;
@@ -391,7 +384,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							@Override
 							public void commit() {
-//								collectedCommands.add(Instruction.OPCODE_PRE_COMMIT);
 								collectedCommands.add(Instruction.OPCODE_COMMIT);
 							}
 							
@@ -405,14 +397,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							int i = (int)command;
 							
 							switch(i) {
-//							case Instruction.OPCODE_PRE_COMMIT:
-//								for(Map.Entry<T, ArrayList<Model.PendingUndoablePair>> entry: flushedTransactionsFromReferences.entrySet()) {
-//									T reference = entry.getKey();
-//									
-//									((Model)reference).preCommitLog(propCtx, 0, (Collector<Model>)collector);
-//								}
-//								
-//								break;
 							case Instruction.OPCODE_COMMIT:
 								doCommit();
 								break;
@@ -434,17 +418,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								reference = transactionFactory.getReference();
 							}
 							Location locationFromRoot = ((Model)reference).getLocator().locate();
-//							int affectModelHistory;
 							HistoryHandler<T> historyHandler = null;
 							
 							if(transactionFactory instanceof TranscribeOnlyAndPostNotPendingCommandFactory)
-//								affectModelHistory = 2;
 								historyHandler = new NullHistoryHandler<T>();
 							else if(transactionFactory instanceof TranscribeOnlyPendingCommandFactory)
-//								affectModelHistory = 1;
 								historyHandler = (HistoryHandler<T>)new PostOnlyHistoryHandler();
 							else
-//								affectModelHistory = 0;
 								historyHandler = (HistoryHandler<T>)new LocalHistoryHandler();
 							
 							if(transactionFactory instanceof ExPendingCommandFactory)
@@ -484,18 +464,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								
 								historyHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
 								referencesToAppliedHistoryHandlers.add(reference, historyHandler);
-								
-//								if(historyHandler == null) {
-//									if(affectModelHistory == 0) {
-//	//										System.out.println("Affect model history");
-//										((Model)reference).appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
-//									} else if(affectModelHistory == 1) {
-//	//										System.out.println("Don't affect model history");
-//										((Model)reference).postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
-//									}
-//								} else {
-//									historyHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
-//								}
 	
 								flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, historyHandler));
 							}
@@ -517,7 +485,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			});
 		}
 		
-		@SuppressWarnings("unchecked")
 		private void doCommit() {
 			if(flushedTransactionsFromRoot.size() > 0) {
 				PropogationContext propCtx = new PropogationContext();
@@ -540,8 +507,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				HashSet<Location> affectedReferenceLocations = new HashSet<Location>();
 				
 				for(T reference: affectedReferences) {
-//					((Model)reference).commitLog(propCtx, 0, (Collector<Model>)isolatedCollector);
-					
 					List<HistoryHandler<T>> historyHandlers = referencesToAppliedHistoryHandlers.getItems((T)reference);
 					for(HistoryHandler<T> historyHandler: historyHandlers) {
 						historyHandler.commitLogFor((T)reference, propCtx, 0, isolatedCollector);
@@ -566,7 +531,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			}
 		}
 		
-		@SuppressWarnings("unchecked")
 		private void doReject() {
 			PropogationContext propCtx = new PropogationContext();
 			
@@ -592,8 +556,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			flushedTransactionsFromRoot.clear();
 
 			for(T reference: affectedReferences) {
-//				((Model)reference).rejectLog(propCtx, 0, (Collector<Model>)isolatedCollector);
-				
 				List<HistoryHandler<T>> historyHandlers = referencesToAppliedHistoryHandlers.getItems((T)reference);
 				for(HistoryHandler<T> historyHandler: historyHandlers) {
 					historyHandler.rejectLogFor((T)reference, propCtx, 0, isolatedCollector);
