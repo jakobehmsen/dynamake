@@ -143,10 +143,13 @@ public abstract class Model implements Serializable, Observer {
 	/* Both undo- and stack are assumed to contain RevertingCommandStateSequence<Model> objects */
 	protected Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
 	protected Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
-	private Locator locator;
-	private Model parent;
 	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
 	private ArrayList<PendingUndoablePair> newLog = new ArrayList<Model.PendingUndoablePair>();
+	private ArrayList<Observer> observers;
+	private ArrayList<Observer> observees;
+	
+	private Locator locator;
+	private Model parent;
 
 	public void appendLog(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
@@ -406,9 +409,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public abstract Binding<ModelComponent> createView(ModelComponent rootView, ViewManager viewManager, ModelTranscriber modelTranscriber);
-	
-	private ArrayList<Observer> observers;
-	private ArrayList<Observer> observees;
 	
 	public Model() {
 		observers = new ArrayList<Observer>();
