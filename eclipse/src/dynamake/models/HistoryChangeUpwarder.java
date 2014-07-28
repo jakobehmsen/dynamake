@@ -17,8 +17,8 @@ public class HistoryChangeUpwarder extends ObserverAdapter implements Serializab
 	
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
-		if(!(change instanceof Model.HistoryAppendLogChange || change instanceof Model.HistoryChange/* || change instanceof Model.HistoryLogChange*/))
-			return;
+//		if(!(change instanceof Model.HistoryAppendLogChange || change instanceof Model.HistoryChange/* || change instanceof Model.HistoryLogChange*/))
+//			return;
 		
 		// Somehow, the location should be off set
 		historyChangeForwarder.changed(sender, change, propCtx, propDistance, changeDistance, collector);

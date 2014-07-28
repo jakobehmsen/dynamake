@@ -82,44 +82,11 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class DualCommand implements Serializable {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		public final CommandState<Model> forward;
-		public final CommandState<Model> backward;
-		
-		public DualCommand(CommandState<Model> forward, CommandState<Model> backward) {
-			this.forward = forward;
-			this.backward = backward;
-		}
-	}
-	
 	public static class HistoryAppendLogChange {
 		public final List<PendingUndoablePair> pendingUndoablePairs;
 		
 		public HistoryAppendLogChange(List<PendingUndoablePair> pendingCommands) {
 			this.pendingUndoablePairs = pendingCommands;
-		}
-	}
-	
-	public static class HistoryAppendLogChange2 {
-		public final List<PendingUndoablePair> pendingUndoablePairs;
-		
-		public HistoryAppendLogChange2(List<PendingUndoablePair> pendingCommands) {
-			this.pendingUndoablePairs = pendingCommands;
-		}
-	}
-	
-	public static class HistoryChange {
-		public static final int TYPE_UNDO = 0;
-		public static final int TYPE_REDO = 1;
-		
-		public final int type;
-		
-		public HistoryChange(int type) {
-			this.type = type;
 		}
 	}
 	
