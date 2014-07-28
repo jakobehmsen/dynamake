@@ -176,6 +176,7 @@ public abstract class Model implements Serializable, Observer {
 		properties = (Hashtable<String, Object>)ois.readObject();
 		undoStack = (Stack<CommandState<Model>>)ois.readObject();
 		redoStack = (Stack<CommandState<Model>>)ois.readObject();
+		newLog = new ArrayList<Model.PendingUndoablePair>();
 	}
 
 	public void appendLog(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
