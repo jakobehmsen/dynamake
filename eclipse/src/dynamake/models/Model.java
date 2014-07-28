@@ -90,21 +90,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class HistoryLogChange {
-		public static final int TYPE_COMMIT_LOG = 0;
-		public static final int TYPE_REJECT_LOG = 1;
-		
-		public final int type;
-		public final int length;
-		public final ArrayList<Model.PendingUndoablePair> newLog;
-		
-		public HistoryLogChange(int type, int length, ArrayList<Model.PendingUndoablePair> newLog) {
-			this.type = type;
-			this.length = length;
-			this.newLog = newLog;
-		}
-	}
-	
 	public static class TellProperty {
 		public final String name;
 
@@ -194,17 +179,11 @@ public abstract class Model implements Serializable, Observer {
 			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 			undoStack.add(compressedLogPart);
 		}
-		@SuppressWarnings("unchecked")
-		ArrayList<PendingUndoablePair> newLogCopy = (ArrayList<PendingUndoablePair>)newLog.clone();
 		newLog.clear();
-		
-		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_COMMIT_LOG, length, newLogCopy), propCtx, propDistance, 0, collector);
 	}
 	
 	public void rejectLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		newLog.clear();
-		
-		sendChanged(new HistoryLogChange(HistoryLogChange.TYPE_REJECT_LOG, length, null), propCtx, propDistance, 0, collector);
 	}
 	
 	public void unplay2(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
