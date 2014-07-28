@@ -431,6 +431,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							else
 								affectModelHistory = 0;
 							
+							HistoryHandler<T> historyHandler = null;
+							if(transactionFactory instanceof ExPendingCommandFactory)
+								historyHandler = ((ExPendingCommandFactory<T>)transactionFactory).getHistoryHandler();
+							
 							Location locationFromReference = new ModelRootLocation();
 							
 							ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
@@ -460,12 +464,16 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								
 								affectedReferences.add(reference);
 								
-								if(affectModelHistory == 0) {
-//										System.out.println("Affect model history");
-									((Model)reference).appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
-								} else if(affectModelHistory == 1) {
-//										System.out.println("Don't affect model history");
-									((Model)reference).postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
+								if(historyHandler == null) {
+									if(affectModelHistory == 0) {
+	//										System.out.println("Affect model history");
+										((Model)reference).appendLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
+									} else if(affectModelHistory == 1) {
+	//										System.out.println("Don't affect model history");
+										((Model)reference).postLog(pendingUndoablePairs, propCtx, 0, (Collector<Model>)collector);
+									}
+								} else {
+									historyHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
 								}
 	
 								flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, affectModelHistory));
