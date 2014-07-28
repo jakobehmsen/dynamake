@@ -266,11 +266,10 @@ public class CanvasModel extends Model {
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			
-			final Location addedModelLocation = canvas.getNextLocation();
-			
-			factory.setup(rootPrevalentSystem, model, propCtx, 0, isolatedCollector, location);
-			
 			canvas.addModel(model, new PropogationContext(), 0, collector);
+			Location addedModelLocation = canvas.getLocationOf(model);
+			
+			factory.setup(rootPrevalentSystem, addedModelLocation, propCtx, 0, isolatedCollector, location);
 			
 			return new Output(addedModelLocation);
 		}
@@ -368,7 +367,7 @@ public class CanvasModel extends Model {
 			
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			
-			RestorableModel restorableModel = RestorableModel.wrap(modelToRemove);
+			RestorableModel restorableModel = RestorableModel.wrap(modelToRemove, false);
 			
 			return new Output(locationOfModelToRemove, restorableModel);
 		}

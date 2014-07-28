@@ -35,6 +35,7 @@ import dynamake.delegates.Func1;
 import dynamake.menubuilders.ColorMenuBuilder;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.CloneDeepFactory;
+import dynamake.models.factories.CloneFactory;
 import dynamake.models.factories.CloneIsolatedFactory;
 import dynamake.models.factories.CreationBoundsFactory;
 import dynamake.models.factories.ModelFactory;
@@ -182,9 +183,9 @@ public abstract class Model implements Serializable, Observer {
 
 	public void appendLog(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
-		
-		newLog.addAll(pendingUndoablePairs);
+
 		redoStack.clear();
+		newLog.addAll(pendingUndoablePairs);
 
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
@@ -827,6 +828,36 @@ public abstract class Model implements Serializable, Observer {
 				}
 			});
 			
+			transactions.addMenuBuilder("Clone", new Trigger<Model>() {
+				@Override
+				public void run(Collector<Model> collector) {
+					final Rectangle creationBounds = droppedBounds;
+					
+					collector.execute(new PendingCommandFactory<Model>() {
+						@Override
+						public Model getReference() {
+							return target.getModelBehind();
+						}
+
+						@Override
+						public void createPendingCommand(List<CommandState<Model>> commandStates) {
+							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
+							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
+							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
+							// Probably, the "version" of dropped to be cloned is important
+							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
+							Location droppedLocation = fromCCAToDropped;
+							ModelFactory factory = new CloneFactory(droppedLocation);
+							commandStates.add(new PendingCommandState<Model>(
+								new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(creationBounds), factory)),
+								new CanvasModel.RemoveModelCommand.AfterAdd(),
+								new CanvasModel.RestoreModelCommand.AfterRemove()
+							));
+						}
+					});
+				}
+			});
+			
 			transactions.addMenuBuilder("New Instance", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
@@ -1067,4 +1098,9 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public abstract Model cloneBase();
+
+	public void cloneHistory(Model model) {
+		this.undoStack.addAll(model.undoStack);
+		this.redoStack.addAll(model.redoStack);
+	}
 }

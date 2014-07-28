@@ -20,12 +20,15 @@ public class RestorableModel implements Serializable {
 	private byte[] modelBaseSerialization;
 	private List<CommandState<Model>> modelChanges;
 	
-	public static RestorableModel wrap(Model model) {
+	public static RestorableModel wrap(Model model, boolean includeLocalHistory) {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
 		try {
 			ObjectOutputStream out = new ObjectOutputStream(bos);
 			Model modelBase = model.cloneBase();
+			
+			if(includeLocalHistory)
+				modelBase.cloneHistory(model);
 			
 			out.writeObject(modelBase);
 			out.close();

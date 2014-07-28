@@ -27,5 +27,5 @@ public class CloneIsolatedFactory implements ModelFactory {
 	}
 	
 	@Override
-	public void setup(Model rootModel, Model modelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
+	public void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
 }

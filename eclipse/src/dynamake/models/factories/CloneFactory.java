@@ -1,34 +1,28 @@
 package dynamake.models.factories;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.ArrayList;
-
+import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
-import dynamake.models.StrokeModel;
+import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
 
-public class StrokeModelFactory implements ModelFactory {
+public class CloneFactory implements ModelFactory {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private Location modelLocation;
 	
-	private Point offset;
-	private ArrayList<Point> points;
-	private Rectangle creationBounds;
-
-	public StrokeModelFactory(Point offset, ArrayList<Point> points, Rectangle creationBounds) {
-		this.offset = offset;
-		this.points = points;
-		this.creationBounds = creationBounds;
+	public CloneFactory(Location modelLocation) {
+		this.modelLocation = modelLocation;
 	}
 
 	@Override
 	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-		return new StrokeModel(creationBounds.getSize(), offset, points);
+		Model model = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
+		RestorableModel restorableModel = RestorableModel.wrap(model, true);
+		return restorableModel.unwrap(propCtx, propDistance, collector);
 	}
 	
 	@Override
