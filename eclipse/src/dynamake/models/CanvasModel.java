@@ -113,13 +113,6 @@ public class CanvasModel extends Model {
 			entry.model.addContent(contained);
 		}
 	}
-	
-	@Override
-	protected void modelBeRemoved(Model reference, ArrayList<Command<Model>> restoreCommands) {
-		for(Entry entry: models) {
-			entry.model.beRemoved(reference, restoreCommands);
-		}
-	}
 
 	public int getModelCount() {
 		return models.size();
@@ -363,7 +356,6 @@ public class CanvasModel extends Model {
 				byte[] modelBasedSerialization = ((RemoveModelCommand.Output)output).modelBaseSerialization;
 				List<CommandState<Model>> modelChanges = ((RemoveModelCommand.Output)output).modelChanges; 
 				Location location = ((RemoveModelCommand.Output)output).location;
-				ArrayList<Command<Model>> restoreCommands = ((RemoveModelCommand.Output)output).restoreCommands;
 				// TODO: Consider the following:
 				// What if the model what observing/being observed before its removal?
 				// What if the model's observers/observees aren't all in existence anymore?
@@ -371,7 +363,7 @@ public class CanvasModel extends Model {
 				// Are all of the above cases possible?
 				// Perhaps, the best solution would be to save the history and replay this history?
 				
-				return new CanvasModel.RestoreModelCommand(location, modelBasedSerialization, modelChanges, restoreCommands);
+				return new CanvasModel.RestoreModelCommand(location, modelBasedSerialization, modelChanges);
 			}
 		}
 		
@@ -382,13 +374,11 @@ public class CanvasModel extends Model {
 		private Location modelLocationToRestore;
 		private byte[] modelBaseSerialization;
 		private List<CommandState<Model>> modelLocalChanges;
-		private ArrayList<Command<Model>> restoreCommands;
 		
-		public RestoreModelCommand(Location modelLocationToRestore, byte[] modelBaseSerialization, List<CommandState<Model>> modelLocalChanges, ArrayList<Command<Model>> restoreCommands) {
+		public RestoreModelCommand(Location modelLocationToRestore, byte[] modelBaseSerialization, List<CommandState<Model>> modelLocalChanges) {
 			this.modelLocationToRestore = modelLocationToRestore;
 			this.modelBaseSerialization = modelBaseSerialization;
 			this.modelLocalChanges = modelLocalChanges;
-			this.restoreCommands = restoreCommands;
 		}
 		
 		@Override
@@ -414,10 +404,6 @@ public class CanvasModel extends Model {
 			
 			canvas.restoreModelByLocation(modelLocationToRestore, modelBase, new PropogationContext(), 0, collector);
 			
-			for(Command<Model> restoreCommand: restoreCommands) {
-				restoreCommand.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
-			}
-			
 			return new AddModelCommand.Output(modelLocationToRestore);
 		}
 	}
@@ -431,13 +417,11 @@ public class CanvasModel extends Model {
 			public final Location location;
 			public final byte[] modelBaseSerialization;
 			public final List<CommandState<Model>> modelChanges;
-			public final ArrayList<Command<Model>> restoreCommands;
 
-			public Output(Location location, byte[] modelBaseSerialization, List<CommandState<Model>> modelChanges, ArrayList<Command<Model>> restoreCommands) {
+			public Output(Location location, byte[] modelBaseSerialization, List<CommandState<Model>> modelChanges) {
 				this.location = location;
 				this.modelBaseSerialization = modelBaseSerialization;
 				this.modelChanges = modelChanges;
-				this.restoreCommands = restoreCommands;
 			}
 		}
 		
@@ -468,9 +452,6 @@ public class CanvasModel extends Model {
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
-			
-			ArrayList<Command<Model>> restoreCommands = new ArrayList<Command<Model>>();
-			modelToRemove.beRemoved(canvas, restoreCommands);
 			
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			
@@ -512,7 +493,7 @@ public class CanvasModel extends Model {
 			modelChanges.addAll(inhereterLocalChanges);
 			
 			// TODO: Consider: Should it be a clone of the removed model instead? 
-			return new Output(locationOfModelToRemove, modelBaseSerialization, modelChanges, restoreCommands);
+			return new Output(locationOfModelToRemove, modelBaseSerialization, modelChanges);
 		}
 	}
 	

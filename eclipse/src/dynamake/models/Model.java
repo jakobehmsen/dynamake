@@ -764,38 +764,6 @@ public abstract class Model implements Serializable, Observer {
 		}));
 	}
 
-	public void beRemoved(Model reference, ArrayList<Command<Model>> restoreCommands) {
-		modelBeRemoved(reference, restoreCommands);
-		
-//		// Assumed location is centered around self
-//		// What about offsetting locations within canvases? Is this assumption valid then?
-//		// Perhaps, some sort of location parameter is necessary/could solve this?
-//		for(Observer observer: new ArrayList<Observer>(observers)) {
-//			if(observer instanceof Model) {
-//				Location locationFromReferenceToObservable = ModelComponent.Util.locationBetween(reference, (Model)this);
-//				Location locationFromReferenceToObserver = ModelComponent.Util.locationBetween(reference, (Model)observer);
-//				
-//				restoreCommands.add(new AddObserverCommand(locationFromReferenceToObservable, locationFromReferenceToObserver));
-//			}
-//			
-//			this.removeObserver(observer);
-//		}
-//		for(Observer observee: new ArrayList<Observer>(observees)) {
-//			if(observee instanceof Model) {
-//				((Model)observee).removeObserver(this);
-//				
-//				Location locationFromReferenceToObservable = ModelComponent.Util.locationBetween(reference, (Model)observee);
-//				Location locationFromReferenceToObserver = ModelComponent.Util.locationBetween(reference, (Model)this);
-//				
-//				restoreCommands.add(new AddObserverCommand(locationFromReferenceToObservable, locationFromReferenceToObserver));
-//			}
-//		}
-	}
-	
-	protected void modelBeRemoved(Model reference, ArrayList<Command<Model>> restoreCommands) {
-		
-	}
-
 	public static void appendGeneralDroppedTransactions(final ModelComponent livePanel,
 			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, CompositeMenuBuilder transactions) {
 		if(target.getModelBehind() instanceof CanvasModel) {
