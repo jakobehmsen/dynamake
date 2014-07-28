@@ -163,10 +163,6 @@ public abstract class Model implements Serializable, Observer {
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
 	
-	public void startLog() {
-		
-	}
-	
 	public void commitLog(int length, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(newLog.size() > 0) {
 			@SuppressWarnings("unchecked")
