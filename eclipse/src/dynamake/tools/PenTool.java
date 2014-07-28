@@ -21,8 +21,10 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.StrokeModel;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.models.factories.CreationBoundsFactory;
 import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.StrokeModelFactory;
+import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 
@@ -64,7 +66,7 @@ public class PenTool implements Tool {
 				ModelFactory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation, creationBoundsInContainer);
 				
 				commandStates.add(new PendingCommandState<Model>(
-					new CanvasModel.AddModelCommand(creationBoundsInContainer, factory),
+					new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(creationBoundsInContainer), factory)),
 					new CanvasModel.RemoveModelCommand.AfterAdd(),
 					new CanvasModel.RestoreModelCommand.AfterRemove()
 				));

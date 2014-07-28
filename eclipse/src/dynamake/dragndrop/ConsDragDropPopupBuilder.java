@@ -21,7 +21,9 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.Primitive;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.models.factories.CreationBoundsFactory;
 import dynamake.models.factories.PrimitiveSingletonFactory;
+import dynamake.numbers.RectangleF;
 import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
 import dynamake.transcription.Collector;
@@ -113,7 +115,9 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 							
 							// Add
 							commandStates.add(new PendingCommandState<Model>(
-								new RelativeCommand<Model>(canvasModelLocation, new CanvasModel.AddModelCommand(dropBoundsOnTarget, new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget))), 
+								new RelativeCommand<Model>(canvasModelLocation, 
+									new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(dropBoundsOnTarget), new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)))
+								), 
 								new RelativeCommand.Factory<Model>(new CanvasModel.RemoveModelCommand.AfterAdd()),
 								new RelativeCommand.Factory<Model>(new CanvasModel.RestoreModelCommand.AfterRemove())
 							));

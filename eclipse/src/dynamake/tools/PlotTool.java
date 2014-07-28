@@ -22,6 +22,7 @@ import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.factories.CanvasModelFactory;
+import dynamake.models.factories.CreationBoundsFactory;
 import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
@@ -80,9 +81,9 @@ public class PlotTool implements Tool {
 						
 						@Override
 						public void createPendingCommand(List<CommandState<Model>> commandStates) {
-							ModelFactory factory = new CanvasModelFactory();
+							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
 							commandStates.add(new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand(creationBoundsInSelection, factory),
+								new CanvasModel.AddModelCommand(factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
 							));

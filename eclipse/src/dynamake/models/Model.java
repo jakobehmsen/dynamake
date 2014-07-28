@@ -36,6 +36,7 @@ import dynamake.menubuilders.ColorMenuBuilder;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.CloneDeepFactory;
 import dynamake.models.factories.CloneIsolatedFactory;
+import dynamake.models.factories.CreationBoundsFactory;
 import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.NewInstanceFactory;
 import dynamake.numbers.Fraction;
@@ -819,7 +820,7 @@ public abstract class Model implements Serializable, Observer {
 							Location droppedLocation = fromCCAToDropped;
 							ModelFactory factory = new CloneIsolatedFactory(droppedLocation);
 							commandStates.add(new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand(creationBounds, factory),
+								new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(creationBounds), factory)),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
 							));
@@ -849,7 +850,7 @@ public abstract class Model implements Serializable, Observer {
 							Location droppedLocation = fromCCAToDropped;
 							ModelFactory factory = new CloneDeepFactory(droppedLocation);
 							commandStates.add(new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand(creationBounds, factory),
+								new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(creationBounds), factory)),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
 							));
@@ -877,9 +878,9 @@ public abstract class Model implements Serializable, Observer {
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
-							ModelFactory factory = new NewInstanceFactory(droppedLocation);
+							ModelFactory factory = new NewInstanceFactory(new RectangleF(creationBounds), droppedLocation);
 							commandStates.add(new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand(creationBounds, factory),
+								new CanvasModel.AddModelCommand(factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
 							));

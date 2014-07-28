@@ -20,6 +20,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
+
 import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
@@ -37,6 +39,9 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
+import dynamake.transcription.ExPendingCommandFactory;
+import dynamake.transcription.HistoryHandler;
+import dynamake.transcription.InheritedHistoryHandler;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Trigger;
@@ -265,60 +270,81 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		public final Fraction xCreation;
-		public final Fraction yCreation;
-		public final Fraction widthCreation;
-		public final Fraction heightCreation;
+//		private RectangleF creationBounds;
+//		public final Fraction xCreation;
+//		public final Fraction yCreation;
+//		public final Fraction widthCreation;
+//		public final Fraction heightCreation;
 		public final ModelFactory factory;
 		
-		public AddModelCommand(Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation, ModelFactory factory) {
-			this.xCreation = xCreation;
-			this.yCreation = yCreation;
-			this.widthCreation = widthCreation;
-			this.heightCreation = heightCreation;
+		public AddModelCommand(/*Fraction xCreation, Fraction yCreation, Fraction widthCreation, Fraction heightCreation,*/ ModelFactory factory) {
+//			this.xCreation = xCreation;
+//			this.yCreation = yCreation;
+//			this.widthCreation = widthCreation;
+//			this.heightCreation = heightCreation;
 			this.factory = factory;
 		}
 		
-		public AddModelCommand(Rectangle creationBounds, ModelFactory factory) {
-			this.xCreation = new Fraction(creationBounds.x);
-			this.yCreation = new Fraction(creationBounds.y);
-			this.widthCreation = new Fraction(creationBounds.width);
-			this.heightCreation = new Fraction(creationBounds.height);
-			this.factory = factory;
-		}
+//		public AddModelCommand(/*Rectangle creationBounds, */ModelFactory factory) {
+////			this.xCreation = new Fraction(creationBounds.x);
+////			this.yCreation = new Fraction(creationBounds.y);
+////			this.widthCreation = new Fraction(creationBounds.width);
+////			this.heightCreation = new Fraction(creationBounds.height);
+//			this.factory = factory;
+//		}
 		
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
-			CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
-			Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
+			final CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
+			final Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
-			model.setProperty("X", xCreation, propCtx, 0, isolatedCollector);
-			model.setProperty("Y", yCreation, propCtx, 0, isolatedCollector);
-			model.setProperty("Width", widthCreation, propCtx, 0, isolatedCollector);
-			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
+//			model.setProperty("X", xCreation, propCtx, 0, isolatedCollector);
+//			model.setProperty("Y", yCreation, propCtx, 0, isolatedCollector);
+//			model.setProperty("Width", widthCreation, propCtx, 0, isolatedCollector);
+//			model.setProperty("Height", heightCreation, propCtx, 0, isolatedCollector);
 			
-//			collector.execute(new )
-//			
-//			Location addedModelLocation = canvas.getNextLocation();
-//			collector.execute(new PendingCommandState<Model>(
-//				new RelativeCommand<Model>(addedModelLocation, new SetPropertyCommand("Width", widthCreation)), 
-//				new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
-//			));
-//			collector.execute(new PendingCommandState<Model>(
-//				new RelativeCommand<Model>(addedModelLocation, new SetPropertyCommand("Width", widthCreation)), 
-//				new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
-//			));
-
-			model.setProperty("XCreation", xCreation, propCtx, 0, isolatedCollector);
-			model.setProperty("YCreation", yCreation, propCtx, 0, isolatedCollector);
-			model.setProperty("WidthCreation", widthCreation, propCtx, 0, isolatedCollector);
-			model.setProperty("HeightCreation", heightCreation, propCtx, 0, isolatedCollector);
+			
+			// Somehow, the setting up of the initial the initial x, y, width, and height properties should be decoupled
+			// such that it is possible to decide whether to use the creation bounds (or not) and how to use them
+			// E.g. in an inheritance situation the inhereter's original (may be inhereted itself) width and height are to be set before any inherited changes
+			// are played on the inheretee.
+//
+//			model.setProperty("XCreation", xCreation, propCtx, 0, isolatedCollector);
+//			model.setProperty("YCreation", yCreation, propCtx, 0, isolatedCollector);
+//			model.setProperty("WidthCreation", widthCreation, propCtx, 0, isolatedCollector);
+//			model.setProperty("HeightCreation", heightCreation, propCtx, 0, isolatedCollector);
+			
+			final Location addedModelLocation = canvas.getNextLocation();
+			
+//			collector.execute(new ExPendingCommandFactory<Model>() {
+//				@Override
+//				public Model getReference() {
+//					return canvas;
+//				}
+//
+//				@Override
+//				public void createPendingCommand(List<CommandState<Model>> commandStates) {
+//					commandStates.add(new PendingCommandState<Model>(
+//						new RelativeCommand<Model>(addedModelLocation, new SetPropertyCommand("Width", widthCreation)), 
+//						new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
+//					));
+//					
+//					commandStates.add(new PendingCommandState<Model>(
+//						new RelativeCommand<Model>(addedModelLocation, new SetPropertyCommand("Height", heightCreation)), 
+//						new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
+//					));
+//				}
+//
+//				@Override
+//				public HistoryHandler<Model> getHistoryHandler() {
+//					return new InheritedHistoryHandler();
+//				}
+//			});
 			
 			factory.setup(rootPrevalentSystem, model, propCtx, 0, isolatedCollector, location);
 			
 			canvas.addModel(model, new PropogationContext(), 0, collector);
-			Location addedModelLocation = canvas.getLocationOf(model);
 			
 			return new Output(addedModelLocation);
 		}
@@ -382,6 +408,7 @@ public class CanvasModel extends Model {
 			}
 			
 			modelBase.playThenReverse(modelLocalChanges, propCtx, 0, collector);
+			modelBase.setProperty("Inhereted", modelLocalChanges, propCtx, 0, collector);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			
