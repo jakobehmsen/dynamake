@@ -27,10 +27,7 @@ public class StrokeModelFactory implements ModelFactory {
 	}
 
 	@Override
-	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-		return new StrokeModel(creationBounds.getSize(), offset, points);
+	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+		return new ModelCreation.Const(new StrokeModel(creationBounds.getSize(), offset, points));
 	}
-	
-	@Override
-	public void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
 }

@@ -1,6 +1,7 @@
 package dynamake.models.factories;
 
 
+import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -19,13 +20,10 @@ public class CloneDeepFactory implements ModelFactory {
 	}
 
 	@Override
-	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		Model model = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
 		Model clone = model.cloneDeep();
 		
-		return clone;
+		return new ModelCreation.Const(clone);
 	}
-	
-	@Override
-	public void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
 }

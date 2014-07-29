@@ -16,10 +16,10 @@ public interface ModelFactory extends Serializable {
 	
 	// With such parameters (and constraints, in general), it would be possible to implicitly support creation of an intermediate CreationModel
 	
-	Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location);
-	void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location);
+	ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location);
+//	void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location);
 	
-	public static class Constant implements ModelFactory {
+	public static class Constant implements ModelFactory, ModelCreation {
 		/**
 		 * 
 		 */
@@ -29,13 +29,26 @@ public interface ModelFactory extends Serializable {
 		public Constant(Model value) {
 			this.value = value;
 		}
-
+		
 		@Override
-		public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+		public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+			return this;
+		}
+		
+		@Override
+		public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 			return value;
 		}
 		
 		@Override
-		public void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
+		public void setup(Model rootModel, Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
+
+//		@Override
+//		public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+//			return value;
+//		}
+//		
+//		@Override
+//		public void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
 	}
 }

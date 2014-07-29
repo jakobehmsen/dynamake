@@ -54,7 +54,12 @@ public class RestorableModel implements Serializable {
 		this.modelChanges = modelChanges;
 	}
 	
-	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public RestorableModel mapToReferenceLocation(Location referenceLocation) {
+//		ArrayList<CommandState<Model>>
+		return null;
+	}
+	
+	public Model unwrapBase() {
 		Model modelBase = null;
 		ByteArrayInputStream bis = new ByteArrayInputStream(modelBaseSerialization);
 		ObjectInputStream in;
@@ -65,10 +70,36 @@ public class RestorableModel implements Serializable {
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+		return modelBase;
+	}
+	
+	public void restoreOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		modelBase.playThenReverse(modelChanges, propCtx, propDistance, collector);
 		modelBase.setProperty("Inhereted", modelChanges, propCtx, propDistance, collector);
-		
+	}
+	
+	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		Model modelBase = unwrapBase();
+		restoreOnBase(modelBase, propCtx, propDistance, collector);
 		return modelBase;
+//		Model modelBase = null;
+//		ByteArrayInputStream bis = new ByteArrayInputStream(modelBaseSerialization);
+//		ObjectInputStream in;
+//		try {
+//			in = new ObjectInputStream(bis);
+//			modelBase = (Model) in.readObject();
+//			in.close();
+//		} catch (IOException | ClassNotFoundException e) {
+//			e.printStackTrace();
+//		}
+//		
+//		// Somehow, each of the command states must be unwrapped around a reference location.
+//		// This indicates, a reference location is to be supplied as an argument for this method.
+////		ArrayList<CommansState<Model>> 
+//		
+//		modelBase.playThenReverse(modelChanges, propCtx, propDistance, collector);
+//		modelBase.setProperty("Inhereted", modelChanges, propCtx, propDistance, collector);
+//		
+//		return modelBase;
 	}
 }

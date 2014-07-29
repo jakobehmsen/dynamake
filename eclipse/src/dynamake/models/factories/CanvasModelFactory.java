@@ -14,10 +14,7 @@ public class CanvasModelFactory implements ModelFactory {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-		return new CanvasModel();
+	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+		return new ModelCreation.Const(new CanvasModel());
 	}
-	
-	@Override
-	public void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
 }

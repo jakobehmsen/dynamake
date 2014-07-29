@@ -29,6 +29,7 @@ import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.models.factories.ModelCreation;
 import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
@@ -262,14 +263,15 @@ public class CanvasModel extends Model {
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
 			final CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
-			final Model model = (Model)factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
+			ModelCreation modelCreation = factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
+			final Model model = modelCreation.createModel(rootPrevalentSystem, propCtx, 0, collector, location);
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			
 			canvas.addModel(model, new PropogationContext(), 0, collector);
 			Location addedModelLocation = canvas.getLocationOf(model);
 			
-			factory.setup(rootPrevalentSystem, addedModelLocation, propCtx, 0, isolatedCollector, location);
+			modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, isolatedCollector, location);
 			
 			return new Output(addedModelLocation);
 		}

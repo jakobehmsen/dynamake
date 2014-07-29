@@ -26,15 +26,12 @@ public class PrimitiveSingletonFactory implements ModelFactory {
 	}
 	
 	@Override
-	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		Primitive model = new Primitive(implementationSingleton);
 		Fraction fontSize = new Fraction(12);
 		fontSize = fontSize.multiply(new Fraction(creationBounds.height, 35));
 		IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 		model.setProperty("FontSize", fontSize, propCtx, propDistance, isolatedCollector);
-		return model;
+		return new ModelCreation.Const(model);
 	}
-	
-	@Override
-	public void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
 }

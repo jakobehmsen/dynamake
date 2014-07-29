@@ -32,94 +32,113 @@ public class NewInstanceFactory implements ModelFactory {
 	}
 	
 	@Override
-	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-		Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
-		
-		final Model instance = inhereter.cloneBase();
-		
-//		HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereter, instance);
-//		inhereter.addObserver(historyChangeForwarder);
-//		instance.addObserver(historyChangeForwarder);
-//		historyChangeForwarder.attach(propCtx, propDistance, collector);
-//		
-//		changesToInheret.add(new PendingCommandState<Model>(new ForwardHistoryCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-//		
-		ArrayList<CommandState<Model>> changesToInheret = new ArrayList<CommandState<Model>>();
-		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)inhereter.getProperty("Inhereted");
-		if(inhereterInheretedChanges != null)
-			changesToInheret.addAll(inhereterInheretedChanges);
-		List<CommandState<Model>> inhereterLocalChanges = inhereter.getLocalChanges();
-		changesToInheret.addAll(inhereterLocalChanges);
+	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+		return new ModelCreation() {
+			
+			@Override
+			public void setup(Model rootModel, Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+				Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
+				Location instanceLocation = new CompositeLocation(location, locationOfModelToSetup);
+				Model instance = (Model)instanceLocation.getChild(rootModel);
+				
+				@SuppressWarnings("unchecked")
+				List<CommandState<Model>> changesToInheret = (List<CommandState<Model>>)instance.getProperty("Inhereted");
+				
+				Location locationOfInhereterFromInstance = ModelComponent.Util.locationBetween(instance, inhereter);
+				
+				// TODO: Consider: How to make instance cloneable?
+				// The path to inhereter from inheretee must be derived somehow?...
+				// It could be relative to root
+				// Perhaps, the dropped/inhereter could be supplied for the play sequence of cloning/unwrapping?
+				// Perhaps, each command, during unwrapping, should be mapped to their equivalent in a new context?
+				changesToInheret.add(new PendingCommandState<Model>(new ForwardHistoryCommand(locationOfInhereterFromInstance, new ModelRootLocation()), new SetPropertyCommand.AfterSetProperty()));
 
-		changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-		changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
-		changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
-		changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+				instance.playThenReverse(changesToInheret, propCtx, propDistance, collector);
+				
+//				if(inhereter instanceof CanvasModel)
+//					forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
+			}
+			
+			@Override
+			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+				final Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
+				final Model instance = inhereter.cloneBase();
+//				
+				ArrayList<CommandState<Model>> changesToInheret = new ArrayList<CommandState<Model>>();
+				@SuppressWarnings("unchecked")
+				List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)inhereter.getProperty("Inhereted");
+				if(inhereterInheretedChanges != null)
+					changesToInheret.addAll(inhereterInheretedChanges);
+				List<CommandState<Model>> inhereterLocalChanges = inhereter.getLocalChanges();
+				changesToInheret.addAll(inhereterLocalChanges);
 
-		instance.playThenReverse(changesToInheret, propCtx, propDistance, collector);
-		instance.setProperty("Inhereted", changesToInheret, propCtx, propDistance, collector);
+				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
+				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
+				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
+				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+
+				instance.playThenReverse(changesToInheret, propCtx, propDistance, collector);
+				instance.setProperty("Inhereted", changesToInheret, propCtx, propDistance, collector);
+				
+				return instance;
+			}
+		};
+	}
+	
+//	@Override
+//	public void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+//		Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
+//		Location instanceLocation = new CompositeLocation(location, locationOfModelToSetup);
+//		Model instance = (Model)instanceLocation.getChild(rootModel);
+//		
+////		HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereter, instance);
+////		inhereter.addObserver(historyChangeForwarder);
+////		instance.addObserver(historyChangeForwarder);
+////		historyChangeForwarder.attach(propCtx, propDistance, collector);
+//		
+////		ArrayList<CommandState<Model>> changesToInheret = new ArrayList<CommandState<Model>>();
+////		@SuppressWarnings("unchecked")
+////		List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)inhereter.getProperty("Inhereted");
+////		if(inhereterInheretedChanges != null)
+////			changesToInheret.addAll(inhereterInheretedChanges);
+////		List<CommandState<Model>> inhereterLocalChanges = inhereter.getLocalChanges();
+////		changesToInheret.addAll(inhereterLocalChanges);
+////
+////		changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
+////		changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
+////		changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
+////		changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+//		
+//		@SuppressWarnings("unchecked")
+//		List<CommandState<Model>> changesToInheret = (List<CommandState<Model>>)instance.getProperty("Inhereted");
+//		
+//		Location locationOfInhereterFromInstance = ModelComponent.Util.locationBetween(instance, inhereter);
+//		
+//		// TODO: Consider: How to make instance cloneable?
+//		// The path to inhereter from inheretee must be derived somehow?...
+//		// It could be relative to root
+//		// Perhaps, the dropped/inhereter could be supplied for the play sequence of cloning/unwrapping?
+//		// Perhaps, each command, during unwrapping, should be mapped to their equivalent in a new context?
+//		changesToInheret.add(new PendingCommandState<Model>(new ForwardHistoryCommand(locationOfInhereterFromInstance, new ModelRootLocation()), new SetPropertyCommand.AfterSetProperty()));
+//
+//		instance.playThenReverse(changesToInheret, propCtx, propDistance, collector);
+////		instance.setProperty("Inhereted", changesToInheret, propCtx, propDistance, collector);
 //		
 //		if(inhereter instanceof CanvasModel)
 //			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
-		
-		return instance;
-	}
-	
-	@Override
-	public void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-		Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
-		Location instanceLocation = new CompositeLocation(location, locationOfModelToSetup);
-		Model instance = (Model)instanceLocation.getChild(rootModel);
-		
-//		HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereter, instance);
-//		inhereter.addObserver(historyChangeForwarder);
-//		instance.addObserver(historyChangeForwarder);
-//		historyChangeForwarder.attach(propCtx, propDistance, collector);
-		
-//		ArrayList<CommandState<Model>> changesToInheret = new ArrayList<CommandState<Model>>();
-//		@SuppressWarnings("unchecked")
-//		List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)inhereter.getProperty("Inhereted");
-//		if(inhereterInheretedChanges != null)
-//			changesToInheret.addAll(inhereterInheretedChanges);
-//		List<CommandState<Model>> inhereterLocalChanges = inhereter.getLocalChanges();
-//		changesToInheret.addAll(inhereterLocalChanges);
+//	}
+//	
+//	private void forwardHistoryChangesToContainedModels(CanvasModel inhereterCanvas, CanvasModel inhereteeCanvas, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		for(Location location: inhereterCanvas.getLocations()) {
+//			Model inhereterModel = inhereterCanvas.getModelByLocation(location);
+//			Model inhereteeModel = inhereteeCanvas.getModelByLocation(location);
 //
-//		changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-//		changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
-//		changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
-//		changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
-		
-		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> changesToInheret = (List<CommandState<Model>>)instance.getProperty("Inhereted");
-		
-		Location locationOfInhereterFromInstance = ModelComponent.Util.locationBetween(instance, inhereter);
-		
-		// TODO: Consider: How to make instance cloneable?
-		// The path to inhereter from inheretee must be derived somehow?...
-		// It could be relative to root
-		// Perhaps, the dropped/inhereter could be supplied for the play sequence of cloning/unwrapping?
-		// Perhaps, each command, during unwrapping, should be mapped to their equivalent in a new context?
-		changesToInheret.add(new PendingCommandState<Model>(new ForwardHistoryCommand(locationOfInhereterFromInstance, new ModelRootLocation()), new SetPropertyCommand.AfterSetProperty()));
-
-		instance.playThenReverse(changesToInheret, propCtx, propDistance, collector);
-//		instance.setProperty("Inhereted", changesToInheret, propCtx, propDistance, collector);
-		
-		if(inhereter instanceof CanvasModel)
-			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
-	}
-	
-	private void forwardHistoryChangesToContainedModels(CanvasModel inhereterCanvas, CanvasModel inhereteeCanvas, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(Location location: inhereterCanvas.getLocations()) {
-			Model inhereterModel = inhereterCanvas.getModelByLocation(location);
-			Model inhereteeModel = inhereteeCanvas.getModelByLocation(location);
-
-			HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereterModel, inhereteeModel);
-			inhereterModel.addObserver(historyChangeForwarder);
-			inhereteeModel.addObserver(historyChangeForwarder);
-			historyChangeForwarder.attach(propCtx, propDistance, collector);
-			if(inhereterModel instanceof CanvasModel)
-				forwardHistoryChangesToContainedModels((CanvasModel)inhereterModel, (CanvasModel)inhereterModel, propCtx, propDistance, collector);
-		}
-	}
+//			HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereterModel, inhereteeModel);
+//			inhereterModel.addObserver(historyChangeForwarder);
+//			inhereteeModel.addObserver(historyChangeForwarder);
+//			historyChangeForwarder.attach(propCtx, propDistance, collector);
+//			if(inhereterModel instanceof CanvasModel)
+//				forwardHistoryChangesToContainedModels((CanvasModel)inhereterModel, (CanvasModel)inhereterModel, propCtx, propDistance, collector);
+//		}
+//	}
 }

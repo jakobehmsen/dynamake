@@ -19,13 +19,10 @@ public class CloneIsolatedFactory implements ModelFactory {
 	}
 
 	@Override
-	public Model create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		Model model = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
 		Model clone = model.cloneIsolated();
-		
-		return clone;
+
+		return new ModelCreation.Const(clone);
 	}
-	
-	@Override
-	public void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
 }
