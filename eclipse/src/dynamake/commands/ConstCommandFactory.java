@@ -1,6 +1,8 @@
 package dynamake.commands;
 
-public class ConstCommandFactory<T> implements CommandFactory<T> {
+import dynamake.models.Model;
+
+public class ConstCommandFactory<T> implements MappableCommandFactory<T> {
 	/**
 	 * 
 	 */
@@ -15,5 +17,12 @@ public class ConstCommandFactory<T> implements CommandFactory<T> {
 	@Override
 	public Command<T> createCommand(Object output) {
 		return command;
+	}
+	
+	@Override
+	public CommandFactory<T> mapToReferenceLocation(Model sourceReference, Model targetReference) {
+		if(command instanceof MappableCommand)
+			return new ConstCommandFactory<T>(((MappableCommand<T>)command).mapToReferenceLocation(sourceReference, targetReference));
+		return this;
 	}
 }
