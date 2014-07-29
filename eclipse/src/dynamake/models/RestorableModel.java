@@ -55,8 +55,14 @@ public class RestorableModel implements Serializable {
 	}
 	
 	public RestorableModel mapToReferenceLocation(Location referenceLocation) {
-//		ArrayList<CommandState<Model>>
-		return null;
+		ArrayList<CommandState<Model>> mappedModelChanges = new ArrayList<CommandState<Model>>();
+		
+		for(CommandState<Model> modelChange: modelChanges) {
+			CommandState<Model> newModelChange = modelChange.mapToReferenceLocation(referenceLocation);
+			mappedModelChanges.add(newModelChange);
+		}
+		
+		return new RestorableModel(modelBaseSerialization, mappedModelChanges);
 	}
 	
 	public Model unwrapBase() {

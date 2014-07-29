@@ -52,4 +52,13 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 	public CommandState<T> getCommandState(int index) {
 		return commandStates[index];
 	}
+	
+	@Override
+	public CommandState<T> mapToReferenceLocation(Location referenceLocation) {
+		@SuppressWarnings("unchecked")
+		CommandState<T>[] newCommandStates = (CommandState<T>[])new CommandState[commandStates.length];
+		for(int i = 0; i < commandStates.length; i++)
+			newCommandStates[i] = commandStates[i].mapToReferenceLocation(referenceLocation);
+		return new RevertingCommandStateSequence<T>(newCommandStates);
+	}
 }

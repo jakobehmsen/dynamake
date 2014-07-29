@@ -82,6 +82,11 @@ public abstract class Model implements Serializable, Observer {
 			CommandState<Model> reverted = revertible.executeOn(propCtx, prevalentSystem, collector, location);
 			return new UndoRedoPart(origin, reverted);
 		}
+		
+		@Override
+		public CommandState<Model> mapToReferenceLocation(Location referenceLocation) {
+			return new UndoRedoPart(origin.mapToReferenceLocation(referenceLocation), revertible.mapToReferenceLocation(referenceLocation));
+		}
 	}
 	
 	public static class HistoryAppendLogChange {

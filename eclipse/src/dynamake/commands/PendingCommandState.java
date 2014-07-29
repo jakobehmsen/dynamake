@@ -61,4 +61,27 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 		
 		return new ReversibleCommand<T>(output, backFactory, forthFactory);
 	}
+	
+	@Override
+	public CommandState<T> mapToReferenceLocation(Location referenceLocation) {
+		Command<T> newCommand;
+		if(command instanceof MappableCommand)
+			newCommand = ((MappableCommand<T>)command).mapToReferenceLocation(referenceLocation);
+		else
+			newCommand = command;
+		
+		CommandFactory<T> newForthFactory;
+		if(forthFactory instanceof MappableCommandFactory)
+			newForthFactory = ((MappableCommandFactory<T>)forthFactory).mapToReferenceLocation(referenceLocation);
+		else
+			newForthFactory = forthFactory;
+		
+		CommandFactory<T> newBackFactory;
+		if(backFactory instanceof MappableCommandFactory)
+			newBackFactory = ((MappableCommandFactory<T>)backFactory).mapToReferenceLocation(referenceLocation);
+		else
+			newBackFactory = backFactory;
+		
+		return new PendingCommandState<>(newCommand, newBackFactory, newForthFactory);
+	}
 }

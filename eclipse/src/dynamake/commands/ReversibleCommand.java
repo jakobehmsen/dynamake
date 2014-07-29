@@ -32,4 +32,27 @@ public class ReversibleCommand<T> implements CommandState<T> {
 		// Reverse factories to create antagonistic command
 		return new ReversibleCommand<T>(newOutput, backFactory, forthFactory);
 	}
+	
+	@Override
+	public CommandState<T> mapToReferenceLocation(Location referenceLocation) {
+		Object newOutput;
+		if(output instanceof MappableOutput)
+			newOutput = ((MappableOutput)output).mapToReferenceLocation(referenceLocation);
+		else
+			newOutput = output;
+		
+		CommandFactory<T> newForthFactory;
+		if(forthFactory instanceof MappableCommandFactory)
+			newForthFactory = ((MappableCommandFactory<T>)forthFactory).mapToReferenceLocation(referenceLocation);
+		else
+			newForthFactory = forthFactory;
+		
+		CommandFactory<T> newBackFactory;
+		if(backFactory instanceof MappableCommandFactory)
+			newBackFactory = ((MappableCommandFactory<T>)backFactory).mapToReferenceLocation(referenceLocation);
+		else
+			newBackFactory = backFactory;
+		
+		return new ReversibleCommand<T>(newOutput, newForthFactory, newBackFactory);
+	}
 }

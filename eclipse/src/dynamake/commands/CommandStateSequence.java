@@ -1,27 +1,42 @@
 package dynamake.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.models.Location;
+import dynamake.models.Model;
 import dynamake.models.PropogationContext;
+import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
 
-public class CommandStateSequence<Model> implements CommandState<Model> {
+public class CommandStateSequence<T> implements CommandState<T> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private List<CommandState<Model>> commandStates;
+	private List<CommandState<T>> commandStates;
 
-	public CommandStateSequence(List<CommandState<Model>> commandStates) {
+	public CommandStateSequence(List<CommandState<T>> commandStates) {
 		this.commandStates = commandStates;
 	}
 
 	@Override
-	public CommandState<Model> executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-		for(CommandState<Model> commandState: commandStates)
+	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location) {
+		for(CommandState<T> commandState: commandStates)
 			commandState.executeOn(propCtx, prevalentSystem, collector, location);
 		
 		return this;
+	}
+	
+	@Override
+	public CommandState<T> mapToReferenceLocation(Location referenceLocation) {
+		ArrayList<CommandState<T>> newCommandStates = new ArrayList<CommandState<T>>();
+		
+		for(CommandState<T> commandState: commandStates) {
+			CommandState<T> newCommandState = commandState.mapToReferenceLocation(referenceLocation);
+			newCommandStates.add(newCommandState);
+		}
+		
+		return new CommandStateSequence<T>(newCommandStates);
 	}
 }
