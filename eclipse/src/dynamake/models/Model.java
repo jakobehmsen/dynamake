@@ -1107,4 +1107,16 @@ public abstract class Model implements Serializable, Observer {
 		this.undoStack.addAll(model.undoStack);
 		this.redoStack.addAll(model.redoStack);
 	}
+
+	public void beRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		modelBeRemoved(propCtx, propDistance, collector);
+
+		@SuppressWarnings("unchecked")
+		List<CommandState<Model>> cleanup = (List<CommandState<Model>>)getProperty("Cleanup");
+		if(cleanup != null) {
+			playThenReverse(cleanup, propCtx, propDistance, collector);
+		}
+	}
+	
+	protected void modelBeRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
 }

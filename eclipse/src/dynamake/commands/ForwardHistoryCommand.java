@@ -31,6 +31,8 @@ public class ForwardHistoryCommand implements MappableCommand<Model> {
 		inheretee.addObserver(historyChangeForwarder);
 		historyChangeForwarder.attach(propCtx, 0, collector);
 		
+		System.out.println("Forward history from " + inhereter + " to " + inheretee);
+		
 		return null;
 	}
 	

@@ -14,22 +14,19 @@ public class UnforwardHistoryCommand implements Command<Model> {
 	private static final long serialVersionUID = 1L;
 
 	private Location locationOfInhereter;
-	private Location locationOfInheretee;
 
-	public UnforwardHistoryCommand(Location locationOfInhereter, Location locationOfInheretee) {
+	public UnforwardHistoryCommand(Location locationOfInhereter) {
 		this.locationOfInhereter = locationOfInhereter;
-		this.locationOfInheretee = locationOfInheretee;
 	}
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model inhereter = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInhereter);
-		Model inheretee = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInheretee);
+		Model inheretee = (Model)location.getChild(prevalentSystem);
 
 		HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereter, inheretee);
 		inhereter.removeObserverLike(historyChangeForwarder);
 		inheretee.removeObserverLike(historyChangeForwarder);
-		historyChangeForwarder.attach(propCtx, 0, collector);
 		
 		return null;
 	}

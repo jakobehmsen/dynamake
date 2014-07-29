@@ -7,6 +7,7 @@ import dynamake.commands.CommandState;
 import dynamake.commands.ForwardHistoryCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
+import dynamake.commands.UnforwardHistoryCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.HistoryChangeForwarder;
@@ -34,7 +35,6 @@ public class NewInstanceFactory implements ModelFactory {
 	@Override
 	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		return new ModelCreation() {
-			
 			@Override
 			public void setup(Model rootModel, Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 				Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
@@ -54,9 +54,16 @@ public class NewInstanceFactory implements ModelFactory {
 				
 				// Should be available during cloning: but not for new instances
 				// Filter in history?
-				changesToInheret.add(new PendingCommandState<Model>(new ForwardHistoryCommand(locationOfInhereterFromInstance), new SetPropertyCommand.AfterSetProperty()));
+				ArrayList<CommandState<Model>> newChangesToInheret = new ArrayList<CommandState<Model>>();
+				newChangesToInheret.add(new PendingCommandState<Model>(
+					new ForwardHistoryCommand(locationOfInhereterFromInstance), 
+					new UnforwardHistoryCommand(locationOfInhereterFromInstance)
+				));
+				changesToInheret.addAll(newChangesToInheret);
 
-				instance.playThenReverse(changesToInheret, propCtx, propDistance, collector);
+				// TODO: Consider: Inherit cleanup?
+				List<CommandState<Model>> cleanup = instance.playThenReverse(newChangesToInheret, propCtx, propDistance, collector);
+				instance.setProperty("Cleanup", cleanup, propCtx, propDistance, collector);
 				
 //				if(inhereter instanceof CanvasModel)
 //					forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
@@ -93,6 +100,8 @@ public class NewInstanceFactory implements ModelFactory {
 					CommandState<Model> newCommandState = changesToInheret.get(i).mapToReferenceLocation(inhereter, instance);
 					changesToInheret.set(i, newCommandState);
 				}
+				
+				// TODO: Consider: Inherit and map cleanup?
 
 				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
 				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));

@@ -21,6 +21,7 @@ public class RestorableModel implements Serializable {
 	// Origins must guarantee to not require mapping to new references
 	private List<CommandState<Model>> modelOrigins;
 	private List<CommandState<Model>> modelChanges;
+	private List<CommandState<Model>> modelCleanup;
 	
 	public static RestorableModel wrap(Model model, boolean includeLocalHistory) {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -49,14 +50,17 @@ public class RestorableModel implements Serializable {
 			modelChanges.addAll(inhereterInheretedChanges);
 		List<CommandState<Model>> inhereterLocalChanges = model.getLocalChanges();
 		modelChanges.addAll(inhereterLocalChanges);
+		@SuppressWarnings("unchecked")
+		List<CommandState<Model>> cleanup = (List<CommandState<Model>>)model.getProperty("Cleanup");
 		
-		return new RestorableModel(modelBaseSerialization, origins, modelChanges);
+		return new RestorableModel(modelBaseSerialization, origins, modelChanges, cleanup);
 	}
 	
-	private RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelChanges) {
+	private RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelChanges, List<CommandState<Model>> modelCleanup) {
 		this.modelBaseSerialization = modelBaseSerialization;
 		this.modelOrigins = modelOrigins;
 		this.modelChanges = modelChanges;
+		this.modelCleanup = modelCleanup;
 	}
 	
 	public RestorableModel mapToReferenceLocation(Model sourceReference, Model targetReference) {
@@ -67,10 +71,17 @@ public class RestorableModel implements Serializable {
 			mappedModelChanges.add(newModelChange);
 		}
 		
-		return new RestorableModel(modelBaseSerialization, modelOrigins, mappedModelChanges);
+		ArrayList<CommandState<Model>> mappedModelCleanup = new ArrayList<CommandState<Model>>();
+		
+		for(CommandState<Model> mc: modelCleanup) {
+			CommandState<Model> newModelCleanup = mc.mapToReferenceLocation(sourceReference, targetReference);
+			mappedModelCleanup.add(newModelCleanup);
+		}
+		
+		return new RestorableModel(modelBaseSerialization, modelOrigins, mappedModelChanges, mappedModelCleanup);
 	}
 	
-	public Model unwrapBase() {
+	public Model unwrapBase(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		Model modelBase = null;
 		ByteArrayInputStream bis = new ByteArrayInputStream(modelBaseSerialization);
 		ObjectInputStream in;
@@ -81,6 +92,7 @@ public class RestorableModel implements Serializable {
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+		modelBase.setProperty("Cleanup", modelCleanup, propCtx, propDistance, collector);
 		return modelBase;
 	}
 	
@@ -95,7 +107,7 @@ public class RestorableModel implements Serializable {
 	}
 	
 	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		Model modelBase = unwrapBase();
+		Model modelBase = unwrapBase(propCtx, propDistance, collector);
 		restoreOriginsOnBase(modelBase, propCtx, propDistance, collector);
 		restoreChangesOnBase(modelBase, propCtx, propDistance, collector);
 		return modelBase;

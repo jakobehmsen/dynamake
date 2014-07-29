@@ -52,7 +52,7 @@ public class CloneFactory implements ModelFactory {
 			
 			@Override
 			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-				Model modelBase = restorableModelClone.unwrapBase();
+				Model modelBase = restorableModelClone.unwrapBase(propCtx, propDistance, collector);
 				restorableModelClone.restoreOriginsOnBase(modelBase, propCtx, propDistance, collector);
 				return modelBase;
 			}

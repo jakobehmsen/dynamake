@@ -99,6 +99,12 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
+	protected void modelBeRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		for(Entry entry: models)
+			entry.model.beRemoved(propCtx, propDistance, collector);
+	}
+	
+	@Override
 	protected void modelAddContent(HashSet<Model> contained) {
 		for(Entry entry: models) {
 			entry.model.addContent(contained);
@@ -316,9 +322,13 @@ public class CanvasModel extends Model {
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			
-			Model modelBase = restorableModel.unwrap(propCtx, 0, collector);
+//			Model modelBase = restorableModel.unwrap(propCtx, 0, collector);
+			Model modelBase = restorableModel.unwrapBase(propCtx, 0, collector);
+			restorableModel.restoreOriginsOnBase(modelBase, propCtx, 0, collector);
 			
 			canvas.restoreModelByLocation(modelLocationToRestore, modelBase, new PropogationContext(), 0, collector);
+			
+			restorableModel.restoreChangesOnBase(modelBase, propCtx, 0, collector);
 			
 			return new AddModelCommand.Output(modelLocationToRestore);
 		}
@@ -366,6 +376,8 @@ public class CanvasModel extends Model {
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
+			
+			modelToRemove.beRemoved(propCtx, 0, collector);
 			
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			
