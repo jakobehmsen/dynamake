@@ -54,11 +54,11 @@ public class RestorableModel implements Serializable {
 		this.modelChanges = modelChanges;
 	}
 	
-	public RestorableModel mapToReferenceLocation(Location referenceLocation) {
+	public RestorableModel mapToReferenceLocation(Model sourceReference, Model targetReference) {
 		ArrayList<CommandState<Model>> mappedModelChanges = new ArrayList<CommandState<Model>>();
 		
 		for(CommandState<Model> modelChange: modelChanges) {
-			CommandState<Model> newModelChange = modelChange.mapToReferenceLocation(referenceLocation);
+			CommandState<Model> newModelChange = modelChange.mapToReferenceLocation(sourceReference, targetReference);
 			mappedModelChanges.add(newModelChange);
 		}
 		

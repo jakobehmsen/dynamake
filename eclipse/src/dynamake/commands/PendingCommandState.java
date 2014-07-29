@@ -3,6 +3,7 @@ package dynamake.commands;
 import java.io.Serializable;
 
 import dynamake.models.Location;
+import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
@@ -63,22 +64,22 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 	}
 	
 	@Override
-	public CommandState<T> mapToReferenceLocation(Location referenceLocation) {
+	public CommandState<T> mapToReferenceLocation(Model sourceReference, Model targetReference) {
 		Command<T> newCommand;
 		if(command instanceof MappableCommand)
-			newCommand = ((MappableCommand<T>)command).mapToReferenceLocation(referenceLocation);
+			newCommand = ((MappableCommand<T>)command).mapToReferenceLocation(sourceReference, targetReference);
 		else
 			newCommand = command;
 		
 		CommandFactory<T> newForthFactory;
 		if(forthFactory instanceof MappableCommandFactory)
-			newForthFactory = ((MappableCommandFactory<T>)forthFactory).mapToReferenceLocation(referenceLocation);
+			newForthFactory = ((MappableCommandFactory<T>)forthFactory).mapToReferenceLocation(sourceReference, targetReference);
 		else
 			newForthFactory = forthFactory;
 		
 		CommandFactory<T> newBackFactory;
 		if(backFactory instanceof MappableCommandFactory)
-			newBackFactory = ((MappableCommandFactory<T>)backFactory).mapToReferenceLocation(referenceLocation);
+			newBackFactory = ((MappableCommandFactory<T>)backFactory).mapToReferenceLocation(sourceReference, targetReference);
 		else
 			newBackFactory = backFactory;
 		

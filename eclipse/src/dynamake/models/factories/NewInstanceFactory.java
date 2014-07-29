@@ -51,7 +51,7 @@ public class NewInstanceFactory implements ModelFactory {
 				// It could be relative to root
 				// Perhaps, the dropped/inhereter could be supplied for the play sequence of cloning/unwrapping?
 				// Perhaps, each command, during unwrapping, should be mapped to their equivalent in a new context?
-				changesToInheret.add(new PendingCommandState<Model>(new ForwardHistoryCommand(locationOfInhereterFromInstance, new ModelRootLocation()), new SetPropertyCommand.AfterSetProperty()));
+				changesToInheret.add(new PendingCommandState<Model>(new ForwardHistoryCommand(locationOfInhereterFromInstance), new SetPropertyCommand.AfterSetProperty()));
 
 				instance.playThenReverse(changesToInheret, propCtx, propDistance, collector);
 				

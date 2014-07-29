@@ -84,8 +84,8 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		@Override
-		public CommandState<Model> mapToReferenceLocation(Location referenceLocation) {
-			return new UndoRedoPart(origin.mapToReferenceLocation(referenceLocation), revertible.mapToReferenceLocation(referenceLocation));
+		public CommandState<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
+			return new UndoRedoPart(origin.mapToReferenceLocation(sourceReference, targetReference), revertible.mapToReferenceLocation(sourceReference, targetReference));
 		}
 	}
 	

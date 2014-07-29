@@ -50,6 +50,7 @@ public class RelativeCommand<T> implements Command<T> {
 	private Command<T> command;
 
 	public RelativeCommand(Location tail, Command<T> command) {
+		// TODO: Consider: How can mappable commands and mappable factories be supported?
 		this.tail = tail;
 		this.command = command;
 	}

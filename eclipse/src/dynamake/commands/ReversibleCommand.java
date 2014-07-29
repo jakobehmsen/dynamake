@@ -1,6 +1,7 @@
 package dynamake.commands;
 
 import dynamake.models.Location;
+import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
@@ -34,22 +35,22 @@ public class ReversibleCommand<T> implements CommandState<T> {
 	}
 	
 	@Override
-	public CommandState<T> mapToReferenceLocation(Location referenceLocation) {
+	public CommandState<T> mapToReferenceLocation(Model sourceReference, Model targetReference) {
 		Object newOutput;
 		if(output instanceof MappableOutput)
-			newOutput = ((MappableOutput)output).mapToReferenceLocation(referenceLocation);
+			newOutput = ((MappableOutput)output).mapToReferenceLocation(sourceReference, targetReference);
 		else
 			newOutput = output;
 		
 		CommandFactory<T> newForthFactory;
 		if(forthFactory instanceof MappableCommandFactory)
-			newForthFactory = ((MappableCommandFactory<T>)forthFactory).mapToReferenceLocation(referenceLocation);
+			newForthFactory = ((MappableCommandFactory<T>)forthFactory).mapToReferenceLocation(sourceReference, targetReference);
 		else
 			newForthFactory = forthFactory;
 		
 		CommandFactory<T> newBackFactory;
 		if(backFactory instanceof MappableCommandFactory)
-			newBackFactory = ((MappableCommandFactory<T>)backFactory).mapToReferenceLocation(referenceLocation);
+			newBackFactory = ((MappableCommandFactory<T>)backFactory).mapToReferenceLocation(sourceReference, targetReference);
 		else
 			newBackFactory = backFactory;
 		

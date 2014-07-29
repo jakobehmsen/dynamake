@@ -3,6 +3,7 @@ package dynamake.commands;
 import java.util.List;
 
 import dynamake.models.Location;
+import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
@@ -54,11 +55,11 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 	}
 	
 	@Override
-	public CommandState<T> mapToReferenceLocation(Location referenceLocation) {
+	public CommandState<T> mapToReferenceLocation(Model sourceReference, Model targetReference) {
 		@SuppressWarnings("unchecked")
 		CommandState<T>[] newCommandStates = (CommandState<T>[])new CommandState[commandStates.length];
 		for(int i = 0; i < commandStates.length; i++)
-			newCommandStates[i] = commandStates[i].mapToReferenceLocation(referenceLocation);
+			newCommandStates[i] = commandStates[i].mapToReferenceLocation(sourceReference, targetReference);
 		return new RevertingCommandStateSequence<T>(newCommandStates);
 	}
 }

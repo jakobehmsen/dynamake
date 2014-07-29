@@ -19,5 +19,5 @@ import dynamake.transcription.Collector;
 public interface CommandState<T> extends Serializable {
 	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location);
 
-	public CommandState<T> mapToReferenceLocation(Location referenceLocation);
+	public CommandState<T> mapToReferenceLocation(Model sourceReference, Model targetReference);
 }

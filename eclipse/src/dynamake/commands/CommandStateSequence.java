@@ -29,11 +29,11 @@ public class CommandStateSequence<T> implements CommandState<T> {
 	}
 	
 	@Override
-	public CommandState<T> mapToReferenceLocation(Location referenceLocation) {
+	public CommandState<T> mapToReferenceLocation(Model sourceReference, Model targetReference) {
 		ArrayList<CommandState<T>> newCommandStates = new ArrayList<CommandState<T>>();
 		
 		for(CommandState<T> commandState: commandStates) {
-			CommandState<T> newCommandState = commandState.mapToReferenceLocation(referenceLocation);
+			CommandState<T> newCommandState = commandState.mapToReferenceLocation(sourceReference, targetReference);
 			newCommandStates.add(newCommandState);
 		}
 		

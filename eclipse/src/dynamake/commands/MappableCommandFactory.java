@@ -1,7 +1,7 @@
 package dynamake.commands;
 
-import dynamake.models.Location;
+import dynamake.models.Model;
 
 public interface MappableCommandFactory<T> extends CommandFactory<T> {
-	public CommandFactory<T> mapToReferenceLocation(Location referenceLocation);
+	public CommandFactory<T> mapToReferenceLocation(Model sourceReference, Model targetReference);
 }

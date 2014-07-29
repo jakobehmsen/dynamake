@@ -21,13 +21,13 @@ public class CloneFactory implements ModelFactory {
 
 	@Override
 	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-		Model model = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
-		final RestorableModel restorableModelClone = RestorableModel.wrap(model, true);
+		final Model modelToClone = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
+		final RestorableModel restorableModelClone = RestorableModel.wrap(modelToClone, true);
 		
 		return new ModelCreation() {
 			@Override
 			public void setup(Model rootModel, Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-				RestorableModel restorableModelCreation = restorableModelClone.mapToReferenceLocation(locationOfModelToSetup);
+				RestorableModel restorableModelCreation = restorableModelClone.mapToReferenceLocation(modelToClone, createdModel);
 				restorableModelCreation.restoreOnBase(createdModel, propCtx, propDistance, collector);
 			}
 			
