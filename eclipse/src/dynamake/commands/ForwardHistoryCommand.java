@@ -4,27 +4,27 @@ import dynamake.models.CompositeLocation;
 import dynamake.models.HistoryChangeForwarder;
 import dynamake.models.Location;
 import dynamake.models.Model;
+import dynamake.models.ModelComponent;
+import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class ForwardHistoryCommand implements Command<Model> {
+public class ForwardHistoryCommand implements MappableCommand<Model> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
 	private Location locationOfInhereter;
-	private Location locationOfInheretee;
 
-	public ForwardHistoryCommand(Location locationOfInhereter, Location locationOfInheretee) {
+	public ForwardHistoryCommand(Location locationOfInhereter) {
 		this.locationOfInhereter = locationOfInhereter;
-		this.locationOfInheretee = locationOfInheretee;
 	}
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model inhereter = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInhereter);
-		Model inheretee = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInheretee);
+		Model inheretee = (Model)location.getChild(prevalentSystem);
 		
 		HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereter, inheretee);
 		inhereter.addObserver(historyChangeForwarder);
@@ -32,5 +32,13 @@ public class ForwardHistoryCommand implements Command<Model> {
 		historyChangeForwarder.attach(propCtx, 0, collector);
 		
 		return null;
+	}
+	
+	@Override
+	public Command<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
+		Model inhereter = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfInhereter);
+		Location locationOfInhereterFromTargetReference = ModelComponent.Util.locationBetween(targetReference, inhereter);
+		
+		return new ForwardHistoryCommand(locationOfInhereterFromTargetReference);
 	}
 }
