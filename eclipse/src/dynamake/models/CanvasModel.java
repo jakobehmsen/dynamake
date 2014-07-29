@@ -381,7 +381,7 @@ public class CanvasModel extends Model {
 			
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			
-			RestorableModel restorableModel = RestorableModel.wrap(modelToRemove, false);
+			RestorableModel restorableModel = RestorableModel.wrap(modelToRemove, true);
 			
 			return new Output(locationOfModelToRemove, restorableModel);
 		}
