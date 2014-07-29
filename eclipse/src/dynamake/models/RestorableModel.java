@@ -92,7 +92,6 @@ public class RestorableModel implements Serializable {
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		modelBase.setProperty("Cleanup", modelCleanup, propCtx, propDistance, collector);
 		return modelBase;
 	}
 	
@@ -104,6 +103,10 @@ public class RestorableModel implements Serializable {
 	public void restoreChangesOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		modelBase.playThenReverse(modelChanges, propCtx, propDistance, collector);
 		modelBase.setProperty("Inhereted", modelChanges, propCtx, propDistance, collector);
+	}
+	
+	public void restoreCleanupOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		modelBase.setProperty("Cleanup", modelCleanup, propCtx, propDistance, collector);
 	}
 	
 	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector) {

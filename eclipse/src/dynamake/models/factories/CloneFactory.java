@@ -1,5 +1,6 @@
 package dynamake.models.factories;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.commands.CommandState;
@@ -36,16 +37,21 @@ public class CloneFactory implements ModelFactory {
 			public void setup(Model rootModel, Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 				RestorableModel restorableModelCreation = restorableModelClone.mapToReferenceLocation(modelToClone, createdModel);
 				restorableModelCreation.restoreChangesOnBase(createdModel, propCtx, propDistance, collector);
+				restorableModelCreation.restoreCleanupOnBase(createdModel, propCtx, propDistance, collector);
 				
 				@SuppressWarnings("unchecked")
 				List<CommandState<Model>> changesToInheret = (List<CommandState<Model>>)createdModel.getProperty("Inhereted");
+				
+				List<CommandState<Model>> newChangesToInheret = new ArrayList<CommandState<Model>>();
 
-				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
-				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
-				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+				newChangesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
+				newChangesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
+				newChangesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
+				newChangesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+				
+				changesToInheret.addAll(newChangesToInheret);
 
-				createdModel.playThenReverse(changesToInheret, propCtx, propDistance, collector);
+				createdModel.playThenReverse(newChangesToInheret, propCtx, propDistance, collector);
 			}
 			
 			@Override

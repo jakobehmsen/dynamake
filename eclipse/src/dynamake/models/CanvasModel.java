@@ -329,6 +329,7 @@ public class CanvasModel extends Model {
 			canvas.restoreModelByLocation(modelLocationToRestore, modelBase, new PropogationContext(), 0, collector);
 			
 			restorableModel.restoreChangesOnBase(modelBase, propCtx, 0, collector);
+			restorableModel.restoreCleanupOnBase(modelBase, propCtx, 0, collector);
 			
 			return new AddModelCommand.Output(modelLocationToRestore);
 		}
