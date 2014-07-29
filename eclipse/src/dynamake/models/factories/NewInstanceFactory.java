@@ -89,6 +89,10 @@ public class NewInstanceFactory implements ModelFactory {
 				changesToInheret.addAll(inhereterLocalChanges);
 
 				// changesToInheret should be mapped from inhereter (sourceReference) to instance (targetReference)
+				for(int i = 0; i < changesToInheret.size(); i++) {
+					CommandState<Model> newCommandState = changesToInheret.get(i).mapToReferenceLocation(inhereter, instance);
+					changesToInheret.set(i, newCommandState);
+				}
 
 				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
 				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
