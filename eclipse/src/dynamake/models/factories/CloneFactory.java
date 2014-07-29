@@ -1,12 +1,10 @@
 package dynamake.models.factories;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
-import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;

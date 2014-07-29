@@ -6,7 +6,6 @@ import java.util.List;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
-import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
 
 public class CommandStateSequence<T> implements CommandState<T> {

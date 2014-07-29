@@ -1,7 +1,5 @@
 package dynamake.models.factories;
 
-
-import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
