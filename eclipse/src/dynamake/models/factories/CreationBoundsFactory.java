@@ -47,8 +47,8 @@ public class CreationBoundsFactory implements ModelFactory {
 				
 				model.playThenReverse(origins, propCtx, propDistance, collector);
 				
-//				model.setProperty("Origins", origins, propCtx, propDistance, collector);
-				model.setProperty("Inhereted", origins, propCtx, propDistance, collector);
+				model.setProperty("Origins", origins, propCtx, propDistance, collector);
+//				model.setProperty("Inhereted", origins, propCtx, propDistance, collector);
 				
 				return model;
 			}

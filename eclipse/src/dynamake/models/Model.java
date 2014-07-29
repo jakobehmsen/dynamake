@@ -852,9 +852,8 @@ public abstract class Model implements Serializable, Observer {
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
-							ModelFactory factory = new CloneFactory(droppedLocation);
 							commandStates.add(new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(creationBounds), factory)),
+								new CanvasModel.AddModelCommand(new CloneFactory(new RectangleF(creationBounds), droppedLocation)),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
 							));

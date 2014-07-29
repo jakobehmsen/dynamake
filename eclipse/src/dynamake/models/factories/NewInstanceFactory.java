@@ -51,6 +51,8 @@ public class NewInstanceFactory implements ModelFactory {
 				// It could be relative to root
 				// Perhaps, the dropped/inhereter could be supplied for the play sequence of cloning/unwrapping?
 				// Perhaps, each command, during unwrapping, should be mapped to their equivalent in a new context?
+				
+				// Should be available during cloning: but not for new instances
 				changesToInheret.add(new PendingCommandState<Model>(new ForwardHistoryCommand(locationOfInhereterFromInstance), new SetPropertyCommand.AfterSetProperty()));
 
 				instance.playThenReverse(changesToInheret, propCtx, propDistance, collector);
@@ -64,6 +66,11 @@ public class NewInstanceFactory implements ModelFactory {
 				final Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
 				final Model instance = inhereter.cloneBase();
 //				
+				@SuppressWarnings("unchecked")
+				List<CommandState<Model>> origins = (List<CommandState<Model>>)inhereter.getProperty("Origins");
+				instance.playThenReverse(origins, propCtx, propDistance, collector);
+				instance.setProperty("Origins", origins, propCtx, propDistance, collector);
+				
 				ArrayList<CommandState<Model>> changesToInheret = new ArrayList<CommandState<Model>>();
 				@SuppressWarnings("unchecked")
 				List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)inhereter.getProperty("Inhereted");

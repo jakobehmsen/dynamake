@@ -18,6 +18,8 @@ public class RestorableModel implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private byte[] modelBaseSerialization;
+	// Origins must guarantee to not require mapping to new references
+	private List<CommandState<Model>> modelOrigins;
 	private List<CommandState<Model>> modelChanges;
 	
 	public static RestorableModel wrap(Model model, boolean includeLocalHistory) {
@@ -40,17 +42,20 @@ public class RestorableModel implements Serializable {
 		
 		ArrayList<CommandState<Model>> modelChanges = new ArrayList<CommandState<Model>>();
 		@SuppressWarnings("unchecked")
+		List<CommandState<Model>> origins = (List<CommandState<Model>>)model.getProperty("Origins");
+		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)model.getProperty("Inhereted");
 		if(inhereterInheretedChanges != null)
 			modelChanges.addAll(inhereterInheretedChanges);
 		List<CommandState<Model>> inhereterLocalChanges = model.getLocalChanges();
 		modelChanges.addAll(inhereterLocalChanges);
 		
-		return new RestorableModel(modelBaseSerialization, modelChanges);
+		return new RestorableModel(modelBaseSerialization, origins, modelChanges);
 	}
 	
-	private RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelChanges) {
+	private RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelChanges) {
 		this.modelBaseSerialization = modelBaseSerialization;
+		this.modelOrigins = modelOrigins;
 		this.modelChanges = modelChanges;
 	}
 	
@@ -62,7 +67,7 @@ public class RestorableModel implements Serializable {
 			mappedModelChanges.add(newModelChange);
 		}
 		
-		return new RestorableModel(modelBaseSerialization, mappedModelChanges);
+		return new RestorableModel(modelBaseSerialization, modelOrigins, mappedModelChanges);
 	}
 	
 	public Model unwrapBase() {
@@ -79,14 +84,20 @@ public class RestorableModel implements Serializable {
 		return modelBase;
 	}
 	
-	public void restoreOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void restoreOriginsOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		modelBase.playThenReverse(modelOrigins, propCtx, propDistance, collector);
+		modelBase.setProperty("Origins", modelOrigins, propCtx, propDistance, collector);
+	}
+	
+	public void restoreChangesOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		modelBase.playThenReverse(modelChanges, propCtx, propDistance, collector);
 		modelBase.setProperty("Inhereted", modelChanges, propCtx, propDistance, collector);
 	}
 	
 	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		Model modelBase = unwrapBase();
-		restoreOnBase(modelBase, propCtx, propDistance, collector);
+		restoreOriginsOnBase(modelBase, propCtx, propDistance, collector);
+		restoreChangesOnBase(modelBase, propCtx, propDistance, collector);
 		return modelBase;
 //		Model modelBase = null;
 //		ByteArrayInputStream bis = new ByteArrayInputStream(modelBaseSerialization);
