@@ -53,6 +53,7 @@ public class NewInstanceFactory implements ModelFactory {
 				// Perhaps, each command, during unwrapping, should be mapped to their equivalent in a new context?
 				
 				// Should be available during cloning: but not for new instances
+				// Filter in history?
 				changesToInheret.add(new PendingCommandState<Model>(new ForwardHistoryCommand(locationOfInhereterFromInstance), new SetPropertyCommand.AfterSetProperty()));
 
 				instance.playThenReverse(changesToInheret, propCtx, propDistance, collector);
@@ -65,7 +66,7 @@ public class NewInstanceFactory implements ModelFactory {
 			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 				final Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
 				final Model instance = inhereter.cloneBase();
-//				
+
 				@SuppressWarnings("unchecked")
 				List<CommandState<Model>> origins = (List<CommandState<Model>>)inhereter.getProperty("Origins");
 				instance.playThenReverse(origins, propCtx, propDistance, collector);
@@ -74,10 +75,20 @@ public class NewInstanceFactory implements ModelFactory {
 				ArrayList<CommandState<Model>> changesToInheret = new ArrayList<CommandState<Model>>();
 				@SuppressWarnings("unchecked")
 				List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)inhereter.getProperty("Inhereted");
-				if(inhereterInheretedChanges != null)
-					changesToInheret.addAll(inhereterInheretedChanges);
+				if(inhereterInheretedChanges != null) {
+					// Don't include ForwardHistoryCommand commands in changes to inheret 
+					for(CommandState<Model> inhereterInheretedChange: inhereterInheretedChanges) {
+						PendingCommandState<Model> pcsInhereterInheretedChange = (PendingCommandState<Model>)inhereterInheretedChange;
+						if(pcsInhereterInheretedChange.getCommand() instanceof ForwardHistoryCommand) {
+							
+						} else
+							changesToInheret.add(inhereterInheretedChange);
+					}
+				}
 				List<CommandState<Model>> inhereterLocalChanges = inhereter.getLocalChanges();
 				changesToInheret.addAll(inhereterLocalChanges);
+
+				// changesToInheret should be mapped from inhereter (sourceReference) to instance (targetReference)
 
 				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
 				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
