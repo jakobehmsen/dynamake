@@ -79,11 +79,14 @@ public class NewInstanceFactory implements ModelFactory {
 				instance.playThenReverse(origins, propCtx, propDistance, collector);
 				instance.setProperty("Origins", origins, propCtx, propDistance, collector);
 				
+				// Inheritance of changes should be a command in itself
+				// This is especially useful in restore scenarios where an inhereter of an inheretee being restored may have changed.
 				ArrayList<CommandState<Model>> changesToInheret = new ArrayList<CommandState<Model>>();
 				@SuppressWarnings("unchecked")
 				List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)inhereter.getProperty("Inhereted");
 				if(inhereterInheretedChanges != null) {
 					// Don't include ForwardHistoryCommand commands in changes to inheret 
+					// TODO: Remove the ugly filter hack below; replace with decoupled logic
 					for(CommandState<Model> inhereterInheretedChange: inhereterInheretedChanges) {
 						PendingCommandState<Model> pcsInhereterInheretedChange = (PendingCommandState<Model>)inhereterInheretedChange;
 						if(pcsInhereterInheretedChange.getCommand() instanceof ForwardHistoryCommand) {
@@ -95,7 +98,7 @@ public class NewInstanceFactory implements ModelFactory {
 				List<CommandState<Model>> inhereterLocalChanges = inhereter.getLocalChanges();
 				changesToInheret.addAll(inhereterLocalChanges);
 
-				// changesToInheret should be mapped from inhereter (sourceReference) to instance (targetReference)
+				// Map changesToInheret from inhereter (sourceReference) to instance (targetReference)
 				for(int i = 0; i < changesToInheret.size(); i++) {
 					CommandState<Model> newCommandState = changesToInheret.get(i).mapToReferenceLocation(inhereter, instance);
 					changesToInheret.set(i, newCommandState);
