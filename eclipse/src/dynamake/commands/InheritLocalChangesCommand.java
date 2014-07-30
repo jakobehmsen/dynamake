@@ -48,6 +48,7 @@ public class InheritLocalChangesCommand implements MappableCommand<Model> {
 		// Is it possible to traverse through the inherited changes and find all add commands (like above)
 		// and then replace the add methods with off set commands relative to the added model's commands?
 		// Can this be done recursively, such that the added model's commands are processed the same?
+		// I.e.; recursively expand add command with the added model's commands
 		
 		List<CommandState<Model>> reversedInheritedChanges = inheretee.playThenReverse(inhereter.getLocalChanges(), propCtx, 0, collector);
 		
