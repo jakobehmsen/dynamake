@@ -108,7 +108,7 @@ public class Main {
 			// Can be used for intercepting mouse events?
 //			frame.setUndecorated(true);
 			
-			frame.setTitle("Dynamake 0.0.1");
+			frame.setTitle("Dynamake");
 			
 			if(frame.getBounds().isEmpty()) {
 				frame.setSize(1280, 768);
