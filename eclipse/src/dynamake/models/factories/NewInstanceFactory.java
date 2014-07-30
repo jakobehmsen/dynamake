@@ -5,7 +5,9 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.ForwardHistoryCommand;
+import dynamake.commands.InheritLocalChangesCommand;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.PlayThenReverseCommand;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.UnforwardHistoryCommand;
 import dynamake.models.CompositeLocation;
@@ -31,36 +33,93 @@ public class NewInstanceFactory implements ModelFactory {
 	
 	@Override
 	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+		final Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
+		
 		return new ModelCreation() {
 			@Override
 			public void setup(Model rootModel, Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-				Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
-				Location instanceLocation = new CompositeLocation(location, locationOfModelToSetup);
-				Model instance = (Model)instanceLocation.getChild(rootModel);
+//				Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
+//				Location instanceLocation = new CompositeLocation(location, locationOfModelToSetup);
+//				Model instance = (Model)instanceLocation.getChild(rootModel);
+//				
+//				@SuppressWarnings("unchecked")
+//				List<CommandState<Model>> changesToInheret = (List<CommandState<Model>>)instance.getProperty("Inhereted");
+//				
+//				Location locationOfInhereterFromInstance = ModelComponent.Util.locationBetween(instance, inhereter);
+//				
+//				// TODO: Consider: How to make instance cloneable?
+//				// The path to inhereter from inheretee must be derived somehow?...
+//				// It could be relative to root
+//				// Perhaps, the dropped/inhereter could be supplied for the play sequence of cloning/unwrapping?
+//				// Perhaps, each command, during unwrapping, should be mapped to their equivalent in a new context?
+//				
+//				// Should be available during cloning: but not for new instances
+//				// Filter in history?
+//				ArrayList<CommandState<Model>> newChangesToInheret = new ArrayList<CommandState<Model>>();
+//				newChangesToInheret.add(new PendingCommandState<Model>(
+//					new ForwardHistoryCommand(locationOfInhereterFromInstance), 
+//					new UnforwardHistoryCommand(locationOfInhereterFromInstance)
+//				));
+//				changesToInheret.addAll(newChangesToInheret);
+//
+//				// TODO: Consider: Inherit cleanup?
+//				List<CommandState<Model>> cleanup = instance.playThenReverse(newChangesToInheret, propCtx, propDistance, collector);
+//				instance.setProperty("Cleanup", cleanup, propCtx, propDistance, collector);
+//				
+////				if(inhereter instanceof CanvasModel)
+////					forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
+
+				List<CommandState<Model>> inhereted = (List<CommandState<Model>>)inhereter.getProperty("Inhereted");
+				
+//				Location instanceLocation = new CompositeLocation(location, locationOfModelToSetup);
+				Model instance = createdModel;
+				
+				ArrayList<CommandState<Model>> newInhereted = new ArrayList<CommandState<Model>>();
+				
+				if(inhereted != null) {
+					// Don't include ForwardHistoryCommand commands in changes to inheret 
+					// TODO: Remove the ugly filter hack below; replace with decoupled logic
+					for(CommandState<Model> inhereterInheretedChange: inhereted) {
+						PendingCommandState<Model> pcsInhereterInheretedChange = (PendingCommandState<Model>)inhereterInheretedChange;
+						if(pcsInhereterInheretedChange.getCommand() instanceof ForwardHistoryCommand) {
+							// Change to command which
+						} else
+							newInhereted.add(inhereterInheretedChange.mapToReferenceLocation(inhereter, instance));
+					}
+				}
+				
+				instance.playThenReverse(newInhereted, propCtx, propDistance, collector);
 				
 				@SuppressWarnings("unchecked")
-				List<CommandState<Model>> changesToInheret = (List<CommandState<Model>>)instance.getProperty("Inhereted");
+//				List<CommandState<Model>> origins = (List<CommandState<Model>>)instance.getProperty("Origins");
+				
+				ArrayList<CommandState<Model>> inheretedToCleanup = new ArrayList<CommandState<Model>>();
 				
 				Location locationOfInhereterFromInstance = ModelComponent.Util.locationBetween(instance, inhereter);
 				
-				// TODO: Consider: How to make instance cloneable?
-				// The path to inhereter from inheretee must be derived somehow?...
-				// It could be relative to root
-				// Perhaps, the dropped/inhereter could be supplied for the play sequence of cloning/unwrapping?
-				// Perhaps, each command, during unwrapping, should be mapped to their equivalent in a new context?
-				
-				// Should be available during cloning: but not for new instances
-				// Filter in history?
-				ArrayList<CommandState<Model>> newChangesToInheret = new ArrayList<CommandState<Model>>();
-				newChangesToInheret.add(new PendingCommandState<Model>(
+				inheretedToCleanup.add(new PendingCommandState<Model>(
 					new ForwardHistoryCommand(locationOfInhereterFromInstance), 
 					new UnforwardHistoryCommand(locationOfInhereterFromInstance)
 				));
-				changesToInheret.addAll(newChangesToInheret);
+				newInhereted.addAll(inheretedToCleanup);
 
 				// TODO: Consider: Inherit cleanup?
-				List<CommandState<Model>> cleanup = instance.playThenReverse(newChangesToInheret, propCtx, propDistance, collector);
+				List<CommandState<Model>> cleanup = instance.playThenReverse(inheretedToCleanup, propCtx, propDistance, collector);
 				instance.setProperty("Cleanup", cleanup, propCtx, propDistance, collector);
+				
+				ArrayList<CommandState<Model>> newInheretedLast = new ArrayList<CommandState<Model>>();
+
+				newInheretedLast.add(new PendingCommandState<Model>(new InheritLocalChangesCommand(locationOfInhereterFromInstance), new PlayThenReverseCommand.AfterPlay()));
+				
+				newInheretedLast.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
+				newInheretedLast.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
+				newInheretedLast.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
+				newInheretedLast.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+				
+				instance.playThenReverse(newInheretedLast, propCtx, propDistance, collector);
+				newInhereted.addAll(newInheretedLast);
+				
+				instance.setProperty("Inhereted", newInhereted, propCtx, propDistance, collector);
 				
 //				if(inhereter instanceof CanvasModel)
 //					forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
@@ -68,48 +127,67 @@ public class NewInstanceFactory implements ModelFactory {
 			
 			@Override
 			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-				final Model inhereter = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
 				final Model instance = inhereter.cloneBase();
-
+				
 				@SuppressWarnings("unchecked")
 				List<CommandState<Model>> origins = (List<CommandState<Model>>)inhereter.getProperty("Origins");
+				
+//				ArrayList<CommandState<Model>> newOrigins = new ArrayList<CommandState<Model>>();
+//				
+//				// Don't include ForwardHistoryCommand commands in changes to inheret 
+//				// TODO: Remove the ugly filter hack below; replace with decoupled logic
+//				for(CommandState<Model> inhereterInheretedChange: origins) {
+//					PendingCommandState<Model> pcsInhereterInheretedChange = (PendingCommandState<Model>)inhereterInheretedChange;
+//					if(pcsInhereterInheretedChange.getCommand() instanceof ForwardHistoryCommand) {
+//						// Change to command which
+//					} else
+//						newOrigins.add(inhereterInheretedChange);
+//				}
+				
 				instance.playThenReverse(origins, propCtx, propDistance, collector);
 				instance.setProperty("Origins", origins, propCtx, propDistance, collector);
 				
-				// Inheritance of changes should be a command in itself
-				// This is especially useful in restore scenarios where an inhereter of an inheretee being restored may have changed.
-				ArrayList<CommandState<Model>> changesToInheret = new ArrayList<CommandState<Model>>();
-				@SuppressWarnings("unchecked")
-				List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)inhereter.getProperty("Inhereted");
-				if(inhereterInheretedChanges != null) {
-					// Don't include ForwardHistoryCommand commands in changes to inheret 
-					// TODO: Remove the ugly filter hack below; replace with decoupled logic
-					for(CommandState<Model> inhereterInheretedChange: inhereterInheretedChanges) {
-						PendingCommandState<Model> pcsInhereterInheretedChange = (PendingCommandState<Model>)inhereterInheretedChange;
-						if(pcsInhereterInheretedChange.getCommand() instanceof ForwardHistoryCommand) {
-							
-						} else
-							changesToInheret.add(inhereterInheretedChange);
-					}
-				}
-				List<CommandState<Model>> inhereterLocalChanges = inhereter.getLocalChanges();
-				changesToInheret.addAll(inhereterLocalChanges);
 
-				// Map changesToInheret from inhereter (sourceReference) to instance (targetReference)
-				for(int i = 0; i < changesToInheret.size(); i++) {
-					CommandState<Model> newCommandState = changesToInheret.get(i).mapToReferenceLocation(inhereter, instance);
-					changesToInheret.set(i, newCommandState);
-				}
-				
-				// TODO: Consider: Inherit and map cleanup?
 
-				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
-				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
-				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
-
-				instance.playThenReverse(changesToInheret, propCtx, propDistance, collector);
-				instance.setProperty("Inhereted", changesToInheret, propCtx, propDistance, collector);
+//				@SuppressWarnings("unchecked")
+//				List<CommandState<Model>> origins = (List<CommandState<Model>>)inhereter.getProperty("Origins");
+//				instance.playThenReverse(origins, propCtx, propDistance, collector);
+//				instance.setProperty("Origins", origins, propCtx, propDistance, collector);
+//				
+//				// Inheritance of changes should be a command in itself
+//				// This is especially useful in restore scenarios where an inhereter of an inheretee being restored may have changed.
+//				ArrayList<CommandState<Model>> changesToInheret = new ArrayList<CommandState<Model>>();
+//				@SuppressWarnings("unchecked")
+//				List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)inhereter.getProperty("Inhereted");
+//				if(inhereterInheretedChanges != null) {
+//					// Don't include ForwardHistoryCommand commands in changes to inheret 
+//					// TODO: Remove the ugly filter hack below; replace with decoupled logic
+//					for(CommandState<Model> inhereterInheretedChange: inhereterInheretedChanges) {
+//						PendingCommandState<Model> pcsInhereterInheretedChange = (PendingCommandState<Model>)inhereterInheretedChange;
+//						if(pcsInhereterInheretedChange.getCommand() instanceof ForwardHistoryCommand) {
+//							
+//						} else
+//							changesToInheret.add(inhereterInheretedChange);
+//					}
+//				}
+//				List<CommandState<Model>> inhereterLocalChanges = inhereter.getLocalChanges();
+//				changesToInheret.addAll(inhereterLocalChanges);
+//
+//				// Map changesToInheret from inhereter (sourceReference) to instance (targetReference)
+//				for(int i = 0; i < changesToInheret.size(); i++) {
+//					CommandState<Model> newCommandState = changesToInheret.get(i).mapToReferenceLocation(inhereter, instance);
+//					changesToInheret.set(i, newCommandState);
+//				}
+//				
+//				// TODO: Consider: Inherit and map cleanup?
+//
+//				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
+//				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
+//				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
+//				changesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+//
+//				instance.playThenReverse(changesToInheret, propCtx, propDistance, collector);
+//				instance.setProperty("Inhereted", changesToInheret, propCtx, propDistance, collector);
 				
 				return instance;
 			}

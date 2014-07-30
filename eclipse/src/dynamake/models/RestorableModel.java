@@ -73,9 +73,11 @@ public class RestorableModel implements Serializable {
 		
 		ArrayList<CommandState<Model>> mappedModelCleanup = new ArrayList<CommandState<Model>>();
 		
-		for(CommandState<Model> mc: modelCleanup) {
-			CommandState<Model> newModelCleanup = mc.mapToReferenceLocation(sourceReference, targetReference);
-			mappedModelCleanup.add(newModelCleanup);
+		if(modelCleanup != null) {
+			for(CommandState<Model> mc: modelCleanup) {
+				CommandState<Model> newModelCleanup = mc.mapToReferenceLocation(sourceReference, targetReference);
+				mappedModelCleanup.add(newModelCleanup);
+			}
 		}
 		
 		return new RestorableModel(modelBaseSerialization, modelOrigins, mappedModelChanges, mappedModelCleanup);
