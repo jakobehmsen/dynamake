@@ -32,10 +32,11 @@
 			$( document ).ready(function() {
 				var boxes = $("div.box");
 				boxes.find("div.title").replaceWith(function() {
-					return $(this).contents().wrap("<div style='margin-bottom:5px'></div>").parent();
+					return $(this).contents().wrap("<div style='margin-bottom:15px; font-style:italic'></div>").parent();
 				});
 				boxes.find("div.content").replaceWith(function() {
-					return $(this).contents().wrap("<i></i>").parent();
+					var contents = $(this).contents();
+					return contents.wrap("<div></div>").parent();
 				});
 			});
 		</script>
@@ -66,8 +67,8 @@
 		<div class="box">
 			<div class="title">Why was this project started?</div>
 			<div class="content">
-			There were/are many reasons motivating this project. Lets look at a couple of'em.<br>
-			Most popular programming environments seem to dichotomize programs and processes simply by centering around code. What if one attempts to not adopt this dichotomy?<br>
+			There were/are many reasons motivating this project. Lets look at a couple of'em.<div style="clear=both"></div>
+			Most popular programming environments seem to dichotomize programs and processes simply by centering around code. What if one attempts to not adopt this dichotomy?<div style="clear=both"></div>
 			Most popular programming environments are oriented around some sort of text-based, or similarly structered, programming language. What if no language is available at all - how does one program?
 			</div>
 		</div>
