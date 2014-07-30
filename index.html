@@ -1,77 +1,89 @@
-<style>
-    body {
-		font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-		width: 90%;
-		max-width: 1024px;    
-		margin-left: auto;
-		margin-right: auto;
-    }
-	
-	a:link    {color:#1EA669;}
-	a:visited {color:#1EA669;}
-	a:hover   {color:#1A6E37;}
-	a:active  {color:#A61E5B;}
-	
-	.box {
-		border:2px solid #CFE8DD;
-		padding: 10px;
-		margin: 10px;
-		background-color: #B2D6C6;
-	}
-	
-	h1 { 
-		align: center;
-	}
-</style>
+<html>
+	<head>
+		<title>Dynamake's project page</title>
+		<script src="jquery-2.1.1.min.js"></script>
+		<style>
+			body {
+				font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+				width: 90%;
+				max-width: 1024px;    
+				margin-left: auto;
+				margin-right: auto;
+			}
+			
+			a:link    {color:#1EA669;}
+			a:visited {color:#1EA669;}
+			a:hover   {color:#1A6E37;}
+			a:active  {color:#A61E5B;}
+			
+			.box {
+				border:2px solid #CFE8DD;
+				padding: 10px;
+				margin: 20px;
+				background-color: #B2D6C6;
+			}
+			
+			h1 { 
+				align: center;
+			}
+		</style>
+		<script>
+			
+			$( document ).ready(function() {
+				var boxes = $("div.box");
+				boxes.find("div.title").replaceWith(function() {
+					return $(this).contents().wrap("<div style='margin-bottom:5px'></div>").parent();
+				});
+				boxes.find("div.content").replaceWith(function() {
+					return $(this).contents().wrap("<i></i>").parent();
+				});
+			});
+		</script>
+	</head>
 
-<h1  align="center">
-Welcome to the project page of Dynamake<br>
-<a href="https://github.com/jakobehmsen/dynamake"> hosted on GitHub</a>
-</h1>
+	<body>
+		<h1 align="center">
+			Welcome to Dynamake's project page<br>
+			<a href="https://github.com/jakobehmsen/dynamake"> hosted on GitHub</a>
+		</h1>
 
-<div class="box">
-	<h2>What is Dynamake about?</h2>
-	<p>
-	Dynamake is an attempt to envision, design, and implement an interactive code extrinsic programming environment. 
-	This environment is to require only little configuration effort before getting the hands dirty.
-	</p>
-</div>
+		<div class="box">
+			<div class="title">What is Dynamake about?</div>
+			<div class="content">
+			Dynamake is an attempt to envision, design, and implement an interactive code extrinsic programming environment. 
+			This environment is to require only little configuration effort before getting the hands dirty.
+			</div>
+		</div>
 
-<div class="box">
-	<h2>What is Dynamake not about?</h2>
+		<div class="box">
+			<div class="title">What is Dynamake not about?</div>
+			<div class="content">
+			There is no aspiration of developing a programming environment for solving every kind of problem. 
+			Instead, the environment is developed in an open-ended, experimental, and intuitive manner with a focus on a platform for making software.
+			</div>
+		</div>
 
-	<p>
-	There is no aspiration of developing a programming environment for solving any kind of problem. 
-	Instead, the environment is developed in an open-ended, experimental, and intuitive manner with a focus on the fundamentals.
-	</p>
-</div>
+		<div class="box">
+			<div class="title">Why was this project started?</div>
+			<div class="content">
+			There were/are many reasons motivating this project. Lets look at a couple of'em.<br>
+			Most popular programming environments seem to dichotomize programs and processes simply by centering around code. What if one attempts to not adopt this dichotomy?<br>
+			Most popular programming environments are oriented around some sort of text-based, or similarly structered, programming language. What if no language is available at all - how does one program?
+			</div>
+		</div>
 
-<div class="box">
-	<h2>Why was this project started?</h2>
+		<div class="box">
+			<div class="title">What is the current state of Dynamake?</div>
+			<div class="content">
 
-	<p>
-	There were/are many reasons motivating this project. Lets look at a couple of'em.
-	</p>
-	<p>
-	Most popular programming environments seem to dichotomize programs and processes simply by centering around code. What if one attempts to not adopt this dichotomy?
-	</p>
-	<p>
-	Most popular programming environments are oriented around some sort of text-based, or similarly structered, programming language. What if no language is available at all - how does one program?
-	</p>
-</div>
+			</div>
+		</div>
 
-<div class="box">
-	<h2>What is the current state of Dynamake?</h2>
+		<div class="box">
+			<div class="title">What about the future of Dynamake?</div>
+			<div class="content">
 
-	<p>
-
-	</p>
-</div>
-
-<div class="box">
-	<h2>What about the future of Dynamake?</h2>
-
-	<p>
-
-	</p>
-</div>
+			</div>
+		</div>
+	</body>
+</html>
