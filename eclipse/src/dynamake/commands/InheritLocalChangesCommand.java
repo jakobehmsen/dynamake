@@ -1,8 +1,11 @@
 package dynamake.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
+import dynamake.models.HistoryChangeForwarder;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -26,11 +29,29 @@ public class InheritLocalChangesCommand implements MappableCommand<Model> {
 		Model inhereter = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInhereter);
 		Model inheretee = (Model)location.getChild(prevalentSystem);
 		
+//		HistoryChangeForwarder forwarder = inhereter.getObserverOfLike(new HistoryChangeForwarder(inhereter, inheretee));
+//		
+//		forwarder.changed(inhereter, new HistoryChangeForwarder.ForwardLogChange(new ArrayList<CommandState<Model>>(), inhereter.getLocalChanges()), propCtx, 0, 0, collector);
+		
+//		List<CommandState<Model>> inheritedChanges = inhereter.getLocalChanges();
+//		ArrayList<CommandState<Model>> filteredInheritedChanges = new ArrayList<CommandState<Model>>();
+//		
+//		for(CommandState<Model> inheritedChange: inheritedChanges) {
+//			PendingCommandState<Model> pcsInheritedChange = (PendingCommandState<Model>)inheritedChange;
+//			if(pcsInheritedChange.getCommand() instanceof CanvasModel.AddModelCommand) {
+//				
+//			} else {
+//				filteredInheritedChanges.add(inheritedChange);
+//			}
+//		}
+		
 		List<CommandState<Model>> reversedInheritedChanges = inheretee.playThenReverse(inhereter.getLocalChanges(), propCtx, 0, collector);
 		
 		System.out.println(inheretee + " inherited from " + inhereter);
 		
 		return new PlayThenReverseCommand(reversedInheritedChanges);
+		
+//		return null;
 	}
 	
 	@Override
