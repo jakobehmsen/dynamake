@@ -9,8 +9,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.media.sound.ModelChannelMixer;
-
 import dynamake.commands.CommandState;
 import dynamake.commands.Mappable;
 import dynamake.transcription.Collector;
@@ -53,7 +51,6 @@ public class RestorableModel implements Serializable {
 		List<CommandState<Model>> modelOrigins = (List<CommandState<Model>>)model.getProperty("Origins");
 		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> modelCreation = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CREATION);
-//		List<CommandState<Model>> modelLocalChanges = model.getLocalChanges();
 		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> modelCleanup = (List<CommandState<Model>>)model.getProperty("Cleanup");
 		
@@ -77,13 +74,6 @@ public class RestorableModel implements Serializable {
 		}
 		
 		Mappable mappedModelHistory = modelHistory.mapToReferenceLocation(sourceReference, targetReference);
-		
-//		ArrayList<CommandState<Model>> mappedModelLocalChanges = new ArrayList<CommandState<Model>>();
-//		
-//		for(CommandState<Model> modelLocalChange: modelLocalChanges) {
-//			CommandState<Model> newModelLocalChange = modelLocalChange.mapToReferenceLocation(sourceReference, targetReference);
-//			mappedModelLocalChanges.add(newModelLocalChange);
-//		}
 		
 		ArrayList<CommandState<Model>> mappedModelCleanup = new ArrayList<CommandState<Model>>();
 		
