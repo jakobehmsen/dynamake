@@ -785,66 +785,6 @@ public abstract class Model implements Serializable, Observer {
 	public static void appendGeneralDroppedTransactions(final ModelComponent livePanel,
 			final ModelComponent dropped, final ModelComponent target, final Rectangle droppedBounds, CompositeMenuBuilder transactions) {
 		if(target.getModelBehind() instanceof CanvasModel) {
-//			transactions.addMenuBuilder("Clone Isolated", new Trigger<Model>() {
-//				@Override
-//				public void run(Collector<Model> collector) {
-//					final Rectangle creationBounds = droppedBounds;
-//					
-//					collector.execute(new PendingCommandFactory<Model>() {
-//						@Override
-//						public Model getReference() {
-//							return target.getModelBehind();
-//						}
-//
-//						@Override
-//						public void createPendingCommand(List<CommandState<Model>> commandStates) {
-//							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
-//							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
-//							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
-//							// Probably, the "version" of dropped to be cloned is important
-//							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
-//							Location droppedLocation = fromCCAToDropped;
-//							ModelFactory factory = new CloneIsolatedFactory(droppedLocation);
-//							commandStates.add(new PendingCommandState<Model>(
-//								new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(creationBounds), factory)),
-//								new CanvasModel.RemoveModelCommand.AfterAdd(),
-//								new CanvasModel.RestoreModelCommand.AfterRemove()
-//							));
-//						}
-//					});
-//				}
-//			});
-//			
-//			transactions.addMenuBuilder("Clone Deep", new Trigger<Model>() {
-//				@Override
-//				public void run(Collector<Model> collector) {
-//					final Rectangle creationBounds = droppedBounds;
-//					
-//					collector.execute(new PendingCommandFactory<Model>() {
-//						@Override
-//						public Model getReference() {
-//							return target.getModelBehind();
-//						}
-//
-//						@Override
-//						public void createPendingCommand(List<CommandState<Model>> commandStates) {
-//							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
-//							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
-//							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
-//							// Probably, the "version" of dropped to be cloned is important
-//							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
-//							Location droppedLocation = fromCCAToDropped;
-//							ModelFactory factory = new CloneDeepFactory(droppedLocation);
-//							commandStates.add(new PendingCommandState<Model>(
-//								new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(creationBounds), factory)),
-//								new CanvasModel.RemoveModelCommand.AfterAdd(),
-//								new CanvasModel.RestoreModelCommand.AfterRemove()
-//							));
-//						}
-//					});
-//				}
-//			});
-			
 			transactions.addMenuBuilder("Clone", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
@@ -1154,11 +1094,6 @@ public abstract class Model implements Serializable, Observer {
 		
 		playThenReverse(getLocalChanges(), propCtx, propDistance, collector);
 	}
-
-//	public void cloneHistory(Model model) {
-//		this.undoStack.addAll(model.undoStack);
-//		this.redoStack.addAll(model.redoStack);
-//	}
 
 	public void beRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		modelBeRemoved(propCtx, propDistance, collector);
