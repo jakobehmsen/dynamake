@@ -9,7 +9,7 @@ import dynamake.commands.PushLocalChangesCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.PlayThenReverseCommand;
 import dynamake.commands.SetPropertyCommand;
-import dynamake.commands.UnforwardHistoryCommand;
+import dynamake.commands.UnforwardLocalChangesCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
@@ -177,7 +177,7 @@ public class NewInstanceFactory implements ModelFactory {
 		if(forwardHistory) {
 			inheretedToCleanup.add(new PendingCommandState<Model>(
 				new ForwardLocalChangesCommand(locationOfInhereterFromInstance), 
-				new UnforwardHistoryCommand(locationOfInhereterFromInstance)
+				new UnforwardLocalChangesCommand(locationOfInhereterFromInstance)
 			));
 		}
 		newInhereted.addAll(inheretedToCleanup);
