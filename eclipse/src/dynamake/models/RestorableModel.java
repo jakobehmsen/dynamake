@@ -18,7 +18,8 @@ public class RestorableModel implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
+	public static String PROPERTY_ORIGINS = "Origins";
 	public static String PROPERTY_CREATION = "Creation";
 	
 	private byte[] modelBaseSerialization;
@@ -48,7 +49,7 @@ public class RestorableModel implements Serializable {
 		byte[] modelBaseSerialization = bos.toByteArray();
 		
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> modelOrigins = (List<CommandState<Model>>)model.getProperty("Origins");
+		List<CommandState<Model>> modelOrigins = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_ORIGINS);
 		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> modelCreation = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CREATION);
 		@SuppressWarnings("unchecked")
@@ -103,7 +104,7 @@ public class RestorableModel implements Serializable {
 	
 	public void restoreOriginsOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		modelBase.playThenReverse(modelOrigins, propCtx, propDistance, collector);
-		modelBase.setProperty("Origins", modelOrigins, propCtx, propDistance, collector);
+		modelBase.setProperty(RestorableModel.PROPERTY_ORIGINS, modelOrigins, propCtx, propDistance, collector);
 	}
 	
 	public void restoreChangesOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {

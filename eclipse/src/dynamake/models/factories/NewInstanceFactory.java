@@ -57,10 +57,10 @@ public class NewInstanceFactory implements ModelFactory {
 	
 	private void pushOrigins(Model source, Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> origins = (List<CommandState<Model>>)source.getProperty("Origins");
+		List<CommandState<Model>> origins = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_ORIGINS);
 		
 		target.playThenReverse(origins, propCtx, propDistance, collector);
-		target.setProperty("Origins", origins, propCtx, propDistance, collector);
+		target.setProperty(RestorableModel.PROPERTY_ORIGINS, origins, propCtx, propDistance, collector);
 	}
 	
 	private void pushCreation(Model source, Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {

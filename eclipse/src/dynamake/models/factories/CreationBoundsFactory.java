@@ -48,7 +48,7 @@ public class CreationBoundsFactory implements ModelFactory {
 				
 				model.playThenReverse(origins, propCtx, propDistance, collector);
 				
-				model.setProperty("Origins", origins, propCtx, propDistance, collector);
+				model.setProperty(RestorableModel.PROPERTY_ORIGINS, origins, propCtx, propDistance, collector);
 //				model.setProperty(RestorableModel.PROPERTY_CREATION, origins, propCtx, propDistance, collector);
 				
 				return model;
@@ -72,7 +72,7 @@ public class CreationBoundsFactory implements ModelFactory {
 //		origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
 //		origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
 //		
-////		model.setProperty("Origins", origins, propCtx, propDistance, collector);
+////		model.setProperty(RestorableModel.PROPERTY_ORIGINS, origins, propCtx, propDistance, collector);
 //		model.setProperty(RestorableModel.PROPERTY_CREATION, origins, propCtx, propDistance, collector);
 //		
 //		return model;
