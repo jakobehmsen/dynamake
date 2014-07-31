@@ -40,7 +40,7 @@ public class CloneFactory implements ModelFactory {
 				restorableModelCreation.restoreCleanupOnBase(createdModel, propCtx, propDistance, collector);
 				
 				@SuppressWarnings("unchecked")
-				List<CommandState<Model>> changesToInheret = (List<CommandState<Model>>)createdModel.getProperty("Inhereted");
+				List<CommandState<Model>> changesToInheret = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel.PROPERTY_CREATION);
 				
 				List<CommandState<Model>> newChangesToInheret = new ArrayList<CommandState<Model>>();
 

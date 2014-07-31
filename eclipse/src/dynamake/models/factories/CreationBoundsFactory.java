@@ -8,6 +8,7 @@ import dynamake.commands.SetPropertyCommand;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
+import dynamake.models.RestorableModel;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 
@@ -48,7 +49,7 @@ public class CreationBoundsFactory implements ModelFactory {
 				model.playThenReverse(origins, propCtx, propDistance, collector);
 				
 				model.setProperty("Origins", origins, propCtx, propDistance, collector);
-//				model.setProperty("Inhereted", origins, propCtx, propDistance, collector);
+//				model.setProperty(RestorableModel.PROPERTY_CREATION, origins, propCtx, propDistance, collector);
 				
 				return model;
 			}
@@ -72,7 +73,7 @@ public class CreationBoundsFactory implements ModelFactory {
 //		origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
 //		
 ////		model.setProperty("Origins", origins, propCtx, propDistance, collector);
-//		model.setProperty("Inhereted", origins, propCtx, propDistance, collector);
+//		model.setProperty(RestorableModel.PROPERTY_CREATION, origins, propCtx, propDistance, collector);
 //		
 //		return model;
 	}

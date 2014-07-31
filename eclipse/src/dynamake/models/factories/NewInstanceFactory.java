@@ -15,6 +15,7 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
+import dynamake.models.RestorableModel;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 
@@ -64,7 +65,7 @@ public class NewInstanceFactory implements ModelFactory {
 	
 	private void pushCreation(Model source, Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> creation = (List<CommandState<Model>>)source.getProperty("Inhereted");
+		List<CommandState<Model>> creation = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
 		
 		ArrayList<CommandState<Model>> newCreation = new ArrayList<CommandState<Model>>();
 		
@@ -110,6 +111,6 @@ public class NewInstanceFactory implements ModelFactory {
 		target.playThenReverse(newCreationLastParts, propCtx, propDistance, collector);
 		newCreation.addAll(newCreationLastParts);
 		
-		target.setProperty("Inhereted", newCreation, propCtx, propDistance, collector);
+		target.setProperty(RestorableModel.PROPERTY_CREATION, newCreation, propCtx, propDistance, collector);
 	}
 }

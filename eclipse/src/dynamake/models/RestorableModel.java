@@ -20,6 +20,9 @@ public class RestorableModel implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	public static String PROPERTY_CREATION = "Creation";
+	
 	private byte[] modelBaseSerialization;
 	// Origins must guarantee to not require mapping to new references
 	private List<CommandState<Model>> modelOrigins;
@@ -49,7 +52,7 @@ public class RestorableModel implements Serializable {
 		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> modelOrigins = (List<CommandState<Model>>)model.getProperty("Origins");
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> modelCreation = (List<CommandState<Model>>)model.getProperty("Inhereted");
+		List<CommandState<Model>> modelCreation = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CREATION);
 //		List<CommandState<Model>> modelLocalChanges = model.getLocalChanges();
 		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> modelCleanup = (List<CommandState<Model>>)model.getProperty("Cleanup");
@@ -115,7 +118,7 @@ public class RestorableModel implements Serializable {
 	
 	public void restoreChangesOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		modelBase.playThenReverse(modelCreation, propCtx, propDistance, collector);
-		modelBase.setProperty("Inhereted", modelCreation, propCtx, propDistance, collector);
+		modelBase.setProperty(RestorableModel.PROPERTY_CREATION, modelCreation, propCtx, propDistance, collector);
 		modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
 	}
 	
