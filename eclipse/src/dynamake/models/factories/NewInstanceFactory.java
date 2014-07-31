@@ -123,8 +123,8 @@ public class NewInstanceFactory implements ModelFactory {
 //				
 //				instance.setProperty("Inhereted", newInhereted, propCtx, propDistance, collector);
 				
-				if(inhereter instanceof CanvasModel)
-					forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
+//				if(inhereter instanceof CanvasModel)
+//					forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
 			}
 			
 			@Override
@@ -248,21 +248,21 @@ public class NewInstanceFactory implements ModelFactory {
 //			forwardHistoryChangesToContainedModels((CanvasModel)inhereter, (CanvasModel)instance, propCtx, propDistance, collector);
 //	}
 	
-	private void forwardHistoryChangesToContainedModels(CanvasModel inhereterCanvas, CanvasModel inhereteeCanvas, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(Location location: inhereterCanvas.getLocations()) {
-			Model inhereterModel = inhereterCanvas.getModelByLocation(location);
-			Model inhereteeModel = inhereteeCanvas.getModelByLocation(location);
-			
-			RectangleF inhereteeModelCreationBounds = inhereteeModel.getBounds();
-			playOrigins(inhereterModel, inhereteeModel, propCtx, propDistance, collector);
-			playInherited(inhereterModel, inhereteeModel, propCtx, propDistance, collector, inhereteeModelCreationBounds, false);
-
-//			HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereterModel, inhereteeModel);
-//			inhereterModel.addObserver(historyChangeForwarder);
-//			inhereteeModel.addObserver(historyChangeForwarder);
-//			historyChangeForwarder.attach(propCtx, propDistance, collector);
-			if(inhereterModel instanceof CanvasModel)
-				forwardHistoryChangesToContainedModels((CanvasModel)inhereterModel, (CanvasModel)inhereterModel, propCtx, propDistance, collector);
-		}
-	}
+//	private void forwardHistoryChangesToContainedModels(CanvasModel inhereterCanvas, CanvasModel inhereteeCanvas, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		for(Location location: inhereterCanvas.getLocations()) {
+//			Model inhereterModel = inhereterCanvas.getModelByLocation(location);
+//			Model inhereteeModel = inhereteeCanvas.getModelByLocation(location);
+//			
+//			RectangleF inhereteeModelCreationBounds = inhereteeModel.getBounds();
+//			playOrigins(inhereterModel, inhereteeModel, propCtx, propDistance, collector);
+//			playInherited(inhereterModel, inhereteeModel, propCtx, propDistance, collector, inhereteeModelCreationBounds, false);
+//
+////			HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(inhereterModel, inhereteeModel);
+////			inhereterModel.addObserver(historyChangeForwarder);
+////			inhereteeModel.addObserver(historyChangeForwarder);
+////			historyChangeForwarder.attach(propCtx, propDistance, collector);
+//			if(inhereterModel instanceof CanvasModel)
+//				forwardHistoryChangesToContainedModels((CanvasModel)inhereterModel, (CanvasModel)inhereterModel, propCtx, propDistance, collector);
+//		}
+//	}
 }
