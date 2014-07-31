@@ -9,9 +9,9 @@ public class HistoryChangeUpwarder extends ObserverAdapter implements Serializab
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private HistoryChangeForwarder historyChangeForwarder;
+	private LocalChangesForwarder historyChangeForwarder;
 
-	public HistoryChangeUpwarder(HistoryChangeForwarder historyChangeForwarder) {
+	public HistoryChangeUpwarder(LocalChangesForwarder historyChangeForwarder) {
 		this.historyChangeForwarder = historyChangeForwarder;
 	}
 	

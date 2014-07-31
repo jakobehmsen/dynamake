@@ -1,7 +1,7 @@
 package dynamake.commands;
 
 import dynamake.models.CompositeLocation;
-import dynamake.models.HistoryChangeForwarder;
+import dynamake.models.LocalChangesForwarder;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -26,7 +26,7 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 		Model source = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfTarget);
 		Model target = (Model)location.getChild(prevalentSystem);
 		
-		HistoryChangeForwarder historyChangeForwarder = new HistoryChangeForwarder(source, target);
+		LocalChangesForwarder historyChangeForwarder = new LocalChangesForwarder(source, target);
 		source.addObserver(historyChangeForwarder);
 		target.addObserver(historyChangeForwarder);
 		historyChangeForwarder.attach(propCtx, 0, collector);

@@ -1,7 +1,7 @@
 package dynamake.commands;
 
 import dynamake.models.CompositeLocation;
-import dynamake.models.HistoryChangeForwarder;
+import dynamake.models.LocalChangesForwarder;
 import dynamake.models.HistoryChangeUpwarder;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -32,7 +32,7 @@ public class UpwardHistoryCommand implements Command<Model> {
 		
 		// Use locationOfInheretee somehow for the HistoryChangeUpwarder
 		locationOfInheretee.toString();
-		HistoryChangeForwarder historyChangeForwarder = rootInhereter.<HistoryChangeForwarder>getObserverOfType(HistoryChangeForwarder.class);
+		LocalChangesForwarder historyChangeForwarder = rootInhereter.<LocalChangesForwarder>getObserverOfType(LocalChangesForwarder.class);
 		
 		inhereter.addObserver(new HistoryChangeUpwarder(historyChangeForwarder));
 		
