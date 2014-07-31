@@ -95,7 +95,7 @@ public class NewInstanceFactory implements ModelFactory {
 
 		// TODO: Consider: Inherit cleanup?
 		List<CommandState<Model>> cleanup = target.playThenReverse(creationForwarding, propCtx, propDistance, collector);
-		target.setProperty("Cleanup", cleanup, propCtx, propDistance, collector);
+		target.setProperty(RestorableModel.PROPERTY_CLEANUP, cleanup, propCtx, propDistance, collector);
 		
 		target.playThenReverse(newCreation, propCtx, propDistance, collector);
 		

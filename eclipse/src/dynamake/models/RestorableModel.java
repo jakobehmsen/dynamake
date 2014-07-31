@@ -21,6 +21,7 @@ public class RestorableModel implements Serializable {
 
 	public static String PROPERTY_ORIGINS = "Origins";
 	public static String PROPERTY_CREATION = "Creation";
+	public static String PROPERTY_CLEANUP = "Cleanup";
 	
 	private byte[] modelBaseSerialization;
 	// Origins must guarantee to not require mapping to new references
@@ -53,7 +54,7 @@ public class RestorableModel implements Serializable {
 		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> modelCreation = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CREATION);
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> modelCleanup = (List<CommandState<Model>>)model.getProperty("Cleanup");
+		List<CommandState<Model>> modelCleanup = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CLEANUP);
 		
 		return new RestorableModel(modelBaseSerialization, modelOrigins, modelCreation, modelHistory, modelCleanup);
 	}
@@ -114,7 +115,7 @@ public class RestorableModel implements Serializable {
 	}
 	
 	public void restoreCleanupOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		modelBase.setProperty("Cleanup", modelCleanup, propCtx, propDistance, collector);
+		modelBase.setProperty(RestorableModel.PROPERTY_CLEANUP, modelCleanup, propCtx, propDistance, collector);
 	}
 	
 	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector) {

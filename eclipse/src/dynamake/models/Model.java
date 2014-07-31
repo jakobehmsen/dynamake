@@ -1164,7 +1164,7 @@ public abstract class Model implements Serializable, Observer {
 		modelBeRemoved(propCtx, propDistance, collector);
 
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> cleanup = (List<CommandState<Model>>)getProperty("Cleanup");
+		List<CommandState<Model>> cleanup = (List<CommandState<Model>>)getProperty(RestorableModel.PROPERTY_CLEANUP);
 		if(cleanup != null) {
 			playThenReverse(cleanup, propCtx, propDistance, collector);
 		}
