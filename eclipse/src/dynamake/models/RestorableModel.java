@@ -109,7 +109,8 @@ public class RestorableModel implements Serializable {
 	}
 	
 	public void restoreChangesOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		modelBase.playThenReverse(modelCreation, propCtx, propDistance, collector);
+		if(modelCreation != null)
+			modelBase.playThenReverse(modelCreation, propCtx, propDistance, collector);
 		modelBase.setProperty(RestorableModel.PROPERTY_CREATION, modelCreation, propCtx, propDistance, collector);
 		modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
 	}

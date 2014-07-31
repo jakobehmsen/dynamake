@@ -90,14 +90,14 @@ public class NewInstanceFactory implements ModelFactory {
 			new ForwardLocalChangesCommand(locationOfSourceFromTarget), 
 			new UnforwardLocalChangesCommand(locationOfSourceFromTarget)
 		));
-			
-		newCreation.addAll(creationForwarding);
 
 		// TODO: Consider: Inherit cleanup?
 		List<CommandState<Model>> cleanup = target.playThenReverse(creationForwarding, propCtx, propDistance, collector);
 		target.setProperty(RestorableModel.PROPERTY_CLEANUP, cleanup, propCtx, propDistance, collector);
 		
 		target.playThenReverse(newCreation, propCtx, propDistance, collector);
+		
+		newCreation.addAll(creationForwarding);
 		
 		ArrayList<CommandState<Model>> newCreationLastParts = new ArrayList<CommandState<Model>>();
 
