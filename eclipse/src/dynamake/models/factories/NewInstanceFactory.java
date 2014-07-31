@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.ForwardHistoryCommand;
+import dynamake.commands.ForwardLocalChangesCommand;
 import dynamake.commands.PushLocalChangesCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.PlayThenReverseCommand;
@@ -162,7 +162,7 @@ public class NewInstanceFactory implements ModelFactory {
 			// TODO: Remove the ugly filter hack below; replace with decoupled logic
 			for(CommandState<Model> inhereterInheretedChange: inhereted) {
 				PendingCommandState<Model> pcsInhereterInheretedChange = (PendingCommandState<Model>)inhereterInheretedChange;
-				if(pcsInhereterInheretedChange.getCommand() instanceof ForwardHistoryCommand) {
+				if(pcsInhereterInheretedChange.getCommand() instanceof ForwardLocalChangesCommand) {
 					// Change to command which
 				} else
 					newInhereted.add(inhereterInheretedChange.mapToReferenceLocation(inhereter, instance));
@@ -176,7 +176,7 @@ public class NewInstanceFactory implements ModelFactory {
 		
 		if(forwardHistory) {
 			inheretedToCleanup.add(new PendingCommandState<Model>(
-				new ForwardHistoryCommand(locationOfInhereterFromInstance), 
+				new ForwardLocalChangesCommand(locationOfInhereterFromInstance), 
 				new UnforwardHistoryCommand(locationOfInhereterFromInstance)
 			));
 		}
