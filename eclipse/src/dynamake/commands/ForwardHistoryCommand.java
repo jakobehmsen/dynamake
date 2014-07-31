@@ -1,7 +1,5 @@
 package dynamake.commands;
 
-import java.util.List;
-
 import dynamake.models.CompositeLocation;
 import dynamake.models.HistoryChangeForwarder;
 import dynamake.models.Location;

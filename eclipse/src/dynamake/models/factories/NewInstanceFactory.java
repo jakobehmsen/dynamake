@@ -5,7 +5,7 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.ForwardHistoryCommand;
-import dynamake.commands.ForwardLocalChangesCommand;
+import dynamake.commands.PushLocalChangesCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.PlayThenReverseCommand;
 import dynamake.commands.SetPropertyCommand;
@@ -192,7 +192,7 @@ public class NewInstanceFactory implements ModelFactory {
 		
 		ArrayList<CommandState<Model>> newInheretedLast = new ArrayList<CommandState<Model>>();
 
-		newInheretedLast.add(new PendingCommandState<Model>(new ForwardLocalChangesCommand(locationOfInhereterFromInstance), new PlayThenReverseCommand.AfterPlay()));
+		newInheretedLast.add(new PendingCommandState<Model>(new PushLocalChangesCommand(locationOfInhereterFromInstance), new PlayThenReverseCommand.AfterPlay()));
 		
 		newInheretedLast.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
 		newInheretedLast.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
