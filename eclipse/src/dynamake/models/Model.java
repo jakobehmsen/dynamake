@@ -24,6 +24,7 @@ import javax.swing.JComponent;
 import dynamake.commands.AddObserverCommand;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
+import dynamake.commands.Mappable;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
@@ -873,7 +874,7 @@ public abstract class Model implements Serializable, Observer {
 				}
 			});
 			
-			transactions.addMenuBuilder("New Instance", new Trigger<Model>() {
+			transactions.addMenuBuilder("New", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
@@ -1113,11 +1114,51 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public abstract Model cloneBase();
+	
+	private static class History implements Mappable, Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public final Stack<CommandState<Model>> undoStack;
+		public final Stack<CommandState<Model>> redoStack;
+		
+		public History(Stack<CommandState<Model>> undoStack, Stack<CommandState<Model>> redoStack) {
+			this.undoStack = undoStack;
+			this.redoStack = redoStack;
+		}
 
-	public void cloneHistory(Model model) {
-		this.undoStack.addAll(model.undoStack);
-		this.redoStack.addAll(model.redoStack);
+		@Override
+		public Mappable mapToReferenceLocation(Model sourceReference, Model targetReference) {
+			Stack<CommandState<Model>> mappedUndoStack = new Stack<CommandState<Model>>();
+			
+			for(CommandState<Model> cs: undoStack)
+				mappedUndoStack.add(cs.mapToReferenceLocation(sourceReference, targetReference));
+
+			Stack<CommandState<Model>> mappedRedoStack = new Stack<CommandState<Model>>();
+			
+			for(CommandState<Model> cs: redoStack)
+				mappedRedoStack.add(cs.mapToReferenceLocation(sourceReference, targetReference));
+			
+			return new History(mappedUndoStack, mappedRedoStack);
+		}
 	}
+	
+	public Mappable cloneHistory() {
+		return new History(undoStack, redoStack);
+	}
+	
+	public void restoreHistory(Object history, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		this.undoStack = ((History)history).undoStack;
+		this.redoStack = ((History)history).redoStack;
+		
+		playThenReverse(getLocalChanges(), propCtx, propDistance, collector);
+	}
+
+//	public void cloneHistory(Model model) {
+//		this.undoStack.addAll(model.undoStack);
+//		this.redoStack.addAll(model.redoStack);
+//	}
 
 	public void beRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		modelBeRemoved(propCtx, propDistance, collector);

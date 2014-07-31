@@ -9,7 +9,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.media.sound.ModelChannelMixer;
+
 import dynamake.commands.CommandState;
+import dynamake.commands.Mappable;
 import dynamake.transcription.Collector;
 
 public class RestorableModel implements Serializable {
@@ -20,10 +23,12 @@ public class RestorableModel implements Serializable {
 	private byte[] modelBaseSerialization;
 	// Origins must guarantee to not require mapping to new references
 	private List<CommandState<Model>> modelOrigins;
-	private List<CommandState<Model>> modelChanges;
+	private List<CommandState<Model>> modelCreation;
+	private Mappable modelHistory;
 	private List<CommandState<Model>> modelCleanup;
 	
 	public static RestorableModel wrap(Model model, boolean includeLocalHistory) {
+		Mappable modelHistory = null;
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
 		try {
@@ -31,7 +36,7 @@ public class RestorableModel implements Serializable {
 			Model modelBase = model.cloneBase();
 			
 			if(includeLocalHistory)
-				modelBase.cloneHistory(model);
+				modelHistory = model.cloneHistory();
 			
 			out.writeObject(modelBase);
 			out.close();
@@ -41,35 +46,41 @@ public class RestorableModel implements Serializable {
 		
 		byte[] modelBaseSerialization = bos.toByteArray();
 		
-		ArrayList<CommandState<Model>> modelChanges = new ArrayList<CommandState<Model>>();
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> origins = (List<CommandState<Model>>)model.getProperty("Origins");
+		List<CommandState<Model>> modelOrigins = (List<CommandState<Model>>)model.getProperty("Origins");
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> inhereterInheretedChanges = (List<CommandState<Model>>)model.getProperty("Inhereted");
-		if(inhereterInheretedChanges != null)
-			modelChanges.addAll(inhereterInheretedChanges);
-		List<CommandState<Model>> inhereterLocalChanges = model.getLocalChanges();
-		modelChanges.addAll(inhereterLocalChanges);
+		List<CommandState<Model>> modelCreation = (List<CommandState<Model>>)model.getProperty("Inhereted");
+//		List<CommandState<Model>> modelLocalChanges = model.getLocalChanges();
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> cleanup = (List<CommandState<Model>>)model.getProperty("Cleanup");
+		List<CommandState<Model>> modelCleanup = (List<CommandState<Model>>)model.getProperty("Cleanup");
 		
-		return new RestorableModel(modelBaseSerialization, origins, modelChanges, cleanup);
+		return new RestorableModel(modelBaseSerialization, modelOrigins, modelCreation, modelHistory, modelCleanup);
 	}
 	
-	private RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelChanges, List<CommandState<Model>> modelCleanup) {
+	private RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, Mappable modelHistory, List<CommandState<Model>> modelCleanup) {
 		this.modelBaseSerialization = modelBaseSerialization;
 		this.modelOrigins = modelOrigins;
-		this.modelChanges = modelChanges;
+		this.modelCreation = modelCreation;
+		this.modelHistory = modelHistory;
 		this.modelCleanup = modelCleanup;
 	}
 	
 	public RestorableModel mapToReferenceLocation(Model sourceReference, Model targetReference) {
-		ArrayList<CommandState<Model>> mappedModelChanges = new ArrayList<CommandState<Model>>();
+		ArrayList<CommandState<Model>> mappedModelCreation = new ArrayList<CommandState<Model>>();
 		
-		for(CommandState<Model> modelChange: modelChanges) {
-			CommandState<Model> newModelChange = modelChange.mapToReferenceLocation(sourceReference, targetReference);
-			mappedModelChanges.add(newModelChange);
+		for(CommandState<Model> modelCreationPart: modelCreation) {
+			CommandState<Model> newModelCreationPart = modelCreationPart.mapToReferenceLocation(sourceReference, targetReference);
+			mappedModelCreation.add(newModelCreationPart);
 		}
+		
+		Mappable mappedModelHistory = modelHistory.mapToReferenceLocation(sourceReference, targetReference);
+		
+//		ArrayList<CommandState<Model>> mappedModelLocalChanges = new ArrayList<CommandState<Model>>();
+//		
+//		for(CommandState<Model> modelLocalChange: modelLocalChanges) {
+//			CommandState<Model> newModelLocalChange = modelLocalChange.mapToReferenceLocation(sourceReference, targetReference);
+//			mappedModelLocalChanges.add(newModelLocalChange);
+//		}
 		
 		ArrayList<CommandState<Model>> mappedModelCleanup = new ArrayList<CommandState<Model>>();
 		
@@ -80,7 +91,7 @@ public class RestorableModel implements Serializable {
 			}
 		}
 		
-		return new RestorableModel(modelBaseSerialization, modelOrigins, mappedModelChanges, mappedModelCleanup);
+		return new RestorableModel(modelBaseSerialization, modelOrigins, mappedModelCreation, mappedModelHistory, mappedModelCleanup);
 	}
 	
 	public Model unwrapBase(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -103,8 +114,9 @@ public class RestorableModel implements Serializable {
 	}
 	
 	public void restoreChangesOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		modelBase.playThenReverse(modelChanges, propCtx, propDistance, collector);
-		modelBase.setProperty("Inhereted", modelChanges, propCtx, propDistance, collector);
+		modelBase.playThenReverse(modelCreation, propCtx, propDistance, collector);
+		modelBase.setProperty("Inhereted", modelCreation, propCtx, propDistance, collector);
+		modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
 	}
 	
 	public void restoreCleanupOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -116,24 +128,5 @@ public class RestorableModel implements Serializable {
 		restoreOriginsOnBase(modelBase, propCtx, propDistance, collector);
 		restoreChangesOnBase(modelBase, propCtx, propDistance, collector);
 		return modelBase;
-//		Model modelBase = null;
-//		ByteArrayInputStream bis = new ByteArrayInputStream(modelBaseSerialization);
-//		ObjectInputStream in;
-//		try {
-//			in = new ObjectInputStream(bis);
-//			modelBase = (Model) in.readObject();
-//			in.close();
-//		} catch (IOException | ClassNotFoundException e) {
-//			e.printStackTrace();
-//		}
-//		
-//		// Somehow, each of the command states must be unwrapped around a reference location.
-//		// This indicates, a reference location is to be supplied as an argument for this method.
-////		ArrayList<CommansState<Model>> 
-//		
-//		modelBase.playThenReverse(modelChanges, propCtx, propDistance, collector);
-//		modelBase.setProperty("Inhereted", modelChanges, propCtx, propDistance, collector);
-//		
-//		return modelBase;
 	}
 }
