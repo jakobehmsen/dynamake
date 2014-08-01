@@ -11,14 +11,14 @@ import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class PushLocalChangesCommand implements MappableCommand<Model> {
+public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private Location locationOfSource;
 
-	public PushLocalChangesCommand(Location locationOfTarget) {
+	public PlayLocalChangesFromSourceCommand(Location locationOfTarget) {
 		this.locationOfSource = locationOfTarget;
 	}
 	
@@ -71,6 +71,6 @@ public class PushLocalChangesCommand implements MappableCommand<Model> {
 		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfSource);
 		Location locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
 		
-		return new PushLocalChangesCommand(locationOfSourceFromTargetReference);
+		return new PlayLocalChangesFromSourceCommand(locationOfSourceFromTargetReference);
 	}
 }
