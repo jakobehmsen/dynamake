@@ -20,6 +20,7 @@ import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
 import dynamake.commands.ForwardableCommand;
+import dynamake.commands.ForwardableCommandFactory;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
@@ -29,6 +30,7 @@ import dynamake.commands.UnwrapCommand;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
+import dynamake.models.CanvasModel.RestoreModelCommand.AfterRemove;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.ModelCreation;
 import dynamake.models.factories.ModelFactory;
@@ -412,7 +414,7 @@ public class CanvasModel extends Model {
 			}
 		}
 		
-		public static final class AfterAdd implements CommandFactory<Model>  
+		public static final class AfterAdd implements ForwardableCommandFactory<Model>  
 		{
 			/**
 			 * 
@@ -422,6 +424,11 @@ public class CanvasModel extends Model {
 			@Override
 			public Command<Model> createCommand(Object output) {
 				return new CanvasModel.RemoveModelCommand(((CanvasModel.AddModelCommand.Output)output).location);
+			}
+			
+			@Override
+			public CommandFactory<Model> forForwarding(Object output) {
+				return new ForwardedRemoveModelCommand.AfterAdd();
 			}
 		}
 		
@@ -452,6 +459,50 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+	public static class ForwardedRemoveModelCommand implements Command<Model> {
+		public static final class AfterAdd implements CommandFactory<Model>  
+		{
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Command<Model> createCommand(Object output) {
+				AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
+				
+				Location mappedLocation = new CanvasModel.ForwardLocation(addModelOutput.location);
+				return new CanvasModel.ForwardedRemoveModelCommand(mappedLocation);
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location locationOfModelToRemove;
+		
+		public ForwardedRemoveModelCommand(Location locationOfModelToRemove) {
+			this.locationOfModelToRemove = locationOfModelToRemove;
+		}
+		
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
+			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
+			
+			@SuppressWarnings("unchecked")
+			List<CommandState<Model>> restoreCommands = (List<CommandState<Model>>)modelToRemove.getProperty(RestorableModel.PROPERTY_CREATION);
+			modelToRemove.beRemoved(propCtx, 0, collector, restoreCommands);
+			
+			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
+			
+			RestorableModel restorableModel = RestorableModel.wrap(modelToRemove, true);
+			
+			return new RemoveModelCommand.Output(locationOfModelToRemove, restorableModel);
+		}
+	}
+	
 	private void restoreModel(Object id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		int index = models.size();
 		models.add(index, new Entry(id, model));
@@ -465,6 +516,7 @@ public class CanvasModel extends Model {
 	}
 
 	public void removeModelByLocation(Location location, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		// TODO: Figure out: How to support ForwardLocations here?
 		int indexOf = getIndexOfModelById(((IdLocation)location).id);
 		removeModel(indexOf, propCtx, propDistance, collector);
 		
@@ -480,7 +532,14 @@ public class CanvasModel extends Model {
 	}
 	
 	public Model getModelByLocation(Location location) {
-		return getModelById(((IdLocation)location).id);
+//		for(Entry entry: models) {
+//			if(entry.id.equals(location.getId()))
+//				return entry.model;
+//		}
+//		return getModelById(((IdLocation)location).id);
+		
+		// Assumed that location represent a direct relative location in this canvas
+		return (Model)location.getChild(this);
 	}
 
 	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -769,13 +828,11 @@ public class CanvasModel extends Model {
 			this.id = id;
 		}
 		
-//		public Object getId() {
-//			return id;
-//		}
-		
 		@Override
 		public Object getChild(Object holder) {
 			Model model = ((CanvasModel)holder).getModelById(id);
+			
+//			Model model = ((CanvasModel)holder).getModelByLocation(this);
 
 			return model;
 		}
@@ -804,7 +861,10 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public Object getChild(Object holder) {
-			return location.getChild(holder);
+			// The ForwardLocation itself represents an id
+			Model model = ((CanvasModel)holder).getModelById(this);
+		
+			return model;
 		}
 		
 		@Override

@@ -143,7 +143,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 					newChanges.add(((RedoCommand.Output)firstCommandOutput).command.forForwarding());
 				} else {
 					for(Model.PendingUndoablePair pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs) {
-						CommandState<Model> commandState = pendingUndoablePair.forForwarding();
+						Model.PendingUndoablePair commandState = (Model.PendingUndoablePair)pendingUndoablePair.forForwarding();
 						
 //						// When a model is added to a canvas, map id to ForwardedId (if not only already ForwardedId)
 //						// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
@@ -156,7 +156,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 //							commandState = new PendingCommandState<Model>(newAddCommand, new CanvasModel.RemoveModelCommand.AfterAdd());
 //						} else
 //							commandState = pendingUndoablePair.pending;
-						newChanges.add(commandState);
+						newChanges.add(commandState.pending);
 					}
 				}
 				

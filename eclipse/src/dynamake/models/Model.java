@@ -49,7 +49,7 @@ import dynamake.transcription.Trigger;
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.
  */
 public abstract class Model implements Serializable, Observer {
-	public static class PendingUndoablePair implements Serializable, CommandState<Model> {
+	public static class PendingUndoablePair implements Serializable {
 		/**
 		 * 
 		 */
@@ -61,31 +61,12 @@ public abstract class Model implements Serializable, Observer {
 			this.pending = pending;
 			this.undoable = undoable;
 		}
-
-		@Override
-		public CommandState<Model> executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-			CommandState<Model> reverted = undoable.executeOn(propCtx, prevalentSystem, collector, location);
-			return new PendingUndoablePair(pending, (ReversibleCommand<Model>)reverted);
-		}
 		
-		@Override
-		public CommandState<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
-			return new PendingUndoablePair(
-				(PendingCommandState<Model>)pending.mapToReferenceLocation(sourceReference, targetReference), 
-				(ReversibleCommand<Model>)undoable.mapToReferenceLocation(sourceReference, targetReference)
-			);
-		}
-		
-		@Override
-		public CommandState<Model> offset(Location offset) {
-			return new PendingUndoablePair((PendingCommandState<Model>)pending.offset(offset), (ReversibleCommand<Model>)undoable.offset(offset));
-		}
-		
-		public CommandState<Model> forForwarding() {
+		public PendingUndoablePair forForwarding() {
 			if(pending.getCommand() instanceof ForwardableCommand) {
 				@SuppressWarnings("unchecked")
 				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)pending.getCommand()).forForwarding(undoable.getOutput());
-				return new PendingUndoablePair(new PendingCommandState<Model>(commandForForwarding, pending.getBackFactory(), pending.getForthFactory()), undoable);
+				return new PendingUndoablePair(new PendingCommandState<Model>(commandForForwarding, pending.getForthFactory(), pending.getBackFactory()), undoable);
 			}
 			
 			return this;
@@ -125,13 +106,15 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		public CommandState<Model> forForwarding() {
-			if(origin.getCommand() instanceof ForwardableCommand) {
-				@SuppressWarnings("unchecked")
-				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)origin.getCommand()).forForwarding(revertible.getOutput());
-				return new UndoRedoPart(new PendingCommandState<Model>(commandForForwarding, origin.getBackFactory(), origin.getForthFactory()), revertible);
-			}
+//			if(revertible.getCause() instanceof ForwardableCommand) {
+//				@SuppressWarnings("unchecked")
+//				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)revertible.getCause()).forForwarding(revertible.getOutput());
+//				return new UndoRedoPart(new PendingCommandState<Model>(commandForForwarding, origin.getBackFactory(), origin.getForthFactory()), revertible);
+//			}
+//			
+//			return this;
 			
-			return this;
+			return new UndoRedoPart(origin, (ReversibleCommand<Model>)revertible.forForwarding());
 		}
 	}
 	

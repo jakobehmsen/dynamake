@@ -10,14 +10,20 @@ public class ReversibleCommand<T> implements CommandState<T> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private Command<T> cause;
 	private Object output;
 	private CommandFactory<T> forthFactory;
 	private CommandFactory<T> backFactory;
 
-	public ReversibleCommand(Object output, CommandFactory<T> forthFactory, CommandFactory<T> backFactory) {
+	public ReversibleCommand(Command<T> cause, Object output, CommandFactory<T> forthFactory, CommandFactory<T> backFactory) {
+		this.cause = cause;
 		this.output = output;
 		this.forthFactory = forthFactory;
 		this.backFactory = backFactory;
+	}
+	
+	public Command<T> getCause() {
+		return cause;
 	}
 	
 	public Object getOutput() {
@@ -31,11 +37,17 @@ public class ReversibleCommand<T> implements CommandState<T> {
 		Object newOutput = newCommand.executeOn(propCtx, prevalentSystem, collector, location);
 		
 		// Reverse factories to create antagonistic command
-		return new ReversibleCommand<T>(newOutput, backFactory, forthFactory);
+		return new ReversibleCommand<T>(newCommand, newOutput, backFactory, forthFactory);
 	}
 	
 	@Override
 	public CommandState<T> mapToReferenceLocation(Model sourceReference, Model targetReference) {
+		Command<T> newCause;
+		if(cause instanceof MappableCommand)
+			newCause = ((MappableCommand<T>)cause).mapToReferenceLocation(sourceReference, targetReference);
+		else
+			newCause = cause;
+		
 		Object newOutput;
 		if(output instanceof MappableOutput)
 			newOutput = ((MappableOutput)output).mapToReferenceLocation(sourceReference, targetReference);
@@ -54,22 +66,28 @@ public class ReversibleCommand<T> implements CommandState<T> {
 		else
 			newBackFactory = backFactory;
 		
-		return new ReversibleCommand<T>(newOutput, newForthFactory, newBackFactory);
+		return new ReversibleCommand<T>(newCause, newOutput, newForthFactory, newBackFactory);
 	}
 	
 	@Override
 	public CommandState<T> offset(Location offset) {
+		Command<T> newCause = new RelativeCommand<T>(offset, cause);
 		Object newOutput = new RelativeCommand.Output(offset, output);
 		
 		CommandFactory<T> newForthFactory = new RelativeCommand.Factory<T>(forthFactory);
 		CommandFactory<T> newBackFactory = new RelativeCommand.Factory<T>(backFactory);
 		
-		return new ReversibleCommand<T>(newOutput, newBackFactory, newForthFactory);
+		return new ReversibleCommand<T>(newCause, newOutput, newBackFactory, newForthFactory);
 	}
 	
 	@Override
 	public CommandState<T> forForwarding() {
-		// TODO Auto-generated method stub
-		return null;
+		CommandFactory<T> newForthFactory = forthFactory;
+		
+		if(newForthFactory instanceof ForwardableCommandFactory) {
+			newForthFactory = ((ForwardableCommandFactory<T>)newForthFactory).forForwarding(output);
+		}
+		
+		return new ReversibleCommand<T>(cause, output, newForthFactory, backFactory);
 	}
 }
