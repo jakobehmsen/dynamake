@@ -4,10 +4,11 @@ import java.io.Serializable;
 
 import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
+import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class RelativeCommand<T> implements Command<T> {
+public class RelativeCommand<T> implements MappableCommand<T> {
 	public static class Factory<T> implements CommandFactory<T> {
 		/**
 		 * 
@@ -62,5 +63,13 @@ public class RelativeCommand<T> implements Command<T> {
 		Object commandOutput = command.executeOn(propCtx, prevalentSystem, collector, commandLocation);
 		
 		return new Output(tail, commandOutput);
+	}
+	
+	@Override
+	public Command<T> mapToReferenceLocation(Model sourceReference, Model targetReference) {
+		if(command instanceof MappableCommand)
+			return new RelativeCommand<T>(tail, ((MappableCommand<T>)command).mapToReferenceLocation(sourceReference, targetReference));
+
+		return this;
 	}
 }
