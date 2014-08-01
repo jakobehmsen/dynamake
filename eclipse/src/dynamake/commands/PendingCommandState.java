@@ -95,4 +95,10 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 		
 		return new PendingCommandState<>(newCommand, newBackFactory, newForthFactory);
 	}
+	
+	@Override
+	public CommandState<T> forForwarding() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

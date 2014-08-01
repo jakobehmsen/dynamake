@@ -19,6 +19,7 @@ import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
+import dynamake.commands.ForwardableCommand;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
@@ -250,7 +251,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class AddModelCommand implements Command<Model> {
+	public static class AddModelCommand implements ForwardableCommand<Model> {
 		public static class Output implements Serializable {
 			/**
 			 * 
@@ -287,6 +288,18 @@ public class CanvasModel extends Model {
 			modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, isolatedCollector, location);
 			
 			return new Output(addedModelLocation);
+		}
+		
+		@Override
+		public Command<Model> forForwarding(Object output) {
+			// When a model is added to a canvas, map id to ForwardedId (if not only already ForwardedId)
+			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
+			AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
+			
+			Location mappedLocation = new CanvasModel.ForwardLocation(addModelOutput.location);
+			CanvasModel.ForwardedAddModelCommand newAddCommand = new CanvasModel.ForwardedAddModelCommand(mappedLocation, this.factory);
+
+			return newAddCommand;
 		}
 	}
 	

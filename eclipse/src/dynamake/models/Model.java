@@ -24,6 +24,7 @@ import javax.swing.JComponent;
 import dynamake.commands.AddObserverCommand;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
+import dynamake.commands.ForwardableCommand;
 import dynamake.commands.Mappable;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
@@ -48,7 +49,7 @@ import dynamake.transcription.Trigger;
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.
  */
 public abstract class Model implements Serializable, Observer {
-	public static class PendingUndoablePair implements Serializable {
+	public static class PendingUndoablePair implements Serializable, CommandState<Model> {
 		/**
 		 * 
 		 */
@@ -60,6 +61,35 @@ public abstract class Model implements Serializable, Observer {
 			this.pending = pending;
 			this.undoable = undoable;
 		}
+
+		@Override
+		public CommandState<Model> executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+			CommandState<Model> reverted = undoable.executeOn(propCtx, prevalentSystem, collector, location);
+			return new PendingUndoablePair(pending, (ReversibleCommand<Model>)reverted);
+		}
+		
+		@Override
+		public CommandState<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
+			return new PendingUndoablePair(
+				(PendingCommandState<Model>)pending.mapToReferenceLocation(sourceReference, targetReference), 
+				(ReversibleCommand<Model>)undoable.mapToReferenceLocation(sourceReference, targetReference)
+			);
+		}
+		
+		@Override
+		public CommandState<Model> offset(Location offset) {
+			return new PendingUndoablePair((PendingCommandState<Model>)pending.offset(offset), (ReversibleCommand<Model>)undoable.offset(offset));
+		}
+		
+		public CommandState<Model> forForwarding() {
+			if(pending.getCommand() instanceof ForwardableCommand) {
+				@SuppressWarnings("unchecked")
+				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)pending.getCommand()).forForwarding(undoable.getOutput());
+				return new PendingUndoablePair(new PendingCommandState<Model>(commandForForwarding, pending.getBackFactory(), pending.getForthFactory()), undoable);
+			}
+			
+			return this;
+		}
 	}
 	
 	public static class UndoRedoPart implements Serializable, CommandState<Model> {
@@ -67,10 +97,10 @@ public abstract class Model implements Serializable, Observer {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		public final CommandState<Model> origin;
-		public final CommandState<Model> revertible;
+		public final PendingCommandState<Model> origin;
+		public final ReversibleCommand<Model> revertible;
 		
-		public UndoRedoPart(CommandState<Model> origin, CommandState<Model> revertible) {
+		public UndoRedoPart(PendingCommandState<Model> origin, ReversibleCommand<Model> revertible) {
 			this.origin = origin;
 			this.revertible = revertible;
 		}
@@ -78,17 +108,30 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public CommandState<Model> executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CommandState<Model> reverted = revertible.executeOn(propCtx, prevalentSystem, collector, location);
-			return new UndoRedoPart(origin, reverted);
+			return new UndoRedoPart(origin, (ReversibleCommand<Model>)reverted);
 		}
 		
 		@Override
 		public CommandState<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
-			return new UndoRedoPart(origin.mapToReferenceLocation(sourceReference, targetReference), revertible.mapToReferenceLocation(sourceReference, targetReference));
+			return new UndoRedoPart(
+				(PendingCommandState<Model>)origin.mapToReferenceLocation(sourceReference, targetReference), 
+				(ReversibleCommand<Model>)revertible.mapToReferenceLocation(sourceReference, targetReference)
+			);
 		}
 		
 		@Override
 		public CommandState<Model> offset(Location offset) {
-			return new UndoRedoPart(origin.offset(offset), revertible.offset(offset));
+			return new UndoRedoPart((PendingCommandState<Model>)origin.offset(offset), (ReversibleCommand<Model>)revertible.offset(offset));
+		}
+		
+		public CommandState<Model> forForwarding() {
+			if(origin.getCommand() instanceof ForwardableCommand) {
+				@SuppressWarnings("unchecked")
+				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)origin.getCommand()).forForwarding(revertible.getOutput());
+				return new UndoRedoPart(new PendingCommandState<Model>(commandForForwarding, origin.getBackFactory(), origin.getForthFactory()), revertible);
+			}
+			
+			return this;
 		}
 	}
 	

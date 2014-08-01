@@ -66,4 +66,10 @@ public class ReversibleCommand<T> implements CommandState<T> {
 		
 		return new ReversibleCommand<T>(newOutput, newBackFactory, newForthFactory);
 	}
+	
+	@Override
+	public CommandState<T> forForwarding() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
