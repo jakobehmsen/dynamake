@@ -38,4 +38,16 @@ public class CommandStateSequence<T> implements CommandState<T> {
 		
 		return new CommandStateSequence<T>(newCommandStates);
 	}
+	
+	@Override
+	public CommandState<T> offset(Location offset) {
+		ArrayList<CommandState<T>> newCommandStates = new ArrayList<CommandState<T>>();
+		
+		for(CommandState<T> commandState: commandStates) {
+			CommandState<T> newCommandState = commandState.offset(offset);
+			newCommandStates.add(newCommandState);
+		}
+		
+		return new CommandStateSequence<T>(newCommandStates);
+	}
 }

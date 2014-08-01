@@ -85,4 +85,14 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 		
 		return new PendingCommandState<>(newCommand, newBackFactory, newForthFactory);
 	}
+	
+	@Override
+	public CommandState<T> offset(Location offset) {
+		Command<T> newCommand = new RelativeCommand<T>(offset, command);
+		
+		CommandFactory<T> newForthFactory = new RelativeCommand.Factory<T>(forthFactory);
+		CommandFactory<T> newBackFactory = new RelativeCommand.Factory<T>(backFactory);
+		
+		return new PendingCommandState<>(newCommand, newBackFactory, newForthFactory);
+	}
 }

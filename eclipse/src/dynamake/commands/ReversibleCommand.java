@@ -56,4 +56,14 @@ public class ReversibleCommand<T> implements CommandState<T> {
 		
 		return new ReversibleCommand<T>(newOutput, newForthFactory, newBackFactory);
 	}
+	
+	@Override
+	public CommandState<T> offset(Location offset) {
+		Object newOutput = new RelativeCommand.Output(offset, output);
+		
+		CommandFactory<T> newForthFactory = new RelativeCommand.Factory<T>(forthFactory);
+		CommandFactory<T> newBackFactory = new RelativeCommand.Factory<T>(backFactory);
+		
+		return new ReversibleCommand<T>(newOutput, newBackFactory, newForthFactory);
+	}
 }

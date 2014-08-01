@@ -99,9 +99,16 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
-	protected void modelBeRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(Entry entry: models)
-			entry.model.beRemoved(propCtx, propDistance, collector);
+	protected void modelBeRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector, List<CommandState<Model>> restoreCommands) {
+		for(Entry entry: models) {
+			Location modelLocation = getLocationOf(entry.model);
+			for(CommandState<Model> modelRestoreCommand: entry.model.getLocalChanges())
+				restoreCommands.add(modelRestoreCommand.offset(modelLocation));
+			ArrayList<CommandState<Model>> innerRestoreCommands = new ArrayList<CommandState<Model>>();
+			entry.model.beRemoved(propCtx, propDistance, collector, innerRestoreCommands);
+			for(CommandState<Model> innerRestoreCommand: innerRestoreCommands)
+				restoreCommands.add(innerRestoreCommand.offset(modelLocation));
+		}
 	}
 	
 	@Override
@@ -378,7 +385,9 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
 			
-			modelToRemove.beRemoved(propCtx, 0, collector);
+			@SuppressWarnings("unchecked")
+			List<CommandState<Model>> restoreCommands = (List<CommandState<Model>>)modelToRemove.getProperty(RestorableModel.PROPERTY_CREATION);
+			modelToRemove.beRemoved(propCtx, 0, collector, restoreCommands);
 			
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			

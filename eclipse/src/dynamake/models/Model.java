@@ -85,6 +85,11 @@ public abstract class Model implements Serializable, Observer {
 		public CommandState<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
 			return new UndoRedoPart(origin.mapToReferenceLocation(sourceReference, targetReference), revertible.mapToReferenceLocation(sourceReference, targetReference));
 		}
+		
+		@Override
+		public CommandState<Model> offset(Location offset) {
+			return new UndoRedoPart(origin.offset(offset), revertible.offset(offset));
+		}
 	}
 	
 	public static class HistoryAppendLogChange {
@@ -1095,8 +1100,8 @@ public abstract class Model implements Serializable, Observer {
 		playThenReverse(getLocalChanges(), propCtx, propDistance, collector);
 	}
 
-	public void beRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		modelBeRemoved(propCtx, propDistance, collector);
+	public void beRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector, List<CommandState<Model>> restoreCommands) {
+		modelBeRemoved(propCtx, propDistance, collector, restoreCommands);
 
 		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> cleanup = (List<CommandState<Model>>)getProperty(RestorableModel.PROPERTY_CLEANUP);
@@ -1105,5 +1110,5 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	protected void modelBeRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
+	protected void modelBeRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector, List<CommandState<Model>> restoreCommands) { }
 }
