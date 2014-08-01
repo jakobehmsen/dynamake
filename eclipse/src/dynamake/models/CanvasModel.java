@@ -290,6 +290,48 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+	public static class ForwardedAddModelCommand implements Command<Model> {
+		public static class Output implements Serializable {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			public final Location location;
+
+			public Output(Location location) {
+				this.location = location;
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		public final Location modelLocation;
+		public final ModelFactory factory;
+		
+		public ForwardedAddModelCommand(Location modelLocation, ModelFactory factory) {
+			this.modelLocation = modelLocation;
+			this.factory = factory;
+		}
+		
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
+			final CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
+			ModelCreation modelCreation = factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
+			final Model model = modelCreation.createModel(rootPrevalentSystem, propCtx, 0, collector, location);
+
+			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
+			
+			canvas.restoreModel(modelLocation, model, new PropogationContext(), 0, collector);
+			Location addedModelLocation = canvas.getLocationOf(model);
+			
+			modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, isolatedCollector, location);
+			
+			return new Output(addedModelLocation);
+		}
+	}
+	
 	public static class RestoreModelCommand implements Command<Model>, Cloneable {
 		public static final class AfterRemove implements CommandFactory<Model>  
 		{
@@ -714,9 +756,9 @@ public class CanvasModel extends Model {
 			this.id = id;
 		}
 		
-		public Object getId() {
-			return id;
-		}
+//		public Object getId() {
+//			return id;
+//		}
 		
 		@Override
 		public Object getChild(Object holder) {
@@ -735,6 +777,34 @@ public class CanvasModel extends Model {
 			return id.hashCode();
 		}
 	}
+	
+	public static class ForwardLocation implements Location {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location location;
+
+		public ForwardLocation(Location location) {
+			this.location = location;
+		}
+		
+		@Override
+		public Object getChild(Object holder) {
+			return location.getChild(holder);
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof ForwardLocation && this.location.equals(((ForwardLocation)obj).location);
+		}
+		
+		@Override
+		public int hashCode() {
+			return location.hashCode();
+		}
+	}
+
 
 	private void addModelComponent(
 			final ModelComponent rootView, 
