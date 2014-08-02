@@ -389,7 +389,35 @@ public class CanvasModel extends Model {
 			
 			@Override
 			public CommandFactory<Model> forForwarding(Object output) {
-				return new ForwardedRestoreModelCommand.AfterRemove();
+//				return new ForwardedRestoreModelCommand.AfterRemove();
+				return new RestoreModelCommand.ForwardAfterRemove(this);
+			}
+		}
+		
+		public static final class ForwardAfterRemove implements ForwardableCommandFactory<Model>  
+		{
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			private CommandFactory<Model> factory;
+
+			public ForwardAfterRemove(CommandFactory<Model> factory) {
+				this.factory = factory;
+			}
+
+			@Override
+			public Command<Model> createCommand(Object output) {
+				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
+				
+				Location mappedLocation = new CanvasModel.ForwardLocation(((RemoveModelCommand.Output)output).location);
+				
+				return factory.createCommand(new RemoveModelCommand.Output(mappedLocation, restorableModel));
+			}
+			
+			@Override
+			public CommandFactory<Model> forForwarding(Object output) {
+				return new RestoreModelCommand.ForwardAfterRemove(this);
 			}
 		}
 		
@@ -434,58 +462,58 @@ public class CanvasModel extends Model {
 //		}
 	}
 
-	// Should be MappableCommand due to RestorableModel?
-	public static class ForwardedRestoreModelCommand implements Command<Model>, Cloneable {
-		public static final class AfterRemove implements CommandFactory<Model>  
-		{
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Command<Model> createCommand(Object output) {
-				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
-				Location location = ((RemoveModelCommand.Output)output).location;
-				// TODO: Consider the following:
-				// What if the model what observing/being observed before its removal?
-				// What if the model's observers/observees aren't all in existence anymore?
-				// What if the model's observers/observees are restored after this model is restored?
-				// Are all of the above cases possible?
-				// Perhaps, the best solution would be to save the history and replay this history?
-				Location mappedLocation = new CanvasModel.ForwardLocation(location);
-				
-				return new CanvasModel.ForwardedRestoreModelCommand(mappedLocation, restorableModel);
-			}
-		}
-		
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		private Location modelLocationToRestore;
-		private RestorableModel restorableModel;
-		
-		public ForwardedRestoreModelCommand(Location modelLocationToRestore, RestorableModel restorableModel) {
-			this.modelLocationToRestore = modelLocationToRestore;
-			this.restorableModel = restorableModel;
-		}
-		
-		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
-			
-			Model modelBase = restorableModel.unwrapBase(propCtx, 0, collector);
-			restorableModel.restoreOriginsOnBase(modelBase, propCtx, 0, collector);
-			
-			canvas.restoreModelByLocation(modelLocationToRestore, modelBase, new PropogationContext(), 0, collector);
-			
-			restorableModel.restoreChangesOnBase(modelBase, propCtx, 0, collector);
-			restorableModel.restoreCleanupOnBase(modelBase, propCtx, 0, collector);
-			
-			return new AddModelCommand.Output(modelLocationToRestore);
-		}
-	}
+//	// Should be MappableCommand due to RestorableModel?
+//	public static class ForwardedRestoreModelCommand implements Command<Model>, Cloneable {
+//		public static final class AfterRemove implements CommandFactory<Model>  
+//		{
+//			/**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = 1L;
+//
+//			@Override
+//			public Command<Model> createCommand(Object output) {
+//				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
+//				Location location = ((RemoveModelCommand.Output)output).location;
+//				// TODO: Consider the following:
+//				// What if the model what observing/being observed before its removal?
+//				// What if the model's observers/observees aren't all in existence anymore?
+//				// What if the model's observers/observees are restored after this model is restored?
+//				// Are all of the above cases possible?
+//				// Perhaps, the best solution would be to save the history and replay this history?
+//				Location mappedLocation = new CanvasModel.ForwardLocation(location);
+//				
+//				return new CanvasModel.ForwardedRestoreModelCommand(mappedLocation, restorableModel);
+//			}
+//		}
+//		
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//		private Location modelLocationToRestore;
+//		private RestorableModel restorableModel;
+//		
+//		public ForwardedRestoreModelCommand(Location modelLocationToRestore, RestorableModel restorableModel) {
+//			this.modelLocationToRestore = modelLocationToRestore;
+//			this.restorableModel = restorableModel;
+//		}
+//		
+//		@Override
+//		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+//			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
+//			
+//			Model modelBase = restorableModel.unwrapBase(propCtx, 0, collector);
+//			restorableModel.restoreOriginsOnBase(modelBase, propCtx, 0, collector);
+//			
+//			canvas.restoreModelByLocation(modelLocationToRestore, modelBase, new PropogationContext(), 0, collector);
+//			
+//			restorableModel.restoreChangesOnBase(modelBase, propCtx, 0, collector);
+//			restorableModel.restoreCleanupOnBase(modelBase, propCtx, 0, collector);
+//			
+//			return new AddModelCommand.Output(modelLocationToRestore);
+//		}
+//	}
 	
 	public static class RemoveModelCommand implements Command<Model> {
 		public static class Output implements Serializable {
@@ -537,7 +565,6 @@ public class CanvasModel extends Model {
 				AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
 				
 				Location mappedLocation = new CanvasModel.ForwardLocation(addModelOutput.location);
-//				return new CanvasModel.RemoveModelCommand(mappedLocation);
 				
 				return factory.createCommand(new AddModelCommand.Output(mappedLocation));
 			}
