@@ -1,5 +1,6 @@
 package dynamake.commands;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.models.CanvasModel;
@@ -35,7 +36,14 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 	}
 	
 	private List<CommandState<Model>> playThenReverseChanges(Model source, Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		List<CommandState<Model>> reversedForwardedChanges = target.playThenReverse(source.getLocalChanges(), propCtx, propDistance, collector);
+		ArrayList<CommandState<Model>> mappedChangesToPush = new ArrayList<CommandState<Model>>();
+		for(Model.PendingUndoablePair changeToPush: source.getLocalChangesAsPairs()) {
+			mappedChangesToPush.add(changeToPush.forForwarding().pending);
+//			changeToPush.toString();
+		}
+		
+//		List<CommandState<Model>> reversedForwardedChanges = target.playThenReverse(source.getLocalChanges(), propCtx, propDistance, collector);
+		List<CommandState<Model>> reversedForwardedChanges = target.playThenReverse(mappedChangesToPush, propCtx, propDistance, collector);
 		
 //		for(CommandState<Model> changeToForward: source.getLocalChangesWithOutput()) {
 //			Model.UndoRedoPart urpChangeToForward = (Model.UndoRedoPart)changeToForward;
@@ -56,6 +64,8 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 			
 			for(Location modelLocation: sourceCanvas.getLocations()) {
 				Model embeddedSource = sourceCanvas.getModelByLocation(modelLocation);
+				if(!(modelLocation instanceof CanvasModel.ForwardLocation))
+					modelLocation = new CanvasModel.ForwardLocation(modelLocation);
 				Model embeddedTarget = targetCanvas.getModelByLocation(modelLocation);
 				
 				List<CommandState<Model>> reversedEmbeddedForwardedChanges = playThenReverseChanges(embeddedSource, embeddedTarget, propCtx, propDistance, collector);

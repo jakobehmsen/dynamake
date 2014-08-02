@@ -71,6 +71,20 @@ public abstract class Model implements Serializable, Observer {
 			
 			return this;
 		}
+		
+		public PendingUndoablePair mapToReferenceLocation(Model sourceReference, Model targetReference) {
+			return new PendingUndoablePair(
+				(PendingCommandState<Model>)pending.mapToReferenceLocation(sourceReference, targetReference),
+				(ReversibleCommand<Model>)undoable.mapToReferenceLocation(sourceReference, targetReference)
+			);
+		}
+		
+		public PendingUndoablePair offset(Location offset) {
+			return new PendingUndoablePair(
+				(PendingCommandState<Model>)pending.offset(offset),
+				(ReversibleCommand<Model>)undoable.offset(offset)
+			);
+		}
 	}
 	
 	public static class UndoRedoPart implements Serializable, CommandState<Model> {
@@ -78,10 +92,10 @@ public abstract class Model implements Serializable, Observer {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		public final PendingCommandState<Model> origin;
+		public final PendingUndoablePair origin;
 		public final ReversibleCommand<Model> revertible;
 		
-		public UndoRedoPart(PendingCommandState<Model> origin, ReversibleCommand<Model> revertible) {
+		public UndoRedoPart(PendingUndoablePair origin, ReversibleCommand<Model> revertible) {
 			this.origin = origin;
 			this.revertible = revertible;
 		}
@@ -95,14 +109,14 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public CommandState<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
 			return new UndoRedoPart(
-				(PendingCommandState<Model>)origin.mapToReferenceLocation(sourceReference, targetReference), 
+				origin.mapToReferenceLocation(sourceReference, targetReference), 
 				(ReversibleCommand<Model>)revertible.mapToReferenceLocation(sourceReference, targetReference)
 			);
 		}
 		
 		@Override
 		public CommandState<Model> offset(Location offset) {
-			return new UndoRedoPart((PendingCommandState<Model>)origin.offset(offset), (ReversibleCommand<Model>)revertible.offset(offset));
+			return new UndoRedoPart(origin.offset(offset), (ReversibleCommand<Model>)revertible.offset(offset));
 		}
 		
 		public CommandState<Model> forForwarding() {
@@ -114,7 +128,7 @@ public abstract class Model implements Serializable, Observer {
 //			
 //			return this;
 			
-			return new UndoRedoPart(origin, (ReversibleCommand<Model>)revertible.forForwarding());
+			return new UndoRedoPart(origin.forForwarding(), (ReversibleCommand<Model>)revertible.forForwarding());
 		}
 	}
 	
@@ -236,7 +250,7 @@ public abstract class Model implements Serializable, Observer {
 			CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
 
 			for(int i = 0; i < newLog.size(); i++) {
-				compressedLogPartAsArray[i] = new UndoRedoPart(newLog.get(i).pending, newLog.get(i).undoable);
+				compressedLogPartAsArray[i] = new UndoRedoPart(newLog.get(i), newLog.get(i).undoable);
 			}
 			
 			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
@@ -330,6 +344,20 @@ public abstract class Model implements Serializable, Observer {
 
 	public List<CommandState<Model>> getLocalChanges() {
 		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
+		
+		for(CommandState<Model> undoable: undoStack) {
+			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
+			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
+				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
+				origins.add(undoPart.origin.pending);
+			}
+		}
+		
+		return origins;
+	}
+
+	public List<PendingUndoablePair> getLocalChangesAsPairs() {
+		ArrayList<PendingUndoablePair> origins = new ArrayList<PendingUndoablePair>();
 		
 		for(CommandState<Model> undoable: undoStack) {
 			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
