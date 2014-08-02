@@ -30,6 +30,14 @@ public class ReversibleCommand<T> implements CommandState<T> {
 		return output;
 	}
 
+	public CommandFactory<T> getForthFactory() {
+		return forthFactory;
+	}
+	
+	public CommandFactory<T> getBackFactory() {
+		return backFactory;
+	}
+
 	@Override
 	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location) {
 		Command<T> newCommand = forthFactory.createCommand(output);
@@ -83,11 +91,13 @@ public class ReversibleCommand<T> implements CommandState<T> {
 	@Override
 	public CommandState<T> forForwarding() {
 		CommandFactory<T> newForthFactory = forthFactory;
+		Object newOutput = output;
 		
 		if(newForthFactory instanceof ForwardableCommandFactory) {
 			newForthFactory = ((ForwardableCommandFactory<T>)newForthFactory).forForwarding(output);
+//			newOutput = ((ForwardableOutput)output).forForwarding();
 		}
 		
-		return new ReversibleCommand<T>(cause, output, newForthFactory, backFactory);
+		return new ReversibleCommand<T>(cause, newOutput, newForthFactory, backFactory);
 	}
 }

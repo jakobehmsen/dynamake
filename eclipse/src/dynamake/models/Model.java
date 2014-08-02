@@ -25,6 +25,7 @@ import dynamake.commands.AddObserverCommand;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.ForwardableCommand;
+import dynamake.commands.ForwardableOutput;
 import dynamake.commands.Mappable;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
@@ -49,7 +50,7 @@ import dynamake.transcription.Trigger;
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.
  */
 public abstract class Model implements Serializable, Observer {
-	public static class PendingUndoablePair implements Serializable {
+	public static class PendingUndoablePair implements Serializable, CommandState<Model> {
 		/**
 		 * 
 		 */
@@ -61,28 +62,39 @@ public abstract class Model implements Serializable, Observer {
 			this.pending = pending;
 			this.undoable = undoable;
 		}
-		
+
+		@Override
 		public PendingUndoablePair forForwarding() {
 			if(pending.getCommand() instanceof ForwardableCommand) {
 				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)pending.getCommand()).forForwarding(undoable.getOutput());
-				return new PendingUndoablePair(new PendingCommandState<Model>(commandForForwarding, pending.getForthFactory(), pending.getBackFactory()), undoable);
+				Object newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
+				// Should cause, forthFactory, and backFactory also be forwarded of undoable?
+				ReversibleCommand<Model> newUndoable = new ReversibleCommand<Model>(undoable.getCause(), newOutput, undoable.getForthFactory(), undoable.getBackFactory());
+				return new PendingUndoablePair(new PendingCommandState<Model>(commandForForwarding, pending.getForthFactory(), pending.getBackFactory()), newUndoable);
 			}
 			
 			return this;
 		}
-		
+
+		@Override
 		public PendingUndoablePair mapToReferenceLocation(Model sourceReference, Model targetReference) {
 			return new PendingUndoablePair(
 				(PendingCommandState<Model>)pending.mapToReferenceLocation(sourceReference, targetReference),
 				(ReversibleCommand<Model>)undoable.mapToReferenceLocation(sourceReference, targetReference)
 			);
 		}
-		
+
+		@Override
 		public PendingUndoablePair offset(Location offset) {
 			return new PendingUndoablePair(
 				(PendingCommandState<Model>)pending.offset(offset),
 				(ReversibleCommand<Model>)undoable.offset(offset)
 			);
+		}
+		
+		@Override
+		public CommandState<Model> executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+			return pending.executeOn(propCtx, prevalentSystem, collector, location);
 		}
 	}
 	

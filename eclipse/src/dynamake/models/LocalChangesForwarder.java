@@ -74,6 +74,17 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			// Whenever a change is forwarded from a source
 			final PushLocalChanges pushLocalChanges = (PushLocalChanges)change;
 			
+			final ArrayList<CommandState<Model>> forwardedNewChanges = new ArrayList<CommandState<Model>>();
+			
+			// Forward new changes
+			for(CommandState<Model> newChange: pushLocalChanges.newChanges)
+				forwardedNewChanges.add(newChange.forForwarding());
+
+			// Forward changes to revert
+			final ArrayList<CommandState<Model>> forwardedChangesToRevert = new ArrayList<CommandState<Model>>();
+			for(CommandState<Model> newChange: pushLocalChanges.localChangesToRevert)
+				forwardedChangesToRevert.add(newChange.forForwarding());
+			
 			// On a meta level (i.e. build commands which are not going to be part of the inheretee's local changes)
 			collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
 				@Override
@@ -93,13 +104,13 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 					
 					// Play the inherited local changes backwards without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyToOutputCommand("backwardOutput", new PlayThenReverseCommand(pushLocalChanges.localChangesToRevert)),
+						new SetPropertyToOutputCommand("backwardOutput", new PlayThenReverseCommand(forwardedChangesToRevert)),
 						new PlayThenReverseCommand.AfterPlay()
 					));	
 
 					// Do the forwarded change without affecting the local changes
 					commandStates.add(new PendingCommandState<Model>(
-						new PlayThenReverseCommand(pushLocalChanges.newChanges),
+						new PlayThenReverseCommand(forwardedNewChanges),
 						new PlayThenReverseCommand.AfterPlay()
 					));
 
@@ -124,10 +135,10 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			});
 			
 			// Accumulate local changes to revert
-			ArrayList<CommandState<Model>> newLocalChangesToRevert = new ArrayList<CommandState<Model>>(pushLocalChanges.localChangesToRevert);
+			ArrayList<CommandState<Model>> newLocalChangesToRevert = new ArrayList<CommandState<Model>>(forwardedChangesToRevert);
 			newLocalChangesToRevert.addAll(target.getLocalChangesBackwards());
 			
-			target.sendChanged(new PushLocalChanges(newLocalChangesToRevert, pushLocalChanges.newChanges), propCtx, propDistance, changeDistance, collector);
+			target.sendChanged(new PushLocalChanges(newLocalChangesToRevert, forwardedNewChanges), propCtx, propDistance, changeDistance, collector);
 		} else if((change instanceof Model.HistoryAppendLogChange)) {
 			if(sender == source) {
 				// Forward the logged change in source
@@ -138,12 +149,12 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 				ArrayList<CommandState<Model>> newChanges = new ArrayList<CommandState<Model>>();
 				
 				if(firstCommandOutput instanceof UndoCommand.Output) {
-					newChanges.add(((UndoCommand.Output)firstCommandOutput).command.forForwarding());
+					newChanges.add(((UndoCommand.Output)firstCommandOutput).command);
 				} else if(firstCommandOutput instanceof RedoCommand.Output) {
-					newChanges.add(((RedoCommand.Output)firstCommandOutput).command.forForwarding());
+					newChanges.add(((RedoCommand.Output)firstCommandOutput).command);
 				} else {
 					for(Model.PendingUndoablePair pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs) {
-						Model.PendingUndoablePair commandState = (Model.PendingUndoablePair)pendingUndoablePair.forForwarding();
+//						Model.PendingUndoablePair commandState = (Model.PendingUndoablePair)pendingUndoablePair.forForwarding();
 						
 //						// When a model is added to a canvas, map id to ForwardedId (if not only already ForwardedId)
 //						// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
@@ -156,7 +167,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 //							commandState = new PendingCommandState<Model>(newAddCommand, new CanvasModel.RemoveModelCommand.AfterAdd());
 //						} else
 //							commandState = pendingUndoablePair.pending;
-						newChanges.add(commandState.pending);
+						newChanges.add(pendingUndoablePair);
 					}
 				}
 				
