@@ -30,8 +30,6 @@ import dynamake.commands.UnwrapCommand;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
-import dynamake.models.CanvasModel.ForwardedRemoveModelCommand.AfterAdd;
-import dynamake.models.CanvasModel.RestoreModelCommand.AfterRemove;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.ModelCreation;
 import dynamake.models.factories.ModelFactory;

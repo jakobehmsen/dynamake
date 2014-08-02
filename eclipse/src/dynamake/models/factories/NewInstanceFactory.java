@@ -3,7 +3,6 @@ package dynamake.models.factories;
 import java.util.ArrayList;
 import java.util.List;
 
-import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.ForwardLocalChangesCommand;
 import dynamake.commands.PlayLocalChangesFromSourceCommand;

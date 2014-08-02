@@ -48,26 +48,10 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 	
 	private List<CommandState<Model>> playThenReverseChanges(Model source, Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		ArrayList<CommandState<Model>> mappedChangesToPush = new ArrayList<CommandState<Model>>();
-		for(Model.PendingUndoablePair changeToPush: source.getLocalChangesAsPairs()) {
+		for(Model.PendingUndoablePair changeToPush: source.getLocalChangesAsPairs())
 			mappedChangesToPush.add(changeToPush.forForwarding().pending);
-//			changeToPush.toString();
-		}
 		
-//		List<CommandState<Model>> reversedForwardedChanges = target.playThenReverse(source.getLocalChanges(), propCtx, propDistance, collector);
 		List<CommandState<Model>> reversedForwardedChanges = target.playThenReverse(mappedChangesToPush, propCtx, propDistance, collector);
-		
-//		for(CommandState<Model> changeToForward: source.getLocalChangesWithOutput()) {
-//			Model.UndoRedoPart urpChangeToForward = (Model.UndoRedoPart)changeToForward;
-//			PendingCommandState<Model> pcsChangeToForward = (PendingCommandState<Model>)urpChangeToForward.origin;
-//			if(pcsChangeToForward.getCommand() instanceof CanvasModel.AddModelCommand) {
-//				CanvasModel.AddModelCommand.Output addModelOutput = (CanvasModel.AddModelCommand.Output)((ReversibleCommand<Model>)urpChangeToForward.revertible).getOutput();
-//				Model embeddedSource = ((CanvasModel)source).getModelByLocation(addModelOutput.location);
-//				Model embeddedTarget = ((CanvasModel)target).getModelByLocation(addModelOutput.location);
-//				
-//				List<CommandState<Model>> reversedEmbeddedForwardedChanges = playThenReverseChanges(embeddedSource, embeddedTarget, propCtx, propDistance, collector);
-//				reversedForwardedChanges.addAll(reversedEmbeddedForwardedChanges);
-//			}
-//		}
 		
 		if(source instanceof CanvasModel) {
 			CanvasModel sourceCanvas = (CanvasModel)source;
@@ -75,7 +59,6 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 			
 			for(Location modelLocation: sourceCanvas.getLocations()) {
 				Model embeddedSource = sourceCanvas.getModelByLocation(modelLocation);
-//				if(!(modelLocation instanceof CanvasModel.ForwardLocation))
 				// Forwarding should relative to the distance of the root
 				// E.g., a target may be a descendant of a descendant of model/the root.
 				// In this case, the distance to the root is 2.

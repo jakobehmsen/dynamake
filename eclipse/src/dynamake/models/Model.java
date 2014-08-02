@@ -64,7 +64,6 @@ public abstract class Model implements Serializable, Observer {
 		
 		public PendingUndoablePair forForwarding() {
 			if(pending.getCommand() instanceof ForwardableCommand) {
-				@SuppressWarnings("unchecked")
 				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)pending.getCommand()).forForwarding(undoable.getOutput());
 				return new PendingUndoablePair(new PendingCommandState<Model>(commandForForwarding, pending.getForthFactory(), pending.getBackFactory()), undoable);
 			}
