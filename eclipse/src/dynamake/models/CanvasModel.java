@@ -30,6 +30,7 @@ import dynamake.commands.UnwrapCommand;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
+import dynamake.models.CanvasModel.ForwardedRemoveModelCommand.AfterAdd;
 import dynamake.models.CanvasModel.RestoreModelCommand.AfterRemove;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.ModelCreation;
@@ -46,12 +47,12 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		public final Object id;
+		public final Location id;
 		public final Model model;
 		
-		public Entry(Object id, Model model) {
-			if(!(id instanceof Integer))
-				new String();
+		public Entry(Location id, Model model) {
+//			if(!(id instanceof Integer))
+//				new String();
 			this.id = id;
 			this.model = model;
 		}
@@ -347,8 +348,9 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+	// Should be MappableCommand due to RestorableModel?
 	public static class RestoreModelCommand implements Command<Model>, Cloneable {
-		public static final class AfterRemove implements CommandFactory<Model>  
+		public static final class AfterRemove implements ForwardableCommandFactory<Model>  
 		{
 			/**
 			 * 
@@ -367,6 +369,11 @@ public class CanvasModel extends Model {
 				// Perhaps, the best solution would be to save the history and replay this history?
 				
 				return new CanvasModel.RestoreModelCommand(location, restorableModel);
+			}
+			
+			@Override
+			public CommandFactory<Model> forForwarding(Object output) {
+				return new ForwardedRestoreModelCommand.AfterRemove();
 			}
 		}
 		
@@ -387,6 +394,71 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			
 //			Model modelBase = restorableModel.unwrap(propCtx, 0, collector);
+			Model modelBase = restorableModel.unwrapBase(propCtx, 0, collector);
+			restorableModel.restoreOriginsOnBase(modelBase, propCtx, 0, collector);
+			
+			canvas.restoreModelByLocation(modelLocationToRestore, modelBase, new PropogationContext(), 0, collector);
+			
+			restorableModel.restoreChangesOnBase(modelBase, propCtx, 0, collector);
+			restorableModel.restoreCleanupOnBase(modelBase, propCtx, 0, collector);
+			
+			return new AddModelCommand.Output(modelLocationToRestore);
+		}
+		
+//		@Override
+//		public Command<Model> forForwarding(Object output) {
+//			// When a model is added to a canvas, map id to ForwardedId (if not only already ForwardedId)
+//			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
+//			AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
+//			
+//			Location mappedLocation = new CanvasModel.ForwardLocation(addModelOutput.location);
+//			CanvasModel.ForwardedRestoreModelCommand newAddCommand = new CanvasModel.ForwardedRestoreModelCommand(mappedLocation, this.restorableModel);
+//
+//			return newAddCommand;
+//		}
+	}
+
+	// Should be MappableCommand due to RestorableModel?
+	public static class ForwardedRestoreModelCommand implements Command<Model>, Cloneable {
+		public static final class AfterRemove implements CommandFactory<Model>  
+		{
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Command<Model> createCommand(Object output) {
+				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
+				Location location = ((RemoveModelCommand.Output)output).location;
+				// TODO: Consider the following:
+				// What if the model what observing/being observed before its removal?
+				// What if the model's observers/observees aren't all in existence anymore?
+				// What if the model's observers/observees are restored after this model is restored?
+				// Are all of the above cases possible?
+				// Perhaps, the best solution would be to save the history and replay this history?
+				Location mappedLocation = new CanvasModel.ForwardLocation(location);
+				
+				return new CanvasModel.ForwardedRestoreModelCommand(mappedLocation, restorableModel);
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location modelLocationToRestore;
+		private RestorableModel restorableModel;
+		
+		public ForwardedRestoreModelCommand(Location modelLocationToRestore, RestorableModel restorableModel) {
+			this.modelLocationToRestore = modelLocationToRestore;
+			this.restorableModel = restorableModel;
+		}
+		
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
+			
 			Model modelBase = restorableModel.unwrapBase(propCtx, 0, collector);
 			restorableModel.restoreOriginsOnBase(modelBase, propCtx, 0, collector);
 			
@@ -503,7 +575,7 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	private void restoreModel(Object id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	private void restoreModel(Location id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		int index = models.size();
 		models.add(index, new Entry(id, model));
 		model.setParent(this);
@@ -512,12 +584,12 @@ public class CanvasModel extends Model {
 	}
 
 	public void restoreModelByLocation(Location location, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		restoreModel(((IdLocation)location).id, model, propCtx, propDistance, collector);
+		restoreModel(location, model, propCtx, propDistance, collector);
 	}
 
 	public void removeModelByLocation(Location location, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		// TODO: Figure out: How to support ForwardLocations here?
-		int indexOf = getIndexOfModelById(((IdLocation)location).id);
+		int indexOf = getIndexOfModelById(location);
 		removeModel(indexOf, propCtx, propDistance, collector);
 		
 //		System.out.println("Removed model with id " + ((IdLocation)location).id + " in canvas " + this);
@@ -531,21 +603,28 @@ public class CanvasModel extends Model {
 		return models.get(index).model;
 	}
 	
+	/**
+	 * location is assumed to be an id itself.
+	 * 
+	 * @param location
+	 * @return
+	 */
 	public Model getModelByLocation(Location location) {
-//		for(Entry entry: models) {
-//			if(entry.id.equals(location.getId()))
-//				return entry.model;
-//		}
+		for(Entry entry: models) {
+			if(entry.id.equals(location))
+				return entry.model;
+		}
+		return null;
 //		return getModelById(((IdLocation)location).id);
 		
 		// Assumed that location represent a direct relative location in this canvas
-		return (Model)location.getChild(this);
+//		return (Model)location.getChild(this);
 	}
 
 	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		int id = nextId++;
 		
-		models.add(index, new Entry(id, model));
+		models.add(index, new Entry(new IdLocation(id), model));
 		model.setParent(this);
 		collector.registerAffectedModel(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
@@ -575,7 +654,7 @@ public class CanvasModel extends Model {
 		return -1;
 	}
 
-	private int getIndexOfModelById(Object id) {
+	private int getIndexOfModelById(Location id) {
 		for(int i = 0; i < models.size(); i++) {
 			if(models.get(i).id.equals(id))
 				return i;
@@ -586,8 +665,8 @@ public class CanvasModel extends Model {
 	
 	public Location getLocationOf(Model model) {
 		int indexOfModel = indexOfModel(model);
-		Object id = models.get(indexOfModel).id;
-		return new IdLocation(id);
+		return models.get(indexOfModel).id;
+//		return new IdLocation(id);
 	}
 
 	public Location getNextLocation() {
@@ -830,11 +909,7 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public Object getChild(Object holder) {
-			Model model = ((CanvasModel)holder).getModelById(id);
-			
-//			Model model = ((CanvasModel)holder).getModelByLocation(this);
-
-			return model;
+			return ((CanvasModel)holder).getModelByLocation(this);
 		}
 		
 		@Override
@@ -861,10 +936,7 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public Object getChild(Object holder) {
-			// The ForwardLocation itself represents an id
-			Model model = ((CanvasModel)holder).getModelById(this);
-		
-			return model;
+			return ((CanvasModel)holder).getModelByLocation(this);
 		}
 		
 		@Override
@@ -874,7 +946,7 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public int hashCode() {
-			return location.hashCode();
+			return location.hashCode() * 15;
 		}
 	}
 
@@ -1192,7 +1264,8 @@ public class CanvasModel extends Model {
 		Location[] locations = new Location[getModelCount()];
 		for(int i = 0; i < getModelCount(); i++) {
 			Entry entry = getEntry(i);
-			locations[i] = new IdLocation(entry.id);
+//			locations[i] = new IdLocation(entry.id);
+			locations[i] = entry.id;
 		}
 		return locations;
 	}
