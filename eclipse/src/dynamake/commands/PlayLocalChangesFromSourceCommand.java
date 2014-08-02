@@ -17,10 +17,21 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private int rootDistance;
 	private Location locationOfSource;
 
-	public PlayLocalChangesFromSourceCommand(Location locationOfTarget) {
-		this.locationOfSource = locationOfTarget;
+	public PlayLocalChangesFromSourceCommand(Location locationOfSource) {
+		this.rootDistance = 1;
+		this.locationOfSource = locationOfSource;
+	}
+
+	private PlayLocalChangesFromSourceCommand(Location locationOfSource, int rootDistance) {
+		this.rootDistance = rootDistance;
+		this.locationOfSource = locationOfSource;
+	}
+	
+	public PlayLocalChangesFromSourceCommand whereRootDistanceIs(int i) {
+		return new PlayLocalChangesFromSourceCommand(locationOfSource, rootDistance + i);
 	}
 	
 	@Override
@@ -64,7 +75,12 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 			
 			for(Location modelLocation: sourceCanvas.getLocations()) {
 				Model embeddedSource = sourceCanvas.getModelByLocation(modelLocation);
-				if(!(modelLocation instanceof CanvasModel.ForwardLocation))
+//				if(!(modelLocation instanceof CanvasModel.ForwardLocation))
+				// Forwarding should relative to the distance of the root
+				// E.g., a target may be a descendant of a descendant of model/the root.
+				// In this case, the distance to the root is 2.
+				// Thus, each model local should be wrapped into 2 ForwardLocations
+				for(int i = 0; i < rootDistance; i++)
 					modelLocation = new CanvasModel.ForwardLocation(modelLocation);
 				Model embeddedTarget = targetCanvas.getModelByLocation(modelLocation);
 				

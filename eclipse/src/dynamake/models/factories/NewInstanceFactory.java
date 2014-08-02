@@ -3,6 +3,7 @@ package dynamake.models.factories;
 import java.util.ArrayList;
 import java.util.List;
 
+import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.ForwardLocalChangesCommand;
 import dynamake.commands.PlayLocalChangesFromSourceCommand;
@@ -70,12 +71,35 @@ public class NewInstanceFactory implements ModelFactory {
 		ArrayList<CommandState<Model>> newCreation = new ArrayList<CommandState<Model>>();
 		
 		if(creation != null) {
+			int rootDistanceFromReference = 1;
+			
+			for(CommandState<Model> creationPart: creation) {
+				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
+				if(pcsCreationPart.getCommand() instanceof PlayLocalChangesFromSourceCommand)
+					rootDistanceFromReference++;
+			}
+			
+			int playCommandCount = 0;
+			// Each PlayLocalChangesFromSourceCommand should have its distance incremented by one
+			
 			// Don't include ForwardHistoryCommand commands in changes to inheret 
 			// TODO: Remove the ugly filter hack below; replace with decoupled logic
 			for(CommandState<Model> creationPart: creation) {
 				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
+				
+				if(pcsCreationPart.getCommand() instanceof PlayLocalChangesFromSourceCommand) {
+					PlayLocalChangesFromSourceCommand playCommand = (PlayLocalChangesFromSourceCommand)pcsCreationPart.getCommand();
+					
+					int rootDistance = rootDistanceFromReference - playCommandCount;
+					playCommand = playCommand.whereRootDistanceIs(rootDistance);
+					
+					pcsCreationPart = new PendingCommandState<Model>(playCommand, pcsCreationPart.getForthFactory(), pcsCreationPart.getForthFactory());
+					
+					playCommandCount++;
+				}
+				
 				if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesCommand) {
-					// Change to command which
+
 				} else
 					newCreation.add(creationPart.mapToReferenceLocation(source, target));
 			}
