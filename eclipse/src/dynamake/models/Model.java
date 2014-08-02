@@ -131,14 +131,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		public CommandState<Model> forForwarding() {
-//			if(revertible.getCause() instanceof ForwardableCommand) {
-//				@SuppressWarnings("unchecked")
-//				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)revertible.getCause()).forForwarding(revertible.getOutput());
-//				return new UndoRedoPart(new PendingCommandState<Model>(commandForForwarding, origin.getBackFactory(), origin.getForthFactory()), revertible);
-//			}
-//			
-//			return this;
-			
 			return new UndoRedoPart(origin.forForwarding(), (ReversibleCommand<Model>)revertible.forForwarding());
 		}
 	}

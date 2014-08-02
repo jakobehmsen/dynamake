@@ -50,8 +50,6 @@ public class CanvasModel extends Model {
 		public final Model model;
 		
 		public Entry(Location id, Model model) {
-//			if(!(id instanceof Integer))
-//				new String();
 			this.id = id;
 			this.model = model;
 		}
@@ -389,7 +387,6 @@ public class CanvasModel extends Model {
 			
 			@Override
 			public CommandFactory<Model> forForwarding(Object output) {
-//				return new ForwardedRestoreModelCommand.AfterRemove();
 				return new RestoreModelCommand.ForwardAfterRemove(this);
 			}
 		}
@@ -437,7 +434,6 @@ public class CanvasModel extends Model {
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			
-//			Model modelBase = restorableModel.unwrap(propCtx, 0, collector);
 			Model modelBase = restorableModel.unwrapBase(propCtx, 0, collector);
 			restorableModel.restoreOriginsOnBase(modelBase, propCtx, 0, collector);
 			
@@ -448,72 +444,7 @@ public class CanvasModel extends Model {
 			
 			return new AddModelCommand.Output(modelLocationToRestore);
 		}
-		
-//		@Override
-//		public Command<Model> forForwarding(Object output) {
-//			// When a model is added to a canvas, map id to ForwardedId (if not only already ForwardedId)
-//			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
-//			AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
-//			
-//			Location mappedLocation = new CanvasModel.ForwardLocation(addModelOutput.location);
-//			CanvasModel.ForwardedRestoreModelCommand newAddCommand = new CanvasModel.ForwardedRestoreModelCommand(mappedLocation, this.restorableModel);
-//
-//			return newAddCommand;
-//		}
 	}
-
-//	// Should be MappableCommand due to RestorableModel?
-//	public static class ForwardedRestoreModelCommand implements Command<Model>, Cloneable {
-//		public static final class AfterRemove implements CommandFactory<Model>  
-//		{
-//			/**
-//			 * 
-//			 */
-//			private static final long serialVersionUID = 1L;
-//
-//			@Override
-//			public Command<Model> createCommand(Object output) {
-//				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
-//				Location location = ((RemoveModelCommand.Output)output).location;
-//				// TODO: Consider the following:
-//				// What if the model what observing/being observed before its removal?
-//				// What if the model's observers/observees aren't all in existence anymore?
-//				// What if the model's observers/observees are restored after this model is restored?
-//				// Are all of the above cases possible?
-//				// Perhaps, the best solution would be to save the history and replay this history?
-//				Location mappedLocation = new CanvasModel.ForwardLocation(location);
-//				
-//				return new CanvasModel.ForwardedRestoreModelCommand(mappedLocation, restorableModel);
-//			}
-//		}
-//		
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//		private Location modelLocationToRestore;
-//		private RestorableModel restorableModel;
-//		
-//		public ForwardedRestoreModelCommand(Location modelLocationToRestore, RestorableModel restorableModel) {
-//			this.modelLocationToRestore = modelLocationToRestore;
-//			this.restorableModel = restorableModel;
-//		}
-//		
-//		@Override
-//		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-//			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
-//			
-//			Model modelBase = restorableModel.unwrapBase(propCtx, 0, collector);
-//			restorableModel.restoreOriginsOnBase(modelBase, propCtx, 0, collector);
-//			
-//			canvas.restoreModelByLocation(modelLocationToRestore, modelBase, new PropogationContext(), 0, collector);
-//			
-//			restorableModel.restoreChangesOnBase(modelBase, propCtx, 0, collector);
-//			restorableModel.restoreCleanupOnBase(modelBase, propCtx, 0, collector);
-//			
-//			return new AddModelCommand.Output(modelLocationToRestore);
-//		}
-//	}
 	
 	public static class RemoveModelCommand implements Command<Model> {
 		public static class Output implements Serializable {
@@ -602,55 +533,6 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-//	public static class ForwardedRemoveModelCommand implements Command<Model> {
-//		public static final class AfterAdd implements ForwardableCommandFactory<Model>  
-//		{
-//			/**
-//			 * 
-//			 */
-//			private static final long serialVersionUID = 1L;
-//
-//			@Override
-//			public Command<Model> createCommand(Object output) {
-//				AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
-//				
-//				Location mappedLocation = new CanvasModel.ForwardLocation(addModelOutput.location);
-//				return new CanvasModel.ForwardedRemoveModelCommand(mappedLocation);
-//			}
-//			
-//			@Override
-//			public CommandFactory<Model> forForwarding(Object output) {
-//				return new ForwardedRemoveModelCommand.AfterAdd();
-//			}
-//		}
-//		
-//		/**
-//		 * 
-//		 */
-//		private static final long serialVersionUID = 1L;
-//		private Location locationOfModelToRemove;
-//		
-//		public ForwardedRemoveModelCommand(Location locationOfModelToRemove) {
-//			this.locationOfModelToRemove = locationOfModelToRemove;
-//		}
-//		
-//		@Override
-//		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-//			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
-//			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
-//			
-//			@SuppressWarnings("unchecked")
-//			List<CommandState<Model>> restoreCommands = (List<CommandState<Model>>)modelToRemove.getProperty(RestorableModel.PROPERTY_CREATION);
-//			modelToRemove.beRemoved(propCtx, 0, collector, restoreCommands);
-//			
-//			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
-//			
-//			RestorableModel restorableModel = RestorableModel.wrap(modelToRemove, true);
-//			
-//			return new RemoveModelCommand.Output(locationOfModelToRemove, restorableModel);
-//		}
-//	}
-	
 	private void restoreModel(Location id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		int index = models.size();
 		models.add(index, new Entry(id, model));
@@ -691,10 +573,6 @@ public class CanvasModel extends Model {
 				return entry.model;
 		}
 		return null;
-//		return getModelById(((IdLocation)location).id);
-		
-		// Assumed that location represent a direct relative location in this canvas
-//		return (Model)location.getChild(this);
 	}
 
 	public void addModel(int index, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -742,7 +620,6 @@ public class CanvasModel extends Model {
 	public Location getLocationOf(Model model) {
 		int indexOfModel = indexOfModel(model);
 		return models.get(indexOfModel).id;
-//		return new IdLocation(id);
 	}
 
 	public Location getNextLocation() {
@@ -1340,7 +1217,6 @@ public class CanvasModel extends Model {
 		Location[] locations = new Location[getModelCount()];
 		for(int i = 0; i < getModelCount(); i++) {
 			Entry entry = getEntry(i);
-//			locations[i] = new IdLocation(entry.id);
 			locations[i] = entry.id;
 		}
 		return locations;
