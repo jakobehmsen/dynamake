@@ -153,22 +153,8 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 				} else if(firstCommandOutput instanceof RedoCommand.Output) {
 					newChanges.add(((RedoCommand.Output)firstCommandOutput).command);
 				} else {
-					for(Model.PendingUndoablePair pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs) {
-//						Model.PendingUndoablePair commandState = (Model.PendingUndoablePair)pendingUndoablePair.forForwarding();
-						
-//						// When a model is added to a canvas, map id to ForwardedId (if not only already ForwardedId)
-//						// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
-//						if(pendingUndoablePair.pending.getCommand() instanceof CanvasModel.AddModelCommand) {
-//							CanvasModel.AddModelCommand addCommand = (CanvasModel.AddModelCommand)pendingUndoablePair.pending.getCommand();
-//							CanvasModel.AddModelCommand.Output addCommandOutput = (CanvasModel.AddModelCommand.Output)pendingUndoablePair.undoable.getOutput();
-//							
-//							Location mappedLocation = new CanvasModel.ForwardLocation(addCommandOutput.location);
-//							CanvasModel.ForwardedAddModelCommand newAddCommand = new CanvasModel.ForwardedAddModelCommand(mappedLocation, addCommand.factory);
-//							commandState = new PendingCommandState<Model>(newAddCommand, new CanvasModel.RemoveModelCommand.AfterAdd());
-//						} else
-//							commandState = pendingUndoablePair.pending;
+					for(Model.PendingUndoablePair pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs)
 						newChanges.add(pendingUndoablePair);
-					}
 				}
 				
 				this.changed(source, new PushLocalChanges(new ArrayList<CommandState<Model>>(), newChanges), propCtx, propDistance, changeDistance, collector);
