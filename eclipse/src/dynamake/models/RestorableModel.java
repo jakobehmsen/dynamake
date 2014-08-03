@@ -70,9 +70,11 @@ public class RestorableModel implements Serializable {
 	public RestorableModel mapToReferenceLocation(Model sourceReference, Model targetReference) {
 		ArrayList<CommandState<Model>> mappedModelCreation = new ArrayList<CommandState<Model>>();
 		
-		for(CommandState<Model> modelCreationPart: modelCreation) {
-			CommandState<Model> newModelCreationPart = modelCreationPart.mapToReferenceLocation(sourceReference, targetReference);
-			mappedModelCreation.add(newModelCreationPart);
+		if(modelCreation != null) {
+			for(CommandState<Model> modelCreationPart: modelCreation) {
+				CommandState<Model> newModelCreationPart = modelCreationPart.mapToReferenceLocation(sourceReference, targetReference);
+				mappedModelCreation.add(newModelCreationPart);
+			}
 		}
 		
 		Mappable mappedModelHistory = modelHistory.mapToReferenceLocation(sourceReference, targetReference);
