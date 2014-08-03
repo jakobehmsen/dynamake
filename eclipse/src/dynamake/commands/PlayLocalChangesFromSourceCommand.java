@@ -31,7 +31,7 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 	}
 	
 	public PlayLocalChangesFromSourceCommand whereRootDistanceIs(int i) {
-		return new PlayLocalChangesFromSourceCommand(locationOfSource, rootDistance + i);
+		return new PlayLocalChangesFromSourceCommand(locationOfSource, i);
 	}
 	
 	@Override
@@ -48,8 +48,12 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 	
 	private List<CommandState<Model>> playThenReverseChanges(Model source, Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		ArrayList<CommandState<Model>> mappedChangesToPush = new ArrayList<CommandState<Model>>();
-		for(Model.PendingUndoablePair changeToPush: source.getLocalChangesAsPairs())
-			mappedChangesToPush.add(changeToPush.forForwarding().pending);
+		for(Model.PendingUndoablePair changeToPush: source.getLocalChangesAsPairs()) {
+			Model.PendingUndoablePair forwardedChangeToPush = changeToPush;
+			for(int i = 0; i < rootDistance; i++)
+				forwardedChangeToPush = forwardedChangeToPush.forForwarding();
+			mappedChangesToPush.add(forwardedChangeToPush.pending);
+		}
 		
 		List<CommandState<Model>> reversedForwardedChanges = target.playThenReverse(mappedChangesToPush, propCtx, propDistance, collector);
 		
@@ -58,6 +62,8 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 			CanvasModel targetCanvas = (CanvasModel)target;
 			
 			for(Location modelLocation: sourceCanvas.getLocations()) {
+				// Some locations are from root and are thus already wrapped into a forwarded location
+				// Some locations are not from root and may need to be wrapped into a forwarded location
 				Model embeddedSource = sourceCanvas.getModelByLocation(modelLocation);
 				// Forwarding should relative to the distance of the root
 				// E.g., a target may be a descendant of a descendant of model/the root.
@@ -80,6 +86,6 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfSource);
 		Location locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
 		
-		return new PlayLocalChangesFromSourceCommand(locationOfSourceFromTargetReference);
+		return new PlayLocalChangesFromSourceCommand(locationOfSourceFromTargetReference, rootDistance);
 	}
 }

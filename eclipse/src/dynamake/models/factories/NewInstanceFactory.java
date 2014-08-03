@@ -100,7 +100,7 @@ public class NewInstanceFactory implements ModelFactory {
 				if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesCommand) {
 
 				} else
-					newCreation.add(creationPart.mapToReferenceLocation(source, target));
+					newCreation.add(pcsCreationPart.mapToReferenceLocation(source, target));
 			}
 		}
 		
