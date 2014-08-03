@@ -1,3 +1,4 @@
+<!DOCTYPE HTML>
 <html>
 	<head>
 		<title>Dynamake's project page</title>
@@ -28,21 +29,69 @@
 			}
 		</style>
 		<script>
+			function getAsMap(mapping) {
+				var map = {};
+				mapping.each(function(i, o) {
+					map[o.key] = o.value;
+				});
+				return map;
+			}
 			
 			$( document ).ready(function() {
+				var definitionsQ = $("div[data-define]");
+				
+				var definitions = getAsMap(definitionsQ.map(function() {
+					var term = $(this).attr("data-define");
+					return {
+						key: term,
+						value: $(this).contents()
+					}
+				}));
+				
+				//$("div[data-define]").replaceWith("");
+			
 				var boxes = $("div.box");
-				boxes.find("div.title").replaceWith(function() {
+				/*boxes.find("div.title").replaceWith(function() {
 					return $(this).contents().wrap("<div style='margin-bottom:15px; font-style:italic'></div>").parent();
 				});
-				boxes.find("div.content").replaceWith(function() {
+				*/
+				/*boxes.find("div.content").replaceWith(function() {
 					var contents = $(this).contents();
 					return contents.wrap("<div></div>").parent();
+				});*/
+				
+				
+				boxes.find("span[data-mention]").replaceWith(function() {
+					//var term = $(this).attr("data-mention");
+					//return definitions[term];
+					
+					//return contents.wrap("<div></div>").parent();
+					
+					var term = $(this).attr("data-mention");
+					var definition = definitions[term];
+					
+					var link = $(this).contents().wrap("<span><a href='dummy'></a></span>").parent();
+					var holder = link.parent();
+					link.click(function() {
+						holder.contents().replaceWith(definition).wrap("<span></span>");
+					
+						return false;
+					});
+					return holder;
 				});
+				
 			});
 		</script>
 	</head>
 
 	<body>
+		<div data-define="programming environment">
+			Here is the definition of a programming environment.
+		</div>
+		<div data-define="network usage">
+			Here is the definition of using Dynamake across a network.
+		</div>
+	
 		<h1 align="center">
 			Welcome to Dynamake's project page<br>
 			<a href="https://github.com/jakobehmsen/dynamake"> hosted on GitHub</a>
@@ -51,7 +100,7 @@
 		<div class="box">
 			<div class="title">What is Dynamake about?</div>
 			<div class="content">
-			Dynamake is an attempt to envision, design, and implement an interactive code extrinsic programming environment. 
+			Dynamake is an attempt to envision, design, and implement an interactive code extrinsic <span data-mention="programming environment">programming environment</span>. 
 			This environment is to require only little configuration effort before getting the hands dirty.
 			</div>
 		</div>
@@ -83,7 +132,7 @@
 		<div class="box">
 			<div class="title">What about the future of Dynamake?</div>
 			<div class="content">
-			One of the major works in the horizon is support for using Dynamake across a network.
+			One of the major works in the horizon is support for <span data-mention="network usage">using Dynamake across a network</span>.
 			</div>
 		</div>
 	</body>
