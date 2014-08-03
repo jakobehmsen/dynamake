@@ -15,6 +15,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
+
 import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
@@ -446,8 +448,8 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class RemoveModelCommand implements Command<Model> {
-		public static class Output implements Serializable {
+	public static class RemoveModelCommand implements ForwardableCommand<Model> {
+		public static class Output implements Serializable, ForwardableOutput {
 			/**
 			 * 
 			 */
@@ -458,6 +460,11 @@ public class CanvasModel extends Model {
 			public Output(Location location, RestorableModel restorableModel) {
 				this.location = location;
 				this.restorableModel = restorableModel;
+			}
+			
+			@Override
+			public Object forForwarding() {
+				return new RemoveModelCommand.Output(new ForwardLocation(location), restorableModel);
 			}
 		}
 		
@@ -530,6 +537,18 @@ public class CanvasModel extends Model {
 			RestorableModel restorableModel = RestorableModel.wrap(modelToRemove, true);
 			
 			return new Output(locationOfModelToRemove, restorableModel);
+		}
+		
+		@Override
+		public Command<Model> forForwarding(Object output) {
+			// When a model is added to a canvas, map id to ForwardedId (if not only already ForwardedId)
+			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
+			RemoveModelCommand.Output removeModelOutput = (RemoveModelCommand.Output)output;
+			
+			Location mappedLocation = new CanvasModel.ForwardLocation(removeModelOutput.location);
+			CanvasModel.RemoveModelCommand newRemoveCommand = new CanvasModel.RemoveModelCommand(mappedLocation);
+
+			return newRemoveCommand;
 		}
 	}
 	
