@@ -104,10 +104,42 @@ public class NewInstanceFactory implements ModelFactory {
 			}
 		}
 		
+//		// Setup forwarding
+//		ArrayList<CommandState<Model>> creationForwarding = new ArrayList<CommandState<Model>>();
+//		
+//		Location locationOfSourceFromTarget = ModelComponent.Util.locationBetween(target, source);
+//		
+//		creationForwarding.add(new PendingCommandState<Model>(
+//			new ForwardLocalChangesCommand(locationOfSourceFromTarget), 
+//			new UnforwardLocalChangesCommand(locationOfSourceFromTarget)
+//		));
+//
+//		// TODO: Consider: Inherit cleanup?
+//		List<CommandState<Model>> cleanup = target.playThenReverse(creationForwarding, propCtx, propDistance, collector);
+//		target.setProperty(RestorableModel.PROPERTY_CLEANUP, cleanup, propCtx, propDistance, collector);
+		
+		target.playThenReverse(newCreation, propCtx, propDistance, collector);
+		
+//		newCreation.addAll(creationForwarding);
+
+		Location locationOfSourceFromTarget = ModelComponent.Util.locationBetween(target, source);
+		
+		ArrayList<CommandState<Model>> newCreationLastParts = new ArrayList<CommandState<Model>>();
+		
+		newCreationLastParts.add(new PendingCommandState<Model>(new PlayLocalChangesFromSourceCommand(locationOfSourceFromTarget), new PlayThenReverseCommand.AfterPlay()));
+		
+		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
+		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
+		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
+		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+		
+		target.playThenReverse(newCreationLastParts, propCtx, propDistance, collector);
+		newCreation.addAll(newCreationLastParts);
+		
+		
+		
 		// Setup forwarding
 		ArrayList<CommandState<Model>> creationForwarding = new ArrayList<CommandState<Model>>();
-		
-		Location locationOfSourceFromTarget = ModelComponent.Util.locationBetween(target, source);
 		
 		creationForwarding.add(new PendingCommandState<Model>(
 			new ForwardLocalChangesCommand(locationOfSourceFromTarget), 
@@ -118,21 +150,9 @@ public class NewInstanceFactory implements ModelFactory {
 		List<CommandState<Model>> cleanup = target.playThenReverse(creationForwarding, propCtx, propDistance, collector);
 		target.setProperty(RestorableModel.PROPERTY_CLEANUP, cleanup, propCtx, propDistance, collector);
 		
-		target.playThenReverse(newCreation, propCtx, propDistance, collector);
-		
 		newCreation.addAll(creationForwarding);
 		
-		ArrayList<CommandState<Model>> newCreationLastParts = new ArrayList<CommandState<Model>>();
-
-		newCreationLastParts.add(new PendingCommandState<Model>(new PlayLocalChangesFromSourceCommand(locationOfSourceFromTarget), new PlayThenReverseCommand.AfterPlay()));
 		
-		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
-		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
-		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
-		
-		target.playThenReverse(newCreationLastParts, propCtx, propDistance, collector);
-		newCreation.addAll(newCreationLastParts);
 		
 		target.setProperty(RestorableModel.PROPERTY_CREATION, newCreation, propCtx, propDistance, collector);
 	}

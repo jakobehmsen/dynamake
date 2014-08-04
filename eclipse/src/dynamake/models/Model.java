@@ -65,7 +65,7 @@ public abstract class Model implements Serializable, Observer {
 
 		@Override
 		public PendingUndoablePair forForwarding() {
-			if(pending.getCommand() instanceof ForwardableCommand) {
+			if(pending.getCommand() instanceof ForwardableCommand && undoable.getOutput() instanceof ForwardableOutput) {
 				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)pending.getCommand()).forForwarding(undoable.getOutput());
 				Object newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
 				// Should cause, forthFactory, and backFactory also be forwarded of undoable?

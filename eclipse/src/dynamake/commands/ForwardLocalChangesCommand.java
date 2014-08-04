@@ -1,12 +1,16 @@
 package dynamake.commands;
 
+import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.LocalChangesForwarder;
+import dynamake.models.LocalChangesUpwarder;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.ModelRootLocation;
+import dynamake.models.ParentLocation;
 import dynamake.models.PropogationContext;
+import dynamake.models.RootModel;
 import dynamake.transcription.Collector;
 
 public class ForwardLocalChangesCommand implements MappableCommand<Model> {
@@ -35,9 +39,27 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 //		List<CommandState<Model>> changesToInheret = inhereter.getLocalChanges();
 //		inheretee.playThenReverse(changesToInheret, propCtx, 0, collector);
 		
+		if(source instanceof CanvasModel)
+			forwardLocalChangesUpwards(historyChangeForwarder, (CanvasModel)source, new ModelRootLocation(), new ModelRootLocation());
+		
 		System.out.println("Forward local changes from " + source + " to " + target);
 		
 		return null;
+	}
+	
+	private void forwardLocalChangesUpwards(LocalChangesForwarder historyChangeForwarder, CanvasModel sourceCanvas, Location sourceLocation, Location offsetFromSource) {
+		for(Location modelLocationInSource: sourceCanvas.getLocations()) {
+			Location modelLocationInTarget = new CanvasModel.ForwardLocation(modelLocationInSource);
+			// Perhaps, the creation of this upwards forwarding should be part for play local changes from source command, for each add command?
+			// - and then a corresponding cleanup for each remove command?
+			Model modelInSource = sourceCanvas.getModelByLocation(modelLocationInSource);
+			Location modelTargetLocation = new CompositeLocation(sourceLocation, new ParentLocation());
+			Location modelOffsetFromTarget = new CompositeLocation(offsetFromSource, modelLocationInSource);
+			modelInSource.addObserver(new LocalChangesUpwarder(modelTargetLocation, modelLocationInTarget));
+			
+			if(modelInSource instanceof CanvasModel)
+				forwardLocalChangesUpwards(historyChangeForwarder, (CanvasModel)modelInSource, modelTargetLocation, modelOffsetFromTarget);
+		}
 	}
 	
 	@Override

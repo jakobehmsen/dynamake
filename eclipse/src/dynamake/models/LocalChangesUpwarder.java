@@ -10,24 +10,28 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private LocalChangesForwarder historyChangeForwarder;
-	private Location offset;
+	private Location sourceLocation;
+	private Location offsetFromSource;
 
-	public LocalChangesUpwarder(LocalChangesForwarder historyChangeForwarder, Location offset) {
-		this.historyChangeForwarder = historyChangeForwarder;
-		this.offset = offset;
+	public LocalChangesUpwarder(Location sourceLocation, Location offsetFromSource) {
+		this.sourceLocation = sourceLocation;
+		this.offsetFromSource = offsetFromSource;
 	}
 	
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		if(change instanceof Model.HistoryAppendLogChange) {
 			Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
+			Model source = (Model)sourceLocation.getChild(sender);
 			
 			ArrayList<Model.PendingUndoablePair> newPendingUndoablePairs = new ArrayList<Model.PendingUndoablePair>();
-			for(Model.PendingUndoablePair pup: historyAppendLogChange.pendingUndoablePairs)
-				newPendingUndoablePairs.add(pup.offset(offset));
+			for(Model.PendingUndoablePair pup: historyAppendLogChange.pendingUndoablePairs) {
+				// Be sensitive to undo/redo commands here; they should be handled differently
+				// Somehow, it is the undone/redone command that should be offset instead
+				newPendingUndoablePairs.add(pup.offset(offsetFromSource));
+			}
 			
-			historyChangeForwarder.changed(sender, new Model.HistoryAppendLogChange(newPendingUndoablePairs), propCtx, propDistance, changeDistance, collector);
+			source.sendChanged(new Model.HistoryAppendLogChange(newPendingUndoablePairs), propCtx, propDistance, changeDistance, collector);
 		}
 	}
 }

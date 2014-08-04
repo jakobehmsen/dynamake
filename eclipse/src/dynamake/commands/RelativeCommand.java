@@ -8,7 +8,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class RelativeCommand<T> implements MappableCommand<T> {
+public class RelativeCommand<T> implements MappableCommand<T>, ForwardableCommand<T> {
 	public static class Factory<T> implements CommandFactory<T> {
 		/**
 		 * 
@@ -69,6 +69,14 @@ public class RelativeCommand<T> implements MappableCommand<T> {
 	public Command<T> mapToReferenceLocation(Model sourceReference, Model targetReference) {
 		if(command instanceof MappableCommand)
 			return new RelativeCommand<T>(tail, ((MappableCommand<T>)command).mapToReferenceLocation(sourceReference, targetReference));
+
+		return this;
+	}
+	
+	@Override
+	public Command<T> forForwarding(Object output) {
+		if(command instanceof ForwardableCommand)
+			return new RelativeCommand<T>(tail, ((ForwardableCommand<T>)command).forForwarding(output));
 
 		return this;
 	}
