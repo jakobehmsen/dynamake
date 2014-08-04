@@ -51,33 +51,26 @@
 					var newEl;
 						
 					if(addBorder) {
+						// TODO: Ensure that "tab name" is wrapped together, such that it doesn't span over multiple lines
 						definitionEl
-							.css("border-top", "2px solid #333")
-							.css("border-left", "2px solid #333")
-							.css("border-right", "2px solid #333")
+							.css("border-top", "2px solid #A61E5B")
+							.css("border-left", "2px solid #A61E5B")
+							.css("border-right", "2px solid #A61E5B")
 							.css("border-radius", "10px")
 							.css("margin", "4px")
 							.css("padding", "4px");
 							
 						definition = definition.wrap("<div></div>").parent();
 						definition
-							.css("border", "2px solid #666")
+							.css("border", "2px solid #A61E5B")
 							.css("border-radius", "10px")
 							.css("margin", "4px")
-							.css("padding", "4px");
+							.css("padding", "4px")
+							.css("background-color", "#B2D6C6");
 					
 						newEl = $(document.createElement("span"))
-						.append(definitionEl)
-						.append(definition);
-						
-						//newEl = newEl.wrap("<div></div>").parent();
-					
-						/*
-						newEl
-							.css("border", "1px solid #666")
-							.css("margin", "2px")
-							.css("padding", "2px");
-						*/
+							.append(definitionEl)
+							.append(definition);
 					} else {
 						newEl = $(document.createElement("span"))
 						.append(definitionEl)
