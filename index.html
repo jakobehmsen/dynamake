@@ -44,19 +44,44 @@
 					//alert(definitions[term]);
 					replaceMentions(definition, definitions);
 					var definitionEl = link.clone();
+							
 					definitionEl.click(createCollapseFunction(holder, link, definitions, term));
 					
-					var newEl = $(document.createElement("span"))
+					var newEl;
+						
+					if(addBorder) {
+						definitionEl
+							.css("border-top", "2px solid #333")
+							.css("border-left", "2px solid #333")
+							.css("border-right", "2px solid #333")
+							.css("border-radius", "25px")
+							.css("margin", "2px")
+							.css("padding", "4px");
+							
+						definition = definition.wrap("<div></div>").parent();
+						definition
+							.css("border", "2px solid #666")
+							.css("margin", "2px")
+							.css("padding", "4px");
+					
+						newEl = $(document.createElement("span"))
 						.append(definitionEl)
 						.append(definition);
 						
-					newEl = newEl.wrap("<div></div>").parent();
-						
-					if(addBorder) {
+						//newEl = newEl.wrap("<div></div>").parent();
+					
+						/*
 						newEl
 							.css("border", "1px solid #666")
 							.css("margin", "2px")
 							.css("padding", "2px");
+						*/
+					} else {
+						newEl = $(document.createElement("span"))
+						.append(definitionEl)
+						.append(definition);
+						
+						newEl = newEl.wrap("<div></div>").parent();
 					}
 					
 					holder.contents().replaceWith(newEl);
