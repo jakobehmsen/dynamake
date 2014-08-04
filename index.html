@@ -37,7 +37,7 @@
 				return map;
 			}
 			
-			function createExpandFunction(holder, link, definitions, term) {
+			function createExpandFunction(holder, link, definitions, term, addBorder) {
 				return function() {
 					// Get copy of definition
 					var definition = definitions[term].clone();
@@ -51,10 +51,14 @@
 						.append(definition);
 						
 					//newEl = newEl.wrap("<span></span>").parent()
-					newEl = newEl.wrap("<div></div>").parent()
-						.css("border", "1px solid #666")
-						.css("margin", "2px")
-						.css("padding", "2px");
+					newEl = newEl.wrap("<div></div>").parent();
+						
+					if(addBorder) {
+						newEl
+							.css("border", "1px solid #666")
+							.css("margin", "2px")
+							.css("padding", "2px");
+					}
 					
 					holder.contents().replaceWith(newEl);
 					
@@ -65,7 +69,7 @@
 			function createCollapseFunction(holder, link, definitions, term) {
 				return function() {
 					var definitionEl = link.clone();
-					definitionEl.click(createExpandFunction(holder, link, definitions, term));
+					definitionEl.click(createExpandFunction(holder, link, definitions, term, true));
 					holder.contents().replaceWith(definitionEl);
 					
 					return false;
@@ -80,7 +84,21 @@
 					var link = contents.wrap("<span><a href='dummy'></a></span>").parent();
 					
 					var holder = link.parent();
-					link.click(createExpandFunction(holder, link, definitions, term));
+					link.click(createExpandFunction(holder, link, definitions, term, true));
+					
+					return holder;
+				});
+				
+				el.find("span[data-mention-expand]").replaceWith(function() {
+					var term = $(this).attr("data-mention-expand");
+					var contents = $(this).clone();
+					
+					var link = contents.wrap("<span><a href='dummy'></a></span>").parent();
+					
+					var holder = link.parent();
+					createExpandFunction(holder, link, definitions, term, false)();
+					/*link.click(createExpandFunction(holder, link, definitions, term));
+					link.click();*/
 					
 					return holder;
 				});
@@ -113,6 +131,9 @@
 		<div data-define="programming environment">
 			Here is the definition of a programming environment.
 		</div>
+		<div data-define="Dynamake">
+			<span data-mention="Dynamake">Dynamake</span> is an attempt to envision, design, and implement an interactive code extrinsic <span data-mention="programming environment">programming environment</span>. This environment is to require only little configuration effort before getting the hands dirty.
+		</div>
 		<div data-define="network usage">
 			Here is the definition of using Dynamake across a network.
 			<span data-mention="dummy1">Mention of dummy1</span>
@@ -132,8 +153,7 @@
 		<div class="box">
 			<div class="title">What is Dynamake about?</div>
 			<div class="content">
-			Dynamake is an attempt to envision, design, and implement an interactive code extrinsic <span data-mention="programming environment">programming environment</span>. 
-			This environment is to require only little configuration effort before getting the hands dirty.
+			<span data-mention-expand="Dynamake"></span>
 			</div>
 		</div>
 
