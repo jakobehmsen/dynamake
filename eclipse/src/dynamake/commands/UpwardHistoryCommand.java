@@ -2,7 +2,7 @@ package dynamake.commands;
 
 import dynamake.models.CompositeLocation;
 import dynamake.models.LocalChangesForwarder;
-import dynamake.models.HistoryChangeUpwarder;
+import dynamake.models.LocalChangesUpwarder;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -26,15 +26,15 @@ public class UpwardHistoryCommand implements Command<Model> {
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-		Model rootInhereter = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfRootInhereter);
-		Model inhereter = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInhereter);
-//		Model inheretee = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInheretee);
-		
-		// Use locationOfInheretee somehow for the HistoryChangeUpwarder
-		locationOfInheretee.toString();
-		LocalChangesForwarder historyChangeForwarder = rootInhereter.<LocalChangesForwarder>getObserverOfType(LocalChangesForwarder.class);
-		
-		inhereter.addObserver(new HistoryChangeUpwarder(historyChangeForwarder));
+//		Model rootInhereter = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfRootInhereter);
+//		Model inhereter = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInhereter);
+////		Model inheretee = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfInheretee);
+//		
+//		// Use locationOfInheretee somehow for the HistoryChangeUpwarder
+//		locationOfInheretee.toString();
+//		LocalChangesForwarder historyChangeForwarder = rootInhereter.<LocalChangesForwarder>getObserverOfType(LocalChangesForwarder.class);
+//		
+//		inhereter.addObserver(new LocalChangesUpwarder(historyChangeForwarder));
 		
 		return null;
 	}
