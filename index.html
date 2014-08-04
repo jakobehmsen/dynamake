@@ -19,6 +19,7 @@
 			
 			.box {
 				border:2px solid #CFE8DD;
+				border-radius: 10px;
 				padding: 10px;
 				margin: 20px;
 				background-color: #B2D6C6;
@@ -54,14 +55,15 @@
 							.css("border-top", "2px solid #333")
 							.css("border-left", "2px solid #333")
 							.css("border-right", "2px solid #333")
-							.css("border-radius", "25px")
-							.css("margin", "2px")
+							.css("border-radius", "10px")
+							.css("margin", "4px")
 							.css("padding", "4px");
 							
 						definition = definition.wrap("<div></div>").parent();
 						definition
 							.css("border", "2px solid #666")
-							.css("margin", "2px")
+							.css("border-radius", "10px")
+							.css("margin", "4px")
 							.css("padding", "4px");
 					
 						newEl = $(document.createElement("span"))
@@ -141,7 +143,9 @@
 			
 				var boxes = $("div.box");
 				boxes.find("div.title").replaceWith(function() {
-					return $(this).contents().wrap("<div style='margin-bottom:15px; font-style:italic'></div>").parent();
+					return $(this).contents()
+						.wrap("<div style='margin-bottom:15px; font-style:italic'></div>")
+						.parent();
 				});
 				
 				replaceMentions(boxes, definitions);
