@@ -37,6 +37,55 @@
 				return map;
 			}
 			
+			function createExpandFunction(holder, link, definitions, term) {
+				return function() {
+					// Get copy of definition
+					var definition = definitions[term].clone();
+					//alert(definitions[term]);
+					replaceMentions(definition, definitions);
+					var definitionEl = link.clone();
+					definitionEl.click(createCollapseFunction(holder, link, definitions, term));
+					
+					var newEl = $(document.createElement("span"))
+						.append(definitionEl)
+						.append(definition);
+						
+					//newEl = newEl.wrap("<span></span>").parent()
+					newEl = newEl.wrap("<div></div>").parent()
+						.css("border", "1px solid #666")
+						.css("margin", "2px")
+						.css("padding", "2px");
+					
+					holder.contents().replaceWith(newEl);
+					
+					return false;
+				};
+			}
+			
+			function createCollapseFunction(holder, link, definitions, term) {
+				return function() {
+					var definitionEl = link.clone();
+					definitionEl.click(createExpandFunction(holder, link, definitions, term));
+					holder.contents().replaceWith(definitionEl);
+					
+					return false;
+				};
+			}
+			
+			function replaceMentions(el, definitions) {
+				el.find("span[data-mention]").replaceWith(function() {
+					var term = $(this).attr("data-mention");
+					var contents = $(this).clone();
+					
+					var link = contents.wrap("<span><a href='dummy'></a></span>").parent();
+					
+					var holder = link.parent();
+					link.click(createExpandFunction(holder, link, definitions, term));
+					
+					return holder;
+				});
+			}
+			
 			$( document ).ready(function() {
 				var definitionsQ = $("div[data-define]");
 				
@@ -44,7 +93,7 @@
 					var term = $(this).attr("data-define");
 					return {
 						key: term,
-						value: $(this).contents()
+						value: $(this)
 					}
 				}));
 				
@@ -55,31 +104,7 @@
 					return $(this).contents().wrap("<div style='margin-bottom:15px; font-style:italic'></div>").parent();
 				});
 				
-				/*boxes.find("div.content").replaceWith(function() {
-					var contents = $(this).contents();
-					return contents.wrap("<div></div>").parent();
-				});*/
-				
-				
-				boxes.find("span[data-mention]").replaceWith(function() {
-					//var term = $(this).attr("data-mention");
-					//return definitions[term];
-					
-					//return contents.wrap("<div></div>").parent();
-					
-					var term = $(this).attr("data-mention");
-					var definition = definitions[term];
-					
-					var link = $(this).contents().wrap("<span><a href='dummy'></a></span>").parent();
-					var holder = link.parent();
-					link.click(function() {
-						holder.contents().replaceWith(definition).wrap("<span></span>");
-					
-						return false;
-					});
-					return holder;
-				});
-				
+				replaceMentions(boxes, definitions);
 			});
 		</script>
 	</head>
@@ -90,6 +115,13 @@
 		</div>
 		<div data-define="network usage">
 			Here is the definition of using Dynamake across a network.
+			<span data-mention="dummy1">Mention of dummy1</span>
+		</div>
+		<div data-define="dummy1">
+			<span data-mention="dummy2">Mention of dummy2</span>
+		</div>
+		<div data-define="dummy2">
+			<span data-mention="dummy1">Mention of dummy1</span>
 		</div>
 	
 		<h1 align="center">
