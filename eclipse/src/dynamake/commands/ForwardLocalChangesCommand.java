@@ -10,7 +10,6 @@ import dynamake.models.ModelComponent;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.ParentLocation;
 import dynamake.models.PropogationContext;
-import dynamake.models.RootModel;
 import dynamake.transcription.Collector;
 
 public class ForwardLocalChangesCommand implements MappableCommand<Model> {
