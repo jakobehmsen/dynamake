@@ -50,7 +50,6 @@
 						.append(definitionEl)
 						.append(definition);
 						
-					//newEl = newEl.wrap("<span></span>").parent()
 					newEl = newEl.wrap("<div></div>").parent();
 						
 					if(addBorder) {
@@ -97,8 +96,6 @@
 					
 					var holder = link.parent();
 					createExpandFunction(holder, link, definitions, term, false)();
-					/*link.click(createExpandFunction(holder, link, definitions, term));
-					link.click();*/
 					
 					return holder;
 				});
