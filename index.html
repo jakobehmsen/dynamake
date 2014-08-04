@@ -12,17 +12,17 @@
 				margin-right: auto;
 			}
 			
-			a:link    {color:#1EA669;}
-			a:visited {color:#1EA669;}
+			a:link    {color:#0F6E43; font-style:oblique; font-weight:bolder;}
+			a:visited {color:#0F6E43;}
 			a:hover   {color:#1A6E37;}
 			a:active  {color:#A61E5B;}
 			
 			.box {
-				border:2px solid #CFE8DD;
+				border:3px solid #CFE8DD;
 				border-radius: 10px;
 				padding: 10px;
 				margin: 20px;
-				background-color: #B2D6C6;
+				background-color: #C8E3D7;
 			}
 			
 			h1 { 
@@ -58,15 +58,17 @@
 							.css("border-right", "2px solid #A61E5B")
 							.css("border-radius", "10px")
 							.css("margin", "4px")
-							.css("padding", "4px");
+							.css("padding", "4px")
+							.css("background-color", "#DAEDE5")
+							.css("color", "#A61E5B");
 							
 						definition = definition.wrap("<div></div>").parent();
 						definition
-							.css("border", "2px solid #A61E5B")
+							.css("border", "2px solid #333")
 							.css("border-radius", "10px")
 							.css("margin", "4px")
 							.css("padding", "4px")
-							.css("background-color", "#B2D6C6");
+							.css("background-color", "#C8E3D7");
 					
 						newEl = $(document.createElement("span"))
 							.append(definitionEl)
@@ -100,7 +102,10 @@
 					var term = $(this).attr("data-mention");
 					var contents = $(this).clone();
 					
-					var link = contents.wrap("<span><a href='dummy'></a></span>").parent();
+					var link = contents
+						.wrap("<span><a href='dummy'></a></span>")
+						.parent()
+						.css("text-decoration", "none");
 					
 					var holder = link.parent();
 					link.click(createExpandFunction(holder, link, definitions, term, true));
