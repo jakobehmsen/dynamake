@@ -436,7 +436,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							switch(instruction.type) {
 							case Instruction.OPCODE_SEND_PROPOGATION_FINISHED:
 								Model.PendingUndoablePair pendingUndoablePair = propogationStack.pop();
-								((ExPendingCommandFactory2<T>)instruction.operand).afterPropogationFinished(pendingUndoablePair);
+								((ExPendingCommandFactory2<T>)instruction.operand).afterPropogationFinished(pendingUndoablePair, propCtx, 0, collector);
 								break;
 							}
 						} else if(command instanceof ExPendingCommandFactory2) {
