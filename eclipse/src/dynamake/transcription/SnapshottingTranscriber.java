@@ -452,16 +452,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							}
 							Location locationFromRoot = ((Model)reference).getLocator().locate();
 							HistoryHandler<T> historyHandler = null;
-							
-							if(transactionFactory instanceof TranscribeOnlyAndPostNotPendingCommandFactory)
-								historyHandler = new NullHistoryHandler<T>();
-							else if(transactionFactory instanceof TranscribeOnlyPendingCommandFactory)
-								historyHandler = (HistoryHandler<T>)new PostOnlyHistoryHandler();
-							else
-								historyHandler = (HistoryHandler<T>)new LocalHistoryHandler();
-							
-							if(transactionFactory instanceof ExPendingCommandFactory)
-								historyHandler = ((ExPendingCommandFactory<T>)transactionFactory).getHistoryHandler();
+
+							historyHandler = transactionFactory.getHistoryHandler();
 							
 							if(!referencesToAppliedHistoryHandlers.containsItem(reference, historyHandler))
 								historyHandler.startLogFor(reference, propCtx, 0, collector);
@@ -473,28 +465,32 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							// to create two sequences of pendingCommands.
 							PendingCommandState<T> pendingCommand = transactionFactory.createPendingCommand();
 
-							// Each command in pending state should return a command in undoable state
-							ReversibleCommand<T> undoableCommand = (ReversibleCommand<T>)pendingCommand.executeOn(propCtx, reference, collector, locationFromReference);
-
-							ArrayList<CommandState<T>> undoables = new ArrayList<CommandState<T>>();
-							undoables.add(undoableCommand);
-							flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
-							
-							ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
-
-							PendingUndoablePair pendingUndoablePair = new PendingUndoablePair((PendingCommandState<Model>)pendingCommand, (ReversibleCommand<Model>)undoableCommand);
-							pendingUndoablePairs.add(pendingUndoablePair);
-							
-							affectedReferences.add(reference);
-							
-							historyHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
-							referencesToAppliedHistoryHandlers.add(reference, historyHandler);
-
-							ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
-							pendingCommands.add(pendingCommand);
-							flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, historyHandler));
-							
-							propogationStack.push(pendingUndoablePair);
+							if(pendingCommand != null) {
+								// Each command in pending state should return a command in undoable state
+								ReversibleCommand<T> undoableCommand = (ReversibleCommand<T>)pendingCommand.executeOn(propCtx, reference, collector, locationFromReference);
+	
+								ArrayList<CommandState<T>> undoables = new ArrayList<CommandState<T>>();
+								undoables.add(undoableCommand);
+								flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
+								
+								ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
+	
+								PendingUndoablePair pendingUndoablePair = new PendingUndoablePair((PendingCommandState<Model>)pendingCommand, (ReversibleCommand<Model>)undoableCommand);
+								pendingUndoablePairs.add(pendingUndoablePair);
+								
+								affectedReferences.add(reference);
+								
+								historyHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
+								referencesToAppliedHistoryHandlers.add(reference, historyHandler);
+	
+								ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
+								pendingCommands.add(pendingCommand);
+								flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, historyHandler));
+								
+								propogationStack.push(pendingUndoablePair);
+							} else {
+								propogationStack.push(null);
+							}
 						} else if(command instanceof PendingCommandFactory) {
 							PendingCommandFactory<T> transactionFactory = (PendingCommandFactory<T>)command;
 							T reference = transactionFactory.getReference();

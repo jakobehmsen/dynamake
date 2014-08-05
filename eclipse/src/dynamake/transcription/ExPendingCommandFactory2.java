@@ -17,10 +17,8 @@ public interface ExPendingCommandFactory2<T> {
 	
 	public static class Util {
 		public static <T> ExPendingCommandFactory2<T> sequence(final PendingCommandFactory<T> f) {
-			final ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
-			f.createPendingCommands(pendingCommands);
-			
 			return new ExPendingCommandFactory2<T>() {
+				ArrayList<CommandState<T>> pendingCommands;
 				int i;
 				
 				@Override
@@ -30,7 +28,14 @@ public interface ExPendingCommandFactory2<T> {
 
 				@Override
 				public PendingCommandState<T> createPendingCommand() {
-					return (PendingCommandState<T>)pendingCommands.get(i++);
+					if(pendingCommands == null) {
+						pendingCommands = new ArrayList<CommandState<T>>();
+						f.createPendingCommands(pendingCommands);
+					}
+					
+					if(i < pendingCommands.size())
+						return (PendingCommandState<T>)pendingCommands.get(i++);
+					return null;
 				}
 
 				@Override
