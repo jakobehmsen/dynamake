@@ -93,7 +93,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 				}
 				
 				@Override
-				public void createPendingCommand(List<CommandState<Model>> commandStates) {
+				public void createPendingCommands(List<CommandState<Model>> commandStates) {
 					int localChangeCount = target.getLocalChangeCount();
 					
 					// Play the local changes backwards

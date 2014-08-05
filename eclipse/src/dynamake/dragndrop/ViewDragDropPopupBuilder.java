@@ -61,7 +61,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 					}
 					
 					@Override
-					public void createPendingCommand(List<CommandState<Model>> commandStates) {
+					public void createPendingCommands(List<CommandState<Model>> commandStates) {
 						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;
@@ -84,7 +84,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 					}
 					
 					@Override
-					public void createPendingCommand(List<CommandState<Model>> commandStates) {
+					public void createPendingCommands(List<CommandState<Model>> commandStates) {
 						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 						if(currentView == null)
 							currentView = Model.VIEW_APPLIANCE;

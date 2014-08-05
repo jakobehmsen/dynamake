@@ -151,7 +151,7 @@ public class RootModel extends Model {
 							}
 							
 							@Override
-							public void createPendingCommand(List<CommandState<Model>> commandStates) {
+							public void createPendingCommands(List<CommandState<Model>> commandStates) {
 								if(newLocation != null) {
 									commandStates.add(new PendingCommandState<Model>(
 										new SetPropertyCommand("X", newLocation.x),
@@ -255,7 +255,7 @@ public class RootModel extends Model {
 							}
 							
 							@Override
-							public void createPendingCommand(List<CommandState<Model>> commandStates) {
+							public void createPendingCommands(List<CommandState<Model>> commandStates) {
 								commandStates.add(new PendingCommandState<Model>(
 									new SetPropertyCommand("State", newState),
 									new SetPropertyCommand.AfterSetProperty()

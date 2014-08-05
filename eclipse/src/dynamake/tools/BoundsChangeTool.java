@@ -70,7 +70,7 @@ public abstract class BoundsChangeTool implements Tool {
 							}
 
 							@Override
-							public void createPendingCommand(List<CommandState<Model>> commandStates) {
+							public void createPendingCommands(List<CommandState<Model>> commandStates) {
 								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
 								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
@@ -88,7 +88,7 @@ public abstract class BoundsChangeTool implements Tool {
 							}
 
 							@Override
-							public void createPendingCommand(List<CommandState<Model>> commandStates) {
+							public void createPendingCommands(List<CommandState<Model>> commandStates) {
 								Location locationOfMovedModel = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
 
 								commandStates.add(new PendingCommandState<Model>(
@@ -114,7 +114,7 @@ public abstract class BoundsChangeTool implements Tool {
 						}
 
 						@Override
-						public void createPendingCommand(List<CommandState<Model>> commandStates) {
+						public void createPendingCommands(List<CommandState<Model>> commandStates) {
 							appendCommandStatesForResize(commandStates, selection, newBounds);
 						}
 					});

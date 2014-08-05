@@ -131,7 +131,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 					}
 					
 					@Override
-					public void createPendingCommand(List<CommandState<Model>> commandStates) {
+					public void createPendingCommands(List<CommandState<Model>> commandStates) {
 						Location locationOfSelection = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
 						Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 							

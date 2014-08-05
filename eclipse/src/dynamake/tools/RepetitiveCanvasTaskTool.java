@@ -58,7 +58,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 					}
 					
 					@Override
-					public void createPendingCommand(List<CommandState<Model>> commandStates) {
+					public void createPendingCommands(List<CommandState<Model>> commandStates) {
 						createCommandStatesForSingleTask(productionPanel, commandStates, modelOverParent, modelOver);
 					}
 				});

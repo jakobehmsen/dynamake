@@ -24,7 +24,7 @@ public class UndoTool implements Tool {
 			}
 			
 			@Override
-			public void createPendingCommand(List<CommandState<Model>> commandStates) {
+			public void createPendingCommands(List<CommandState<Model>> commandStates) {
 				if(modelOver.getModelBehind().canUndo()) {
 					commandStates.add(
 						new PendingCommandState<Model>(

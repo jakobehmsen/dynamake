@@ -56,7 +56,7 @@ public class PlotTool implements Tool {
 						}
 						
 						@Override
-						public void createPendingCommand(List<CommandState<Model>> commandStates) {
+						public void createPendingCommands(List<CommandState<Model>> commandStates) {
 							CanvasModel target = (CanvasModel)selection.getModelBehind();
 							
 							Location[] modelLocations = new Location[componentsWithinBounds.size()];
@@ -80,7 +80,7 @@ public class PlotTool implements Tool {
 						}
 						
 						@Override
-						public void createPendingCommand(List<CommandState<Model>> commandStates) {
+						public void createPendingCommands(List<CommandState<Model>> commandStates) {
 							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
 							commandStates.add(new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(factory),

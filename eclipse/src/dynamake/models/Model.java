@@ -40,6 +40,7 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.CloneFactory;
 import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.NewInstanceFactory;
+import dynamake.models.factories.NewInstanceFactory2;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
@@ -458,7 +459,7 @@ public abstract class Model implements Serializable, Observer {
 				}
 				
 				@Override
-				public void createPendingCommand(List<CommandState<Model>> commandStates) {
+				public void createPendingCommands(List<CommandState<Model>> commandStates) {
 					commandStates.add(new PendingCommandState<Model>(
 						new SetPropertyCommand(setProperty.name, setProperty.value),
 						new SetPropertyCommand.AfterSetProperty()
@@ -705,7 +706,7 @@ public abstract class Model implements Serializable, Observer {
 							}
 
 							@Override
-							public void createPendingCommand(List<CommandState<Model>> commandStates) {
+							public void createPendingCommands(List<CommandState<Model>> commandStates) {
 								commandStates.add(new PendingCommandState<Model>(
 									new MouseUpCommand(), 
 									new Command.Null<Model>()
@@ -731,7 +732,7 @@ public abstract class Model implements Serializable, Observer {
 							}
 
 							@Override
-							public void createPendingCommand(List<CommandState<Model>> commandStates) {
+							public void createPendingCommands(List<CommandState<Model>> commandStates) {
 								commandStates.add(new PendingCommandState<Model>(
 									new MouseDownCommand(), 
 									new Command.Null<Model>()
@@ -831,7 +832,7 @@ public abstract class Model implements Serializable, Observer {
 							}
 
 							@Override
-							public void createPendingCommand(List<CommandState<Model>> dualCommands) {
+							public void createPendingCommands(List<CommandState<Model>> dualCommands) {
 								dualCommands.add(new PendingCommandState<Model>(
 									new SetPropertyCommand(PROPERTY_COLOR, color),
 									new SetPropertyCommand.AfterSetProperty()
@@ -859,7 +860,7 @@ public abstract class Model implements Serializable, Observer {
 						}
 
 						@Override
-						public void createPendingCommand(List<CommandState<Model>> commandStates) {
+						public void createPendingCommands(List<CommandState<Model>> commandStates) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
 							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
 							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
@@ -888,14 +889,14 @@ public abstract class Model implements Serializable, Observer {
 						}
 
 						@Override
-						public void createPendingCommand(List<CommandState<Model>> commandStates) {
+						public void createPendingCommands(List<CommandState<Model>> commandStates) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
 							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
 							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
-							ModelFactory factory = new NewInstanceFactory(new RectangleF(creationBounds), droppedLocation);
+							ModelFactory factory = new NewInstanceFactory2(new RectangleF(creationBounds), droppedLocation);
 							commandStates.add(new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
@@ -1080,7 +1081,7 @@ public abstract class Model implements Serializable, Observer {
 			}
 			
 			@Override
-			public void createPendingCommand(List<CommandState<Model>> commandStates) {
+			public void createPendingCommands(List<CommandState<Model>> commandStates) {
 				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
@@ -1103,7 +1104,7 @@ public abstract class Model implements Serializable, Observer {
 			}
 			
 			@Override
-			public void createPendingCommand(List<CommandState<Model>> commandStates) {
+			public void createPendingCommands(List<CommandState<Model>> commandStates) {
 				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				

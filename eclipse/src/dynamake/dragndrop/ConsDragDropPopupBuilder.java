@@ -102,7 +102,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						}
 						
 						@Override
-						public void createPendingCommand(List<CommandState<Model>> commandStates) {
+						public void createPendingCommands(List<CommandState<Model>> commandStates) {
 							Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
 							Location canvasModelLocation = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 							

@@ -440,7 +440,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							// If location was part of the executeOn invocation, location is probably no
 							// necessary for creating dual commands. Further, then, it is probably not necessary
 							// to create two sequences of pendingCommands.
-							transactionFactory.createPendingCommand(pendingCommands);
+							transactionFactory.createPendingCommands(pendingCommands);
 							
 							if(pendingCommands.size() > 0) {
 								// Should be in pending state

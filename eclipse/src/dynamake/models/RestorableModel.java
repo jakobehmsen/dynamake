@@ -111,9 +111,12 @@ public class RestorableModel implements Serializable {
 	}
 	
 	public void restoreChangesOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		if(modelCreation != null)
+		if(modelCreation != null) {
+			// TODO: modelCreation should be scheduled for execution on collector
 			modelBase.playThenReverse(modelCreation, propCtx, propDistance, collector);
+		}
 		modelBase.setProperty(RestorableModel.PROPERTY_CREATION, modelCreation, propCtx, propDistance, collector);
+		// TODO: location changes (in restoreHistory) should be scheduled for execution on collector
 		modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
 	}
 	

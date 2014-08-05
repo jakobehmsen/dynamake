@@ -62,7 +62,7 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 					}
 					
 					@Override
-					public void createPendingCommand(List<CommandState<Model>> commandStates) {
+					public void createPendingCommands(List<CommandState<Model>> commandStates) {
 						commandStates.add(new PendingCommandState<Model>(
 							new TellPropertyCommand(Model.PROPERTY_COLOR),
 							new Command.Null<Model>()

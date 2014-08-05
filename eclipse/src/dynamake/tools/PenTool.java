@@ -62,7 +62,7 @@ public class PenTool implements Tool {
 			}
 			
 			@Override
-			public void createPendingCommand(List<CommandState<Model>> commandStates) {
+			public void createPendingCommands(List<CommandState<Model>> commandStates) {
 				ModelFactory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation, creationBoundsInContainer);
 				
 				commandStates.add(new PendingCommandState<Model>(

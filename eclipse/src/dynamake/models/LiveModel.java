@@ -254,7 +254,7 @@ public class LiveModel extends Model {
 									}
 									
 									@Override
-									public void createPendingCommand(List<CommandState<Model>> commandStates) {
+									public void createPendingCommands(List<CommandState<Model>> commandStates) {
 										List<Integer> currentButtons = ToolButton.this.buttons;
 										
 										if(localButtonsPressed.equals(currentButtons)) {

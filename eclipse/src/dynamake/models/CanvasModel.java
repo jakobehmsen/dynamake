@@ -697,7 +697,7 @@ public class CanvasModel extends Model {
 						}
 						
 						@Override
-						public void createPendingCommand(List<CommandState<Model>> commandStates) {
+						public void createPendingCommands(List<CommandState<Model>> commandStates) {
 							CanvasModel.appendRemoveTransaction(commandStates, livePanel, child, model);
 						}
 					});
@@ -726,7 +726,7 @@ public class CanvasModel extends Model {
 							}
 							
 							@Override
-							public void createPendingCommand(List<CommandState<Model>> commandStates) {
+							public void createPendingCommands(List<CommandState<Model>> commandStates) {
 								CanvasModel.appendUnwrapTransaction(commandStates, CanvasPanel.this, parent);
 							}
 						});
@@ -765,7 +765,7 @@ public class CanvasModel extends Model {
 							}
 
 							@Override
-							public void createPendingCommand(List<CommandState<Model>> commandStates) {
+							public void createPendingCommands(List<CommandState<Model>> commandStates) {
 								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
 								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
