@@ -6,7 +6,7 @@
 		<style>
 			body {
 				font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
-				width: 90%;
+				width: 95%;
 				max-width: 1024px;    
 				margin-left: auto;
 				margin-right: auto;
@@ -51,16 +51,8 @@
 					var newEl;
 						
 					if(addBorder) {
-						// TODO: Ensure that "tab name" is wrapped together, such that it doesn't span over multiple lines
-						definitionEl
-							.css("border-top", "2px solid #A61E5B")
-							.css("border-left", "2px solid #A61E5B")
-							.css("border-right", "2px solid #A61E5B")
-							.css("border-radius", "10px")
-							.css("margin", "4px")
-							.css("padding", "4px")
-							.css("background-color", "#DAEDE5")
-							.css("color", "#A61E5B");
+						// Change color of link to indicate expanded state
+						definitionEl.css("color", "#A61E5B");
 							
 						definition = definition.wrap("<div></div>").parent();
 						definition
