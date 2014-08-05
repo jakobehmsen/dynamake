@@ -12,7 +12,8 @@
 				margin-right: auto;
 			}
 			
-			a:link    {color:#0F6E43; font-style:oblique; font-weight:bolder;}
+			a		  {font-style:oblique; font-weight:bolder;}
+			a:link    {color:#0F6E43;}
 			a:visited {color:#0F6E43;}
 			a:hover   {color:#1A6E37;}
 			a:active  {color:#A61E5B;}
@@ -38,55 +39,58 @@
 				return map;
 			}
 			
-			function createExpandFunction(holder, link, definitions, term, addBorder) {
-				return function() {
-					// Get copy of definition
-					var definition = definitions[term].clone();
-					//alert(definitions[term]);
-					replaceMentions(definition, definitions);
-					var definitionEl = link.clone();
-							
-					definitionEl.click(createCollapseFunction(holder, link, definitions, term));
-					
-					var newEl;
+			function expand(holder, link, definitions, term, addBorder) {
+				// Get copy of definition
+				var definition = definitions[term].clone();
+				//alert(definitions[term]);
+				replaceMentions(definition, definitions);
+				var definitionEl = link.clone();
 						
-					if(addBorder) {
-						// Change color of link to indicate expanded state
-						definitionEl.css("color", "#A61E5B");
-							
-						definition = definition.wrap("<div></div>").parent();
-						definition
-							.css("border", "3px solid #333")
-							.css("border-radius", "10px")
-							.css("margin", "4px")
-							.css("padding", "4px")
-							.css("background-color", "#C8E3D7");
+				definitionEl.mousedown(function() {
+					definitionEl.css("color", "#0F6E43");
+				});
+				definitionEl.click(function() {
+					collapse(holder, link, definitions, term);
+				
+					return false;
+				});
+				
+				var newEl;
 					
-						newEl = $(document.createElement("span"))
-							.append(definitionEl)
-							.append(definition);
-					} else {
-						newEl = $(document.createElement("span"))
+				if(addBorder) {
+					// Change color of link to indicate expanded state
+					definitionEl.css("color", "#A61E5B");
+						
+					definition = definition.wrap("<div></div>").parent();
+					definition
+						.css("border", "3px solid #333")
+						.css("border-radius", "10px")
+						.css("margin", "4px")
+						.css("padding", "4px")
+						.css("background-color", "#C8E3D7");
+				
+					newEl = $(document.createElement("span"))
 						.append(definitionEl)
 						.append(definition);
-						
-						newEl = newEl.wrap("<div></div>").parent();
-					}
+				} else {
+					newEl = $(document.createElement("span"))
+					.append(definitionEl)
+					.append(definition);
 					
-					holder.contents().replaceWith(newEl);
-					
-					return false;
-				};
+					newEl = newEl.wrap("<div></div>").parent();
+				}
+				
+				holder.contents().replaceWith(newEl);
 			}
 			
-			function createCollapseFunction(holder, link, definitions, term) {
-				return function() {
-					var definitionEl = link.clone();
-					definitionEl.click(createExpandFunction(holder, link, definitions, term, true));
-					holder.contents().replaceWith(definitionEl);
-					
+			function collapse(holder, link, definitions, term) {
+				var definitionEl = link.clone();
+				definitionEl.click(function() {
+					expand(holder, link, definitions, term, true);
+				
 					return false;
-				};
+				});
+				holder.contents().replaceWith(definitionEl);
 			}
 			
 			function replaceMentions(el, definitions) {
@@ -100,7 +104,11 @@
 						.css("text-decoration", "none");
 					
 					var holder = link.parent();
-					link.click(createExpandFunction(holder, link, definitions, term, true));
+					link.click(function() {
+						expand(holder, link, definitions, term, true);
+					
+						return false;
+					});
 					
 					return holder;
 				});
@@ -112,7 +120,7 @@
 					var link = contents.wrap("<span><a href='dummy'></a></span>").parent();
 					
 					var holder = link.parent();
-					createExpandFunction(holder, link, definitions, term, false)();
+					expand(holder, link, definitions, term, false);
 					
 					return holder;
 				});
