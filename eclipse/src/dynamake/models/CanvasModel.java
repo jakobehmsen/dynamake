@@ -281,6 +281,15 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
+			/*
+			TODO: Consider
+			Model creation and add could be changed as follows:
+			Instead of during everything here in this method, the create and add procedure could leveraged by using the collector:
+			- First, create the basic model and add this model to a special area of the canvas (something like: "model embryos")
+			- Second, request the factory to do any additional creation; this creation must involve executing on the collector
+			- Third, execute on the collector that the registered model embryo is to be added
+			*/
+			
 			final CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
 			ModelCreation modelCreation = factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
 			final Model model = modelCreation.createModel(rootPrevalentSystem, propCtx, 0, collector, location);
