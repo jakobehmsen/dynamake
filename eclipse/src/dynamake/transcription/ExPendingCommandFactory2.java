@@ -35,7 +35,8 @@ public interface ExPendingCommandFactory2<T> {
 
 				@Override
 				public void afterPropogationFinished(PendingUndoablePair pendingUndoablePair, PropogationContext propCtx, int propDistance, Collector<T> collector) {
-					collector.execute(this);
+					if(i < pendingCommands.size())
+						collector.execute(this);
 				}
 
 				@SuppressWarnings("unchecked")
