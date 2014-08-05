@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -299,6 +300,19 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		public static final int OPCODE_COMMIT = 0;
 		public static final int OPCODE_REJECT = 1;
 		public static final int OPCODE_FLUSH_NEXT_TRIGGER = 2;
+		public static final int OPCODE_SEND_PROPOGATION_FINISHED = 3;
+		
+		public final int type;
+		public final Object operand;
+		
+		public Instruction(int type) {
+			this(type, null);
+		}
+		
+		public Instruction(int type, Object operand) {
+			this.type = type;
+			this.operand = operand;
+		}
 	}
 	
 	public static class Connection<T> implements dynamake.transcription.Connection<T> {
@@ -355,6 +369,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					final LinkedList<Object> commands = new LinkedList<Object>();
 					commands.add(trigger);
 					
+					Stack<Model.PendingUndoablePair> propogationStack = new Stack<Model.PendingUndoablePair>();
 					final ArrayList<Runnable> onAfterNextTrigger = new ArrayList<Runnable>();
 					
 					while(!commands.isEmpty()) {
@@ -364,7 +379,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						Collector<T> collector = new Collector<T>() {
 							@Override
 							public void execute(Object command) {
-								collectedCommands.add(command);
+								if(command instanceof ExPendingCommandFactory2) {
+									collectedCommands.add(command);
+									collectedCommands.add(new Instruction(Instruction.OPCODE_SEND_PROPOGATION_FINISHED, command));
+								} else {
+									collectedCommands.add(command);
+								}
 							}
 							
 							@Override
@@ -410,6 +430,67 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								}
 								break;
 							}
+						} else if(command instanceof Instruction) {
+							Instruction instruction = (Instruction)command;
+							
+							switch(instruction.type) {
+							case Instruction.OPCODE_SEND_PROPOGATION_FINISHED:
+								Model.PendingUndoablePair pendingUndoablePair = propogationStack.pop();
+								((ExPendingCommandFactory2<T>)instruction.operand).afterPropogationFinished(pendingUndoablePair);
+								break;
+							}
+						} else if(command instanceof ExPendingCommandFactory2) {
+							ExPendingCommandFactory2<T> transactionFactory = (ExPendingCommandFactory2<T>)command;
+							T reference = transactionFactory.getReference();
+							
+							if(((Model)reference).getLocator() == null) {
+								reference = transactionFactory.getReference();
+							}
+							Location locationFromRoot = ((Model)reference).getLocator().locate();
+							HistoryHandler<T> historyHandler = null;
+							
+							if(transactionFactory instanceof TranscribeOnlyAndPostNotPendingCommandFactory)
+								historyHandler = new NullHistoryHandler<T>();
+							else if(transactionFactory instanceof TranscribeOnlyPendingCommandFactory)
+								historyHandler = (HistoryHandler<T>)new PostOnlyHistoryHandler();
+							else
+								historyHandler = (HistoryHandler<T>)new LocalHistoryHandler();
+							
+							if(transactionFactory instanceof ExPendingCommandFactory)
+								historyHandler = ((ExPendingCommandFactory<T>)transactionFactory).getHistoryHandler();
+							
+							if(!referencesToAppliedHistoryHandlers.containsItem(reference, historyHandler))
+								historyHandler.startLogFor(reference, propCtx, 0, collector);
+							
+							Location locationFromReference = new ModelRootLocation();
+							
+							// If location was part of the executeOn invocation, location is probably no
+							// necessary for creating dual commands. Further, then, it is probably not necessary
+							// to create two sequences of pendingCommands.
+							PendingCommandState<T> pendingCommand = transactionFactory.createPendingCommand();
+
+							// Each command in pending state should return a command in undoable state
+							ReversibleCommand<T> undoableCommand = (ReversibleCommand<T>)pendingCommand.executeOn(propCtx, reference, collector, locationFromReference);
+
+							ArrayList<CommandState<T>> undoables = new ArrayList<CommandState<T>>();
+							undoables.add(undoableCommand);
+							flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
+							
+							ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
+
+							PendingUndoablePair pendingUndoablePair = new PendingUndoablePair((PendingCommandState<Model>)pendingCommand, (ReversibleCommand<Model>)undoableCommand);
+							pendingUndoablePairs.add(pendingUndoablePair);
+							
+							affectedReferences.add(reference);
+							
+							historyHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
+							referencesToAppliedHistoryHandlers.add(reference, historyHandler);
+
+							ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
+							pendingCommands.add(pendingCommand);
+							flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, historyHandler));
+							
+							propogationStack.push(pendingUndoablePair);
 						} else if(command instanceof PendingCommandFactory) {
 							PendingCommandFactory<T> transactionFactory = (PendingCommandFactory<T>)command;
 							T reference = transactionFactory.getReference();

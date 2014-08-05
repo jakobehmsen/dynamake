@@ -51,6 +51,9 @@ import dynamake.transcription.Trigger;
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.
  */
 public abstract class Model implements Serializable, Observer {
+	// TODO: 
+	// - Move class out of model
+	// - Put type parameter to used for pending and undoable
 	public static class PendingUndoablePair implements Serializable, CommandState<Model> {
 		/**
 		 * 
