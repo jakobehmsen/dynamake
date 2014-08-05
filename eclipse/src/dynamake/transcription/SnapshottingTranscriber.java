@@ -369,7 +369,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					final LinkedList<Object> commands = new LinkedList<Object>();
 					commands.add(trigger);
 					
-					Stack<Model.PendingUndoablePair> propogationStack = new Stack<Model.PendingUndoablePair>();
+					Stack<List<PendingUndoablePair>> propogationStack = new Stack<List<PendingUndoablePair>>();
 					final ArrayList<Runnable> onAfterNextTrigger = new ArrayList<Runnable>();
 					
 					while(!commands.isEmpty()) {
@@ -439,8 +439,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							switch(instruction.type) {
 							case Instruction.OPCODE_SEND_PROPOGATION_FINISHED:
-								Model.PendingUndoablePair pendingUndoablePair = propogationStack.pop();
-								((ExPendingCommandFactory2<T>)instruction.operand).afterPropogationFinished(pendingUndoablePair, propCtx, 0, collector);
+								List<PendingUndoablePair> pendingUndoablePairs = propogationStack.pop();
+								((ExPendingCommandFactory2<T>)instruction.operand).afterPropogationFinished(pendingUndoablePairs, propCtx, 0, collector);
 								break;
 							}
 						} else if(command instanceof ExPendingCommandFactory2) {
@@ -460,34 +460,39 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							Location locationFromReference = new ModelRootLocation();
 							
+							ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
+							
 							// If location was part of the executeOn invocation, location is probably no
 							// necessary for creating dual commands. Further, then, it is probably not necessary
 							// to create two sequences of pendingCommands.
-							PendingCommandState<T> pendingCommand = transactionFactory.createPendingCommand();
+							transactionFactory.createPendingCommands(pendingCommands);
 
-							if(pendingCommand != null) {
-								// Each command in pending state should return a command in undoable state
-								ReversibleCommand<T> undoableCommand = (ReversibleCommand<T>)pendingCommand.executeOn(propCtx, reference, collector, locationFromReference);
-	
+							if(pendingCommands.size() > 0) {
+								// Should be in pending state
 								ArrayList<CommandState<T>> undoables = new ArrayList<CommandState<T>>();
-								undoables.add(undoableCommand);
+								for(CommandState<T> pendingCommand: pendingCommands) {
+									// Each command in pending state should return a command in undoable state
+									CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, collector, locationFromReference);
+									undoables.add(undoableCommand);
+								}
 								flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
 								
 								ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
-	
-								PendingUndoablePair pendingUndoablePair = new PendingUndoablePair((PendingCommandState<Model>)pendingCommand, (ReversibleCommand<Model>)undoableCommand);
-								pendingUndoablePairs.add(pendingUndoablePair);
+								for(int i = 0; i < pendingCommands.size(); i++) {
+									PendingCommandState<Model> pending = (PendingCommandState<Model>)pendingCommands.get(i);
+									ReversibleCommand<Model> undoable = (ReversibleCommand<Model>)undoables.get(i);
+									PendingUndoablePair pendingUndoablePair = new PendingUndoablePair(pending, undoable);
+									pendingUndoablePairs.add(pendingUndoablePair);
+								}
 								
 								affectedReferences.add(reference);
 								
 								historyHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
 								referencesToAppliedHistoryHandlers.add(reference, historyHandler);
 	
-								ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
-								pendingCommands.add(pendingCommand);
 								flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, historyHandler));
 								
-								propogationStack.push(pendingUndoablePair);
+								propogationStack.push(pendingUndoablePairs);
 							} else {
 								propogationStack.push(null);
 							}
