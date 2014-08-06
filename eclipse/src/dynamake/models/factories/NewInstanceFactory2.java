@@ -84,112 +84,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 	}
 	
 	private void pushCreation(final Model source, final Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> creation = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
-		
-		final ArrayList<CommandState<Model>> newCreation = new ArrayList<CommandState<Model>>();
-		
-		if(creation != null) {
-			int rootDistanceFromReference = 1;
-			
-			for(CommandState<Model> creationPart: creation) {
-				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
-				if(pcsCreationPart.getCommand() instanceof PlayLocalChangesFromSourceCommand)
-					rootDistanceFromReference++;
-			}
-			
-			int playCommandCount = 0;
-			// Each PlayLocalChangesFromSourceCommand should have its distance incremented by one
-			
-			// Don't include ForwardHistoryCommand commands in changes to inheret 
-			// TODO: Remove the ugly filter hack below; replace with decoupled logic
-			for(CommandState<Model> creationPart: creation) {
-				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
-				
-				if(pcsCreationPart.getCommand() instanceof PlayLocalChangesFromSourceCommand) {
-					PlayLocalChangesFromSourceCommand playCommand = (PlayLocalChangesFromSourceCommand)pcsCreationPart.getCommand();
-					
-					int rootDistance = rootDistanceFromReference - playCommandCount;
-					playCommand = playCommand.whereRootDistanceIs(rootDistance);
-					
-					pcsCreationPart = new PendingCommandState<Model>(playCommand, pcsCreationPart.getForthFactory(), pcsCreationPart.getForthFactory());
-					
-					playCommandCount++;
-				}
-				
-				if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesCommand) {
-
-				} else
-					newCreation.add(pcsCreationPart.mapToReferenceLocation(source, target));
-			}
-		}
-		
-//		target.playThenReverse(newCreation, propCtx, propDistance, collector);
-		
-		@SuppressWarnings("unchecked")
-		final ArrayList<CommandState<Model>> firstCreation = (ArrayList<CommandState<Model>>)newCreation.clone();
-		
-		collector.execute(new ExPendingCommandFactory2<Model>() {
-			@Override
-			public Model getReference() {
-				return target;
-			}
-			
-			@Override
-			public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
-				pendingCommands.addAll(firstCreation);
-			}
-			
-			@Override
-			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-
-			}
-
-			@Override
-			public HistoryHandler<Model> getHistoryHandler() {
-				return new NullHistoryHandler<Model>();
-			}
-		});
-		
-		
-		
-
 		Location locationOfSourceFromTarget = ModelComponent.Util.locationBetween(target, source);
-		
-		final ArrayList<CommandState<Model>> newCreationLastParts = new ArrayList<CommandState<Model>>();
-		
-		newCreationLastParts.add(new PendingCommandState<Model>(new PlayLocalChangesFromSourceCommand(locationOfSourceFromTarget), new PlayThenReverseCommand.AfterPlay()));
-		
-		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
-		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
-		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
-		
-//		target.playThenReverse(newCreationLastParts, propCtx, propDistance, collector);
-		collector.execute(new ExPendingCommandFactory2<Model>() {
-			@Override
-			public Model getReference() {
-				return target;
-			}
-			
-			@Override
-			public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
-				pendingCommands.addAll(newCreationLastParts);
-			}
-			
-			@Override
-			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public HistoryHandler<Model> getHistoryHandler() {
-				return new NullHistoryHandler<Model>();
-			}
-		});
-		
-		newCreation.addAll(newCreationLastParts);
 		
 		// Setup forwarding
 		final ArrayList<CommandState<Model>> creationForwarding = new ArrayList<CommandState<Model>>();
@@ -198,10 +93,6 @@ public class NewInstanceFactory2 implements ModelFactory {
 			new ForwardLocalChangesCommand(locationOfSourceFromTarget), 
 			new UnforwardLocalChangesCommand(locationOfSourceFromTarget)
 		));
-
-//		// TODO: Consider: Inherit cleanup?
-//		List<CommandState<Model>> cleanup = target.playThenReverse(creationForwarding, propCtx, propDistance, collector);
-//		target.setProperty(RestorableModel.PROPERTY_CLEANUP, cleanup, propCtx, propDistance, collector);
 		
 		collector.execute(new ExPendingCommandFactory2<Model>() {
 			@Override
@@ -252,6 +143,159 @@ public class NewInstanceFactory2 implements ModelFactory {
 				return new NullHistoryHandler<Model>();
 			}
 		});
+		
+		@SuppressWarnings("unchecked")
+		List<CommandState<Model>> creation = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+		
+		final ArrayList<CommandState<Model>> newCreation = new ArrayList<CommandState<Model>>();
+		
+		if(creation != null) {
+			int rootDistanceFromReference = 1;
+			
+			for(CommandState<Model> creationPart: creation) {
+				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
+				if(pcsCreationPart.getCommand() instanceof PlayLocalChangesFromSourceCommand)
+					rootDistanceFromReference++;
+			}
+			
+			int playCommandCount = 0;
+			// Each PlayLocalChangesFromSourceCommand should have its distance incremented by one
+			
+			// Don't include ForwardHistoryCommand commands in changes to inheret 
+			// TODO: Remove the ugly filter hack below; replace with decoupled logic
+			for(CommandState<Model> creationPart: creation) {
+				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
+				
+				if(pcsCreationPart.getCommand() instanceof PlayLocalChangesFromSourceCommand) {
+					PlayLocalChangesFromSourceCommand playCommand = (PlayLocalChangesFromSourceCommand)pcsCreationPart.getCommand();
+					
+					int rootDistance = rootDistanceFromReference - playCommandCount;
+					playCommand = playCommand.whereRootDistanceIs(rootDistance);
+					
+					pcsCreationPart = new PendingCommandState<Model>(playCommand, pcsCreationPart.getForthFactory(), pcsCreationPart.getForthFactory());
+					
+					playCommandCount++;
+				}
+				
+				if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesCommand) {
+
+				} else
+					newCreation.add(pcsCreationPart.mapToReferenceLocation(source, target));
+			}
+		}
+		
+		@SuppressWarnings("unchecked")
+		final ArrayList<CommandState<Model>> firstCreation = (ArrayList<CommandState<Model>>)newCreation.clone();
+		
+		collector.execute(new ExPendingCommandFactory2<Model>() {
+			@Override
+			public Model getReference() {
+				return target;
+			}
+			
+			@Override
+			public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
+				pendingCommands.addAll(firstCreation);
+			}
+			
+			@Override
+			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+
+			}
+
+			@Override
+			public HistoryHandler<Model> getHistoryHandler() {
+				return new NullHistoryHandler<Model>();
+			}
+		});
+		
+		final ArrayList<CommandState<Model>> newCreationLastParts = new ArrayList<CommandState<Model>>();
+		
+		newCreationLastParts.add(new PendingCommandState<Model>(new PlayLocalChangesFromSourceCommand(locationOfSourceFromTarget), new PlayThenReverseCommand.AfterPlay()));
+		
+		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
+		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
+		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
+		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+		
+		collector.execute(new ExPendingCommandFactory2<Model>() {
+			@Override
+			public Model getReference() {
+				return target;
+			}
+			
+			@Override
+			public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
+				pendingCommands.addAll(newCreationLastParts);
+			}
+			
+			@Override
+			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public HistoryHandler<Model> getHistoryHandler() {
+				return new NullHistoryHandler<Model>();
+			}
+		});
+		
+		newCreation.addAll(newCreationLastParts);
+
+//		// TODO: Consider: Inherit cleanup?
+//		List<CommandState<Model>> cleanup = target.playThenReverse(creationForwarding, propCtx, propDistance, collector);
+//		target.setProperty(RestorableModel.PROPERTY_CLEANUP, cleanup, propCtx, propDistance, collector);
+		
+//		collector.execute(new ExPendingCommandFactory2<Model>() {
+//			@Override
+//			public Model getReference() {
+//				return target;
+//			}
+//			
+//			@Override
+//			public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
+//				pendingCommands.addAll(creationForwarding);
+//			}
+//			
+//			@Override
+//			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//				// pendingUndoablePairs are supplied in executed order; thus, the undoable, in reverse order, should fit the purpose of cleanup just right
+//				final ArrayList<CommandState<Model>> cleanup = new ArrayList<CommandState<Model>>();
+//				for(int i = pendingUndoablePairs.size() - 1; i >= 0; i--)
+//					cleanup.add(pendingUndoablePairs.get(i).undoable);
+//
+//				collector.execute(new ExPendingCommandFactory2<Model>() {
+//					@Override
+//					public Model getReference() {
+//						return target;
+//					}
+//
+//					@Override
+//					public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
+//						pendingCommands.add(new PendingCommandState<Model>(
+//							new SetPropertyCommand(RestorableModel.PROPERTY_CLEANUP, cleanup), 
+//							new SetPropertyCommand.AfterSetProperty()
+//						));
+//					}
+//
+//					@Override
+//					public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//
+//					}
+//
+//					@Override
+//					public HistoryHandler<Model> getHistoryHandler() {
+//						return new NullHistoryHandler<Model>();
+//					}
+//				});
+//			}
+//
+//			@Override
+//			public HistoryHandler<Model> getHistoryHandler() {
+//				return new NullHistoryHandler<Model>();
+//			}
+//		});
 		
 		newCreation.addAll(creationForwarding);
 		
