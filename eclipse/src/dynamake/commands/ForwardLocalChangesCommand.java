@@ -38,28 +38,28 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 //		List<CommandState<Model>> changesToInheret = inhereter.getLocalChanges();
 //		inheretee.playThenReverse(changesToInheret, propCtx, 0, collector);
 		
-		if(source instanceof CanvasModel)
-			forwardLocalChangesUpwards(historyChangeForwarder, (CanvasModel)source, new ModelRootLocation(), new ModelRootLocation());
+//		if(source instanceof CanvasModel)
+//			forwardLocalChangesUpwards(historyChangeForwarder, (CanvasModel)source, new ModelRootLocation(), new ModelRootLocation());
 		
 		System.out.println("Forward local changes from " + source + " to " + target);
 		
 		return null;
 	}
 	
-	private void forwardLocalChangesUpwards(LocalChangesForwarder historyChangeForwarder, CanvasModel sourceCanvas, Location sourceLocation, Location offsetFromTarget) {
-		for(Location modelLocationInSource: sourceCanvas.getLocations()) {
-			Location modelLocationInTarget = new CanvasModel.ForwardLocation(modelLocationInSource);
-			// Perhaps, the creation of this upwards forwarding should be part for play local changes from source command, for each add command?
-			// - and then a corresponding cleanup for each remove command?
-			Model modelInSource = sourceCanvas.getModelByLocation(modelLocationInSource);
-			Location modelTargetLocation = new CompositeLocation(sourceLocation, new ParentLocation());
-			Location modelOffsetFromTarget = new CompositeLocation(offsetFromTarget, modelLocationInTarget);
-			modelInSource.addObserver(new LocalChangesUpwarder(modelTargetLocation, modelOffsetFromTarget));
-			
-			if(modelInSource instanceof CanvasModel)
-				forwardLocalChangesUpwards(historyChangeForwarder, (CanvasModel)modelInSource, modelTargetLocation, modelOffsetFromTarget);
-		}
-	}
+//	private void forwardLocalChangesUpwards(LocalChangesForwarder historyChangeForwarder, CanvasModel sourceCanvas, Location sourceLocation, Location offsetFromTarget) {
+//		for(Location modelLocationInSource: sourceCanvas.getLocations()) {
+//			Location modelLocationInTarget = new CanvasModel.ForwardLocation(modelLocationInSource);
+//			// Perhaps, the creation of this upwards forwarding should be part for play local changes from source command, for each add command?
+//			// - and then a corresponding cleanup for each remove command?
+//			Model modelInSource = sourceCanvas.getModelByLocation(modelLocationInSource);
+//			Location modelTargetLocation = new CompositeLocation(sourceLocation, new ParentLocation());
+//			Location modelOffsetFromTarget = new CompositeLocation(offsetFromTarget, modelLocationInTarget);
+//			modelInSource.addObserver(new LocalChangesUpwarder(modelTargetLocation, modelOffsetFromTarget));
+//			
+//			if(modelInSource instanceof CanvasModel)
+//				forwardLocalChangesUpwards(historyChangeForwarder, (CanvasModel)modelInSource, modelTargetLocation, modelOffsetFromTarget);
+//		}
+//	}
 	
 	@Override
 	public Command<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
