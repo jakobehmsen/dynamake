@@ -73,6 +73,7 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 					modelLocation = new CanvasModel.ForwardLocation(modelLocation);
 				Model embeddedTarget = targetCanvas.getModelByLocation(modelLocation);
 				
+				// Don't use playThenReverse; instead propogate an HistoryAppendLogChange
 				List<CommandState<Model>> reversedEmbeddedForwardedChanges = playThenReverseChanges(embeddedSource, embeddedTarget, propCtx, propDistance, collector);
 				reversedForwardedChanges.addAll(reversedEmbeddedForwardedChanges);
 			}

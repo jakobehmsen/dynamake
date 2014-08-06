@@ -3,9 +3,12 @@ package dynamake.models.factories;
 import java.util.ArrayList;
 import java.util.List;
 
+import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateSequence;
 import dynamake.commands.ForwardLocalChangesCommand;
+import dynamake.commands.ForwardLocalChangesUpwards2Command;
+import dynamake.commands.ForwardLocalChangesUpwardsCommand;
 import dynamake.commands.PlayLocalChangesFromSourceCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.PlayThenReverseCommand;
@@ -179,6 +182,8 @@ public class NewInstanceFactory2 implements ModelFactory {
 				
 				if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesCommand) {
 
+				} else if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesUpwards2Command) {
+
 				} else
 					newCreation.add(pcsCreationPart.mapToReferenceLocation(source, target));
 			}
@@ -299,10 +304,6 @@ public class NewInstanceFactory2 implements ModelFactory {
 		
 		newCreation.addAll(creationForwarding);
 		
-		
-		// TODO: Test this stuff!!!
-//		target.setProperty(RestorableModel.PROPERTY_CREATION, newCreation, propCtx, propDistance, collector);
-		
 		collector.execute(new ExPendingCommandFactory2<Model>() {
 			@Override
 			public Model getReference() {
@@ -313,6 +314,85 @@ public class NewInstanceFactory2 implements ModelFactory {
 			public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
 				pendingCommands.add(new PendingCommandState<Model>(
 					new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, newCreation), 
+					new SetPropertyCommand.AfterSetProperty()
+				));
+			}
+
+			@Override
+			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+
+			}
+
+			@Override
+			public HistoryHandler<Model> getHistoryHandler() {
+				return new NullHistoryHandler<Model>();
+			}
+		});
+		
+		// Setup local changes upwarder in source if not already part of creation
+		boolean changeUpwarderIsSetup = false;
+
+		if(creation != null) {
+			changeUpwarderIsSetup = creation.contains(new ForwardLocalChangesUpwards2Command());
+			
+			for(CommandState<Model> creationPart: creation) {
+				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
+
+				if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesUpwards2Command) {
+					changeUpwarderIsSetup = true;
+					break;
+				}
+			}
+		} else {
+			creation = new ArrayList<CommandState<Model>>();
+		}
+		
+		if(!changeUpwarderIsSetup) {
+			// Setup forwarding
+			final ArrayList<CommandState<Model>> creationForwardingUpwards = new ArrayList<CommandState<Model>>();
+			
+			creationForwardingUpwards.add(new PendingCommandState<Model>(
+				new ForwardLocalChangesUpwards2Command(), 
+				(CommandFactory<Model>)null
+			));
+			
+			collector.execute(new ExPendingCommandFactory2<Model>() {
+				@Override
+				public Model getReference() {
+					return target;
+				}
+				
+				@Override
+				public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
+					pendingCommands.addAll(creationForwarding);
+				}
+				
+				@Override
+				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+					// Add some conditional cleaning up of ForwardLocalChangesUpwards2Command?
+				}
+
+				@Override
+				public HistoryHandler<Model> getHistoryHandler() {
+					return new NullHistoryHandler<Model>();
+				}
+			});
+			
+			creation.addAll(creationForwardingUpwards);
+		}
+		
+		final List<CommandState<Model>> creationF = creation;
+		
+		collector.execute(new ExPendingCommandFactory2<Model>() {
+			@Override
+			public Model getReference() {
+				return source;
+			}
+
+			@Override
+			public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
+				pendingCommands.add(new PendingCommandState<Model>(
+					new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, creationF), 
 					new SetPropertyCommand.AfterSetProperty()
 				));
 			}

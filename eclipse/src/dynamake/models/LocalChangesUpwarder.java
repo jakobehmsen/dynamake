@@ -31,6 +31,7 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 				newPendingUndoablePairs.add(pup.offset(offsetFromSource));
 			}
 			
+			// Send out history append log change like it was sent from source
 			source.sendChanged(new Model.HistoryAppendLogChange(newPendingUndoablePairs), propCtx, propDistance, changeDistance, collector);
 		}
 	}
