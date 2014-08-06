@@ -256,7 +256,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 		newCreation.addAll(creationForwarding);
 		
 		
-		
+		// TODO: Test this stuff!!!
 //		target.setProperty(RestorableModel.PROPERTY_CREATION, newCreation, propCtx, propDistance, collector);
 		
 		collector.execute(new ExPendingCommandFactory2<Model>() {

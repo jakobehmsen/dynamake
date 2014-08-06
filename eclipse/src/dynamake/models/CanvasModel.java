@@ -36,6 +36,8 @@ import dynamake.models.factories.ModelCreation;
 import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
+import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Trigger;
@@ -280,7 +282,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
+		public Object executeOn(final PropogationContext propCtx, final Model rootPrevalentSystem, Collector<Model> collector, final Location location) {
 			/*
 			TODO: Consider
 			Model creation and add could be changed as follows:
@@ -291,15 +293,21 @@ public class CanvasModel extends Model {
 			*/
 			
 			final CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
-			ModelCreation modelCreation = factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
+			final ModelCreation modelCreation = factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
 			final Model model = modelCreation.createModel(rootPrevalentSystem, propCtx, 0, collector, location);
 
-			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
+//			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			
 			canvas.addModel(model, new PropogationContext(), 0, collector);
-			Location addedModelLocation = canvas.getLocationOf(model);
+			final Location addedModelLocation = canvas.getLocationOf(model);
 			
-			modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, isolatedCollector, location);
+			collector.execute(new Trigger<Model>() {
+				@Override
+				public void run(Collector<Model> collector) {
+					modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, collector, location);
+				}
+			});
+//			modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, collector, location);
 			
 			return new Output(addedModelLocation);
 		}
