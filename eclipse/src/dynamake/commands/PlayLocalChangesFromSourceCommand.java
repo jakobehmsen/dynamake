@@ -41,7 +41,7 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 		
 		List<CommandState<Model>> reversedForwardedChanges = playThenReverseChanges(source, target, propCtx, 0, collector);
 		
-//		System.out.println("Forwarded local changes from " + source + " to " + target);
+		System.out.println("Forwarded local changes from " + source + " to " + target);
 		
 		return new PlayThenReverseCommand(reversedForwardedChanges);
 	}

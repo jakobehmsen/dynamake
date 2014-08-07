@@ -178,6 +178,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 //		// TODO: Consider: Inherit cleanup?
 //		List<CommandState<Model>> cleanup = target.playThenReverse(creationForwarding, propCtx, propDistance, collector);
 		
+		// Set creation on target
 		collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
 			new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, newCreation), 
 			new SetPropertyCommand.AfterSetProperty()
@@ -210,12 +211,12 @@ public class NewInstanceFactory2 implements ModelFactory {
 				(CommandFactory<Model>)null
 			));
 			
-			collector.execute(new SimpleExPendingCommandFactory2<Model>(target, creationForwarding));
+			collector.execute(new SimpleExPendingCommandFactory2<Model>(target, creationForwardingUpwards));
 			
 			creation.addAll(creationForwardingUpwards);
 		}
 		
-		// Set creation
+		// Update creation on source
 		collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
 			new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, creation), 
 			new SetPropertyCommand.AfterSetProperty()
