@@ -14,10 +14,10 @@
 			}
 			
 			a		  {font-weight:bolder;}
-			a:link    {color:#0F6E43;}
-			a:visited {color:#0F6E43;}
-			a:hover   {color:#1A6E37;}
-			a:active  {color:#A61E5B;}
+			a:link    {color:#BD2A0D;}
+			a:visited {color:#BD2A0D;}
+			a:hover   {color:#157082;}
+			a:active  {color:#157082;}
 			
 			.box {
 				border:3px solid #333;
@@ -48,7 +48,7 @@
 				var definitionEl = link.clone();
 						
 				definitionEl.mousedown(function() {
-					definitionEl.css("color", "#0F6E43");
+					definitionEl.css("color", "#0DA0BD");
 				});
 				definitionEl.click(function() {
 					collapse(holder, link, definitions, term);
@@ -60,7 +60,7 @@
 					
 				if(addBorder) {
 					// Change color of link to indicate expanded state
-					definitionEl.css("color", "#A61E5B");
+					definitionEl.css("color", "#157082");
 						
 					definition = definition.wrap("<div></div>").parent();
 					definition
