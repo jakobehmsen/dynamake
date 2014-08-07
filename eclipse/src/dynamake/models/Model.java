@@ -393,6 +393,8 @@ public abstract class Model implements Serializable, Observer {
 			}
 		}
 		
+		Collections.reverse(backwards);
+		
 		return backwards;
 	}
 
