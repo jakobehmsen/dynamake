@@ -386,14 +386,12 @@ public abstract class Model implements Serializable, Observer {
 		
 		for(CommandState<Model> undoable: undoStack) {
 			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
-			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
+
+			for(int i = undoableAsRevertiable.getCommandStateCount() - 1; i >= 0; i--) {
 				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
 				backwards.add(undoPart.revertible);
 			}
 		}
-		
-		// TODO: Consider: Should backwards be reversed
-		// TODO: Test model where local history has at least to items 
 		
 		return backwards;
 	}
