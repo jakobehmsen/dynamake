@@ -6,6 +6,8 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.CreateAndExecuteFromPropertyCommand;
+import dynamake.commands.ForwardLocalChangesCommand;
+import dynamake.commands.ForwardLocalChangesUpwards2Command;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.PlayThenReverseCommand;
 import dynamake.commands.RedoCommand;
@@ -143,8 +145,23 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			});
 			
 			// Accumulate local changes to revert
-			ArrayList<CommandState<Model>> newLocalChangesToRevert = new ArrayList<CommandState<Model>>(forwardedChangesToRevert);
+			ArrayList<CommandState<Model>> newLocalChangesToRevert = new ArrayList<CommandState<Model>>();
+			
 			newLocalChangesToRevert.addAll(target.getLocalChangesBackwards());
+			
+			// Is there some creation for source? Then this creation should also be (initially) forwarded
+			// Creation must be a list of PendingUndoablePair.
+			@SuppressWarnings("unchecked")
+			List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty("Creation");
+			if(sourceCreation != null) {
+				for(int i = sourceCreation.size() - 1; i >= 0; i--) {
+					Model.PendingUndoablePair sourceCreationPart = sourceCreation.get(i);
+					if(!(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesCommand) && !(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
+						newLocalChangesToRevert.add(sourceCreationPart.undoable);
+				}
+			}
+			
+			newLocalChangesToRevert.addAll(forwardedChangesToRevert);
 			
 			target.sendChanged(new PushLocalChanges(newLocalChangesToRevert, forwardedNewChanges), propCtx, propDistance, changeDistance, collector);
 		} else if((change instanceof Model.HistoryAppendLogChange)) {
