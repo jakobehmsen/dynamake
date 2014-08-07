@@ -16,7 +16,8 @@ public class SimpleExPendingCommandFactory2<T> implements ExPendingCommandFactor
 		this.pendingCommands = pendingCommands;
 	}
 	
-	public SimpleExPendingCommandFactory2(T reference, @SuppressWarnings("unchecked") CommandState<T>... pendingCommands) {
+	@SafeVarargs
+	public SimpleExPendingCommandFactory2(T reference, CommandState<T>... pendingCommands) {
 		this.reference = reference;
 		this.pendingCommands = Arrays.asList(pendingCommands);
 	}
