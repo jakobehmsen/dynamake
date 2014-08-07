@@ -2,10 +2,33 @@ package dynamake.transcription;
 
 import java.util.List;
 
+import dynamake.commands.CommandState;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.PendingUndoablePair;
 
-public abstract class SimpleExPendingCommandFactory2<T> implements ExPendingCommandFactory2<T> {
+public class SimpleExPendingCommandFactory2<T> implements ExPendingCommandFactory2<T> {
+	private T reference;
+	private List<CommandState<T>> pendingCommands;
+	
+	public SimpleExPendingCommandFactory2(T reference, List<CommandState<T>> pendingCommands) {
+		this.reference = reference;
+		this.pendingCommands = pendingCommands;
+	}
+	
+	public SimpleExPendingCommandFactory2() {
+		
+	}
+
+	@Override
+	public T getReference() {
+		return reference;
+	}
+	
+	@Override
+	public void createPendingCommands(List<CommandState<T>> pendingCommands) {
+		pendingCommands.addAll(this.pendingCommands);
+	}
+	
 	@Override
 	public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 
