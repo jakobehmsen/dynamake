@@ -1,5 +1,6 @@
 package dynamake.transcription;
 
+import java.util.Arrays;
 import java.util.List;
 
 import dynamake.commands.CommandState;
@@ -13,6 +14,11 @@ public class SimpleExPendingCommandFactory2<T> implements ExPendingCommandFactor
 	public SimpleExPendingCommandFactory2(T reference, List<CommandState<T>> pendingCommands) {
 		this.reference = reference;
 		this.pendingCommands = pendingCommands;
+	}
+	
+	public SimpleExPendingCommandFactory2(T reference, @SuppressWarnings("unchecked") CommandState<T>... pendingCommands) {
+		this.reference = reference;
+		this.pendingCommands = Arrays.asList(pendingCommands);
 	}
 	
 	public SimpleExPendingCommandFactory2() {
