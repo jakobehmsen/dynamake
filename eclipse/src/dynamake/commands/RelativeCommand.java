@@ -30,7 +30,7 @@ public class RelativeCommand<T> implements MappableCommand<T>, ForwardableComman
 		}
 	}
 	
-	public static class Output implements Serializable {
+	public static class Output implements Serializable, ForwardableOutput {
 		/**
 		 * 
 		 */
@@ -41,6 +41,17 @@ public class RelativeCommand<T> implements MappableCommand<T>, ForwardableComman
 		public Output(Location tail, Object commandOutput) {
 			this.tail = tail;
 			this.commandOutput = commandOutput;
+		}
+
+		@Override
+		public Object forForwarding() {
+			Location newTail = tail.forForwarding();
+			Object newCommandOutput;
+			if(commandOutput instanceof ForwardableOutput)
+				newCommandOutput = ((ForwardableOutput)commandOutput).forForwarding();
+			else
+				newCommandOutput = commandOutput;
+			return new RelativeCommand.Output(newTail, newCommandOutput);
 		}
 	}
 	
