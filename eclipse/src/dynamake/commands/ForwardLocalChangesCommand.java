@@ -16,6 +16,7 @@ import dynamake.models.Observer;
 import dynamake.models.ParentLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.RootModel;
+import dynamake.models.LocalChangesForwarder.PushLocalChanges;
 import dynamake.transcription.Collector;
 
 public class ForwardLocalChangesCommand implements MappableCommand<Model> {
@@ -75,7 +76,7 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 	}
 	
 	private void pushForward(Model source, LocalChangesForwarder forwarder, int distanceToTarget, Location offset, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		ArrayList<Model.PendingUndoablePair> toForward = new ArrayList<Model.PendingUndoablePair>();
+		ArrayList<CommandState<Model>> toForward = new ArrayList<CommandState<Model>>();
 
 		// Is there some creation for source? Then this creation should also be (initially) forwarded
 		// Creation must be a list of PendingUndoablePair.
@@ -95,8 +96,10 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 			toForward.add(pup);
 		}
 		
-		if(toForward.size() > 0)
-			forwarder.changed(forwarder.getSource(), new Model.HistoryAppendLogChange(toForward), propCtx, propDistance, 0, collector);
+		if(toForward.size() > 0) {
+			forwarder.changed(forwarder.getSource(), new PushLocalChanges(new ArrayList<CommandState<Model>>(), toForward), propCtx, propDistance, 0, collector);
+			
+		}
 		
 		if(source instanceof CanvasModel) {
 			CanvasModel sourceCanvas = (CanvasModel)source;

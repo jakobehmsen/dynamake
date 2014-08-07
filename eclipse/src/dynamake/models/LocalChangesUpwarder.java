@@ -3,6 +3,10 @@ package dynamake.models;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import dynamake.commands.CommandState;
+import dynamake.commands.RedoCommand;
+import dynamake.commands.UndoCommand;
+import dynamake.models.LocalChangesForwarder.PushLocalChanges;
 import dynamake.transcription.Collector;
 
 public class LocalChangesUpwarder extends ObserverAdapter implements Serializable {
@@ -24,15 +28,32 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 			Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
 			Model source = (Model)sourceLocation.getChild(sender);
 			
-			ArrayList<Model.PendingUndoablePair> newPendingUndoablePairs = new ArrayList<Model.PendingUndoablePair>();
-			for(Model.PendingUndoablePair pup: historyAppendLogChange.pendingUndoablePairs) {
-				// Be sensitive to undo/redo commands here; they should be handled differently
-				// Somehow, it is the undone/redone command that should be offset instead
-				newPendingUndoablePairs.add(pup.offset(offsetFromSource));
+			// Forward the logged change in source
+			Object firstCommandOutput = historyAppendLogChange.pendingUndoablePairs.get(0).undoable.getOutput();
+			
+			ArrayList<CommandState<Model>> newChanges = new ArrayList<CommandState<Model>>();
+			
+			if(firstCommandOutput instanceof UndoCommand.Output) {
+				newChanges.add(((UndoCommand.Output)firstCommandOutput).command);
+			} else if(firstCommandOutput instanceof RedoCommand.Output) {
+				newChanges.add(((RedoCommand.Output)firstCommandOutput).command);
+			} else {
+				for(Model.PendingUndoablePair pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs)
+					newChanges.add(pendingUndoablePair);
 			}
 			
-			// Send out history append log change like it was sent from source
-			source.sendChanged(new Model.HistoryAppendLogChange(newPendingUndoablePairs), propCtx, propDistance, changeDistance, collector);
+			ArrayList<CommandState<Model>> offsetNewChanges = new ArrayList<CommandState<Model>>();
+			for(CommandState<Model> pup: newChanges) {
+				// Be sensitive to undo/redo commands here; they should be handled differently
+				// Somehow, it is the undone/redone command that should be offset instead
+				offsetNewChanges.add(pup.offset(offsetFromSource));
+			}
+			
+			source.sendChanged(new PushLocalChanges(new ArrayList<CommandState<Model>>(), offsetNewChanges), propCtx, propDistance, changeDistance, collector);			
+		} else if (change instanceof CanvasModel.AddedModelChange) {
+			System.out.println("Upwarder observed AddedModelChange!!!");
+		} else if (change instanceof CanvasModel.RemovedModelChange) {
+			System.out.println("Upwarder observed RemovedModelChange!!!");
 		}
 	}
 }

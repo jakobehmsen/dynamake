@@ -164,26 +164,6 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			newLocalChangesToRevert.addAll(forwardedChangesToRevert);
 			
 			target.sendChanged(new PushLocalChanges(newLocalChangesToRevert, forwardedNewChanges), propCtx, propDistance, changeDistance, collector);
-		} else if((change instanceof Model.HistoryAppendLogChange)) {
-			if(sender == source) {
-				// Forward the logged change in source
-				final Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
-				
-				Object firstCommandOutput = historyAppendLogChange.pendingUndoablePairs.get(0).undoable.getOutput();
-				
-				ArrayList<CommandState<Model>> newChanges = new ArrayList<CommandState<Model>>();
-				
-				if(firstCommandOutput instanceof UndoCommand.Output) {
-					newChanges.add(((UndoCommand.Output)firstCommandOutput).command);
-				} else if(firstCommandOutput instanceof RedoCommand.Output) {
-					newChanges.add(((RedoCommand.Output)firstCommandOutput).command);
-				} else {
-					for(Model.PendingUndoablePair pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs)
-						newChanges.add(pendingUndoablePair);
-				}
-				
-				this.changed(source, new PushLocalChanges(new ArrayList<CommandState<Model>>(), newChanges), propCtx, propDistance, changeDistance, collector);
-			}
 		}
 	}
 }

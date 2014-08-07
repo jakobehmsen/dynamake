@@ -25,6 +25,8 @@ public class ForwardLocalChangesUpwards2Command implements Command<Model> {
 		// The relation should also be maintained for new models created
 		// Thus, some sort of observer (ForwardLocalChangesObserver) should be added for each of the contained models
 		
+		target.addObserver(new LocalChangesUpwarder(new ModelRootLocation(), new ModelRootLocation()));
+		
 		if(target instanceof CanvasModel)
 			forwardLocalChangesUpwards((CanvasModel)target, new ModelRootLocation(), new ModelRootLocation());
 		
