@@ -3,6 +3,7 @@ package dynamake.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import dynamake.delegates.Func1;
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.LocalChangesForwarder;
@@ -11,6 +12,7 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.ModelRootLocation;
+import dynamake.models.Observer;
 import dynamake.models.ParentLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.RootModel;
@@ -52,8 +54,15 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 		return null;
 	}
 	
-	private void pushForward(Model source, LocalChangesForwarder forwarder, int distanceToTarget, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		LocalChangesForwarder sourceForwarder = source.getObserveeOfType(LocalChangesForwarder.class);
+	private void pushForward(final Model source, LocalChangesForwarder forwarder, int distanceToTarget, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		LocalChangesForwarder sourceForwarder = source.getObserveeOfType(LocalChangesForwarder.class);
+		LocalChangesForwarder sourceForwarder = (LocalChangesForwarder)source.getObserverWhere(new Func1<Observer, Boolean>() {
+			@Override
+			public Boolean call(Observer observer) {
+				return observer instanceof LocalChangesForwarder &&
+					((LocalChangesForwarder)observer).getTarget() == source;
+			}
+		});
 		
 		if(sourceForwarder != null) {
 			// Source is itself being forwarded changes
@@ -70,9 +79,13 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 
 		// Is there some creation for source? Then this creation should also be (initially) forwarded
 		// Creation must be a list of PendingUndoablePair.
-		List<Model.PendingUndoablePair> creation = (List<Model.PendingUndoablePair>)source.getProperty("Creation");
-		if(creation != null) {
-			toForward.addAll(creation);
+		@SuppressWarnings("unchecked")
+		List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty("Creation");
+		if(sourceCreation != null) {
+			for(Model.PendingUndoablePair sourceCreationPart: sourceCreation) {
+				if(!(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesCommand) && !(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
+					toForward.add(sourceCreationPart);
+			}
 		}
 		
 		for(Model.PendingUndoablePair pup: source.getLocalChangesAsPairs()) {
@@ -82,7 +95,8 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 			toForward.add(pup);
 		}
 		
-		forwarder.changed(source, new Model.HistoryAppendLogChange(toForward), propCtx, propDistance, 0, collector);
+		if(toForward.size() > 0)
+			forwarder.changed(forwarder.getSource(), new Model.HistoryAppendLogChange(toForward), propCtx, propDistance, 0, collector);
 		
 		if(source instanceof CanvasModel) {
 			CanvasModel sourceCanvas = (CanvasModel)source;

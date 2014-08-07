@@ -564,6 +564,14 @@ public abstract class Model implements Serializable, Observer {
 		int indexOfObserver = observers.indexOf(observer);
 		return (T)observers.get(indexOfObserver);
 	}
+	
+	public Observer getObserverWhere(Func1<Observer, Boolean> filter) {
+		for(Observer observer: observers) {
+			if(filter.call(observer))
+				return observer;
+		}
+		return null;
+	}
 
 	@SuppressWarnings("unchecked")
 	public <T extends Observer> T getObserverOfType(Class<T> c) {

@@ -92,7 +92,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 		final ArrayList<CommandState<Model>> newCreation = new ArrayList<CommandState<Model>>();
 		
 		// Setup forwarding
-		final ArrayList<CommandState<Model>> creationForwarding = new ArrayList<CommandState<Model>>();
+		ArrayList<CommandState<Model>> creationForwarding = new ArrayList<CommandState<Model>>();
 		
 		creationForwarding.add(new PendingCommandState<Model>(
 			new ForwardLocalChangesCommand(locationOfSourceFromTarget), 
@@ -101,97 +101,51 @@ public class NewInstanceFactory2 implements ModelFactory {
 		
 		collector.execute(new SimpleExPendingCommandFactory2<Model>(target, creationForwarding) {
 			@Override
-			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+			public void afterPropogationFinished(List<PendingUndoablePair> creationForwardingPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 				// pendingUndoablePairs are supplied in executed order; thus, the undoable, in reverse order, should fit the purpose of cleanup just right
 				final ArrayList<CommandState<Model>> cleanup = new ArrayList<CommandState<Model>>();
-				for(int i = pendingUndoablePairs.size() - 1; i >= 0; i--)
-					cleanup.add(pendingUndoablePairs.get(i).undoable);
+				for(int i = creationForwardingPendingUndoablePairs.size() - 1; i >= 0; i--)
+					cleanup.add(creationForwardingPendingUndoablePairs.get(i).undoable);
 
 				collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
 					new SetPropertyCommand(RestorableModel.PROPERTY_CLEANUP, cleanup), 
 					new SetPropertyCommand.AfterSetProperty()
 				)));
+				
+				newCreation.addAll(creationForwardingPendingUndoablePairs);
+
+				ArrayList<CommandState<Model>> newCreationLastParts = new ArrayList<CommandState<Model>>();
+				
+				newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
+				newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
+				newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
+				newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+				
+				collector.execute(new SimpleExPendingCommandFactory2<Model>(target, newCreationLastParts) {
+					@Override
+					public void afterPropogationFinished(List<PendingUndoablePair> newCreationLastPartsPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+						newCreation.addAll(newCreationLastPartsPendingUndoablePairs);
+
+						// Set creation on target
+						collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
+							new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, newCreation), 
+							new SetPropertyCommand.AfterSetProperty()
+						)));
+					}
+				});
 			}
 		});
 		
-		newCreation.addAll(creationForwarding);
-		
-		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> creation = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
-
-		final ArrayList<CommandState<Model>> creationFromSource = new ArrayList<CommandState<Model>>();
-		
-		if(creation != null) {
-			int rootDistanceFromReference = 1;
-			
-			for(CommandState<Model> creationPart: creation) {
-				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
-				if(pcsCreationPart.getCommand() instanceof PlayLocalChangesFromSourceCommand)
-					rootDistanceFromReference++;
-			}
-			
-			int playCommandCount = 0;
-			// Each PlayLocalChangesFromSourceCommand should have its distance incremented by one
-			
-			// Don't include ForwardHistoryCommand commands in changes to inheret 
-			// TODO: Remove the ugly filter hack below; replace with decoupled logic
-			for(CommandState<Model> creationPart: creation) {
-				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
-				
-				if(pcsCreationPart.getCommand() instanceof PlayLocalChangesFromSourceCommand) {
-					PlayLocalChangesFromSourceCommand playCommand = (PlayLocalChangesFromSourceCommand)pcsCreationPart.getCommand();
-					
-					int rootDistance = rootDistanceFromReference - playCommandCount;
-					playCommand = playCommand.whereRootDistanceIs(rootDistance);
-					
-					pcsCreationPart = new PendingCommandState<Model>(playCommand, pcsCreationPart.getForthFactory(), pcsCreationPart.getForthFactory());
-					
-					playCommandCount++;
-				}
-				
-				if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesCommand) {
-
-				} else if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesUpwards2Command) {
-
-				} else
-					creationFromSource.add(pcsCreationPart.mapToReferenceLocation(source, target));
-			}
-			
-			collector.execute(new SimpleExPendingCommandFactory2<Model>(target, creationFromSource));
-			
-			newCreation.addAll(creationFromSource);
-		}
-		
-		final ArrayList<CommandState<Model>> newCreationLastParts = new ArrayList<CommandState<Model>>();
-		
-//		newCreationLastParts.add(new PendingCommandState<Model>(new PlayLocalChangesFromSourceCommand(locationOfSourceFromTarget), new PlayThenReverseCommand.AfterPlay()));
-		
-		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
-		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
-		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
-		
-		collector.execute(new SimpleExPendingCommandFactory2<Model>(target, newCreationLastParts));
-		
-		newCreation.addAll(newCreationLastParts);
-
-//		// TODO: Consider: Inherit cleanup?
-//		List<CommandState<Model>> cleanup = target.playThenReverse(creationForwarding, propCtx, propDistance, collector);
-		
-		// Set creation on target
-		collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
-			new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, newCreation), 
-			new SetPropertyCommand.AfterSetProperty()
-		)));
-		
 		// Setup local changes upwarder in source if not already part of creation
+		@SuppressWarnings("unchecked")
+		List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel.PROPERTY_CREATION);
 		boolean changeUpwarderIsSetup = false;
 
-		if(creation != null) {
-			changeUpwarderIsSetup = creation.contains(new ForwardLocalChangesUpwards2Command());
+		if(sourceCreation != null) {
+			changeUpwarderIsSetup = sourceCreation.contains(new ForwardLocalChangesUpwards2Command());
 			
-			for(CommandState<Model> creationPart: creation) {
-				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
+			for(Model.PendingUndoablePair creationPart: sourceCreation) {
+				PendingCommandState<Model> pcsCreationPart = creationPart.pending;
 
 				if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesUpwards2Command) {
 					changeUpwarderIsSetup = true;
@@ -199,27 +153,150 @@ public class NewInstanceFactory2 implements ModelFactory {
 				}
 			}
 		} else {
-			creation = new ArrayList<CommandState<Model>>();
+//			sourceCreation = new ArrayList<Model.PendingUndoablePair>();
+			// Set creation on target
+			collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
+				new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, new ArrayList<Model.PendingUndoablePair>()), 
+				new SetPropertyCommand.AfterSetProperty()
+			)));
 		}
 		
 		if(!changeUpwarderIsSetup) {
 			// Setup forwarding
-			final ArrayList<CommandState<Model>> creationForwardingUpwards = new ArrayList<CommandState<Model>>();
+			ArrayList<CommandState<Model>> creationForwardingUpwards = new ArrayList<CommandState<Model>>();
 			
 			creationForwardingUpwards.add(new PendingCommandState<Model>(
 				new ForwardLocalChangesUpwards2Command(), 
 				(CommandFactory<Model>)null
 			));
 			
-			collector.execute(new SimpleExPendingCommandFactory2<Model>(source, creationForwardingUpwards));
-			
-			creation.addAll(creationForwardingUpwards);
+			collector.execute(new SimpleExPendingCommandFactory2<Model>(source, creationForwardingUpwards) {
+				@Override
+				public void afterPropogationFinished(List<PendingUndoablePair> sourceCreationPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+					@SuppressWarnings("unchecked")
+					List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+					
+					sourceCreation.addAll(sourceCreationPendingUndoablePairs);
+					
+					// Update creation on source
+					collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
+						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, sourceCreation), 
+						new SetPropertyCommand.AfterSetProperty()
+					)));
+				}
+			});
 		}
 		
-		// Update creation on source
-		collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
-			new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, creation), 
-			new SetPropertyCommand.AfterSetProperty()
-		)));
+		
+		
+		
+		
+//		newCreation.addAll(creationForwarding);
+//		
+////		@SuppressWarnings("unchecked")
+////		List<CommandState<Model>> creation = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+////
+////		final ArrayList<CommandState<Model>> creationFromSource = new ArrayList<CommandState<Model>>();
+////		
+////		if(creation != null) {
+////			int rootDistanceFromReference = 1;
+////			
+////			for(CommandState<Model> creationPart: creation) {
+////				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
+////				if(pcsCreationPart.getCommand() instanceof PlayLocalChangesFromSourceCommand)
+////					rootDistanceFromReference++;
+////			}
+////			
+////			int playCommandCount = 0;
+////			// Each PlayLocalChangesFromSourceCommand should have its distance incremented by one
+////			
+////			// Don't include ForwardHistoryCommand commands in changes to inheret 
+////			// TODO: Remove the ugly filter hack below; replace with decoupled logic
+////			for(CommandState<Model> creationPart: creation) {
+////				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
+////				
+////				if(pcsCreationPart.getCommand() instanceof PlayLocalChangesFromSourceCommand) {
+////					PlayLocalChangesFromSourceCommand playCommand = (PlayLocalChangesFromSourceCommand)pcsCreationPart.getCommand();
+////					
+////					int rootDistance = rootDistanceFromReference - playCommandCount;
+////					playCommand = playCommand.whereRootDistanceIs(rootDistance);
+////					
+////					pcsCreationPart = new PendingCommandState<Model>(playCommand, pcsCreationPart.getForthFactory(), pcsCreationPart.getForthFactory());
+////					
+////					playCommandCount++;
+////				}
+////				
+////				if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesCommand) {
+////
+////				} else if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesUpwards2Command) {
+////
+////				} else
+////					creationFromSource.add(pcsCreationPart.mapToReferenceLocation(source, target));
+////			}
+////			
+////			collector.execute(new SimpleExPendingCommandFactory2<Model>(target, creationFromSource));
+////			
+////			newCreation.addAll(creationFromSource);
+////		}
+//		
+//		final ArrayList<CommandState<Model>> newCreationLastParts = new ArrayList<CommandState<Model>>();
+//		
+//		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
+//		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
+//		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
+//		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+//		
+//		collector.execute(new SimpleExPendingCommandFactory2<Model>(target, newCreationLastParts));
+//		
+//		newCreation.addAll(newCreationLastParts);
+//
+////		// TODO: Consider: Inherit cleanup?
+////		List<CommandState<Model>> cleanup = target.playThenReverse(creationForwarding, propCtx, propDistance, collector);
+//		
+//		// Set creation on target
+//		collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
+//			new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, newCreation), 
+//			new SetPropertyCommand.AfterSetProperty()
+//		)));
+//		
+//		// Setup local changes upwarder in source if not already part of creation
+//		@SuppressWarnings("unchecked")
+//		List<CommandState<Model>> creation = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+//		boolean changeUpwarderIsSetup = false;
+//
+//		if(creation != null) {
+//			changeUpwarderIsSetup = creation.contains(new ForwardLocalChangesUpwards2Command());
+//			
+//			for(CommandState<Model> creationPart: creation) {
+//				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart;
+//
+//				if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesUpwards2Command) {
+//					changeUpwarderIsSetup = true;
+//					break;
+//				}
+//			}
+//		} else {
+//			creation = new ArrayList<CommandState<Model>>();
+//		}
+//		
+//		if(!changeUpwarderIsSetup) {
+//			// Setup forwarding
+//			final ArrayList<CommandState<Model>> creationForwardingUpwards = new ArrayList<CommandState<Model>>();
+//			
+//			creationForwardingUpwards.add(new PendingCommandState<Model>(
+//				new ForwardLocalChangesUpwards2Command(), 
+//				(CommandFactory<Model>)null
+//			));
+//			
+//			collector.execute(new SimpleExPendingCommandFactory2<Model>(source, creationForwardingUpwards));
+//			
+//			creation.addAll(creationForwardingUpwards);
+//		}
+//		
+//		// Update creation on source
+//		collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
+//			new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, creation), 
+//			new SetPropertyCommand.AfterSetProperty()
+//		)));
 	}
 }
