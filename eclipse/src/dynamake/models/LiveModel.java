@@ -161,6 +161,11 @@ public class LiveModel extends Model {
 		public Object getChild(Object holder) {
 			return ((LiveModel)holder).content;
 		}
+		
+		@Override
+		public Location forForwarding() {
+			return new CanvasModel.ForwardLocation(this);
+		}
 	}
 	
 	private static final int BUTTON_FONT_SIZE = 13;

@@ -2,6 +2,7 @@ package dynamake.commands;
 
 import java.io.Serializable;
 
+import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -77,7 +78,8 @@ public class RelativeCommand<T> implements MappableCommand<T>, ForwardableComman
 	public Command<T> forForwarding(Object output) {
 		if(command instanceof ForwardableCommand) {
 			RelativeCommand.Output relativeCommandOutput = (RelativeCommand.Output)output;
-			return new RelativeCommand<T>(tail, ((ForwardableCommand<T>)command).forForwarding(relativeCommandOutput.commandOutput));
+			Location newTail = tail.forForwarding();
+			return new RelativeCommand<T>(newTail, ((ForwardableCommand<T>)command).forForwarding(relativeCommandOutput.commandOutput));
 		}
 
 		return this;

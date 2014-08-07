@@ -22,4 +22,9 @@ public class CompositeLocation implements Location {
 		Object headObj = head.getChild(holder);
 		return tail.getChild(headObj);
 	}
+	
+	@Override
+	public Location forForwarding() {
+		return new CompositeLocation(head.forForwarding(), tail.forForwarding());
+	}
 }

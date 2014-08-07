@@ -120,6 +120,11 @@ public class RootModel extends Model {
 		public Object getChild(Object holder) {
 			return ((RootModel)holder).content;
 		}
+		
+		@Override
+		public Location forForwarding() {
+			return new CanvasModel.ForwardLocation(this);
+		}
 	}
 	
 	private static class BoundsChangeHandler extends MouseAdapter implements ComponentListener {

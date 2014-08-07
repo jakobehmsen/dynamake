@@ -89,9 +89,9 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 		}
 		
 		for(Model.PendingUndoablePair pup: source.getLocalChangesAsPairs()) {
+			pup = pup.offset(offset);
 			for(int i = 1; i < distanceToTarget; i++)
 				pup = pup.forForwarding();
-			pup = pup.offset(offset);
 			toForward.add(pup);
 		}
 		

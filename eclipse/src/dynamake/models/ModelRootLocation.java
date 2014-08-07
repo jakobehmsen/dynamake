@@ -11,4 +11,9 @@ public class ModelRootLocation implements Location {
 	public Object getChild(Object holder) {
 		return holder;
 	}
+	
+	@Override
+	public Location forForwarding() {
+		return new CanvasModel.ForwardLocation(this);
+	}
 }

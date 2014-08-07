@@ -10,4 +10,9 @@ public class ParentLocation implements Location {
 	public Object getChild(Object holder) {
 		return ((Model)holder).getParent();
 	}
+	
+	@Override
+	public Location forForwarding() {
+		return new CanvasModel.ForwardLocation(this);
+	}
 }

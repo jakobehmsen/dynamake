@@ -267,7 +267,7 @@ public class CanvasModel extends Model {
 
 			@Override
 			public Object forForwarding() {
-				return new AddModelCommand.Output(new ForwardLocation(location));
+				return new AddModelCommand.Output(location.forForwarding());
 			}
 		}
 		
@@ -318,7 +318,7 @@ public class CanvasModel extends Model {
 			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
 			AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
 			
-			Location mappedLocation = new CanvasModel.ForwardLocation(addModelOutput.location);
+			Location mappedLocation = addModelOutput.location.forForwarding();
 			CanvasModel.ForwardedAddModelCommand newAddCommand = new CanvasModel.ForwardedAddModelCommand(mappedLocation, this.factory);
 
 			return newAddCommand;
@@ -372,7 +372,7 @@ public class CanvasModel extends Model {
 			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
 			AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
 			
-			Location mappedLocation = new CanvasModel.ForwardLocation(addModelOutput.location);
+			Location mappedLocation = addModelOutput.location.forForwarding();
 			CanvasModel.ForwardedAddModelCommand newAddCommand = new CanvasModel.ForwardedAddModelCommand(mappedLocation, this.factory);
 
 			return newAddCommand;
@@ -424,7 +424,7 @@ public class CanvasModel extends Model {
 			public Command<Model> createCommand(Object output) {
 				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
 				
-				Location mappedLocation = new CanvasModel.ForwardLocation(((RemoveModelCommand.Output)output).location);
+				Location mappedLocation = ((RemoveModelCommand.Output)output).location.forForwarding();
 				
 				return factory.createCommand(new RemoveModelCommand.Output(mappedLocation, restorableModel));
 			}
@@ -479,7 +479,7 @@ public class CanvasModel extends Model {
 			
 			@Override
 			public Object forForwarding() {
-				return new RemoveModelCommand.Output(new ForwardLocation(location), restorableModel);
+				return new RemoveModelCommand.Output(location.forForwarding(), restorableModel);
 			}
 		}
 		
@@ -517,7 +517,7 @@ public class CanvasModel extends Model {
 			public Command<Model> createCommand(Object output) {
 				AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
 				
-				Location mappedLocation = new CanvasModel.ForwardLocation(addModelOutput.location);
+				Location mappedLocation = addModelOutput.location.forForwarding();
 				
 				return factory.createCommand(new AddModelCommand.Output(mappedLocation));
 			}
@@ -560,7 +560,7 @@ public class CanvasModel extends Model {
 			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
 			RemoveModelCommand.Output removeModelOutput = (RemoveModelCommand.Output)output;
 			
-			Location mappedLocation = new CanvasModel.ForwardLocation(removeModelOutput.location);
+			Location mappedLocation = removeModelOutput.location.forForwarding();
 			CanvasModel.RemoveModelCommand newRemoveCommand = new CanvasModel.RemoveModelCommand(mappedLocation);
 
 			return newRemoveCommand;
@@ -908,6 +908,11 @@ public class CanvasModel extends Model {
 		public int hashCode() {
 			return id.hashCode();
 		}
+		
+		@Override
+		public Location forForwarding() {
+			return new CanvasModel.ForwardLocation(this);
+		}
 	}
 	
 	public static class ForwardLocation implements Location {
@@ -934,6 +939,11 @@ public class CanvasModel extends Model {
 		@Override
 		public int hashCode() {
 			return location.hashCode() * 15;
+		}
+		
+		@Override
+		public Location forForwarding() {
+			return new CanvasModel.ForwardLocation(this);
 		}
 	}
 
