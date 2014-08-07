@@ -13,6 +13,6 @@ public class ParentLocation implements Location {
 	
 	@Override
 	public Location forForwarding() {
-		return new CanvasModel.ForwardLocation(this);
+		return this;
 	}
 }

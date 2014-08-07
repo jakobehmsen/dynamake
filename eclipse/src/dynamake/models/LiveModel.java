@@ -164,7 +164,7 @@ public class LiveModel extends Model {
 		
 		@Override
 		public Location forForwarding() {
-			return new CanvasModel.ForwardLocation(this);
+			return this;
 		}
 	}
 	

@@ -123,7 +123,7 @@ public class RootModel extends Model {
 		
 		@Override
 		public Location forForwarding() {
-			return new CanvasModel.ForwardLocation(this);
+			return this;
 		}
 	}
 	
