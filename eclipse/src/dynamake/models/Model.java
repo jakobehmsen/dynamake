@@ -69,9 +69,13 @@ public abstract class Model implements Serializable, Observer {
 
 		@Override
 		public PendingUndoablePair forForwarding() {
-			if(pending.getCommand() instanceof ForwardableCommand && undoable.getOutput() instanceof ForwardableOutput) {
+			if(pending.getCommand() instanceof ForwardableCommand) {
 				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)pending.getCommand()).forForwarding(undoable.getOutput());
-				Object newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
+				Object newOutput;
+				if(undoable.getOutput() instanceof ForwardableOutput)
+					newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
+				else
+					newOutput = undoable.getOutput();	
 				// Should cause, forthFactory, and backFactory also be forwarded of undoable?
 				ReversibleCommand<Model> newUndoable = new ReversibleCommand<Model>(undoable.getCause(), newOutput, undoable.getForthFactory(), undoable.getBackFactory());
 				return new PendingUndoablePair(new PendingCommandState<Model>(commandForForwarding, pending.getForthFactory(), pending.getBackFactory()), newUndoable);
@@ -530,7 +534,7 @@ public abstract class Model implements Serializable, Observer {
 		setProperty(Model.PROPERTY_VIEW, view, propCtx, propDistance, collector);
 	}
 	
-	protected void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
+	public void sendChanged(Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		int nextChangeDistance = changeDistance + 1;
 		int nextPropDistance = propDistance + 1;
 		
@@ -566,6 +570,16 @@ public abstract class Model implements Serializable, Observer {
 		for(Observer observer: observers) {
 			if(c.isInstance(observer))
 				return (T)observer;
+		}
+		
+		return null;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends Observer> T getObserveeOfType(Class<T> c) {
+		for(Observer observee: observees) {
+			if(c.isInstance(observee))
+				return (T)observee;
 		}
 		
 		return null;

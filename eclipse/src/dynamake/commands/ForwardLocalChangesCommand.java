@@ -1,5 +1,8 @@
 package dynamake.commands;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.LocalChangesForwarder;
@@ -10,6 +13,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.ParentLocation;
 import dynamake.models.PropogationContext;
+import dynamake.models.RootModel;
 import dynamake.transcription.Collector;
 
 public class ForwardLocalChangesCommand implements MappableCommand<Model> {
@@ -41,9 +45,55 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 //		if(source instanceof CanvasModel)
 //			forwardLocalChangesUpwards(historyChangeForwarder, (CanvasModel)source, new ModelRootLocation(), new ModelRootLocation());
 		
+		pushForward(source, historyChangeForwarder, 1, propCtx, 0, collector);
+		
 		System.out.println("Forward local changes from " + source + " to " + target);
 		
 		return null;
+	}
+	
+	private void pushForward(Model source, LocalChangesForwarder forwarder, int distanceToTarget, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		LocalChangesForwarder sourceForwarder = source.getObserveeOfType(LocalChangesForwarder.class);
+		
+		if(sourceForwarder != null) {
+			// Source is itself being forwarded changes
+			// Push forward these changes before the change of this source
+			pushForward(sourceForwarder.getSource(), forwarder, distanceToTarget + 1, propCtx, propDistance, collector);
+		}
+		
+		// Push forward changes from source to target immediately through forwarder
+		pushForward(source, forwarder, distanceToTarget, new ModelRootLocation(), propCtx, propDistance, collector);
+	}
+	
+	private void pushForward(Model source, LocalChangesForwarder forwarder, int distanceToTarget, Location offset, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		ArrayList<Model.PendingUndoablePair> toForward = new ArrayList<Model.PendingUndoablePair>();
+
+		// Is there some creation for source? Then this creation should also be (initially) forwarded
+		// Creation must be a list of PendingUndoablePair.
+		List<Model.PendingUndoablePair> creation = (List<Model.PendingUndoablePair>)source.getProperty("Creation");
+		if(creation != null) {
+			toForward.addAll(creation);
+		}
+		
+		for(Model.PendingUndoablePair pup: source.getLocalChangesAsPairs()) {
+			for(int i = 1; i < distanceToTarget; i++)
+				pup = pup.forForwarding();
+			pup = pup.offset(offset);
+			toForward.add(pup);
+		}
+		
+		forwarder.changed(source, new Model.HistoryAppendLogChange(toForward), propCtx, propDistance, 0, collector);
+		
+		if(source instanceof CanvasModel) {
+			CanvasModel sourceCanvas = (CanvasModel)source;
+			
+			for(Location locationInSource: sourceCanvas.getLocations()) {
+				Model modelInSource = sourceCanvas.getModelByLocation(locationInSource);
+				Location newOffset = new CompositeLocation(offset, locationInSource);
+				
+				pushForward(modelInSource, forwarder, distanceToTarget, newOffset, propCtx, propDistance, collector);
+			}
+		}
 	}
 	
 //	private void forwardLocalChangesUpwards(LocalChangesForwarder historyChangeForwarder, CanvasModel sourceCanvas, Location sourceLocation, Location offsetFromTarget) {

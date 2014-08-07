@@ -5,6 +5,7 @@ import java.util.List;
 
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
+import dynamake.models.LocalChangesForwarder;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -46,6 +47,19 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 		return new PlayThenReverseCommand(reversedForwardedChanges);
 	}
 	
+//	private void playThenReverseChanges2(Model source, Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		LocalChangesForwarder forwader = target.getObserverOfLike(new LocalChangesForwarder(source, target));
+//		forwader.changed(source, new Model.HistoryAppendLogChange(source.getLocalChangesAsPairs()), propCtx, propDistance, 0, collector);
+//
+//		if(source instanceof CanvasModel) {
+//			CanvasModel sourceCanvas = (CanvasModel)source;
+//			
+//			for(Location modelLocation: sourceCanvas.getLocations()) {
+//				Model sourceModel = sourceCanvas.getModelByLocation(modelLocation);
+//			}
+//		}
+//	}
+	
 	private List<CommandState<Model>> playThenReverseChanges(Model source, Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		ArrayList<CommandState<Model>> mappedChangesToPush = new ArrayList<CommandState<Model>>();
 		for(Model.PendingUndoablePair changeToPush: source.getLocalChangesAsPairs()) {
@@ -54,7 +68,8 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 				forwardedChangeToPush = forwardedChangeToPush.forForwarding();
 			mappedChangesToPush.add(forwardedChangeToPush.pending);
 		}
-		
+
+		// Don't use playThenReverse; instead propogate an HistoryAppendLogChange
 		List<CommandState<Model>> reversedForwardedChanges = target.playThenReverse(mappedChangesToPush, propCtx, propDistance, collector);
 		
 		if(source instanceof CanvasModel) {
@@ -73,7 +88,6 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 					modelLocation = new CanvasModel.ForwardLocation(modelLocation);
 				Model embeddedTarget = targetCanvas.getModelByLocation(modelLocation);
 				
-				// Don't use playThenReverse; instead propogate an HistoryAppendLogChange
 				List<CommandState<Model>> reversedEmbeddedForwardedChanges = playThenReverseChanges(embeddedSource, embeddedTarget, propCtx, propDistance, collector);
 				reversedForwardedChanges.addAll(reversedEmbeddedForwardedChanges);
 			}

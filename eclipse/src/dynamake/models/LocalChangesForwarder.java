@@ -51,6 +51,14 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 
 	}
 	
+	public Model getSource() {
+		return source;
+	}
+	
+	public Model getTarget() {
+		return target;
+	}
+	
 	public boolean forwardsTo(Model model) {
 		return target == model;
 	}

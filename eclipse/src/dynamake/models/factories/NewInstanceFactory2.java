@@ -164,7 +164,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 		
 		final ArrayList<CommandState<Model>> newCreationLastParts = new ArrayList<CommandState<Model>>();
 		
-		newCreationLastParts.add(new PendingCommandState<Model>(new PlayLocalChangesFromSourceCommand(locationOfSourceFromTarget), new PlayThenReverseCommand.AfterPlay()));
+//		newCreationLastParts.add(new PendingCommandState<Model>(new PlayLocalChangesFromSourceCommand(locationOfSourceFromTarget), new PlayThenReverseCommand.AfterPlay()));
 		
 		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
 		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
@@ -211,7 +211,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 				(CommandFactory<Model>)null
 			));
 			
-			collector.execute(new SimpleExPendingCommandFactory2<Model>(target, creationForwardingUpwards));
+			collector.execute(new SimpleExPendingCommandFactory2<Model>(source, creationForwardingUpwards));
 			
 			creation.addAll(creationForwardingUpwards);
 		}

@@ -75,8 +75,10 @@ public class RelativeCommand<T> implements MappableCommand<T>, ForwardableComman
 	
 	@Override
 	public Command<T> forForwarding(Object output) {
-		if(command instanceof ForwardableCommand)
-			return new RelativeCommand<T>(tail, ((ForwardableCommand<T>)command).forForwarding(output));
+		if(command instanceof ForwardableCommand) {
+			RelativeCommand.Output relativeCommandOutput = (RelativeCommand.Output)output;
+			return new RelativeCommand<T>(tail, ((ForwardableCommand<T>)command).forForwarding(relativeCommandOutput.commandOutput));
+		}
 
 		return this;
 	}

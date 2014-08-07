@@ -35,12 +35,12 @@ public class ForwardLocalChangesUpwards2Command implements Command<Model> {
 	
 	private void forwardLocalChangesUpwards(CanvasModel targetCanvas, Location sourceLocation, Location offsetFromTarget) {
 		for(Location modelLocationInSource: targetCanvas.getLocations()) {
-			Location modelLocationInTarget = new CanvasModel.ForwardLocation(modelLocationInSource);
+//			Location modelLocationInTarget = new CanvasModel.ForwardLocation(modelLocationInSource);
 			// Perhaps, the creation of this upwards forwarding should be part for play local changes from source command, for each add command?
 			// - and then a corresponding cleanup for each remove command?
 			Model modelInTarget = targetCanvas.getModelByLocation(modelLocationInSource);
 			Location modelTargetLocation = new CompositeLocation(sourceLocation, new ParentLocation());
-			Location modelOffsetFromTarget = new CompositeLocation(offsetFromTarget, modelLocationInTarget);
+			Location modelOffsetFromTarget = new CompositeLocation(offsetFromTarget, modelLocationInSource);
 			modelInTarget.addObserver(new LocalChangesUpwarder(modelTargetLocation, modelOffsetFromTarget));
 			
 			if(modelInTarget instanceof CanvasModel)
