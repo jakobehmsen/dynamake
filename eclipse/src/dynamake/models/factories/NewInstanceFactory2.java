@@ -26,6 +26,7 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.NullHistoryHandler;
+import dynamake.transcription.SimpleExPendingCommandFactory2;
 import dynamake.transcription.TranscribeOnlyAndPostNotPendingCommandFactory;
 
 public class NewInstanceFactory2 implements ModelFactory {
@@ -115,7 +116,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 				for(int i = pendingUndoablePairs.size() - 1; i >= 0; i--)
 					cleanup.add(pendingUndoablePairs.get(i).undoable);
 
-				collector.execute(new ExPendingCommandFactory2<Model>() {
+				collector.execute(new SimpleExPendingCommandFactory2<Model>() {
 					@Override
 					public Model getReference() {
 						return target;
@@ -127,16 +128,6 @@ public class NewInstanceFactory2 implements ModelFactory {
 							new SetPropertyCommand(RestorableModel.PROPERTY_CLEANUP, cleanup), 
 							new SetPropertyCommand.AfterSetProperty()
 						));
-					}
-
-					@Override
-					public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-
-					}
-
-					@Override
-					public HistoryHandler<Model> getHistoryHandler() {
-						return new NullHistoryHandler<Model>();
 					}
 				});
 			}
@@ -192,7 +183,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 		@SuppressWarnings("unchecked")
 		final ArrayList<CommandState<Model>> firstCreation = (ArrayList<CommandState<Model>>)newCreation.clone();
 		
-		collector.execute(new ExPendingCommandFactory2<Model>() {
+		collector.execute(new SimpleExPendingCommandFactory2<Model>() {
 			@Override
 			public Model getReference() {
 				return target;
@@ -201,16 +192,6 @@ public class NewInstanceFactory2 implements ModelFactory {
 			@Override
 			public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
 				pendingCommands.addAll(firstCreation);
-			}
-			
-			@Override
-			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-
-			}
-
-			@Override
-			public HistoryHandler<Model> getHistoryHandler() {
-				return new NullHistoryHandler<Model>();
 			}
 		});
 		
@@ -223,7 +204,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
 		newCreationLastParts.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
 		
-		collector.execute(new ExPendingCommandFactory2<Model>() {
+		collector.execute(new SimpleExPendingCommandFactory2<Model>() {
 			@Override
 			public Model getReference() {
 				return target;
@@ -233,74 +214,12 @@ public class NewInstanceFactory2 implements ModelFactory {
 			public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
 				pendingCommands.addAll(newCreationLastParts);
 			}
-			
-			@Override
-			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public HistoryHandler<Model> getHistoryHandler() {
-				return new NullHistoryHandler<Model>();
-			}
 		});
 		
 		newCreation.addAll(newCreationLastParts);
 
 //		// TODO: Consider: Inherit cleanup?
 //		List<CommandState<Model>> cleanup = target.playThenReverse(creationForwarding, propCtx, propDistance, collector);
-//		target.setProperty(RestorableModel.PROPERTY_CLEANUP, cleanup, propCtx, propDistance, collector);
-		
-//		collector.execute(new ExPendingCommandFactory2<Model>() {
-//			@Override
-//			public Model getReference() {
-//				return target;
-//			}
-//			
-//			@Override
-//			public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
-//				pendingCommands.addAll(creationForwarding);
-//			}
-//			
-//			@Override
-//			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//				// pendingUndoablePairs are supplied in executed order; thus, the undoable, in reverse order, should fit the purpose of cleanup just right
-//				final ArrayList<CommandState<Model>> cleanup = new ArrayList<CommandState<Model>>();
-//				for(int i = pendingUndoablePairs.size() - 1; i >= 0; i--)
-//					cleanup.add(pendingUndoablePairs.get(i).undoable);
-//
-//				collector.execute(new ExPendingCommandFactory2<Model>() {
-//					@Override
-//					public Model getReference() {
-//						return target;
-//					}
-//
-//					@Override
-//					public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
-//						pendingCommands.add(new PendingCommandState<Model>(
-//							new SetPropertyCommand(RestorableModel.PROPERTY_CLEANUP, cleanup), 
-//							new SetPropertyCommand.AfterSetProperty()
-//						));
-//					}
-//
-//					@Override
-//					public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//
-//					}
-//
-//					@Override
-//					public HistoryHandler<Model> getHistoryHandler() {
-//						return new NullHistoryHandler<Model>();
-//					}
-//				});
-//			}
-//
-//			@Override
-//			public HistoryHandler<Model> getHistoryHandler() {
-//				return new NullHistoryHandler<Model>();
-//			}
-//		});
 		
 		newCreation.addAll(creationForwarding);
 		
@@ -356,7 +275,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 				(CommandFactory<Model>)null
 			));
 			
-			collector.execute(new ExPendingCommandFactory2<Model>() {
+			collector.execute(new SimpleExPendingCommandFactory2<Model>() {
 				@Override
 				public Model getReference() {
 					return target;
@@ -366,16 +285,6 @@ public class NewInstanceFactory2 implements ModelFactory {
 				public void createPendingCommands(List<CommandState<Model>> pendingCommands) {
 					pendingCommands.addAll(creationForwarding);
 				}
-				
-				@Override
-				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-					// Add some conditional cleaning up of ForwardLocalChangesUpwards2Command?
-				}
-
-				@Override
-				public HistoryHandler<Model> getHistoryHandler() {
-					return new NullHistoryHandler<Model>();
-				}
 			});
 			
 			creation.addAll(creationForwardingUpwards);
@@ -383,7 +292,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 		
 		final List<CommandState<Model>> creationF = creation;
 		
-		collector.execute(new ExPendingCommandFactory2<Model>() {
+		collector.execute(new SimpleExPendingCommandFactory2<Model>() {
 			@Override
 			public Model getReference() {
 				return source;
@@ -395,16 +304,6 @@ public class NewInstanceFactory2 implements ModelFactory {
 					new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, creationF), 
 					new SetPropertyCommand.AfterSetProperty()
 				));
-			}
-
-			@Override
-			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-
-			}
-
-			@Override
-			public HistoryHandler<Model> getHistoryHandler() {
-				return new NullHistoryHandler<Model>();
 			}
 		});
 	}
