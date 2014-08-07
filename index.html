@@ -13,7 +13,7 @@
 				margin-right: auto;
 			}
 			
-			a		  {font-style:oblique; font-weight:bolder;}
+			a		  {font-weight:bolder;}
 			a:link    {color:#0F6E43;}
 			a:visited {color:#0F6E43;}
 			a:hover   {color:#1A6E37;}
@@ -100,7 +100,7 @@
 					var contents = $(this).clone();
 					
 					var link = contents
-						.wrap("<span><a href='dummy'></a></span>")
+						.wrap("<span><a href='dummy' style='font-style:oblique;'></a></span>")
 						.parent()
 						.css("text-decoration", "none");
 					
@@ -118,7 +118,7 @@
 					var term = $(this).attr("data-mention-expand");
 					var contents = $(this).clone();
 					
-					var link = contents.wrap("<span><a href='dummy'></a></span>").parent();
+					var link = contents.wrap("<span><a href='dummy' style='font-style:oblique;'></a></span>").parent();
 					
 					var holder = link.parent();
 					expand(holder, link, definitions, term, false);
@@ -173,8 +173,22 @@
 			This dichotomy is concerned with separating programs from processes, where processes are seen as running programs. This separation has implicated <span data-mention="The program/process dichotomy issues">a couple of less-than-good effects.</span>
 		</div>
 		<div data-define="The program/process dichotomy issues">
-			One of the bigger issues with this dichotomy is that it has been propogated through all layers of software and hardware. Especially the popular OS's have taken a big hit on this with heavy weight, and non-scalable, processes where the end-users have become hostages of this phenomena.<div style="clear=both"></div>
-			Another issue is that separating programs from their processes has provoked databases to become necessary evils.
+			<ul>
+				<li>
+					One of the bigger issues with this dichotomy is that it has been propogated through many layers of software and hardware. Especially the popular OS's have taken a big hit on this with heavy weight, and non-scalable, processes where the end-users have become hostages of this phenomena.
+				</li>
+				<li>
+					Another issue is that separating programs from their processes has provoked databases to become necessary evils.
+				</li>
+				<li>
+					Hardware has been affected by having the concept of memory and the concept of processor incarnated with only little overlap; memory does little processing and processers have little memory. An overlap is essential among these concepts for doing computation and it could be interesting to see computers only consisting of incarnations of a concept merged more or less equally of these two concepts.
+				</li>
+			</ul>
+		</div>
+		<div data-define="Required configuration">
+			A <a href="http://java.com/en/download/index.jsp">Java Runtime Environment</a> is required to start playing with <span data-mention="Dynamake">Dynamake.</span>
+			Alas, currently, there is no ready-built release available, but such a release is planned to be made and published on <a href="https://github.com/jakobehmsen/dynamake/releases">GitHub</a> autumn 2014. 
+			However, <a href="https://www.eclipse.org/downloads/">Eclipse</a> can be used to built such a release relatively easy getting the sources on <a href="https://github.com/jakobehmsen/dynamake">GitHub</a> using <a href="http://git-scm.com/">Git</a>.
 		</div>
 	
 		<h1 align="center">
@@ -209,7 +223,7 @@
 		<div class="box">
 			<div class="title">What is the current state of Dynamake?</div>
 			<div class="content">
-			Dynamake is a rather new project, started April 2014, but some of the envisioned attributes are starting to emerge.
+			Dynamake is a rather new project, started April 2014, but some of the envisioned attributes are starting to emerge. There is <span data-mention="Required configuration">little configuration required</span> to start trying out <span data-mention="Dynamake">Dynamake.</span>.
 			</div>
 		</div>
 
