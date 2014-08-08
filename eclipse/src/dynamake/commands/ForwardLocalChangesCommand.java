@@ -99,13 +99,16 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 		if(sourceCreation != null) {
 			for(Model.PendingUndoablePair sourceCreationPart: sourceCreation) {
 				PendingCommandState<Model> pending = (PendingCommandState<Model>)sourceCreationPart.pending;
-				if(!(pending.getCommand() instanceof ForwardLocalChangesCommand) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
+				if(!(offset instanceof ModelRootLocation) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
+					toForward.add(sourceCreationPart); // ForwardLocalChangesCommand should keep forwarding from the same source?
+				else if(!(pending.getCommand() instanceof ForwardLocalChangesCommand) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
 					toForward.add(sourceCreationPart);
 //				if(!(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesCommand) && !(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
 //					toForward.add(sourceCreationPart);
 			}
 		}
-		
+
+		// Why aren't the preceeding commands of toForward forwarded
 		Location forwardedOffset = offset;
 		for(Model.PendingUndoablePair pup: source.getLocalChangesAsPairs()) {
 			for(int i = 1; i < distanceToTarget; i++) {
