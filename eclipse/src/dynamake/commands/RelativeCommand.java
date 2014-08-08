@@ -10,7 +10,7 @@ import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
 public class RelativeCommand<T> implements MappableCommand<T>, ForwardableCommand<T> {
-	public static class Factory<T> implements CommandFactory<T> {
+	public static class Factory<T> implements ForwardableCommandFactory<T> {
 		/**
 		 * 
 		 */
@@ -27,6 +27,13 @@ public class RelativeCommand<T> implements MappableCommand<T>, ForwardableComman
 			RelativeCommand.Output relCmdOutput = (RelativeCommand.Output)output;
 			Command<T> command = commandFactory.createCommand(relCmdOutput.commandOutput);
 			return new RelativeCommand<T>(relCmdOutput.tail, command);
+		}
+		
+		@Override
+		public CommandFactory<T> forForwarding(Object output) {
+			if(commandFactory instanceof ForwardableCommandFactory)
+				return new RelativeCommand.Factory<T>(((ForwardableCommandFactory<T>)commandFactory).forForwarding(output));
+			return this;
 		}
 	}
 	
