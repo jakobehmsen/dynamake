@@ -85,7 +85,7 @@ public class ReversibleCommand<T> implements CommandState<T> {
 		CommandFactory<T> newForthFactory = new RelativeCommand.Factory<T>(forthFactory);
 		CommandFactory<T> newBackFactory = new RelativeCommand.Factory<T>(backFactory);
 		
-		return new ReversibleCommand<T>(newCause, newOutput, newBackFactory, newForthFactory);
+		return new ReversibleCommand<T>(newCause, newOutput, newForthFactory, newBackFactory);
 	}
 	
 	@Override
