@@ -21,7 +21,7 @@ public class ReplayCommand implements Command<Model> {
 		Model model = (Model)location.getChild(prevalentSystem);
 //		System.out.println("Performing replay on " + model + "...");
 		
-		model.replay2(count, propCtx, 0, collector);
+		model.replay(count, propCtx, 0, collector);
 		
 //		System.out.println("Performed replay on " + model);
 		

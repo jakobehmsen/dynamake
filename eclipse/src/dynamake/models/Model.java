@@ -274,7 +274,7 @@ public abstract class Model implements Serializable, Observer {
 		newLog.clear();
 	}
 	
-	public void unplay2(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void unplay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(int i = 0; i < count; i++) {
 			CommandState<Model> toUndo = undoStack.pop();
 			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
@@ -282,7 +282,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}	
 	
-	public void replay2(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void replay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(int i = 0; i < count; i++) {
 			CommandState<Model> toRedo = redoStack.pop();
 			CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
