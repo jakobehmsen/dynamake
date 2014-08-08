@@ -5,13 +5,9 @@ import java.util.List;
 
 import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateSequence;
 import dynamake.commands.ForwardLocalChangesCommand;
 import dynamake.commands.ForwardLocalChangesUpwards2Command;
-import dynamake.commands.ForwardLocalChangesUpwardsCommand;
-import dynamake.commands.PlayLocalChangesFromSourceCommand;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.PlayThenReverseCommand;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.UnforwardLocalChangesCommand;
 import dynamake.models.CompositeLocation;
@@ -23,11 +19,7 @@ import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
-import dynamake.transcription.ExPendingCommandFactory2;
-import dynamake.transcription.HistoryHandler;
-import dynamake.transcription.NullHistoryHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory2;
-import dynamake.transcription.TranscribeOnlyAndPostNotPendingCommandFactory;
 
 public class NewInstanceFactory2 implements ModelFactory {
 	/**

@@ -5,7 +5,6 @@ import java.util.List;
 
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
-import dynamake.models.LocalChangesForwarder;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;

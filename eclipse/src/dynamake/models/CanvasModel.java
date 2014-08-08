@@ -36,8 +36,6 @@ import dynamake.models.factories.ModelCreation;
 import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
-import dynamake.transcription.ExPendingCommandFactory2;
-import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Trigger;

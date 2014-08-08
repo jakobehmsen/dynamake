@@ -39,7 +39,6 @@ import dynamake.menubuilders.ColorMenuBuilder;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.CloneFactory;
 import dynamake.models.factories.ModelFactory;
-import dynamake.models.factories.NewInstanceFactory;
 import dynamake.models.factories.NewInstanceFactory2;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;

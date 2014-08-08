@@ -2,7 +2,6 @@ package dynamake.commands;
 
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
-import dynamake.models.LocalChangesForwarder;
 import dynamake.models.LocalChangesUpwarder;
 import dynamake.models.Location;
 import dynamake.models.Model;

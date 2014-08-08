@@ -7,15 +7,12 @@ import dynamake.delegates.Func1;
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.LocalChangesForwarder;
-import dynamake.models.LocalChangesUpwarder;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.Observer;
-import dynamake.models.ParentLocation;
 import dynamake.models.PropogationContext;
-import dynamake.models.RootModel;
 import dynamake.models.LocalChangesForwarder.PushLocalChanges;
 import dynamake.transcription.Collector;
 

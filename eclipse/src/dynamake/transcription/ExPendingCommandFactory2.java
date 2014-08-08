@@ -1,12 +1,9 @@
 package dynamake.transcription;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandFactory;
-import dynamake.commands.PendingCommandState;
-import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.PendingUndoablePair;
 

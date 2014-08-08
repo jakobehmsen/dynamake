@@ -305,10 +305,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		public final int type;
 		public final Object operand;
 		
-		public Instruction(int type) {
-			this(type, null);
-		}
-		
 		public Instruction(int type, Object operand) {
 			this.type = type;
 			this.operand = operand;

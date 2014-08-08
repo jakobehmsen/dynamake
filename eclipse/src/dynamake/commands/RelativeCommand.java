@@ -2,7 +2,6 @@ package dynamake.commands;
 
 import java.io.Serializable;
 
-import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
