@@ -60,6 +60,8 @@ public class CloneFactory implements ModelFactory {
 					public void afterPropogationFinished(List<PendingUndoablePair> changesToInheritPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 						@SuppressWarnings("unchecked")
 						List<CommandState<Model>> allCreation = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel.PROPERTY_CREATION);
+						if(allCreation == null)
+							allCreation = new ArrayList<CommandState<Model>>();
 						allCreation.addAll(changesToInheritPendingUndoablePairs);
 						
 						collector.execute(new SimpleExPendingCommandFactory2<Model>(createdModel, new PendingCommandState<Model>(

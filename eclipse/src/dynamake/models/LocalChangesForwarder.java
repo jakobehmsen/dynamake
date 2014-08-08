@@ -2,8 +2,10 @@ package dynamake.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.CreateAndExecuteFromPropertyCommand;
 import dynamake.commands.ForwardLocalChangesCommand;
@@ -11,11 +13,16 @@ import dynamake.commands.ForwardLocalChangesUpwards2Command;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.PlayThenReverseCommand;
 import dynamake.commands.ReplayCommand;
+import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.SetPropertyToOutputCommand;
 import dynamake.commands.UnplayCommand;
+import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
+import dynamake.transcription.HistoryHandler;
+import dynamake.transcription.SimpleExPendingCommandFactory2;
 import dynamake.transcription.TranscribeOnlyAndPostNotPendingCommandFactory;
+import dynamake.transcription.Trigger;
 
 /**
  * Instances each are supposed to forward change made in an source to an target.
@@ -98,54 +105,132 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			for(CommandState<Model> newChange: pushLocalChanges.localChangesToRevert)
 				forwardedChangesToRevert.add(newChange.forForwarding());
 			
+			
+			
+
 			// On a meta level (i.e. build commands which are not going to be part of the inheretee's local changes)
-			collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
+			collector.execute(new Trigger<Model>() {
 				@Override
-				public Model getReference() {
-					return target;
-				}
-				
-				@Override
-				public void createPendingCommands(List<CommandState<Model>> commandStates) {
-					int localChangeCount = target.getLocalChangeCount();
+				public void run(Collector<Model> collector) {
+					final int localChangeCount = target.getLocalChangeCount();
 					
+					// Assumed that unplaying doesn't provoke side effects
 					// Play the local changes backwards
-					commandStates.add(new PendingCommandState<Model>(
+					collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
 						new UnplayCommand(localChangeCount),
 						new ReplayCommand(localChangeCount)
-					));
-					
+					)));
+
 					// Play the inherited local changes backwards without affecting the local changes
-					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyToOutputCommand("backwardOutput", new PlayThenReverseCommand(forwardedChangesToRevert)),
-						new PlayThenReverseCommand.AfterPlay()
-					));	
+					collector.execute(new SimpleExPendingCommandFactory2<Model>(target, forwardedChangesToRevert) {
+						@Override
+						public void afterPropogationFinished(final List<PendingUndoablePair> forwardedChangesToRevertPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+							// Do the forwarded change without affecting the local changes
+							// The forwarded changes must be, each, of type PendingCommandState
+							final ArrayList<CommandState<Model>> forwardedNewChangesAsPendings = new ArrayList<CommandState<Model>>();
+							for(CommandState<Model> forwardedNewChange: forwardedNewChanges) {
+//								// UGLY UGLY HACK(s)!!!
+//								if(forwardedNewChange instanceof Model.PendingUndoablePair)
+//									forwardedNewChangesAsPendings.add(((Model.PendingUndoablePair)forwardedNewChange).pending);
+//								else {// if(forwardedNewChange instanceof RevertingCommandStateSequence) {
+//									// This case is provoked in undo scenarios
+//									// What to do here?
+////									RevertingCommandStateSequence<Model> forwardedNewChangeAsRevertingCommandStateSequence = 
+////										(RevertingCommandStateSequence<Model>)forwardedNewChange;
+////									new PendingCommandState<Model>(forwardedNewChangeAsRevertingCommandStateSequence, new Command.Null<Model>());
+////									forwardedNewChangesAsPendings.add(((Model.PendingUndoablePair)forwardedNewChange).pending);
+//									forwardedNewChangesAsPendings.add(forwardedNewChange);
+//								}
+								
+								forwardedNewChange.appendPendings(forwardedNewChangesAsPendings);
+								
+//								forwardedNewChangesAsPendings.add(forwardedNewChange);
+							}
+							
+							collector.execute(new SimpleExPendingCommandFactory2<Model>(target, forwardedNewChangesAsPendings) {
+								@Override
+								public void afterPropogationFinished(List<PendingUndoablePair> forwardedNewChangesPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+									// Play the inherited local changes forwards without affecting the local changes
+									ArrayList<CommandState<Model>> backwardOutput = new ArrayList<CommandState<Model>>();
+									// They may not have been any forwarded changes to revert
+									if(forwardedChangesToRevertPendingUndoablePairs != null) {
+										for(PendingUndoablePair pup: forwardedChangesToRevertPendingUndoablePairs)
+											backwardOutput.add(pup.pending);
+									}
 
-					// Do the forwarded change without affecting the local changes
-					commandStates.add(new PendingCommandState<Model>(
-						new PlayThenReverseCommand(forwardedNewChanges),
-						new PlayThenReverseCommand.AfterPlay()
-					));
-
-					// Play the inherited local changes forwards without affecting the local changes
-					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyToOutputCommand("forwardOutput", new CreateAndExecuteFromPropertyCommand("backwardOutput", new PlayThenReverseCommand.AfterPlay())),
-						new CreateAndExecuteFromPropertyCommand("forwardOutput", new PlayThenReverseCommand.AfterPlay())
-					));	
-
-					// Cleanup in properties
-					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyCommand("forwardOutput", null),
-						new SetPropertyCommand.AfterSetProperty()
-					));	
-					
-					// Play the local changes forward
-					commandStates.add(new PendingCommandState<Model>(
-						new ReplayCommand(localChangeCount),
-						new UnplayCommand(localChangeCount)
-					));
+									collector.execute(new SimpleExPendingCommandFactory2<Model>(target, backwardOutput) {
+										@Override
+										public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+											// Play the local changes forward
+											collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
+												new ReplayCommand(localChangeCount),
+												new UnplayCommand(localChangeCount)
+											)));
+										}
+									});
+								}
+							});
+						}
+					});
 				}
 			});
+			
+			
+			
+			
+			
+//			// On a meta level (i.e. build commands which are not going to be part of the inheretee's local changes)
+//			collector.execute(new TranscribeOnlyAndPostNotPendingCommandFactory<Model>() {
+//				@Override
+//				public Model getReference() {
+//					return target;
+//				}
+//				
+//				@Override
+//				public void createPendingCommands(List<CommandState<Model>> commandStates) {
+//					// TODO:
+//					// Don't use playThenReverse:
+//					// - Instead, use collector with SimpleExPendingCommandState and ChainCommand to sync command sequence and retrieve undoables
+//					
+//					int localChangeCount = target.getLocalChangeCount();
+//					
+//					// Play the local changes backwards
+//					commandStates.add(new PendingCommandState<Model>(
+//						new UnplayCommand(localChangeCount),
+//						new ReplayCommand(localChangeCount)
+//					));
+//					
+//					// Play the inherited local changes backwards without affecting the local changes
+//					commandStates.add(new PendingCommandState<Model>(
+//						new SetPropertyToOutputCommand("backwardOutput", new PlayThenReverseCommand(forwardedChangesToRevert)),
+//						new PlayThenReverseCommand.AfterPlay()
+//					));	
+//
+//					// Do the forwarded change without affecting the local changes
+//					commandStates.add(new PendingCommandState<Model>(
+//						new PlayThenReverseCommand(forwardedNewChanges),
+//						new PlayThenReverseCommand.AfterPlay()
+//					));
+//
+//					// Play the inherited local changes forwards without affecting the local changes
+//					commandStates.add(new PendingCommandState<Model>(
+//						new SetPropertyToOutputCommand("forwardOutput", new CreateAndExecuteFromPropertyCommand("backwardOutput", new PlayThenReverseCommand.AfterPlay())),
+//						new CreateAndExecuteFromPropertyCommand("forwardOutput", new PlayThenReverseCommand.AfterPlay())
+//					));	
+//
+//					// Cleanup in properties
+//					commandStates.add(new PendingCommandState<Model>(
+//						new SetPropertyCommand("forwardOutput", null),
+//						new SetPropertyCommand.AfterSetProperty()
+//					));	
+//					
+//					// Play the local changes forward
+//					commandStates.add(new PendingCommandState<Model>(
+//						new ReplayCommand(localChangeCount),
+//						new UnplayCommand(localChangeCount)
+//					));
+//				}
+//			});
 			
 			// Accumulate local changes to revert
 			ArrayList<CommandState<Model>> newLocalChangesToRevert = new ArrayList<CommandState<Model>>();
@@ -159,8 +244,11 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			if(sourceCreation != null) {
 				for(int i = sourceCreation.size() - 1; i >= 0; i--) {
 					Model.PendingUndoablePair sourceCreationPart = sourceCreation.get(i);
-					if(!(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesCommand) && !(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
+					PendingCommandState<Model> pending = (PendingCommandState<Model>)sourceCreationPart.pending;
+					if(!(pending.getCommand() instanceof ForwardLocalChangesCommand) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
 						newLocalChangesToRevert.add(sourceCreationPart.undoable);
+//					if(!(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesCommand) && !(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
+//						newLocalChangesToRevert.add(sourceCreationPart.undoable);
 				}
 			}
 			

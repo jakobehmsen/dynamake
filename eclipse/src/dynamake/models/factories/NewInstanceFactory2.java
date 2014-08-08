@@ -137,7 +137,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 			changeUpwarderIsSetup = sourceCreation.contains(new ForwardLocalChangesUpwards2Command());
 			
 			for(Model.PendingUndoablePair creationPart: sourceCreation) {
-				PendingCommandState<Model> pcsCreationPart = creationPart.pending;
+				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart.pending;
 
 				if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesUpwards2Command) {
 					changeUpwarderIsSetup = true;

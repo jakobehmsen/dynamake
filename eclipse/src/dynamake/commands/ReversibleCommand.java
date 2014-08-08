@@ -1,5 +1,7 @@
 package dynamake.commands;
 
+import java.util.List;
+
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -99,5 +101,15 @@ public class ReversibleCommand<T> implements CommandState<T> {
 		}
 		
 		return new ReversibleCommand<T>(cause, newOutput, newForthFactory, backFactory);
+	}
+	
+	@Override
+	public void appendPendings(List<CommandState<T>> pendingCommands) {
+		
+	}
+
+	@Override
+	public CommandState<T> forForwarding(Object output) {
+		return null;
 	}
 }

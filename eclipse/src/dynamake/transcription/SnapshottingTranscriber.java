@@ -475,7 +475,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								
 								ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
 								for(int i = 0; i < pendingCommands.size(); i++) {
-									PendingCommandState<Model> pending = (PendingCommandState<Model>)pendingCommands.get(i);
+//									PendingCommandState<Model> pending = (PendingCommandState<Model>)pendingCommands.get(i);
+									CommandState<Model> pending = (CommandState<Model>)pendingCommands.get(i);
 									ReversibleCommand<Model> undoable = (ReversibleCommand<Model>)undoables.get(i);
 									PendingUndoablePair pendingUndoablePair = new PendingUndoablePair(pending, undoable);
 									pendingUndoablePairs.add(pendingUndoablePair);

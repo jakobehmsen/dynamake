@@ -80,4 +80,15 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 			newCommandStates[i] = commandStates[i].forForwarding();
 		return new RevertingCommandStateSequence<T>(newCommandStates);
 	}
+	
+	@Override
+	public void appendPendings(List<CommandState<T>> pendingCommands) {
+		for(int i = 0; i < commandStates.length; i++)
+			commandStates[i].appendPendings(pendingCommands);
+	}
+
+	@Override
+	public CommandState<T> forForwarding(Object output) {
+		return null;
+	}
 }

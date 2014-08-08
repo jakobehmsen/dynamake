@@ -59,29 +59,41 @@ public abstract class Model implements Serializable, Observer {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		public final PendingCommandState<Model> pending;
+//		public final PendingCommandState<Model> pending;
+		public final CommandState<Model> pending;
 		public final ReversibleCommand<Model> undoable;
 		
-		public PendingUndoablePair(PendingCommandState<Model> pending, ReversibleCommand<Model> undoable) {
+		public PendingUndoablePair(CommandState<Model> pending, ReversibleCommand<Model> undoable) {
+			if(pending == null)
+				new String();
 			this.pending = pending;
 			this.undoable = undoable;
 		}
 
 		@Override
 		public PendingUndoablePair forForwarding() {
-			if(pending.getCommand() instanceof ForwardableCommand) {
-				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)pending.getCommand()).forForwarding(undoable.getOutput());
-				Object newOutput;
-				if(undoable.getOutput() instanceof ForwardableOutput)
-					newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
-				else
-					newOutput = undoable.getOutput();	
-				// Should cause, forthFactory, and backFactory also be forwarded of undoable?
-				ReversibleCommand<Model> newUndoable = new ReversibleCommand<Model>(undoable.getCause(), newOutput, undoable.getForthFactory(), undoable.getBackFactory());
-				return new PendingUndoablePair(new PendingCommandState<Model>(commandForForwarding, pending.getForthFactory(), pending.getBackFactory()), newUndoable);
-			}
+//			if(pending.getCommand() instanceof ForwardableCommand) {
+//				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)pending.getCommand()).forForwarding(undoable.getOutput());
+//				Object newOutput;
+//				if(undoable.getOutput() instanceof ForwardableOutput)
+//					newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
+//				else
+//					newOutput = undoable.getOutput();	
+//				// Should cause, forthFactory, and backFactory also be forwarded of undoable?
+//				ReversibleCommand<Model> newUndoable = new ReversibleCommand<Model>(undoable.getCause(), newOutput, undoable.getForthFactory(), undoable.getBackFactory());
+//				return new PendingUndoablePair(new PendingCommandState<Model>(commandForForwarding, pending.getForthFactory(), pending.getBackFactory()), newUndoable);
+//			}
+//			
+//			return this;
 			
-			return this;
+			CommandState<Model> newPending = pending.forForwarding(undoable.getOutput());
+			Object newOutput;
+			if(undoable.getOutput() instanceof ForwardableOutput)
+				newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
+			else
+				newOutput = undoable.getOutput();
+			ReversibleCommand<Model> newUndoable = new ReversibleCommand<Model>(undoable.getCause(), newOutput, undoable.getForthFactory(), undoable.getBackFactory());
+			return new PendingUndoablePair(newPending, newUndoable);
 		}
 
 		@Override
@@ -103,6 +115,17 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public CommandState<Model> executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			return pending.executeOn(propCtx, prevalentSystem, collector, location);
+		}
+		
+		@Override
+		public void appendPendings(List<CommandState<Model>> pendingCommands) {
+			pending.appendPendings(pendingCommands);
+			// Assumed, reversible doesn't contain pending commands, and if it does, those commands are insignificant
+		}
+
+		@Override
+		public CommandState<Model> forForwarding(Object output) {
+			return null;
 		}
 	}
 	
@@ -140,6 +163,17 @@ public abstract class Model implements Serializable, Observer {
 		
 		public CommandState<Model> forForwarding() {
 			return new UndoRedoPart(origin.forForwarding(), (ReversibleCommand<Model>)revertible.forForwarding());
+		}
+		
+		@Override
+		public void appendPendings(List<CommandState<Model>> pendingCommands) {
+//			origin.appendPendings(pendingCommands);
+			pendingCommands.add(revertible);
+		}
+
+		@Override
+		public CommandState<Model> forForwarding(Object output) {
+			return null;
 		}
 	}
 	

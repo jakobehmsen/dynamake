@@ -1,6 +1,7 @@
 package dynamake.commands;
 
 import java.io.Serializable;
+import java.util.List;
 
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -98,7 +99,34 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 	
 	@Override
 	public CommandState<T> forForwarding() {
-		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public CommandState<T> forForwarding(Object output) {
+		Command<T> newCommand;
+		if(command instanceof ForwardableCommand)
+			newCommand = ((ForwardableCommand<T>)command).forForwarding(output);
+		else
+			newCommand = command;
+		
+		CommandFactory<T> newForthFactory;
+		if(forthFactory instanceof ForwardableCommandFactory)
+			newForthFactory = ((ForwardableCommandFactory<T>)forthFactory).forForwarding(output);
+		else
+			newForthFactory = forthFactory;
+		
+		CommandFactory<T> newBackFactory;
+		if(backFactory instanceof ForwardableCommandFactory)
+			newBackFactory = ((ForwardableCommandFactory<T>)backFactory).forForwarding(output);
+		else
+			newBackFactory = backFactory;
+
+		return new PendingCommandState<>(newCommand, newBackFactory, newForthFactory);
+	}
+	
+	@Override
+	public void appendPendings(List<CommandState<T>> pendingCommands) {
+		pendingCommands.add(this);
 	}
 }

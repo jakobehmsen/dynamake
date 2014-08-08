@@ -62,4 +62,15 @@ public class CommandStateSequence<T> implements CommandState<T> {
 		
 		return new CommandStateSequence<T>(newCommandStates);
 	}
+	
+	@Override
+	public void appendPendings(List<CommandState<T>> pendingCommands) {
+		for(CommandState<T> commandState: commandStates)
+			commandState.appendPendings(pendingCommands);
+	}
+
+	@Override
+	public CommandState<T> forForwarding(Object output) {
+		return null;
+	}
 }

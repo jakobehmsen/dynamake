@@ -98,8 +98,11 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 		List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty("Creation");
 		if(sourceCreation != null) {
 			for(Model.PendingUndoablePair sourceCreationPart: sourceCreation) {
-				if(!(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesCommand) && !(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
+				PendingCommandState<Model> pending = (PendingCommandState<Model>)sourceCreationPart.pending;
+				if(!(pending.getCommand() instanceof ForwardLocalChangesCommand) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
 					toForward.add(sourceCreationPart);
+//				if(!(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesCommand) && !(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
+//					toForward.add(sourceCreationPart);
 			}
 		}
 		

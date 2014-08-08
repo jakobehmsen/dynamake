@@ -1,6 +1,8 @@
 package dynamake.commands;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -21,4 +23,6 @@ public interface CommandState<T> extends Serializable {
 	public CommandState<T> mapToReferenceLocation(Model sourceReference, Model targetReference);
 	public CommandState<T> offset(Location offset);
 	public CommandState<T> forForwarding();
+	public CommandState<T> forForwarding(Object output);
+	public void appendPendings(List<CommandState<T>> pendingCommands);
 }
