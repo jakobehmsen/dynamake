@@ -46,10 +46,11 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 			for(CommandState<Model> pup: newChanges) {
 				// Be sensitive to undo/redo commands here; they should be handled differently
 				// Somehow, it is the undone/redone command that should be offset instead
-				offsetNewChanges.add(pup.offset(offsetFromSource));
+//				offsetNewChanges.add(pup.offset(offsetFromSource));
+				offsetNewChanges.add(pup);
 			}
 			
-			source.sendChanged(new PushLocalChanges(new ArrayList<CommandState<Model>>(), offsetNewChanges), propCtx, propDistance, changeDistance, collector);			
+			source.sendChanged(new PushLocalChanges(offsetFromSource, new ArrayList<CommandState<Model>>(), offsetNewChanges), propCtx, propDistance, changeDistance, collector);			
 		} else if (change instanceof CanvasModel.AddedModelChange) {
 			System.out.println("Upwarder observed AddedModelChange!!!");
 			CanvasModel source = (CanvasModel)sender;

@@ -25,10 +25,12 @@ import dynamake.transcription.TranscribeOnlyAndPostNotPendingCommandFactory;
  */
 public class LocalChangesForwarder extends ObserverAdapter implements Serializable {
 	public static class PushLocalChanges {
+		public final Location offset;
 		public final List<CommandState<Model>> localChangesToRevert;
 		public final List<CommandState<Model>> newChanges;
 
-		public PushLocalChanges(List<CommandState<Model>> localChangesToRevert, List<CommandState<Model>> newChanges) {
+		public PushLocalChanges(Location offset, List<CommandState<Model>> localChangesToRevert, List<CommandState<Model>> newChanges) {
+			this.offset = offset;
 			this.localChangesToRevert = localChangesToRevert;
 			this.newChanges = newChanges;
 		}
@@ -81,6 +83,9 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 		if(change instanceof PushLocalChanges && sender == source) {
 			// Whenever a change is forwarded from a source
 			final PushLocalChanges pushLocalChanges = (PushLocalChanges)change;
+			
+			Location forwardedOffset = pushLocalChanges.offset.forForwarding();
+			final Model target = (Model)CompositeLocation.getChild(this.target, new ModelRootLocation(), forwardedOffset);
 			
 			final ArrayList<CommandState<Model>> forwardedNewChanges = new ArrayList<CommandState<Model>>();
 			
@@ -161,7 +166,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			
 			newLocalChangesToRevert.addAll(forwardedChangesToRevert);
 			
-			target.sendChanged(new PushLocalChanges(newLocalChangesToRevert, forwardedNewChanges), propCtx, propDistance, changeDistance, collector);
+			this.target.sendChanged(new PushLocalChanges(forwardedOffset, newLocalChangesToRevert, forwardedNewChanges), propCtx, propDistance, changeDistance, collector);
 		}
 	}
 }

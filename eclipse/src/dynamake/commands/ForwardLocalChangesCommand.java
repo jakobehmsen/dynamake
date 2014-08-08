@@ -15,6 +15,7 @@ import dynamake.models.Observer;
 import dynamake.models.PropogationContext;
 import dynamake.models.LocalChangesForwarder.PushLocalChanges;
 import dynamake.transcription.Collector;
+import dynamake.transcription.Trigger;
 
 public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 	/**
@@ -52,9 +53,9 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 		return null;
 	}
 	
-	private void pushForward(final Model source, LocalChangesForwarder forwarder, int distanceToTarget, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	private void pushForward(final Model source, final LocalChangesForwarder forwarder, final int distanceToTarget, final PropogationContext propCtx, final int propDistance, Collector<Model> collector) {
 //		LocalChangesForwarder sourceForwarder = source.getObserveeOfType(LocalChangesForwarder.class);
-		LocalChangesForwarder sourceForwarder = (LocalChangesForwarder)source.getObserverWhere(new Func1<Observer, Boolean>() {
+		final LocalChangesForwarder sourceForwarder = (LocalChangesForwarder)source.getObserverWhere(new Func1<Observer, Boolean>() {
 			@Override
 			public Boolean call(Observer observer) {
 				return observer instanceof LocalChangesForwarder &&
@@ -63,16 +64,32 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 		});
 		
 		if(sourceForwarder != null) {
-			// Source is itself being forwarded changes
-			// Push forward these changes before the change of this source
-			pushForward(sourceForwarder.getSource(), forwarder, distanceToTarget + 1, propCtx, propDistance, collector);
+			collector.execute(new Trigger<Model>() {
+				@Override
+				public void run(Collector<Model> collector) {
+					// Source is itself being forwarded changes
+					// Push forward these changes before the change of this source
+					pushForward(sourceForwarder.getSource(), forwarder, distanceToTarget + 1, propCtx, propDistance, collector);
+				}
+			});
+//			// Source is itself being forwarded changes
+//			// Push forward these changes before the change of this source
+//			pushForward(sourceForwarder.getSource(), forwarder, distanceToTarget + 1, propCtx, propDistance, collector);
 		}
 		
-		// Push forward changes from source to target immediately through forwarder
-		pushForward(source, forwarder, distanceToTarget, new ModelRootLocation(), propCtx, propDistance, collector);
+		collector.execute(new Trigger<Model>() {
+			@Override
+			public void run(Collector<Model> collector) {
+				// Push forward changes from source to target immediately through forwarder
+				pushForward(source, forwarder, distanceToTarget, new ModelRootLocation(), propCtx, propDistance, collector);
+			}
+		});
+		
+//		// Push forward changes from source to target immediately through forwarder
+//		pushForward(source, forwarder, distanceToTarget, new ModelRootLocation(), propCtx, propDistance, collector);
 	}
 	
-	private void pushForward(Model source, LocalChangesForwarder forwarder, int distanceToTarget, Location offset, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	private void pushForward(Model source, final LocalChangesForwarder forwarder, final int distanceToTarget, final Location offset, final PropogationContext propCtx, final int propDistance, Collector<Model> collector) {
 		ArrayList<CommandState<Model>> toForward = new ArrayList<CommandState<Model>>();
 
 		// Is there some creation for source? Then this creation should also be (initially) forwarded
@@ -86,26 +103,33 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 			}
 		}
 		
+		Location forwardedOffset = offset;
 		for(Model.PendingUndoablePair pup: source.getLocalChangesAsPairs()) {
-			pup = pup.offset(offset);
-			for(int i = 1; i < distanceToTarget; i++)
+			for(int i = 1; i < distanceToTarget; i++) {
 				pup = pup.forForwarding();
+				forwardedOffset = forwardedOffset.forForwarding();
+			}
 			toForward.add(pup);
 		}
 		
 		if(toForward.size() > 0) {
-			forwarder.changed(forwarder.getSource(), new PushLocalChanges(new ArrayList<CommandState<Model>>(), toForward), propCtx, propDistance, 0, collector);
-			
+			forwarder.changed(forwarder.getSource(), new PushLocalChanges(forwardedOffset, new ArrayList<CommandState<Model>>(), toForward), propCtx, propDistance, 0, collector);
 		}
 		
 		if(source instanceof CanvasModel) {
 			CanvasModel sourceCanvas = (CanvasModel)source;
 			
 			for(Location locationInSource: sourceCanvas.getLocations()) {
-				Model modelInSource = sourceCanvas.getModelByLocation(locationInSource);
-				Location newOffset = new CompositeLocation(offset, locationInSource);
+				final Model modelInSource = sourceCanvas.getModelByLocation(locationInSource);
+				final Location newOffset = new CompositeLocation(offset, locationInSource);
 				
-				pushForward(modelInSource, forwarder, distanceToTarget, newOffset, propCtx, propDistance, collector);
+				collector.execute(new Trigger<Model>() {
+					@Override
+					public void run(Collector<Model> collector) {
+						pushForward(modelInSource, forwarder, distanceToTarget, newOffset, propCtx, propDistance, collector);
+					}
+				});
+//				pushForward(modelInSource, forwarder, distanceToTarget, newOffset, propCtx, propDistance, collector);
 			}
 		}
 	}
