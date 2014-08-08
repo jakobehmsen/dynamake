@@ -92,56 +92,64 @@
 				return map;
 			}
 			
-			function expand(holder, link, definitions, term, addBorder) {
+			function expand(holder, link, definitions, term, addBorder, collapseLink) {
 				// Get copy of definition
 				var definition = definitions[term].clone();
 				//alert(definitions[term]);
 				replaceMentions(definition, definitions);
-				var definitionEl = link.clone();
-						
-				definitionEl.mousedown(function() {
-					definitionEl.removeClass("linkactive");
-					definitionEl.addClass("linkpassive");
-				});
-				definitionEl.click(function() {
-					collapse(holder, link, definitions, term);
-				
-					return false;
-				});
 				
 				var newEl;
 					
 				if(addBorder) {
+					var definitionEl = link.clone();
+				
 					// Change color of link to indicate expanded state
 					definitionEl.removeClass("linkpassive");
 					definitionEl.addClass("linkactive");
-						
+					
 					definition = definition.wrap("<div></div>").parent();
 					definition.addClass("content");
 					definition.addClass("expansion");
+					holder.parent().after(definition);
 				
+					collapseLink.replaceWith(definitionEl);
+							
+					definitionEl.mousedown(function() {
+						definitionEl.removeClass("linkactive");
+						definitionEl.addClass("linkpassive");
+					});
+					definitionEl.click(function() {
+						collapse(holder, link, definitions, term, definitionEl, definition);
+					
+						return false;
+					});
+					/*
 					newEl = $(document.createElement("span"))
 						.append(definitionEl)
 						.append(definition);
+					*/
 				} else {
 					newEl = $(document.createElement("span"))
 					.append(definitionEl)
 					.append(definition);
 					
 					newEl = newEl.wrap("<div></div>").parent();
+					holder.contents().replaceWith(newEl);
 				}
 				
-				holder.contents().replaceWith(newEl);
 			}
 			
-			function collapse(holder, link, definitions, term) {
+			function collapse(holder, link, definitions, term, expandLink, expansion) {
 				var definitionEl = link.clone();
 				definitionEl.click(function() {
-					expand(holder, link, definitions, term, true);
+					expand(holder, link, definitions, term, true, definitionEl);
 				
 					return false;
 				});
-				holder.contents().replaceWith(definitionEl);
+				
+				//holder.contents().replaceWith(definitionEl);
+				expandLink.replaceWith(definitionEl);
+				expansion.remove();
 			}
 			
 			function replaceMentions(el, definitions) {
@@ -158,7 +166,7 @@
 					
 					var holder = link.parent();
 					link.click(function() {
-						expand(holder, link, definitions, term, true);
+						expand(holder, link, definitions, term, true, link);
 					
 						return false;
 					});
@@ -173,7 +181,7 @@
 					var link = contents.wrap("<span><a href='dummy' style='font-style:oblique;'></a></span>").parent();
 					
 					var holder = link.parent();
-					expand(holder, link, definitions, term, false);
+					expand(holder, link, definitions, term, false, link);
 					
 					return holder;
 				});
@@ -212,7 +220,7 @@
 			Here is the definition of a programming environment.
 		</div>
 		<div data-define="Dynamake">
-			<span data-mention="Dynamake">Dynamake</span> is an attempt to envision, design, and implement an interactive code extrinsic <span data-mention="programming environment">programming environment.</span> This environment is to require only little configuration effort before getting the hands dirty.
+			<span> <span data-mention="Dynamake">Dynamake</span> </span> is an attempt to  envision, design, and implement an interactive code extrinsic <span data-mention="programming environment">programming environment</span>. This environment is to require only little configuration effort before getting the hands dirty.
 		</div>
 		<div data-define="network usage">
 			Here is the definition of using Dynamake across a network.
@@ -225,7 +233,7 @@
 			<span data-mention="dummy1">Mention of dummy1</span>
 		</div>
 		<div data-define="The program/process dichotomy">
-			This dichotomy is concerned with separating programs from processes, where processes are seen as running programs. This separation has implicated <span data-mention="The program/process dichotomy issues">a couple of less-than-good effects.</span>
+			This dichotomy is concerned with separating programs from processes, where processes are seen as running programs. This separation has implicated <span data-mention="The program/process dichotomy issues">a couple of less-than-good effects</span>.
 		</div>
 		<div data-define="The program/process dichotomy issues">
 			<ul>
@@ -270,7 +278,7 @@
 			<div class="title">Why was this project started?</div>
 			<div class="content">
 			There were/are many reasons motivating this project. Lets look at a couple of'em.<div style="clear=both"></div>
-			Most popular programming environments seem to dichotomize programs and processes simply by centering around code. What if one attempts to not adopt <span data-mention="The program/process dichotomy">this dichotomy?</span><div style="clear=both"></div>
+			Most popular programming environments seem to dichotomize programs and processes simply by centering around code. What if one attempts to not adopt <span data-mention="The program/process dichotomy">this dichotomy</span>?<div style="clear=both"></div>
 			Most popular programming environments are oriented around some sort of text-based, or similarly structered, programming language. What if no language is available at all - how does one program?
 			</div>
 		</div>
@@ -278,14 +286,14 @@
 		<div class="box">
 			<div class="title">What is the current state of Dynamake?</div>
 			<div class="content">
-			Dynamake is a rather new project, started April 2014, but some of the envisioned attributes are starting to emerge. There is <span data-mention="Required configuration">little configuration required</span> to start trying out <span data-mention="Dynamake">Dynamake.</span>
+			Dynamake is a rather new project, started April 2014, but some of the envisioned attributes are starting to emerge. There is <span data-mention="Required configuration">little configuration required</span> to start trying out <span data-mention="Dynamake">Dynamake</span>.
 			</div>
 		</div>
 
 		<div class="box">
 			<div class="title">What about the future of Dynamake?</div>
 			<div class="content">
-			One of the major works in the horizon is support for <span data-mention="network usage">using Dynamake across a network.</span>
+			One of the major works in the horizon is support for <span data-mention="network usage">using Dynamake across a network</span>.
 			</div>
 		</div>
 	</body>
