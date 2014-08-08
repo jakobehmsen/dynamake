@@ -44,6 +44,7 @@ import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.SimpleExPendingCommandFactory2;
 import dynamake.transcription.Trigger;
 
 /**
@@ -353,6 +354,47 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public List<CommandState<Model>> getLocalChanges() {
+//		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
+//		
+//		for(CommandState<Model> undoable: undoStack) {
+//			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
+//			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
+//				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
+//				origins.add(undoPart.origin.pending);
+//			}
+//		}
+//		
+//		return origins;
+		
+
+		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
+		
+		for(CommandState<Model> undoable: undoStack) {
+			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
+			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
+				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
+				origins.add(undoPart.origin);
+			}
+		}
+		
+		return origins;
+	}
+	
+
+	public List<CommandState<Model>> getLocalChangesForExecution() {
+//		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
+//		
+//		for(CommandState<Model> undoable: undoStack) {
+//			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
+//			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
+//				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
+//				origins.add(undoPart.origin.pending);
+//			}
+//		}
+//		
+//		return origins;
+		
+
 		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
 		
 		for(CommandState<Model> undoable: undoStack) {
@@ -1179,7 +1221,9 @@ public abstract class Model implements Serializable, Observer {
 		this.undoStack = ((History)history).undoStack;
 		this.redoStack = ((History)history).redoStack;
 		
-		playThenReverse(getLocalChanges(), propCtx, propDistance, collector);
+//		playThenReverse(getLocalChanges(), propCtx, propDistance, collector);
+		
+		collector.execute(new SimpleExPendingCommandFactory2<Model>(this, getLocalChangesForExecution()));
 	}
 
 	public void beRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector, List<CommandState<Model>> restoreCommands) {

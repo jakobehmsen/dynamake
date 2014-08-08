@@ -11,7 +11,11 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.Mappable;
+import dynamake.commands.PendingCommandState;
+import dynamake.commands.SetPropertyCommand;
+import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
+import dynamake.transcription.SimpleExPendingCommandFactory2;
 
 public class RestorableModel implements Serializable {
 	/**
@@ -110,12 +114,28 @@ public class RestorableModel implements Serializable {
 		modelBase.setProperty(RestorableModel.PROPERTY_ORIGINS, modelOrigins, propCtx, propDistance, collector);
 	}
 	
-	public void restoreChangesOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void restoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(modelCreation != null) {
 			// TODO: modelCreation should be scheduled for execution on collector
-			modelBase.playThenReverse(modelCreation, propCtx, propDistance, collector);
+//			modelBase.playThenReverse(modelCreation, propCtx, propDistance, collector);
+			
+			ArrayList<CommandState<Model>> modelCreationAsPendingCommands = new ArrayList<CommandState<Model>>();
+			
+			for(CommandState<Model> modelCreationPart: modelCreation) {
+				modelCreationAsPendingCommands.add(((Model.PendingUndoablePair)modelCreationPart).pending);
+			}
+			
+			collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, modelCreationAsPendingCommands) {
+				@Override
+				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+					collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, new PendingCommandState<Model>(
+						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, pendingUndoablePairs), 
+						new SetPropertyCommand.AfterSetProperty()
+					)));
+				}
+			});
 		}
-		modelBase.setProperty(RestorableModel.PROPERTY_CREATION, modelCreation, propCtx, propDistance, collector);
+//		modelBase.setProperty(RestorableModel.PROPERTY_CREATION, modelCreation, propCtx, propDistance, collector);
 		// TODO: location changes (in restoreHistory) should be scheduled for execution on collector
 		modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
 	}

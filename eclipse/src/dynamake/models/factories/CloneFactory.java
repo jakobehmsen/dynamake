@@ -11,8 +11,10 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
+import dynamake.models.Model.PendingUndoablePair;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
+import dynamake.transcription.SimpleExPendingCommandFactory2;
 
 public class CloneFactory implements ModelFactory {
 	/**
@@ -34,13 +36,13 @@ public class CloneFactory implements ModelFactory {
 		
 		return new ModelCreation() {
 			@Override
-			public void setup(Model rootModel, Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+			public void setup(Model rootModel, final Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 				RestorableModel restorableModelCreation = restorableModelClone.mapToReferenceLocation(modelToClone, createdModel);
 				restorableModelCreation.restoreChangesOnBase(createdModel, propCtx, propDistance, collector);
 				restorableModelCreation.restoreCleanupOnBase(createdModel, propCtx, propDistance, collector);
 				
-				@SuppressWarnings("unchecked")
-				List<CommandState<Model>> changesToInheret = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel.PROPERTY_CREATION);
+//				@SuppressWarnings("unchecked")
+//				List<CommandState<Model>> allCreation = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel.PROPERTY_CREATION);
 				
 				List<CommandState<Model>> newChangesToInheret = new ArrayList<CommandState<Model>>();
 
@@ -49,9 +51,23 @@ public class CloneFactory implements ModelFactory {
 				newChangesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
 				newChangesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
 				
-				changesToInheret.addAll(newChangesToInheret);
+//				allCreation.addAll(newChangesToInheret);
 
-				createdModel.playThenReverse(newChangesToInheret, propCtx, propDistance, collector);
+//				createdModel.playThenReverse(newChangesToInheret, propCtx, propDistance, collector);
+				
+				collector.execute(new SimpleExPendingCommandFactory2<Model>(createdModel, newChangesToInheret) {
+					@Override
+					public void afterPropogationFinished(List<PendingUndoablePair> changesToInheritPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+						@SuppressWarnings("unchecked")
+						List<CommandState<Model>> allCreation = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel.PROPERTY_CREATION);
+						allCreation.addAll(changesToInheritPendingUndoablePairs);
+						
+						collector.execute(new SimpleExPendingCommandFactory2<Model>(createdModel, new PendingCommandState<Model>(
+							new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allCreation), 
+							new SetPropertyCommand.AfterSetProperty()
+						)));
+					}
+				});
 			}
 			
 			@Override
