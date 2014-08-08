@@ -25,4 +25,8 @@ public class ConstCommandFactory<T> implements MappableCommandFactory<T> {
 			return new ConstCommandFactory<T>(((MappableCommand<T>)command).mapToReferenceLocation(sourceReference, targetReference));
 		return this;
 	}
+	
+	public static <T> ConstCommandFactory<T> forNull() {
+		return new ConstCommandFactory<T>(new Command.Null<T>());
+	}
 }

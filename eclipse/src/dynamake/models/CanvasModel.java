@@ -16,15 +16,18 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 
 import dynamake.caching.Memoizer1;
+import dynamake.commands.ChainCommand;
 import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
+import dynamake.commands.ConstCommandFactory;
 import dynamake.commands.ForwardableCommand;
 import dynamake.commands.ForwardableCommandFactory;
 import dynamake.commands.ForwardableOutput;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
+import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RewrapCommand;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.UnwrapCommand;
@@ -101,14 +104,40 @@ public class CanvasModel extends Model {
 	
 	@Override
 	protected void modelBeRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector, List<CommandState<Model>> restoreCommands) {
+		// A model should be able to wrap itself in to a RestorableModel?
+		// Then, perhaps, composite restorable models could be supported in the case of canvases?
 		for(Entry entry: models) {
+			RestorableModel restorableModel = RestorableModel.wrap(entry.model, true);
+
 			Location modelLocation = getLocationOf(entry.model);
-			for(CommandState<Model> modelRestoreCommand: entry.model.getLocalChanges())
-				restoreCommands.add(modelRestoreCommand.offset(modelLocation));
+			
+			CanvasModel.RestoreChangesModelCommand restoreCommand = new CanvasModel.RestoreChangesModelCommand(modelLocation, restorableModel);
+			
+			PendingCommandState<Model> firstPending = new PendingCommandState<Model>(restoreCommand, new CanvasModel.RemoveModelCommand.AfterAdd());
+			
+//			restoreCommands.add(new Model.PendingUndoablePair(
+//				new PendingCommandState<Model>(restoreCommand, new CanvasModel.RemoveModelCommand.AfterAdd()), 
+//				new ReversibleCommand<Model>(restoreCommand, new Command.Null<Model>(), ConstCommandFactory.<Model>forNull(), ConstCommandFactory.<Model>forNull())
+//			));
+			
+//			@SuppressWarnings("unchecked")
+//			List<CommandState<Model>> modelOrigins = (List<CommandState<Model>>)entry.model.getProperty(RestorableModel.PROPERTY_ORIGINS);
+//			restoreCommands.addAll(modelOrigins);
+//			@SuppressWarnings("unchecked")
+//			List<CommandState<Model>> modelCreation = (List<CommandState<Model>>)entry.model.getProperty(RestorableModel.PROPERTY_CREATION);
+//			if(modelCreation != null)
+//				restoreCommands.addAll(modelCreation);
+//			for(CommandState<Model> modelRestoreCommand: entry.model.getLocalChanges())
+//				restoreCommands.add(modelRestoreCommand.offset(modelLocation));
+			ArrayList<CommandState<Model>> offsetInnerRestoreCommands = new ArrayList<CommandState<Model>>();
 			ArrayList<CommandState<Model>> innerRestoreCommands = new ArrayList<CommandState<Model>>();
 			entry.model.beRemoved(propCtx, propDistance, collector, innerRestoreCommands);
 			for(CommandState<Model> innerRestoreCommand: innerRestoreCommands)
-				restoreCommands.add(innerRestoreCommand.offset(modelLocation));
+				offsetInnerRestoreCommands.add(innerRestoreCommand.offset(modelLocation));
+			
+//			restoreCommands.add(new ChainCommand<Model>(firstPending, innerRestoreCommands));
+			
+			restoreCommands.add(new PendingCommandState<Model>(new ChainCommand<Model>(firstPending, offsetInnerRestoreCommands), new CanvasModel.RemoveModelCommand.AfterAdd()));
 		}
 	}
 	
@@ -541,9 +570,19 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
 			
-			@SuppressWarnings("unchecked")
-			List<CommandState<Model>> restoreCommands = (List<CommandState<Model>>)modelToRemove.getProperty(RestorableModel.PROPERTY_CREATION);
-			modelToRemove.beRemoved(propCtx, 0, collector, restoreCommands);
+//			@SuppressWarnings("unchecked")
+//			List<CommandState<Model>> restoreCommands = (List<CommandState<Model>>)modelToRemove.getProperty(RestorableModel.PROPERTY_CREATION);
+//			
+//			if(restoreCommands == null) {
+//				restoreCommands = new ArrayList<CommandState<Model>>();
+//				modelToRemove.setProperty(RestorableModel.PROPERTY_CREATION, restoreCommands, propCtx, 0, collector);
+//			}
+			
+			ArrayList<CommandState<Model>> postCreationCommands = new ArrayList<CommandState<Model>>();
+			
+			modelToRemove.beRemoved(propCtx, 0, collector, postCreationCommands);
+			
+			modelToRemove.setProperty(RestorableModel.PROPERTY_POST_CREATION, postCreationCommands, propCtx, 0, collector);
 			
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			
@@ -562,6 +601,32 @@ public class CanvasModel extends Model {
 			CanvasModel.RemoveModelCommand newRemoveCommand = new CanvasModel.RemoveModelCommand(mappedLocation);
 
 			return newRemoveCommand;
+		}
+	}
+	
+	public static class RestoreChangesModelCommand implements Command<Model>, Cloneable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Location modelLocationToRestore;
+		private RestorableModel restorableModel;
+		
+		public RestoreChangesModelCommand(Location modelLocationToRestore, RestorableModel restorableModel) {
+			this.modelLocationToRestore = modelLocationToRestore;
+			this.restorableModel = restorableModel;
+		}
+		
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
+			
+			Model modelBase = canvas.getModelByLocation(modelLocationToRestore);
+			
+			restorableModel.restoreChangesOnBase(modelBase, propCtx, 0, collector);
+			restorableModel.restoreCleanupOnBase(modelBase, propCtx, 0, collector);
+			
+			return null;
 		}
 	}
 	

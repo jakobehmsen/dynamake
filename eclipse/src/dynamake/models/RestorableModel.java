@@ -25,12 +25,14 @@ public class RestorableModel implements Serializable {
 
 	public static String PROPERTY_ORIGINS = "Origins";
 	public static String PROPERTY_CREATION = "Creation";
+	public static String PROPERTY_POST_CREATION = "PostCreation";
 	public static String PROPERTY_CLEANUP = "Cleanup";
 	
 	private byte[] modelBaseSerialization;
 	// Origins must guarantee to not require mapping to new references
 	private List<CommandState<Model>> modelOrigins;
 	private List<CommandState<Model>> modelCreation;
+	private List<CommandState<Model>> modelPostCreation;
 	private Mappable modelHistory;
 	private List<CommandState<Model>> modelCleanup;
 	
@@ -58,15 +60,18 @@ public class RestorableModel implements Serializable {
 		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> modelCreation = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CREATION);
 		@SuppressWarnings("unchecked")
+		List<CommandState<Model>> modelPostCreation = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_POST_CREATION);
+		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> modelCleanup = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CLEANUP);
 		
-		return new RestorableModel(modelBaseSerialization, modelOrigins, modelCreation, modelHistory, modelCleanup);
+		return new RestorableModel(modelBaseSerialization, modelOrigins, modelCreation, modelPostCreation, modelHistory, modelCleanup);
 	}
 	
-	private RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, Mappable modelHistory, List<CommandState<Model>> modelCleanup) {
+	private RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, List<CommandState<Model>> modelPostCreation, Mappable modelHistory, List<CommandState<Model>> modelCleanup) {
 		this.modelBaseSerialization = modelBaseSerialization;
 		this.modelOrigins = modelOrigins;
 		this.modelCreation = modelCreation;
+		this.modelPostCreation = modelPostCreation;
 		this.modelHistory = modelHistory;
 		this.modelCleanup = modelCleanup;
 	}
@@ -81,6 +86,15 @@ public class RestorableModel implements Serializable {
 			}
 		}
 		
+		ArrayList<CommandState<Model>> mappedModelPostCreation = new ArrayList<CommandState<Model>>();
+		
+		if(modelPostCreation != null) {
+			for(CommandState<Model> modelPostCreationPart: modelPostCreation) {
+				CommandState<Model> newModelPostCreationPart = modelPostCreationPart.mapToReferenceLocation(sourceReference, targetReference);
+				mappedModelPostCreation.add(newModelPostCreationPart);
+			}
+		}
+		
 		Mappable mappedModelHistory = modelHistory.mapToReferenceLocation(sourceReference, targetReference);
 		
 		ArrayList<CommandState<Model>> mappedModelCleanup = new ArrayList<CommandState<Model>>();
@@ -92,7 +106,7 @@ public class RestorableModel implements Serializable {
 			}
 		}
 		
-		return new RestorableModel(modelBaseSerialization, modelOrigins, mappedModelCreation, mappedModelHistory, mappedModelCleanup);
+		return new RestorableModel(modelBaseSerialization, modelOrigins, mappedModelCreation, mappedModelPostCreation, mappedModelHistory, mappedModelCleanup);
 	}
 	
 	public Model unwrapBase(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -138,6 +152,19 @@ public class RestorableModel implements Serializable {
 //		modelBase.setProperty(RestorableModel.PROPERTY_CREATION, modelCreation, propCtx, propDistance, collector);
 		// TODO: location changes (in restoreHistory) should be scheduled for execution on collector
 		modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
+		
+		if(modelPostCreation != null) {
+			// TODO: modelCreation should be scheduled for execution on collector
+//			modelBase.playThenReverse(modelCreation, propCtx, propDistance, collector);
+			
+//			ArrayList<CommandState<Model>> modelPostCreationAsPendingCommands = new ArrayList<CommandState<Model>>();
+//			
+//			for(CommandState<Model> modelPostCreationPart: modelPostCreation) {
+//				modelPostCreationAsPendingCommands.add(((Model.PendingUndoablePair)modelPostCreationPart).pending);
+//			}
+			
+			collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, modelPostCreation));
+		}
 	}
 	
 	public void restoreCleanupOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
