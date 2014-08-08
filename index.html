@@ -13,18 +13,70 @@
 				margin-right: auto;
 			}
 			
-			a		  {font-weight:bolder;}
-			a:link    {color:#BD2A0D;}
-			a:visited {color:#BD2A0D;}
-			a:hover   {color:#157082;}
-			a:active  {color:#157082;}
+			//a		  {font-weight:bolder;}
+			
+			/*
+			body {color: #FFF}
+			.linkpassive {color: #0F0}		
+			.linkactive {color: #00F}
+			
+			.content {
+				background-color: #FFF;
+				border-color: #333;
+				border-style: solid;
+				border-width: 0px;
+			}
+			*/
+			
+			/*
+			body {color: #FFF}
+			.linkpassive {
+				color: #A49F96;
+				background-color: #000;
+			}		
+			.linkactive {
+				color: #000;
+				background-color: #A49F96;
+			}
+			
+			.content {
+				background-color: #3B2E1C;
+				border-color: #F6EAC9;
+				border-style: solid;
+				border-width: 0px;
+			}
+			*/
+			
+			body {color: #000}
+			.linkpassive {
+				color: #B5242E;
+			}
+			.linkintra {
+				
+			}		
+			.linkactive {
+				color: #21B222;
+			}
+			
+			.content {
+				background-color: #F8F8F8;
+				border-color: #777;
+				border-style: solid;
+				border-width: 0px;
+			}
 			
 			.box {
-				border:3px solid #333;
+				border-width: 3px;
 				border-radius: 10px;
 				padding: 10px;
 				margin: 20px;
-				background-color: #C8E3D7;
+			}
+			
+			.expansion {
+				border-width: 3px;
+				border-radius: 10px;
+				padding: 10px;
+				margin: 10px;
 			}
 			
 			h1 { 
@@ -48,7 +100,8 @@
 				var definitionEl = link.clone();
 						
 				definitionEl.mousedown(function() {
-					definitionEl.css("color", "#0DA0BD");
+					definitionEl.removeClass("linkactive");
+					definitionEl.addClass("linkpassive");
 				});
 				definitionEl.click(function() {
 					collapse(holder, link, definitions, term);
@@ -60,15 +113,12 @@
 					
 				if(addBorder) {
 					// Change color of link to indicate expanded state
-					definitionEl.css("color", "#157082");
+					definitionEl.removeClass("linkpassive");
+					definitionEl.addClass("linkactive");
 						
 					definition = definition.wrap("<div></div>").parent();
-					definition
-						.css("border", "3px solid #333")
-						.css("border-radius", "10px")
-						.css("margin", "4px")
-						.css("padding", "4px")
-						.css("background-color", "#C8E3D7");
+					definition.addClass("content");
+					definition.addClass("expansion");
 				
 					newEl = $(document.createElement("span"))
 						.append(definitionEl)
@@ -100,9 +150,11 @@
 					var contents = $(this).clone();
 					
 					var link = contents
-						.wrap("<span><a href='dummy' style='font-style:oblique;'></a></span>")
+						.wrap("<span><a href='dummy'></a></span>")
 						.parent()
-						.css("text-decoration", "none");
+						.css("text-decoration", "none")
+						.addClass("linkpassive")
+						.addClass("linkintra");
 					
 					var holder = link.parent();
 					link.click(function() {
@@ -128,6 +180,8 @@
 			}
 			
 			$( document ).ready(function() {
+				$("a").addClass("linkpassive");
+			
 				var definitionsQ = $("div[data-define]");
 				
 				var definitions = getAsMap(definitionsQ.map(function() {
@@ -141,6 +195,7 @@
 				$("div[data-define]").replaceWith("");
 			
 				var boxes = $("div.box");
+				boxes.addClass("content");
 				boxes.find("div.title").replaceWith(function() {
 					return $(this).contents()
 						.wrap("<div style='margin-bottom:15px; font-style:italic'></div>")
@@ -191,7 +246,7 @@
 			However, <a href="https://www.eclipse.org/downloads/">Eclipse</a> can be used to build such a release relatively easy getting the sources on <a href="https://github.com/jakobehmsen/dynamake">GitHub</a> using <a href="http://git-scm.com/">Git</a>.
 		</div>
 	
-		<h1 align="center">
+		<h1 align="center" style="color:#000">
 			Welcome to Dynamake's project page<br>
 			<a href="https://github.com/jakobehmsen/dynamake"> hosted on GitHub</a>
 		</h1>
@@ -223,7 +278,7 @@
 		<div class="box">
 			<div class="title">What is the current state of Dynamake?</div>
 			<div class="content">
-			Dynamake is a rather new project, started April 2014, but some of the envisioned attributes are starting to emerge. There is <span data-mention="Required configuration">little configuration required</span> to start trying out <span data-mention="Dynamake">Dynamake.</span>.
+			Dynamake is a rather new project, started April 2014, but some of the envisioned attributes are starting to emerge. There is <span data-mention="Required configuration">little configuration required</span> to start trying out <span data-mention="Dynamake">Dynamake.</span>
 			</div>
 		</div>
 
