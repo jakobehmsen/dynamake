@@ -152,7 +152,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				ArrayList<Model.PendingUndoablePair> pendingUndoablePairs = new ArrayList<Model.PendingUndoablePair>();
 				for(CommandState<T> transaction: entry.pending) {
 					ReversibleCommand<Model> undoable = (ReversibleCommand<Model>)transaction.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
-					pendingUndoablePairs.add(new Model.PendingUndoablePair((PendingCommandState<Model>)transaction, undoable));
+//					pendingUndoablePairs.add(new Model.PendingUndoablePair((PendingCommandState<Model>)transaction, undoable));
+					pendingUndoablePairs.add(new Model.PendingUndoablePair((CommandState<Model>)transaction, undoable));
 				}
 				
 				entry.historyHandler.logFor((T)reference, pendingUndoablePairs, propCtx, 0, isolatedCollector);
