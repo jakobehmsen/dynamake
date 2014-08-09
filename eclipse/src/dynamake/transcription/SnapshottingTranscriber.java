@@ -444,7 +444,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							ExPendingCommandFactory2<T> transactionFactory = (ExPendingCommandFactory2<T>)command;
 							T reference = transactionFactory.getReference();
 							
-							if(((Model)reference).getLocator() == null) {
+							if(reference == null || ((Model)reference).getLocator() == null) {
 								reference = transactionFactory.getReference();
 							}
 							Location locationFromRoot = ((Model)reference).getLocator().locate();

@@ -1,5 +1,6 @@
 package dynamake.commands;
 
+import dynamake.commands.Command.Null;
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.LocalChangesUpwarder;
@@ -10,7 +11,7 @@ import dynamake.models.ParentLocation;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class ForwardLocalChangesUpwards2Command implements Command<Model> {
+public class ForwardLocalChangesUpwards2Command implements ForwardableCommand<Model> {
 	/**
 	 * 
 	 */
@@ -46,5 +47,10 @@ public class ForwardLocalChangesUpwards2Command implements Command<Model> {
 			if(modelInTarget instanceof CanvasModel)
 				forwardLocalChangesUpwards((CanvasModel)modelInTarget, modelTargetLocation, modelOffsetFromTarget);
 		}
+	}
+
+	@Override
+	public Command<Model> forForwarding(Object output) {
+		return new Command.Null<Model>();
 	}
 }

@@ -50,9 +50,10 @@ public class NewInstanceFactory3 implements ModelFactory {
 				
 				// A push forward command should forward the creation and local changes of from a source to the reference
 				
-				RestorableModel restorableModelCreation = restorableModelClone
-					.mapToReferenceLocation(source, createdModel)
-					.forForwarding();
+				RestorableModel restorableModelCreation = restorableModelClone;
+//					.mapToReferenceLocation(source, createdModel)
+//					.forForwarding();
+				restorableModelCreation.clearCreation();
 				restorableModelCreation.appendCreation(new PendingCommandState<Model>(
 					new PushForwardFromCommand(locationOfSourceFromTarget), // Doesn't create immediate side effect
 					new Command.Null<Model>() // Thus, there is no (direct) need for reverting
@@ -86,7 +87,7 @@ public class NewInstanceFactory3 implements ModelFactory {
 						}
 					}
 				} else {
-					// Set creation on target
+					// Set creation on source
 					collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
 						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, new ArrayList<Model.PendingUndoablePair>()), 
 						new SetPropertyCommand.AfterSetProperty()

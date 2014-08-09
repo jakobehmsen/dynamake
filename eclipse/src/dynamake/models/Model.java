@@ -1224,10 +1224,12 @@ public abstract class Model implements Serializable, Observer {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
+		public final boolean includeHistory;
 		public final Stack<CommandState<Model>> undoStack;
 		public final Stack<CommandState<Model>> redoStack;
 		
-		public History(Stack<CommandState<Model>> undoStack, Stack<CommandState<Model>> redoStack) {
+		public History(boolean includeHistory, Stack<CommandState<Model>> undoStack, Stack<CommandState<Model>> redoStack) {
+			this.includeHistory = includeHistory;
 			this.undoStack = undoStack;
 			this.redoStack = redoStack;
 		}
@@ -1244,7 +1246,7 @@ public abstract class Model implements Serializable, Observer {
 			for(CommandState<Model> cs: redoStack)
 				mappedRedoStack.add(cs.mapToReferenceLocation(sourceReference, targetReference));
 			
-			return new History(mappedUndoStack, mappedRedoStack);
+			return new History(includeHistory, mappedUndoStack, mappedRedoStack);
 		}
 		
 		@Override
@@ -1259,21 +1261,31 @@ public abstract class Model implements Serializable, Observer {
 			for(CommandState<Model> cs: redoStack)
 				forForwardingRedoStack.add(cs.forForwarding());
 			
-			return new History(forForwardingUndoStack, forForwardingRedoStack);
+			return new History(includeHistory, forForwardingUndoStack, forForwardingRedoStack);
 		}
 	}
 	
-	public MappableForwardable cloneHistory() {
-		return new History(undoStack, redoStack);
+	public MappableForwardable cloneHistory(boolean includeHistory) {
+		return new History(includeHistory, undoStack, redoStack);
 	}
 	
 	public void restoreHistory(Object history, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		this.undoStack = ((History)history).undoStack;
-		this.redoStack = ((History)history).redoStack;
+		if(((History)history).includeHistory) {
+			this.undoStack = ((History)history).undoStack;
+			this.redoStack = ((History)history).redoStack;
+		}
 		
-//		playThenReverse(getLocalChanges(), propCtx, propDistance, collector);
+		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
 		
-		collector.execute(new SimpleExPendingCommandFactory2<Model>(this, getLocalChangesForExecution()));
+		for(CommandState<Model> undoable: ((History)history).undoStack) {
+			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
+			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
+				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
+				origins.add(undoPart.origin.pending);
+			}
+		}
+		
+		collector.execute(new SimpleExPendingCommandFactory2<Model>(this, origins));
 	}
 
 	public void beRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector, List<CommandState<Model>> restoreCommands) {

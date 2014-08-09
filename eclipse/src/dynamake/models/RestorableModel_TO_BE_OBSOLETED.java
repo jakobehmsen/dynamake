@@ -45,7 +45,7 @@ public class RestorableModel_TO_BE_OBSOLETED implements Serializable {
 			Model modelBase = model.cloneBase();
 			
 			if(includeLocalHistory)
-				modelHistory = model.cloneHistory();
+				modelHistory = model.cloneHistory(true);
 			
 			out.writeObject(modelBase);
 			out.close();

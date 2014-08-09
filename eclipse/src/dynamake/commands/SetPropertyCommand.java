@@ -1,10 +1,12 @@
 package dynamake.commands;
 
 import java.io.Serializable;
+import java.util.List;
 
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
+import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
 
 public class SetPropertyCommand implements Command<Model> {
@@ -44,6 +46,9 @@ public class SetPropertyCommand implements Command<Model> {
 	private Object value;
 	
 	public SetPropertyCommand(String name, Object value) {
+		if(name.equals(RestorableModel.PROPERTY_CREATION) && ((List<?>)value).isEmpty())
+			new String();
+		
 		this.name = name;
 		this.value = value;
 	}
@@ -54,6 +59,7 @@ public class SetPropertyCommand implements Command<Model> {
 		
 		Object previousValue = model.getProperty(name);
 		model.setProperty(name, value, propCtx, 0, collector);
+		System.out.println("Set property " + name + " to " + value);
 		
 		return new Output(name, previousValue);
 	}

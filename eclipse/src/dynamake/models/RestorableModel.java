@@ -16,6 +16,7 @@ import dynamake.commands.SetPropertyCommand;
 import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
 import dynamake.transcription.SimpleExPendingCommandFactory2;
+import dynamake.transcription.Trigger;
 
 public class RestorableModel implements Serializable {
 	/**
@@ -49,7 +50,7 @@ public class RestorableModel implements Serializable {
 			Model modelBase = model.cloneBase();
 			
 			if(includeLocalHistory)
-				modelHistory = model.cloneHistory();
+				modelHistory = model.cloneHistory(includeLocalHistory);
 			
 			out.writeObject(modelBase);
 			out.close();
@@ -60,11 +61,13 @@ public class RestorableModel implements Serializable {
 		byte[] modelBaseSerialization = bos.toByteArray();
 		
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> modelOrigins = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_ORIGINS);
+		List<CommandState<Model>> modelOrigins = new ArrayList<CommandState<Model>>((List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_ORIGINS));
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> modelCreation = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CREATION);
+		List<CommandState<Model>> modelCreation1 = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CREATION);
+		List<CommandState<Model>> modelCreation = modelCreation1 != null ? new ArrayList<CommandState<Model>>(modelCreation1) : null;
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> modelCleanup = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CLEANUP);
+		List<CommandState<Model>> modelCleanup1 = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CLEANUP);
+		List<CommandState<Model>> modelCleanup = modelCleanup1 != null ? new ArrayList<CommandState<Model>>(modelCleanup1) : null;
 		
 		wrapper.modelBaseSerialization = modelBaseSerialization;
 		wrapper.modelOrigins = modelOrigins;
@@ -169,7 +172,7 @@ public class RestorableModel implements Serializable {
 		modelBase.setProperty(RestorableModel.PROPERTY_ORIGINS, modelOrigins, propCtx, propDistance, collector);
 	}
 	
-	public void restoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void restoreChangesOnBase(final Model modelBase, final PropogationContext propCtx, final int propDistance, Collector<Model> collector) {
 		ArrayList<CommandState<Model>> modelCreationAsPendingCommands = new ArrayList<CommandState<Model>>();
 		
 		if(modelCreation != null) {
@@ -180,31 +183,61 @@ public class RestorableModel implements Serializable {
 		
 		modelCreationAsPendingCommands.addAll(appendedCreation);
 		
-		if(modelCreationAsPendingCommands.size() > 0) {
-			collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, modelCreationAsPendingCommands) {
-				@Override
-				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-					collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, new PendingCommandState<Model>(
-						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, pendingUndoablePairs), 
-						new SetPropertyCommand.AfterSetProperty()
-					)));
-				}
-			});
-		}
+//		if(modelCreationAsPendingCommands.size() > 0) {
+//			collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, modelCreationAsPendingCommands) {
+//				@Override
+//				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//					collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, new PendingCommandState<Model>(
+//						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, pendingUndoablePairs), 
+//						new SetPropertyCommand.AfterSetProperty()
+//					)));
+//				}
+//			});
+//		}
+		
+		restoreChanges(modelBase, collector, modelCreationAsPendingCommands, 0, new ArrayList<PendingUndoablePair>());
 
 		if(modelHistory != null)
 			modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
 		
-		afterRestoreChangesOnBase(modelBase, propCtx, propDistance, collector);
+		collector.execute(new Trigger<Model>() {
+			@Override
+			public void run(Collector<Model> collector) {
+				afterRestoreChangesOnBase(modelBase, propCtx, propDistance, collector);
+			}
+		});
 	}
 	
-	public void restoreCleanupOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	private void restoreChanges(final Model modelBase, Collector<Model> collector, final List<CommandState<Model>> modelCreation, final int i, final List<PendingUndoablePair> allPendingUndoablePairs) {
+		// Execute one command at a time to leave space for side effect in between
+		if(i < modelCreation.size()) {
+			collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, modelCreation.subList(i, i + 1)) {
+				@Override				
+				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+					allPendingUndoablePairs.addAll(pendingUndoablePairs);
+					restoreChanges(modelBase, collector, modelCreation, i + 1, allPendingUndoablePairs);
+				}
+			});
+		} else {
+			collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, new PendingCommandState<Model>(
+				new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allPendingUndoablePairs), 
+				new SetPropertyCommand.AfterSetProperty()
+			)));
+		}
+	}
+	
+	public void restoreCleanupOnBase(final Model modelBase, final PropogationContext propCtx, final int propDistance, Collector<Model> collector) {
 		collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, new PendingCommandState<Model>(
 			new SetPropertyCommand(RestorableModel.PROPERTY_CLEANUP, modelCleanup), 
 			new SetPropertyCommand.AfterSetProperty()
 		)));
 		
-		afterRestoreCleanupOnBase(modelBase, propCtx, propDistance, collector);
+		collector.execute(new Trigger<Model>() {
+			@Override
+			public void run(Collector<Model> collector) {
+				afterRestoreCleanupOnBase(modelBase, propCtx, propDistance, collector);
+			}
+		});
 	}
 	
 	protected void afterMapToReferenceLocation(RestorableModel mapped, Model sourceReference, Model targetReference) { }
@@ -223,5 +256,10 @@ public class RestorableModel implements Serializable {
 
 	public void appendCreation(CommandState<Model> creationPartToAppend) {
 		appendedCreation.add(creationPartToAppend);
+	}
+
+	public void clearCreation() {
+		if(modelCreation != null)
+			modelCreation.clear();
 	}
 }

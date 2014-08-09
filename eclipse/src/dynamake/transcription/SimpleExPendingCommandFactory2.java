@@ -12,12 +12,16 @@ public class SimpleExPendingCommandFactory2<T> implements ExPendingCommandFactor
 	private List<CommandState<T>> pendingCommands;
 	
 	public SimpleExPendingCommandFactory2(T reference, List<CommandState<T>> pendingCommands) {
+		if(reference == null)
+			new String();
 		this.reference = reference;
 		this.pendingCommands = pendingCommands;
 	}
 	
 	@SafeVarargs
 	public SimpleExPendingCommandFactory2(T reference, CommandState<T>... pendingCommands) {
+		if(reference == null)
+			new String();
 		this.reference = reference;
 		this.pendingCommands = Arrays.asList(pendingCommands);
 	}
