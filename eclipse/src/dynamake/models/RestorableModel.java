@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.Mappable;
+import dynamake.commands.MappableForwardable;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.models.Model.PendingUndoablePair;
@@ -31,11 +31,11 @@ public class RestorableModel implements Serializable {
 	// Origins must guarantee to not require mapping to new references
 	private List<CommandState<Model>> modelOrigins;
 	private List<CommandState<Model>> modelCreation;
-	private Mappable modelHistory;
+	private MappableForwardable modelHistory;
 	private List<CommandState<Model>> modelCleanup;
 	
 	public static RestorableModel wrap(Model model, boolean includeLocalHistory) {
-		Mappable modelHistory = null;
+		MappableForwardable modelHistory = null;
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
 		try {
@@ -63,7 +63,7 @@ public class RestorableModel implements Serializable {
 		return new RestorableModel(modelBaseSerialization, modelOrigins, modelCreation, modelHistory, modelCleanup);
 	}
 	
-	private RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, Mappable modelHistory, List<CommandState<Model>> modelCleanup) {
+	private RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, MappableForwardable modelHistory, List<CommandState<Model>> modelCleanup) {
 		this.modelBaseSerialization = modelBaseSerialization;
 		this.modelOrigins = modelOrigins;
 		this.modelCreation = modelCreation;
@@ -97,6 +97,32 @@ public class RestorableModel implements Serializable {
 			mapped.modelCleanup = new ArrayList<CommandState<Model>>();
 			for(CommandState<Model> mc: modelCleanup) {
 				CommandState<Model> newModelCleanup = mc.mapToReferenceLocation(sourceReference, targetReference);
+				mapped.modelCleanup.add(newModelCleanup);
+			}
+		}
+	}
+	
+	public RestorableModel forForwarding() {
+		RestorableModel mapped = new RestorableModel(modelBaseSerialization, modelOrigins);
+		forForwarding(mapped);
+		return mapped;
+	}
+	
+	protected void forForwarding(RestorableModel mapped) {
+		if(modelCreation != null) {
+			mapped.modelCreation = new ArrayList<CommandState<Model>>();
+			for(CommandState<Model> modelCreationPart: modelCreation) {
+				CommandState<Model> newModelCreationPart = modelCreationPart.forForwarding();
+				mapped.modelCreation.add(newModelCreationPart);
+			}
+		}
+		
+		mapped.modelHistory = modelHistory.forForwarding();
+		
+		if(modelCleanup != null) {
+			mapped.modelCleanup = new ArrayList<CommandState<Model>>();
+			for(CommandState<Model> mc: modelCleanup) {
+				CommandState<Model> newModelCleanup = mc.forForwarding();
 				mapped.modelCleanup.add(newModelCleanup);
 			}
 		}

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.Mappable;
+import dynamake.commands.MappableForwardable;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.models.Model.PendingUndoablePair;
@@ -33,11 +33,11 @@ public class RestorableModel_TO_BE_OBSOLETED implements Serializable {
 	private List<CommandState<Model>> modelOrigins;
 	private List<CommandState<Model>> modelCreation;
 	private List<CommandState<Model>> modelPostCreation;
-	private Mappable modelHistory;
+	private MappableForwardable modelHistory;
 	private List<CommandState<Model>> modelCleanup;
 	
 	public static RestorableModel_TO_BE_OBSOLETED wrap(Model model, boolean includeLocalHistory) {
-		Mappable modelHistory = null;
+		MappableForwardable modelHistory = null;
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
 		try {
@@ -67,7 +67,7 @@ public class RestorableModel_TO_BE_OBSOLETED implements Serializable {
 		return new RestorableModel_TO_BE_OBSOLETED(modelBaseSerialization, modelOrigins, modelCreation, modelPostCreation, modelHistory, modelCleanup);
 	}
 	
-	private RestorableModel_TO_BE_OBSOLETED(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, List<CommandState<Model>> modelPostCreation, Mappable modelHistory, List<CommandState<Model>> modelCleanup) {
+	private RestorableModel_TO_BE_OBSOLETED(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, List<CommandState<Model>> modelPostCreation, MappableForwardable modelHistory, List<CommandState<Model>> modelCleanup) {
 		this.modelBaseSerialization = modelBaseSerialization;
 		this.modelOrigins = modelOrigins;
 		this.modelCreation = modelCreation;
@@ -95,7 +95,7 @@ public class RestorableModel_TO_BE_OBSOLETED implements Serializable {
 			}
 		}
 		
-		Mappable mappedModelHistory = modelHistory.mapToReferenceLocation(sourceReference, targetReference);
+		MappableForwardable mappedModelHistory = modelHistory.mapToReferenceLocation(sourceReference, targetReference);
 		
 		ArrayList<CommandState<Model>> mappedModelCleanup = new ArrayList<CommandState<Model>>();
 		

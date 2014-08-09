@@ -26,7 +26,7 @@ import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.ForwardableCommand;
 import dynamake.commands.ForwardableOutput;
-import dynamake.commands.Mappable;
+import dynamake.commands.MappableForwardable;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
@@ -1218,7 +1218,7 @@ public abstract class Model implements Serializable, Observer {
 	
 	public abstract Model cloneBase();
 	
-	private static class History implements Mappable, Serializable {
+	private static class History implements MappableForwardable, Serializable {
 		/**
 		 * 
 		 */
@@ -1232,7 +1232,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public Mappable mapToReferenceLocation(Model sourceReference, Model targetReference) {
+		public MappableForwardable mapToReferenceLocation(Model sourceReference, Model targetReference) {
 			Stack<CommandState<Model>> mappedUndoStack = new Stack<CommandState<Model>>();
 			
 			for(CommandState<Model> cs: undoStack)
@@ -1245,9 +1245,24 @@ public abstract class Model implements Serializable, Observer {
 			
 			return new History(mappedUndoStack, mappedRedoStack);
 		}
+		
+		@Override
+		public MappableForwardable forForwarding() {
+			Stack<CommandState<Model>> forForwardingUndoStack = new Stack<CommandState<Model>>();
+			
+			for(CommandState<Model> cs: undoStack)
+				forForwardingUndoStack.add(cs.forForwarding());
+
+			Stack<CommandState<Model>> forForwardingRedoStack = new Stack<CommandState<Model>>();
+			
+			for(CommandState<Model> cs: redoStack)
+				forForwardingRedoStack.add(cs.forForwarding());
+			
+			return new History(forForwardingUndoStack, forForwardingRedoStack);
+		}
 	}
 	
-	public Mappable cloneHistory() {
+	public MappableForwardable cloneHistory() {
 		return new History(undoStack, redoStack);
 	}
 	
