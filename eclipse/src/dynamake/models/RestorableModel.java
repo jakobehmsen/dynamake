@@ -27,12 +27,12 @@ public class RestorableModel implements Serializable {
 	public static String PROPERTY_CREATION = "Creation";
 	public static String PROPERTY_CLEANUP = "Cleanup";
 	
-	private byte[] modelBaseSerialization;
+	protected byte[] modelBaseSerialization;
 	// Origins must guarantee to not require mapping to new references
-	private List<CommandState<Model>> modelOrigins;
-	private List<CommandState<Model>> modelCreation;
-	private MappableForwardable modelHistory;
-	private List<CommandState<Model>> modelCleanup;
+	protected List<CommandState<Model>> modelOrigins;
+	protected List<CommandState<Model>> modelCreation;
+	protected MappableForwardable modelHistory;
+	protected List<CommandState<Model>> modelCleanup;
 	
 	public static RestorableModel wrap(Model model, boolean includeLocalHistory) {
 		MappableForwardable modelHistory = null;
@@ -63,7 +63,7 @@ public class RestorableModel implements Serializable {
 		return new RestorableModel(modelBaseSerialization, modelOrigins, modelCreation, modelHistory, modelCleanup);
 	}
 	
-	private RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, MappableForwardable modelHistory, List<CommandState<Model>> modelCleanup) {
+	protected RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, MappableForwardable modelHistory, List<CommandState<Model>> modelCleanup) {
 		this.modelBaseSerialization = modelBaseSerialization;
 		this.modelOrigins = modelOrigins;
 		this.modelCreation = modelCreation;
@@ -77,7 +77,7 @@ public class RestorableModel implements Serializable {
 	}
 	
 	public RestorableModel mapToReferenceLocation(Model sourceReference, Model targetReference) {
-		RestorableModel mapped = new RestorableModel(modelBaseSerialization, modelOrigins);
+		RestorableModel mapped = createRestorableModel(modelBaseSerialization, modelOrigins);
 		mapToReferenceLocation(mapped, sourceReference, targetReference);
 		return mapped;
 	}
@@ -100,10 +100,12 @@ public class RestorableModel implements Serializable {
 				mapped.modelCleanup.add(newModelCleanup);
 			}
 		}
+		
+		afterMapToReferenceLocation(mapped, sourceReference, targetReference);
 	}
 	
 	public RestorableModel forForwarding() {
-		RestorableModel mapped = new RestorableModel(modelBaseSerialization, modelOrigins);
+		RestorableModel mapped = createRestorableModel(modelBaseSerialization, modelOrigins);
 		forForwarding(mapped);
 		return mapped;
 	}
@@ -126,6 +128,12 @@ public class RestorableModel implements Serializable {
 				mapped.modelCleanup.add(newModelCleanup);
 			}
 		}
+		
+		afterForForwarding(mapped);
+	}
+	
+	protected RestorableModel createRestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins) {
+		return new RestorableModel(modelBaseSerialization, modelOrigins);
 	}
 	
 	public Model unwrapBase(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -172,6 +180,8 @@ public class RestorableModel implements Serializable {
 	}
 	
 	protected void afterRestoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
+	protected void afterMapToReferenceLocation(RestorableModel mapped, Model sourceReference, Model targetReference) { }
+	protected void afterForForwarding(RestorableModel forForwarded) { }
 	
 	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		Model modelBase = unwrapBase(propCtx, propDistance, collector);
