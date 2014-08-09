@@ -15,6 +15,7 @@ import dynamake.models.Observer;
 import dynamake.models.PropogationContext;
 import dynamake.models.LocalChangesForwarder.PushLocalChanges;
 import dynamake.transcription.Collector;
+import dynamake.transcription.SimpleExPendingCommandFactory2;
 import dynamake.transcription.Trigger;
 
 public class ForwardLocalChangesCommand implements MappableCommand<Model> {
@@ -101,8 +102,10 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 				boolean forwardSourceCreationPart = false;
 				PendingCommandState<Model> pending = (PendingCommandState<Model>)sourceCreationPart.pending;
 				if(!(offset instanceof ModelRootLocation) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command)) {
-					forwardSourceCreationPart = true;
+					// A forward local changes command should be executed here?
+//					forwardSourceCreationPart = true;
 //					toForward.add(sourceCreationPart); 
+//					collector.execute(new SimpleExPendingCommandFactory2<Model>(reference, pendingCommands));
 					// ForwardLocalChangesCommand should keep forwarding from the same source?
 				} else if(!(pending.getCommand() instanceof ForwardLocalChangesCommand) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command)) {
 					forwardSourceCreationPart = true;
@@ -140,6 +143,8 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 		if(source instanceof CanvasModel) {
 			CanvasModel sourceCanvas = (CanvasModel)source;
 			
+			// What about using the RestorableModel for each of the models in source?
+			
 			for(Location locationInSource: sourceCanvas.getLocations()) {
 				final Model modelInSource = sourceCanvas.getModelByLocation(locationInSource);
 				final Location newOffset = new CompositeLocation(offset, locationInSource);
@@ -147,6 +152,10 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 				collector.execute(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
+						// What if modelInSource itself is a derivation?
+						// - I.e., its creation consists of a ForwardLocalChangesCommand
+						// Should
+						
 						pushForward(modelInSource, forwarder, distanceToTarget, newOffset, propCtx, propDistance, collector);
 					}
 				});
