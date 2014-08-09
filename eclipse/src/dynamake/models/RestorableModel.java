@@ -71,28 +71,35 @@ public class RestorableModel implements Serializable {
 		this.modelCleanup = modelCleanup;
 	}
 	
+	protected RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins) {
+		this.modelBaseSerialization = modelBaseSerialization;
+		this.modelOrigins = modelOrigins;
+	}
+	
 	public RestorableModel mapToReferenceLocation(Model sourceReference, Model targetReference) {
-		ArrayList<CommandState<Model>> mappedModelCreation = new ArrayList<CommandState<Model>>();
-		
+		RestorableModel mapped = new RestorableModel(modelBaseSerialization, modelOrigins);
+		mapToReferenceLocation(mapped, sourceReference, targetReference);
+		return mapped;
+	}
+	
+	protected void mapToReferenceLocation(RestorableModel mapped, Model sourceReference, Model targetReference) {
 		if(modelCreation != null) {
+			mapped.modelCreation = new ArrayList<CommandState<Model>>();
 			for(CommandState<Model> modelCreationPart: modelCreation) {
 				CommandState<Model> newModelCreationPart = modelCreationPart.mapToReferenceLocation(sourceReference, targetReference);
-				mappedModelCreation.add(newModelCreationPart);
+				mapped.modelCreation.add(newModelCreationPart);
 			}
 		}
 		
-		Mappable mappedModelHistory = modelHistory.mapToReferenceLocation(sourceReference, targetReference);
-		
-		ArrayList<CommandState<Model>> mappedModelCleanup = new ArrayList<CommandState<Model>>();
+		mapped.modelHistory = modelHistory.mapToReferenceLocation(sourceReference, targetReference);
 		
 		if(modelCleanup != null) {
+			mapped.modelCleanup = new ArrayList<CommandState<Model>>();
 			for(CommandState<Model> mc: modelCleanup) {
 				CommandState<Model> newModelCleanup = mc.mapToReferenceLocation(sourceReference, targetReference);
-				mappedModelCleanup.add(newModelCleanup);
+				mapped.modelCleanup.add(newModelCleanup);
 			}
 		}
-		
-		return new RestorableModel(modelBaseSerialization, modelOrigins, mappedModelCreation, mappedModelHistory, mappedModelCleanup);
 	}
 	
 	public Model unwrapBase(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -134,11 +141,11 @@ public class RestorableModel implements Serializable {
 		}
 
 		modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
+		
+		afterRestoreChangesOnBase(modelBase, propCtx, propDistance, collector);
 	}
 	
-	public void restoreCleanupOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		modelBase.setProperty(RestorableModel.PROPERTY_CLEANUP, modelCleanup, propCtx, propDistance, collector);
-	}
+	protected void afterRestoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
 	
 	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		Model modelBase = unwrapBase(propCtx, propDistance, collector);
