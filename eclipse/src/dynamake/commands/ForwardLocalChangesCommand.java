@@ -98,12 +98,23 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 		List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty("Creation");
 		if(sourceCreation != null) {
 			for(Model.PendingUndoablePair sourceCreationPart: sourceCreation) {
+				boolean forwardSourceCreationPart = false;
 				PendingCommandState<Model> pending = (PendingCommandState<Model>)sourceCreationPart.pending;
 				if(!(offset instanceof ModelRootLocation) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command)) {
-					toForward.add(sourceCreationPart); 
+					forwardSourceCreationPart = true;
+//					toForward.add(sourceCreationPart); 
 					// ForwardLocalChangesCommand should keep forwarding from the same source?
-				} else if(!(pending.getCommand() instanceof ForwardLocalChangesCommand) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
+				} else if(!(pending.getCommand() instanceof ForwardLocalChangesCommand) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command)) {
+					forwardSourceCreationPart = true;
+				}
+				
+				if(forwardSourceCreationPart) {
+					for(int i = 1; i < distanceToTarget; i++) {
+						sourceCreationPart = sourceCreationPart.forForwarding();
+					}
+					
 					toForward.add(sourceCreationPart);
+				}
 //				if(!(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesCommand) && !(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
 //					toForward.add(sourceCreationPart);
 			}
@@ -111,10 +122,13 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 
 		// Why aren't the preceeding commands of toForward forwarded
 		Location forwardedOffset = offset;
+		for(int i = 1; i < distanceToTarget; i++) {
+			forwardedOffset = forwardedOffset.forForwarding();
+		}
+		
 		for(Model.PendingUndoablePair pup: source.getLocalChangesAsPairs()) {
 			for(int i = 1; i < distanceToTarget; i++) {
 				pup = pup.forForwarding();
-				forwardedOffset = forwardedOffset.forForwarding();
 			}
 			toForward.add(pup);
 		}
