@@ -103,7 +103,8 @@ public class RestorableModel implements Serializable {
 			}
 		}
 		
-		mapped.modelHistory = modelHistory.mapToReferenceLocation(sourceReference, targetReference);
+		if(modelHistory != null)
+			mapped.modelHistory = modelHistory.mapToReferenceLocation(sourceReference, targetReference);
 		
 		if(modelCleanup != null) {
 			mapped.modelCleanup = new ArrayList<CommandState<Model>>();
@@ -131,7 +132,8 @@ public class RestorableModel implements Serializable {
 			}
 		}
 		
-		mapped.modelHistory = modelHistory.forForwarding();
+		if(modelHistory != null)
+			mapped.modelHistory = modelHistory.forForwarding();
 		
 		if(modelCleanup != null) {
 			mapped.modelCleanup = new ArrayList<CommandState<Model>>();
@@ -168,13 +170,17 @@ public class RestorableModel implements Serializable {
 	}
 	
 	public void restoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		ArrayList<CommandState<Model>> modelCreationAsPendingCommands = new ArrayList<CommandState<Model>>();
+		
 		if(modelCreation != null) {
-			ArrayList<CommandState<Model>> modelCreationAsPendingCommands = new ArrayList<CommandState<Model>>();
-			
 			for(CommandState<Model> modelCreationPart: modelCreation) {
 				modelCreationAsPendingCommands.add(((Model.PendingUndoablePair)modelCreationPart).pending);
 			}
-			
+		}
+		
+		modelCreationAsPendingCommands.addAll(appendedCreation);
+		
+		if(modelCreationAsPendingCommands.size() > 0) {
 			collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, modelCreationAsPendingCommands) {
 				@Override
 				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -186,19 +192,36 @@ public class RestorableModel implements Serializable {
 			});
 		}
 
-		modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
+		if(modelHistory != null)
+			modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
 		
 		afterRestoreChangesOnBase(modelBase, propCtx, propDistance, collector);
 	}
 	
-	protected void afterRestoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
+	public void restoreCleanupOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, new PendingCommandState<Model>(
+			new SetPropertyCommand(RestorableModel.PROPERTY_CLEANUP, modelCleanup), 
+			new SetPropertyCommand.AfterSetProperty()
+		)));
+		
+		afterRestoreCleanupOnBase(modelBase, propCtx, propDistance, collector);
+	}
+	
 	protected void afterMapToReferenceLocation(RestorableModel mapped, Model sourceReference, Model targetReference) { }
 	protected void afterForForwarding(RestorableModel forForwarded) { }
+	protected void afterRestoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
+	protected void afterRestoreCleanupOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
 	
 	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		Model modelBase = unwrapBase(propCtx, propDistance, collector);
 		restoreOriginsOnBase(modelBase, propCtx, propDistance, collector);
 		restoreChangesOnBase(modelBase, propCtx, propDistance, collector);
 		return modelBase;
+	}
+	
+	private ArrayList<CommandState<Model>> appendedCreation = new ArrayList<CommandState<Model>>();
+
+	public void appendCreation(CommandState<Model> creationPartToAppend) {
+		appendedCreation.add(creationPartToAppend);
 	}
 }

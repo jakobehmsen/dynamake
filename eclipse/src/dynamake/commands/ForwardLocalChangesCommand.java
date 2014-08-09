@@ -3,6 +3,7 @@ package dynamake.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import dynamake.commands.Command.Null;
 import dynamake.delegates.Func1;
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
@@ -18,22 +19,24 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.SimpleExPendingCommandFactory2;
 import dynamake.transcription.Trigger;
 
-public class ForwardLocalChangesCommand implements MappableCommand<Model> {
+public class ForwardLocalChangesCommand implements MappableCommand<Model>, ForwardableCommand<Model> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private Location locationOfSource;
+	private Location locationOfSourceFromTarget;
 
-	public ForwardLocalChangesCommand(Location locationOfSource) {
-		this.locationOfSource = locationOfSource;
+	public ForwardLocalChangesCommand(Location locationOfSourceFromTarget) {
+		this.locationOfSourceFromTarget = locationOfSourceFromTarget;
 	}
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-		Model source = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfSource);
+//		Model source = (Model)location.getChild(prevalentSystem);
+//		Model target = (Model)locationOfSourceFromTarget.getChild(source);
 		Model target = (Model)location.getChild(prevalentSystem);
+		Model source = (Model)locationOfSourceFromTarget.getChild(target);
 		
 		LocalChangesForwarder historyChangeForwarder = new LocalChangesForwarder(source, target);
 		source.addObserver(historyChangeForwarder);
@@ -47,7 +50,7 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 //		if(source instanceof CanvasModel)
 //			forwardLocalChangesUpwards(historyChangeForwarder, (CanvasModel)source, new ModelRootLocation(), new ModelRootLocation());
 		
-		pushForward(source, historyChangeForwarder, 1, propCtx, 0, collector);
+//		pushForward(source, historyChangeForwarder, 1, propCtx, 0, collector);
 		
 		System.out.println("Forward local changes from " + source + " to " + target);
 		
@@ -181,9 +184,15 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 	
 	@Override
 	public Command<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
-		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfSource);
+		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfSourceFromTarget);
 		Location locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
 		
 		return new ForwardLocalChangesCommand(locationOfSourceFromTargetReference);
+	}
+	
+	@Override
+	public Command<Model> forForwarding(Object output) {
+		//  Forwarding this command effectively removes it
+		return new Command.Null<Model>();
 	}
 }

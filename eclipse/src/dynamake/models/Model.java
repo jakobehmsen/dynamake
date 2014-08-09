@@ -40,6 +40,7 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.CloneFactory;
 import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.NewInstanceFactory2;
+import dynamake.models.factories.NewInstanceFactory3;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
@@ -996,7 +997,7 @@ public abstract class Model implements Serializable, Observer {
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
-							ModelFactory factory = new NewInstanceFactory2(new RectangleF(creationBounds), droppedLocation);
+							ModelFactory factory = new NewInstanceFactory3(new RectangleF(creationBounds), droppedLocation);
 							commandStates.add(new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
