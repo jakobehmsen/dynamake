@@ -35,6 +35,12 @@ public class RestorableModel implements Serializable {
 	protected List<CommandState<Model>> modelCleanup;
 	
 	public static RestorableModel wrap(Model model, boolean includeLocalHistory) {
+		RestorableModel wrapper = new RestorableModel();
+		wrap(wrapper, model, includeLocalHistory);
+		return wrapper;
+	}
+	
+	protected static void wrap(RestorableModel wrapper, Model model, boolean includeLocalHistory) {
 		MappableForwardable modelHistory = null;
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
@@ -60,7 +66,11 @@ public class RestorableModel implements Serializable {
 		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> modelCleanup = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CLEANUP);
 		
-		return new RestorableModel(modelBaseSerialization, modelOrigins, modelCreation, modelHistory, modelCleanup);
+		wrapper.modelBaseSerialization = modelBaseSerialization;
+		wrapper.modelOrigins = modelOrigins;
+		wrapper.modelCreation = modelCreation;
+		wrapper.modelHistory = modelHistory;
+		wrapper.modelCleanup = modelCleanup;
 	}
 	
 	protected RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, MappableForwardable modelHistory, List<CommandState<Model>> modelCleanup) {
@@ -75,6 +85,8 @@ public class RestorableModel implements Serializable {
 		this.modelBaseSerialization = modelBaseSerialization;
 		this.modelOrigins = modelOrigins;
 	}
+	
+	protected RestorableModel() { }
 	
 	public RestorableModel mapToReferenceLocation(Model sourceReference, Model targetReference) {
 		RestorableModel mapped = createRestorableModel(modelBaseSerialization, modelOrigins);

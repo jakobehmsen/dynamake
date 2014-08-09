@@ -30,15 +30,19 @@ public class CanvasRestorableModel extends RestorableModel {
 	private static final long serialVersionUID = 1L;
 	
 	private List<Entry> innerRestorables;
+	
+	protected CanvasRestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, MappableForwardable modelHistory, List<CommandState<Model>> modelCleanup, List<Entry> innerRestorables) {
+		super(modelBaseSerialization, modelOrigins, modelCreation, modelHistory, modelCleanup);
+		this.innerRestorables = innerRestorables;
+	}
 
 	protected CanvasRestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins) {
 		super(modelBaseSerialization, modelOrigins);
 		innerRestorables = new ArrayList<Entry>();
 	}
-	
-	protected CanvasRestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, MappableForwardable modelHistory, List<CommandState<Model>> modelCleanup, List<Entry> innerRestorables) {
-		super(modelBaseSerialization, modelOrigins, modelCreation, modelHistory, modelCleanup);
-		this.innerRestorables = innerRestorables;
+
+	protected CanvasRestorableModel() { 
+		innerRestorables = new ArrayList<Entry>();
 	}
 	
 	@Override
@@ -78,7 +82,13 @@ public class CanvasRestorableModel extends RestorableModel {
 		}
 	}
 	
-	public static CanvasRestorableModel wrap(CanvasModel model) {
-		return null;
+	public static CanvasRestorableModel wrap(CanvasModel model, boolean includeLocalHistory) {
+		CanvasRestorableModel wrapper = new CanvasRestorableModel();
+		wrap(wrapper, model, includeLocalHistory);
+		for(Location modelLocation: model.getLocations()) {
+			Model innerModel = model.getModelByLocation(modelLocation);
+			wrapper.innerRestorables.add(new Entry(modelLocation, innerModel.toRestorable(includeLocalHistory)));
+		}
+		return wrapper;
 	}
 }
