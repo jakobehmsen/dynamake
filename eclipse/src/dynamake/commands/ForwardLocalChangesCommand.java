@@ -23,15 +23,15 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private Location locationOfTarget;
+	private Location locationOfSource;
 
 	public ForwardLocalChangesCommand(Location locationOfSource) {
-		this.locationOfTarget = locationOfSource;
+		this.locationOfSource = locationOfSource;
 	}
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-		Model source = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfTarget);
+		Model source = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfSource);
 		Model target = (Model)location.getChild(prevalentSystem);
 		
 		LocalChangesForwarder historyChangeForwarder = new LocalChangesForwarder(source, target);
@@ -99,9 +99,10 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 		if(sourceCreation != null) {
 			for(Model.PendingUndoablePair sourceCreationPart: sourceCreation) {
 				PendingCommandState<Model> pending = (PendingCommandState<Model>)sourceCreationPart.pending;
-				if(!(offset instanceof ModelRootLocation) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
-					toForward.add(sourceCreationPart); // ForwardLocalChangesCommand should keep forwarding from the same source?
-				else if(!(pending.getCommand() instanceof ForwardLocalChangesCommand) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
+				if(!(offset instanceof ModelRootLocation) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command)) {
+					toForward.add(sourceCreationPart); 
+					// ForwardLocalChangesCommand should keep forwarding from the same source?
+				} else if(!(pending.getCommand() instanceof ForwardLocalChangesCommand) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
 					toForward.add(sourceCreationPart);
 //				if(!(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesCommand) && !(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
 //					toForward.add(sourceCreationPart);
@@ -157,7 +158,7 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model> {
 	
 	@Override
 	public Command<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
-		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfTarget);
+		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfSource);
 		Location locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
 		
 		return new ForwardLocalChangesCommand(locationOfSourceFromTargetReference);
