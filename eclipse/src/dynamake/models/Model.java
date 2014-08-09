@@ -1286,4 +1286,8 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	protected void modelBeRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector, List<CommandState<Model>> restoreCommands) { }
+	
+	public RestorableModel toRestorable(boolean includeLocalHistory) {
+		return RestorableModel.wrap(this, includeLocalHistory);
+	}
 }

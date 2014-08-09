@@ -82,6 +82,11 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
+	public RestorableModel toRestorable(boolean includeLocalHistory) {
+		return CanvasRestorableModel.wrap(this, includeLocalHistory);
+	}
+	
+	@Override
 	protected void modelScale(Fraction hChange, Fraction vChange, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(Entry entry: models)
 			entry.model.scale(hChange, vChange, propCtx, propDistance, collector);
