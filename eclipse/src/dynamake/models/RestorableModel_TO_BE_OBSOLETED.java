@@ -17,7 +17,7 @@ import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
 import dynamake.transcription.SimpleExPendingCommandFactory2;
 
-public class RestorableModel implements Serializable {
+public class RestorableModel_TO_BE_OBSOLETED implements Serializable {
 	/**
 	 * 
 	 */
@@ -25,16 +25,18 @@ public class RestorableModel implements Serializable {
 
 	public static String PROPERTY_ORIGINS = "Origins";
 	public static String PROPERTY_CREATION = "Creation";
+	public static String PROPERTY_POST_CREATION = "PostCreation";
 	public static String PROPERTY_CLEANUP = "Cleanup";
 	
 	private byte[] modelBaseSerialization;
 	// Origins must guarantee to not require mapping to new references
 	private List<CommandState<Model>> modelOrigins;
 	private List<CommandState<Model>> modelCreation;
+	private List<CommandState<Model>> modelPostCreation;
 	private Mappable modelHistory;
 	private List<CommandState<Model>> modelCleanup;
 	
-	public static RestorableModel wrap(Model model, boolean includeLocalHistory) {
+	public static RestorableModel_TO_BE_OBSOLETED wrap(Model model, boolean includeLocalHistory) {
 		Mappable modelHistory = null;
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
@@ -54,30 +56,42 @@ public class RestorableModel implements Serializable {
 		byte[] modelBaseSerialization = bos.toByteArray();
 		
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> modelOrigins = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_ORIGINS);
+		List<CommandState<Model>> modelOrigins = (List<CommandState<Model>>)model.getProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_ORIGINS);
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> modelCreation = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CREATION);
+		List<CommandState<Model>> modelCreation = (List<CommandState<Model>>)model.getProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION);
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> modelCleanup = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CLEANUP);
+		List<CommandState<Model>> modelPostCreation = (List<CommandState<Model>>)model.getProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_POST_CREATION);
+		@SuppressWarnings("unchecked")
+		List<CommandState<Model>> modelCleanup = (List<CommandState<Model>>)model.getProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CLEANUP);
 		
-		return new RestorableModel(modelBaseSerialization, modelOrigins, modelCreation, modelHistory, modelCleanup);
+		return new RestorableModel_TO_BE_OBSOLETED(modelBaseSerialization, modelOrigins, modelCreation, modelPostCreation, modelHistory, modelCleanup);
 	}
 	
-	private RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, Mappable modelHistory, List<CommandState<Model>> modelCleanup) {
+	private RestorableModel_TO_BE_OBSOLETED(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, List<CommandState<Model>> modelPostCreation, Mappable modelHistory, List<CommandState<Model>> modelCleanup) {
 		this.modelBaseSerialization = modelBaseSerialization;
 		this.modelOrigins = modelOrigins;
 		this.modelCreation = modelCreation;
+		this.modelPostCreation = modelPostCreation;
 		this.modelHistory = modelHistory;
 		this.modelCleanup = modelCleanup;
 	}
 	
-	public RestorableModel mapToReferenceLocation(Model sourceReference, Model targetReference) {
+	public RestorableModel_TO_BE_OBSOLETED mapToReferenceLocation(Model sourceReference, Model targetReference) {
 		ArrayList<CommandState<Model>> mappedModelCreation = new ArrayList<CommandState<Model>>();
 		
 		if(modelCreation != null) {
 			for(CommandState<Model> modelCreationPart: modelCreation) {
 				CommandState<Model> newModelCreationPart = modelCreationPart.mapToReferenceLocation(sourceReference, targetReference);
 				mappedModelCreation.add(newModelCreationPart);
+			}
+		}
+		
+		ArrayList<CommandState<Model>> mappedModelPostCreation = new ArrayList<CommandState<Model>>();
+		
+		if(modelPostCreation != null) {
+			for(CommandState<Model> modelPostCreationPart: modelPostCreation) {
+				CommandState<Model> newModelPostCreationPart = modelPostCreationPart.mapToReferenceLocation(sourceReference, targetReference);
+				mappedModelPostCreation.add(newModelPostCreationPart);
 			}
 		}
 		
@@ -92,7 +106,7 @@ public class RestorableModel implements Serializable {
 			}
 		}
 		
-		return new RestorableModel(modelBaseSerialization, modelOrigins, mappedModelCreation, mappedModelHistory, mappedModelCleanup);
+		return new RestorableModel_TO_BE_OBSOLETED(modelBaseSerialization, modelOrigins, mappedModelCreation, mappedModelPostCreation, mappedModelHistory, mappedModelCleanup);
 	}
 	
 	public Model unwrapBase(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -111,11 +125,14 @@ public class RestorableModel implements Serializable {
 	
 	public void restoreOriginsOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		modelBase.playThenReverse(modelOrigins, propCtx, propDistance, collector);
-		modelBase.setProperty(RestorableModel.PROPERTY_ORIGINS, modelOrigins, propCtx, propDistance, collector);
+		modelBase.setProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_ORIGINS, modelOrigins, propCtx, propDistance, collector);
 	}
 	
 	public void restoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(modelCreation != null) {
+			// TODO: modelCreation should be scheduled for execution on collector
+//			modelBase.playThenReverse(modelCreation, propCtx, propDistance, collector);
+			
 			ArrayList<CommandState<Model>> modelCreationAsPendingCommands = new ArrayList<CommandState<Model>>();
 			
 			for(CommandState<Model> modelCreationPart: modelCreation) {
@@ -126,18 +143,32 @@ public class RestorableModel implements Serializable {
 				@Override
 				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 					collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, new PendingCommandState<Model>(
-						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, pendingUndoablePairs), 
+						new SetPropertyCommand(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION, pendingUndoablePairs), 
 						new SetPropertyCommand.AfterSetProperty()
 					)));
 				}
 			});
 		}
-
+//		modelBase.setProperty(RestorableModel.PROPERTY_CREATION, modelCreation, propCtx, propDistance, collector);
+		// TODO: location changes (in restoreHistory) should be scheduled for execution on collector
 		modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
+		
+		if(modelPostCreation != null) {
+			// TODO: modelCreation should be scheduled for execution on collector
+//			modelBase.playThenReverse(modelCreation, propCtx, propDistance, collector);
+			
+//			ArrayList<CommandState<Model>> modelPostCreationAsPendingCommands = new ArrayList<CommandState<Model>>();
+//			
+//			for(CommandState<Model> modelPostCreationPart: modelPostCreation) {
+//				modelPostCreationAsPendingCommands.add(((Model.PendingUndoablePair)modelPostCreationPart).pending);
+//			}
+			
+			collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, modelPostCreation));
+		}
 	}
 	
 	public void restoreCleanupOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		modelBase.setProperty(RestorableModel.PROPERTY_CLEANUP, modelCleanup, propCtx, propDistance, collector);
+		modelBase.setProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CLEANUP, modelCleanup, propCtx, propDistance, collector);
 	}
 	
 	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector) {

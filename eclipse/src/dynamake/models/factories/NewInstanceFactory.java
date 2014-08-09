@@ -15,7 +15,7 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
-import dynamake.models.RestorableModel;
+import dynamake.models.RestorableModel_TO_BE_OBSOLETED;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 
@@ -57,15 +57,15 @@ public class NewInstanceFactory implements ModelFactory {
 	
 	private void pushOrigins(Model source, Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> origins = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_ORIGINS);
+		List<CommandState<Model>> origins = (List<CommandState<Model>>)source.getProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_ORIGINS);
 		
 		target.playThenReverse(origins, propCtx, propDistance, collector);
-		target.setProperty(RestorableModel.PROPERTY_ORIGINS, origins, propCtx, propDistance, collector);
+		target.setProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_ORIGINS, origins, propCtx, propDistance, collector);
 	}
 	
 	private void pushCreation(Model source, Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> creation = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+		List<CommandState<Model>> creation = (List<CommandState<Model>>)source.getProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION);
 		
 		ArrayList<CommandState<Model>> newCreation = new ArrayList<CommandState<Model>>();
 		
@@ -148,12 +148,12 @@ public class NewInstanceFactory implements ModelFactory {
 
 		// TODO: Consider: Inherit cleanup?
 		List<CommandState<Model>> cleanup = target.playThenReverse(creationForwarding, propCtx, propDistance, collector);
-		target.setProperty(RestorableModel.PROPERTY_CLEANUP, cleanup, propCtx, propDistance, collector);
+		target.setProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CLEANUP, cleanup, propCtx, propDistance, collector);
 		
 		newCreation.addAll(creationForwarding);
 		
 		
 		
-		target.setProperty(RestorableModel.PROPERTY_CREATION, newCreation, propCtx, propDistance, collector);
+		target.setProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION, newCreation, propCtx, propDistance, collector);
 	}
 }

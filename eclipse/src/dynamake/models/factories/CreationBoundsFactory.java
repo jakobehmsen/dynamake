@@ -8,7 +8,7 @@ import dynamake.commands.SetPropertyCommand;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
-import dynamake.models.RestorableModel;
+import dynamake.models.RestorableModel_TO_BE_OBSOLETED;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 
@@ -48,7 +48,7 @@ public class CreationBoundsFactory implements ModelFactory {
 				
 				model.playThenReverse(origins, propCtx, propDistance, collector);
 				
-				model.setProperty(RestorableModel.PROPERTY_ORIGINS, origins, propCtx, propDistance, collector);
+				model.setProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_ORIGINS, origins, propCtx, propDistance, collector);
 //				model.setProperty(RestorableModel.PROPERTY_CREATION, origins, propCtx, propDistance, collector);
 				
 				return model;

@@ -105,7 +105,7 @@ public class CanvasModel extends Model {
 		// A model should be able to wrap itself in to a RestorableModel?
 		// Then, perhaps, composite restorable models could be supported in the case of canvases?
 		for(Entry entry: models) {
-			RestorableModel restorableModel = RestorableModel.wrap(entry.model, true);
+			RestorableModel_TO_BE_OBSOLETED restorableModel = RestorableModel_TO_BE_OBSOLETED.wrap(entry.model, true);
 
 			Location modelLocation = getLocationOf(entry.model);
 			
@@ -415,7 +415,7 @@ public class CanvasModel extends Model {
 
 			@Override
 			public Command<Model> createCommand(Object output) {
-				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
+				RestorableModel_TO_BE_OBSOLETED restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
 				Location location = ((RemoveModelCommand.Output)output).location;
 				// TODO: Consider the following:
 				// What if the model what observing/being observed before its removal?
@@ -447,7 +447,7 @@ public class CanvasModel extends Model {
 
 			@Override
 			public Command<Model> createCommand(Object output) {
-				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
+				RestorableModel_TO_BE_OBSOLETED restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
 				
 				Location mappedLocation = ((RemoveModelCommand.Output)output).location.forForwarding();
 				
@@ -465,9 +465,9 @@ public class CanvasModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private Location modelLocationToRestore;
-		private RestorableModel restorableModel;
+		private RestorableModel_TO_BE_OBSOLETED restorableModel;
 		
-		public RestoreModelCommand(Location modelLocationToRestore, RestorableModel restorableModel) {
+		public RestoreModelCommand(Location modelLocationToRestore, RestorableModel_TO_BE_OBSOLETED restorableModel) {
 			this.modelLocationToRestore = modelLocationToRestore;
 			this.restorableModel = restorableModel;
 		}
@@ -495,9 +495,9 @@ public class CanvasModel extends Model {
 			 */
 			private static final long serialVersionUID = 1L;
 			public final Location location;
-			public final RestorableModel restorableModel;
+			public final RestorableModel_TO_BE_OBSOLETED restorableModel;
 
-			public Output(Location location, RestorableModel restorableModel) {
+			public Output(Location location, RestorableModel_TO_BE_OBSOLETED restorableModel) {
 				this.location = location;
 				this.restorableModel = restorableModel;
 			}
@@ -580,11 +580,11 @@ public class CanvasModel extends Model {
 			
 			modelToRemove.beRemoved(propCtx, 0, collector, postCreationCommands);
 			
-			modelToRemove.setProperty(RestorableModel.PROPERTY_POST_CREATION, postCreationCommands, propCtx, 0, collector);
+			modelToRemove.setProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_POST_CREATION, postCreationCommands, propCtx, 0, collector);
 			
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			
-			RestorableModel restorableModel = RestorableModel.wrap(modelToRemove, true);
+			RestorableModel_TO_BE_OBSOLETED restorableModel = RestorableModel_TO_BE_OBSOLETED.wrap(modelToRemove, true);
 			
 			return new Output(locationOfModelToRemove, restorableModel);
 		}
@@ -608,9 +608,9 @@ public class CanvasModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private Location modelLocationToRestore;
-		private RestorableModel restorableModel;
+		private RestorableModel_TO_BE_OBSOLETED restorableModel;
 		
-		public RestoreChangesModelCommand(Location modelLocationToRestore, RestorableModel restorableModel) {
+		public RestoreChangesModelCommand(Location modelLocationToRestore, RestorableModel_TO_BE_OBSOLETED restorableModel) {
 			this.modelLocationToRestore = modelLocationToRestore;
 			this.restorableModel = restorableModel;
 		}

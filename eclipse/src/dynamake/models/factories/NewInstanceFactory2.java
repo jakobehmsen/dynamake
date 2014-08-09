@@ -16,7 +16,7 @@ import dynamake.models.Model;
 import dynamake.models.Model.PendingUndoablePair;
 import dynamake.models.ModelComponent;
 import dynamake.models.PropogationContext;
-import dynamake.models.RestorableModel;
+import dynamake.models.RestorableModel_TO_BE_OBSOLETED;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.SimpleExPendingCommandFactory2;
@@ -59,7 +59,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 	
 	private void pushOrigins(Model source, final Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
-		final List<CommandState<Model>> origins = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_ORIGINS);
+		final List<CommandState<Model>> origins = (List<CommandState<Model>>)source.getProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_ORIGINS);
 		
 		target.playThenReverse(origins, propCtx, propDistance, collector);
 		// How to schedule something for immediate execution on collector?
@@ -76,7 +76,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 //				commandStates.addAll(origins);
 //			}
 //		});
-		target.setProperty(RestorableModel.PROPERTY_ORIGINS, origins, propCtx, propDistance, collector);
+		target.setProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_ORIGINS, origins, propCtx, propDistance, collector);
 	}
 	
 	private void pushCreation(final Model source, final Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -100,7 +100,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 					cleanup.add(creationForwardingPendingUndoablePairs.get(i).undoable);
 
 				collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
-					new SetPropertyCommand(RestorableModel.PROPERTY_CLEANUP, cleanup), 
+					new SetPropertyCommand(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CLEANUP, cleanup), 
 					new SetPropertyCommand.AfterSetProperty()
 				)));
 				
@@ -120,7 +120,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 
 						// Set creation on target
 						collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
-							new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, newCreation), 
+							new SetPropertyCommand(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION, newCreation), 
 							new SetPropertyCommand.AfterSetProperty()
 						)));
 					}
@@ -130,7 +130,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 		
 		// Setup local changes upwarder in source if not already part of creation
 		@SuppressWarnings("unchecked")
-		List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+		List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION);
 		boolean changeUpwarderIsSetup = false;
 
 		if(sourceCreation != null) {
@@ -148,7 +148,7 @@ public class NewInstanceFactory2 implements ModelFactory {
 //			sourceCreation = new ArrayList<Model.PendingUndoablePair>();
 			// Set creation on target
 			collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
-				new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, new ArrayList<Model.PendingUndoablePair>()), 
+				new SetPropertyCommand(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION, new ArrayList<Model.PendingUndoablePair>()), 
 				new SetPropertyCommand.AfterSetProperty()
 			)));
 		}
@@ -166,13 +166,13 @@ public class NewInstanceFactory2 implements ModelFactory {
 				@Override
 				public void afterPropogationFinished(List<PendingUndoablePair> sourceCreationPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 					@SuppressWarnings("unchecked")
-					List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+					List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION);
 					
 					sourceCreation.addAll(sourceCreationPendingUndoablePairs);
 					
 					// Update creation on source
 					collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
-						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, sourceCreation), 
+						new SetPropertyCommand(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION, sourceCreation), 
 						new SetPropertyCommand.AfterSetProperty()
 					)));
 				}
