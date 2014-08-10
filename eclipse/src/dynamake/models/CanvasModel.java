@@ -16,7 +16,6 @@ import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 
 import dynamake.caching.Memoizer1;
-import dynamake.commands.ChainCommand;
 import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
