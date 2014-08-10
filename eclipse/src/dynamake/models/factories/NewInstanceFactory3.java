@@ -70,6 +70,9 @@ public class NewInstanceFactory3 implements ModelFactory {
 				restorableModelCreation.restoreChangesOnBase(createdModel, propCtx, propDistance, collector);
 				restorableModelCreation.restoreCleanupOnBase(createdModel, propCtx, propDistance, collector);
 				
+				// TODO: The conditional setting up of upwarder in source should be a command in itself
+				// which should be part of the creation of the target - intead of being an unconditional part of the source's creation
+				
 				// Setup local changes upwarder in source if not already part of creation
 				@SuppressWarnings("unchecked")
 				List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel.PROPERTY_CREATION);
