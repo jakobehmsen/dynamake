@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.models.CanvasModel;
+import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
+import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
@@ -36,7 +38,7 @@ public class PushForwardFromCommand implements ForwardableCommand<Model> {
 		Model target = (Model)location.getChild(prevalentSystem);
 		Model source = (Model)locationOfSourceFromTarget.getChild(target);
 		
-		pushForward(source, target, collector);
+		pushForward(source, target, collector, new ModelRootLocation());
 		
 //		ArrayList<CommandState<Model>> toForward = new ArrayList<CommandState<Model>>();
 //		
@@ -64,7 +66,7 @@ public class PushForwardFromCommand implements ForwardableCommand<Model> {
 		return null;
 	}
 	
-	private void pushForward(Model source, Model target, Collector<Model> collector) {		
+	private void pushForward(Model source, final Model targetRoot, Collector<Model> collector, final Location offsetFromSourceRoot) {		
 		ArrayList<CommandState<Model>> toForward = new ArrayList<CommandState<Model>>();
 		
 		@SuppressWarnings("unchecked")
@@ -77,31 +79,33 @@ public class PushForwardFromCommand implements ForwardableCommand<Model> {
 		toForward.addAll(source.getLocalChanges());
 		
 		if(toForward.size() > 0) {
+			Location forwardedOffsetFromTargetRoot = offsetFromSourceRoot;
+			for(int i = 0; i < forwardCount; i++)
+				forwardedOffsetFromTargetRoot = forwardedOffsetFromTargetRoot.forForwarding();
+			
 			ArrayList<CommandState<Model>> forwardedCreation = new ArrayList<CommandState<Model>>();
 			for(CommandState<Model> creationPart: toForward) {
-				creationPart = creationPart.mapToReferenceLocation(source, target);
+				creationPart = creationPart.mapToReferenceLocation(source, targetRoot);
 				for(int i = 0; i < forwardCount; i++)
 					creationPart = creationPart.forForwarding();
+				creationPart = creationPart.offset(forwardedOffsetFromTargetRoot);
 				creationPart.appendPendings(forwardedCreation);
 			}
 			
-			collector.execute(new SimpleExPendingCommandFactory2<Model>(target, forwardedCreation));
+			collector.execute(new SimpleExPendingCommandFactory2<Model>(targetRoot, forwardedCreation));
 		}
 		
 		if(source instanceof CanvasModel) {
 			final CanvasModel sourceCanvas = (CanvasModel)source;
-			final CanvasModel targetCanvas = (CanvasModel)target;
 
 			for(final Location locationInSource: sourceCanvas.getLocations()) {
-				final Location locationInTarget = locationInSource.forForwarding();
-				
 				collector.execute(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
 						Model modelInSource = sourceCanvas.getModelByLocation(locationInSource);
-						Model modelInTarget = targetCanvas.getModelByLocation(locationInTarget);
+						Location newOffsetFromSourceRoot = new CompositeLocation(offsetFromSourceRoot, locationInSource);
 						
-						pushForward(modelInSource, modelInTarget, collector);
+						pushForward(modelInSource, targetRoot, collector, newOffsetFromSourceRoot);
 					}
 				});
 			}
