@@ -23,7 +23,7 @@ import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.SimpleExPendingCommandFactory2;
 
-public class NewInstanceFactory3 implements ModelFactory {
+public class DeriveFactory implements ModelFactory {
 	/**
 	 * 
 	 */
@@ -31,7 +31,7 @@ public class NewInstanceFactory3 implements ModelFactory {
 	private RectangleF creationBounds;
 	private Location modelLocation;
 	
-	public NewInstanceFactory3(RectangleF creationBounds, Location modelLocation) {
+	public DeriveFactory(RectangleF creationBounds, Location modelLocation) {
 		this.creationBounds = creationBounds;
 		this.modelLocation = modelLocation;
 	}
