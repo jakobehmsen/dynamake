@@ -11,7 +11,6 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
-import dynamake.models.RestorableModel_TO_BE_OBSOLETED;
 import dynamake.models.Model.PendingUndoablePair;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
