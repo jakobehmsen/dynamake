@@ -10,6 +10,7 @@ import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
+import dynamake.models.RestorableModel;
 import dynamake.models.RestorableModel_TO_BE_OBSOLETED;
 import dynamake.models.Model.PendingUndoablePair;
 import dynamake.numbers.RectangleF;
@@ -32,12 +33,12 @@ public class CloneFactory implements ModelFactory {
 	@Override
 	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		final Model modelToClone = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
-		final RestorableModel_TO_BE_OBSOLETED restorableModelClone = RestorableModel_TO_BE_OBSOLETED.wrap(modelToClone, true);
+		final RestorableModel restorableModelClone = RestorableModel.wrap(modelToClone, true);
 		
 		return new ModelCreation() {
 			@Override
 			public void setup(Model rootModel, final Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-				RestorableModel_TO_BE_OBSOLETED restorableModelCreation = restorableModelClone.mapToReferenceLocation(modelToClone, createdModel);
+				RestorableModel restorableModelCreation = restorableModelClone.mapToReferenceLocation(modelToClone, createdModel);
 				restorableModelCreation.restoreChangesOnBase(createdModel, propCtx, propDistance, collector);
 				restorableModelCreation.restoreCleanupOnBase(createdModel, propCtx, propDistance, collector);
 				
@@ -59,13 +60,13 @@ public class CloneFactory implements ModelFactory {
 					@Override
 					public void afterPropogationFinished(List<PendingUndoablePair> changesToInheritPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 						@SuppressWarnings("unchecked")
-						List<CommandState<Model>> allCreation = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION);
+						List<CommandState<Model>> allCreation = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel.PROPERTY_CREATION);
 						if(allCreation == null)
 							allCreation = new ArrayList<CommandState<Model>>();
 						allCreation.addAll(changesToInheritPendingUndoablePairs);
 						
 						collector.execute(new SimpleExPendingCommandFactory2<Model>(createdModel, new PendingCommandState<Model>(
-							new SetPropertyCommand(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION, allCreation), 
+							new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allCreation), 
 							new SetPropertyCommand.AfterSetProperty()
 						)));
 					}
