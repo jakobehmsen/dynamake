@@ -299,6 +299,11 @@ public class CanvasModel extends Model {
 			public Object forForwarding() {
 				return new AddModelCommand.Output(location.forForwarding());
 			}
+			
+			@Override
+			public String toString() {
+				return "Added to " + location;
+			}
 		}
 		
 		/**
@@ -353,6 +358,11 @@ public class CanvasModel extends Model {
 
 			return newAddCommand;
 		}
+		
+		@Override
+		public String toString() {
+			return "Add " + factory;
+		}
 	}
 	
 	public static class ForwardedAddModelCommand implements ForwardableCommand<Model> {
@@ -365,6 +375,11 @@ public class CanvasModel extends Model {
 
 			public Output(Location location) {
 				this.location = location;
+			}
+			
+			@Override
+			public String toString() {
+				return "Added model at " + location;
 			}
 		}
 		
@@ -571,6 +586,7 @@ public class CanvasModel extends Model {
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
+			System.out.println("***Removing model at " + locationOfModelToRemove + " from " + canvas + "***");
 			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
 			
 //			@SuppressWarnings("unchecked")
@@ -979,6 +995,11 @@ public class CanvasModel extends Model {
 		public Location forForwarding() {
 			return new CanvasModel.ForwardLocation(this);
 		}
+		
+		@Override
+		public String toString() {
+			return "" + id;
+		}
 	}
 	
 	public static class ForwardLocation implements Location {
@@ -1010,6 +1031,11 @@ public class CanvasModel extends Model {
 		@Override
 		public Location forForwarding() {
 			return new CanvasModel.ForwardLocation(this);
+		}
+		
+		@Override
+		public String toString() {
+			return "&" + location;
 		}
 	}
 

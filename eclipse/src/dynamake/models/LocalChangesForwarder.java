@@ -88,6 +88,8 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		if(change instanceof PushLocalChanges && sender == source) {
+			System.out.println("***Forwarding from " + source + " to " + target + "***");
+			
 			// Whenever a change is forwarded from a source
 			final PushLocalChanges pushLocalChanges = (PushLocalChanges)change;
 			
@@ -155,8 +157,9 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 									// They may not have been any forwarded changes to revert
 									if(forwardedChangesToRevertPendingUndoablePairs != null) {
 										for(PendingUndoablePair pup: forwardedChangesToRevertPendingUndoablePairs)
-											backwardOutput.add(pup.pending);
+											backwardOutput.add(pup.undoable);
 									}
+									Collections.reverse(backwardOutput);
 
 									collector.execute(new SimpleExPendingCommandFactory2<Model>(target, backwardOutput) {
 										@Override

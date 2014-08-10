@@ -481,7 +481,7 @@ public abstract class Model implements Serializable, Observer {
 	public void setLocator(Locator locator) {
 //		if(locator == null)
 //			System.out.println("Nulled locator of " + this);
-		System.out.println("Set locator to " + locator + " of " + this);
+//		System.out.println("Set locator to " + locator + " of " + this);
 		this.locator = locator;
 	}
 	

@@ -52,7 +52,7 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 			
 			source.sendChanged(new PushLocalChanges(offsetFromSource, new ArrayList<CommandState<Model>>(), offsetNewChanges), propCtx, propDistance, changeDistance, collector);			
 		} else if (change instanceof CanvasModel.AddedModelChange) {
-			System.out.println("Upwarder observed AddedModelChange!!!");
+//			System.out.println("Upwarder observed AddedModelChange!!!");
 			CanvasModel source = (CanvasModel)sender;
 			
 			CanvasModel.AddedModelChange addedModelChange = (CanvasModel.AddedModelChange)change;
@@ -62,7 +62,7 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 			Location modelOffsetFromTarget = new CompositeLocation(offsetFromSource, modelLocationInSource);
 			modelInTarget.addObserver(new LocalChangesUpwarder(modelSourceLocation, modelOffsetFromTarget));
 		} else if (change instanceof CanvasModel.RemovedModelChange) {
-			System.out.println("Upwarder observed RemovedModelChange!!!");
+//			System.out.println("Upwarder observed RemovedModelChange!!!");
 		}
 	}
 }
