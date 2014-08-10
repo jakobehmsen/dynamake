@@ -27,4 +27,9 @@ public class CompositeLocation implements Location {
 	public Location forForwarding() {
 		return new CompositeLocation(head.forForwarding(), tail.forForwarding());
 	}
+	
+	@Override
+	public String toString() {
+		return head + "/" + tail;
+	}
 }

@@ -16,4 +16,9 @@ public class ModelRootLocation implements Location {
 	public Location forForwarding() {
 		return this;
 	}
+	
+	@Override
+	public String toString() {
+		return ".";
+	}
 }
