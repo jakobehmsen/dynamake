@@ -6,8 +6,10 @@ import java.util.List;
 import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
+import dynamake.commands.EnsureForwardLocalChangesUpwardsCommand;
 import dynamake.commands.ForwardLocalChangesCommand;
 import dynamake.commands.ForwardLocalChangesUpwardsCommand;
+import dynamake.commands.IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.PushForwardFromCommand;
 import dynamake.commands.SetPropertyCommand;
@@ -65,6 +67,10 @@ public class DeriveFactory implements ModelFactory {
 				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
 				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
 				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+				restorableModelCreation.appendCreation(new PendingCommandState<Model>(
+					new EnsureForwardLocalChangesUpwardsCommand(locationOfSourceFromTarget), 
+					new IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommand(locationOfSourceFromTarget)
+				));
 				
 				restorableModelCreation.restoreChangesOnBase(createdModel, propCtx, propDistance, collector);
 				restorableModelCreation.restoreCleanupOnBase(createdModel, propCtx, propDistance, collector);
@@ -72,55 +78,55 @@ public class DeriveFactory implements ModelFactory {
 				// TODO: The conditional setting up of upwarder in source should be a command in itself
 				// which should be part of the creation of the target - intead of being an unconditional part of the source's creation
 				
-				// Setup local changes upwarder in source if not already part of creation
-				@SuppressWarnings("unchecked")
-				List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel.PROPERTY_CREATION);
-				boolean changeUpwarderIsSetup = false;
-
-				if(sourceCreation != null) {
-					changeUpwarderIsSetup = sourceCreation.contains(new ForwardLocalChangesUpwardsCommand());
-					
-					for(Model.PendingUndoablePair creationPart: sourceCreation) {
-						PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart.pending;
-
-						if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesUpwardsCommand) {
-							changeUpwarderIsSetup = true;
-							break;
-						}
-					}
-				} else {
-					// Set creation on source
-					collector.execute(new SimpleExPendingCommandFactory<Model>(source, new PendingCommandState<Model>(
-						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, new ArrayList<Model.PendingUndoablePair>()), 
-						new SetPropertyCommand.AfterSetProperty()
-					)));
-				}
-				
-				if(!changeUpwarderIsSetup) {
-					// Setup forwarding
-					ArrayList<CommandState<Model>> creationForwardingUpwards = new ArrayList<CommandState<Model>>();
-					
-					creationForwardingUpwards.add(new PendingCommandState<Model>(
-						new ForwardLocalChangesUpwardsCommand(), 
-						(CommandFactory<Model>)null
-					));
-					
-					collector.execute(new SimpleExPendingCommandFactory<Model>(source, creationForwardingUpwards) {
-						@Override
-						public void afterPropogationFinished(List<PendingUndoablePair> sourceCreationPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-							@SuppressWarnings("unchecked")
-							List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel.PROPERTY_CREATION);
-							
-							sourceCreation.addAll(sourceCreationPendingUndoablePairs);
-							
-							// Update creation on source
-							collector.execute(new SimpleExPendingCommandFactory<Model>(source, new PendingCommandState<Model>(
-								new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, sourceCreation), 
-								new SetPropertyCommand.AfterSetProperty()
-							)));
-						}
-					});
-				}
+//				// Setup local changes upwarder in source if not already part of creation
+//				@SuppressWarnings("unchecked")
+//				List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+//				boolean changeUpwarderIsSetup = false;
+//
+//				if(sourceCreation != null) {
+//					changeUpwarderIsSetup = sourceCreation.contains(new ForwardLocalChangesUpwardsCommand());
+//					
+//					for(Model.PendingUndoablePair creationPart: sourceCreation) {
+//						PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart.pending;
+//
+//						if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesUpwardsCommand) {
+//							changeUpwarderIsSetup = true;
+//							break;
+//						}
+//					}
+//				} else {
+//					// Set creation on source
+//					collector.execute(new SimpleExPendingCommandFactory<Model>(source, new PendingCommandState<Model>(
+//						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, new ArrayList<Model.PendingUndoablePair>()), 
+//						new SetPropertyCommand.AfterSetProperty()
+//					)));
+//				}
+//				
+//				if(!changeUpwarderIsSetup) {
+//					// Setup forwarding
+//					ArrayList<CommandState<Model>> creationForwardingUpwards = new ArrayList<CommandState<Model>>();
+//					
+//					creationForwardingUpwards.add(new PendingCommandState<Model>(
+//						new ForwardLocalChangesUpwardsCommand(), 
+//						(CommandFactory<Model>)null
+//					));
+//					
+//					collector.execute(new SimpleExPendingCommandFactory<Model>(source, creationForwardingUpwards) {
+//						@Override
+//						public void afterPropogationFinished(List<PendingUndoablePair> sourceCreationPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//							@SuppressWarnings("unchecked")
+//							List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+//							
+//							sourceCreation.addAll(sourceCreationPendingUndoablePairs);
+//							
+//							// Update creation on source
+//							collector.execute(new SimpleExPendingCommandFactory<Model>(source, new PendingCommandState<Model>(
+//								new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, sourceCreation), 
+//								new SetPropertyCommand.AfterSetProperty()
+//							)));
+//						}
+//					});
+//				}
 			}
 			
 			@Override

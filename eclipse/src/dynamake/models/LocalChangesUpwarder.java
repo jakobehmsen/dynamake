@@ -24,6 +24,17 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 	
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
+		if(change instanceof PushLocalChanges) {
+			PushLocalChanges pushLocalChanges = (PushLocalChanges)change;
+			Model source = (Model)sourceLocation.getChild(sender);
+			
+			if(sender != source) {
+				Location newOffsetFromSource = new CompositeLocation(offsetFromSource, pushLocalChanges.offset);
+				
+				source.sendChanged(new PushLocalChanges(newOffsetFromSource, pushLocalChanges.localChangesToRevert, pushLocalChanges.newChanges), propCtx, propDistance, changeDistance, collector);
+			}
+		}
+		
 		// TODO: Consider:
 		// What about the changes made to the embedded models? This changes should somehow be maintained and using during unplay/replay in forwarder
 		if(change instanceof Model.HistoryAppendLogChange) {
