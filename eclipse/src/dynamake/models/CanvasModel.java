@@ -105,45 +105,6 @@ public class CanvasModel extends Model {
 	}
 	
 	@Override
-	protected void modelBeRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector, List<CommandState<Model>> restoreCommands) {
-//		// A model should be able to wrap itself in to a RestorableModel?
-//		// Then, perhaps, composite restorable models could be supported in the case of canvases?
-//		for(Entry entry: models) {
-//			RestorableModel_TO_BE_OBSOLETED restorableModel = RestorableModel_TO_BE_OBSOLETED.wrap(entry.model, true);
-//
-//			Location modelLocation = getLocationOf(entry.model);
-//			
-//			CanvasModel.RestoreChangesModelCommand restoreCommand = new CanvasModel.RestoreChangesModelCommand(modelLocation, restorableModel);
-//			
-//			PendingCommandState<Model> firstPending = new PendingCommandState<Model>(restoreCommand, new CanvasModel.RemoveModelCommand.AfterAdd());
-//			
-////			restoreCommands.add(new Model.PendingUndoablePair(
-////				new PendingCommandState<Model>(restoreCommand, new CanvasModel.RemoveModelCommand.AfterAdd()), 
-////				new ReversibleCommand<Model>(restoreCommand, new Command.Null<Model>(), ConstCommandFactory.<Model>forNull(), ConstCommandFactory.<Model>forNull())
-////			));
-//			
-////			@SuppressWarnings("unchecked")
-////			List<CommandState<Model>> modelOrigins = (List<CommandState<Model>>)entry.model.getProperty(RestorableModel.PROPERTY_ORIGINS);
-////			restoreCommands.addAll(modelOrigins);
-////			@SuppressWarnings("unchecked")
-////			List<CommandState<Model>> modelCreation = (List<CommandState<Model>>)entry.model.getProperty(RestorableModel.PROPERTY_CREATION);
-////			if(modelCreation != null)
-////				restoreCommands.addAll(modelCreation);
-////			for(CommandState<Model> modelRestoreCommand: entry.model.getLocalChanges())
-////				restoreCommands.add(modelRestoreCommand.offset(modelLocation));
-//			ArrayList<CommandState<Model>> offsetInnerRestoreCommands = new ArrayList<CommandState<Model>>();
-//			ArrayList<CommandState<Model>> innerRestoreCommands = new ArrayList<CommandState<Model>>();
-//			entry.model.beRemoved(propCtx, propDistance, collector, innerRestoreCommands);
-//			for(CommandState<Model> innerRestoreCommand: innerRestoreCommands)
-//				offsetInnerRestoreCommands.add(innerRestoreCommand.offset(modelLocation));
-//			
-////			restoreCommands.add(new ChainCommand<Model>(firstPending, innerRestoreCommands));
-//			
-//			restoreCommands.add(new PendingCommandState<Model>(new ChainCommand<Model>(firstPending, offsetInnerRestoreCommands), new CanvasModel.RemoveModelCommand.AfterAdd()));
-//		}
-	}
-	
-	@Override
 	protected void modelAddContent(HashSet<Model> contained) {
 		for(Entry entry: models) {
 			entry.model.addContent(contained);
@@ -594,11 +555,6 @@ public class CanvasModel extends Model {
 //			if(restoreCommands == null) {
 //				restoreCommands = new ArrayList<CommandState<Model>>();
 //				modelToRemove.setProperty(RestorableModel.PROPERTY_CREATION, restoreCommands, propCtx, 0, collector);
-//			}
-			
-			ArrayList<CommandState<Model>> postCreationCommands = new ArrayList<CommandState<Model>>();
-			
-			modelToRemove.beRemoved(propCtx, 0, collector, postCreationCommands);
 			
 //			modelToRemove.setProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_POST_CREATION, postCreationCommands, propCtx, 0, collector);
 			

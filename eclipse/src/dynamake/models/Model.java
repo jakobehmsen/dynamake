@@ -1285,18 +1285,6 @@ public abstract class Model implements Serializable, Observer {
 		
 		collector.execute(new SimpleExPendingCommandFactory2<Model>(this, origins));
 	}
-
-	public void beRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector, List<CommandState<Model>> restoreCommands) {
-		modelBeRemoved(propCtx, propDistance, collector, restoreCommands);
-
-		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> cleanup = (List<CommandState<Model>>)getProperty(RestorableModel.PROPERTY_CLEANUP);
-		if(cleanup != null) {
-			playThenReverse(cleanup, propCtx, propDistance, collector);
-		}
-	}
-	
-	protected void modelBeRemoved(PropogationContext propCtx, int propDistance, Collector<Model> collector, List<CommandState<Model>> restoreCommands) { }
 	
 	public RestorableModel toRestorable(boolean includeLocalHistory) {
 		return RestorableModel.wrap(this, includeLocalHistory);
