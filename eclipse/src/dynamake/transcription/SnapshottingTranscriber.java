@@ -375,10 +375,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							@Override
 							public void execute(Object command) {
 								if(command instanceof PendingCommandFactory) {
-									command = ExPendingCommandFactory2.Util.sequence((PendingCommandFactory<T>)command);
+									command = ExPendingCommandFactory.Util.sequence((PendingCommandFactory<T>)command);
 								}
 								
-								if(command instanceof ExPendingCommandFactory2) {
+								if(command instanceof ExPendingCommandFactory) {
 									collectedCommands.add(command);
 									collectedCommands.add(new Instruction(Instruction.OPCODE_SEND_PROPOGATION_FINISHED, command));
 								} else {
@@ -435,11 +435,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							switch(instruction.type) {
 							case Instruction.OPCODE_SEND_PROPOGATION_FINISHED:
 								List<PendingUndoablePair> pendingUndoablePairs = propogationStack.pop();
-								((ExPendingCommandFactory2<T>)instruction.operand).afterPropogationFinished(pendingUndoablePairs, propCtx, 0, collector);
+								((ExPendingCommandFactory<T>)instruction.operand).afterPropogationFinished(pendingUndoablePairs, propCtx, 0, collector);
 								break;
 							}
-						} else if(command instanceof ExPendingCommandFactory2) {
-							ExPendingCommandFactory2<T> transactionFactory = (ExPendingCommandFactory2<T>)command;
+						} else if(command instanceof ExPendingCommandFactory) {
+							ExPendingCommandFactory<T> transactionFactory = (ExPendingCommandFactory<T>)command;
 							T reference = transactionFactory.getReference();
 							
 							if(reference == null || ((Model)reference).getLocator() == null) {

@@ -7,15 +7,15 @@ import dynamake.commands.PendingCommandFactory;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.PendingUndoablePair;
 
-public interface ExPendingCommandFactory2<T> {
+public interface ExPendingCommandFactory<T> {
 	T getReference();
 	void createPendingCommands(List<CommandState<T>> pendingCommands);
 	void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector);
 	HistoryHandler<T> getHistoryHandler();
 	
 	public static class Util {
-		public static <T> ExPendingCommandFactory2<T> sequence(final PendingCommandFactory<T> f) {
-			return new ExPendingCommandFactory2<T>() {
+		public static <T> ExPendingCommandFactory<T> sequence(final PendingCommandFactory<T> f) {
+			return new ExPendingCommandFactory<T>() {
 				@Override
 				public T getReference() {
 					return f.getReference();

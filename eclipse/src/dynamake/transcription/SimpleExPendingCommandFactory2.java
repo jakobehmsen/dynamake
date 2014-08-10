@@ -7,7 +7,7 @@ import dynamake.commands.CommandState;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.PendingUndoablePair;
 
-public class SimpleExPendingCommandFactory2<T> implements ExPendingCommandFactory2<T> {
+public class SimpleExPendingCommandFactory2<T> implements ExPendingCommandFactory<T> {
 	private T reference;
 	private List<CommandState<T>> pendingCommands;
 	
