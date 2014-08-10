@@ -10,7 +10,7 @@ import dynamake.models.ParentLocation;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class ForwardLocalChangesUpwards2Command implements ForwardableCommand<Model> {
+public class ForwardLocalChangesUpwardsCommand implements ForwardableCommand<Model> {
 	/**
 	 * 
 	 */

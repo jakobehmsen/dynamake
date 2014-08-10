@@ -7,7 +7,7 @@ import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
 import dynamake.commands.ForwardLocalChangesCommand;
-import dynamake.commands.ForwardLocalChangesUpwards2Command;
+import dynamake.commands.ForwardLocalChangesUpwardsCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.PushForwardFromCommand;
 import dynamake.commands.SetPropertyCommand;
@@ -78,12 +78,12 @@ public class DeriveFactory implements ModelFactory {
 				boolean changeUpwarderIsSetup = false;
 
 				if(sourceCreation != null) {
-					changeUpwarderIsSetup = sourceCreation.contains(new ForwardLocalChangesUpwards2Command());
+					changeUpwarderIsSetup = sourceCreation.contains(new ForwardLocalChangesUpwardsCommand());
 					
 					for(Model.PendingUndoablePair creationPart: sourceCreation) {
 						PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart.pending;
 
-						if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesUpwards2Command) {
+						if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesUpwardsCommand) {
 							changeUpwarderIsSetup = true;
 							break;
 						}
@@ -101,7 +101,7 @@ public class DeriveFactory implements ModelFactory {
 					ArrayList<CommandState<Model>> creationForwardingUpwards = new ArrayList<CommandState<Model>>();
 					
 					creationForwardingUpwards.add(new PendingCommandState<Model>(
-						new ForwardLocalChangesUpwards2Command(), 
+						new ForwardLocalChangesUpwardsCommand(), 
 						(CommandFactory<Model>)null
 					));
 					

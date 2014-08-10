@@ -7,7 +7,7 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.ForwardLocalChangesCommand;
-import dynamake.commands.ForwardLocalChangesUpwards2Command;
+import dynamake.commands.ForwardLocalChangesUpwardsCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReplayCommand;
 import dynamake.commands.UnplayCommand;
@@ -240,7 +240,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 				for(int i = sourceCreation.size() - 1; i >= 0; i--) {
 					Model.PendingUndoablePair sourceCreationPart = sourceCreation.get(i);
 					PendingCommandState<Model> pending = (PendingCommandState<Model>)sourceCreationPart.pending;
-					if(!(pending.getCommand() instanceof ForwardLocalChangesCommand) && !(pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
+					if(!(pending.getCommand() instanceof ForwardLocalChangesCommand) && !(pending.getCommand() instanceof ForwardLocalChangesUpwardsCommand))
 						newLocalChangesToRevert.add(sourceCreationPart.undoable);
 //					if(!(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesCommand) && !(sourceCreationPart.pending.getCommand() instanceof ForwardLocalChangesUpwards2Command))
 //						newLocalChangesToRevert.add(sourceCreationPart.undoable);
