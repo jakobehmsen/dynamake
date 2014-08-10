@@ -5,23 +5,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import dynamake.commands.Command;
 import dynamake.commands.CommandState;
-import dynamake.commands.CreateAndExecuteFromPropertyCommand;
 import dynamake.commands.ForwardLocalChangesCommand;
 import dynamake.commands.ForwardLocalChangesUpwards2Command;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.PlayThenReverseCommand;
 import dynamake.commands.ReplayCommand;
-import dynamake.commands.RevertingCommandStateSequence;
-import dynamake.commands.SetPropertyCommand;
-import dynamake.commands.SetPropertyToOutputCommand;
 import dynamake.commands.UnplayCommand;
 import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
-import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory2;
-import dynamake.transcription.TranscribeOnlyAndPostNotPendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 /**

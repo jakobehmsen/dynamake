@@ -3,7 +3,6 @@ package dynamake.commands;
 import java.util.ArrayList;
 import java.util.List;
 
-import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -41,8 +40,6 @@ public class PushForwardFromCommand implements ForwardableCommand<Model> {
 		List<CommandState<Model>> sourceCreation = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
 		
 		if(sourceCreation != null) {
-//			for(CommandState<Model> sourceCreationPart: sourceCreation)
-//				sourceCreationPart.appendPendings(toForward);
 			toForward.addAll(sourceCreation);
 		}
 		
@@ -55,7 +52,6 @@ public class PushForwardFromCommand implements ForwardableCommand<Model> {
 				for(int i = 0; i < forwardCount; i++)
 					creationPart = creationPart.forForwarding();
 				creationPart.appendPendings(forwardedCreation);
-//				forwardedCreation.add(creationPart);
 			}
 			
 			collector.execute(new SimpleExPendingCommandFactory2<Model>(target, forwardedCreation));

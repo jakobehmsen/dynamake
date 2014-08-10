@@ -1,6 +1,5 @@
 package dynamake.commands;
 
-import dynamake.commands.Command.Null;
 import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.LocalChangesUpwarder;
