@@ -42,9 +42,6 @@ public interface ExPendingCommandFactory2<T> {
 						historyHandler = (HistoryHandler<T>)new PostOnlyHistoryHandler();
 					else
 						historyHandler = (HistoryHandler<T>)new LocalHistoryHandler();
-					
-					if(f instanceof ExPendingCommandFactory)
-						historyHandler = ((ExPendingCommandFactory<T>)f).getHistoryHandler();
 
 					return historyHandler;
 				}
