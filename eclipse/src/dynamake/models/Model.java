@@ -978,7 +978,7 @@ public abstract class Model implements Serializable, Observer {
 				}
 			});
 			
-			transactions.addMenuBuilder("New", new Trigger<Model>() {
+			transactions.addMenuBuilder("Derive", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
