@@ -494,63 +494,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							} else {
 								propogationStack.push(null);
 							}
-						} else if(command instanceof PendingCommandFactory) {
-							PendingCommandFactory<T> transactionFactory = (PendingCommandFactory<T>)command;
-							T reference = transactionFactory.getReference();
-							
-							if(((Model)reference).getLocator() == null) {
-								reference = transactionFactory.getReference();
-							}
-							Location locationFromRoot = ((Model)reference).getLocator().locate();
-							HistoryHandler<T> historyHandler = null;
-							
-							if(transactionFactory instanceof TranscribeOnlyAndPostNotPendingCommandFactory)
-								historyHandler = new NullHistoryHandler<T>();
-							else if(transactionFactory instanceof TranscribeOnlyPendingCommandFactory)
-								historyHandler = (HistoryHandler<T>)new PostOnlyHistoryHandler();
-							else
-								historyHandler = (HistoryHandler<T>)new LocalHistoryHandler();
-							
-							if(transactionFactory instanceof ExPendingCommandFactory)
-								historyHandler = ((ExPendingCommandFactory<T>)transactionFactory).getHistoryHandler();
-							
-							if(!referencesToAppliedHistoryHandlers.containsItem(reference, historyHandler))
-								historyHandler.startLogFor(reference, propCtx, 0, collector);
-							
-							Location locationFromReference = new ModelRootLocation();
-							
-							ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
-							
-							// If location was part of the executeOn invocation, location is probably no
-							// necessary for creating dual commands. Further, then, it is probably not necessary
-							// to create two sequences of pendingCommands.
-							transactionFactory.createPendingCommands(pendingCommands);
-							
-							if(pendingCommands.size() > 0) {
-								// Should be in pending state
-								ArrayList<CommandState<T>> undoables = new ArrayList<CommandState<T>>();
-								for(CommandState<T> pendingCommand: pendingCommands) {
-									// Each command in pending state should return a command in undoable state
-									CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, collector, locationFromReference);
-									undoables.add(undoableCommand);
-								}
-								flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
-								
-								ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
-								for(int i = 0; i < pendingCommands.size(); i++) {
-									PendingCommandState<Model> pending = (PendingCommandState<Model>)pendingCommands.get(i);
-									ReversibleCommand<Model> undoable = (ReversibleCommand<Model>)undoables.get(i);
-									PendingUndoablePair pendingUndoablePair = new PendingUndoablePair(pending, undoable);
-									pendingUndoablePairs.add(pendingUndoablePair);
-								}
-								
-								affectedReferences.add(reference);
-								
-								historyHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
-								referencesToAppliedHistoryHandlers.add(reference, historyHandler);
-	
-								flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, historyHandler));
-							}
 						} else if(command instanceof Trigger) {
 							((Trigger<T>)command).run(collector);
 						}
