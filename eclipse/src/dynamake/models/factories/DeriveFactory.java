@@ -21,7 +21,7 @@ import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
-import dynamake.transcription.SimpleExPendingCommandFactory2;
+import dynamake.transcription.SimpleExPendingCommandFactory;
 
 public class DeriveFactory implements ModelFactory {
 	/**
@@ -90,7 +90,7 @@ public class DeriveFactory implements ModelFactory {
 					}
 				} else {
 					// Set creation on source
-					collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
+					collector.execute(new SimpleExPendingCommandFactory<Model>(source, new PendingCommandState<Model>(
 						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, new ArrayList<Model.PendingUndoablePair>()), 
 						new SetPropertyCommand.AfterSetProperty()
 					)));
@@ -105,7 +105,7 @@ public class DeriveFactory implements ModelFactory {
 						(CommandFactory<Model>)null
 					));
 					
-					collector.execute(new SimpleExPendingCommandFactory2<Model>(source, creationForwardingUpwards) {
+					collector.execute(new SimpleExPendingCommandFactory<Model>(source, creationForwardingUpwards) {
 						@Override
 						public void afterPropogationFinished(List<PendingUndoablePair> sourceCreationPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 							@SuppressWarnings("unchecked")
@@ -114,7 +114,7 @@ public class DeriveFactory implements ModelFactory {
 							sourceCreation.addAll(sourceCreationPendingUndoablePairs);
 							
 							// Update creation on source
-							collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
+							collector.execute(new SimpleExPendingCommandFactory<Model>(source, new PendingCommandState<Model>(
 								new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, sourceCreation), 
 								new SetPropertyCommand.AfterSetProperty()
 							)));

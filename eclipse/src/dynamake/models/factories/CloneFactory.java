@@ -14,7 +14,7 @@ import dynamake.models.RestorableModel;
 import dynamake.models.Model.PendingUndoablePair;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
-import dynamake.transcription.SimpleExPendingCommandFactory2;
+import dynamake.transcription.SimpleExPendingCommandFactory;
 
 public class CloneFactory implements ModelFactory {
 	/**
@@ -55,7 +55,7 @@ public class CloneFactory implements ModelFactory {
 
 //				createdModel.playThenReverse(newChangesToInheret, propCtx, propDistance, collector);
 				
-				collector.execute(new SimpleExPendingCommandFactory2<Model>(createdModel, newChangesToInheret) {
+				collector.execute(new SimpleExPendingCommandFactory<Model>(createdModel, newChangesToInheret) {
 					@Override
 					public void afterPropogationFinished(List<PendingUndoablePair> changesToInheritPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 						@SuppressWarnings("unchecked")
@@ -64,7 +64,7 @@ public class CloneFactory implements ModelFactory {
 							allCreation = new ArrayList<CommandState<Model>>();
 						allCreation.addAll(changesToInheritPendingUndoablePairs);
 						
-						collector.execute(new SimpleExPendingCommandFactory2<Model>(createdModel, new PendingCommandState<Model>(
+						collector.execute(new SimpleExPendingCommandFactory<Model>(createdModel, new PendingCommandState<Model>(
 							new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allCreation), 
 							new SetPropertyCommand.AfterSetProperty()
 						)));

@@ -13,7 +13,7 @@ import dynamake.commands.ReplayCommand;
 import dynamake.commands.UnplayCommand;
 import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
-import dynamake.transcription.SimpleExPendingCommandFactory2;
+import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 /**
@@ -110,13 +110,13 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 					
 					// Assumed that unplaying doesn't provoke side effects
 					// Play the local changes backwards
-					collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
+					collector.execute(new SimpleExPendingCommandFactory<Model>(target, new PendingCommandState<Model>(
 						new UnplayCommand(localChangeCount),
 						new ReplayCommand(localChangeCount)
 					)));
 
 					// Play the inherited local changes backwards without affecting the local changes
-					collector.execute(new SimpleExPendingCommandFactory2<Model>(target, forwardedChangesToRevert) {
+					collector.execute(new SimpleExPendingCommandFactory<Model>(target, forwardedChangesToRevert) {
 						@Override
 						public void afterPropogationFinished(final List<PendingUndoablePair> forwardedChangesToRevertPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 							// Do the forwarded change without affecting the local changes
@@ -141,7 +141,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 //								forwardedNewChangesAsPendings.add(forwardedNewChange);
 							}
 							
-							collector.execute(new SimpleExPendingCommandFactory2<Model>(target, forwardedNewChangesAsPendings) {
+							collector.execute(new SimpleExPendingCommandFactory<Model>(target, forwardedNewChangesAsPendings) {
 								@Override
 								public void afterPropogationFinished(List<PendingUndoablePair> forwardedNewChangesPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 									// Play the inherited local changes forwards without affecting the local changes
@@ -153,11 +153,11 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 									}
 									Collections.reverse(backwardOutput);
 
-									collector.execute(new SimpleExPendingCommandFactory2<Model>(target, backwardOutput) {
+									collector.execute(new SimpleExPendingCommandFactory<Model>(target, backwardOutput) {
 										@Override
 										public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 											// Play the local changes forward
-											collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
+											collector.execute(new SimpleExPendingCommandFactory<Model>(target, new PendingCommandState<Model>(
 												new ReplayCommand(localChangeCount),
 												new UnplayCommand(localChangeCount)
 											)));

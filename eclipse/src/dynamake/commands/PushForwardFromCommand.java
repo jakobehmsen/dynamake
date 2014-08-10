@@ -11,7 +11,7 @@ import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
-import dynamake.transcription.SimpleExPendingCommandFactory2;
+import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class PushForwardFromCommand implements ForwardableCommand<Model> {
@@ -92,7 +92,7 @@ public class PushForwardFromCommand implements ForwardableCommand<Model> {
 				creationPart.appendPendings(forwardedCreation);
 			}
 			
-			collector.execute(new SimpleExPendingCommandFactory2<Model>(targetRoot, forwardedCreation));
+			collector.execute(new SimpleExPendingCommandFactory<Model>(targetRoot, forwardedCreation));
 		}
 		
 		if(source instanceof CanvasModel) {

@@ -15,7 +15,7 @@ import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
-import dynamake.transcription.SimpleExPendingCommandFactory2;
+import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class RestorableModel implements Serializable {
@@ -211,7 +211,7 @@ public class RestorableModel implements Serializable {
 	private void restoreChanges(final Model modelBase, Collector<Model> collector, final List<CommandState<Model>> modelCreation, final int i, final List<PendingUndoablePair> allPendingUndoablePairs) {
 		// Execute one command at a time to leave space for side effect in between
 		if(i < modelCreation.size()) {
-			collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, modelCreation.subList(i, i + 1)) {
+			collector.execute(new SimpleExPendingCommandFactory<Model>(modelBase, modelCreation.subList(i, i + 1)) {
 				@Override				
 				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 					allPendingUndoablePairs.addAll(pendingUndoablePairs);
@@ -219,7 +219,7 @@ public class RestorableModel implements Serializable {
 				}
 			});
 		} else {
-			collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, new PendingCommandState<Model>(
+			collector.execute(new SimpleExPendingCommandFactory<Model>(modelBase, new PendingCommandState<Model>(
 				new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allPendingUndoablePairs), 
 				new SetPropertyCommand.AfterSetProperty()
 			)));
@@ -227,7 +227,7 @@ public class RestorableModel implements Serializable {
 	}
 	
 	public void restoreCleanupOnBase(final Model modelBase, final PropogationContext propCtx, final int propDistance, Collector<Model> collector) {
-		collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, new PendingCommandState<Model>(
+		collector.execute(new SimpleExPendingCommandFactory<Model>(modelBase, new PendingCommandState<Model>(
 			new SetPropertyCommand(RestorableModel.PROPERTY_CLEANUP, modelCleanup), 
 			new SetPropertyCommand.AfterSetProperty()
 		)));

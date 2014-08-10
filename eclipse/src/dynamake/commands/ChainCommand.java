@@ -6,7 +6,7 @@ import dynamake.models.Location;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
-import dynamake.transcription.SimpleExPendingCommandFactory2;
+import dynamake.transcription.SimpleExPendingCommandFactory;
 
 public class ChainCommand<T> implements Command<T> {
 	/**
@@ -26,10 +26,10 @@ public class ChainCommand<T> implements Command<T> {
 		@SuppressWarnings("unchecked")
 		final T reference = (T)location.getChild(prevalentSystem);
 		// Wait executing second pending till first pending, and all of its side effects, have finished
-		collector.execute(new SimpleExPendingCommandFactory2<T>(reference, firstPending) {
+		collector.execute(new SimpleExPendingCommandFactory<T>(reference, firstPending) {
 			@Override
 			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
-				collector.execute(new SimpleExPendingCommandFactory2<T>(reference, secondPending));
+				collector.execute(new SimpleExPendingCommandFactory<T>(reference, secondPending));
 			}
 		});
 		return null;

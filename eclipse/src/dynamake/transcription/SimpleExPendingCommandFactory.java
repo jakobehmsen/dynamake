@@ -7,11 +7,11 @@ import dynamake.commands.CommandState;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.PendingUndoablePair;
 
-public class SimpleExPendingCommandFactory2<T> implements ExPendingCommandFactory<T> {
+public class SimpleExPendingCommandFactory<T> implements ExPendingCommandFactory<T> {
 	private T reference;
 	private List<CommandState<T>> pendingCommands;
 	
-	public SimpleExPendingCommandFactory2(T reference, List<CommandState<T>> pendingCommands) {
+	public SimpleExPendingCommandFactory(T reference, List<CommandState<T>> pendingCommands) {
 		if(reference == null)
 			new String();
 		this.reference = reference;
@@ -19,14 +19,14 @@ public class SimpleExPendingCommandFactory2<T> implements ExPendingCommandFactor
 	}
 	
 	@SafeVarargs
-	public SimpleExPendingCommandFactory2(T reference, CommandState<T>... pendingCommands) {
+	public SimpleExPendingCommandFactory(T reference, CommandState<T>... pendingCommands) {
 		if(reference == null)
 			new String();
 		this.reference = reference;
 		this.pendingCommands = Arrays.asList(pendingCommands);
 	}
 	
-	public SimpleExPendingCommandFactory2() {
+	public SimpleExPendingCommandFactory() {
 		
 	}
 
