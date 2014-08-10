@@ -107,13 +107,13 @@ public class NewInstanceFactory3 implements ModelFactory {
 						@Override
 						public void afterPropogationFinished(List<PendingUndoablePair> sourceCreationPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 							@SuppressWarnings("unchecked")
-							List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION);
+							List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel.PROPERTY_CREATION);
 							
 							sourceCreation.addAll(sourceCreationPendingUndoablePairs);
 							
 							// Update creation on source
 							collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
-								new SetPropertyCommand(RestorableModel_TO_BE_OBSOLETED.PROPERTY_CREATION, sourceCreation), 
+								new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, sourceCreation), 
 								new SetPropertyCommand.AfterSetProperty()
 							)));
 						}
