@@ -1293,11 +1293,13 @@ public abstract class Model implements Serializable, Observer {
 	public void destroy(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
 		List<Model.PendingUndoablePair> creation = (List<Model.PendingUndoablePair>)getProperty(RestorableModel.PROPERTY_CREATION);
-		List<CommandState<Model>> destruction = new ArrayList<CommandState<Model>>();
-		for(Model.PendingUndoablePair creationPart: creation)
-			destruction.add(creationPart.undoable);
-		Collections.reverse(destruction);
-		
-		collector.execute(new SimpleExPendingCommandFactory<Model>(this, destruction));
+		if(creation != null) {
+			List<CommandState<Model>> destruction = new ArrayList<CommandState<Model>>();
+			for(Model.PendingUndoablePair creationPart: creation)
+				destruction.add(creationPart.undoable);
+			Collections.reverse(destruction);
+			
+			collector.execute(new SimpleExPendingCommandFactory<Model>(this, destruction));
+		}
 	}
 }
