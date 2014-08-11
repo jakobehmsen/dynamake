@@ -564,6 +564,8 @@ public class CanvasModel extends Model {
 			
 			RestorableModel restorableModel = modelToRemove.toRestorable(true);
 			
+			modelToRemove.destroy(propCtx, 0, collector);
+			
 			return new Output(locationOfModelToRemove, restorableModel);
 		}
 		
