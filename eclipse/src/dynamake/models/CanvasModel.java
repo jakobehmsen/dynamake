@@ -28,7 +28,6 @@ import dynamake.commands.RelativeCommand;
 import dynamake.commands.RewrapCommand;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.UnwrapCommand;
-import dynamake.commands.Command.Null;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
@@ -41,7 +40,6 @@ import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.LocalHistoryHandler;
-import dynamake.transcription.NullHistoryHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
 
