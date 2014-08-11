@@ -21,4 +21,14 @@ public class ModelRootLocation implements Location {
 	public String toString() {
 		return ".";
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof ModelRootLocation;
+	}
+	
+	@Override
+	public int hashCode() {
+		return 117;
+	}
 }

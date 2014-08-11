@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -140,6 +141,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		
 		for(ContextualCommand<T> ctxTransaction: transactions) {
 			Categorizer<T, HistoryHandler<T>> referencesToAppliedHistoryHandlers = new Categorizer<T, HistoryHandler<T>>();
+			Hashtable<Location, T> locationToReferenceMap = new Hashtable<Location, T>();
 			
 			for(SnapshottingTranscriber.Connection.LocationCommandsPair<T> entry: ctxTransaction.transactionsFromRoot) {
 				Location location = entry.location;
@@ -156,10 +158,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				entry.historyHandler.logFor((T)reference, pendingUndoablePairs, propCtx, 0, isolatedCollector);
 				referencesToAppliedHistoryHandlers.add((T)reference, entry.historyHandler);
+				
+				locationToReferenceMap.put(location, (T)reference);
 			}
 			
 			for(Location affectedReferenceLocation: ctxTransaction.affectedReferenceLocations) {
-				Model reference = (Model)affectedReferenceLocation.getChild(prevalentSystem);
+//				Model reference = (Model)affectedReferenceLocation.getChild(prevalentSystem);
+				Model reference = (Model)locationToReferenceMap.get(affectedReferenceLocation);
 				// Update the log of each affected model isolately; no transaction is cross-model
 				reference.commitLog(propCtx, 0, (Collector<Model>)isolatedCollector);
 				
@@ -314,18 +319,51 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		private TriggerHandler<T> triggerHandler;
 		private SnapshottingTranscriber<T> transcriber;
 		private ArrayList<LocationCommandsPair<T>> flushedTransactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
-		private HashSet<T> affectedReferences = new HashSet<T>();
+		private HashSet<ReferenceAndLocation<T>> affectedReferences = new HashSet<ReferenceAndLocation<T>>();
 		private ArrayList<UndoableCommandFromReference<T>> flushedUndoableTransactionsFromReferences = new ArrayList<UndoableCommandFromReference<T>>();
 		// Probably redundant field
 		// Used in collector to register affected models.
 		// - However, affected models should only be registered if commands are executed upon
 		// - Further the field is only cleared not really used anywhere.
+//		private HashSet<T> affectedModels = new HashSet<T>();
 		private HashSet<T> affectedModels = new HashSet<T>();
-		Categorizer<T, HistoryHandler<T>> referencesToAppliedHistoryHandlers = new Categorizer<T, HistoryHandler<T>>();
+		Categorizer<ReferenceAndLocation<T>, HistoryHandler<T>> referencesToAppliedHistoryHandlers = new Categorizer<ReferenceAndLocation<T>, HistoryHandler<T>>();
 		
 		public Connection(SnapshottingTranscriber<T> transcriber, TriggerHandler<T> triggerHandler) {
 			this.transcriber = transcriber;
 			this.triggerHandler = triggerHandler;
+		}
+		
+		private static class ReferenceAndLocation<T> implements Serializable {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			public final T reference;
+			public final Location location;
+			
+			public ReferenceAndLocation(T reference, Location location) {
+				this.reference = reference;
+				this.location = location;
+			}
+			
+			@Override
+			public boolean equals(Object obj) {
+				if(obj instanceof ReferenceAndLocation) {
+					@SuppressWarnings("unchecked")
+					ReferenceAndLocation<T> otherReferenceAndLocation = (ReferenceAndLocation<T>)obj;
+					
+					return this.reference.equals(otherReferenceAndLocation.reference) &&
+							this.location.equals(otherReferenceAndLocation.location);
+				}
+				
+				return false;
+			}
+			
+			@Override
+			public int hashCode() {
+				return reference.hashCode() * location.hashCode();
+			}
 		}
 		
 		public static class LocationCommandsPair<T> implements Serializable {
@@ -448,9 +486,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							Location locationFromRoot = ((Model)reference).getLocator().locate();
 							HistoryHandler<T> historyHandler = null;
 
+							ReferenceAndLocation<T> referenceAndLocation = new ReferenceAndLocation<T>(reference, locationFromRoot);
 							historyHandler = transactionFactory.getHistoryHandler();
 							
-							if(!referencesToAppliedHistoryHandlers.containsItem(reference, historyHandler))
+							if(!referencesToAppliedHistoryHandlers.containsItem(referenceAndLocation, historyHandler))
 								historyHandler.startLogFor(reference, propCtx, 0, collector);
 							
 							Location locationFromReference = new ModelRootLocation();
@@ -480,10 +519,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									pendingUndoablePairs.add(pendingUndoablePair);
 								}
 								
-								affectedReferences.add(reference);
+								affectedReferences.add(referenceAndLocation);
 								
 								historyHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
-								referencesToAppliedHistoryHandlers.add(reference, historyHandler);
+								referencesToAppliedHistoryHandlers.add(referenceAndLocation, historyHandler);
 	
 								flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, historyHandler));
 								
@@ -530,13 +569,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				HashSet<Location> affectedReferenceLocations = new HashSet<Location>();
 				
-				for(T reference: affectedReferences) {
-					List<HistoryHandler<T>> historyHandlers = referencesToAppliedHistoryHandlers.getItems((T)reference);
+				for(ReferenceAndLocation<T> referenceAndLocation: affectedReferences) {
+					List<HistoryHandler<T>> historyHandlers = referencesToAppliedHistoryHandlers.getItems(referenceAndLocation);
 					for(HistoryHandler<T> historyHandler: historyHandlers) {
-						historyHandler.commitLogFor((T)reference, propCtx, 0, isolatedCollector);
+						historyHandler.commitLogFor(referenceAndLocation.reference, propCtx, 0, isolatedCollector);
 					}
 					
-					Location referenceLocation = ((Model)reference).getLocator().locate();
+					Location referenceLocation = referenceAndLocation.location;
 					affectedReferenceLocations.add(referenceLocation);
 				}
 				
@@ -579,10 +618,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			
 			flushedTransactionsFromRoot.clear();
 
-			for(T reference: affectedReferences) {
-				List<HistoryHandler<T>> historyHandlers = referencesToAppliedHistoryHandlers.getItems((T)reference);
+			for(ReferenceAndLocation<T> referenceAndLocation: affectedReferences) {
+				List<HistoryHandler<T>> historyHandlers = referencesToAppliedHistoryHandlers.getItems(referenceAndLocation);
 				for(HistoryHandler<T> historyHandler: historyHandlers) {
-					historyHandler.rejectLogFor((T)reference, propCtx, 0, isolatedCollector);
+					historyHandler.rejectLogFor(referenceAndLocation.reference, propCtx, 0, isolatedCollector);
 				}
 			}
 			

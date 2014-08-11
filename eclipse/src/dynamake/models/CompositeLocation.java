@@ -32,4 +32,19 @@ public class CompositeLocation implements Location {
 	public String toString() {
 		return head + "/" + tail;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof CompositeLocation) {
+			CompositeLocation otherCompositeLocation = (CompositeLocation)obj;
+			return this.head.equals(otherCompositeLocation.head) && this.tail.equals(otherCompositeLocation.tail);
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return head.hashCode() * tail.hashCode();
+	}
 }

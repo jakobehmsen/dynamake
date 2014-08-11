@@ -125,6 +125,16 @@ public class RootModel extends Model {
 		public Location forForwarding() {
 			return this;
 		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof FieldContentLocation;
+		}
+		
+		@Override
+		public int hashCode() {
+			return 17;
+		}
 	}
 	
 	private static class BoundsChangeHandler extends MouseAdapter implements ComponentListener {

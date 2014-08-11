@@ -15,4 +15,14 @@ public class ParentLocation implements Location {
 	public Location forForwarding() {
 		return this;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof ParentLocation;
+	}
+	
+	@Override
+	public int hashCode() {
+		return 1117;
+	}
 }
