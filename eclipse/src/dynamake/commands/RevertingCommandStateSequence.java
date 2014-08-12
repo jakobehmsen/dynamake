@@ -6,6 +6,7 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
+import dynamake.transcription.Trigger;
 
 public class RevertingCommandStateSequence<T> implements CommandState<T> {
 	/**
@@ -42,9 +43,22 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 		
 		for(int i = 0; i < commandStates.length; i++)
 			newCommandStates[i] = commandStates[i].executeOn(propCtx, prevalentSystem, collector, location);
+		
+		// How to make sure that 
+//		executeNextOn(propCtx, prevalentSystem, collector, location, 0);
 
 		return reverse(newCommandStates);
 	}
+	
+//	private void executeNextOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, int i) {
+//		collector.execute(new Trigger<Model>() {
+//			@Override
+//			public void run(Collector<Model> collector) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//		});
+//	}
 
 	public int getCommandStateCount() {
 		return commandStates.length;

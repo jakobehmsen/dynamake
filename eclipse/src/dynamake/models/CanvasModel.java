@@ -19,6 +19,7 @@ import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateSequence;
 import dynamake.commands.ForwardableCommand;
 import dynamake.commands.ForwardableCommandFactory;
 import dynamake.commands.ForwardableOutput;
@@ -470,6 +471,7 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			
 			Model modelBase = restorableModel.unwrapBase(propCtx, 0, collector);
+			System.out.println("***Restoring model " + modelBase + " at " + modelLocationToRestore + " from " + canvas + "***");
 			restorableModel.restoreOriginsOnBase(modelBase, propCtx, 0, collector);
 			
 			canvas.restoreModelByLocation(modelLocationToRestore, modelBase, new PropogationContext(), 0, collector);
@@ -719,6 +721,7 @@ public class CanvasModel extends Model {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			
 			Model modelBase = canvas.getModelByLocation(modelLocationToRestore);
+			System.out.println("***Restoring changes of model " + modelBase + " at " + modelLocationToRestore + " from " + canvas + "***");
 			
 			restorableModel.restoreChangesOnBase(modelBase, propCtx, 0, collector);
 			restorableModel.restoreCleanupOnBase(modelBase, propCtx, 0, collector);

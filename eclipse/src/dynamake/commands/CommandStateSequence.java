@@ -1,6 +1,7 @@
 package dynamake.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import dynamake.models.Location;
@@ -17,6 +18,11 @@ public class CommandStateSequence<T> implements CommandState<T> {
 
 	public CommandStateSequence(List<CommandState<T>> commandStates) {
 		this.commandStates = commandStates;
+	}
+
+	@SafeVarargs
+	public CommandStateSequence(CommandState<T>... commandStates) {
+		this.commandStates = Arrays.asList(commandStates);
 	}
 
 	@Override
