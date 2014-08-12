@@ -338,6 +338,11 @@ public abstract class Model implements Serializable, Observer {
 	public void undo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		// An undo method which starts all undo parts and ensure the sequence
 		// A new kind of history handler is probably needed?
+		
+		// undo stack is assumed to consist only of RevertingCommandStateSequence<Model>.
+		// These could probably be replaced by simpler structures; just lists of CommandState objects.
+		RevertingCommandStateSequence<Model> toUndo = (RevertingCommandStateSequence<Model>)undoStack.pop();
+		
 //		if(!undoStack.isEmpty()) {
 //			CommandState<Model> toUndo = undoStack.pop();
 //			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
