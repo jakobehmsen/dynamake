@@ -360,17 +360,20 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	private void executeSequence(final CommandState<Model>[] commandStates, final int i, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		collector.execute(new SimpleExPendingCommandFactory<Model>(this, commandStates[i]) {
-			@Override
-			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-				executeSequence(commandStates, i + 1, propCtx, propDistance, collector);
-			}
-			
-			@Override
-			public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
-				return UndoHistoryHandler.class;
-			}
-		});
+		if(i < commandStates.length) {
+			ReversibleCommand<Model> reversible = ((UndoRedoPart)commandStates[i]).revertible;
+			collector.execute(new SimpleExPendingCommandFactory<Model>(this, reversible) {
+				@Override
+				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+					executeSequence(commandStates, i + 1, propCtx, propDistance, collector);
+				}
+				
+				@Override
+				public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
+					return UndoHistoryHandler.class;
+				}
+			});
+		}
 	}
 	
 	public CommandState<Model> redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
