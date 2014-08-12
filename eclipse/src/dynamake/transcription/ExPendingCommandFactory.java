@@ -4,6 +4,7 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandFactory;
+import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.PendingUndoablePair;
 
@@ -11,7 +12,7 @@ public interface ExPendingCommandFactory<T> {
 	T getReference();
 	void createPendingCommands(List<CommandState<T>> pendingCommands);
 	void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector);
-	HistoryHandler<T> getHistoryHandler();
+	Class<? extends HistoryHandler<T>> getHistoryHandlerClass();
 	
 	public static class Util {
 		public static <T> ExPendingCommandFactory<T> sequence(final PendingCommandFactory<T> f) {
@@ -33,17 +34,13 @@ public interface ExPendingCommandFactory<T> {
 
 				@SuppressWarnings("unchecked")
 				@Override
-				public HistoryHandler<T> getHistoryHandler() {
-					HistoryHandler<T> historyHandler;
-					
+				public Class<? extends HistoryHandler<T>> getHistoryHandlerClass() {
 					if(f instanceof TranscribeOnlyAndPostNotPendingCommandFactory)
-						historyHandler = new NullHistoryHandler<T>();
+						return (Class<? extends HistoryHandler<T>>)NullHistoryHandler.class;
 					else if(f instanceof TranscribeOnlyPendingCommandFactory)
-						historyHandler = (HistoryHandler<T>)new PostOnlyHistoryHandler();
+						return (Class<? extends HistoryHandler<T>>)PostOnlyHistoryHandler.class;
 					else
-						historyHandler = (HistoryHandler<T>)new LocalHistoryHandler();
-
-					return historyHandler;
+						return (Class<? extends HistoryHandler<T>>)LocalHistoryHandler.class;
 				}
 			};
 		}

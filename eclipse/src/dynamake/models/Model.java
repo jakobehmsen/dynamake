@@ -367,8 +367,8 @@ public abstract class Model implements Serializable, Observer {
 			}
 			
 			@Override
-			public HistoryHandler<Model> getHistoryHandler() {
-				return new UndoHistoryHandler();
+			public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
+				return UndoHistoryHandler.class;
 			}
 		});
 	}

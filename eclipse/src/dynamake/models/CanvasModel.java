@@ -1028,16 +1028,23 @@ public class CanvasModel extends Model {
 						new RestoreModelCommand.AfterRemove(),
 						new RemoveModelCommand.AfterAdd()
 					)) {
+					
+//					@Override
+//					public Class<HistoryHandler<? extends Model>> getHistoryHandlerClass() {
+//						return LocalHistoryHandler.class; 
+//					}
+
 					@Override
-					public HistoryHandler<Model> getHistoryHandler() {
-						return new LocalHistoryHandler(); 
+					public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
+						return LocalHistoryHandler.class; 
 					}
 				});
 			}
 			
 			@Override
-			public HistoryHandler<Model> getHistoryHandler() {
-				return new LocalHistoryHandler(); 
+			public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
+//				return new LocalHistoryHandler(); 
+				return LocalHistoryHandler.class; 
 			}
 		});
 		

@@ -45,8 +45,14 @@ public class SimpleExPendingCommandFactory<T> implements ExPendingCommandFactory
 
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public HistoryHandler<T> getHistoryHandler() {
-		return new NullHistoryHandler<T>();
+	public Class<? extends HistoryHandler<T>> getHistoryHandlerClass() {
+		return (Class<? extends HistoryHandler<T>>) NullHistoryHandler.class;
 	}
+	
+//	@Override
+//	public HistoryHandler<T> getHistoryHandler() {
+//		return new NullHistoryHandler<T>();
+//	}
 }
