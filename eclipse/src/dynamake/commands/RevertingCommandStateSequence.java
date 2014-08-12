@@ -14,7 +14,7 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private CommandState<T>[] commandStates;
+	public CommandState<T>[] commandStates;
 	
 	public RevertingCommandStateSequence(CommandState<T>[] commandStates) {
 		this.commandStates = commandStates;

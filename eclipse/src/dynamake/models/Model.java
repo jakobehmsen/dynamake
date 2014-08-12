@@ -43,8 +43,10 @@ import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
+import dynamake.transcription.UndoHistoryHandler;
 
 /**
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.
@@ -335,13 +337,16 @@ public abstract class Model implements Serializable, Observer {
 		return null;
 	}
 	
-	public void undo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public CommandState<Model> undo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		// An undo method which starts all undo parts and ensure the sequence
 		// A new kind of history handler is probably needed?
 		
 		// undo stack is assumed to consist only of RevertingCommandStateSequence<Model>.
 		// These could probably be replaced by simpler structures; just lists of CommandState objects.
 		RevertingCommandStateSequence<Model> toUndo = (RevertingCommandStateSequence<Model>)undoStack.pop();
+		executeSequence(toUndo.commandStates, 0, propCtx, propDistance, collector);
+		
+		return toUndo;
 		
 //		if(!undoStack.isEmpty()) {
 //			CommandState<Model> toUndo = undoStack.pop();
@@ -352,6 +357,20 @@ public abstract class Model implements Serializable, Observer {
 //		}
 //		
 //		return null;
+	}
+	
+	private void executeSequence(final CommandState<Model>[] commandStates, final int i, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		collector.execute(new SimpleExPendingCommandFactory<Model>(this, commandStates[i]) {
+			@Override
+			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+				executeSequence(commandStates, i + 1, propCtx, propDistance, collector);
+			}
+			
+			@Override
+			public HistoryHandler<Model> getHistoryHandler() {
+				return new UndoHistoryHandler();
+			}
+		});
 	}
 	
 	public CommandState<Model> redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
