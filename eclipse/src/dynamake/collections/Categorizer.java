@@ -36,4 +36,8 @@ public class Categorizer<T, U> {
 			itemsInCategory.contains(item);
 		return false;
 	}
+
+	public void clear() {
+		categories.clear();
+	}
 }
