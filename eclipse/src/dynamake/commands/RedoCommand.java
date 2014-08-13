@@ -38,7 +38,7 @@ public class RedoCommand implements Command<Model> {
 		if(isolate)
 			collector = new IsolatingCollector<Model>(collector);
 		
-		CommandState<Model> command = model.redo(propCtx, 0, collector);
+		CommandState<Model> command = model.redo2(propCtx, 0, collector);
 		
 		return new Output(command);
 	}

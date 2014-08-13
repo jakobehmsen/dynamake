@@ -43,6 +43,7 @@ import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.HistoryHandler;
+import dynamake.transcription.RedoHistoryHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
 import dynamake.transcription.UndoHistoryHandler;
@@ -348,7 +349,7 @@ public abstract class Model implements Serializable, Observer {
 		// undo stack is assumed to consist only of RevertingCommandStateSequence<Model>.
 		// These could probably be replaced by simpler structures; just lists of CommandState objects.
 		RevertingCommandStateSequence<Model> toUndo = (RevertingCommandStateSequence<Model>)undoStack.pop();
-		executeSequence(toUndo.commandStates, 0, propCtx, propDistance, collector);
+		executeSequence(toUndo.commandStates, 0, UndoHistoryHandler.class, propCtx, propDistance, collector);
 		
 		return toUndo;
 		
@@ -367,18 +368,19 @@ public abstract class Model implements Serializable, Observer {
 		redoStack.push(redoable);
 	}
 	
-	private void executeSequence(final CommandState<Model>[] commandStates, final int i, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	private void executeSequence(final CommandState<Model>[] commandStates, final int i, final Class<? extends HistoryHandler<Model>> historyHandlerClass,
+			PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(i < commandStates.length) {
 			UndoRedoPart reversible = ((UndoRedoPart)commandStates[i]);
 			collector.execute(new SimpleExPendingCommandFactory<Model>(this, reversible) {
 				@Override
 				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-					executeSequence(commandStates, i + 1, propCtx, propDistance, collector);
+					executeSequence(commandStates, i + 1, historyHandlerClass, propCtx, propDistance, collector);
 				}
 				
 				@Override
 				public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
-					return UndoHistoryHandler.class;
+					return historyHandlerClass;
 				}
 			});
 		}
@@ -394,6 +396,17 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		return null;
+	}
+	
+	public CommandState<Model> redo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		RevertingCommandStateSequence<Model> toRedo = (RevertingCommandStateSequence<Model>)redoStack.pop();
+		executeSequence(toRedo.commandStates, 0, RedoHistoryHandler.class, propCtx, propDistance, collector);
+		
+		return toRedo;
+	}
+
+	public void commitRedo(CommandState<Model> undoable) {
+		undoStack.push(undoable);
 	}
 
 	public List<CommandState<Model>> playThenReverse(List<CommandState<Model>> toPlay, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
