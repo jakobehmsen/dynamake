@@ -504,7 +504,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							HistoryHandler<T> historyHandler = null;
 							if(!referencesToAppliedHistoryHandlers.containsItem(referenceAndLocation, historyHandlerClass)) {
 								try {
-									System.out.println("Start log for " + reference + " at " + referenceAndLocation.location);
+//									System.out.println("Start log for " + reference + " at " + referenceAndLocation.location);
 									historyHandler = historyHandlerClass.newInstance();
 									historyHandler.startLogFor(reference, propCtx, 0, collector);
 									historyHandlerClassToInstanceMap.put(historyHandlerClass, historyHandler);

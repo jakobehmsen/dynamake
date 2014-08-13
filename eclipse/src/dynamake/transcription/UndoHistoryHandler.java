@@ -19,13 +19,13 @@ public class UndoHistoryHandler implements HistoryHandler<Model> {
 
 	@Override
 	public void startLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		System.out.println(this +  ": startLogFor");
+//		System.out.println(this +  ": startLogFor");
 		newLog = new ArrayList<Model.PendingUndoablePair>();
 	}
 
 	@Override
 	public void logFor(Model reference, ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		System.out.println(this +  ": logFor");
+//		System.out.println(this +  ": logFor");
 		newLog.addAll(pendingUndoablePairs);
 	}
 
@@ -42,13 +42,13 @@ public class UndoHistoryHandler implements HistoryHandler<Model> {
 		
 		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 		
-		System.out.println(this +  ": commitLogFor");
+//		System.out.println(this +  ": commitLogFor");
 		reference.commitUndo(compressedLogPart);
 	}
 
 	@Override
 	public void rejectLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		System.out.println(this +  ": rejectLogFor");
+//		System.out.println(this +  ": rejectLogFor");
 	}
 	
 	@Override
