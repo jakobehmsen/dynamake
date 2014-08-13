@@ -4,7 +4,6 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandFactory;
-import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.PendingUndoablePair;
 

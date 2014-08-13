@@ -19,7 +19,6 @@ import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
-import dynamake.commands.CommandStateSequence;
 import dynamake.commands.ForwardableCommand;
 import dynamake.commands.ForwardableCommandFactory;
 import dynamake.commands.ForwardableOutput;

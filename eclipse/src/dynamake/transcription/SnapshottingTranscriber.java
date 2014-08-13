@@ -23,7 +23,6 @@ import java.util.concurrent.Executors;
 
 import dynamake.collections.Categorizer;
 import dynamake.commands.CommandStateWithOutput;
-import dynamake.commands.ReversibleCommand;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandFactory;

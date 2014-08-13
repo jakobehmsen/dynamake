@@ -6,7 +6,6 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
-import dynamake.transcription.Trigger;
 
 public class RevertingCommandStateSequence<T> implements CommandState<T> {
 	/**

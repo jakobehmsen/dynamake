@@ -1,13 +1,10 @@
 package dynamake.transcription;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.models.Model;
-import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.PendingUndoablePair;
 import dynamake.models.Model.UndoRedoPart;
@@ -36,8 +33,7 @@ public class UndoHistoryHandler implements HistoryHandler<Model> {
 	public void commitLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		// Build redoable from logged commands
 		
-//		CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
-//		redoStack.push(redoable);
+		@SuppressWarnings("unchecked")
 		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
 
 		for(int i = 0; i < newLog.size(); i++) {

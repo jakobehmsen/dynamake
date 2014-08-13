@@ -25,19 +25,16 @@ import dynamake.commands.AddObserverCommand;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateWithOutput;
-import dynamake.commands.ForwardableOutput;
 import dynamake.commands.MappableForwardable;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
-import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.menubuilders.ColorMenuBuilder;
 import dynamake.menubuilders.CompositeMenuBuilder;
-import dynamake.models.Model.PendingUndoablePair;
 import dynamake.models.factories.CloneFactory;
 import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.DeriveFactory;
@@ -90,7 +87,6 @@ public abstract class Model implements Serializable, Observer {
 //			return this;
 			
 			CommandState<Model> newPending = pending.forForwarding(undoable.getOutput());
-			Object newOutput;
 //			if(undoable.getOutput() instanceof ForwardableOutput)
 //				newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
 //			else
