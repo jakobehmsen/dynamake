@@ -95,10 +95,11 @@ public class ReversibleCommand<T> implements CommandStateWithOutput<T> {
 		CommandFactory<T> newForthFactory = forthFactory;
 		Object newOutput = output;
 		
-		if(newForthFactory instanceof ForwardableCommandFactory) {
+		if(newForthFactory instanceof ForwardableCommandFactory)
 			newForthFactory = ((ForwardableCommandFactory<T>)newForthFactory).forForwarding(output);
-//			newOutput = ((ForwardableOutput)output).forForwarding();
-		}
+		
+		if(output instanceof ForwardableOutput)
+			newOutput = ((ForwardableOutput)output).forForwarding();
 		
 		return new ReversibleCommand<T>(cause, newOutput, newForthFactory, backFactory);
 	}
