@@ -33,7 +33,7 @@ public class Categorizer<T, U> {
 	public boolean containsItem(T category, U item) {
 		List<U> itemsInCategory = categories.get(category);
 		if(itemsInCategory != null)
-			itemsInCategory.contains(item);
+			return itemsInCategory.contains(item);
 		return false;
 	}
 
