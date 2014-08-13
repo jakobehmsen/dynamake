@@ -36,6 +36,7 @@ import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.menubuilders.ColorMenuBuilder;
 import dynamake.menubuilders.CompositeMenuBuilder;
+import dynamake.models.Model.PendingUndoablePair;
 import dynamake.models.factories.CloneFactory;
 import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.DeriveFactory;
@@ -357,6 +358,10 @@ public abstract class Model implements Serializable, Observer {
 //		}
 //		
 //		return null;
+	}
+
+	public void commitUndo(CommandState<Model> redoable) {
+		redoStack.push(redoable);
 	}
 	
 	private void executeSequence(final CommandState<Model>[] commandStates, final int i, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
