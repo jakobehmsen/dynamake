@@ -24,6 +24,7 @@ import javax.swing.JComponent;
 import dynamake.commands.AddObserverCommand;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
+import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.ForwardableOutput;
 import dynamake.commands.MappableForwardable;
 import dynamake.commands.PendingCommandFactory;
@@ -63,9 +64,9 @@ public abstract class Model implements Serializable, Observer {
 		private static final long serialVersionUID = 1L;
 //		public final PendingCommandState<Model> pending;
 		public final CommandState<Model> pending;
-		public final ReversibleCommand<Model> undoable;
+		public final CommandStateWithOutput<Model> undoable;
 		
-		public PendingUndoablePair(CommandState<Model> pending, ReversibleCommand<Model> undoable) {
+		public PendingUndoablePair(CommandState<Model> pending, CommandStateWithOutput<Model> undoable) {
 			if(pending == null)
 				new String();
 			this.pending = pending;
@@ -90,11 +91,12 @@ public abstract class Model implements Serializable, Observer {
 			
 			CommandState<Model> newPending = pending.forForwarding(undoable.getOutput());
 			Object newOutput;
-			if(undoable.getOutput() instanceof ForwardableOutput)
-				newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
-			else
-				newOutput = undoable.getOutput();
-			ReversibleCommand<Model> newUndoable = new ReversibleCommand<Model>(undoable.getCause(), newOutput, undoable.getForthFactory(), undoable.getBackFactory());
+//			if(undoable.getOutput() instanceof ForwardableOutput)
+//				newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
+//			else
+//				newOutput = undoable.getOutput();
+//			ReversibleCommand<Model> newUndoable = new ReversibleCommand<Model>(undoable.getCause(), newOutput, undoable.getForthFactory(), undoable.getBackFactory());
+			CommandStateWithOutput<Model> newUndoable = (CommandStateWithOutput<Model>)undoable.forForwarding();
 			return new PendingUndoablePair(newPending, newUndoable);
 		}
 
@@ -102,7 +104,7 @@ public abstract class Model implements Serializable, Observer {
 		public PendingUndoablePair mapToReferenceLocation(Model sourceReference, Model targetReference) {
 			return new PendingUndoablePair(
 				(PendingCommandState<Model>)pending.mapToReferenceLocation(sourceReference, targetReference),
-				(ReversibleCommand<Model>)undoable.mapToReferenceLocation(sourceReference, targetReference)
+				(CommandStateWithOutput<Model>)undoable.mapToReferenceLocation(sourceReference, targetReference)
 			);
 		}
 
@@ -110,7 +112,7 @@ public abstract class Model implements Serializable, Observer {
 		public PendingUndoablePair offset(Location offset) {
 			return new PendingUndoablePair(
 				(PendingCommandState<Model>)pending.offset(offset),
-				(ReversibleCommand<Model>)undoable.offset(offset)
+				(CommandStateWithOutput<Model>)undoable.offset(offset)
 			);
 		}
 		
@@ -131,15 +133,15 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static class UndoRedoPart implements Serializable, CommandState<Model> {
+	public static class UndoRedoPart implements Serializable, CommandStateWithOutput<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		public final PendingUndoablePair origin;
-		public final ReversibleCommand<Model> revertible;
+		public final CommandStateWithOutput<Model> revertible;
 		
-		public UndoRedoPart(PendingUndoablePair origin, ReversibleCommand<Model> revertible) {
+		public UndoRedoPart(PendingUndoablePair origin, CommandStateWithOutput<Model> revertible) {
 			this.origin = origin;
 			this.revertible = revertible;
 		}
@@ -147,24 +149,24 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public CommandState<Model> executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CommandState<Model> reverted = revertible.executeOn(propCtx, prevalentSystem, collector, location);
-			return new UndoRedoPart(origin, (ReversibleCommand<Model>)reverted);
+			return new UndoRedoPart(origin, (CommandStateWithOutput<Model>)reverted);
 		}
 		
 		@Override
 		public CommandState<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
 			return new UndoRedoPart(
 				origin.mapToReferenceLocation(sourceReference, targetReference), 
-				(ReversibleCommand<Model>)revertible.mapToReferenceLocation(sourceReference, targetReference)
+				(CommandStateWithOutput<Model>)revertible.mapToReferenceLocation(sourceReference, targetReference)
 			);
 		}
 		
 		@Override
 		public CommandState<Model> offset(Location offset) {
-			return new UndoRedoPart(origin.offset(offset), (ReversibleCommand<Model>)revertible.offset(offset));
+			return new UndoRedoPart(origin.offset(offset), (CommandStateWithOutput<Model>)revertible.offset(offset));
 		}
 		
 		public CommandState<Model> forForwarding() {
-			return new UndoRedoPart(origin.forForwarding(), (ReversibleCommand<Model>)revertible.forForwarding());
+			return new UndoRedoPart(origin.forForwarding(), (CommandStateWithOutput<Model>)revertible.forForwarding());
 		}
 		
 		@Override
@@ -176,6 +178,11 @@ public abstract class Model implements Serializable, Observer {
 		@Override
 		public CommandState<Model> forForwarding(Object output) {
 			return null;
+		}
+		
+		@Override
+		public Object getOutput() {
+			return revertible.getOutput();
 		}
 	}
 	
@@ -366,7 +373,7 @@ public abstract class Model implements Serializable, Observer {
 	
 	private void executeSequence(final CommandState<Model>[] commandStates, final int i, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(i < commandStates.length) {
-			ReversibleCommand<Model> reversible = ((UndoRedoPart)commandStates[i]).revertible;
+			UndoRedoPart reversible = ((UndoRedoPart)commandStates[i]);
 			collector.execute(new SimpleExPendingCommandFactory<Model>(this, reversible) {
 				@Override
 				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {

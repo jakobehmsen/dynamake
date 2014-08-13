@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dynamake.collections.Categorizer;
+import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.ReversibleCommand;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.CommandState;
@@ -162,7 +163,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				ArrayList<Model.PendingUndoablePair> pendingUndoablePairs = new ArrayList<Model.PendingUndoablePair>();
 				for(CommandState<T> transaction: entry.pending) {
-					ReversibleCommand<Model> undoable = (ReversibleCommand<Model>)transaction.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
+					CommandStateWithOutput<Model> undoable = (CommandStateWithOutput<Model>)transaction.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
 					pendingUndoablePairs.add(new Model.PendingUndoablePair((CommandState<Model>)transaction, undoable));
 				}
 				
@@ -535,7 +536,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
 								for(int i = 0; i < pendingCommands.size(); i++) {
 									CommandState<Model> pending = (CommandState<Model>)pendingCommands.get(i);
-									ReversibleCommand<Model> undoable = (ReversibleCommand<Model>)undoables.get(i);
+									CommandStateWithOutput<Model> undoable = (CommandStateWithOutput<Model>)undoables.get(i);
 									PendingUndoablePair pendingUndoablePair = new PendingUndoablePair(pending, undoable);
 									pendingUndoablePairs.add(pendingUndoablePair);
 								}

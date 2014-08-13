@@ -7,7 +7,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class ReversibleCommand<T> implements CommandState<T> {
+public class ReversibleCommand<T> implements CommandStateWithOutput<T> {
 	/**
 	 * 
 	 */
