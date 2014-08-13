@@ -1,12 +1,16 @@
 package dynamake.transcription;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import dynamake.commands.CommandState;
+import dynamake.commands.ReversibleCommand;
+import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.models.Model;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.PendingUndoablePair;
+import dynamake.models.Model.UndoRedoPart;
 
 public class UndoHistoryHandler implements HistoryHandler<Model> {
 	/**
@@ -34,8 +38,16 @@ public class UndoHistoryHandler implements HistoryHandler<Model> {
 		
 //		CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
 //		redoStack.push(redoable);
+		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
+
+		for(int i = 0; i < newLog.size(); i++) {
+			compressedLogPartAsArray[i] = new UndoRedoPart(newLog.get(i), newLog.get(i).undoable);
+		}
+		
+		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 		
 		System.out.println(this +  ": commitLogFor");
+		reference.commitUndo(compressedLogPart);
 	}
 
 	@Override
