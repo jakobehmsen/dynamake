@@ -518,7 +518,7 @@ public class CanvasModel extends Model {
 			
 			modelToDestroy.destroy(propCtx, 0, collector);
 
-			return null;
+			return new Output(locationOfModelToDestroy);
 		}
 		
 		@Override
