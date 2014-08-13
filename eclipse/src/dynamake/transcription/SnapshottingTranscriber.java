@@ -504,9 +504,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							HistoryHandler<T> historyHandler = null;
 							if(!referencesToAppliedHistoryHandlers.containsItem(referenceAndLocation, historyHandlerClass)) {
 								try {
+									System.out.println("Start log for " + reference + " at " + referenceAndLocation.location);
 									historyHandler = historyHandlerClass.newInstance();
 									historyHandler.startLogFor(reference, propCtx, 0, collector);
 									historyHandlerClassToInstanceMap.put(historyHandlerClass, historyHandler);
+									referencesToAppliedHistoryHandlers.add(referenceAndLocation, historyHandlerClass);
 								} catch (InstantiationException | IllegalAccessException e) {
 									e.printStackTrace();
 								}
@@ -543,7 +545,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								affectedReferences.add(referenceAndLocation);
 								
 								historyHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
-								referencesToAppliedHistoryHandlers.add(referenceAndLocation, historyHandlerClass);
 	
 								flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, historyHandlerClass));
 								
