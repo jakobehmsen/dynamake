@@ -308,6 +308,7 @@ public class CanvasModel extends Model {
 			
 			canvas.addModel(model, new PropogationContext(), 0, collector);
 			final Location addedModelLocation = canvas.getLocationOf(model);
+			System.out.println("***Adding model " + model + " at " + addedModelLocation + " in " + canvas + "***");
 			
 			collector.execute(new Trigger<Model>() {
 				@Override
@@ -601,7 +602,7 @@ public class CanvasModel extends Model {
 			}
 		}
 		
-		public static final class AfterAdd implements ForwardableCommandFactory<Model>  
+		public static final class AfterAdd implements /*Forwardable*/CommandFactory<Model>  
 		{
 			/**
 			 * 
@@ -613,38 +614,38 @@ public class CanvasModel extends Model {
 				return new CanvasModel.RemoveModelCommand(((CanvasModel.AddModelCommand.Output)output).location);
 			}
 			
-			@Override
-			public CommandFactory<Model> forForwarding(Object output) {
-				return new RemoveModelCommand.ForwardAfterAdd(this);
-			}
+//			@Override
+//			public CommandFactory<Model> forForwarding(Object output) {
+//				return new RemoveModelCommand.ForwardAfterAdd(this);
+//			}
 		}
 		
-		public static final class ForwardAfterAdd implements ForwardableCommandFactory<Model>  
-		{
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-			private CommandFactory<Model> factory;
-
-			public ForwardAfterAdd(CommandFactory<Model> factory) {
-				this.factory = factory;
-			}
-
-			@Override
-			public Command<Model> createCommand(Object output) {
-				AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
-				
-				Location mappedLocation = addModelOutput.location.forForwarding();
-				
-				return factory.createCommand(new AddModelCommand.Output(mappedLocation));
-			}
-			
-			@Override
-			public CommandFactory<Model> forForwarding(Object output) {
-				return new RemoveModelCommand.ForwardAfterAdd(this);
-			}
-		}
+//		public static final class ForwardAfterAdd implements ForwardableCommandFactory<Model>  
+//		{
+//			/**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = 1L;
+//			private CommandFactory<Model> factory;
+//
+//			public ForwardAfterAdd(CommandFactory<Model> factory) {
+//				this.factory = factory;
+//			}
+//
+//			@Override
+//			public Command<Model> createCommand(Object output) {
+//				AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
+//				
+//				Location mappedLocation = addModelOutput.location.forForwarding();
+//				
+//				return factory.createCommand(new AddModelCommand.Output(mappedLocation));
+//			}
+//			
+//			@Override
+//			public CommandFactory<Model> forForwarding(Object output) {
+//				return new RemoveModelCommand.ForwardAfterAdd(this);
+//			}
+//		}
 		
 		/**
 		 * 
