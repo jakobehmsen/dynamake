@@ -47,6 +47,7 @@ import dynamake.transcription.RedoHistoryHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
 import dynamake.transcription.UndoHistoryHandler;
+import dynamake.transcription.UnplayHistoryHandler;
 
 /**
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.
@@ -320,6 +321,14 @@ public abstract class Model implements Serializable, Observer {
 			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
 			redoStack.push(redoable);
 		}
+		
+//		@SuppressWarnings("unchecked")
+//		CommandState<Model>[] toUndos = (CommandState<Model>[])new CommandState[count];
+//		for(int i = 0; i < count; i++) {
+//			toUndos[i] = undoStack.pop();
+//		}
+//		
+//		executeSequence(toUndos, 0, UnplayHistoryHandler.class, propCtx, propDistance, collector);
 	}	
 	
 	public void replay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -371,7 +380,7 @@ public abstract class Model implements Serializable, Observer {
 	private void executeSequence(final CommandState<Model>[] commandStates, final int i, final Class<? extends HistoryHandler<Model>> historyHandlerClass,
 			PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(i < commandStates.length) {
-			UndoRedoPart reversible = ((UndoRedoPart)commandStates[i]);
+			CommandState<Model> reversible = ((CommandState<Model>)commandStates[i]);
 			collector.execute(new SimpleExPendingCommandFactory<Model>(this, reversible) {
 				@Override
 				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
