@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.List;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.ForwardLocalChangesCommand;
-import dynamake.commands.ForwardLocalChangesUpwardsCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReplayCommand;
 import dynamake.commands.UnplayCommand;

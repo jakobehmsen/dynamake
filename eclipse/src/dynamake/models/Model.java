@@ -47,7 +47,6 @@ import dynamake.transcription.RedoHistoryHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
 import dynamake.transcription.UndoHistoryHandler;
-import dynamake.transcription.UnplayHistoryHandler;
 
 /**
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.

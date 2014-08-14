@@ -2,8 +2,6 @@ package dynamake.transcription;
 
 import java.util.ArrayList;
 
-import dynamake.commands.CommandState;
-import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.PendingUndoablePair;

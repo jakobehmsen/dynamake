@@ -20,7 +20,6 @@ import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
 import dynamake.commands.ForwardableCommand;
-import dynamake.commands.ForwardableCommandFactory;
 import dynamake.commands.ForwardableOutput;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
