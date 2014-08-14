@@ -63,7 +63,6 @@ public class DeriveFactory implements ModelFactory {
 				));
 				
 				restorableModelCreation.restoreChangesOnBase(createdModel, propCtx, propDistance, collector);
-				restorableModelCreation.restoreCleanupOnBase(createdModel, propCtx, propDistance, collector);
 			}
 			
 			@Override

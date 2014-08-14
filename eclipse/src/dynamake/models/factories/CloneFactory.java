@@ -39,7 +39,6 @@ public class CloneFactory implements ModelFactory {
 			public void setup(Model rootModel, final Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 				RestorableModel restorableModelCreation = restorableModelClone.mapToReferenceLocation(modelToClone, createdModel);
 				restorableModelCreation.restoreChangesOnBase(createdModel, propCtx, propDistance, collector);
-				restorableModelCreation.restoreCleanupOnBase(createdModel, propCtx, propDistance, collector);
 				
 //				@SuppressWarnings("unchecked")
 //				List<CommandState<Model>> allCreation = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel.PROPERTY_CREATION);
