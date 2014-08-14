@@ -31,8 +31,8 @@ public class CanvasRestorableModel extends RestorableModel {
 	
 	private List<Entry> innerRestorables;
 	
-	protected CanvasRestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, MappableForwardable modelHistory, List<CommandState<Model>> modelCleanup, List<Entry> innerRestorables) {
-		super(modelBaseSerialization, modelOrigins, modelCreation, modelHistory, modelCleanup);
+	protected CanvasRestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, MappableForwardable modelHistory, List<Entry> innerRestorables) {
+		super(modelBaseSerialization, modelOrigins, modelCreation, modelHistory);
 		this.innerRestorables = innerRestorables;
 	}
 

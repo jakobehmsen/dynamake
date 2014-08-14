@@ -26,14 +26,12 @@ public class RestorableModel implements Serializable {
 
 	public static String PROPERTY_ORIGINS = "Origins";
 	public static String PROPERTY_CREATION = "Creation";
-	public static String PROPERTY_CLEANUP = "Cleanup";
 	
 	protected byte[] modelBaseSerialization;
 	// Origins must guarantee to not require mapping to new references
 	protected List<CommandState<Model>> modelOrigins;
 	protected List<CommandState<Model>> modelCreation;
 	protected MappableForwardable modelHistory;
-	protected List<CommandState<Model>> modelCleanup;
 	
 	public static RestorableModel wrap(Model model, boolean includeLocalHistory) {
 		RestorableModel wrapper = new RestorableModel();
@@ -65,23 +63,18 @@ public class RestorableModel implements Serializable {
 		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> modelCreation1 = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CREATION);
 		List<CommandState<Model>> modelCreation = modelCreation1 != null ? new ArrayList<CommandState<Model>>(modelCreation1) : null;
-		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> modelCleanup1 = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CLEANUP);
-		List<CommandState<Model>> modelCleanup = modelCleanup1 != null ? new ArrayList<CommandState<Model>>(modelCleanup1) : null;
 		
 		wrapper.modelBaseSerialization = modelBaseSerialization;
 		wrapper.modelOrigins = modelOrigins;
 		wrapper.modelCreation = modelCreation;
 		wrapper.modelHistory = modelHistory;
-		wrapper.modelCleanup = modelCleanup;
 	}
 	
-	protected RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, MappableForwardable modelHistory, List<CommandState<Model>> modelCleanup) {
+	protected RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, MappableForwardable modelHistory) {
 		this.modelBaseSerialization = modelBaseSerialization;
 		this.modelOrigins = modelOrigins;
 		this.modelCreation = modelCreation;
 		this.modelHistory = modelHistory;
-		this.modelCleanup = modelCleanup;
 	}
 	
 	protected RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins) {
@@ -109,14 +102,6 @@ public class RestorableModel implements Serializable {
 		if(modelHistory != null)
 			mapped.modelHistory = modelHistory.mapToReferenceLocation(sourceReference, targetReference);
 		
-		if(modelCleanup != null) {
-			mapped.modelCleanup = new ArrayList<CommandState<Model>>();
-			for(CommandState<Model> mc: modelCleanup) {
-				CommandState<Model> newModelCleanup = mc.mapToReferenceLocation(sourceReference, targetReference);
-				mapped.modelCleanup.add(newModelCleanup);
-			}
-		}
-		
 		afterMapToReferenceLocation(mapped, sourceReference, targetReference);
 	}
 	
@@ -137,14 +122,6 @@ public class RestorableModel implements Serializable {
 		
 		if(modelHistory != null)
 			mapped.modelHistory = modelHistory.forForwarding();
-		
-		if(modelCleanup != null) {
-			mapped.modelCleanup = new ArrayList<CommandState<Model>>();
-			for(CommandState<Model> mc: modelCleanup) {
-				CommandState<Model> newModelCleanup = mc.forForwarding();
-				mapped.modelCleanup.add(newModelCleanup);
-			}
-		}
 		
 		afterForForwarding(mapped);
 	}
