@@ -226,20 +226,6 @@ public class RestorableModel implements Serializable {
 		}
 	}
 	
-	public void restoreCleanupOnBase(final Model modelBase, final PropogationContext propCtx, final int propDistance, Collector<Model> collector) {
-		collector.execute(new SimpleExPendingCommandFactory<Model>(modelBase, new PendingCommandState<Model>(
-			new SetPropertyCommand(RestorableModel.PROPERTY_CLEANUP, modelCleanup), 
-			new SetPropertyCommand.AfterSetProperty()
-		)));
-		
-		collector.execute(new Trigger<Model>() {
-			@Override
-			public void run(Collector<Model> collector) {
-				afterRestoreCleanupOnBase(modelBase, propCtx, propDistance, collector);
-			}
-		});
-	}
-	
 	protected void afterMapToReferenceLocation(RestorableModel mapped, Model sourceReference, Model targetReference) { }
 	protected void afterForForwarding(RestorableModel forForwarded) { }
 	protected void afterRestoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
