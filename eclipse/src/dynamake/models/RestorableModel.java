@@ -206,7 +206,6 @@ public class RestorableModel implements Serializable {
 	protected void afterMapToReferenceLocation(RestorableModel mapped, Model sourceReference, Model targetReference) { }
 	protected void afterForForwarding(RestorableModel forForwarded) { }
 	protected void afterRestoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
-	protected void afterRestoreCleanupOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
 	
 	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		Model modelBase = unwrapBase(propCtx, propDistance, collector);

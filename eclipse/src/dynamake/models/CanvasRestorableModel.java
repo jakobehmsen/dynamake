@@ -82,13 +82,6 @@ public class CanvasRestorableModel extends RestorableModel {
 		}
 	}
 	
-	@Override
-	protected void afterRestoreCleanupOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(Entry innerRestorable: this.innerRestorables) {
-			Model innerModelToRestore = ((CanvasModel)modelBase).getModelByLocation(innerRestorable.id);
-		}
-	}
-	
 	public static CanvasRestorableModel wrap(CanvasModel model, boolean includeLocalHistory) {
 		CanvasRestorableModel wrapper = new CanvasRestorableModel();
 		wrap(wrapper, model, includeLocalHistory);
