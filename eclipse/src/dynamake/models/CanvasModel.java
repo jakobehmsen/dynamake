@@ -400,7 +400,7 @@ public class CanvasModel extends Model {
 	
 	// Should be MappableCommand due to RestorableModel?
 	public static class RestoreModelCommand implements Command<Model>, Cloneable {
-		public static final class AfterRemove implements ForwardableCommandFactory<Model>  
+		public static final class AfterRemove implements /*Forwardable*/CommandFactory<Model>  
 		{
 			/**
 			 * 
@@ -421,38 +421,38 @@ public class CanvasModel extends Model {
 				return new CanvasModel.RestoreModelCommand(location, restorableModel);
 			}
 			
-			@Override
-			public CommandFactory<Model> forForwarding(Object output) {
-				return new RestoreModelCommand.ForwardAfterRemove(this);
-			}
+//			@Override
+//			public CommandFactory<Model> forForwarding(Object output) {
+//				return new RestoreModelCommand.ForwardAfterRemove(this);
+//			}
 		}
 		
-		public static final class ForwardAfterRemove implements ForwardableCommandFactory<Model>  
-		{
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-			private CommandFactory<Model> factory;
-
-			public ForwardAfterRemove(CommandFactory<Model> factory) {
-				this.factory = factory;
-			}
-
-			@Override
-			public Command<Model> createCommand(Object output) {
-				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
-				
-				Location mappedLocation = ((RemoveModelCommand.Output)output).location.forForwarding();
-				
-				return factory.createCommand(new RemoveModelCommand.Output(mappedLocation, restorableModel));
-			}
-			
-			@Override
-			public CommandFactory<Model> forForwarding(Object output) {
-				return new RestoreModelCommand.ForwardAfterRemove(this);
-			}
-		}
+//		public static final class ForwardAfterRemove implements ForwardableCommandFactory<Model>  
+//		{
+//			/**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = 1L;
+//			private CommandFactory<Model> factory;
+//
+//			public ForwardAfterRemove(CommandFactory<Model> factory) {
+//				this.factory = factory;
+//			}
+//
+//			@Override
+//			public Command<Model> createCommand(Object output) {
+//				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
+//				
+//				Location mappedLocation = ((RemoveModelCommand.Output)output).location.forForwarding();
+//				
+//				return factory.createCommand(new RemoveModelCommand.Output(mappedLocation, restorableModel));
+//			}
+//			
+//			@Override
+//			public CommandFactory<Model> forForwarding(Object output) {
+//				return new RestoreModelCommand.ForwardAfterRemove(this);
+//			}
+//		}
 		
 		/**
 		 * 
