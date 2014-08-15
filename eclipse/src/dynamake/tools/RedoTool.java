@@ -13,6 +13,7 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.ExPendingCommandFactory;
+import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
 import dynamake.transcription.Trigger;
 
@@ -24,7 +25,7 @@ public class RedoTool implements Tool {
 			public void run(Collector<Model> collector) {
 				if(modelOver.getModelBehind().canRedo()) {
 					collector.execute(
-						ExPendingCommandFactory.Util.sequence(new TranscribeOnlyPendingCommandFactory<Model> () {
+						ExPendingCommandFactory2.Util.sequence(new TranscribeOnlyPendingCommandFactory<Model> () {
 							@Override
 							public Model getReference() {
 								return modelOver.getModelBehind();
