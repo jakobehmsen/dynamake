@@ -14,32 +14,38 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.ExPendingCommandFactory;
 import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
+import dynamake.transcription.Trigger;
 
 public class UndoTool implements Tool {
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
-		collector.execute(
-			ExPendingCommandFactory.Util.sequence(new TranscribeOnlyPendingCommandFactory<Model> () {
-				@Override
-				public Model getReference() {
-					return modelOver.getModelBehind();
+		collector.execute(new Trigger<Model>() {
+			@Override
+			public void run(Collector<Model> collector) {
+				if(modelOver.getModelBehind().canUndo()) {
+					collector.execute(
+						ExPendingCommandFactory.Util.sequence(new TranscribeOnlyPendingCommandFactory<Model> () {
+							@Override
+							public Model getReference() {
+								return modelOver.getModelBehind();
+							}
+							
+							@Override
+							public void createPendingCommands(List<CommandState<Model>> commandStates) {
+								commandStates.add(
+									new PendingCommandState<Model>(
+										new UndoCommand(false),
+										new RedoCommand(false)
+									)
+								);
+							}
+						})
+					);
+					
+					collector.commit();
 				}
-				
-				@Override
-				public void createPendingCommands(List<CommandState<Model>> commandStates) {
-					if(modelOver.getModelBehind().canUndo()) {
-						commandStates.add(
-							new PendingCommandState<Model>(
-								new UndoCommand(false),
-								new RedoCommand(false)
-							)
-						);
-					}
-				}
-			})
-		);
-		
-		collector.commit();
+			}
+		});
 	}
 
 	@Override
