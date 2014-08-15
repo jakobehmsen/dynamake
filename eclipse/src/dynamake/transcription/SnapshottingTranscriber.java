@@ -329,12 +329,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		private ArrayList<LocationCommandsPair<T>> flushedTransactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
 		private HashSet<ReferenceAndLocation<T>> affectedReferences = new HashSet<ReferenceAndLocation<T>>();
 		private ArrayList<UndoableCommandFromReference<T>> flushedUndoableTransactionsFromReferences = new ArrayList<UndoableCommandFromReference<T>>();
-		// Probably redundant field
-		// Used in collector to register affected models.
-		// - However, affected models should only be registered if commands are executed upon
-		// - Further the field is only cleared not really used anywhere.
-		Categorizer<ReferenceAndLocation<T>, Class<? extends HistoryHandler<T>>> referencesToAppliedHistoryHandlers = new Categorizer<ReferenceAndLocation<T>, Class<? extends HistoryHandler<T>>>();
-		Hashtable<Class<? extends HistoryHandler<T>>, HistoryHandler<T>> historyHandlerClassToInstanceMap = new Hashtable<Class<? extends HistoryHandler<T>>, HistoryHandler<T>>();
+		private Categorizer<ReferenceAndLocation<T>, Class<? extends HistoryHandler<T>>> referencesToAppliedHistoryHandlers = new Categorizer<ReferenceAndLocation<T>, Class<? extends HistoryHandler<T>>>();
+		private Hashtable<Class<? extends HistoryHandler<T>>, HistoryHandler<T>> historyHandlerClassToInstanceMap = new Hashtable<Class<? extends HistoryHandler<T>>, HistoryHandler<T>>();
 		
 		public Connection(SnapshottingTranscriber<T> transcriber, TriggerHandler<T> triggerHandler) {
 			this.transcriber = transcriber;
