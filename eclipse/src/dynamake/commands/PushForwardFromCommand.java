@@ -12,7 +12,6 @@ import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.ExPendingCommandFactory;
-import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class PushForwardFromCommand implements ForwardableCommand<Model> {
