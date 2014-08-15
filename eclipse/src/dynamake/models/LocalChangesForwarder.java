@@ -9,7 +9,9 @@ import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReplayCommand;
 import dynamake.commands.UnplayCommand;
+import dynamake.delegates.Action1;
 import dynamake.transcription.Collector;
+import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Execution;
 import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
@@ -113,10 +115,11 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 						new ReplayCommand(localChangeCount)
 					)));
 
-					// Play the inherited local changes backwards without affecting the local changes
-					collector.execute(new SimpleExPendingCommandFactory<Model>(target, forwardedChangesToRevert) {
+					
+					
+					ExPendingCommandFactory2.Util.sequence(collector, target, forwardedChangesToRevert, new ExPendingCommandFactory2.Util.ExecutionsHandler<Model>() {
 						@Override
-						public void afterPropogationFinished(final List<Execution<Model>> forwardedChangesToRevertPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+						public void handleExecutions(final List<Execution<Model>> forwardedChangesToRevertPendingUndoablePairs, Collector<Model> collector) {
 							// Do the forwarded change without affecting the local changes
 							// The forwarded changes must be, each, of type PendingCommandState
 							final ArrayList<CommandState<Model>> forwardedNewChangesAsPendings = new ArrayList<CommandState<Model>>();
@@ -150,10 +153,11 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 											backwardOutput.add(pup.undoable);
 									}
 									Collections.reverse(backwardOutput);
+									
 
-									collector.execute(new SimpleExPendingCommandFactory<Model>(target, backwardOutput) {
+									ExPendingCommandFactory2.Util.sequence(collector, target, forwardedChangesToRevert, new ExPendingCommandFactory2.Util.ExecutionsHandler<Model>() {
 										@Override
-										public void afterPropogationFinished(List<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+										public void handleExecutions(List<Execution<Model>> pendingUndoablePairs, Collector<Model> collector) {
 											// Play the local changes forward
 											collector.execute(new SimpleExPendingCommandFactory<Model>(target, new PendingCommandState<Model>(
 												new ReplayCommand(localChangeCount),
@@ -161,10 +165,76 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 											)));
 										}
 									});
+									
+//									collector.execute(new SimpleExPendingCommandFactory<Model>(target, backwardOutput) {
+//										@Override
+//										public void afterPropogationFinished(List<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//											// Play the local changes forward
+//											collector.execute(new SimpleExPendingCommandFactory<Model>(target, new PendingCommandState<Model>(
+//												new ReplayCommand(localChangeCount),
+//												new UnplayCommand(localChangeCount)
+//											)));
+//										}
+//									});
 								}
 							});
 						}
 					});
+					
+					
+					
+//					// Play the inherited local changes backwards without affecting the local changes
+//					collector.execute(new SimpleExPendingCommandFactory<Model>(target, forwardedChangesToRevert) {
+//						@Override
+//						public void afterPropogationFinished(final List<Execution<Model>> forwardedChangesToRevertPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//							// Do the forwarded change without affecting the local changes
+//							// The forwarded changes must be, each, of type PendingCommandState
+//							final ArrayList<CommandState<Model>> forwardedNewChangesAsPendings = new ArrayList<CommandState<Model>>();
+//							for(CommandState<Model> forwardedNewChange: forwardedNewChanges) {
+////								// UGLY UGLY HACK(s)!!!
+////								if(forwardedNewChange instanceof Model.PendingUndoablePair)
+////									forwardedNewChangesAsPendings.add(((Model.PendingUndoablePair)forwardedNewChange).pending);
+////								else {// if(forwardedNewChange instanceof RevertingCommandStateSequence) {
+////									// This case is provoked in undo scenarios
+////									// What to do here?
+//////									RevertingCommandStateSequence<Model> forwardedNewChangeAsRevertingCommandStateSequence = 
+//////										(RevertingCommandStateSequence<Model>)forwardedNewChange;
+//////									new PendingCommandState<Model>(forwardedNewChangeAsRevertingCommandStateSequence, new Command.Null<Model>());
+//////									forwardedNewChangesAsPendings.add(((Model.PendingUndoablePair)forwardedNewChange).pending);
+////									forwardedNewChangesAsPendings.add(forwardedNewChange);
+////								}
+//								
+//								forwardedNewChange.appendPendings(forwardedNewChangesAsPendings);
+//								
+////								forwardedNewChangesAsPendings.add(forwardedNewChange);
+//							}
+//							
+//							collector.execute(new SimpleExPendingCommandFactory<Model>(target, forwardedNewChangesAsPendings) {
+//								@Override
+//								public void afterPropogationFinished(List<Execution<Model>> forwardedNewChangesPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//									// Play the inherited local changes forwards without affecting the local changes
+//									ArrayList<CommandState<Model>> backwardOutput = new ArrayList<CommandState<Model>>();
+//									// They may not have been any forwarded changes to revert
+//									if(forwardedChangesToRevertPendingUndoablePairs != null) {
+//										for(Execution<Model> pup: forwardedChangesToRevertPendingUndoablePairs)
+//											backwardOutput.add(pup.undoable);
+//									}
+//									Collections.reverse(backwardOutput);
+//
+//									collector.execute(new SimpleExPendingCommandFactory<Model>(target, backwardOutput) {
+//										@Override
+//										public void afterPropogationFinished(List<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//											// Play the local changes forward
+//											collector.execute(new SimpleExPendingCommandFactory<Model>(target, new PendingCommandState<Model>(
+//												new ReplayCommand(localChangeCount),
+//												new UnplayCommand(localChangeCount)
+//											)));
+//										}
+//									});
+//								}
+//							});
+//						}
+//					});
 				}
 			});
 			
