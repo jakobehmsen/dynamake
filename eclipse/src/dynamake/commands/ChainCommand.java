@@ -4,8 +4,8 @@ import java.util.List;
 
 import dynamake.models.Location;
 import dynamake.models.PropogationContext;
-import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
+import dynamake.transcription.Execution;
 import dynamake.transcription.SimpleExPendingCommandFactory;
 
 public class ChainCommand<T> implements Command<T> {
@@ -28,7 +28,7 @@ public class ChainCommand<T> implements Command<T> {
 		// Wait executing second pending till first pending, and all of its side effects, have finished
 		collector.execute(new SimpleExPendingCommandFactory<T>(reference, firstPending) {
 			@Override
-			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
+			public void afterPropogationFinished(List<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 				collector.execute(new SimpleExPendingCommandFactory<T>(reference, secondPending));
 			}
 		});

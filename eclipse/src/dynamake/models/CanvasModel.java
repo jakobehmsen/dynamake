@@ -35,6 +35,7 @@ import dynamake.models.factories.ModelCreation;
 import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
+import dynamake.transcription.Execution;
 import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
@@ -1019,7 +1020,7 @@ public class CanvasModel extends Model {
 			)) {
 			
 			@Override
-			public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+			public void afterPropogationFinished(List<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 				collector.execute(new SimpleExPendingCommandFactory<Model>(model, new PendingCommandState<Model>(
 						new RemoveModelCommand(locationOfModel),
 						new RestoreModelCommand.AfterRemove(),

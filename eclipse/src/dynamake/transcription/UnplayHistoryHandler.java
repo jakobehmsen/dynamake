@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
-import dynamake.models.Model.PendingUndoablePair;
 import dynamake.models.Model.UndoRedoPart;
 
 public class UnplayHistoryHandler implements HistoryHandler<Model> {
@@ -13,16 +12,16 @@ public class UnplayHistoryHandler implements HistoryHandler<Model> {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private ArrayList<PendingUndoablePair> newLog;
+	private ArrayList<Execution> newLog;
 
 	@Override
 	public void startLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println(this +  ": startLogFor");
-		newLog = new ArrayList<Model.PendingUndoablePair>();
+		newLog = new ArrayList<Execution>();
 	}
 
 	@Override
-	public void logFor(Model reference, ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void logFor(Model reference, ArrayList<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println(this +  ": logFor");
 		newLog.addAll(pendingUndoablePairs);
 	}

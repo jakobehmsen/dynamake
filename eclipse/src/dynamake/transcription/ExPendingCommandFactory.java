@@ -5,12 +5,11 @@ import java.util.List;
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandFactory;
 import dynamake.models.PropogationContext;
-import dynamake.models.Model.PendingUndoablePair;
 
 public interface ExPendingCommandFactory<T> {
 	T getReference();
 	void createPendingCommands(List<CommandState<T>> pendingCommands);
-	void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector);
+	void afterPropogationFinished(List<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector);
 	Class<? extends HistoryHandler<T>> getHistoryHandlerClass();
 	
 	public static class Util {
@@ -27,7 +26,7 @@ public interface ExPendingCommandFactory<T> {
 				}
 
 				@Override
-				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
+				public void afterPropogationFinished(List<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 
 				}
 
@@ -52,7 +51,7 @@ public interface ExPendingCommandFactory<T> {
 			if(i < pendingCommandsToSequentialize.size()) {
 				collector.execute(new SimpleExPendingCommandFactory<T>(reference, pendingCommandsToSequentialize.get(i)) {
 					@Override
-					public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
+					public void afterPropogationFinished(List<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 						sequenceEach(collector, reference, pendingCommandsToSequentialize, i + 1);
 					}
 				});

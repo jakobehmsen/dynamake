@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
-import dynamake.models.Model.PendingUndoablePair;
 
 public class PostOnlyHistoryHandler implements HistoryHandler<Model> {
 	/**
@@ -18,7 +17,7 @@ public class PostOnlyHistoryHandler implements HistoryHandler<Model> {
 	}
 
 	@Override
-	public void logFor(Model reference, ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void logFor(Model reference, ArrayList<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		reference.postLog(pendingUndoablePairs, propCtx, propDistance, collector);
 	}
 

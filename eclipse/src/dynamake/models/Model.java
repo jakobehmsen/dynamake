@@ -42,6 +42,7 @@ import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.Execution;
 import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.RedoHistoryHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory;
@@ -52,93 +53,15 @@ import dynamake.transcription.UndoHistoryHandler;
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.
  */
 public abstract class Model implements Serializable, Observer {
-	// TODO: 
-	// - Move class out of model
-	// - Put type parameter to used for pending and undoable
-	public static class PendingUndoablePair implements Serializable, CommandState<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-//		public final PendingCommandState<Model> pending;
-		public final CommandState<Model> pending;
-		public final CommandStateWithOutput<Model> undoable;
-		
-		public PendingUndoablePair(CommandState<Model> pending, CommandStateWithOutput<Model> undoable) {
-			if(pending == null)
-				new String();
-			this.pending = pending;
-			this.undoable = undoable;
-		}
-
-		@Override
-		public PendingUndoablePair forForwarding() {
-//			if(pending.getCommand() instanceof ForwardableCommand) {
-//				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)pending.getCommand()).forForwarding(undoable.getOutput());
-//				Object newOutput;
-//				if(undoable.getOutput() instanceof ForwardableOutput)
-//					newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
-//				else
-//					newOutput = undoable.getOutput();	
-//				// Should cause, forthFactory, and backFactory also be forwarded of undoable?
-//				ReversibleCommand<Model> newUndoable = new ReversibleCommand<Model>(undoable.getCause(), newOutput, undoable.getForthFactory(), undoable.getBackFactory());
-//				return new PendingUndoablePair(new PendingCommandState<Model>(commandForForwarding, pending.getForthFactory(), pending.getBackFactory()), newUndoable);
-//			}
-//			
-//			return this;
-			
-			CommandState<Model> newPending = pending.forForwarding(undoable.getOutput());
-//			if(undoable.getOutput() instanceof ForwardableOutput)
-//				newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
-//			else
-//				newOutput = undoable.getOutput();
-//			ReversibleCommand<Model> newUndoable = new ReversibleCommand<Model>(undoable.getCause(), newOutput, undoable.getForthFactory(), undoable.getBackFactory());
-			CommandStateWithOutput<Model> newUndoable = (CommandStateWithOutput<Model>)undoable.forForwarding();
-			return new PendingUndoablePair(newPending, newUndoable);
-		}
-
-		@Override
-		public PendingUndoablePair mapToReferenceLocation(Model sourceReference, Model targetReference) {
-			return new PendingUndoablePair(
-				(PendingCommandState<Model>)pending.mapToReferenceLocation(sourceReference, targetReference),
-				(CommandStateWithOutput<Model>)undoable.mapToReferenceLocation(sourceReference, targetReference)
-			);
-		}
-
-		@Override
-		public PendingUndoablePair offset(Location offset) {
-			return new PendingUndoablePair(
-				(PendingCommandState<Model>)pending.offset(offset),
-				(CommandStateWithOutput<Model>)undoable.offset(offset)
-			);
-		}
-		
-		@Override
-		public CommandState<Model> executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-			return pending.executeOn(propCtx, prevalentSystem, collector, location);
-		}
-		
-		@Override
-		public void appendPendings(List<CommandState<Model>> pendingCommands) {
-			pending.appendPendings(pendingCommands);
-			// Assumed, reversible doesn't contain pending commands, and if it does, those commands are insignificant
-		}
-
-		@Override
-		public CommandState<Model> forForwarding(Object output) {
-			return null;
-		}
-	}
-	
 	public static class UndoRedoPart implements Serializable, CommandStateWithOutput<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		public final PendingUndoablePair origin;
+		public final Execution origin;
 		public final CommandStateWithOutput<Model> revertible;
 		
-		public UndoRedoPart(PendingUndoablePair origin, CommandStateWithOutput<Model> revertible) {
+		public UndoRedoPart(Execution origin, CommandStateWithOutput<Model> revertible) {
 			this.origin = origin;
 			this.revertible = revertible;
 		}
@@ -184,9 +107,9 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static class HistoryAppendLogChange {
-		public final List<PendingUndoablePair> pendingUndoablePairs;
+		public final List<Execution> pendingUndoablePairs;
 		
-		public HistoryAppendLogChange(List<PendingUndoablePair> pendingCommands) {
+		public HistoryAppendLogChange(List<Execution> pendingCommands) {
 			this.pendingUndoablePairs = pendingCommands;
 		}
 	}
@@ -247,7 +170,7 @@ public abstract class Model implements Serializable, Observer {
 	/* Both undo- and stack are assumed to contain RevertingCommandStateSequence<Model> objects */
 	protected Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
 	protected Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
-	private ArrayList<PendingUndoablePair> newLog = new ArrayList<Model.PendingUndoablePair>();
+	private ArrayList<Execution> newLog = new ArrayList<Execution>();
 	
 	private Locator locator;
 	private Model parent;
@@ -277,10 +200,10 @@ public abstract class Model implements Serializable, Observer {
 		properties = (Hashtable<String, Object>)ois.readObject();
 		undoStack = (Stack<CommandState<Model>>)ois.readObject();
 		redoStack = (Stack<CommandState<Model>>)ois.readObject();
-		newLog = new ArrayList<Model.PendingUndoablePair>();
+		newLog = new ArrayList<Execution>();
 	}
 
-	public void appendLog(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void appendLog(ArrayList<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
 
 		redoStack.clear();
@@ -289,7 +212,7 @@ public abstract class Model implements Serializable, Observer {
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
 	
-	public void postLog(ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void postLog(ArrayList<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
 		
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
@@ -382,7 +305,7 @@ public abstract class Model implements Serializable, Observer {
 			CommandState<Model> reversible = ((CommandState<Model>)commandStates[i]);
 			collector.execute(new SimpleExPendingCommandFactory<Model>(this, reversible) {
 				@Override
-				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+				public void afterPropogationFinished(List<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 					executeSequence(commandStates, i + 1, historyHandlerClass, propCtx, propDistance, collector);
 				}
 				
@@ -511,8 +434,8 @@ public abstract class Model implements Serializable, Observer {
 		return origins;
 	}
 
-	public List<PendingUndoablePair> getLocalChangesAsPairs() {
-		ArrayList<PendingUndoablePair> origins = new ArrayList<PendingUndoablePair>();
+	public List<Execution> getLocalChangesAsPairs() {
+		ArrayList<Execution> origins = new ArrayList<Execution>();
 		
 		for(CommandState<Model> undoable: undoStack) {
 			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
@@ -1362,10 +1285,10 @@ public abstract class Model implements Serializable, Observer {
 
 	public void destroy(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
-		List<Model.PendingUndoablePair> creation = (List<Model.PendingUndoablePair>)getProperty(RestorableModel.PROPERTY_CREATION);
+		List<Execution> creation = (List<Execution>)getProperty(RestorableModel.PROPERTY_CREATION);
 		if(creation != null) {
 			List<CommandState<Model>> destruction = new ArrayList<CommandState<Model>>();
-			for(Model.PendingUndoablePair creationPart: creation)
+			for(Execution creationPart: creation)
 				destruction.add(creationPart.undoable);
 			Collections.reverse(destruction);
 			

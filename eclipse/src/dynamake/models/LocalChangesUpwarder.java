@@ -8,6 +8,7 @@ import dynamake.commands.RedoCommand;
 import dynamake.commands.UndoCommand;
 import dynamake.models.LocalChangesForwarder.PushLocalChanges;
 import dynamake.transcription.Collector;
+import dynamake.transcription.Execution;
 
 public class LocalChangesUpwarder extends ObserverAdapter implements Serializable {
 	/**
@@ -51,7 +52,7 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 			} else if(firstCommandOutput instanceof RedoCommand.Output) {
 				newChanges.add(((RedoCommand.Output)firstCommandOutput).command);
 			} else {
-				for(Model.PendingUndoablePair pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs)
+				for(Execution pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs)
 					newChanges.add(pendingUndoablePair);
 			}
 			

@@ -31,7 +31,6 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
-import dynamake.models.Model.PendingUndoablePair;
 
 public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private Func0<T> prevalentSystemFunc;
@@ -160,10 +159,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				} else
 					historyHandler = historyHandlerClassToInstanceMap.get(entry.historyHandlerClass);
 				
-				ArrayList<Model.PendingUndoablePair> pendingUndoablePairs = new ArrayList<Model.PendingUndoablePair>();
+				ArrayList<Execution> pendingUndoablePairs = new ArrayList<Execution>();
 				for(CommandState<T> transaction: entry.pending) {
 					CommandStateWithOutput<Model> undoable = (CommandStateWithOutput<Model>)transaction.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
-					pendingUndoablePairs.add(new Model.PendingUndoablePair((CommandState<Model>)transaction, undoable));
+					pendingUndoablePairs.add(new Execution((CommandState<Model>)transaction, undoable));
 				}
 				
 				historyHandler.logFor((T)reference, pendingUndoablePairs, propCtx, 0, isolatedCollector);
@@ -414,7 +413,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					final LinkedList<Object> commands = new LinkedList<Object>();
 					commands.add(trigger);
 					
-					Stack<List<PendingUndoablePair>> propogationStack = new Stack<List<PendingUndoablePair>>();
+					Stack<List<Execution>> propogationStack = new Stack<List<Execution>>();
 					final ArrayList<Runnable> onAfterNextTrigger = new ArrayList<Runnable>();
 					
 					while(!commands.isEmpty()) {
@@ -484,7 +483,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							switch(instruction.type) {
 							case Instruction.OPCODE_SEND_PROPOGATION_FINISHED:
-								List<PendingUndoablePair> pendingUndoablePairs = propogationStack.pop();
+								List<Execution> pendingUndoablePairs = propogationStack.pop();
 								((ExPendingCommandFactory<T>)instruction.operand).afterPropogationFinished(pendingUndoablePairs, propCtx, 0, collector);
 								break;
 							}
@@ -534,11 +533,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								}
 								flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
 								
-								ArrayList<PendingUndoablePair> pendingUndoablePairs = new ArrayList<PendingUndoablePair>();
+								ArrayList<Execution> pendingUndoablePairs = new ArrayList<Execution>();
 								for(int i = 0; i < pendingCommands.size(); i++) {
 									CommandState<Model> pending = (CommandState<Model>)pendingCommands.get(i);
 									CommandStateWithOutput<Model> undoable = (CommandStateWithOutput<Model>)undoables.get(i);
-									PendingUndoablePair pendingUndoablePair = new PendingUndoablePair(pending, undoable);
+									Execution pendingUndoablePair = new Execution(pending, undoable);
 									pendingUndoablePairs.add(pendingUndoablePair);
 								}
 								

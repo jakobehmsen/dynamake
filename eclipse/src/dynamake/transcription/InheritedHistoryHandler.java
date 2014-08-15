@@ -6,7 +6,6 @@ import java.util.List;
 import dynamake.commands.CommandState;
 import dynamake.models.Model;
 import dynamake.models.RestorableModel;
-import dynamake.models.Model.PendingUndoablePair;
 import dynamake.models.PropogationContext;
 
 public class InheritedHistoryHandler implements HistoryHandler<Model> {
@@ -21,10 +20,10 @@ public class InheritedHistoryHandler implements HistoryHandler<Model> {
 	}
 
 	@Override
-	public void logFor(Model reference, ArrayList<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void logFor(Model reference, ArrayList<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> newInherited = (List<CommandState<Model>>)reference.getProperty("New" + RestorableModel.PROPERTY_CREATION);
-		for(PendingUndoablePair pendingUndoablePair: pendingUndoablePairs)
+		for(Execution pendingUndoablePair: pendingUndoablePairs)
 			newInherited.add(pendingUndoablePair.pending);
 	}
 

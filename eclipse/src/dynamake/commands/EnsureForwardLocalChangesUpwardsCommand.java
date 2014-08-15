@@ -7,8 +7,8 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
-import dynamake.models.Model.PendingUndoablePair;
 import dynamake.transcription.Collector;
+import dynamake.transcription.Execution;
 import dynamake.transcription.SimpleExPendingCommandFactory;
 
 public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
@@ -29,13 +29,13 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 				
 		// Setup local changes upwarder in source if not already part of creation
 		@SuppressWarnings("unchecked")
-		List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+		List<Execution> sourceCreation = (List<Execution>)source.getProperty(RestorableModel.PROPERTY_CREATION);
 		boolean changeUpwarderIsSetup = false;
 
 		if(sourceCreation != null) {
 			changeUpwarderIsSetup = sourceCreation.contains(new ForwardLocalChangesUpwardsCommand());
 			
-			for(Model.PendingUndoablePair creationPart: sourceCreation) {
+			for(Execution creationPart: sourceCreation) {
 				PendingCommandState<Model> pcsCreationPart = (PendingCommandState<Model>)creationPart.pending;
 
 				if(pcsCreationPart.getCommand() instanceof ForwardLocalChangesUpwardsCommand) {
@@ -46,7 +46,7 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 		} else {
 			// Set creation on source
 			collector.execute(new SimpleExPendingCommandFactory<Model>(source, new PendingCommandState<Model>(
-				new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, new ArrayList<Model.PendingUndoablePair>()), 
+				new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, new ArrayList<Execution>()), 
 				new SetPropertyCommand.AfterSetProperty()
 			)));
 		}
@@ -62,9 +62,9 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 			
 			collector.execute(new SimpleExPendingCommandFactory<Model>(source, creationForwardingUpwards) {
 				@Override
-				public void afterPropogationFinished(List<PendingUndoablePair> sourceCreationPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+				public void afterPropogationFinished(List<Execution> sourceCreationPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 					@SuppressWarnings("unchecked")
-					List<Model.PendingUndoablePair> sourceCreation = (List<Model.PendingUndoablePair>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+					List<Execution> sourceCreation = (List<Execution>)source.getProperty(RestorableModel.PROPERTY_CREATION);
 					
 					sourceCreation.addAll(sourceCreationPendingUndoablePairs);
 					

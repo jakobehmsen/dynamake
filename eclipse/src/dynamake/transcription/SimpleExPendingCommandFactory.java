@@ -5,7 +5,6 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.models.PropogationContext;
-import dynamake.models.Model.PendingUndoablePair;
 
 public class SimpleExPendingCommandFactory<T> implements ExPendingCommandFactory<T> {
 	private T reference;
@@ -41,7 +40,7 @@ public class SimpleExPendingCommandFactory<T> implements ExPendingCommandFactory
 	}
 	
 	@Override
-	public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
+	public void afterPropogationFinished(List<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 
 	}
 	

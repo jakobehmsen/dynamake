@@ -11,6 +11,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
+import dynamake.transcription.Execution;
 
 public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model> {
 	/**
@@ -61,8 +62,8 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 	
 	private List<CommandState<Model>> playThenReverseChanges(Model source, Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		ArrayList<CommandState<Model>> mappedChangesToPush = new ArrayList<CommandState<Model>>();
-		for(Model.PendingUndoablePair changeToPush: source.getLocalChangesAsPairs()) {
-			Model.PendingUndoablePair forwardedChangeToPush = changeToPush;
+		for(Execution changeToPush: source.getLocalChangesAsPairs()) {
+			Execution forwardedChangeToPush = changeToPush;
 			for(int i = 0; i < rootDistance; i++)
 				forwardedChangeToPush = forwardedChangeToPush.forForwarding();
 			mappedChangesToPush.add(forwardedChangeToPush.pending);
