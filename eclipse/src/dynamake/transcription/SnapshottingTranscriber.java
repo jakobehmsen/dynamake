@@ -333,8 +333,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		// Used in collector to register affected models.
 		// - However, affected models should only be registered if commands are executed upon
 		// - Further the field is only cleared not really used anywhere.
-//		private HashSet<T> affectedModels = new HashSet<T>();
-		private HashSet<T> affectedModels = new HashSet<T>();
 		Categorizer<ReferenceAndLocation<T>, Class<? extends HistoryHandler<T>>> referencesToAppliedHistoryHandlers = new Categorizer<ReferenceAndLocation<T>, Class<? extends HistoryHandler<T>>>();
 		Hashtable<Class<? extends HistoryHandler<T>>, HistoryHandler<T>> historyHandlerClassToInstanceMap = new Hashtable<Class<? extends HistoryHandler<T>>, HistoryHandler<T>>();
 		
@@ -440,7 +438,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 
 							@Override
 							public void registerAffectedModel(T model) {
-								affectedModels.add(model);
+
 							}
 							
 							@Override
@@ -606,7 +604,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 
 //				System.out.println("Committed connection");
 				transcriber.persistTransaction(transactionToPersist);
-				affectedModels.clear();
 				referencesToAppliedHistoryHandlers.clear();
 				historyHandlerClassToInstanceMap.clear();
 				
@@ -650,7 +647,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			
 			affectedReferences.clear();
 			flushedUndoableTransactionsFromReferences.clear();
-			affectedModels.clear();
 			referencesToAppliedHistoryHandlers.clear();
 			historyHandlerClassToInstanceMap.clear();
 
