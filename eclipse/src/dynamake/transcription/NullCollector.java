@@ -8,9 +8,6 @@ public class NullCollector<T> implements Collector<T> {
 	public void afterNextTrigger(Runnable runnable) { }
 
 	@Override
-	public void registerAffectedModel(T model) { }
-
-	@Override
 	public void reject() { }
 
 	@Override

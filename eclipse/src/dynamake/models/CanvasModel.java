@@ -732,7 +732,6 @@ public class CanvasModel extends Model {
 		int index = models.size();
 		models.add(index, new Entry(id, model));
 		model.setParent(this);
-		collector.registerAffectedModel(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 
@@ -775,7 +774,6 @@ public class CanvasModel extends Model {
 		
 		models.add(index, new Entry(new IdLocation(id), model));
 		model.setParent(this);
-		collector.registerAffectedModel(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
 		
 //		System.out.println("Add model with id " + id + " in canvas " + this);
@@ -790,7 +788,6 @@ public class CanvasModel extends Model {
 		Model model = models.get(index).model;
 		models.remove(index);
 		model.setParent(null);
-		collector.registerAffectedModel(this);
 		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 	

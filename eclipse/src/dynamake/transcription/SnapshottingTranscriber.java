@@ -435,11 +435,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							public void afterNextTrigger(Runnable runnable) {
 								onAfterNextTrigger.add(runnable);
 							}
-
-							@Override
-							public void registerAffectedModel(T model) {
-
-							}
 							
 							@Override
 							public void reject() {

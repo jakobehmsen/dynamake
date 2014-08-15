@@ -18,11 +18,6 @@ public class IsolatingCollector<T> implements Collector<T> {
 	}
 
 	@Override
-	public void registerAffectedModel(T model) {
-		// Do nothing which means side effects aren't collected
-	}
-
-	@Override
 	public void reject() {
 		collector.reject();
 	}
