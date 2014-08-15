@@ -14,8 +14,8 @@ public interface ExPendingCommandFactory2<T> {
 	Class<? extends HistoryHandler<T>> getHistoryHandlerClass();
 	
 	public static class Util {
-		public static <T> void sequence(Collector<T> collector, final PendingCommandFactory<T> f) {
-			collector.execute(new ExPendingCommandFactory2<T>() {
+		public static <T> ExPendingCommandFactory2<T> sequence(final PendingCommandFactory<T> f) {
+			return new ExPendingCommandFactory2<T>() {
 				int i = 0;
 				ArrayList<CommandState<T>> createdPendingCommands;
 				
@@ -52,7 +52,7 @@ public interface ExPendingCommandFactory2<T> {
 					else
 						return (Class<? extends HistoryHandler<T>>)LocalHistoryHandler.class;
 				}
-			});
+			};
 		}
 		
 		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands) {
