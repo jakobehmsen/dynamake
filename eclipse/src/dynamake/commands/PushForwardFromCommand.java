@@ -11,7 +11,6 @@ import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
-import dynamake.transcription.ExPendingCommandFactory;
 import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Trigger;
 

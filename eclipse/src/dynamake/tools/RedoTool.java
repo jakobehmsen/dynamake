@@ -12,7 +12,6 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.ExPendingCommandFactory;
 import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
 import dynamake.transcription.Trigger;
