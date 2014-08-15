@@ -13,6 +13,9 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.HistoryHandler;
+import dynamake.transcription.PostOnlyHistoryHandler;
+import dynamake.transcription.SimpleExPendingCommandFactory2;
 import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
 import dynamake.transcription.Trigger;
 
@@ -23,24 +26,34 @@ public class RedoTool implements Tool {
 			@Override
 			public void run(Collector<Model> collector) {
 				if(modelOver.getModelBehind().canRedo()) {
-					collector.execute(
-						ExPendingCommandFactory2.Util.sequence(new TranscribeOnlyPendingCommandFactory<Model> () {
-							@Override
-							public Model getReference() {
-								return modelOver.getModelBehind();
-							}
-							
-							@Override
-							public void createPendingCommands(List<CommandState<Model>> commandStates) {
-								commandStates.add(
-									new PendingCommandState<Model>(
-										new RedoCommand(false),
-										new UndoCommand(false)
-									)
-								);
-							}
-						})
-					);
+					collector.execute(new SimpleExPendingCommandFactory2<Model>(modelOver.getModelBehind(), new PendingCommandState<Model>(
+						new RedoCommand(false),
+						new UndoCommand(false)
+					)) {
+						@Override
+						public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
+							return PostOnlyHistoryHandler.class;
+						}
+					});
+					
+//					collector.execute(
+//						ExPendingCommandFactory2.Util.sequence(new TranscribeOnlyPendingCommandFactory<Model> () {
+//							@Override
+//							public Model getReference() {
+//								return modelOver.getModelBehind();
+//							}
+//							
+//							@Override
+//							public void createPendingCommands(List<CommandState<Model>> commandStates) {
+//								commandStates.add(
+//									new PendingCommandState<Model>(
+//										new RedoCommand(false),
+//										new UndoCommand(false)
+//									)
+//								);
+//							}
+//						})
+//					);
 					
 					collector.commit();
 				}
