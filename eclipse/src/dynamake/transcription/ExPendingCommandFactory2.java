@@ -5,6 +5,7 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandFactory;
+import dynamake.delegates.Action1;
 import dynamake.models.PropogationContext;
 
 public interface ExPendingCommandFactory2<T> {
@@ -14,6 +15,10 @@ public interface ExPendingCommandFactory2<T> {
 	Class<? extends HistoryHandler<T>> getHistoryHandlerClass();
 	
 	public static class Util {
+		public interface ExecutionsHandler<T> {
+			void handleExecutions(List<Execution<T>> executions, Collector<T> collector);
+		}
+		
 		public static <T> ExPendingCommandFactory2<T> sequence(final PendingCommandFactory<T> f) {
 			return new ExPendingCommandFactory2<T>() {
 				int i = 0;
@@ -94,17 +99,28 @@ public interface ExPendingCommandFactory2<T> {
 		}
 		
 		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands) {
-			sequence(collector, reference, pendingCommands, 0);
+			sequence(collector, reference, pendingCommands, new ExecutionsHandler<T>() {
+				@Override
+				public void handleExecutions(List<Execution<T>> executions, Collector<T> collector) { }
+			});
 		}
 		
-		private static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, final int i) {
+		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, ExecutionsHandler<T> afterExecutions) {
+			sequence(collector, reference, pendingCommands, afterExecutions, new ArrayList<Execution<T>>(), 0);
+		}
+		
+		private static <T> void sequence(
+				Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, final ExecutionsHandler<T> afterExecutions, final List<Execution<T>> executions, final int i) {
 			if(i < pendingCommands.size()) {
 				collector.execute(new SimpleExPendingCommandFactory2<T>(reference, pendingCommands.get(i)) {
 					@Override
 					public void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector) {
-						sequence(collector, reference, pendingCommands, i + 1);
+						executions.add(execution);
+						sequence(collector, reference, pendingCommands, afterExecutions, executions, i + 1);
 					}
 				});
+			} else {
+				afterExecutions.handleExecutions(executions, collector);
 			}
 		}
 	}
