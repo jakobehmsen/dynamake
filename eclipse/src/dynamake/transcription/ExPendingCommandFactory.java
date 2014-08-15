@@ -43,5 +43,20 @@ public interface ExPendingCommandFactory<T> {
 				}
 			};
 		}
+		
+		public static <T> void sequenceEach(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommandsToSequentialize) {
+			sequenceEach(collector, reference, pendingCommandsToSequentialize, 0);
+		}
+		
+		private static <T> void sequenceEach(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommandsToSequentialize, final int i) {
+			if(i < pendingCommandsToSequentialize.size()) {
+				collector.execute(new SimpleExPendingCommandFactory<T>(reference, pendingCommandsToSequentialize.get(i)) {
+					@Override
+					public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
+						sequenceEach(collector, reference, pendingCommandsToSequentialize, i + 1);
+					}
+				});
+			}
+		}
 	}
 }
