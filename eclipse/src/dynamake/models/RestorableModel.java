@@ -14,6 +14,7 @@ import dynamake.commands.MappableForwardable;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.transcription.Collector;
+import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Execution;
 import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
@@ -172,7 +173,16 @@ public class RestorableModel implements Serializable {
 //			});
 //		}
 		
-		restoreChanges(modelBase, collector, modelCreationAsPendingCommands, 0, new ArrayList<Execution<Model>>());
+//		restoreChanges(modelBase, collector, modelCreationAsPendingCommands, 0, new ArrayList<Execution<Model>>());
+		ExPendingCommandFactory2.Util.sequence(collector, modelBase, modelCreationAsPendingCommands, new ExPendingCommandFactory2.Util.ExecutionsHandler<Model>() {
+			@Override
+			public void handleExecutions(List<Execution<Model>> allPendingUndoablePairs, Collector<Model> collector) {
+				collector.execute(new SimpleExPendingCommandFactory<Model>(modelBase, new PendingCommandState<Model>(
+					new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allPendingUndoablePairs), 
+					new SetPropertyCommand.AfterSetProperty()
+				)));
+			}
+		});
 
 		if(modelHistory != null)
 			modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
