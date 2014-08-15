@@ -154,7 +154,7 @@ public class RestorableModel implements Serializable {
 		
 		if(modelCreation != null) {
 			for(CommandState<Model> modelCreationPart: modelCreation) {
-				modelCreationAsPendingCommands.add(((Execution)modelCreationPart).pending);
+				modelCreationAsPendingCommands.add(((Execution<Model>)modelCreationPart).pending);
 			}
 		}
 		
@@ -172,7 +172,7 @@ public class RestorableModel implements Serializable {
 //			});
 //		}
 		
-		restoreChanges(modelBase, collector, modelCreationAsPendingCommands, 0, new ArrayList<Execution>());
+		restoreChanges(modelBase, collector, modelCreationAsPendingCommands, 0, new ArrayList<Execution<Model>>());
 
 		if(modelHistory != null)
 			modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
@@ -185,12 +185,12 @@ public class RestorableModel implements Serializable {
 		});
 	}
 	
-	private void restoreChanges(final Model modelBase, Collector<Model> collector, final List<CommandState<Model>> modelCreation, final int i, final List<Execution> allPendingUndoablePairs) {
+	private void restoreChanges(final Model modelBase, Collector<Model> collector, final List<CommandState<Model>> modelCreation, final int i, final List<Execution<Model>> allPendingUndoablePairs) {
 		// Execute one command at a time to leave space for side effect in between
 		if(i < modelCreation.size()) {
 			collector.execute(new SimpleExPendingCommandFactory<Model>(modelBase, modelCreation.subList(i, i + 1)) {
 				@Override				
-				public void afterPropogationFinished(List<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+				public void afterPropogationFinished(List<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 					allPendingUndoablePairs.addAll(pendingUndoablePairs);
 					restoreChanges(modelBase, collector, modelCreation, i + 1, allPendingUndoablePairs);
 				}

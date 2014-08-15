@@ -12,16 +12,16 @@ public class UnplayHistoryHandler implements HistoryHandler<Model> {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private ArrayList<Execution> newLog;
+	private ArrayList<Execution<Model>> newLog;
 
 	@Override
 	public void startLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println(this +  ": startLogFor");
-		newLog = new ArrayList<Execution>();
+		newLog = new ArrayList<Execution<Model>>();
 	}
 
 	@Override
-	public void logFor(Model reference, ArrayList<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void logFor(Model reference, ArrayList<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println(this +  ": logFor");
 		newLog.addAll(pendingUndoablePairs);
 	}

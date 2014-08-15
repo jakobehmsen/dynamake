@@ -52,7 +52,7 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 			} else if(firstCommandOutput instanceof RedoCommand.Output) {
 				newChanges.add(((RedoCommand.Output)firstCommandOutput).command);
 			} else {
-				for(Execution pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs)
+				for(Execution<Model> pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs)
 					newChanges.add(pendingUndoablePair);
 			}
 			

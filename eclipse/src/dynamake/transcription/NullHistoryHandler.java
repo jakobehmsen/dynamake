@@ -14,7 +14,7 @@ public class NullHistoryHandler<T> implements HistoryHandler<T> {
 	public void startLogFor(T reference, PropogationContext propCtx, int propDistance, Collector<T> collector) { }
 
 	@Override
-	public void logFor(T reference, ArrayList<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) { }
+	public void logFor(T reference, ArrayList<Execution<T>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) { }
 
 	@Override
 	public void commitLogFor(T reference, PropogationContext propCtx, int propDistance, Collector<T> collector) { }

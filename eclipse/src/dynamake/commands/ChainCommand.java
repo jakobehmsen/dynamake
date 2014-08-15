@@ -28,7 +28,7 @@ public class ChainCommand<T> implements Command<T> {
 		// Wait executing second pending till first pending, and all of its side effects, have finished
 		collector.execute(new SimpleExPendingCommandFactory<T>(reference, firstPending) {
 			@Override
-			public void afterPropogationFinished(List<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
+			public void afterPropogationFinished(List<Execution<T>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 				collector.execute(new SimpleExPendingCommandFactory<T>(reference, secondPending));
 			}
 		});

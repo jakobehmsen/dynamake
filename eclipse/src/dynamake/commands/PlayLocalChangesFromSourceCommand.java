@@ -62,8 +62,8 @@ public class PlayLocalChangesFromSourceCommand implements MappableCommand<Model>
 	
 	private List<CommandState<Model>> playThenReverseChanges(Model source, Model target, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		ArrayList<CommandState<Model>> mappedChangesToPush = new ArrayList<CommandState<Model>>();
-		for(Execution changeToPush: source.getLocalChangesAsPairs()) {
-			Execution forwardedChangeToPush = changeToPush;
+		for(Execution<Model> changeToPush: source.getLocalChangesAsPairs()) {
+			Execution<Model> forwardedChangeToPush = changeToPush;
 			for(int i = 0; i < rootDistance; i++)
 				forwardedChangeToPush = forwardedChangeToPush.forForwarding();
 			mappedChangesToPush.add(forwardedChangeToPush.pending);

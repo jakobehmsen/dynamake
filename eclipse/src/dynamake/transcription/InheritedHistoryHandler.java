@@ -20,10 +20,10 @@ public class InheritedHistoryHandler implements HistoryHandler<Model> {
 	}
 
 	@Override
-	public void logFor(Model reference, ArrayList<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void logFor(Model reference, ArrayList<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
 		List<CommandState<Model>> newInherited = (List<CommandState<Model>>)reference.getProperty("New" + RestorableModel.PROPERTY_CREATION);
-		for(Execution pendingUndoablePair: pendingUndoablePairs)
+		for(Execution<Model> pendingUndoablePair: pendingUndoablePairs)
 			newInherited.add(pendingUndoablePair.pending);
 	}
 

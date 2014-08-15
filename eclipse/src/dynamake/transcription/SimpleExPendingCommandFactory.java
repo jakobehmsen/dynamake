@@ -40,7 +40,7 @@ public class SimpleExPendingCommandFactory<T> implements ExPendingCommandFactory
 	}
 	
 	@Override
-	public void afterPropogationFinished(List<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
+	public void afterPropogationFinished(List<Execution<T>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 
 	}
 	

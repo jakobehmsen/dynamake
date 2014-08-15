@@ -1020,7 +1020,7 @@ public class CanvasModel extends Model {
 			)) {
 			
 			@Override
-			public void afterPropogationFinished(List<Execution> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+			public void afterPropogationFinished(List<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 				collector.execute(new SimpleExPendingCommandFactory<Model>(model, new PendingCommandState<Model>(
 						new RemoveModelCommand(locationOfModel),
 						new RestoreModelCommand.AfterRemove(),

@@ -159,10 +159,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				} else
 					historyHandler = historyHandlerClassToInstanceMap.get(entry.historyHandlerClass);
 				
-				ArrayList<Execution> pendingUndoablePairs = new ArrayList<Execution>();
+				ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
 				for(CommandState<T> transaction: entry.pending) {
-					CommandStateWithOutput<Model> undoable = (CommandStateWithOutput<Model>)transaction.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
-					pendingUndoablePairs.add(new Execution((CommandState<Model>)transaction, undoable));
+					CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)transaction.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
+					pendingUndoablePairs.add(new Execution<T>(transaction, undoable));
 				}
 				
 				historyHandler.logFor((T)reference, pendingUndoablePairs, propCtx, 0, isolatedCollector);
@@ -413,7 +413,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					final LinkedList<Object> commands = new LinkedList<Object>();
 					commands.add(trigger);
 					
-					Stack<List<Execution>> propogationStack = new Stack<List<Execution>>();
+					Stack<List<Execution<T>>> propogationStack = new Stack<List<Execution<T>>>();
 					final ArrayList<Runnable> onAfterNextTrigger = new ArrayList<Runnable>();
 					
 					while(!commands.isEmpty()) {
@@ -483,7 +483,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							switch(instruction.type) {
 							case Instruction.OPCODE_SEND_PROPOGATION_FINISHED:
-								List<Execution> pendingUndoablePairs = propogationStack.pop();
+								List<Execution<T>> pendingUndoablePairs = propogationStack.pop();
 								((ExPendingCommandFactory<T>)instruction.operand).afterPropogationFinished(pendingUndoablePairs, propCtx, 0, collector);
 								break;
 							}
@@ -533,11 +533,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								}
 								flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
 								
-								ArrayList<Execution> pendingUndoablePairs = new ArrayList<Execution>();
+								ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
 								for(int i = 0; i < pendingCommands.size(); i++) {
-									CommandState<Model> pending = (CommandState<Model>)pendingCommands.get(i);
-									CommandStateWithOutput<Model> undoable = (CommandStateWithOutput<Model>)undoables.get(i);
-									Execution pendingUndoablePair = new Execution(pending, undoable);
+									CommandState<T> pending = pendingCommands.get(i);
+									CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)undoables.get(i);
+									Execution<T> pendingUndoablePair = new Execution<T>(pending, undoable);
 									pendingUndoablePairs.add(pendingUndoablePair);
 								}
 								
