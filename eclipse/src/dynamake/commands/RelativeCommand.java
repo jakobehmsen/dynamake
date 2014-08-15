@@ -59,6 +59,11 @@ public class RelativeCommand<T> implements MappableCommand<T>, ForwardableComman
 				newCommandOutput = commandOutput;
 			return new RelativeCommand.Output(newTail, newCommandOutput);
 		}
+		
+		@Override
+		public String toString() {
+			return "tail / " + commandOutput;
+		}
 	}
 	
 	/**
@@ -103,5 +108,10 @@ public class RelativeCommand<T> implements MappableCommand<T>, ForwardableComman
 			newCommand = command;
 
 		return new RelativeCommand<T>(newTail, newCommand);
+	}
+	
+	@Override
+	public String toString() {
+		return "tail / " + command;
 	}
 }
