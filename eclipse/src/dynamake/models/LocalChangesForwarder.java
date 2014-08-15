@@ -9,7 +9,6 @@ import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReplayCommand;
 import dynamake.commands.UnplayCommand;
-import dynamake.delegates.Action1;
 import dynamake.transcription.Collector;
 import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Execution;

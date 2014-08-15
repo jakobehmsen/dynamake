@@ -1,9 +1,7 @@
 package dynamake.tools;
 
 import java.awt.event.MouseEvent;
-import java.util.List;
 
-import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.UndoCommand;
@@ -12,7 +10,6 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.PostOnlyHistoryHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory2;

@@ -195,24 +195,6 @@ public class RestorableModel implements Serializable {
 		});
 	}
 	
-	private void restoreChanges(final Model modelBase, Collector<Model> collector, final List<CommandState<Model>> modelCreation, final int i, final List<Execution<Model>> allPendingUndoablePairs) {
-		// Execute one command at a time to leave space for side effect in between
-		if(i < modelCreation.size()) {
-			collector.execute(new SimpleExPendingCommandFactory<Model>(modelBase, modelCreation.subList(i, i + 1)) {
-				@Override				
-				public void afterPropogationFinished(List<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-					allPendingUndoablePairs.addAll(pendingUndoablePairs);
-					restoreChanges(modelBase, collector, modelCreation, i + 1, allPendingUndoablePairs);
-				}
-			});
-		} else {
-			collector.execute(new SimpleExPendingCommandFactory<Model>(modelBase, new PendingCommandState<Model>(
-				new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allPendingUndoablePairs), 
-				new SetPropertyCommand.AfterSetProperty()
-			)));
-		}
-	}
-	
 	protected void afterMapToReferenceLocation(RestorableModel mapped, Model sourceReference, Model targetReference) { }
 	protected void afterForForwarding(RestorableModel forForwarded) { }
 	protected void afterRestoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
