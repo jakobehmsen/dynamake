@@ -45,9 +45,7 @@ public interface ExPendingCommandFactory2<T> {
 				@SuppressWarnings("unchecked")
 				@Override
 				public Class<? extends HistoryHandler<T>> getHistoryHandlerClass() {
-					if(f instanceof TranscribeOnlyAndPostNotPendingCommandFactory)
-						return (Class<? extends HistoryHandler<T>>)NullHistoryHandler.class;
-					else if(f instanceof TranscribeOnlyPendingCommandFactory)
+					if(f instanceof TranscribeOnlyPendingCommandFactory)
 						return (Class<? extends HistoryHandler<T>>)PostOnlyHistoryHandler.class;
 					else
 						return (Class<? extends HistoryHandler<T>>)LocalHistoryHandler.class;
