@@ -172,10 +172,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			}
 			
 			for(Location affectedReferenceLocation: ctxTransaction.affectedReferenceLocations) {
-//				Model reference = (Model)affectedReferenceLocation.getChild(prevalentSystem);
-				Model reference = (Model)locationToReferenceMap.get(affectedReferenceLocation);
-				// Update the log of each affected model isolately; no transaction is cross-model
-				reference.commitLog(propCtx, 0, (Collector<Model>)isolatedCollector);
+				T reference = (T)locationToReferenceMap.get(affectedReferenceLocation);
+				// Update the log of each affected reference isolately; no transaction is cross-reference
 				
 				List<Class<? extends HistoryHandler<T>>> historyHandlerClasses = referencesToAppliedHistoryHandlers.getItems((T)reference);
 				for(Class<? extends HistoryHandler<T>> historyHandlerClass: historyHandlerClasses) {
