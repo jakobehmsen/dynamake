@@ -16,7 +16,6 @@ import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.PostOnlyHistoryHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory2;
-import dynamake.transcription.TranscribeOnlyPendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class RedoTool implements Tool {
