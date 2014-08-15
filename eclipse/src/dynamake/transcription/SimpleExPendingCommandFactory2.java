@@ -1,7 +1,5 @@
 package dynamake.transcription;
 
-import java.util.List;
-
 import dynamake.commands.CommandState;
 import dynamake.models.PropogationContext;
 
@@ -27,7 +25,7 @@ public class SimpleExPendingCommandFactory2<T> implements ExPendingCommandFactor
 	}
 	
 	@Override
-	public void afterPropogationFinished(List<Execution<T>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) {
+	public void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 
 	}
 	
