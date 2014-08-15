@@ -416,10 +416,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							@Override
 							public void execute(Object command) {
 								if(command instanceof PendingCommandFactory) {
-									command = ExPendingCommandFactory.Util.sequence((PendingCommandFactory<T>)command);
+									command = ExPendingCommandFactory2.Util.sequence((PendingCommandFactory<T>)command);
+								}
+								if(command instanceof ExPendingCommandFactory) {
+									command = ExPendingCommandFactory2.Util.sequence((ExPendingCommandFactory<T>)command);
 								}
 								
-								if(command instanceof ExPendingCommandFactory) {
+								if(command instanceof ExPendingCommandFactory2) {
 									collectedCommands.add(command);
 									collectedCommands.add(new Instruction(Instruction.OPCODE_SEND_PROPOGATION_FINISHED, command));
 								} else {
@@ -471,9 +474,74 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							switch(instruction.type) {
 							case Instruction.OPCODE_SEND_PROPOGATION_FINISHED:
 								List<Execution<T>> pendingUndoablePairs = propogationStack.pop();
-								((ExPendingCommandFactory<T>)instruction.operand).afterPropogationFinished(pendingUndoablePairs, propCtx, 0, collector);
+								if(pendingUndoablePairs.size() != 1) {
+									new String();
+								}
+								Execution<T> execution = pendingUndoablePairs.get(0);
+								((ExPendingCommandFactory2<T>)instruction.operand).afterPropogationFinished(execution, propCtx, 0, collector);
 								break;
 							}
+						} else if(command instanceof ExPendingCommandFactory2) {
+							ExPendingCommandFactory2<T> transactionFactory = (ExPendingCommandFactory2<T>)command;
+							T reference = transactionFactory.getReference();
+							
+							if(reference == null || ((Model)reference).getLocator() == null) {
+								reference = transactionFactory.getReference();
+							}
+							Location locationFromRoot = ((Model)reference).getLocator().locate();
+							Class<? extends HistoryHandler<T>> historyHandlerClass = null;
+
+							ReferenceAndLocation<T> referenceAndLocation = new ReferenceAndLocation<T>(reference, locationFromRoot);
+							historyHandlerClass = transactionFactory.getHistoryHandlerClass();
+							
+							HistoryHandler<T> historyHandler = null;
+							if(!referencesToAppliedHistoryHandlers.containsItem(referenceAndLocation, historyHandlerClass)) {
+								try {
+//									System.out.println("Start log for " + reference + " at " + referenceAndLocation.location);
+									historyHandler = historyHandlerClass.newInstance();
+									historyHandler.startLogFor(reference, propCtx, 0, collector);
+									historyHandlerClassToInstanceMap.put(historyHandlerClass, historyHandler);
+									referencesToAppliedHistoryHandlers.add(referenceAndLocation, historyHandlerClass);
+								} catch (InstantiationException | IllegalAccessException e) {
+									e.printStackTrace();
+								}
+							} else
+								historyHandler = historyHandlerClassToInstanceMap.get(historyHandlerClass);
+							
+							Location locationFromReference = new ModelRootLocation();
+							
+							// If location was part of the executeOn invocation, location is probably no
+							// necessary for creating dual commands. Further, then, it is probably not necessary
+							// to create two sequences of pendingCommands.
+							CommandState<T> pendingCommand =  transactionFactory.createPendingCommand();
+							
+							// Assumed that exactly one command is created consistenly
+							
+							// Should be in pending state
+							ArrayList<CommandState<T>> undoables = new ArrayList<CommandState<T>>();
+
+							// The command in pending state should return a command in undoable state
+							CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, collector, locationFromReference);
+							undoables.add(undoableCommand);
+
+							flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
+							
+							ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
+
+							CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)undoables.get(0);
+							Execution<T> pendingUndoablePair = new Execution<T>(pendingCommand, undoable);
+							pendingUndoablePairs.add(pendingUndoablePair);
+							
+							affectedReferences.add(referenceAndLocation);
+							
+							historyHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
+
+							ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
+							pendingCommands.add(pendingCommand);
+							flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, historyHandlerClass));
+							
+							propogationStack.push(pendingUndoablePairs);
+								
 						} else if(command instanceof ExPendingCommandFactory) {
 							ExPendingCommandFactory<T> transactionFactory = (ExPendingCommandFactory<T>)command;
 							T reference = transactionFactory.getReference();
