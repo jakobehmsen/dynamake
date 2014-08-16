@@ -13,7 +13,7 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Execution;
 import dynamake.transcription.ExecutionsHandler;
-import dynamake.transcription.SimpleExPendingCommandFactory;
+import dynamake.transcription.SimpleExPendingCommandFactory2;
 import dynamake.transcription.Trigger;
 
 /**
@@ -110,7 +110,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 					
 					// Assumed that unplaying doesn't provoke side effects
 					// Play the local changes backwards
-					collector.execute(new SimpleExPendingCommandFactory<Model>(target, new PendingCommandState<Model>(
+					collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
 						new UnplayCommand(localChangeCount),
 						new ReplayCommand(localChangeCount)
 					)));
@@ -159,7 +159,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 										@Override
 										public void handleExecutions(List<Execution<Model>> pendingUndoablePairs, Collector<Model> collector) {
 											// Play the local changes forward
-											collector.execute(new SimpleExPendingCommandFactory<Model>(target, new PendingCommandState<Model>(
+											collector.execute(new SimpleExPendingCommandFactory2<Model>(target, new PendingCommandState<Model>(
 												new ReplayCommand(localChangeCount),
 												new UnplayCommand(localChangeCount)
 											)));
