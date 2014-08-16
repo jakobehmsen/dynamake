@@ -22,6 +22,8 @@ import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.Trigger;
 
 public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
@@ -121,26 +123,13 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionSelectionGeneralMapBuilder.addMenuBuilder("Inject", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new PendingCommandFactory<Model>() {
-					ModelComponent referenceMC;
-					
-					@Override
-					public Model getReference() {
-						referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
-						return referenceMC.getModelBehind();
-					}
-					
-					@Override
-					public void createPendingCommands(List<CommandState<Model>> commandStates) {
-						Location locationOfSelection = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
-						Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, target);
-							
-						commandStates.add(new PendingCommandState<Model>(
-							new InjectCommand(locationOfSelection, locationOfTarget),
-							new DejectCommand(locationOfSelection, locationOfTarget)
-						));
-					}
-				});
+				ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
+				Location locationOfSelection = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
+				Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, target);
+				ExPendingCommandFactory2.Util.single(collector, referenceMC.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+					new InjectCommand(locationOfSelection, locationOfTarget),
+					new DejectCommand(locationOfSelection, locationOfTarget)
+				));
 			}
 		});
 
