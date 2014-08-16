@@ -1292,7 +1292,8 @@ public abstract class Model implements Serializable, Observer {
 				destruction.add(creationPart.undoable);
 			Collections.reverse(destruction);
 			
-			collector.execute(new SimpleExPendingCommandFactory<Model>(this, destruction));
+			ExPendingCommandFactory2.Util.sequence(collector, this, destruction);
+//			collector.execute(new SimpleExPendingCommandFactory<Model>(this, destruction));
 		}
 	}
 }
