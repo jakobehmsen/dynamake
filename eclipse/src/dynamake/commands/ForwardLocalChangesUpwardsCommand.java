@@ -28,7 +28,7 @@ public class ForwardLocalChangesUpwardsCommand implements ForwardableCommand<Mod
 		if(target instanceof CanvasModel)
 			forwardLocalChangesUpwards((CanvasModel)target, new ModelRootLocation(), new ModelRootLocation());
 		
-//		System.out.println("Forward local changes upwards from " + source + " to " + target);
+		System.out.println("Forward local changes upwards from " + target);
 		
 		return null;
 	}
