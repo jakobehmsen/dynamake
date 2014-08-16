@@ -35,6 +35,7 @@ import dynamake.models.factories.ModelCreation;
 import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
+import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Execution;
 import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.IsolatingCollector;
@@ -928,27 +929,18 @@ public class CanvasModel extends Model {
 						final ModelComponent modelToMove = dropped;
 
 						// Reference is closest common ancestor
-						collector.execute(new PendingCommandFactory<Model>() {
-							ModelComponent source;
-							ModelComponent targetOver;
-							ModelComponent referenceMC;
-							
-							@Override
-							public Model getReference() {
-								source = ModelComponent.Util.getParent(modelToMove);
-								targetOver = CanvasPanel.this;
-								referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
-								return referenceMC.getModelBehind();
-							}
-
-							@Override
-							public void createPendingCommands(List<CommandState<Model>> commandStates) {
-								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
-								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
-								
-								CanvasModel.appendMoveTransaction(commandStates, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
-							}
-						});
+						ModelComponent source = ModelComponent.Util.getParent(modelToMove);
+						ModelComponent targetOver = CanvasPanel.this;
+						ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
+						
+						Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
+						Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
+						
+						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+						
+						CanvasModel.appendMoveTransaction(pendingCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
+						
+						ExPendingCommandFactory2.Util.sequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 					}
 				});
 			}
