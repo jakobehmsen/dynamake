@@ -14,10 +14,6 @@ public interface ExPendingCommandFactory2<T> {
 	Class<? extends HistoryHandler<T>> getHistoryHandlerClass();
 	
 	public static class Util {
-		public interface ExecutionsHandler<T> {
-			void handleExecutions(List<Execution<T>> executions, Collector<T> collector);
-		}
-		
 		public static <T> ExPendingCommandFactory2<T> sequence(final PendingCommandFactory<T> f) {
 			return new ExPendingCommandFactory2<T>() {
 				int i = 0;

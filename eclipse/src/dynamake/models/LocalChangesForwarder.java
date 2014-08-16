@@ -12,6 +12,7 @@ import dynamake.commands.UnplayCommand;
 import dynamake.transcription.Collector;
 import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Execution;
+import dynamake.transcription.ExecutionsHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
 
@@ -116,7 +117,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 
 					
 					
-					ExPendingCommandFactory2.Util.sequence(collector, target, forwardedChangesToRevert, new ExPendingCommandFactory2.Util.ExecutionsHandler<Model>() {
+					ExPendingCommandFactory2.Util.sequence(collector, target, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
 						@Override
 						public void handleExecutions(final List<Execution<Model>> forwardedChangesToRevertPendingUndoablePairs, Collector<Model> collector) {
 							// Do the forwarded change without affecting the local changes
@@ -154,7 +155,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 									Collections.reverse(backwardOutput);
 									
 
-									ExPendingCommandFactory2.Util.sequence(collector, target, forwardedChangesToRevert, new ExPendingCommandFactory2.Util.ExecutionsHandler<Model>() {
+									ExPendingCommandFactory2.Util.sequence(collector, target, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
 										@Override
 										public void handleExecutions(List<Execution<Model>> pendingUndoablePairs, Collector<Model> collector) {
 											// Play the local changes forward
