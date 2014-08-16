@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.PendingCommandFactory;
 import dynamake.models.PropogationContext;
 
 public interface ExPendingCommandFactory2<T> {
@@ -14,42 +13,6 @@ public interface ExPendingCommandFactory2<T> {
 	Class<? extends HistoryHandler<T>> getHistoryHandlerClass();
 	
 	public static class Util {
-		public static <T> ExPendingCommandFactory2<T> sequence(final PendingCommandFactory<T> f) {
-			return new ExPendingCommandFactory2<T>() {
-				int i = 0;
-				ArrayList<CommandState<T>> createdPendingCommands;
-				
-				@Override
-				public T getReference() {
-					return f.getReference();
-				}
-				
-				@Override
-				public CommandState<T> createPendingCommand() {
-					if(createdPendingCommands == null) {
-						createdPendingCommands = new ArrayList<CommandState<T>>();
-						// Assumed that at least one pending command is created
-						f.createPendingCommands(createdPendingCommands);
-					}
-
-					return createdPendingCommands.get(i);
-				}
-
-				@Override
-				public void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector) {
-					i++;
-					if(i < createdPendingCommands.size())
-						collector.execute(this);
-				}
-
-				@SuppressWarnings("unchecked")
-				@Override
-				public Class<? extends HistoryHandler<T>> getHistoryHandlerClass() {
-					return (Class<? extends HistoryHandler<T>>)LocalHistoryHandler.class;
-				}
-			};
-		}
-		
 		public static <T> void single(Collector<T> collector, final T reference, final Class<? extends HistoryHandler<T>> historyHandlerClass, final CommandState<T> pendingCommand) {
 			collector.execute(new SimpleExPendingCommandFactory2<T>(reference, pendingCommand) {
 				@Override

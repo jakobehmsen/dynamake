@@ -27,7 +27,6 @@ import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.MappableForwardable;
-import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
 import dynamake.commands.RevertingCommandStateSequence;

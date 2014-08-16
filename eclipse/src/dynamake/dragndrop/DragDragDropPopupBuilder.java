@@ -8,7 +8,6 @@ import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.DejectCommand;
 import dynamake.commands.InjectCommand;
 import dynamake.commands.PendingCommandState;

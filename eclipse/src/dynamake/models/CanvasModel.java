@@ -21,7 +21,6 @@ import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
 import dynamake.commands.ForwardableCommand;
 import dynamake.commands.ForwardableOutput;
-import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.RewrapCommand;

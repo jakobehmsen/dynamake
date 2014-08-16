@@ -9,7 +9,6 @@ import javax.swing.JPopupMenu;
 
 import dynamake.commands.AddObserverCommand;
 import dynamake.commands.CommandState;
-import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.RemoveObserverCommand;

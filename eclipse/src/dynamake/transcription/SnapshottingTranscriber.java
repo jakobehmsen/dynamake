@@ -25,7 +25,6 @@ import dynamake.collections.Categorizer;
 import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.CommandState;
-import dynamake.commands.PendingCommandFactory;
 import dynamake.delegates.Func0;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -415,10 +414,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						Collector<T> collector = new Collector<T>() {
 							@Override
 							public void execute(Object command) {
-								if(command instanceof PendingCommandFactory) {
-									command = ExPendingCommandFactory2.Util.sequence((PendingCommandFactory<T>)command);
-								}
-								
 								if(command instanceof ExPendingCommandFactory2) {
 									collectedCommands.add(command);
 									collectedCommands.add(new Instruction(Instruction.OPCODE_SEND_PROPOGATION_FINISHED, command));

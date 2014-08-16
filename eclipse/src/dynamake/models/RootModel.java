@@ -18,7 +18,6 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import dynamake.commands.CommandState;
-import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.menubuilders.CompositeMenuBuilder;

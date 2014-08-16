@@ -29,7 +29,6 @@ import javax.swing.border.Border;
 
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
-import dynamake.commands.PendingCommandFactory;
 import dynamake.commands.PendingCommandState;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.tools.Tool;
