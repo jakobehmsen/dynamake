@@ -45,9 +45,7 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Execution;
-import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.RedoHistoryHandler;
-import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.Trigger;
 import dynamake.transcription.UndoHistoryHandler;
 

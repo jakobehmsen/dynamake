@@ -5,7 +5,6 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandFactory;
-import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 
 public interface ExPendingCommandFactory2<T> {
