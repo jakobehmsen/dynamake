@@ -45,6 +45,7 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Execution;
+import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.RedoHistoryHandler;
 import dynamake.transcription.Trigger;
 import dynamake.transcription.UndoHistoryHandler;
@@ -922,20 +923,25 @@ public abstract class Model implements Serializable, Observer {
 				return new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new PendingCommandFactory<Model>() {
-							@Override
-							public Model getReference() {
-								return model;
-							}
-
-							@Override
-							public void createPendingCommands(List<CommandState<Model>> dualCommands) {
-								dualCommands.add(new PendingCommandState<Model>(
-									new SetPropertyCommand(PROPERTY_COLOR, color),
-									new SetPropertyCommand.AfterSetProperty()
-								));
-							}
-						});
+						ExPendingCommandFactory2.Util.single(collector, model, LocalHistoryHandler.class, new PendingCommandState<Model>(
+							new SetPropertyCommand(PROPERTY_COLOR, color),
+							new SetPropertyCommand.AfterSetProperty()
+						));
+						
+//						collector.execute(new PendingCommandFactory<Model>() {
+//							@Override
+//							public Model getReference() {
+//								return model;
+//							}
+//
+//							@Override
+//							public void createPendingCommands(List<CommandState<Model>> dualCommands) {
+//								dualCommands.add(new PendingCommandState<Model>(
+//									new SetPropertyCommand(PROPERTY_COLOR, color),
+//									new SetPropertyCommand.AfterSetProperty()
+//								));
+//							}
+//						});
 					}
 				};
 			}
