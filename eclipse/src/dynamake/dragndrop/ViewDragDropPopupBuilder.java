@@ -2,11 +2,9 @@ package dynamake.dragndrop;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.List;
 
 import javax.swing.JPopupMenu;
 
-import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.menubuilders.ActionRunner;

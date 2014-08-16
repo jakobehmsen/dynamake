@@ -2,24 +2,17 @@ package dynamake.dragndrop;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.List;
 
 import javax.swing.JPopupMenu;
 
 import dynamake.commands.Command;
-import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.TellPropertyCommand;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
-import dynamake.models.CanvasModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.LivePanel;
-import dynamake.models.factories.CreationBoundsFactory;
-import dynamake.models.factories.ModelFactory;
-import dynamake.models.factories.StrokeModelFactory;
-import dynamake.numbers.RectangleF;
 import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;

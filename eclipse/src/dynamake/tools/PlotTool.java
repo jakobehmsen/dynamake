@@ -5,12 +5,10 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RewrapCommand;
 import dynamake.commands.UnwrapCommand;
