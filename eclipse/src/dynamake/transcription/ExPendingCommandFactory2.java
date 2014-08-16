@@ -50,6 +50,15 @@ public interface ExPendingCommandFactory2<T> {
 			};
 		}
 		
+		public static <T> void single(Collector<T> collector, final T reference, final Class<? extends HistoryHandler<T>> historyHandlerClass, final CommandState<T> pendingCommand) {
+			collector.execute(new SimpleExPendingCommandFactory2<T>(reference, pendingCommand) {
+				@Override
+				public Class<? extends HistoryHandler<T>> getHistoryHandlerClass() {
+					return historyHandlerClass;
+				}
+			});
+		}
+		
 		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands) {
 			sequence(collector, reference, pendingCommands, new ExecutionsHandler<T>() {
 				@Override
