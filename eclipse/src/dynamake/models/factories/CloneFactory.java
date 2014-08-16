@@ -13,7 +13,9 @@ import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
+import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Execution;
+import dynamake.transcription.ExecutionsHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory;
 
 public class CloneFactory implements ModelFactory {
@@ -54,9 +56,9 @@ public class CloneFactory implements ModelFactory {
 
 //				createdModel.playThenReverse(newChangesToInheret, propCtx, propDistance, collector);
 				
-				collector.execute(new SimpleExPendingCommandFactory<Model>(createdModel, newChangesToInheret) {
+				ExPendingCommandFactory2.Util.sequence(collector, createdModel, newChangesToInheret, new ExecutionsHandler<Model>() {
 					@Override
-					public void afterPropogationFinished(List<Execution<Model>> changesToInheritPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+					public void handleExecutions(List<Execution<Model>> changesToInheritPendingUndoablePairs, Collector<Model> collector) {
 						@SuppressWarnings("unchecked")
 						List<CommandState<Model>> allCreation = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel.PROPERTY_CREATION);
 						if(allCreation == null)
@@ -69,6 +71,22 @@ public class CloneFactory implements ModelFactory {
 						)));
 					}
 				});
+				
+//				collector.execute(new SimpleExPendingCommandFactory<Model>(createdModel, newChangesToInheret) {
+//					@Override
+//					public void afterPropogationFinished(List<Execution<Model>> changesToInheritPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//						@SuppressWarnings("unchecked")
+//						List<CommandState<Model>> allCreation = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel.PROPERTY_CREATION);
+//						if(allCreation == null)
+//							allCreation = new ArrayList<CommandState<Model>>();
+//						allCreation.addAll(changesToInheritPendingUndoablePairs);
+//						
+//						collector.execute(new SimpleExPendingCommandFactory<Model>(createdModel, new PendingCommandState<Model>(
+//							new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allCreation), 
+//							new SetPropertyCommand.AfterSetProperty()
+//						)));
+//					}
+//				});
 			}
 			
 			@Override
