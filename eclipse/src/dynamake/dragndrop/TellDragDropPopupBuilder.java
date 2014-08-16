@@ -13,12 +13,19 @@ import dynamake.commands.PendingCommandState;
 import dynamake.commands.TellPropertyCommand;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
+import dynamake.models.CanvasModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.models.factories.CreationBoundsFactory;
+import dynamake.models.factories.ModelFactory;
+import dynamake.models.factories.StrokeModelFactory;
+import dynamake.numbers.RectangleF;
 import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.Trigger;
 
 public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
@@ -55,20 +62,10 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Tell Color", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new PendingCommandFactory<Model>() {
-					@Override
-					public Model getReference() {
-						return selection.getModelBehind();
-					}
-					
-					@Override
-					public void createPendingCommands(List<CommandState<Model>> commandStates) {
-						commandStates.add(new PendingCommandState<Model>(
-							new TellPropertyCommand(Model.PROPERTY_COLOR),
-							new Command.Null<Model>()
-						));
-					}
-				});
+				ExPendingCommandFactory2.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+					new TellPropertyCommand(Model.PROPERTY_COLOR),
+					new Command.Null<Model>()
+				));
 			}
 		});
 		transactionTargetContentMapBuilder.appendTo(popup, runner, "Selection to target");
