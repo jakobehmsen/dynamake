@@ -532,20 +532,10 @@ public abstract class Model implements Serializable, Observer {
 			// Side-effect
 			final SetProperty setProperty = (SetProperty)change;
 
-			collector.execute(new PendingCommandFactory<Model>() {
-				@Override
-				public Model getReference() {
-					return Model.this;
-				}
-				
-				@Override
-				public void createPendingCommands(List<CommandState<Model>> commandStates) {
-					commandStates.add(new PendingCommandState<Model>(
-						new SetPropertyCommand(setProperty.name, setProperty.value),
-						new SetPropertyCommand.AfterSetProperty()
-					));
-				}
-			});
+			ExPendingCommandFactory2.Util.single(collector, this, LocalHistoryHandler.class, new PendingCommandState<Model>(
+				new SetPropertyCommand(setProperty.name, setProperty.value),
+				new SetPropertyCommand.AfterSetProperty()
+			));
 		} else if(change instanceof TellProperty && changeDistance == 1) {
 			// Side-effect
 			TellProperty tellProperty = (TellProperty)change;
