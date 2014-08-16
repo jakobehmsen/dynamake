@@ -418,9 +418,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								if(command instanceof PendingCommandFactory) {
 									command = ExPendingCommandFactory2.Util.sequence((PendingCommandFactory<T>)command);
 								}
-								if(command instanceof ExPendingCommandFactory) {
-									command = ExPendingCommandFactory2.Util.sequence((ExPendingCommandFactory<T>)command);
-								}
 								
 								if(command instanceof ExPendingCommandFactory2) {
 									collectedCommands.add(command);
@@ -542,70 +539,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							propogationStack.push(pendingUndoablePairs);
 								
-						} else if(command instanceof ExPendingCommandFactory) {
-							ExPendingCommandFactory<T> transactionFactory = (ExPendingCommandFactory<T>)command;
-							T reference = transactionFactory.getReference();
-							
-							if(reference == null || ((Model)reference).getLocator() == null) {
-								reference = transactionFactory.getReference();
-							}
-							Location locationFromRoot = ((Model)reference).getLocator().locate();
-							Class<? extends HistoryHandler<T>> historyHandlerClass = null;
-
-							ReferenceAndLocation<T> referenceAndLocation = new ReferenceAndLocation<T>(reference, locationFromRoot);
-							historyHandlerClass = transactionFactory.getHistoryHandlerClass();
-							
-							HistoryHandler<T> historyHandler = null;
-							if(!referencesToAppliedHistoryHandlers.containsItem(referenceAndLocation, historyHandlerClass)) {
-								try {
-//									System.out.println("Start log for " + reference + " at " + referenceAndLocation.location);
-									historyHandler = historyHandlerClass.newInstance();
-									historyHandler.startLogFor(reference, propCtx, 0, collector);
-									historyHandlerClassToInstanceMap.put(historyHandlerClass, historyHandler);
-									referencesToAppliedHistoryHandlers.add(referenceAndLocation, historyHandlerClass);
-								} catch (InstantiationException | IllegalAccessException e) {
-									e.printStackTrace();
-								}
-							} else
-								historyHandler = historyHandlerClassToInstanceMap.get(historyHandlerClass);
-							
-							Location locationFromReference = new ModelRootLocation();
-							
-							ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
-							
-							// If location was part of the executeOn invocation, location is probably no
-							// necessary for creating dual commands. Further, then, it is probably not necessary
-							// to create two sequences of pendingCommands.
-							transactionFactory.createPendingCommands(pendingCommands);
-
-							if(pendingCommands.size() > 0) {
-								// Should be in pending state
-								ArrayList<CommandState<T>> undoables = new ArrayList<CommandState<T>>();
-								for(CommandState<T> pendingCommand: pendingCommands) {
-									// Each command in pending state should return a command in undoable state
-									CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, collector, locationFromReference);
-									undoables.add(undoableCommand);
-								}
-								flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
-								
-								ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
-								for(int i = 0; i < pendingCommands.size(); i++) {
-									CommandState<T> pending = pendingCommands.get(i);
-									CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)undoables.get(i);
-									Execution<T> pendingUndoablePair = new Execution<T>(pending, undoable);
-									pendingUndoablePairs.add(pendingUndoablePair);
-								}
-								
-								affectedReferences.add(referenceAndLocation);
-								
-								historyHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
-	
-								flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, historyHandlerClass));
-								
-								propogationStack.push(pendingUndoablePairs);
-							} else {
-								propogationStack.push(null);
-							}
 						} else if(command instanceof Trigger) {
 							((Trigger<T>)command).run(collector);
 						}

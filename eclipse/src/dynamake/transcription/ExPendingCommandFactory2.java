@@ -50,46 +50,6 @@ public interface ExPendingCommandFactory2<T> {
 			};
 		}
 		
-		public static <T> ExPendingCommandFactory2<T> sequence(final ExPendingCommandFactory<T> f) {
-			return new ExPendingCommandFactory2<T>() {
-				int i = 0;
-				ArrayList<CommandState<T>> createdPendingCommands;
-				ArrayList<Execution<T>> pendingUndoablePairs;
-				
-				@Override
-				public T getReference() {
-					return f.getReference();
-				}
-				
-				@Override
-				public CommandState<T> createPendingCommand() {
-					if(createdPendingCommands == null) {
-						createdPendingCommands = new ArrayList<CommandState<T>>();
-						// Assumed that at least one pending command is created
-						f.createPendingCommands(createdPendingCommands);
-						pendingUndoablePairs = new ArrayList<Execution<T>>();
-					}
-
-					return createdPendingCommands.get(i);
-				}
-
-				@Override
-				public void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector) {
-					i++;
-					pendingUndoablePairs.add(execution);
-					if(i < createdPendingCommands.size()) {
-						collector.execute(this);
-					} else
-						f.afterPropogationFinished(pendingUndoablePairs, propCtx, propDistance, collector);
-				}
-
-				@Override
-				public Class<? extends HistoryHandler<T>> getHistoryHandlerClass() {
-					return f.getHistoryHandlerClass();
-				}
-			};
-		}
-		
 		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands) {
 			sequence(collector, reference, pendingCommands, new ExecutionsHandler<T>() {
 				@Override
