@@ -155,7 +155,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 									Collections.reverse(backwardOutput);
 									
 
-									ExPendingCommandFactory2.Util.sequence(collector, target, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
+									ExPendingCommandFactory2.Util.sequence(collector, target, backwardOutput, new ExecutionsHandler<Model>() {
 										@Override
 										public void handleExecutions(List<Execution<Model>> pendingUndoablePairs, Collector<Model> collector) {
 											// Play the local changes forward
