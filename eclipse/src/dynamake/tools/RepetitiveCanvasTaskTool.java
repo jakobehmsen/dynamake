@@ -2,6 +2,7 @@ package dynamake.tools;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.commands.CommandState;
@@ -11,6 +12,9 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.LocalHistoryHandler;
+import dynamake.transcription.Trigger;
 
 public abstract class RepetitiveCanvasTaskTool implements Tool {
 	@Override
@@ -51,15 +55,12 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 			final ModelComponent modelOverParent = ModelComponent.Util.getParent(modelOver);
 			
 			if(modelOverParent == canvas) {
-				collector.execute(new PendingCommandFactory<Model>() {
+				collector.execute(new Trigger<Model>() {
 					@Override
-					public Model getReference() {
-						return modelOverParent.getModelBehind();
-					}
-					
-					@Override
-					public void createPendingCommands(List<CommandState<Model>> commandStates) {
-						createCommandStatesForSingleTask(productionPanel, commandStates, modelOverParent, modelOver);
+					public void run(Collector<Model> collector) {
+						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+						createCommandStatesForSingleTask(productionPanel, pendingCommands, modelOverParent, modelOver);
+						ExPendingCommandFactory2.Util.sequence(collector, modelOverParent.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 					}
 				});
 			}
@@ -71,5 +72,5 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 		targetPresenter.reset(collector);
 	}
 	
-	protected abstract void createCommandStatesForSingleTask(ProductionPanel productionPanel, List<CommandState<Model>> commandStates, ModelComponent canvas, ModelComponent modelOver);
+	protected abstract void createCommandStatesForSingleTask(ProductionPanel productionPanel, List<CommandState<Model>> pendingCommands, ModelComponent canvas, ModelComponent modelOver);
 }

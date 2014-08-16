@@ -10,9 +10,9 @@ import dynamake.models.ModelComponent;
 
 public class UnwrapTool extends RepetitiveCanvasTaskTool {
 	@Override
-	protected void createCommandStatesForSingleTask(ProductionPanel productionPanel, List<CommandState<Model>> commandStates, ModelComponent canvas, ModelComponent modelOver) {
+	protected void createCommandStatesForSingleTask(ProductionPanel productionPanel, List<CommandState<Model>> pendingCommands, ModelComponent canvas, ModelComponent modelOver) {
 		if(modelOver.getModelBehind() instanceof CanvasModel && ((CanvasModel)modelOver.getModelBehind()).getModelCount() > 0) {
-			CanvasModel.appendUnwrapTransaction(commandStates, modelOver, canvas);
+			CanvasModel.appendUnwrapTransaction(pendingCommands, modelOver, canvas);
 		}
 	}
 }
