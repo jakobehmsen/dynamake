@@ -1153,21 +1153,15 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void executeRemoveObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
-		collector.execute(new PendingCommandFactory<Model>() {
-			ModelComponent referenceMC;
-			
+		collector.execute(new Trigger<Model>() {
 			@Override
-			public Model getReference() {
-				referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
-				return referenceMC.getModelBehind();
-			}
-			
-			@Override
-			public void createPendingCommands(List<CommandState<Model>> commandStates) {
+			public void run(Collector<Model> collector) {
+				ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
+				
 				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
-				commandStates.add(new PendingCommandState<Model>(
+				ExPendingCommandFactory2.Util.single(collector, referenceMC.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 					new RemoveObserverCommand(observableLocation, observerLocation),
 					new AddObserverCommand(observableLocation, observerLocation)
 				));
@@ -1176,21 +1170,15 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public static void executeAddObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
-		collector.execute(new PendingCommandFactory<Model>() {
-			ModelComponent referenceMC;
-			
+		collector.execute(new Trigger<Model>() {
 			@Override
-			public Model getReference() {
-				referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
-				return referenceMC.getModelBehind();
-			}
-			
-			@Override
-			public void createPendingCommands(List<CommandState<Model>> commandStates) {
+			public void run(Collector<Model> collector) {
+				ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
+				
 				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
-				commandStates.add(new PendingCommandState<Model>(
+				ExPendingCommandFactory2.Util.single(collector, referenceMC.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 					new AddObserverCommand(observableLocation, observerLocation),
 					new RemoveObserverCommand(observableLocation, observerLocation)
 				));
