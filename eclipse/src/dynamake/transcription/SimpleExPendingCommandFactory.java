@@ -10,15 +10,6 @@ public class SimpleExPendingCommandFactory<T> implements ExPendingCommandFactory
 	private T reference;
 	private List<CommandState<T>> pendingCommands;
 	
-	public SimpleExPendingCommandFactory(T reference, List<CommandState<T>> pendingCommands) {
-		if(reference == null)
-			new String();
-		if(pendingCommands.size() == 0)
-			new String();
-		this.reference = reference;
-		this.pendingCommands = pendingCommands;
-	}
-	
 	@SafeVarargs
 	public SimpleExPendingCommandFactory(T reference, CommandState<T>... pendingCommands) {
 		if(reference == null)
