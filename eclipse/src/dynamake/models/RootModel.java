@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowStateListener;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -24,6 +25,8 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.Trigger;
 
 public class RootModel extends Model {
@@ -159,37 +162,37 @@ public class RootModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new PendingCommandFactory<Model>() {
+						collector.execute(new Trigger<Model>() {
 							@Override
-							public Model getReference() {
-								return rootModel;
-							}
-							
-							@Override
-							public void createPendingCommands(List<CommandState<Model>> commandStates) {
+							public void run(Collector<Model> collector) {
+								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+								
 								if(newLocation != null) {
-									commandStates.add(new PendingCommandState<Model>(
+									pendingCommands.add(new PendingCommandState<Model>(
 										new SetPropertyCommand("X", newLocation.x),
 										new SetPropertyCommand.AfterSetProperty()
 									));
-									commandStates.add(new PendingCommandState<Model>(
+									pendingCommands.add(new PendingCommandState<Model>(
 										new SetPropertyCommand("Y", newLocation.y),
 										new SetPropertyCommand.AfterSetProperty()
 									));
 								}
 								
 								if(newSize != null) {
-									commandStates.add(new PendingCommandState<Model>(
+									pendingCommands.add(new PendingCommandState<Model>(
 										new SetPropertyCommand("Width", newSize.width),
 										new SetPropertyCommand.AfterSetProperty()
 									));
-									commandStates.add(new PendingCommandState<Model>(
+									pendingCommands.add(new PendingCommandState<Model>(
 										new SetPropertyCommand("Height", newSize.height),
 										new SetPropertyCommand.AfterSetProperty()
 									));
 								}
+								
+								ExPendingCommandFactory2.Util.sequence(collector, rootModel, pendingCommands, LocalHistoryHandler.class);
 							}
 						});
+
 						collector.commit();
 					}
 				});
@@ -263,20 +266,16 @@ public class RootModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new PendingCommandFactory<Model>() {
+						collector.execute(new Trigger<Model>() {
 							@Override
-							public Model getReference() {
-								return RootModel.this;
-							}
-							
-							@Override
-							public void createPendingCommands(List<CommandState<Model>> commandStates) {
-								commandStates.add(new PendingCommandState<Model>(
+							public void run(Collector<Model> collector) {
+								ExPendingCommandFactory2.Util.single(collector, RootModel.this, LocalHistoryHandler.class, new PendingCommandState<Model>(
 									new SetPropertyCommand("State", newState),
 									new SetPropertyCommand.AfterSetProperty()
 								));
 							}
 						});
+
 						collector.commit();
 					}
 				});
