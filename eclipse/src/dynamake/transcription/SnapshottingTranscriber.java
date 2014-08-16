@@ -540,6 +540,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							propogationStack.push(pendingUndoablePairs);
 								
 						} else if(command instanceof Trigger) {
+							// TODO: Consider: Should it be possible to hint which model to base the trigger on?
 							((Trigger<T>)command).run(collector);
 						}
 						
