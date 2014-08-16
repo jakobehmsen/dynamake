@@ -40,37 +40,41 @@ public class CloneFactory implements ModelFactory {
 			@Override
 			public void setup(Model rootModel, final Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 				RestorableModel restorableModelCreation = restorableModelClone.mapToReferenceLocation(modelToClone, createdModel);
-				restorableModelCreation.restoreChangesOnBase(createdModel, propCtx, propDistance, collector);
+				
+//				restorableModelCreation.appendCreation(creationPartToAppend)
 				
 //				@SuppressWarnings("unchecked")
 //				List<CommandState<Model>> allCreation = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel.PROPERTY_CREATION);
 				
-				List<CommandState<Model>> newChangesToInheret = new ArrayList<CommandState<Model>>();
+//				List<CommandState<Model>> newChangesToInheret = new ArrayList<CommandState<Model>>();
 
-				newChangesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-				newChangesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
-				newChangesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
-				newChangesToInheret.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+				// Same creation except that the visual position should be different
+				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
+				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
+				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
+				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+				
+				restorableModelCreation.restoreChangesOnBase(createdModel, propCtx, propDistance, collector);
 				
 //				allCreation.addAll(newChangesToInheret);
 
 //				createdModel.playThenReverse(newChangesToInheret, propCtx, propDistance, collector);
 				
-				ExPendingCommandFactory2.Util.sequence(collector, createdModel, newChangesToInheret, new ExecutionsHandler<Model>() {
-					@Override
-					public void handleExecutions(List<Execution<Model>> changesToInheritPendingUndoablePairs, Collector<Model> collector) {
-						@SuppressWarnings("unchecked")
-						List<CommandState<Model>> allCreation = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel.PROPERTY_CREATION);
-						if(allCreation == null)
-							allCreation = new ArrayList<CommandState<Model>>();
-						allCreation.addAll(changesToInheritPendingUndoablePairs);
-						
-						collector.execute(new SimpleExPendingCommandFactory<Model>(createdModel, new PendingCommandState<Model>(
-							new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allCreation), 
-							new SetPropertyCommand.AfterSetProperty()
-						)));
-					}
-				});
+//				ExPendingCommandFactory2.Util.sequence(collector, createdModel, newChangesToInheret, new ExecutionsHandler<Model>() {
+//					@Override
+//					public void handleExecutions(List<Execution<Model>> changesToInheritPendingUndoablePairs, Collector<Model> collector) {
+//						@SuppressWarnings("unchecked")
+//						List<CommandState<Model>> allCreation = (List<CommandState<Model>>)createdModel.getProperty(RestorableModel.PROPERTY_CREATION);
+//						if(allCreation == null)
+//							allCreation = new ArrayList<CommandState<Model>>();
+//						allCreation.addAll(changesToInheritPendingUndoablePairs);
+//						
+//						collector.execute(new SimpleExPendingCommandFactory<Model>(createdModel, new PendingCommandState<Model>(
+//							new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allCreation), 
+//							new SetPropertyCommand.AfterSetProperty()
+//						)));
+//					}
+//				});
 				
 //				collector.execute(new SimpleExPendingCommandFactory<Model>(createdModel, newChangesToInheret) {
 //					@Override
