@@ -98,12 +98,19 @@ public interface ExPendingCommandFactory2<T> {
 			});
 		}
 		
+		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, Class<? extends HistoryHandler<T>> historyHandlerClass) {
+			sequence(collector, reference, pendingCommands, historyHandlerClass, new ExecutionsHandler<T>() {
+				@Override
+				public void handleExecutions(List<Execution<T>> executions, Collector<T> collector) { }
+			});
+		}
+		
 		@SuppressWarnings("unchecked")
 		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, ExecutionsHandler<T> afterExecutions) {
 			sequence(collector, reference, pendingCommands, (Class<? extends HistoryHandler<T>>)NullHistoryHandler.class, afterExecutions, new ArrayList<Execution<T>>(), 0);
 		}
 		
-		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, final Class<? extends HistoryHandler<T>> historyHandlerClass, ExecutionsHandler<T> afterExecutions) {
+		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, Class<? extends HistoryHandler<T>> historyHandlerClass, ExecutionsHandler<T> afterExecutions) {
 			sequence(collector, reference, pendingCommands, historyHandlerClass, afterExecutions, new ArrayList<Execution<T>>(), 0);
 		}
 		
