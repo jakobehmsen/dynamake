@@ -32,7 +32,7 @@ public class CloneFactory implements ModelFactory {
 	@Override
 	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		final Model modelToClone = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
-		final RestorableModel restorableModelClone = RestorableModel.wrap(modelToClone, true);
+		final RestorableModel restorableModelClone = modelToClone.toRestorable(true); //RestorableModel.wrap(modelToClone, true);
 		
 		return new ModelCreation() {
 			@Override
