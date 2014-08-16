@@ -170,7 +170,7 @@ public abstract class Model implements Serializable, Observer {
 	/* Both undo- and stack are assumed to contain RevertingCommandStateSequence<Model> objects */
 	protected Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
 	protected Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
-	private ArrayList<Execution<Model>> newLog = new ArrayList<Execution<Model>>();
+//	private ArrayList<Execution<Model>> newLog = new ArrayList<Execution<Model>>();
 	
 	private Locator locator;
 	private Model parent;
@@ -200,14 +200,14 @@ public abstract class Model implements Serializable, Observer {
 		properties = (Hashtable<String, Object>)ois.readObject();
 		undoStack = (Stack<CommandState<Model>>)ois.readObject();
 		redoStack = (Stack<CommandState<Model>>)ois.readObject();
-		newLog = new ArrayList<Execution<Model>>();
+//		newLog = new ArrayList<Execution<Model>>();
 	}
 
 	public void appendLog(ArrayList<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
 
 		redoStack.clear();
-		newLog.addAll(pendingUndoablePairs);
+//		newLog.addAll(pendingUndoablePairs);
 
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
@@ -218,23 +218,27 @@ public abstract class Model implements Serializable, Observer {
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
 	
-	public void commitLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		if(newLog.size() > 0) {
-			@SuppressWarnings("unchecked")
-			CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
-
-			for(int i = 0; i < newLog.size(); i++) {
-				compressedLogPartAsArray[i] = new UndoRedoPart(newLog.get(i), newLog.get(i).undoable);
-			}
-			
-			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
-			undoStack.add(compressedLogPart);
-		}
-		newLog.clear();
+//	public void commitLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		if(newLog.size() > 0) {
+//			@SuppressWarnings("unchecked")
+//			CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
+//
+//			for(int i = 0; i < newLog.size(); i++) {
+//				compressedLogPartAsArray[i] = new UndoRedoPart(newLog.get(i), newLog.get(i).undoable);
+//			}
+//			
+//			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
+//			undoStack.add(compressedLogPart);
+//		}
+//		newLog.clear();
+//	}
+	
+	public void commitLog(CommandState<Model> logPart) {
+		undoStack.add(logPart);
 	}
 	
 	public void rejectLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		newLog.clear();
+//		newLog.clear();
 	}
 	
 	public void unplay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
