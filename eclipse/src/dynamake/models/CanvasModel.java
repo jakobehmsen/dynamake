@@ -41,6 +41,7 @@ import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory;
+import dynamake.transcription.SimpleExPendingCommandFactory2;
 import dynamake.transcription.Trigger;
 
 public class CanvasModel extends Model {
@@ -1011,23 +1012,18 @@ public class CanvasModel extends Model {
 	public static void appendRemoveTransaction(Collector<Model> collector, LivePanel livePanel, ModelComponent child, final CanvasModel model) {
 		final Location locationOfModel = model.getLocationOf(child.getModelBehind());
 		
-		collector.execute(new SimpleExPendingCommandFactory<Model>(model, new PendingCommandState<Model>(
+		collector.execute(new SimpleExPendingCommandFactory2<Model>(model, new PendingCommandState<Model>(
 				new CanvasModel.DestroyModelCommand(locationOfModel),
 				new Command.Null<Model>()
 			)) {
 			
 			@Override
-			public void afterPropogationFinished(List<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-				collector.execute(new SimpleExPendingCommandFactory<Model>(model, new PendingCommandState<Model>(
+			public void afterPropogationFinished(Execution<Model> execution, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+				collector.execute(new SimpleExPendingCommandFactory2<Model>(model, new PendingCommandState<Model>(
 						new RemoveModelCommand(locationOfModel),
 						new RestoreModelCommand.AfterRemove(),
 						new RemoveModelCommand.AfterAdd()
 					)) {
-					
-//					@Override
-//					public Class<HistoryHandler<? extends Model>> getHistoryHandlerClass() {
-//						return LocalHistoryHandler.class; 
-//					}
 
 					@Override
 					public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
@@ -1038,10 +1034,42 @@ public class CanvasModel extends Model {
 			
 			@Override
 			public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
-//				return new LocalHistoryHandler(); 
 				return LocalHistoryHandler.class; 
 			}
 		});
+		
+		
+//		collector.execute(new SimpleExPendingCommandFactory<Model>(model, new PendingCommandState<Model>(
+//				new CanvasModel.DestroyModelCommand(locationOfModel),
+//				new Command.Null<Model>()
+//			)) {
+//			
+//			@Override
+//			public void afterPropogationFinished(List<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//				collector.execute(new SimpleExPendingCommandFactory<Model>(model, new PendingCommandState<Model>(
+//						new RemoveModelCommand(locationOfModel),
+//						new RestoreModelCommand.AfterRemove(),
+//						new RemoveModelCommand.AfterAdd()
+//					)) {
+//					
+////					@Override
+////					public Class<HistoryHandler<? extends Model>> getHistoryHandlerClass() {
+////						return LocalHistoryHandler.class; 
+////					}
+//
+//					@Override
+//					public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
+//						return LocalHistoryHandler.class; 
+//					}
+//				});
+//			}
+//			
+//			@Override
+//			public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
+////				return new LocalHistoryHandler(); 
+//				return LocalHistoryHandler.class; 
+//			}
+//		});
 		
 //		commandStates.add(new PendingCommandState<Model>(
 //			new CanvasModel.DestroyModelCommand(locationOfModel),
