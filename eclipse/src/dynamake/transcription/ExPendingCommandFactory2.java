@@ -76,8 +76,8 @@ public interface ExPendingCommandFactory2<T> {
 				@Override
 				public void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 					i++;
+					pendingUndoablePairs.add(execution);
 					if(i < createdPendingCommands.size()) {
-						pendingUndoablePairs.add(execution);
 						collector.execute(this);
 					} else
 						f.afterPropogationFinished(pendingUndoablePairs, propCtx, propDistance, collector);
