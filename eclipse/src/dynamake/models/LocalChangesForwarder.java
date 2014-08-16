@@ -142,9 +142,9 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 //								forwardedNewChangesAsPendings.add(forwardedNewChange);
 							}
 							
-							collector.execute(new SimpleExPendingCommandFactory<Model>(target, forwardedNewChangesAsPendings) {
+							ExPendingCommandFactory2.Util.sequence(collector, target, forwardedNewChangesAsPendings, new ExecutionsHandler<Model>() {
 								@Override
-								public void afterPropogationFinished(List<Execution<Model>> forwardedNewChangesPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+								public void handleExecutions(List<Execution<Model>> forwardedNewChangesPendingUndoablePairs, Collector<Model> collector) {
 									// Play the inherited local changes forwards without affecting the local changes
 									ArrayList<CommandState<Model>> backwardOutput = new ArrayList<CommandState<Model>>();
 									// They may not have been any forwarded changes to revert
@@ -165,10 +165,25 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 											)));
 										}
 									});
-									
-//									collector.execute(new SimpleExPendingCommandFactory<Model>(target, backwardOutput) {
+								}
+							});
+							
+//							collector.execute(new SimpleExPendingCommandFactory<Model>(target, forwardedNewChangesAsPendings) {
+//								@Override
+//								public void afterPropogationFinished(List<Execution<Model>> forwardedNewChangesPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//									// Play the inherited local changes forwards without affecting the local changes
+//									ArrayList<CommandState<Model>> backwardOutput = new ArrayList<CommandState<Model>>();
+//									// They may not have been any forwarded changes to revert
+//									if(forwardedChangesToRevertPendingUndoablePairs != null) {
+//										for(Execution<Model> pup: forwardedChangesToRevertPendingUndoablePairs)
+//											backwardOutput.add(pup.undoable);
+//									}
+//									Collections.reverse(backwardOutput);
+//									
+//
+//									ExPendingCommandFactory2.Util.sequence(collector, target, backwardOutput, new ExecutionsHandler<Model>() {
 //										@Override
-//										public void afterPropogationFinished(List<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//										public void handleExecutions(List<Execution<Model>> pendingUndoablePairs, Collector<Model> collector) {
 //											// Play the local changes forward
 //											collector.execute(new SimpleExPendingCommandFactory<Model>(target, new PendingCommandState<Model>(
 //												new ReplayCommand(localChangeCount),
@@ -176,8 +191,8 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 //											)));
 //										}
 //									});
-								}
-							});
+//								}
+//							});
 						}
 					});
 					
