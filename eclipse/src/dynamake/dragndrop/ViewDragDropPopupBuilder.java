@@ -18,6 +18,8 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.Trigger;
 
 public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
@@ -54,46 +56,26 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Appliance", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new PendingCommandFactory<Model>() {
-					@Override
-					public Model getReference() {
-						return selection.getModelBehind();
-					}
-					
-					@Override
-					public void createPendingCommands(List<CommandState<Model>> commandStates) {
-						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
-						if(currentView == null)
-							currentView = Model.VIEW_APPLIANCE;
-						commandStates.add(new PendingCommandState<Model>(
-							new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
-							new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
-						));
-					}
-				});
+				Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
+				if(currentView == null)
+					currentView = Model.VIEW_APPLIANCE;
+				ExPendingCommandFactory2.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+					new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
+					new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
+				));
 			}
 		});
 		
 		transactionTargetContentMapBuilder.addMenuBuilder("Engineering", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				collector.execute(new PendingCommandFactory<Model>() {
-					@Override
-					public Model getReference() {
-						return selection.getModelBehind();
-					}
-					
-					@Override
-					public void createPendingCommands(List<CommandState<Model>> commandStates) {
-						Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
-						if(currentView == null)
-							currentView = Model.VIEW_APPLIANCE;
-						commandStates.add(new PendingCommandState<Model>(
-							new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
-							new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
-						));
-					}
-				});
+				Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
+				if(currentView == null)
+					currentView = Model.VIEW_APPLIANCE;
+				ExPendingCommandFactory2.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+					new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
+					new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
+				));
 			}
 		});
 		
