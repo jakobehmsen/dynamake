@@ -956,21 +956,16 @@ public abstract class Model implements Serializable, Observer {
 				public void run(Collector<Model> collector) {
 					final Rectangle creationBounds = droppedBounds;
 					
-					collector.execute(new PendingCommandFactory<Model>() {
-						@Override
-						public Model getReference() {
-							return target.getModelBehind();
-						}
-
-						@Override
-						public void createPendingCommands(List<CommandState<Model>> commandStates) {
+					collector.execute(new Trigger<Model>() {
+						public void run(Collector<Model> collector) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
 							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
 							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
-							commandStates.add(new PendingCommandState<Model>(
+							
+							ExPendingCommandFactory2.Util.single(collector, target.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(new CloneFactory(new RectangleF(creationBounds), droppedLocation)),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
