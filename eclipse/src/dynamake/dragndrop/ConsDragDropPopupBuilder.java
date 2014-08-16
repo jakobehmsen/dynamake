@@ -2,6 +2,7 @@ package dynamake.dragndrop;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPopupMenu;
@@ -28,6 +29,8 @@ import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.Trigger;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
@@ -88,47 +91,36 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionObserverContentMapBuilder.addMenuBuilder(primImpl.getName(), new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					collector.execute(new PendingCommandFactory<Model>() {
-						ModelComponent referenceMC;
-						
-						@Override
-						public Model getReference() {
-							// Common ancestor among what?
-							// The observer is not created yet
-							// Probably, it is the common ancestor among the observable and the target canvas
-							// Well, that is at least the current decision
-							referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
-							return referenceMC.getModelBehind();
-						}
-						
-						@Override
-						public void createPendingCommands(List<CommandState<Model>> commandStates) {
-							Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
-							Location canvasModelLocation = ModelComponent.Util.locationFromAncestor(referenceMC, target);
-							
-							CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
-							
-							Location addedPrimitiveLocation = new CompositeLocation(
-								canvasModelLocation,
-								canvasModel.getNextLocation()
-							);
-							
-							// Add
-							commandStates.add(new PendingCommandState<Model>(
-								new RelativeCommand<Model>(canvasModelLocation, 
-									new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(dropBoundsOnTarget), new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)))
-								), 
-								new RelativeCommand.Factory<Model>(new CanvasModel.RemoveModelCommand.AfterAdd()),
-								new RelativeCommand.Factory<Model>(new CanvasModel.RestoreModelCommand.AfterRemove())
-							));
-							
-							// Bind
-							commandStates.add(new PendingCommandState<Model>(
-								new AddObserverCommand(observableLocation, addedPrimitiveLocation),
-								new RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
-							));
-						}
-					});
+					ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
+					
+					Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
+					Location canvasModelLocation = ModelComponent.Util.locationFromAncestor(referenceMC, target);
+					
+					CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
+					
+					Location addedPrimitiveLocation = new CompositeLocation(
+						canvasModelLocation,
+						canvasModel.getNextLocation()
+					);
+					
+					ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+					
+					// Add
+					pendingCommands.add(new PendingCommandState<Model>(
+						new RelativeCommand<Model>(canvasModelLocation, 
+							new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(dropBoundsOnTarget), new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)))
+						), 
+						new RelativeCommand.Factory<Model>(new CanvasModel.RemoveModelCommand.AfterAdd()),
+						new RelativeCommand.Factory<Model>(new CanvasModel.RestoreModelCommand.AfterRemove())
+					));
+					
+					// Bind
+					pendingCommands.add(new PendingCommandState<Model>(
+						new AddObserverCommand(observableLocation, addedPrimitiveLocation),
+						new RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
+					));
+					
+					ExPendingCommandFactory2.Util.sequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 				}
 			});
 		}
