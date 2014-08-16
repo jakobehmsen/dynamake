@@ -893,21 +893,11 @@ public class CanvasModel extends Model {
 				menuBuilder.addMenuBuilder("Unwrap", new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new PendingCommandFactory<Model>() {
-							ModelComponent parent;
-							
-							@Override
-							public Model getReference() {
-								// If this canvas is unwrapped, then it is unwrapped into its parent
-								parent = ModelComponent.Util.getParent(CanvasPanel.this);
-								return parent.getModelBehind();
-							}
-							
-							@Override
-							public void createPendingCommands(List<CommandState<Model>> commandStates) {
-								CanvasModel.appendUnwrapTransaction(commandStates, CanvasPanel.this, parent);
-							}
-						});
+						ModelComponent parent = ModelComponent.Util.getParent(CanvasPanel.this);
+						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+						CanvasModel.appendUnwrapTransaction(pendingCommands, CanvasPanel.this, parent);
+						
+						ExPendingCommandFactory2.Util.sequence(collector, parent.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 					}
 				});
 			}
