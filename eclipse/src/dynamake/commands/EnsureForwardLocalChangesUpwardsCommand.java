@@ -11,7 +11,6 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Execution;
 import dynamake.transcription.ExecutionsHandler;
-import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.SimpleExPendingCommandFactory2;
 
 public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {

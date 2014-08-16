@@ -40,7 +40,6 @@ import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.LocalHistoryHandler;
-import dynamake.transcription.SimpleExPendingCommandFactory;
 import dynamake.transcription.SimpleExPendingCommandFactory2;
 import dynamake.transcription.Trigger;
 
