@@ -787,20 +787,10 @@ public abstract class Model implements Serializable, Observer {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new PendingCommandFactory<Model>() {
-							@Override
-							public Model getReference() {
-								return view.getModelBehind();
-							}
-
-							@Override
-							public void createPendingCommands(List<CommandState<Model>> commandStates) {
-								commandStates.add(new PendingCommandState<Model>(
-									new MouseUpCommand(), 
-									new Command.Null<Model>()
-								));
-							}
-						});
+						ExPendingCommandFactory2.Util.single(collector, view.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+							new MouseUpCommand(), 
+							new Command.Null<Model>()
+						));
 						collector.commit();
 					}
 				});
@@ -813,20 +803,10 @@ public abstract class Model implements Serializable, Observer {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.execute(new PendingCommandFactory<Model>() {
-							@Override
-							public Model getReference() {
-								return view.getModelBehind();
-							}
-
-							@Override
-							public void createPendingCommands(List<CommandState<Model>> commandStates) {
-								commandStates.add(new PendingCommandState<Model>(
-									new MouseDownCommand(), 
-									new Command.Null<Model>()
-								));
-							}
-						});
+						ExPendingCommandFactory2.Util.single(collector, view.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+							new MouseDownCommand(), 
+							new Command.Null<Model>()
+						));
 						collector.commit();
 					}
 				});
