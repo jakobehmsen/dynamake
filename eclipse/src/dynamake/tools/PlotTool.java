@@ -27,6 +27,9 @@ import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.LocalHistoryHandler;
+import dynamake.transcription.Trigger;
 
 public class PlotTool implements Tool {
 	@Override
@@ -49,14 +52,9 @@ public class PlotTool implements Tool {
 				final ModelComponent selection = interactionPresenter.getSelection();
 				// Wrap if one more models are contained within the effect frame
 				if(componentsWithinBounds.size() > 0) {
-					collector.execute(new PendingCommandFactory<Model>() {
+					collector.execute(new Trigger<Model>() {
 						@Override
-						public Model getReference() {
-							return selection.getModelBehind();
-						}
-						
-						@Override
-						public void createPendingCommands(List<CommandState<Model>> commandStates) {
+						public void run(Collector<Model> collector) {
 							CanvasModel target = (CanvasModel)selection.getModelBehind();
 							
 							Location[] modelLocations = new Location[componentsWithinBounds.size()];
@@ -65,7 +63,7 @@ public class PlotTool implements Tool {
 								modelLocations[i] = target.getLocationOf(view.getModelBehind());
 							}
 							
-							commandStates.add(new PendingCommandState<Model>(
+							ExPendingCommandFactory2.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 								new WrapCommand(new RectangleF(creationBoundsInSelection), modelLocations), 
 								new UnwrapCommand.AfterWrap(),
 								new RewrapCommand.AfterUnwrap()
@@ -73,16 +71,12 @@ public class PlotTool implements Tool {
 						}
 					});
 				} else {
-					collector.execute(new PendingCommandFactory<Model>() {
+					collector.execute(new Trigger<Model>() {
 						@Override
-						public Model getReference() {
-							return selection.getModelBehind();
-						}
-						
-						@Override
-						public void createPendingCommands(List<CommandState<Model>> commandStates) {
+						public void run(Collector<Model> collector) {
 							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
-							commandStates.add(new PendingCommandState<Model>(
+							
+							ExPendingCommandFactory2.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
