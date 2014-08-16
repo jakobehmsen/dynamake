@@ -25,4 +25,9 @@ public class ParentLocation implements Location {
 	public int hashCode() {
 		return 1117;
 	}
+	
+	@Override
+	public String toString() {
+		return "..";
+	}
 }
