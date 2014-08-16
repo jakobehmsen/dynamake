@@ -5,6 +5,7 @@ import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -23,6 +24,9 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.LocalHistoryHandler;
+import dynamake.transcription.Trigger;
 
 public abstract class BoundsChangeTool implements Tool {
 	@Override
@@ -60,46 +64,42 @@ public abstract class BoundsChangeTool implements Tool {
 						final ModelComponent targetOver = newTargetOver;
 
 						// Reference is closest common ancestor
-						collector.execute(new PendingCommandFactory<Model>() {
-							ModelComponent referenceMC;
-							
+						collector.execute(new Trigger<Model>() {
 							@Override
-							public Model getReference() {
-								referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
-								return referenceMC.getModelBehind();
-							}
-
-							@Override
-							public void createPendingCommands(List<CommandState<Model>> commandStates) {
+							public void run(Collector<Model> collector) {
+								ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
+								
 								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
 								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
-								CanvasModel.appendMoveTransaction(commandStates, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
+								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+								
+								CanvasModel.appendMoveTransaction(pendingCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
+								
+								ExPendingCommandFactory2.Util.sequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 							}
 						});
 					} else {
 						// Moving within same canvas
 						final Rectangle droppedBounds = SwingUtilities.convertRectangle(productionPanel, effectBounds, (JComponent)newTargetOver);
-
-						collector.execute(new PendingCommandFactory<Model>() {
+						
+						collector.execute(new Trigger<Model>() {
 							@Override
-							public Model getReference() {
-								return source.getModelBehind();
-							}
-
-							@Override
-							public void createPendingCommands(List<CommandState<Model>> commandStates) {
+							public void run(Collector<Model> collector) {
 								Location locationOfMovedModel = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
-
-								commandStates.add(new PendingCommandState<Model>(
+								
+								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+								
+								pendingCommands.add(new PendingCommandState<Model>(
 									new RelativeCommand<Model>(locationOfMovedModel, new SetPropertyCommand("X", new Fraction(droppedBounds.x))),
 									new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 								));
-								
-								commandStates.add(new PendingCommandState<Model>(
+								pendingCommands.add(new PendingCommandState<Model>(
 									new RelativeCommand<Model>(locationOfMovedModel, new SetPropertyCommand("Y", new Fraction(droppedBounds.y))),
 									new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 								));
+								
+								ExPendingCommandFactory2.Util.sequence(collector, source.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 							}
 						});
 					}
@@ -107,15 +107,14 @@ public abstract class BoundsChangeTool implements Tool {
 					// Changing bounds within the same canvas
 					final Rectangle newBounds = SwingUtilities.convertRectangle(productionPanel, effectBounds, (JComponent)newTargetOver);
 					
-					collector.execute(new PendingCommandFactory<Model>() {
+					collector.execute(new Trigger<Model>() {
 						@Override
-						public Model getReference() {
-							return selection.getModelBehind();
-						}
+						public void run(Collector<Model> collector) {
+							ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 
-						@Override
-						public void createPendingCommands(List<CommandState<Model>> commandStates) {
-							appendCommandStatesForResize(commandStates, selection, newBounds);
+							appendCommandStatesForResize(pendingCommands, selection, newBounds);
+							
+							ExPendingCommandFactory2.Util.sequence(collector, selection.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 						}
 					});
 				}
