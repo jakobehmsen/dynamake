@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -281,7 +282,9 @@ public abstract class Model implements Serializable, Observer {
 		// undo stack is assumed to consist only of RevertingCommandStateSequence<Model>.
 		// These could probably be replaced by simpler structures; just lists of CommandState objects.
 		RevertingCommandStateSequence<Model> toUndo = (RevertingCommandStateSequence<Model>)undoStack.pop();
-		executeSequence(toUndo.commandStates, 0, UndoHistoryHandler.class, propCtx, propDistance, collector);
+		
+		ExPendingCommandFactory2.Util.sequence(collector, this, Arrays.asList(toUndo.commandStates), UndoHistoryHandler.class);
+//		executeSequence(toUndo.commandStates, 0, UndoHistoryHandler.class, propCtx, propDistance, collector);
 		
 		return toUndo;
 		
@@ -300,23 +303,23 @@ public abstract class Model implements Serializable, Observer {
 		redoStack.push(redoable);
 	}
 	
-	private void executeSequence(final CommandState<Model>[] commandStates, final int i, final Class<? extends HistoryHandler<Model>> historyHandlerClass,
-			PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		if(i < commandStates.length) {
-			CommandState<Model> reversible = ((CommandState<Model>)commandStates[i]);
-			collector.execute(new SimpleExPendingCommandFactory<Model>(this, reversible) {
-				@Override
-				public void afterPropogationFinished(List<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-					executeSequence(commandStates, i + 1, historyHandlerClass, propCtx, propDistance, collector);
-				}
-				
-				@Override
-				public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
-					return historyHandlerClass;
-				}
-			});
-		}
-	}
+//	private void executeSequence(final CommandState<Model>[] commandStates, final int i, final Class<? extends HistoryHandler<Model>> historyHandlerClass,
+//			PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		if(i < commandStates.length) {
+//			CommandState<Model> reversible = ((CommandState<Model>)commandStates[i]);
+//			collector.execute(new SimpleExPendingCommandFactory<Model>(this, reversible) {
+//				@Override
+//				public void afterPropogationFinished(List<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//					executeSequence(commandStates, i + 1, historyHandlerClass, propCtx, propDistance, collector);
+//				}
+//				
+//				@Override
+//				public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
+//					return historyHandlerClass;
+//				}
+//			});
+//		}
+//	}
 	
 	public CommandState<Model> redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(!redoStack.isEmpty()) {
@@ -332,7 +335,8 @@ public abstract class Model implements Serializable, Observer {
 	
 	public CommandState<Model> redo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		RevertingCommandStateSequence<Model> toRedo = (RevertingCommandStateSequence<Model>)redoStack.pop();
-		executeSequence(toRedo.commandStates, 0, RedoHistoryHandler.class, propCtx, propDistance, collector);
+		ExPendingCommandFactory2.Util.sequence(collector, this, Arrays.asList(toRedo.commandStates), RedoHistoryHandler.class);
+//		executeSequence(toRedo.commandStates, 0, RedoHistoryHandler.class, propCtx, propDistance, collector);
 		
 		return toRedo;
 	}
