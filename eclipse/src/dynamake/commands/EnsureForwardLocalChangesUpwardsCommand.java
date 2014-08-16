@@ -8,7 +8,9 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
+import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Execution;
+import dynamake.transcription.ExecutionsHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory;
 
 public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
@@ -60,9 +62,9 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 				(CommandFactory<Model>)null
 			));
 			
-			collector.execute(new SimpleExPendingCommandFactory<Model>(source, creationForwardingUpwards) {
+			ExPendingCommandFactory2.Util.sequence(collector, source, creationForwardingUpwards, new ExecutionsHandler<Model>() {
 				@Override
-				public void afterPropogationFinished(List<Execution<Model>> sourceCreationPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+				public void handleExecutions(List<Execution<Model>> sourceCreationPendingUndoablePairs, Collector<Model> collector) {
 					@SuppressWarnings("unchecked")
 					List<Execution<Model>> sourceCreation = (List<Execution<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
 					
@@ -75,6 +77,22 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 					)));
 				}
 			});
+			
+//			collector.execute(new SimpleExPendingCommandFactory<Model>(source, creationForwardingUpwards) {
+//				@Override
+//				public void afterPropogationFinished(List<Execution<Model>> sourceCreationPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//					@SuppressWarnings("unchecked")
+//					List<Execution<Model>> sourceCreation = (List<Execution<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+//					
+//					sourceCreation.addAll(sourceCreationPendingUndoablePairs);
+//					
+//					// Update creation on source
+//					collector.execute(new SimpleExPendingCommandFactory<Model>(source, new PendingCommandState<Model>(
+//						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, sourceCreation), 
+//						new SetPropertyCommand.AfterSetProperty()
+//					)));
+//				}
+//			});
 		}
 		
 		return null;
