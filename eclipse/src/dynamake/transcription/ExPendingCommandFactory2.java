@@ -5,6 +5,7 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandFactory;
+import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 
 public interface ExPendingCommandFactory2<T> {
@@ -97,18 +98,29 @@ public interface ExPendingCommandFactory2<T> {
 			});
 		}
 		
+		@SuppressWarnings("unchecked")
 		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, ExecutionsHandler<T> afterExecutions) {
-			sequence(collector, reference, pendingCommands, afterExecutions, new ArrayList<Execution<T>>(), 0);
+			sequence(collector, reference, pendingCommands, (Class<? extends HistoryHandler<T>>)NullHistoryHandler.class, afterExecutions, new ArrayList<Execution<T>>(), 0);
+		}
+		
+		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, final Class<? extends HistoryHandler<T>> historyHandlerClass, ExecutionsHandler<T> afterExecutions) {
+			sequence(collector, reference, pendingCommands, historyHandlerClass, afterExecutions, new ArrayList<Execution<T>>(), 0);
 		}
 		
 		private static <T> void sequence(
-				Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, final ExecutionsHandler<T> afterExecutions, final List<Execution<T>> executions, final int i) {
+				Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, final Class<? extends HistoryHandler<T>> historyHandlerClass, 
+				final ExecutionsHandler<T> afterExecutions, final List<Execution<T>> executions, final int i) {
 			if(i < pendingCommands.size()) {
 				collector.execute(new SimpleExPendingCommandFactory2<T>(reference, pendingCommands.get(i)) {
 					@Override
 					public void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 						executions.add(execution);
-						sequence(collector, reference, pendingCommands, afterExecutions, executions, i + 1);
+						sequence(collector, reference, pendingCommands, historyHandlerClass, afterExecutions, executions, i + 1);
+					}
+					
+					@Override
+					public Class<? extends HistoryHandler<T>> getHistoryHandlerClass() {
+						return historyHandlerClass;
 					}
 				});
 			} else {
