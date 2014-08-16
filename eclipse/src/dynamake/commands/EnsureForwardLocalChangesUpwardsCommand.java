@@ -12,6 +12,7 @@ import dynamake.transcription.ExPendingCommandFactory2;
 import dynamake.transcription.Execution;
 import dynamake.transcription.ExecutionsHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory;
+import dynamake.transcription.SimpleExPendingCommandFactory2;
 
 public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 	/**
@@ -47,7 +48,7 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 			}
 		} else {
 			// Set creation on source
-			collector.execute(new SimpleExPendingCommandFactory<Model>(source, new PendingCommandState<Model>(
+			collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
 				new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, new ArrayList<Execution<Model>>()), 
 				new SetPropertyCommand.AfterSetProperty()
 			)));
@@ -71,7 +72,7 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 					sourceCreation.addAll(sourceCreationPendingUndoablePairs);
 					
 					// Update creation on source
-					collector.execute(new SimpleExPendingCommandFactory<Model>(source, new PendingCommandState<Model>(
+					collector.execute(new SimpleExPendingCommandFactory2<Model>(source, new PendingCommandState<Model>(
 						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, sourceCreation), 
 						new SetPropertyCommand.AfterSetProperty()
 					)));
