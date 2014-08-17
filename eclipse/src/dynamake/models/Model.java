@@ -287,51 +287,8 @@ public abstract class Model implements Serializable, Observer {
 		return RevertingCommandStateSequence.reverse(undoStack);
 	}
 
-	public List<CommandState<Model>> getLocalChangesWithOutput() {
-		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
-		
-		for(CommandState<Model> undoable: undoStack) {
-			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
-			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
-				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
-				origins.add(undoPart);
-			}
-		}
-		
-		return origins;
-	}
-
 	public List<CommandState<Model>> getLocalChanges() {
 		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
-		
-		for(CommandState<Model> undoable: undoStack) {
-			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
-			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
-				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
-				origins.add(undoPart.origin);
-			}
-		}
-		
-		return origins;
-	}
-	
-
-	public List<CommandState<Model>> getLocalChangesForExecution() {
-		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
-		
-		for(CommandState<Model> undoable: undoStack) {
-			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
-			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
-				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
-				origins.add(undoPart.origin.pending);
-			}
-		}
-		
-		return origins;
-	}
-
-	public List<Execution<Model>> getLocalChangesAsPairs() {
-		ArrayList<Execution<Model>> origins = new ArrayList<Execution<Model>>();
 		
 		for(CommandState<Model> undoable: undoStack) {
 			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
