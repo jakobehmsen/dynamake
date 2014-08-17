@@ -862,7 +862,7 @@ public class LiveModel extends Model {
 			
 			@Override
 			public void mouseMoved(final MouseEvent e) {
-				System.out.println("Moved");
+//				System.out.println("Moved");
 				toolConnection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
