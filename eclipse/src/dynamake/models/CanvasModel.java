@@ -374,7 +374,7 @@ public class CanvasModel extends Model {
 
 			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			
-			canvas.restoreModel(modelLocation, model, new PropogationContext(), 0, collector);
+			canvas.restoreModelByLocation(modelLocation, model, new PropogationContext(), 0, collector);
 			Location addedModelLocation = canvas.getLocationOf(model);
 			
 			modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, isolatedCollector, location);
@@ -566,15 +566,11 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	private void restoreModel(Location id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void restoreModelByLocation(Location id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		int index = models.size();
 		models.add(index, new Entry(id, model));
 		model.setParent(this);
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
-	}
-
-	public void restoreModelByLocation(Location location, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		restoreModel(location, model, propCtx, propDistance, collector);
 	}
 
 	public void removeModelByLocation(Location location, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
