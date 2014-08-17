@@ -65,14 +65,6 @@ public class ModelTranscriber {
 		}
 	}
 
-//	public Locator extendLocator(Locator otherLocator) {
-//		return new CompositeModelLocator(getModelLocator(), otherLocator); 
-//	}
-//
-//	public Location extendLocation(Location otherLocation) {
-//		return new CompositeLocation(getModelLocation(), otherLocation);
-//	}
-
 	public Connection<Model> createConnection() {
 		return transcriber.createConnection(new TriggerHandler<Model>() {
 			@Override
