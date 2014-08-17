@@ -589,7 +589,7 @@ public class CanvasModel extends Model {
 		addModel(models.size(), model, propCtx, propDistance, collector);
 	}
 
-	public Model getModel(int index) {
+	public Model getModelByIndex(int index) {
 		return models.get(index).model;
 	}
 	
@@ -1006,7 +1006,7 @@ public class CanvasModel extends Model {
 								ArrayList<Model> shownModelsSequence = new ArrayList<Model>();
 								
 								for(int i = 0; i < getModelCount(); i++) {
-									Model m = getModel(i);
+									Model m = getModelByIndex(i);
 									
 									if(view.shownModels.contains(m))
 										shownModelsSequence.add(m);
@@ -1056,13 +1056,17 @@ public class CanvasModel extends Model {
 		modelToRemovableListenerMap.put(model, removableListener);
 	}
 
-	public Model getModelById(Object id) {
-		for(Entry entry: models) {
-			if(entry.id.equals(id))
-				return entry.model;
+	public Location[] getLocations() {
+		Location[] locations = new Location[getModelCount()];
+		for(int i = 0; i < getModelCount(); i++) {
+			Entry entry = getEntry(i);
+			locations[i] = entry.id;
 		}
-		
-		return null;
+		return locations;
+	}
+
+	private Entry getEntry(int index) {
+		return models.get(index);
 	}
 
 	@Override
@@ -1140,7 +1144,7 @@ public class CanvasModel extends Model {
 						Hashtable<Integer, Model> invisibles = new Hashtable<Integer, Model>();
 
 						for(int i = 0; i < view.model.getModelCount(); i++) {
-							Model m = view.model.getModel(i);
+							Model m = view.model.getModelByIndex(i);
 							boolean wasFound = false;
 							for(Component mc: view.getComponents()) {
 								if(m == ((ModelComponent)mc).getModelBehind()) {
@@ -1261,18 +1265,5 @@ public class CanvasModel extends Model {
 				return view;
 			}
 		};
-	}
-
-	public Location[] getLocations() {
-		Location[] locations = new Location[getModelCount()];
-		for(int i = 0; i < getModelCount(); i++) {
-			Entry entry = getEntry(i);
-			locations[i] = entry.id;
-		}
-		return locations;
-	}
-
-	private Entry getEntry(int index) {
-		return models.get(index);
 	}
 }
