@@ -36,11 +36,8 @@ public class RedoHistoryHandler implements HistoryHandler<Model> {
 		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
 
 		for(int i = 0; i < newLog.size(); i++) {
-//			compressedLogPartAsArray[i] = new UndoRedoPart(newLog.get(i), newLog.get(i).undoable);
 			// Unwrap UndoRedoPart
 			UndoRedoPart undoRedoPart = (UndoRedoPart)newLog.get(i).undoable;
-//			compressedLogPartAsArray[i] = undoRedoPart;//new UndoRedoPart(newLog.get(i), newLog.get(i).undoable);
-//			compressedLogPartAsArray[i] = new UndoRedoPart(undoRedoPart.origin, undoRedoPart.origin.undoable);
 			compressedLogPartAsArray[i] = undoRedoPart;
 		}
 		

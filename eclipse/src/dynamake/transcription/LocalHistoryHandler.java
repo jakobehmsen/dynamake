@@ -38,14 +38,11 @@ public class LocalHistoryHandler implements HistoryHandler<Model> {
 			
 			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 			reference.commitLog(compressedLogPart);
-//			undoStack.add(compressedLogPart);
 		}
-		
-//		reference.commitLog(propCtx, propDistance, collector);
 	}
 
 	@Override
 	public void rejectLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		reference.rejectLog(propCtx, propDistance, collector);
+
 	}
 }

@@ -37,10 +37,7 @@ public class UndoHistoryHandler implements HistoryHandler<Model> {
 
 		for(int i = 0; i < newLog.size(); i++) {
 			// Unwrap UndoRedoPart
-//			UndoRedoPart undoRedoPart = (UndoRedoPart)newLog.get(i).pending;
 			UndoRedoPart undoRedoPart = (UndoRedoPart)newLog.get(i).undoable;
-//			compressedLogPartAsArray[i] = undoRedoPart;//new UndoRedoPart(newLog.get(i), newLog.get(i).undoable);
-//			compressedLogPartAsArray[i] = new UndoRedoPart(undoRedoPart.origin, undoRedoPart.origin.undoable);
 			compressedLogPartAsArray[i] = undoRedoPart;
 		}
 		

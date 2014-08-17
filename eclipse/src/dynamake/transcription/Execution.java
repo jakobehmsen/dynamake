@@ -18,7 +18,6 @@ import dynamake.models.PropogationContext;
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-//		public final PendingCommandState<Model> pending;
 		public final CommandState<T> pending;
 		public final CommandStateWithOutput<T> undoable;
 		
@@ -31,26 +30,7 @@ import dynamake.models.PropogationContext;
 
 		@Override
 		public Execution<T> forForwarding() {
-//			if(pending.getCommand() instanceof ForwardableCommand) {
-//				Command<Model> commandForForwarding = ((ForwardableCommand<Model>)pending.getCommand()).forForwarding(undoable.getOutput());
-//				Object newOutput;
-//				if(undoable.getOutput() instanceof ForwardableOutput)
-//					newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
-//				else
-//					newOutput = undoable.getOutput();	
-//				// Should cause, forthFactory, and backFactory also be forwarded of undoable?
-//				ReversibleCommand<Model> newUndoable = new ReversibleCommand<Model>(undoable.getCause(), newOutput, undoable.getForthFactory(), undoable.getBackFactory());
-//				return new PendingUndoablePair(new PendingCommandState<Model>(commandForForwarding, pending.getForthFactory(), pending.getBackFactory()), newUndoable);
-//			}
-//			
-//			return this;
-			
 			CommandState<T> newPending = pending.forForwarding(undoable.getOutput());
-//			if(undoable.getOutput() instanceof ForwardableOutput)
-//				newOutput = ((ForwardableOutput)undoable.getOutput()).forForwarding();
-//			else
-//				newOutput = undoable.getOutput();
-//			ReversibleCommand<Model> newUndoable = new ReversibleCommand<Model>(undoable.getCause(), newOutput, undoable.getForthFactory(), undoable.getBackFactory());
 			CommandStateWithOutput<T> newUndoable = (CommandStateWithOutput<T>)undoable.forForwarding();
 			return new Execution<T>(newPending, newUndoable);
 		}
