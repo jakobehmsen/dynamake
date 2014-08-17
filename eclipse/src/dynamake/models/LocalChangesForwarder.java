@@ -103,13 +103,11 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			collector.execute(new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					final int localChangeCount = target.getLocalChangeCount();
-					
 					// Assumed that unplaying doesn't provoke side effects
 					// Play the local changes backwards
 					collector.execute(new SimplePendingCommandFactory<Model>(target, new PendingCommandState<Model>(
-						new UnplayCommand(localChangeCount),
-						new ReplayCommand(localChangeCount)
+						new UnplayCommand(),
+						new ReplayCommand()
 					)));
 					
 					PendingCommandFactory.Util.sequence(collector, target, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
@@ -139,8 +137,8 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 										public void handleExecutions(List<Execution<Model>> pendingUndoablePairs, Collector<Model> collector) {
 											// Play the local changes forward
 											collector.execute(new SimplePendingCommandFactory<Model>(target, new PendingCommandState<Model>(
-												new ReplayCommand(localChangeCount),
-												new UnplayCommand(localChangeCount)
+												new ReplayCommand(),
+												new UnplayCommand()
 											)));
 										}
 									});

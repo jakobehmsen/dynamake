@@ -10,18 +10,13 @@ public class ReplayCommand implements Command<Model> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private int count;
-
-	public ReplayCommand(int count) {
-		this.count = count;
-	}
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model model = (Model)location.getChild(prevalentSystem);
 //		System.out.println("Performing replay on " + model + "...");
 		
-		model.replay(count, propCtx, 0, collector);
+		model.replay(propCtx, 0, collector);
 		
 //		System.out.println("Performed replay on " + model);
 		

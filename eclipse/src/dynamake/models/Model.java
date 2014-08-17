@@ -216,16 +216,16 @@ public abstract class Model implements Serializable, Observer {
 		undoStack.add(logPart);
 	}
 	
-	public void unplay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(int i = 0; i < count; i++) {
+	public void unplay(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		while(undoStack.size() > 0) {
 			CommandState<Model> toUndo = undoStack.pop();
 			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
 			redoStack.push(redoable);
 		}
 	}	
 	
-	public void replay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		for(int i = 0; i < count; i++) {
+	public void replay(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		while(redoStack.size() > 0) {
 			CommandState<Model> toRedo = redoStack.pop();
 			CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
 			undoStack.push(undoable);
@@ -314,10 +314,6 @@ public abstract class Model implements Serializable, Observer {
 		Collections.reverse(backwards);
 		
 		return backwards;
-	}
-
-	public int getLocalChangeCount() {
-		return undoStack.size();
 	}
 	
 	public void setLocator(Locator locator) {
