@@ -116,37 +116,9 @@ public class CanvasModel extends Model {
 		
 		return canvasClone;
 	}
-	
-	@Override
-	protected void modelAddContent(HashSet<Model> contained) {
-		for(Entry entry: models) {
-			entry.model.addContent(contained);
-		}
-	}
 
 	public int getModelCount() {
 		return models.size();
-	}
-
-	@Override
-	protected void cloneAndMap(Hashtable<Model, Model> sourceToCloneMap) {
-		CanvasModel canvasClone = new CanvasModel();
-		canvasClone.properties = new Hashtable<String, Object>();
-		// Assumed that cloning is not necessary for properties
-		// I.e., all property values are immutable
-		canvasClone.properties.putAll(this.properties);
-		
-		canvasClone.undoStack.addAll(this.undoStack);
-		canvasClone.redoStack.addAll(this.redoStack);
-		
-		sourceToCloneMap.put(this, canvasClone);
-
-		for(Entry entry: models) {
-			entry.model.cloneAndMap(sourceToCloneMap);
-			Model modelClone = sourceToCloneMap.get(entry.model);
-			canvasClone.models.add(new Entry(entry.id, modelClone));
-			modelClone.setParent(canvasClone);
-		}
 	}
 	
 	@Override

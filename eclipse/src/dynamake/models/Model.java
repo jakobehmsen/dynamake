@@ -803,10 +803,6 @@ public abstract class Model implements Serializable, Observer {
 
 	public abstract Model modelCloneIsolated();
 
-	protected Model modelCloneDeep(Hashtable<Model, Model> visited, HashSet<Model> contained) {
-		return modelCloneIsolated();
-	}
-
 	public Model cloneIsolated() {
 		Model clone = modelCloneIsolated();
 		
@@ -820,43 +816,6 @@ public abstract class Model implements Serializable, Observer {
 		clone.redoStack.addAll(this.redoStack);
 		
 		return clone;
-	}
-	
-	public Model cloneDeep() {
-		Hashtable<Model, Model> sourceToCloneMap = new Hashtable<Model, Model>();
-		cloneAndMap(sourceToCloneMap);
-		
-		for(Map.Entry<Model, Model> sourceToCloneEntry: sourceToCloneMap.entrySet()) {
-			Model source = sourceToCloneEntry.getKey();
-			Model clone = sourceToCloneEntry.getValue();
-			
-			for(Observer observer: source.observers) {
-				if(observer instanceof Model) {
-					Model observerClone = sourceToCloneMap.get(observer);
-					if(observerClone != null) {
-						// Only if observer is contained
-						clone.observers.add(observerClone);
-						observerClone.observees.add(clone);
-					}
-				}
-			}
-		}
-		
-		return sourceToCloneMap.get(this);
-	}
-	
-	protected void addContent(HashSet<Model> contained) {
-		contained.add(this);
-		modelAddContent(contained);
-	}
-	
-	protected void modelAddContent(HashSet<Model> contained) {
-		
-	}
-	
-	protected void cloneAndMap(Hashtable<Model, Model> sourceToCloneMap) {
-		Model clone = cloneIsolated();
-		sourceToCloneMap.put(this, clone);
 	}
 
 	public void inject(Model model) {
