@@ -15,7 +15,7 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.Trigger;
 
@@ -56,7 +56,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 				Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 				if(currentView == null)
 					currentView = Model.VIEW_APPLIANCE;
-				ExPendingCommandFactory2.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 					new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
 					new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
 				));
@@ -69,7 +69,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 				Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 				if(currentView == null)
 					currentView = Model.VIEW_APPLIANCE;
-				ExPendingCommandFactory2.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 					new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
 					new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
 				));

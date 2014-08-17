@@ -10,7 +10,7 @@ import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReplayCommand;
 import dynamake.commands.UnplayCommand;
 import dynamake.transcription.Collector;
-import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.ExecutionsHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory2;
@@ -117,7 +117,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 
 					
 					
-					ExPendingCommandFactory2.Util.sequence(collector, target, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
+					PendingCommandFactory.Util.sequence(collector, target, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
 						@Override
 						public void handleExecutions(final List<Execution<Model>> forwardedChangesToRevertPendingUndoablePairs, Collector<Model> collector) {
 							// Do the forwarded change without affecting the local changes
@@ -142,7 +142,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 //								forwardedNewChangesAsPendings.add(forwardedNewChange);
 							}
 							
-							ExPendingCommandFactory2.Util.sequence(collector, target, forwardedNewChangesAsPendings, new ExecutionsHandler<Model>() {
+							PendingCommandFactory.Util.sequence(collector, target, forwardedNewChangesAsPendings, new ExecutionsHandler<Model>() {
 								@Override
 								public void handleExecutions(List<Execution<Model>> forwardedNewChangesPendingUndoablePairs, Collector<Model> collector) {
 									// Play the inherited local changes forwards without affecting the local changes
@@ -155,7 +155,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 									Collections.reverse(backwardOutput);
 									
 
-									ExPendingCommandFactory2.Util.sequence(collector, target, backwardOutput, new ExecutionsHandler<Model>() {
+									PendingCommandFactory.Util.sequence(collector, target, backwardOutput, new ExecutionsHandler<Model>() {
 										@Override
 										public void handleExecutions(List<Execution<Model>> pendingUndoablePairs, Collector<Model> collector) {
 											// Play the local changes forward

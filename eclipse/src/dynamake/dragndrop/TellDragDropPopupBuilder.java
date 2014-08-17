@@ -16,7 +16,7 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.Trigger;
 
@@ -54,7 +54,7 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Tell Color", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				ExPendingCommandFactory2.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 					new TellPropertyCommand(Model.PROPERTY_COLOR),
 					new Command.Null<Model>()
 				));

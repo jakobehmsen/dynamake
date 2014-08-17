@@ -27,7 +27,7 @@ import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.Trigger;
 
@@ -118,7 +118,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						new RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
 					));
 					
-					ExPendingCommandFactory2.Util.sequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+					PendingCommandFactory.Util.sequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 				}
 			});
 		}

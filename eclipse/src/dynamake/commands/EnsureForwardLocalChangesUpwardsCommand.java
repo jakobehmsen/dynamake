@@ -8,7 +8,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
-import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.ExecutionsHandler;
 import dynamake.transcription.SimpleExPendingCommandFactory2;
@@ -62,7 +62,7 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 				(CommandFactory<Model>)null
 			));
 			
-			ExPendingCommandFactory2.Util.sequence(collector, source, creationForwardingUpwards, new ExecutionsHandler<Model>() {
+			PendingCommandFactory.Util.sequence(collector, source, creationForwardingUpwards, new ExecutionsHandler<Model>() {
 				@Override
 				public void handleExecutions(List<Execution<Model>> sourceCreationPendingUndoablePairs, Collector<Model> collector) {
 					@SuppressWarnings("unchecked")

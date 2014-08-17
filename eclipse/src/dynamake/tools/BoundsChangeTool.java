@@ -23,7 +23,7 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.Trigger;
 
@@ -75,7 +75,7 @@ public abstract class BoundsChangeTool implements Tool {
 								
 								CanvasModel.appendMoveTransaction(pendingCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 								
-								ExPendingCommandFactory2.Util.sequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+								PendingCommandFactory.Util.sequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 							}
 						});
 					} else {
@@ -98,7 +98,7 @@ public abstract class BoundsChangeTool implements Tool {
 									new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 								));
 								
-								ExPendingCommandFactory2.Util.sequence(collector, source.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+								PendingCommandFactory.Util.sequence(collector, source.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 							}
 						});
 					}
@@ -113,7 +113,7 @@ public abstract class BoundsChangeTool implements Tool {
 
 							appendCommandStatesForResize(pendingCommands, selection, newBounds);
 							
-							ExPendingCommandFactory2.Util.sequence(collector, selection.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+							PendingCommandFactory.Util.sequence(collector, selection.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 						}
 					});
 				}

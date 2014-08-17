@@ -6,7 +6,7 @@ import java.util.List;
 import dynamake.commands.CommandState;
 import dynamake.models.PropogationContext;
 
-public interface ExPendingCommandFactory2<T> {
+public interface PendingCommandFactory<T> {
 	T getReference();
 	CommandState<T> createPendingCommand();
 	void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector);

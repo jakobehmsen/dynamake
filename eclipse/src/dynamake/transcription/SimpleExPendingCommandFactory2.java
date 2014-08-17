@@ -3,7 +3,7 @@ package dynamake.transcription;
 import dynamake.commands.CommandState;
 import dynamake.models.PropogationContext;
 
-public class SimpleExPendingCommandFactory2<T> implements ExPendingCommandFactory2<T> {
+public class SimpleExPendingCommandFactory2<T> implements PendingCommandFactory<T> {
 	private T reference;
 	private CommandState<T> pendingCommand;
 	

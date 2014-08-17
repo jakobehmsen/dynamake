@@ -24,7 +24,7 @@ import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.Trigger;
 
@@ -60,7 +60,7 @@ public class PlotTool implements Tool {
 								modelLocations[i] = target.getLocationOf(view.getModelBehind());
 							}
 							
-							ExPendingCommandFactory2.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+							PendingCommandFactory.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 								new WrapCommand(new RectangleF(creationBoundsInSelection), modelLocations), 
 								new UnwrapCommand.AfterWrap(),
 								new RewrapCommand.AfterUnwrap()
@@ -73,7 +73,7 @@ public class PlotTool implements Tool {
 						public void run(Collector<Model> collector) {
 							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
 							
-							ExPendingCommandFactory2.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+							PendingCommandFactory.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()

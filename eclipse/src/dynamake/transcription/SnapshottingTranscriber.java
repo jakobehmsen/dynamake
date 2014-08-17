@@ -414,7 +414,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						Collector<T> collector = new Collector<T>() {
 							@Override
 							public void execute(Object command) {
-								if(command instanceof ExPendingCommandFactory2) {
+								if(command instanceof PendingCommandFactory) {
 									collectedCommands.add(command);
 									collectedCommands.add(new Instruction(Instruction.OPCODE_SEND_PROPOGATION_FINISHED, command));
 								} else {
@@ -470,11 +470,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									new String();
 								}
 								Execution<T> execution = pendingUndoablePairs.get(0);
-								((ExPendingCommandFactory2<T>)instruction.operand).afterPropogationFinished(execution, propCtx, 0, collector);
+								((PendingCommandFactory<T>)instruction.operand).afterPropogationFinished(execution, propCtx, 0, collector);
 								break;
 							}
-						} else if(command instanceof ExPendingCommandFactory2) {
-							ExPendingCommandFactory2<T> transactionFactory = (ExPendingCommandFactory2<T>)command;
+						} else if(command instanceof PendingCommandFactory) {
+							PendingCommandFactory<T> transactionFactory = (PendingCommandFactory<T>)command;
 							T reference = transactionFactory.getReference();
 							
 							if(reference == null || ((Model)reference).getLocator() == null) {

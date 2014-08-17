@@ -34,7 +34,7 @@ import dynamake.models.factories.ModelCreation;
 import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
-import dynamake.transcription.ExPendingCommandFactory2;
+import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.IsolatingCollector;
@@ -896,7 +896,7 @@ public class CanvasModel extends Model {
 						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 						CanvasModel.appendUnwrapTransaction(pendingCommands, CanvasPanel.this, parent);
 						
-						ExPendingCommandFactory2.Util.sequence(collector, parent.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+						PendingCommandFactory.Util.sequence(collector, parent.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 					}
 				});
 			}
@@ -929,7 +929,7 @@ public class CanvasModel extends Model {
 						
 						CanvasModel.appendMoveTransaction(pendingCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 						
-						ExPendingCommandFactory2.Util.sequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+						PendingCommandFactory.Util.sequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 					}
 				});
 			}
