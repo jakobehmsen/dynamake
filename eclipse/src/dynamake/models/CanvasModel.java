@@ -573,14 +573,6 @@ public class CanvasModel extends Model {
 		sendChanged(new AddedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 
-	public void removeModelByLocation(Location location, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		// TODO: Figure out: How to support ForwardLocations here?
-		int indexOf = getIndexOfModelById(location);
-		removeModel(indexOf, propCtx, propDistance, collector);
-		
-//		System.out.println("Removed model with id " + ((IdLocation)location).id + " in canvas " + this);
-	}
-
 	public void addModel(Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		addModel(models.size(), model, propCtx, propDistance, collector);
 	}
@@ -615,14 +607,22 @@ public class CanvasModel extends Model {
 	
 	public void removeModel(Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		int indexOfModel = indexOfModel(model);
-		removeModel(indexOfModel, propCtx, propDistance, collector);
+		removeModelByIndex(indexOfModel, propCtx, propDistance, collector);
 	}
 	
-	public void removeModel(int index, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void removeModelByIndex(int index, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		Model model = models.get(index).model;
 		models.remove(index);
 		model.setParent(null);
 		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, collector);
+	}
+
+	public void removeModelByLocation(Location location, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		// TODO: Figure out: How to support ForwardLocations here?
+		int indexOf = getIndexOfModelByLocation(location);
+		removeModelByIndex(indexOf, propCtx, propDistance, collector);
+		
+//		System.out.println("Removed model with id " + ((IdLocation)location).id + " in canvas " + this);
 	}
 	
 	public int indexOfModel(Model model) {
@@ -634,7 +634,7 @@ public class CanvasModel extends Model {
 		return -1;
 	}
 
-	private int getIndexOfModelById(Location id) {
+	private int getIndexOfModelByLocation(Location id) {
 		for(int i = 0; i < models.size(); i++) {
 			if(models.get(i).id.equals(id))
 				return i;
