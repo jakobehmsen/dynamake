@@ -36,11 +36,6 @@ public class CreationBoundsFactory implements ModelFactory {
 
 				ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
 				
-//				model.setProperty("X", creationBounds.x, propCtx, propDistance, collector);
-//				model.setProperty("Y", creationBounds.y, propCtx, propDistance, collector);
-//				model.setProperty("Width", creationBounds.width, propCtx, propDistance, collector);
-//				model.setProperty("Height", creationBounds.height, propCtx, propDistance, collector);
-				
 				origins.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
 				origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
 				origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
@@ -49,7 +44,6 @@ public class CreationBoundsFactory implements ModelFactory {
 				model.playThenReverse(origins, propCtx, propDistance, collector);
 				
 				model.setProperty(RestorableModel.PROPERTY_ORIGINS, origins, propCtx, propDistance, collector);
-//				model.setProperty(RestorableModel.PROPERTY_CREATION, origins, propCtx, propDistance, collector);
 				
 				return model;
 			}
@@ -59,25 +53,5 @@ public class CreationBoundsFactory implements ModelFactory {
 				modelCreation.setup(rootModel, createdModel, locationOfModelToSetup, propCtx, propDistance, collector, location);
 			}
 		};
-		
-//		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
-//		
-//		model.setProperty("X", creationBounds.x, propCtx, propDistance, collector);
-//		model.setProperty("Y", creationBounds.y, propCtx, propDistance, collector);
-//		model.setProperty("Width", creationBounds.width, propCtx, propDistance, collector);
-//		model.setProperty("Height", creationBounds.height, propCtx, propDistance, collector);
-//		
-//		origins.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-//		origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
-//		origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
-//		origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
-//		
-////		model.setProperty(RestorableModel.PROPERTY_ORIGINS, origins, propCtx, propDistance, collector);
-//		model.setProperty(RestorableModel.PROPERTY_CREATION, origins, propCtx, propDistance, collector);
-//		
-//		return model;
 	}
-
-//	@Override
-//	public void setup(Model rootModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
 }
