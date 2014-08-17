@@ -237,11 +237,6 @@ public class Primitive extends Model {
 	}
 	
 	@Override
-	public Model modelCloneIsolated() {
-		return new Primitive(implementation);
-	}
-	
-	@Override
 	public void modelChanged(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		implementation.execute(this, sender, change, propCtx, propDistance, changeDistance, collector);
 	}

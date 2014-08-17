@@ -103,19 +103,6 @@ public class CanvasModel extends Model {
 		// Then destroy self
 		super.destroy(propCtx, propDistance, collector);
 	}
-	
-	@Override
-	public Model modelCloneIsolated() {
-		CanvasModel canvasClone = new CanvasModel(); 
-
-		for(Entry entry: models) {
-			Model modelClone = entry.model.cloneIsolated();
-			canvasClone.models.add(new Entry(entry.id, modelClone));
-			modelClone.setParent(canvasClone);
-		}
-		
-		return canvasClone;
-	}
 
 	public int getModelCount() {
 		return models.size();

@@ -14,10 +14,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 import javax.swing.JComponent;
@@ -799,23 +797,6 @@ public abstract class Model implements Serializable, Observer {
 				}
 			});
 		}
-	}
-
-	public abstract Model modelCloneIsolated();
-
-	public Model cloneIsolated() {
-		Model clone = modelCloneIsolated();
-		
-		if(clone.properties == null)
-			clone.properties = new Hashtable<String, Object>();
-		// Assumed that cloning is not necessary for properties
-		// I.e., all property values are immutable
-		clone.properties.putAll(this.properties);
-		
-		clone.undoStack.addAll(this.undoStack);
-		clone.redoStack.addAll(this.redoStack);
-		
-		return clone;
 	}
 
 	public void inject(Model model) {

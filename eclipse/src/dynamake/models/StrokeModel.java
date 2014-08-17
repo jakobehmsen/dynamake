@@ -175,11 +175,6 @@ public class StrokeModel extends Model {
 			}
 		};
 	}
-
-	@Override
-	public Model modelCloneIsolated() {
-		return new StrokeModel(this.creationSize, this.offset, new ArrayList<Point>(this.points));
-	}
 	
 	@Override
 	public Model cloneBase() {

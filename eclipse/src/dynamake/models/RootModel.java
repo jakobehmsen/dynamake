@@ -40,11 +40,6 @@ public class RootModel extends Model {
 	}
 	
 	@Override
-	public Model modelCloneIsolated() {
-		return new RootModel(content.cloneIsolated());
-	}
-	
-	@Override
 	public Model cloneBase() {
 		return new RootModel(content.cloneBase());
 	}

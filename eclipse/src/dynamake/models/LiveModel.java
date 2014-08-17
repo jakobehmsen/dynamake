@@ -64,15 +64,6 @@ public class LiveModel extends Model {
 	}
 	
 	@Override
-	public Model modelCloneIsolated() {
-		LiveModel clone = new LiveModel(content.cloneIsolated());
-		
-		clone.buttonsToToolMap.putAll(clone.buttonsToToolMap);
-		
-		return clone;
-	}
-	
-	@Override
 	public Model cloneBase() {
 		return new LiveModel(content.cloneBase());
 	}
