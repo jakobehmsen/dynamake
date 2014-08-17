@@ -76,6 +76,39 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 		}
 		return false;
 	}
+	
+	private final List<Model> getModelsFromInnerToOuter(Model inner, Model outer) {
+		// inner is assumed to child of outer either directly or indirectly
+		
+		ArrayList<Model> models = new ArrayList<Model>();
+		Model currentModel = inner;
+		
+		while(currentModel != outer) {
+			models.add(currentModel);
+			currentModel = currentModel.getParent();
+		}
+		
+		models.add(outer);
+		
+		return models;
+	}
+	
+	private final List<Location> getLocationsFromInnerToOuter(Model inner, Model outer, Location locationOfInner) {
+		// inner is assumed to child of outer either directly or indirectly
+		// locationOfInner is assumed to be the offset from outer to inner
+		
+		ArrayList<Location> locations = new ArrayList<Location>();
+		Location currentLocation = locationOfInner;
+		
+		while(currentLocation != outer) {
+			locations.add(currentLocation);
+			currentLocation = new CompositeLocation(currentLocation, new ParentLocation());
+		}
+		
+		locations.add(currentLocation);
+		
+		return locations;
+	}
 
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
@@ -86,7 +119,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			final PushLocalChanges pushLocalChanges = (PushLocalChanges)change;
 			
 			Location forwardedOffset = pushLocalChanges.offset.forForwarding();
-			final Model target = (Model)CompositeLocation.getChild(this.target, new ModelRootLocation(), forwardedOffset);
+			final Model innerMostTarget = (Model)CompositeLocation.getChild(this.target, new ModelRootLocation(), forwardedOffset);
 			
 			final ArrayList<CommandState<Model>> forwardedNewChanges = new ArrayList<CommandState<Model>>();
 			
@@ -103,14 +136,20 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			collector.execute(new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					// Assumed that unplaying doesn't provoke side effects
-					// Play the local changes backwards
-					collector.execute(new SimplePendingCommandFactory<Model>(target, new PendingCommandState<Model>(
-						new UnplayCommand(),
-						new ReplayCommand()
-					)));
+					final List<Model> modelsFromInnerToOuter = getModelsFromInnerToOuter(innerMostTarget, target);
+					// Unplay from innermost part of target to outermost part of target
+					// The outer parts of target could be probably be reduced to commands which affect inner parts, such as the scale command
+					for(int i = 0; i < modelsFromInnerToOuter.size(); i++) {
+						Model currentTarget = modelsFromInnerToOuter.get(i);
+						// Assumed that unplaying doesn't provoke side effects
+						// Play the local changes backwards
+						collector.execute(new SimplePendingCommandFactory<Model>(currentTarget, new PendingCommandState<Model>(
+							new UnplayCommand(),
+							new ReplayCommand()
+						)));
+					}
 					
-					PendingCommandFactory.Util.sequence(collector, target, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
+					PendingCommandFactory.Util.sequence(collector, innerMostTarget, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
 						@Override
 						public void handleExecutions(final List<Execution<Model>> forwardedChangesToRevertPendingUndoablePairs, Collector<Model> collector) {
 							// Do the forwarded change without affecting the local changes
@@ -119,7 +158,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 							for(CommandState<Model> forwardedNewChange: forwardedNewChanges)
 								forwardedNewChange.appendPendings(forwardedNewChangesAsPendings);
 							
-							PendingCommandFactory.Util.sequence(collector, target, forwardedNewChangesAsPendings, new ExecutionsHandler<Model>() {
+							PendingCommandFactory.Util.sequence(collector, innerMostTarget, forwardedNewChangesAsPendings, new ExecutionsHandler<Model>() {
 								@Override
 								public void handleExecutions(List<Execution<Model>> forwardedNewChangesPendingUndoablePairs, Collector<Model> collector) {
 									// Play the inherited local changes forwards without affecting the local changes
@@ -132,14 +171,19 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 									
 									Collections.reverse(backwardOutput);
 
-									PendingCommandFactory.Util.sequence(collector, target, backwardOutput, new ExecutionsHandler<Model>() {
+									PendingCommandFactory.Util.sequence(collector, innerMostTarget, backwardOutput, new ExecutionsHandler<Model>() {
 										@Override
 										public void handleExecutions(List<Execution<Model>> pendingUndoablePairs, Collector<Model> collector) {
-											// Play the local changes forward
-											collector.execute(new SimplePendingCommandFactory<Model>(target, new PendingCommandState<Model>(
-												new ReplayCommand(),
-												new UnplayCommand()
-											)));
+											// Unplay from innermost part of target to outermost part of target
+											// The outer parts of target could be probably be reduced to commands which affect inner parts, such as the scale command
+											for(int i = modelsFromInnerToOuter.size() - 1; i >= 0; i--) {
+												Model currentTarget = modelsFromInnerToOuter.get(i);
+												// Play the local changes forward
+												collector.execute(new SimplePendingCommandFactory<Model>(currentTarget, new PendingCommandState<Model>(
+													new ReplayCommand(),
+													new UnplayCommand()
+												)));
+											}
 										}
 									});
 								}
@@ -151,8 +195,25 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			
 			// Accumulate local changes to revert
 			ArrayList<CommandState<Model>> newLocalChangesToRevert = new ArrayList<CommandState<Model>>();
+
+			// Accumulate from innermost part of target to outermost part of target
+			// The outer parts of target could be probably be reduced to commands which affect inner parts, such as the scale command
+			Location currentLocation = new ModelRootLocation();
+			Model currentModel = innerMostTarget;
 			
-			newLocalChangesToRevert.addAll(target.getLocalChangesBackwards());
+			while(true) {
+				for(CommandState<Model> localChangeBackwards: currentModel.getLocalChangesBackwards())
+					newLocalChangesToRevert.add(localChangeBackwards.offset(currentLocation));
+				
+				if(currentModel != this.target) {
+					currentModel = currentModel.getParent();
+					currentLocation = new CompositeLocation(currentLocation, new ParentLocation());
+				} else {
+					break;
+				}
+			}
+			
+//			newLocalChangesToRevert.addAll(innerMostTarget.getLocalChangesBackwards());
 			
 			newLocalChangesToRevert.addAll(forwardedChangesToRevert);
 			
