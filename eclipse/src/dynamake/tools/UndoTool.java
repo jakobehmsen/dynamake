@@ -32,25 +32,6 @@ public class UndoTool implements Tool {
 						}
 					});
 					
-//					collector.execute(
-//						ExPendingCommandFactory2.Util.sequence(new TranscribeOnlyPendingCommandFactory<Model> () {
-//							@Override
-//							public Model getReference() {
-//								return modelOver.getModelBehind();
-//							}
-//							
-//							@Override
-//							public void createPendingCommands(List<CommandState<Model>> commandStates) {
-//								commandStates.add(
-//									new PendingCommandState<Model>(
-//										new UndoCommand(false),
-//										new RedoCommand(false)
-//									)
-//								);
-//							}
-//						})
-//					);
-					
 					collector.commit();
 				}
 			}
