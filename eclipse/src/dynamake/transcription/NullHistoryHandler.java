@@ -21,9 +21,4 @@ public class NullHistoryHandler<T> implements HistoryHandler<T> {
 
 	@Override
 	public void rejectLogFor(T reference, PropogationContext propCtx, int propDistance, Collector<T> collector) { }
-
-	@Override
-	public boolean equals(Object obj) {
-		return obj instanceof NullHistoryHandler;
-	}
 }

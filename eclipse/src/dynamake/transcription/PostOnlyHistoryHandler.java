@@ -27,11 +27,6 @@ public class PostOnlyHistoryHandler implements HistoryHandler<Model> {
 	}
 	
 	@Override
-	public boolean equals(Object obj) {
-		return obj instanceof PostOnlyHistoryHandler;
-	}
-	
-	@Override
 	public void rejectLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 
 	}

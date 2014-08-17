@@ -43,11 +43,6 @@ public class LocalHistoryHandler implements HistoryHandler<Model> {
 		
 //		reference.commitLog(propCtx, propDistance, collector);
 	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		return obj instanceof LocalHistoryHandler;
-	}
 
 	@Override
 	public void rejectLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {

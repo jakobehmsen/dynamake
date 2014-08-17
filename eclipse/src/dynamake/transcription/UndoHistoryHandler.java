@@ -54,9 +54,4 @@ public class UndoHistoryHandler implements HistoryHandler<Model> {
 	public void rejectLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println(this +  ": rejectLogFor");
 	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		return obj instanceof UndoHistoryHandler;
-	}
 }
