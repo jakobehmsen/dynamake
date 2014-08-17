@@ -234,18 +234,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public CommandState<Model> undo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		if(!undoStack.isEmpty()) {
-			CommandState<Model> toUndo = undoStack.pop();
-			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
-			redoStack.push(redoable);
-			
-			return toUndo;
-		}
-		
-		return null;
-	}
-	
 	public CommandState<Model> undo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		// An undo method which starts all undo parts and ensure the sequence
 		// A new kind of history handler is probably needed?
@@ -261,18 +249,6 @@ public abstract class Model implements Serializable, Observer {
 
 	public void commitUndo(CommandState<Model> redoable) {
 		redoStack.push(redoable);
-	}
-	
-	public CommandState<Model> redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		if(!redoStack.isEmpty()) {
-			CommandState<Model> toRedo = redoStack.pop();
-			CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
-			undoStack.push(undoable);
-			
-			return toRedo;
-		}
-		
-		return null;
 	}
 	
 	public CommandState<Model> redo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
