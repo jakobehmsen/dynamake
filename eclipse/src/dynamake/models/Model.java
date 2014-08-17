@@ -234,7 +234,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public CommandState<Model> undo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public CommandState<Model> undo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		// An undo method which starts all undo parts and ensure the sequence
 		// A new kind of history handler is probably needed?
 		
@@ -251,7 +251,7 @@ public abstract class Model implements Serializable, Observer {
 		redoStack.push(redoable);
 	}
 	
-	public CommandState<Model> redo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public CommandState<Model> redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		RevertingCommandStateSequence<Model> toRedo = (RevertingCommandStateSequence<Model>)redoStack.pop();
 		PendingCommandFactory.Util.sequence(collector, this, Arrays.asList(toRedo.commandStates), RedoHistoryHandler.class);
 		
