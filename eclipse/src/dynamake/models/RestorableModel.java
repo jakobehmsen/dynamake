@@ -161,20 +161,7 @@ public class RestorableModel implements Serializable {
 		}
 		
 		modelCreationAsPendingCommands.addAll(appendedCreation);
-		
-//		if(modelCreationAsPendingCommands.size() > 0) {
-//			collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, modelCreationAsPendingCommands) {
-//				@Override
-//				public void afterPropogationFinished(List<PendingUndoablePair> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//					collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, new PendingCommandState<Model>(
-//						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, pendingUndoablePairs), 
-//						new SetPropertyCommand.AfterSetProperty()
-//					)));
-//				}
-//			});
-//		}
-		
-//		restoreChanges(modelBase, collector, modelCreationAsPendingCommands, 0, new ArrayList<Execution<Model>>());
+
 		PendingCommandFactory.Util.sequence(collector, modelBase, modelCreationAsPendingCommands, new ExecutionsHandler<Model>() {
 			@Override
 			public void handleExecutions(List<Execution<Model>> allPendingUndoablePairs, Collector<Model> collector) {

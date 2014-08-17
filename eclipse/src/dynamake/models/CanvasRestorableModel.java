@@ -77,7 +77,6 @@ public class CanvasRestorableModel extends RestorableModel {
 		for(Entry innerRestorable: this.innerRestorables) {
 			Model innerModelToRestore = ((CanvasModel)modelBase).getModelByLocation(innerRestorable.id);
 			// Necessary to restore origins?
-//			innerRestorable.restorable.restoreOriginsOnBase(innerModelToRestore, propCtx, propDistance, collector);
 			innerRestorable.restorable.restoreChangesOnBase(innerModelToRestore, propCtx, propDistance, collector);
 		}
 	}
