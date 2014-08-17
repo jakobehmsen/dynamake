@@ -12,7 +12,7 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.PostOnlyHistoryHandler;
-import dynamake.transcription.SimpleExPendingCommandFactory2;
+import dynamake.transcription.SimplePendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class UndoTool implements Tool {
@@ -22,7 +22,7 @@ public class UndoTool implements Tool {
 			@Override
 			public void run(Collector<Model> collector) {
 				if(modelOver.getModelBehind().canUndo()) {
-					collector.execute(new SimpleExPendingCommandFactory2<Model>(modelOver.getModelBehind(), new PendingCommandState<Model>(
+					collector.execute(new SimplePendingCommandFactory<Model>(modelOver.getModelBehind(), new PendingCommandState<Model>(
 						new UndoCommand(false),
 						new RedoCommand(false)
 					)) {

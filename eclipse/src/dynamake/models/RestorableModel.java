@@ -17,7 +17,7 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.ExecutionsHandler;
-import dynamake.transcription.SimpleExPendingCommandFactory2;
+import dynamake.transcription.SimplePendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class RestorableModel implements Serializable {
@@ -178,7 +178,7 @@ public class RestorableModel implements Serializable {
 		PendingCommandFactory.Util.sequence(collector, modelBase, modelCreationAsPendingCommands, new ExecutionsHandler<Model>() {
 			@Override
 			public void handleExecutions(List<Execution<Model>> allPendingUndoablePairs, Collector<Model> collector) {
-				collector.execute(new SimpleExPendingCommandFactory2<Model>(modelBase, new PendingCommandState<Model>(
+				collector.execute(new SimplePendingCommandFactory<Model>(modelBase, new PendingCommandState<Model>(
 					new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allPendingUndoablePairs), 
 					new SetPropertyCommand.AfterSetProperty()
 				)));

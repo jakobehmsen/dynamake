@@ -40,7 +40,7 @@ import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.Collector;
 import dynamake.transcription.LocalHistoryHandler;
-import dynamake.transcription.SimpleExPendingCommandFactory2;
+import dynamake.transcription.SimplePendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class CanvasModel extends Model {
@@ -992,14 +992,14 @@ public class CanvasModel extends Model {
 	public static void appendRemoveTransaction(Collector<Model> collector, LivePanel livePanel, ModelComponent child, final CanvasModel model) {
 		final Location locationOfModel = model.getLocationOf(child.getModelBehind());
 		
-		collector.execute(new SimpleExPendingCommandFactory2<Model>(model, new PendingCommandState<Model>(
+		collector.execute(new SimplePendingCommandFactory<Model>(model, new PendingCommandState<Model>(
 				new CanvasModel.DestroyModelCommand(locationOfModel),
 				new Command.Null<Model>()
 			)) {
 			
 			@Override
 			public void afterPropogationFinished(Execution<Model> execution, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-				collector.execute(new SimpleExPendingCommandFactory2<Model>(model, new PendingCommandState<Model>(
+				collector.execute(new SimplePendingCommandFactory<Model>(model, new PendingCommandState<Model>(
 						new RemoveModelCommand(locationOfModel),
 						new RestoreModelCommand.AfterRemove(),
 						new RemoveModelCommand.AfterAdd()

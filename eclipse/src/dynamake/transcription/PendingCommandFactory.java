@@ -14,7 +14,7 @@ public interface PendingCommandFactory<T> {
 	
 	public static class Util {
 		public static <T> void single(Collector<T> collector, final T reference, final Class<? extends HistoryHandler<T>> historyHandlerClass, final CommandState<T> pendingCommand) {
-			collector.execute(new SimpleExPendingCommandFactory2<T>(reference, pendingCommand) {
+			collector.execute(new SimplePendingCommandFactory<T>(reference, pendingCommand) {
 				@Override
 				public Class<? extends HistoryHandler<T>> getHistoryHandlerClass() {
 					return historyHandlerClass;
@@ -49,7 +49,7 @@ public interface PendingCommandFactory<T> {
 				Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, final Class<? extends HistoryHandler<T>> historyHandlerClass, 
 				final ExecutionsHandler<T> afterExecutions, final List<Execution<T>> executions, final int i) {
 			if(i < pendingCommands.size()) {
-				collector.execute(new SimpleExPendingCommandFactory2<T>(reference, pendingCommands.get(i)) {
+				collector.execute(new SimplePendingCommandFactory<T>(reference, pendingCommands.get(i)) {
 					@Override
 					public void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 						executions.add(execution);

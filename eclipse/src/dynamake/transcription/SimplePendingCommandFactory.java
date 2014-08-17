@@ -3,11 +3,11 @@ package dynamake.transcription;
 import dynamake.commands.CommandState;
 import dynamake.models.PropogationContext;
 
-public class SimpleExPendingCommandFactory2<T> implements PendingCommandFactory<T> {
+public class SimplePendingCommandFactory<T> implements PendingCommandFactory<T> {
 	private T reference;
 	private CommandState<T> pendingCommand;
 	
-	public SimpleExPendingCommandFactory2(T reference, CommandState<T> pendingCommand) {
+	public SimplePendingCommandFactory(T reference, CommandState<T> pendingCommand) {
 		if(reference == null)
 			new String();
 		this.reference = reference;
