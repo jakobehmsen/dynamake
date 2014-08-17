@@ -12,6 +12,14 @@ public class CompositeLocation implements Location {
 		this.head = head;
 		this.tail = tail;
 	}
+	
+	public Location getHead() {
+		return head;
+	}
+	
+	public Location getTail() {
+		return tail;
+	}
 
 	@Override
 	public Object getChild(Object holder) {
