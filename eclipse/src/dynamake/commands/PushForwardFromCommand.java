@@ -39,29 +39,6 @@ public class PushForwardFromCommand implements ForwardableCommand<Model> {
 		Model source = (Model)locationOfSourceFromTarget.getChild(target);
 		
 		pushForward(source, target, collector, new ModelRootLocation());
-		
-//		ArrayList<CommandState<Model>> toForward = new ArrayList<CommandState<Model>>();
-//		
-//		@SuppressWarnings("unchecked")
-//		List<CommandState<Model>> sourceCreation = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
-//		
-//		if(sourceCreation != null) {
-//			toForward.addAll(sourceCreation);
-//		}
-//		
-//		toForward.addAll(source.getLocalChanges());
-//		
-//		if(toForward.size() > 0) {
-//			ArrayList<CommandState<Model>> forwardedCreation = new ArrayList<CommandState<Model>>();
-//			for(CommandState<Model> creationPart: toForward) {
-//				creationPart = creationPart.mapToReferenceLocation(source, target);
-//				for(int i = 0; i < forwardCount; i++)
-//					creationPart = creationPart.forForwarding();
-//				creationPart.appendPendings(forwardedCreation);
-//			}
-//			
-//			collector.execute(new SimpleExPendingCommandFactory2<Model>(target, forwardedCreation));
-//		}
 
 		return null;
 	}
@@ -92,7 +69,6 @@ public class PushForwardFromCommand implements ForwardableCommand<Model> {
 				creationPart.appendPendings(forwardedCreation);
 			}
 			
-//			collector.execute(new SimpleExPendingCommandFactory<Model>(targetRoot, forwardedCreation));
 			PendingCommandFactory.Util.sequence(collector, targetRoot, forwardedCreation);
 		}
 		

@@ -77,22 +77,6 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 					)));
 				}
 			});
-			
-//			collector.execute(new SimpleExPendingCommandFactory<Model>(source, creationForwardingUpwards) {
-//				@Override
-//				public void afterPropogationFinished(List<Execution<Model>> sourceCreationPendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//					@SuppressWarnings("unchecked")
-//					List<Execution<Model>> sourceCreation = (List<Execution<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
-//					
-//					sourceCreation.addAll(sourceCreationPendingUndoablePairs);
-//					
-//					// Update creation on source
-//					collector.execute(new SimpleExPendingCommandFactory<Model>(source, new PendingCommandState<Model>(
-//						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, sourceCreation), 
-//						new SetPropertyCommand.AfterSetProperty()
-//					)));
-//				}
-//			});
 		}
 		
 		return null;
