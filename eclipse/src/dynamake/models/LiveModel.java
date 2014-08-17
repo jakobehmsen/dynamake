@@ -5,14 +5,20 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -46,17 +52,17 @@ public class LiveModel extends Model {
 	private static final long serialVersionUID = 1L;
 
 	public static class ButtonsToolBindingChanged {
-		public final List<Integer> buttons;
+		public final List<InputButton> buttons;
 		public final int tool;
 		
-		public ButtonsToolBindingChanged(List<Integer> buttons, int tool) {
+		public ButtonsToolBindingChanged(List<InputButton> buttons, int tool) {
 			this.buttons = buttons;
 			this.tool = tool;
 		}
 	}
 
 	private Model content;
-	private Hashtable<List<Integer>, Integer> buttonsToToolMap = new Hashtable<List<Integer>, Integer>();
+	private Hashtable<List<InputButton>, Integer> buttonsToToolMap = new Hashtable<List<InputButton>, Integer>();
 	
 	public LiveModel(Model content) {
 		this.content = content;
@@ -68,13 +74,13 @@ public class LiveModel extends Model {
 		return new LiveModel(content.cloneBase());
 	}
 	
-	public int getToolForButtons(List<Integer> buttons) {
+	public int getToolForButtons(List<InputButton> buttons) {
 		Integer tool = buttonsToToolMap.get(buttons);
 		return tool != null ? tool : -1;
 	}
 
-	public List<Integer> getButtonsForTool(int tool) {
-		for(Map.Entry<List<Integer>, Integer> entry: buttonsToToolMap.entrySet()) {
+	public List<InputButton> getButtonsForTool(int tool) {
+		for(Map.Entry<List<InputButton>, Integer> entry: buttonsToToolMap.entrySet()) {
 			if(entry.getValue() == tool)
 				return entry.getKey();
 		}
@@ -82,12 +88,12 @@ public class LiveModel extends Model {
 		return Collections.emptyList();
 	}
 	
-	public void removeButtonsToToolBinding(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void removeButtonsToToolBinding(List<InputButton> buttons, int tool, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		buttonsToToolMap.remove(buttons);
-		sendChanged(new ButtonsToolBindingChanged(Collections.<Integer>emptyList(), tool), propCtx, propDistance, 0, collector);
+		sendChanged(new ButtonsToolBindingChanged(Collections.<InputButton>emptyList(), tool), propCtx, propDistance, 0, collector);
 	}
 	
-	public void bindButtonsToTool(List<Integer> buttons, int tool, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void bindButtonsToTool(List<InputButton> buttons, int tool, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		buttonsToToolMap.put(buttons, tool);
 		sendChanged(new ButtonsToolBindingChanged(buttons, tool), propCtx, propDistance, 0, collector);
 	}
@@ -97,10 +103,10 @@ public class LiveModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private List<Integer> buttons;
+		private List<InputButton> buttons;
 		private int tool;
 
-		public BindButtonsToToolCommand(List<Integer> buttons, int tool) {
+		public BindButtonsToToolCommand(List<InputButton> buttons, int tool) {
 			this.buttons = buttons;
 			this.tool = tool;
 		}
@@ -119,10 +125,10 @@ public class LiveModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private List<Integer> buttons;
+		private List<InputButton> buttons;
 		private int tool;
 
-		public RemoveButtonsToToolBindingCommand2(List<Integer> buttons, int tool) {
+		public RemoveButtonsToToolBindingCommand2(List<InputButton> buttons, int tool) {
 			this.buttons = buttons;
 			this.tool = tool;
 		}
@@ -175,20 +181,115 @@ public class LiveModel extends Model {
 	private static final Color TOP_BUTTON_BACKGROUND_COLOR = TOP_BACKGROUND_COLOR;
 	private static final Color TOP_FOREGROUND_COLOR = Color.WHITE;
 	
+	private interface InputButton extends Comparable<InputButton>, Serializable {
+		Color getColor();
+	}
+	
+	private static class MouseButton implements InputButton {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private int button;
+
+		public MouseButton(int button) {
+			this.button = button;
+		}
+		
+		@Override
+		public boolean equals(Object arg0) {
+			if(arg0 instanceof MouseButton) {
+				MouseButton otherMouseButton = (MouseButton)arg0;
+				return this.button == otherMouseButton.button;
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public int hashCode() {
+			return 1 * button;
+		}
+		
+		@Override
+		public String toString() {
+			return "#" + button;
+		}
+		
+		@Override
+		public Color getColor() {
+			return Color.BLUE;
+		}
+		
+		@Override
+		public int compareTo(InputButton o) {
+			if(o instanceof MouseButton)
+				return this.button - ((MouseButton)o).button;
+			return -1;
+		}
+	}
+	
+	private static class KeyboardButton implements InputButton {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private int keyCode;
+
+		public KeyboardButton(int keyCode) {
+			this.keyCode = keyCode;
+		}
+		
+		@Override
+		public boolean equals(Object arg0) {
+			if(arg0 instanceof KeyboardButton) {
+				KeyboardButton otherKeyboardButton = (KeyboardButton)arg0;
+				return this.keyCode == otherKeyboardButton.keyCode;
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public int hashCode() {
+			return 11 * keyCode;
+		}
+		
+		@Override
+		public String toString() {
+			return KeyEvent.getKeyText(keyCode);
+		}
+		
+		@Override
+		public Color getColor() {
+			return Color.GREEN;
+		}
+		
+		@Override
+		public int compareTo(InputButton o) {
+			if(o instanceof KeyboardButton)
+				return this.keyCode - ((KeyboardButton)o).keyCode;
+			return 1;
+		}
+	}
+	
 	public static class ToolButton extends JPanel {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 		private int tool;
-		private List<Integer> buttons;
+		private List<InputButton> buttons;
 		private String text;
 		private LiveModel liveModel;
 		private ModelTranscriber modelTranscriber;
 		private JLabel labelToolName;
 		private JPanel panelButtons;
+
+		private int buttonsDown;
+		private ArrayList<InputButton> newButtonCombination = new ArrayList<InputButton>();
 		
-		public ToolButton(int tool, List<Integer> buttons, String text, LiveModel liveModel, ModelTranscriber modelTranscriber) {
+		public ToolButton(int tool, List<InputButton> buttons, String text, LiveModel liveModel, ModelTranscriber modelTranscriber) {
 			this.tool = tool;
 			this.buttons = buttons;
 			this.text = text;
@@ -213,17 +314,28 @@ public class LiveModel extends Model {
 			update();
 			
 			this.addMouseListener(new MouseAdapter() {
-				int buttonsDown = 0;
-				ArrayList<Integer> buttonsPressed = new ArrayList<Integer>();
+//				int buttonsDown = 0;
+//				ArrayList<Integer> buttonsPressed = new ArrayList<Integer>();
+				
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					requestFocusInWindow();
+				}
+				
+				@Override
+				public void mouseExited(MouseEvent e) {
+					// TODO: End current binding action, if any
+					getParent().requestFocusInWindow();
+				}
 				
 				@Override
 				public void mousePressed(MouseEvent e) {
 					int newButton = e.getButton();
 					
 					buttonsDown++;
-					if(!buttonsPressed.contains(newButton)) {
-						buttonsPressed.add(newButton);
-						Collections.sort(buttonsPressed);
+					if(!newButtonCombination.contains(new MouseButton(newButton))) {
+						newButtonCombination.add(new MouseButton(newButton));
+						Collections.sort(newButtonCombination);
 					}
 					
 					if(buttonsDown == 1) {
@@ -233,7 +345,7 @@ public class LiveModel extends Model {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							update(buttonsPressed);
+							update(newButtonCombination);
 							ToolButton.this.repaint();
 						}
 					});
@@ -247,7 +359,7 @@ public class LiveModel extends Model {
 						setBackground(TOP_BUTTON_BACKGROUND_COLOR);
 						
 						@SuppressWarnings("unchecked")
-						final ArrayList<Integer> localButtonsPressed = (ArrayList<Integer>)buttonsPressed.clone();
+						final ArrayList<InputButton> localButtonsPressed = (ArrayList<InputButton>)newButtonCombination.clone();
 						
 						Connection<Model> connection = ToolButton.this.modelTranscriber.createConnection();
 						
@@ -256,7 +368,7 @@ public class LiveModel extends Model {
 							public void run(Collector<Model> collector) {
 								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 								
-								List<Integer> currentButtons = ToolButton.this.buttons;
+								List<InputButton> currentButtons = ToolButton.this.buttons;
 								
 								if(localButtonsPressed.equals(currentButtons)) {
 									// If the indicated combination is the same as the current combination, then remove
@@ -301,30 +413,128 @@ public class LiveModel extends Model {
 							}
 						});
 						
-						buttonsPressed.clear();
+						newButtonCombination.clear();
 					}
 				}
 			});
 			
-//			// Support for binding a key combination with a tool
-//			// It should be possible to both bind a key combination AND a mouse button to the same tool at the same time
-//			KeyListener keyListener = new KeyAdapter() {
-//				@Override
-//				public void keyPressed(KeyEvent e) {
-////					System.out.println(e.isControlDown() + ":" + e.getKeyCode());
-//				}
-//				
-//				@Override
-//				public void keyTyped(KeyEvent e) {
-////					System.out.println(e.isControlDown() + ":" + e.getKeyCode());
-//				}
-//			};
+			// Support for binding a key combination with a tool
+			// It should be possible to both bind a key combination AND a mouse button to the same tool at the same time
+			KeyListener keyListener = new KeyAdapter() {
+				@Override
+				public void keyPressed(KeyEvent e) {
+					if(!newButtonCombination.contains(new KeyboardButton(e.getKeyCode()))) {
+						buttonsDown++;
+						
+						newButtonCombination.add(new KeyboardButton(e.getKeyCode()));
+						Collections.sort(newButtonCombination);
+						
+						if(buttonsDown == 1) {
+							setBackground(TOP_BUTTON_BACKGROUND_COLOR.brighter());
+						}
+						
+						SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								update(newButtonCombination);
+								ToolButton.this.repaint();
+							}
+						});
+
+//						System.out.println("Pressed " + e.getKeyChar());
+						System.out.println("Current buttons pressed " + keyPressedAsString());
+					}
+				}
+				
+				@Override
+				public void keyReleased(KeyEvent e) {
+//					System.out.println("Released " + e.getKeyChar());
+					
+//					newButtonCombination.remove(new KeyboardButton(e.getKeyCode()));
+//					
+//					if(newButtonCombination.size() == 0) {
+//						System.out.println("New button combination " + keyPressedAsString());
+//						newButtonCombination.clear();
+//					}
+					
+					buttonsDown--;
+					
+					if(buttonsDown == 0) {
+						setBackground(TOP_BUTTON_BACKGROUND_COLOR);
+						
+						@SuppressWarnings("unchecked")
+						final ArrayList<InputButton> localButtonsPressed = (ArrayList<InputButton>)newButtonCombination.clone();
+						
+						Connection<Model> connection = ToolButton.this.modelTranscriber.createConnection();
+						
+						connection.trigger(new Trigger<Model>() {
+							@Override
+							public void run(Collector<Model> collector) {
+								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+								
+								List<InputButton> currentButtons = ToolButton.this.buttons;
+								
+								if(localButtonsPressed.equals(currentButtons)) {
+									// If the indicated combination is the same as the current combination, then remove
+									// the current binding
+									pendingCommands.add(new PendingCommandState<Model>(
+										new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool),
+										new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool)
+									));
+								} else {
+									int previousToolForNewButton = ToolButton.this.liveModel.getToolForButtons(localButtonsPressed);
+									
+									if(previousToolForNewButton != -1) {
+										// If the new buttons are associated to another tool, then remove that binding
+										pendingCommands.add(new PendingCommandState<Model>(
+											new RemoveButtonsToToolBindingCommand2(localButtonsPressed, previousToolForNewButton), 
+											new BindButtonsToToolCommand(localButtonsPressed, previousToolForNewButton))
+										);
+									}
+									
+									if(currentButtons.size() > 0) {
+										// If this tool is associated to buttons, then remove that binding before
+										pendingCommands.add(new PendingCommandState<Model>(
+											new RemoveButtonsToToolBindingCommand2(currentButtons, ToolButton.this.tool), 
+											new BindButtonsToToolCommand(currentButtons, ToolButton.this.tool))
+										);
+										
+										// adding the replacement binding
+										pendingCommands.add(new PendingCommandState<Model>(
+											new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
+											new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool))
+										);
+									} else {
+										pendingCommands.add(new PendingCommandState<Model>(
+											new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
+											new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool)
+										));
+									}
+								}
+								
+								PendingCommandFactory.Util.sequence(collector, ToolButton.this.liveModel, pendingCommands, LocalHistoryHandler.class);
+								collector.commit();
+							}
+						});
+						
+						newButtonCombination.clear();
+					}
+				}
+				
+				private String keyPressedAsString() {
+					String allKeys = "";
+					for(Object keyPressed: newButtonCombination) {
+						allKeys += keyPressed + " ";
+					}
+					return allKeys;
+				}
+			};
+			
+			this.addKeyListener(keyListener);
+			labelToolName.addKeyListener(keyListener);
+//			labelButton.addKeyListener(keyListener);
 			
 			setFocusable(true);
-			
-//			this.addKeyListener(keyListener);
-//			labelToolName.addKeyListener(keyListener);
-//			labelButton.addKeyListener(keyListener);
 		}
 		
 		private static final Color[] BUTTON_COLORS = new Color[] {
@@ -336,10 +546,10 @@ public class LiveModel extends Model {
 			new Color(220, 10, 220),
 		};
 		
-		public static Color avgColorOfButtons(List<Integer> buttons) {
+		public static Color avgColorOfButtons(List<InputButton> buttons) {
 			ArrayList<Color> buttonColors = new ArrayList<Color>();
-			for(int buttonPressed: buttons)
-				buttonColors.add(getColorForButton(buttonPressed));
+			for(InputButton buttonPressed: buttons)
+				buttonColors.add(buttonPressed.getColor());
 			return avgColor(buttonColors);
 		}
 		
@@ -361,7 +571,7 @@ public class LiveModel extends Model {
 			return new Color(rSum / colors.size(), gSum / colors.size(), bSum / colors.size());
 		}
 		
-		private void update(List<Integer> buttons) {
+		private void update(List<InputButton> buttons) {
 			labelToolName.setText(text);
 			
 			Border innerBorder = BorderFactory.createEmptyBorder(0, 5, 0, 5);
@@ -370,10 +580,10 @@ public class LiveModel extends Model {
 			panelButtons.removeAll();
 			
 			if(buttons.size() > 0) {
-				for(int button: buttons) {
+				for(InputButton button: buttons) {
 					JLabel buttonLabel = new JLabel();
 					buttonLabel.setHorizontalAlignment(SwingConstants.CENTER);
-					buttonLabel.setForeground(getColorForButton(button));
+					buttonLabel.setForeground(button.getColor());
 					buttonLabel.setFont(new Font(buttonLabel.getFont().getFontName(), Font.ITALIC | Font.BOLD, 16));
 					buttonLabel.setText("" + button);
 					
@@ -400,7 +610,7 @@ public class LiveModel extends Model {
 			update(buttons);
 		}
 		
-		public void setButtons(List<Integer> buttons) {
+		public void setButtons(List<InputButton> buttons) {
 			this.buttons = buttons;
 			update();
 		}
@@ -414,11 +624,11 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	private static ToolButton createToolButton(final LiveModel model, final ModelTranscriber modelTranscriber, ButtonGroup group, List<Integer> buttons, final int tool, final String text) {
+	private static ToolButton createToolButton(final LiveModel model, final ModelTranscriber modelTranscriber, ButtonGroup group, List<InputButton> buttons, final int tool, final String text) {
 		return new ToolButton(tool, buttons, text, model, modelTranscriber);
 	}
 	
-	private static void updateToolButton(JComponent toolButton, List<Integer> buttons) {
+	private static void updateToolButton(JComponent toolButton, List<InputButton> buttons) {
 		((ToolButton)toolButton).setButtons(buttons);
 	}
 
@@ -433,7 +643,7 @@ public class LiveModel extends Model {
 		public static final Color UNBIND_COLOR = new Color(240, 34, 54);
 		public static final Color SELECTION_COLOR = Color.GRAY;
 		
-		public static class EditPanelMouseAdapter extends MouseAdapter {
+		public static class EditPanelInputAdapter extends MouseAdapter implements KeyListener {
 			public ProductionPanel productionPanel;
 
 			public int buttonPressed;
@@ -445,33 +655,56 @@ public class LiveModel extends Model {
 			public static final int VERTICAL_REGION_CENTER = 1;
 			public static final int VERTICAL_REGION_SOUTH = 2;
 			
-			public EditPanelMouseAdapter(ProductionPanel productionPanel) {
+			public EditPanelInputAdapter(ProductionPanel productionPanel) {
 				this.productionPanel = productionPanel;
 				toolConnection = productionPanel.livePanel.getModelTranscriber().createConnection();
 			}
 			
-			private Tool createToolForApplication(List<Integer> buttons) {
+			private Tool createToolForApplication(List<InputButton> buttons) {
 				int toolForButton = productionPanel.livePanel.model.getToolForButtons(buttons);
 				if(toolForButton != -1) {
 					return productionPanel.livePanel.viewManager.getToolFactories()[toolForButton].createTool();
 				} else {
 					return new Tool() {
 						@Override
-						public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) { }
-						
+						public void mouseReleased(
+								ProductionPanel productionPanel,
+								ModelComponent modelOver,
+								Connection<Model> connection,
+								Collector<Model> collector,
+								JComponent sourceComponent, Point mousePoint) {
+
+						}
+
 						@Override
-						public void mousePressed(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) { }
-						
+						public void mousePressed(
+								ProductionPanel productionPanel,
+								ModelComponent modelOver,
+								Connection<Model> connection,
+								Collector<Model> collector,
+								JComponent sourceComponent, Point mousePoint) {
+
+						}
+
 						@Override
-						public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) { }
-						
+						public void mouseDragged(
+								ProductionPanel productionPanel,
+								ModelComponent modelOver,
+								Collector<Model> collector,
+								Connection<Model> connection,
+								JComponent sourceComponent, Point mousePoint) {
+
+						}
+
 						@Override
-						public void rollback(ProductionPanel productionPanel, Collector<Model> collector) { }
+						public void rollback(ProductionPanel productionPanel,
+								Collector<Model> collector) {
+						}
 					};
 				}
 			}
 			
-			private ToolButton getToolButton(List<Integer> buttons) {
+			private ToolButton getToolButton(List<InputButton> buttons) {
 				int toolForButton = productionPanel.livePanel.model.getToolForButtons(buttons);
 				if(toolForButton != -1) {
 					return productionPanel.livePanel.buttonTools[toolForButton];
@@ -486,20 +719,24 @@ public class LiveModel extends Model {
 				return ModelComponent.Util.closestModelComponent(componentOver);
 			}
 			
+			public ModelComponent getModelOver(JComponent source, Point point) {
+				Point pointInContentView = SwingUtilities.convertPoint(source, point, (JComponent)productionPanel.contentView.getBindingTarget());
+				JComponent componentOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
+				return ModelComponent.Util.closestModelComponent(componentOver);
+			}
+			
 			private Tool toolBeingApplied;
 			private int buttonsDown;
-			public ArrayList<Integer> buttonsPressed = new ArrayList<Integer>();
+			public ArrayList<InputButton> buttonsPressed = new ArrayList<InputButton>();
 			
 			private Connection<Model> toolConnection;
 			
-			public void mousePressed(final MouseEvent e) {
+			private void pressedButton(final InputButton button, final JComponent source, final Point point) {
 				// Check whether there is an active tool which must be rolled back
 				// because a new combination of button is recognized
 				toolConnection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						int button = e.getButton();
-						
 						if(!buttonsPressed.contains(button) && buttonsPressed.size() > 0) {
 							final Tool toolToRollback = toolBeingApplied;
 							
@@ -518,17 +755,15 @@ public class LiveModel extends Model {
 					public void run(Collector<Model> collector) {
 						buttonsDown++;
 						
-						int button = e.getButton();
-						
 						if(!buttonsPressed.contains(button)) {
 							buttonsPressed.add(button);
 							Collections.sort(buttonsPressed);
 							toolBeingApplied = createToolForApplication(buttonsPressed);
 							
-							final ModelComponent modelOver = getModelOver(e);
+							final ModelComponent modelOver = getModelOver(source, point);
 							final Tool toolToApply = toolBeingApplied;
 							
-							toolToApply.mousePressed(productionPanel, e, modelOver, toolConnection, collector);
+							toolToApply.mousePressed(productionPanel, modelOver, toolConnection, collector, source, point);
 							
 							ToolButton toolButton = getToolButton(buttonsPressed);
 							if(toolButton != null)
@@ -536,6 +771,54 @@ public class LiveModel extends Model {
 						}
 					}
 				});
+			}
+			
+			public void mousePressed(final MouseEvent e) {
+				pressedButton(new MouseButton(e.getButton()), (JComponent)e.getSource(), e.getPoint());
+				
+//				// Check whether there is an active tool which must be rolled back
+//				// because a new combination of button is recognized
+//				toolConnection.trigger(new Trigger<Model>() {
+//					@Override
+//					public void run(Collector<Model> collector) {
+//						int button = e.getButton();
+//						
+//						if(!buttonsPressed.contains(button) && buttonsPressed.size() > 0) {
+//							final Tool toolToRollback = toolBeingApplied;
+//							
+//							toolToRollback.rollback(productionPanel, collector);
+//							collector.reject();
+//							
+//							ToolButton toolButton = getToolButton(buttonsPressed);
+//							if(toolButton != null)
+//								toolButton.showAsPassive();
+//						}
+//					}
+//				});
+//				
+//				toolConnection.trigger(new Trigger<Model>() {
+//					@Override
+//					public void run(Collector<Model> collector) {
+//						buttonsDown++;
+//						
+//						int button = e.getButton();
+//						
+//						if(!buttonsPressed.contains(new MouseButton(button))) {
+//							buttonsPressed.add(new MouseButton(button));
+//							Collections.sort(buttonsPressed);
+//							toolBeingApplied = createToolForApplication(buttonsPressed);
+//							
+//							final ModelComponent modelOver = getModelOver(e);
+//							final Tool toolToApply = toolBeingApplied;
+//							
+//							toolToApply.mousePressed(productionPanel, modelOver, toolConnection, collector, (JComponent)e.getSource(), e.getPoint());
+//							
+//							ToolButton toolButton = getToolButton(buttonsPressed);
+//							if(toolButton != null)
+//								toolButton.showAsActive();
+//						}
+//					}
+//				});
 			}
 
 			public void mouseDragged(final MouseEvent e) {
@@ -546,7 +829,7 @@ public class LiveModel extends Model {
 
 						if(modelOver != null) {
 							final Tool toolToApply = toolBeingApplied;
-							toolToApply.mouseDragged(productionPanel, e, modelOver, collector, toolConnection);
+							toolToApply.mouseDragged(productionPanel, modelOver, collector, toolConnection, (JComponent)e.getSource(), e.getPoint());
 						}
 					}
 				});
@@ -563,7 +846,7 @@ public class LiveModel extends Model {
 						if(modelOver != null) {
 							if(buttonsDown == 0) {
 								final Tool toolToApply = toolBeingApplied;
-								toolToApply.mouseReleased(productionPanel, e, modelOver, toolConnection, collector);
+								toolToApply.mouseReleased(productionPanel, modelOver, toolConnection, collector, (JComponent)e.getSource(), e.getPoint());
 								
 								ToolButton toolButton = getToolButton(buttonsPressed);
 								if(toolButton != null)
@@ -579,13 +862,80 @@ public class LiveModel extends Model {
 			
 			@Override
 			public void mouseMoved(final MouseEvent e) {
+				System.out.println("Moved");
+				toolConnection.trigger(new Trigger<Model>() {
+					@Override
+					public void run(Collector<Model> collector) {
+						if(buttonsDown > 0) {
+							final ModelComponent modelOver = getModelOver(e);
 
+							if(modelOver != null) {
+								final Tool toolToApply = toolBeingApplied;
+								toolToApply.mouseDragged(productionPanel, modelOver, collector, toolConnection, (JComponent)e.getSource(), e.getPoint());
+							}
+						}
+					}
+				});
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				productionPanel.requestFocusInWindow();
+			}
+			
+			private HashSet<Integer> keysDown = new HashSet<Integer>();
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(!keysDown.contains(e.getKeyCode())) {
+					keysDown.add(e.getKeyCode());
+					
+					Point mousePoint = MouseInfo.getPointerInfo().getLocation();
+					SwingUtilities.convertPointFromScreen(mousePoint, productionPanel);
+					pressedButton(new KeyboardButton(e.getKeyCode()), (JComponent)e.getSource(), mousePoint);
+				}
+			}
+			
+			@Override
+			public void keyReleased(final KeyEvent e) {
+				keysDown.remove(e.getKeyCode());
+				final Point mousePoint = MouseInfo.getPointerInfo().getLocation();
+				SwingUtilities.convertPointFromScreen(mousePoint, productionPanel);
+				
+				toolConnection.trigger(new Trigger<Model>() {
+					@Override
+					public void run(Collector<Model> collector) {
+						buttonsDown--;
+
+						final ModelComponent modelOver = getModelOver((JComponent)e.getSource(), mousePoint);
+
+						if(modelOver != null) {
+							if(buttonsDown == 0) {
+								final Tool toolToApply = toolBeingApplied;
+								toolToApply.mouseReleased(productionPanel, modelOver, toolConnection, collector, (JComponent)e.getSource(), mousePoint);
+								
+								ToolButton toolButton = getToolButton(buttonsPressed);
+								if(toolButton != null)
+									toolButton.showAsPassive();
+								
+								buttonsPressed.clear();
+								toolBeingApplied = null;
+							}
+						}
+					}
+				});
+			}
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
 			}
 		}
 		
 		public LivePanel livePanel;
 		public Binding<ModelComponent> contentView;
-		public EditPanelMouseAdapter editPanelMouseAdapter;
+		public EditPanelInputAdapter editPanelInputAdapter;
 		
 		public ProductionPanel(final LivePanel livePanel, final Binding<ModelComponent> contentView) {
 			this.setLayout(null);
@@ -595,10 +945,11 @@ public class LiveModel extends Model {
 			// TODO: Consider the following:
 			// For a selected frame, it should be possible to scroll upwards to select its immediate parent
 			// - and scroll downwards to select its root parents
-			editPanelMouseAdapter = new EditPanelMouseAdapter(this);
+			editPanelInputAdapter = new EditPanelInputAdapter(this);
 
-			this.addMouseListener(editPanelMouseAdapter);
-			this.addMouseMotionListener(editPanelMouseAdapter);
+			this.addMouseListener(editPanelInputAdapter);
+			this.addMouseMotionListener(editPanelInputAdapter);
+			this.addKeyListener(editPanelInputAdapter);
 			
 			this.setOpaque(true);
 			this.setBackground(new Color(0, 0, 0, 0));
@@ -697,7 +1048,7 @@ public class LiveModel extends Model {
 
 			for(int i = 0; i < toolFactories.length; i++) {
 				ToolFactory toolFactory = toolFactories[i];
-				List<Integer> buttons = model.getButtonsForTool(i);
+				List<InputButton> buttons = model.getButtonsForTool(i);
 				buttonTools[i] = createToolButton(model, modelTranscriber, group, buttons, i, toolFactory.getName());
 			}
 			

@@ -1,6 +1,8 @@
 package dynamake.tools;
 
-import java.awt.event.MouseEvent;
+import java.awt.Point;
+
+import javax.swing.JComponent;
 
 import dynamake.models.LiveModel;
 import dynamake.models.LiveModel.ProductionPanel;
@@ -16,8 +18,8 @@ import dynamake.transcription.Connection;
  * A tool is further supposed to be applicable in general terms rather special terms.
  */
 public interface Tool {
-	void mouseReleased(LiveModel.ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector);
-	void mousePressed(LiveModel.ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector);
-	void mouseDragged(LiveModel.ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection);
+	void mouseReleased(LiveModel.ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint);
+	void mousePressed(LiveModel.ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint);
+	void mouseDragged(LiveModel.ProductionPanel productionPanel, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection, JComponent sourceComponent, Point mousePoint);
 	void rollback(ProductionPanel productionPanel, Collector<Model> collector);
 }

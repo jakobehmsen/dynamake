@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
@@ -32,7 +31,7 @@ public class PenTool implements Tool {
 	private ArrayList<Point> points;
 	
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
+	public void mouseReleased(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		final ArrayList<Point> pointsForCreation = points;
 		// Deriving bounds for shape composition is different than the below:
 		final Rectangle creationBoundsInProductionPanelSource = strokeComponent.shape.getBounds();
@@ -95,17 +94,17 @@ public class PenTool implements Tool {
 	private TargetPresenter targetPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
+	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, final Point mousePoint) {
 		points = new ArrayList<Point>();
 		strokeComponent = new StrokeComponent();
 		strokeComponent.setSize(productionPanel.getSize());
 		
-		points.add(e.getPoint());
+		points.add(mousePoint);
 		
 		collector.afterNextTrigger(new Runnable() {
 			@Override
 			public void run() {
-				strokeComponent.shape.moveTo(e.getX(), e.getY());
+				strokeComponent.shape.moveTo(mousePoint.x, mousePoint.y);
 				productionPanel.add(strokeComponent);
 			}
 		});
@@ -131,8 +130,8 @@ public class PenTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) {
-		points.add(e.getPoint());
+	public void mouseDragged(final ProductionPanel productionPanel, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection, JComponent sourceComponent, final Point mousePoint) {
+		points.add(mousePoint);
 		
 		// TODO: Only repaint the area necessary here!!!
 //		final Rectangle creationBoundsInProductionPanelSource = shape.getBounds();
@@ -149,7 +148,7 @@ public class PenTool implements Tool {
 		collector.afterNextTrigger(new Runnable() {
 			@Override
 			public void run() { 
-				localStrokeComponent.shape.lineTo(e.getX(), e.getY());
+				localStrokeComponent.shape.lineTo(mousePoint.x, mousePoint.y);
 			}
 		});
 	}

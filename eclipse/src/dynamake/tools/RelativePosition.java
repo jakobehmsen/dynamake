@@ -44,33 +44,33 @@ public class RelativePosition {
 	
 	public Cursor getCursor() {
 		switch(horizontalPosition) {
-		case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_WEST:
+		case ProductionPanel.EditPanelInputAdapter.HORIZONTAL_REGION_WEST:
 			switch(verticalPosition) {
-			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH:
+			case ProductionPanel.EditPanelInputAdapter.VERTICAL_REGION_NORTH:
 				return Cursor.getPredefinedCursor(Cursor.NW_RESIZE_CURSOR);
-			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER:
+			case ProductionPanel.EditPanelInputAdapter.VERTICAL_REGION_CENTER:
 				return Cursor.getPredefinedCursor(Cursor.W_RESIZE_CURSOR);
-			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
+			case ProductionPanel.EditPanelInputAdapter.VERTICAL_REGION_SOUTH:
 				return Cursor.getPredefinedCursor(Cursor.SW_RESIZE_CURSOR);
 			default:
 				return null;
 			}
-		case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_CENTER:
+		case ProductionPanel.EditPanelInputAdapter.HORIZONTAL_REGION_CENTER:
 			switch(verticalPosition) {
-			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH:
+			case ProductionPanel.EditPanelInputAdapter.VERTICAL_REGION_NORTH:
 				return Cursor.getPredefinedCursor(Cursor.N_RESIZE_CURSOR);
-			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
+			case ProductionPanel.EditPanelInputAdapter.VERTICAL_REGION_SOUTH:
 				return Cursor.getPredefinedCursor(Cursor.S_RESIZE_CURSOR);
 			default:
 				return null;
 			}
-		case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_EAST:
+		case ProductionPanel.EditPanelInputAdapter.HORIZONTAL_REGION_EAST:
 			switch(verticalPosition) {
-			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH:
+			case ProductionPanel.EditPanelInputAdapter.VERTICAL_REGION_NORTH:
 				return Cursor.getPredefinedCursor(Cursor.NE_RESIZE_CURSOR);
-			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER:
+			case ProductionPanel.EditPanelInputAdapter.VERTICAL_REGION_CENTER:
 				return Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR);
-			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH:
+			case ProductionPanel.EditPanelInputAdapter.VERTICAL_REGION_SOUTH:
 				return Cursor.getPredefinedCursor(Cursor.SE_RESIZE_CURSOR);
 			default:
 				return null;
@@ -91,7 +91,7 @@ public class RelativePosition {
 		int height = rectangleCurrent.height;
 		
 		switch(horizontalPosition) {
-		case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_WEST: {
+		case ProductionPanel.EditPanelInputAdapter.HORIZONTAL_REGION_WEST: {
 			int currentX = x;
 			x = offset.x + mouseCurrent.x - mouseDown.x;
 //			System.out.println("mouseCurrent=" + mouseCurrent + ",mouseDown=" + mouseDown);
@@ -100,14 +100,14 @@ public class RelativePosition {
 			
 			break;
 		}
-		case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_EAST: {
+		case ProductionPanel.EditPanelInputAdapter.HORIZONTAL_REGION_EAST: {
 			width = sizeDown.width + mouseCurrent.x - mouseDown.x;
 			
 			break;
 		}
-		case ProductionPanel.EditPanelMouseAdapter.HORIZONTAL_REGION_CENTER:
+		case ProductionPanel.EditPanelInputAdapter.HORIZONTAL_REGION_CENTER:
 			switch(verticalPosition) {
-			case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_CENTER:
+			case ProductionPanel.EditPanelInputAdapter.VERTICAL_REGION_CENTER:
 				x = offset.x + mouseCurrent.x - mouseDown.x;
 				y = offset.y + mouseCurrent.y - mouseDown.y;
 				break;
@@ -116,14 +116,14 @@ public class RelativePosition {
 		}
 		
 		switch(verticalPosition) {
-		case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_NORTH: {
+		case ProductionPanel.EditPanelInputAdapter.VERTICAL_REGION_NORTH: {
 			int currentY = y;
 			y = offset.y + mouseCurrent.y - mouseDown.y;
 			height += currentY - y;
 			
 			break;
 		}
-		case ProductionPanel.EditPanelMouseAdapter.VERTICAL_REGION_SOUTH: {
+		case ProductionPanel.EditPanelInputAdapter.VERTICAL_REGION_SOUTH: {
 			height = sizeDown.height + mouseCurrent.y - mouseDown.y;
 			
 			break;

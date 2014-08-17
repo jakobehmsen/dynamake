@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +28,7 @@ import dynamake.transcription.Trigger;
 
 public abstract class BoundsChangeTool implements Tool {
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
+	public void mouseReleased(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		if(viewPressedOn != null) {
 			ModelComponent newTargetOver = targetPresenter.getTargetOver();
 
@@ -135,14 +134,14 @@ public abstract class BoundsChangeTool implements Tool {
 	private InteractionPresenter interactionPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
+	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		ModelComponent targetModelComponent = modelOver;
 
 		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			viewPressedOn = targetModelComponent;
 			source = ModelComponent.Util.getParent(targetModelComponent);
 			
-			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+			Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
 			
 			interactionPresenter = new InteractionPresenter(productionPanel);
 			interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
@@ -177,7 +176,7 @@ public abstract class BoundsChangeTool implements Tool {
 			ModelComponent newTargetOver = getTargetOver(productionPanel, modelOver, modelOver);
 			targetPresenter.update(newTargetOver, collector);
 			
-			mouseDown = e.getPoint();
+			mouseDown = mousePoint;
 
 			final ModelComponent localViewPressedOn = viewPressedOn;
 			collector.afterNextTrigger(new Runnable() {
@@ -191,7 +190,7 @@ public abstract class BoundsChangeTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) {
+	public void mouseDragged(final ProductionPanel productionPanel, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection, JComponent sourceComponent, Point mousePoint) {
 		if(mouseDown != null && interactionPresenter.getSelection() != productionPanel.contentView.getBindingTarget()) {
 			ModelComponent newTargetOver = getTargetOver(productionPanel, modelOver, interactionPresenter.getSelection());
 			targetPresenter.update(newTargetOver, collector);
@@ -201,7 +200,7 @@ public abstract class BoundsChangeTool implements Tool {
 				interactionPresenter.getSelectionFrameSize(), 
 				mouseDown, 
 				interactionPresenter.getEffectFrameBounds(), 
-				e.getPoint());
+				mousePoint);
 			
 			interactionPresenter.changeEffectFrameDirect(newEffectBounds, collector);
 			

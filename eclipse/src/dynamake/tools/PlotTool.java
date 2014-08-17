@@ -3,7 +3,6 @@ package dynamake.tools;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import javax.swing.JComponent;
@@ -30,9 +29,9 @@ import dynamake.transcription.Trigger;
 
 public class PlotTool implements Tool {
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
+	public void mouseReleased(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		if(mouseDown != null) {
-			final Rectangle creationBoundsInProductionPanel = interactionPresenter.getPlotBounds(mouseDown, e.getPoint());
+			final Rectangle creationBoundsInProductionPanel = interactionPresenter.getPlotBounds(mouseDown, mousePoint);
 			final Rectangle creationBoundsInSelection = SwingUtilities.convertRectangle(productionPanel, creationBoundsInProductionPanel, interactionPresenter.getSelectionFrame());
 			
 			// Find components within the creation bounds of the selection
@@ -93,10 +92,10 @@ public class PlotTool implements Tool {
 	private InteractionPresenter interactionPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
+	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		if(modelOver.getModelBehind() instanceof CanvasModel) {
-			mouseDown = e.getPoint();
-			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)modelOver);
+			mouseDown = mousePoint;
+			Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)modelOver);
 			
 			interactionPresenter = new InteractionPresenter(productionPanel);
 			interactionPresenter.selectFromEmpty(modelOver, referencePoint, collector);
@@ -104,9 +103,9 @@ public class PlotTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, final MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) {
+	public void mouseDragged(final ProductionPanel productionPanel, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection, JComponent sourceComponent, Point mousePoint) {
 		if(mouseDown != null) {
-			final Rectangle plotBoundsInProductionPanel = interactionPresenter.getPlotBounds(mouseDown, e.getPoint());
+			final Rectangle plotBoundsInProductionPanel = interactionPresenter.getPlotBounds(mouseDown, mousePoint);
 			
 			interactionPresenter.changeEffectFrameDirect(plotBoundsInProductionPanel, collector);
 		}

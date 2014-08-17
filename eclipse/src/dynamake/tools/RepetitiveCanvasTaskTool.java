@@ -1,9 +1,11 @@
 package dynamake.tools;
 
 import java.awt.Color;
-import java.awt.event.MouseEvent;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JComponent;
 
 import dynamake.commands.CommandState;
 import dynamake.models.Model;
@@ -17,7 +19,7 @@ import dynamake.transcription.Trigger;
 
 public abstract class RepetitiveCanvasTaskTool implements Tool {
 	@Override
-	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
+	public void mouseReleased(ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		targetPresenter.reset(collector);
 		
 		collector.commit();
@@ -27,7 +29,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 	private TargetPresenter targetPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
+	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		canvas = ModelComponent.Util.closestCanvasModelComponent(modelOver);
 		
 		targetPresenter = new TargetPresenter(
@@ -49,7 +51,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) {
+	public void mouseDragged(final ProductionPanel productionPanel, final ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection, JComponent sourceComponent, Point mousePoint) {
 		if(modelOver != canvas) {
 			final ModelComponent modelOverParent = ModelComponent.Util.getParent(modelOver);
 			

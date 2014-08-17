@@ -3,7 +3,6 @@ package dynamake.tools;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -16,13 +15,13 @@ import dynamake.transcription.Connection;
 
 public class DragTool implements Tool {
 	@Override
-	public void mouseReleased(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
+	public void mouseReleased(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		ModelComponent targetModelComponent = modelOver;
 		
 		if(targetModelComponent != null && interactionPresenter.getSelection() != targetModelComponent) {
-			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, connection, targetPresenter, interactionPresenter);
+			interactionPresenter.showPopupForSelectionObject(productionPanel, mousePoint, targetModelComponent, connection, targetPresenter, interactionPresenter);
 		} else {
-			interactionPresenter.showPopupForSelectionObject(productionPanel, e.getPoint(), targetModelComponent, connection, targetPresenter, interactionPresenter);
+			interactionPresenter.showPopupForSelectionObject(productionPanel, mousePoint, targetModelComponent, connection, targetPresenter, interactionPresenter);
 		}
 	}
 	
@@ -31,13 +30,13 @@ public class DragTool implements Tool {
 	private InteractionPresenter interactionPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
-		Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
+	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
+		Point pointInContentView = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)productionPanel.contentView.getBindingTarget());
 		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 		ModelComponent targetModelComponent = ModelComponent.Util.closestModelComponent(target);
 		
 		if(targetModelComponent != null) {
-			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+			Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
 			interactionPresenter = new InteractionPresenter(productionPanel);
 			interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
 		}
@@ -59,18 +58,18 @@ public class DragTool implements Tool {
 		
 		targetPresenter.update(modelOver, collector);
 		
-		mouseDown = e.getPoint();
+		mouseDown = mousePoint;
 	}
 
 	@Override
-	public void mouseDragged(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) {
+	public void mouseDragged(final ProductionPanel productionPanel, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection, JComponent sourceComponent, Point mousePoint) {
 		if(mouseDown != null) {
 			targetPresenter.update(modelOver, collector);
 			
 			final int width = interactionPresenter.getEffectFrameWidth();
 			final int height = interactionPresenter.getEffectFrameHeight();
 
-			Point cursorLocationInProductionPanel = e.getPoint();
+			Point cursorLocationInProductionPanel = mousePoint;
 			
 			final int x = interactionPresenter.getSelectionFrameLocation().x + (cursorLocationInProductionPanel.x - mouseDown.x);
 			final int y = interactionPresenter.getSelectionFrameLocation().y + (cursorLocationInProductionPanel.y - mouseDown.y);

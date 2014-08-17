@@ -1,7 +1,6 @@
 package dynamake.tools;
 
 import java.awt.Point;
-import java.awt.event.MouseEvent;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -14,8 +13,8 @@ import dynamake.transcription.Connection;
 
 public class TellTool implements Tool {
 	@Override
-	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
-		interactionPresenter.showPopupForSelectionTell(productionPanel, e.getPoint(), null, connection, interactionPresenter);
+	public void mouseReleased(ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
+		interactionPresenter.showPopupForSelectionTell(productionPanel, mousePoint, null, connection, interactionPresenter);
 		
 		collector.commit();
 	}
@@ -23,17 +22,17 @@ public class TellTool implements Tool {
 	private InteractionPresenter interactionPresenter;
 
 	@Override
-	public void mousePressed(final ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
+	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		ModelComponent targetModelComponent = modelOver;
 		if(targetModelComponent != null) {
-			Point referencePoint = SwingUtilities.convertPoint((JComponent)e.getSource(), e.getPoint(), (JComponent)targetModelComponent);
+			Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
 			interactionPresenter = new InteractionPresenter(productionPanel);
 			interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
 		}
 	}
 
 	@Override
-	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) {
+	public void mouseDragged(ProductionPanel productionPanel, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection, JComponent sourceComponent, Point mousePoint) {
 
 	}
 

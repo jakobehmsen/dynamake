@@ -234,7 +234,7 @@ public class InteractionPresenter {
 			localEffectFrame.setBackground(new Color(0, 0, 0, 0));
 			localEffectFrame.setBounds(creationBounds);
 			
-			Color effectColor = LiveModel.ToolButton.avgColorOfButtons(productionPanel.editPanelMouseAdapter.buttonsPressed);
+			Color effectColor = LiveModel.ToolButton.avgColorOfButtons(productionPanel.editPanelInputAdapter.buttonsPressed);
 			effectColor = effectColor.darker();
 			localEffectFrame.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createDashedBorder(effectColor, 2.0f, 2.0f, 1.5f, false),

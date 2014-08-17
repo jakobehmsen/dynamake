@@ -1,6 +1,8 @@
 package dynamake.tools;
 
-import java.awt.event.MouseEvent;
+import java.awt.Point;
+
+import javax.swing.JComponent;
 
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
@@ -17,7 +19,7 @@ import dynamake.transcription.Trigger;
 
 public class RedoTool implements Tool {
 	@Override
-	public void mouseReleased(ProductionPanel productionPanel, MouseEvent e, final ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) {
+	public void mouseReleased(ProductionPanel productionPanel, final ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		collector.execute(new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
@@ -39,10 +41,10 @@ public class RedoTool implements Tool {
 	}
 
 	@Override
-	public void mousePressed(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector) { }
+	public void mousePressed(ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) { }
 
 	@Override
-	public void mouseDragged(ProductionPanel productionPanel, MouseEvent e, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection) { }
+	public void mouseDragged(ProductionPanel productionPanel, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection, JComponent sourceComponent, Point mousePoint) { }
 
 	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) { }
