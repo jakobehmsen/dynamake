@@ -91,7 +91,6 @@ public abstract class Model implements Serializable, Observer {
 		
 		@Override
 		public void appendPendings(List<CommandState<Model>> pendingCommands) {
-//			origin.appendPendings(pendingCommands);
 			pendingCommands.add(revertible);
 		}
 
@@ -170,7 +169,6 @@ public abstract class Model implements Serializable, Observer {
 	/* Both undo- and stack are assumed to contain RevertingCommandStateSequence<Model> objects */
 	protected Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
 	protected Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
-//	private ArrayList<Execution<Model>> newLog = new ArrayList<Execution<Model>>();
 	
 	private Locator locator;
 	private Model parent;
@@ -200,14 +198,12 @@ public abstract class Model implements Serializable, Observer {
 		properties = (Hashtable<String, Object>)ois.readObject();
 		undoStack = (Stack<CommandState<Model>>)ois.readObject();
 		redoStack = (Stack<CommandState<Model>>)ois.readObject();
-//		newLog = new ArrayList<Execution<Model>>();
 	}
 
 	public void appendLog(ArrayList<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
 
 		redoStack.clear();
-//		newLog.addAll(pendingUndoablePairs);
 
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
@@ -218,27 +214,8 @@ public abstract class Model implements Serializable, Observer {
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
 	
-//	public void commitLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		if(newLog.size() > 0) {
-//			@SuppressWarnings("unchecked")
-//			CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
-//
-//			for(int i = 0; i < newLog.size(); i++) {
-//				compressedLogPartAsArray[i] = new UndoRedoPart(newLog.get(i), newLog.get(i).undoable);
-//			}
-//			
-//			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
-//			undoStack.add(compressedLogPart);
-//		}
-//		newLog.clear();
-//	}
-	
 	public void commitLog(CommandState<Model> logPart) {
 		undoStack.add(logPart);
-	}
-	
-	public void rejectLog(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		newLog.clear();
 	}
 	
 	public void unplay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -247,14 +224,6 @@ public abstract class Model implements Serializable, Observer {
 			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
 			redoStack.push(redoable);
 		}
-		
-//		@SuppressWarnings("unchecked")
-//		CommandState<Model>[] toUndos = (CommandState<Model>[])new CommandState[count];
-//		for(int i = 0; i < count; i++) {
-//			toUndos[i] = undoStack.pop();
-//		}
-//		
-//		executeSequence(toUndos, 0, UnplayHistoryHandler.class, propCtx, propDistance, collector);
 	}	
 	
 	public void replay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -286,42 +255,13 @@ public abstract class Model implements Serializable, Observer {
 		RevertingCommandStateSequence<Model> toUndo = (RevertingCommandStateSequence<Model>)undoStack.pop();
 		
 		PendingCommandFactory.Util.sequence(collector, this, Arrays.asList(toUndo.commandStates), UndoHistoryHandler.class);
-//		executeSequence(toUndo.commandStates, 0, UndoHistoryHandler.class, propCtx, propDistance, collector);
 		
 		return toUndo;
-		
-//		if(!undoStack.isEmpty()) {
-//			CommandState<Model> toUndo = undoStack.pop();
-//			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
-//			redoStack.push(redoable);
-//			
-//			return toUndo;
-//		}
-//		
-//		return null;
 	}
 
 	public void commitUndo(CommandState<Model> redoable) {
 		redoStack.push(redoable);
 	}
-	
-//	private void executeSequence(final CommandState<Model>[] commandStates, final int i, final Class<? extends HistoryHandler<Model>> historyHandlerClass,
-//			PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//		if(i < commandStates.length) {
-//			CommandState<Model> reversible = ((CommandState<Model>)commandStates[i]);
-//			collector.execute(new SimpleExPendingCommandFactory<Model>(this, reversible) {
-//				@Override
-//				public void afterPropogationFinished(List<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-//					executeSequence(commandStates, i + 1, historyHandlerClass, propCtx, propDistance, collector);
-//				}
-//				
-//				@Override
-//				public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
-//					return historyHandlerClass;
-//				}
-//			});
-//		}
-//	}
 	
 	public CommandState<Model> redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		if(!redoStack.isEmpty()) {
@@ -338,7 +278,6 @@ public abstract class Model implements Serializable, Observer {
 	public CommandState<Model> redo2(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		RevertingCommandStateSequence<Model> toRedo = (RevertingCommandStateSequence<Model>)redoStack.pop();
 		PendingCommandFactory.Util.sequence(collector, this, Arrays.asList(toRedo.commandStates), RedoHistoryHandler.class);
-//		executeSequence(toRedo.commandStates, 0, RedoHistoryHandler.class, propCtx, propDistance, collector);
 		
 		return toRedo;
 	}
@@ -387,19 +326,6 @@ public abstract class Model implements Serializable, Observer {
 	}
 
 	public List<CommandState<Model>> getLocalChanges() {
-//		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
-//		
-//		for(CommandState<Model> undoable: undoStack) {
-//			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
-//			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
-//				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
-//				origins.add(undoPart.origin.pending);
-//			}
-//		}
-//		
-//		return origins;
-		
-
 		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
 		
 		for(CommandState<Model> undoable: undoStack) {
@@ -415,19 +341,6 @@ public abstract class Model implements Serializable, Observer {
 	
 
 	public List<CommandState<Model>> getLocalChangesForExecution() {
-//		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
-//		
-//		for(CommandState<Model> undoable: undoStack) {
-//			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
-//			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
-//				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
-//				origins.add(undoPart.origin.pending);
-//			}
-//		}
-//		
-//		return origins;
-		
-
 		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
 		
 		for(CommandState<Model> undoable: undoStack) {
@@ -896,21 +809,6 @@ public abstract class Model implements Serializable, Observer {
 							new SetPropertyCommand(PROPERTY_COLOR, color),
 							new SetPropertyCommand.AfterSetProperty()
 						));
-						
-//						collector.execute(new PendingCommandFactory<Model>() {
-//							@Override
-//							public Model getReference() {
-//								return model;
-//							}
-//
-//							@Override
-//							public void createPendingCommands(List<CommandState<Model>> dualCommands) {
-//								dualCommands.add(new PendingCommandState<Model>(
-//									new SetPropertyCommand(PROPERTY_COLOR, color),
-//									new SetPropertyCommand.AfterSetProperty()
-//								));
-//							}
-//						});
 					}
 				};
 			}
@@ -1234,7 +1132,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		PendingCommandFactory.Util.sequence(collector, this, origins);
-//		collector.execute(new SimpleExPendingCommandFactory<Model>(this, origins));
 	}
 	
 	public RestorableModel toRestorable(boolean includeLocalHistory) {
@@ -1251,7 +1148,6 @@ public abstract class Model implements Serializable, Observer {
 			Collections.reverse(destruction);
 			
 			PendingCommandFactory.Util.sequence(collector, this, destruction);
-//			collector.execute(new SimpleExPendingCommandFactory<Model>(this, destruction));
 		}
 	}
 }
