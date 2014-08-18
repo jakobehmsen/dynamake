@@ -213,7 +213,7 @@ public class LiveModel extends Model {
 		
 		@Override
 		public String toString() {
-			return "#" + button;
+			return "" + button;
 		}
 		
 		@Override
