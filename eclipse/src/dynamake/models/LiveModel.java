@@ -283,7 +283,7 @@ public class LiveModel extends Model {
 		private int tool;
 		private List<InputButton> buttons;
 		private String text;
-		private LivePanel liveModel;
+		private LivePanel livePanel;
 		private ModelTranscriber modelTranscriber;
 		private JLabel labelToolName;
 		private JPanel panelButtons;
@@ -295,7 +295,7 @@ public class LiveModel extends Model {
 			this.tool = tool;
 			this.buttons = buttons;
 			this.text = text;
-			this.liveModel = liveModel;
+			this.livePanel = liveModel;
 			this.modelTranscriber = modelTranscriber;
 
 			setLayout(new BorderLayout(0, 0));
@@ -380,7 +380,7 @@ public class LiveModel extends Model {
 										new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool)
 									));
 								} else {
-									int previousToolForNewButton = ToolButton.this.liveModel.model.getToolForButtons(localButtonsPressed);
+									int previousToolForNewButton = ToolButton.this.livePanel.model.getToolForButtons(localButtonsPressed);
 									
 									if(previousToolForNewButton != -1) {
 										// If the new buttons are associated to another tool, then remove that binding
@@ -410,7 +410,7 @@ public class LiveModel extends Model {
 									}
 								}
 								
-								PendingCommandFactory.Util.sequence(collector, ToolButton.this.liveModel.model, pendingCommands, LocalHistoryHandler.class);
+								PendingCommandFactory.Util.sequence(collector, ToolButton.this.livePanel.model, pendingCommands, LocalHistoryHandler.class);
 								collector.commit();
 							}
 						});
@@ -425,10 +425,10 @@ public class LiveModel extends Model {
 			KeyListener keyListener = new KeyAdapter() {
 				@Override
 				public void keyPressed(KeyEvent e) {
-					if(ToolButton.this.liveModel.keysDown.contains(e.getKeyCode()))
+					if(ToolButton.this.livePanel.keysDown.contains(e.getKeyCode()))
 						return;
 					
-					ToolButton.this.liveModel.keysDown.add(e.getKeyCode());
+					ToolButton.this.livePanel.keysDown.add(e.getKeyCode());
 					
 					if(!newButtonCombination.contains(new KeyboardButton(e.getKeyCode()))) {
 						buttonsDown++;
@@ -455,7 +455,7 @@ public class LiveModel extends Model {
 				
 				@Override
 				public void keyReleased(KeyEvent e) {
-					ToolButton.this.liveModel.keysDown.remove(e.getKeyCode());
+					ToolButton.this.livePanel.keysDown.remove(e.getKeyCode());
 //					System.out.println("Released " + e.getKeyChar());
 					
 //					newButtonCombination.remove(new KeyboardButton(e.getKeyCode()));
@@ -490,7 +490,7 @@ public class LiveModel extends Model {
 										new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool)
 									));
 								} else {
-									int previousToolForNewButton = ToolButton.this.liveModel.model.getToolForButtons(localButtonsPressed);
+									int previousToolForNewButton = ToolButton.this.livePanel.model.getToolForButtons(localButtonsPressed);
 									
 									if(previousToolForNewButton != -1) {
 										// If the new buttons are associated to another tool, then remove that binding
@@ -520,7 +520,7 @@ public class LiveModel extends Model {
 									}
 								}
 								
-								PendingCommandFactory.Util.sequence(collector, ToolButton.this.liveModel.model, pendingCommands, LocalHistoryHandler.class);
+								PendingCommandFactory.Util.sequence(collector, ToolButton.this.livePanel.model, pendingCommands, LocalHistoryHandler.class);
 								collector.commit();
 							}
 						});
@@ -632,8 +632,8 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	private static ToolButton createToolButton(final LivePanel model, final ModelTranscriber modelTranscriber, ButtonGroup group, List<InputButton> buttons, final int tool, final String text) {
-		return new ToolButton(tool, buttons, text, model, modelTranscriber);
+	private static ToolButton createToolButton(final LivePanel livePanel, final ModelTranscriber modelTranscriber, ButtonGroup group, List<InputButton> buttons, final int tool, final String text) {
+		return new ToolButton(tool, buttons, text, livePanel, modelTranscriber);
 	}
 	
 	private static void updateToolButton(JComponent toolButton, List<InputButton> buttons) {
