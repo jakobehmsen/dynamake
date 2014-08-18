@@ -264,7 +264,7 @@ public class CanvasModel extends Model {
 			
 			canvas.addModel(model, new PropogationContext(), 0, collector);
 			final Location addedModelLocation = canvas.getLocationOf(model);
-			System.out.println("***Adding model " + model + " at " + addedModelLocation + " in " + canvas + "***");
+//			System.out.println("***Adding model " + model + " at " + addedModelLocation + " in " + canvas + "***");
 			
 			collector.execute(new Trigger<Model>() {
 				@Override

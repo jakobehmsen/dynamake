@@ -113,7 +113,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		if(change instanceof PushLocalChanges && sender == source) {
-			System.out.println("***Forwarding from " + source + " to " + target + "***");
+//			System.out.println("***Forwarding from " + source + " to " + target + "***");
 			
 			// Whenever a change is forwarded from a source
 			final PushLocalChanges pushLocalChanges = (PushLocalChanges)change;

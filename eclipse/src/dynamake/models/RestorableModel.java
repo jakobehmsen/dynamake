@@ -150,7 +150,7 @@ public class RestorableModel implements Serializable {
 		modelBase.playThenReverse(modelOrigins, propCtx, propDistance, collector);
 		modelBase.setProperty(RestorableModel.PROPERTY_ORIGINS, modelOrigins, propCtx, propDistance, collector);
 		
-		System.out.println("restoreOriginsOnBase");
+//		System.out.println("restoreOriginsOnBase");
 	}
 	
 	public void restoreChangesOnBase(final Model modelBase, final PropogationContext propCtx, final int propDistance, Collector<Model> collector) {
@@ -184,7 +184,7 @@ public class RestorableModel implements Serializable {
 			}
 		});
 		
-		System.out.println("restoreChangesOnBase");
+//		System.out.println("restoreChangesOnBase");
 	}
 	
 	protected void afterMapToReferenceLocation(RestorableModel mapped, Model sourceReference, Model targetReference) { }

@@ -31,7 +31,7 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model>, Forwa
 		target.addObserver(historyChangeForwarder);
 		historyChangeForwarder.attach(propCtx, 0, collector);
 		
-		System.out.println("Forward local changes from " + source + " to " + target);
+//		System.out.println("Forward local changes from " + source + " to " + target);
 		
 		return null;
 	}
