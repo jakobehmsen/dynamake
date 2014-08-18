@@ -283,8 +283,8 @@ public class CanvasModel extends Model {
 			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
 			AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
 			
-			Location mappedLocation = addModelOutput.location.forForwarding();
-			CanvasModel.ForwardedAddModelCommand newAddCommand = new CanvasModel.ForwardedAddModelCommand(mappedLocation, this.factory);
+			Location forwardedLocation = addModelOutput.location.forForwarding();
+			CanvasModel.ForwardedAddModelCommand newAddCommand = new CanvasModel.ForwardedAddModelCommand(forwardedLocation, this.factory);
 
 			return newAddCommand;
 		}
@@ -330,13 +330,11 @@ public class CanvasModel extends Model {
 			final CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
 			ModelCreation modelCreation = factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
 			final Model model = modelCreation.createModel(rootPrevalentSystem, propCtx, 0, collector, location);
-
-			IsolatingCollector<Model> isolatedCollector = new IsolatingCollector<Model>(collector);
 			
 			canvas.restoreModelByLocation(modelLocation, model, new PropogationContext(), 0, collector);
 			Location addedModelLocation = canvas.getLocationOf(model);
 			
-			modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, isolatedCollector, location);
+			modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, collector, location);
 			
 			return new Output(addedModelLocation);
 		}
