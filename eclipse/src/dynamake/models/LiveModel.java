@@ -287,7 +287,7 @@ public class LiveModel extends Model {
 		private int tool;
 		private List<InputButton> buttons;
 		private String text;
-		private LiveModel liveModel;
+		private LivePanel liveModel;
 		private ModelTranscriber modelTranscriber;
 		private JLabel labelToolName;
 		private JPanel panelButtons;
@@ -295,7 +295,7 @@ public class LiveModel extends Model {
 		private int buttonsDown;
 		private ArrayList<InputButton> newButtonCombination = new ArrayList<InputButton>();
 		
-		public ToolButton(int tool, List<InputButton> buttons, String text, LiveModel liveModel, ModelTranscriber modelTranscriber) {
+		public ToolButton(int tool, List<InputButton> buttons, String text, LivePanel liveModel, ModelTranscriber modelTranscriber) {
 			this.tool = tool;
 			this.buttons = buttons;
 			this.text = text;
@@ -384,7 +384,7 @@ public class LiveModel extends Model {
 										new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool)
 									));
 								} else {
-									int previousToolForNewButton = ToolButton.this.liveModel.getToolForButtons(localButtonsPressed);
+									int previousToolForNewButton = ToolButton.this.liveModel.model.getToolForButtons(localButtonsPressed);
 									
 									if(previousToolForNewButton != -1) {
 										// If the new buttons are associated to another tool, then remove that binding
@@ -414,7 +414,7 @@ public class LiveModel extends Model {
 									}
 								}
 								
-								PendingCommandFactory.Util.sequence(collector, ToolButton.this.liveModel, pendingCommands, LocalHistoryHandler.class);
+								PendingCommandFactory.Util.sequence(collector, ToolButton.this.liveModel.model, pendingCommands, LocalHistoryHandler.class);
 								collector.commit();
 							}
 						});
@@ -429,6 +429,11 @@ public class LiveModel extends Model {
 			KeyListener keyListener = new KeyAdapter() {
 				@Override
 				public void keyPressed(KeyEvent e) {
+					if(ToolButton.this.liveModel.keysDown.contains(e.getKeyCode()))
+						return;
+					
+					ToolButton.this.liveModel.keysDown.add(e.getKeyCode());
+					
 					if(!newButtonCombination.contains(new KeyboardButton(e.getKeyCode()))) {
 						buttonsDown++;
 						
@@ -454,6 +459,7 @@ public class LiveModel extends Model {
 				
 				@Override
 				public void keyReleased(KeyEvent e) {
+					ToolButton.this.liveModel.keysDown.remove(e.getKeyCode());
 //					System.out.println("Released " + e.getKeyChar());
 					
 //					newButtonCombination.remove(new KeyboardButton(e.getKeyCode()));
@@ -488,7 +494,7 @@ public class LiveModel extends Model {
 										new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool)
 									));
 								} else {
-									int previousToolForNewButton = ToolButton.this.liveModel.getToolForButtons(localButtonsPressed);
+									int previousToolForNewButton = ToolButton.this.liveModel.model.getToolForButtons(localButtonsPressed);
 									
 									if(previousToolForNewButton != -1) {
 										// If the new buttons are associated to another tool, then remove that binding
@@ -518,7 +524,7 @@ public class LiveModel extends Model {
 									}
 								}
 								
-								PendingCommandFactory.Util.sequence(collector, ToolButton.this.liveModel, pendingCommands, LocalHistoryHandler.class);
+								PendingCommandFactory.Util.sequence(collector, ToolButton.this.liveModel.model, pendingCommands, LocalHistoryHandler.class);
 								collector.commit();
 							}
 						});
@@ -630,7 +636,7 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	private static ToolButton createToolButton(final LiveModel model, final ModelTranscriber modelTranscriber, ButtonGroup group, List<InputButton> buttons, final int tool, final String text) {
+	private static ToolButton createToolButton(final LivePanel model, final ModelTranscriber modelTranscriber, ButtonGroup group, List<InputButton> buttons, final int tool, final String text) {
 		return new ToolButton(tool, buttons, text, model, modelTranscriber);
 	}
 	
@@ -896,13 +902,12 @@ public class LiveModel extends Model {
 				productionPanel.requestFocusInWindow();
 			}
 			
-			private HashSet<Integer> keysDown = new HashSet<Integer>();
 			private KeyboardButton pendingPressedKeyboardButton;
 			
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if(!keysDown.contains(e.getKeyCode())) {
-					keysDown.add(e.getKeyCode());
+				if(!productionPanel.livePanel.keysDown.contains(e.getKeyCode())) {
+					productionPanel.livePanel.keysDown.add(e.getKeyCode());
 					
 					try {
 						pendingPressedKeyboardButton = new KeyboardButton(e.getKeyCode());
@@ -927,7 +932,7 @@ public class LiveModel extends Model {
 			
 			@Override
 			public void keyReleased(final KeyEvent e) {
-				keysDown.remove(e.getKeyCode());
+				productionPanel.livePanel.keysDown.remove(e.getKeyCode());
 				
 				try {
 //					final Point mousePoint = MouseInfo.getPointerInfo().getLocation();
@@ -1014,6 +1019,8 @@ public class LiveModel extends Model {
 		private ToolButton[] buttonTools;
 		private final Binding<ModelComponent> contentView;
 		
+		private HashSet<Integer> keysDown = new HashSet<Integer>();
+		
 		public LivePanel(final ModelComponent rootView, LiveModel model, ModelTranscriber modelTranscriber, final ViewManager viewManager) {
 			modelTranscriber.setComponentToRepaint(this);
 			this.setLayout(new BorderLayout());
@@ -1092,7 +1099,7 @@ public class LiveModel extends Model {
 			for(int i = 0; i < toolFactories.length; i++) {
 				ToolFactory toolFactory = toolFactories[i];
 				List<InputButton> buttons = model.getButtonsForTool(i);
-				buttonTools[i] = createToolButton(model, modelTranscriber, group, buttons, i, toolFactory.getName());
+				buttonTools[i] = createToolButton(this, modelTranscriber, group, buttons, i, toolFactory.getName());
 			}
 			
 			for(JComponent buttonTool: buttonTools) {
