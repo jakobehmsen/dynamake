@@ -1,15 +1,21 @@
 package dynamake.models;
 
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -774,7 +780,14 @@ public class LiveModel extends Model {
 			}
 			
 			public void mousePressed(final MouseEvent e) {
-				pressedButton(new MouseButton(e.getButton()), (JComponent)e.getSource(), e.getPoint());
+				InputButton inputButton;
+				if(pressedKeyboardButton != null) {
+					inputButton = pressedKeyboardButton;
+					pressedKeyboardButton = null;
+				} else {
+					inputButton = new MouseButton(e.getButton());
+				}
+				pressedButton(inputButton, (JComponent)e.getSource(), e.getPoint());
 				
 //				// Check whether there is an active tool which must be rolled back
 //				// because a new combination of button is recognized
@@ -884,46 +897,76 @@ public class LiveModel extends Model {
 			}
 			
 			private HashSet<Integer> keysDown = new HashSet<Integer>();
+			private KeyboardButton pressedKeyboardButton;
 			
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if(!keysDown.contains(e.getKeyCode())) {
 					keysDown.add(e.getKeyCode());
 					
-					Point mousePoint = MouseInfo.getPointerInfo().getLocation();
-					SwingUtilities.convertPointFromScreen(mousePoint, productionPanel);
-					pressedButton(new KeyboardButton(e.getKeyCode()), (JComponent)e.getSource(), mousePoint);
+					try {
+						pressedKeyboardButton = new KeyboardButton(e.getKeyCode());
+						
+//						final Point mousePoint = MouseInfo.getPointerInfo().getLocation();
+//						SwingUtilities.convertPointFromScreen(mousePoint, productionPanel);
+//						MouseEvent mouseEvent = new MouseEvent((Component)e.getSource(), MouseEvent.MOUSE_PRESSED, e.getWhen(), 0, mousePoint.x, mousePoint.y, 1, false);
+//						Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(mouseEvent);
+						
+						Robot robot = new Robot();
+						robot.mousePress(InputEvent.BUTTON1_MASK);
+					} catch (AWTException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+//					
+//					Point mousePoint = MouseInfo.getPointerInfo().getLocation();
+//					SwingUtilities.convertPointFromScreen(mousePoint, productionPanel);
+//					pressedButton(new KeyboardButton(e.getKeyCode()), (JComponent)e.getSource(), mousePoint);
 				}
 			}
 			
 			@Override
 			public void keyReleased(final KeyEvent e) {
 				keysDown.remove(e.getKeyCode());
-				final Point mousePoint = MouseInfo.getPointerInfo().getLocation();
-				SwingUtilities.convertPointFromScreen(mousePoint, productionPanel);
 				
-				toolConnection.trigger(new Trigger<Model>() {
-					@Override
-					public void run(Collector<Model> collector) {
-						buttonsDown--;
-
-						final ModelComponent modelOver = getModelOver((JComponent)e.getSource(), mousePoint);
-
-						if(modelOver != null) {
-							if(buttonsDown == 0) {
-								final Tool toolToApply = toolBeingApplied;
-								toolToApply.mouseReleased(productionPanel, modelOver, toolConnection, collector, (JComponent)e.getSource(), mousePoint);
-								
-								ToolButton toolButton = getToolButton(buttonsPressed);
-								if(toolButton != null)
-									toolButton.showAsPassive();
-								
-								buttonsPressed.clear();
-								toolBeingApplied = null;
-							}
-						}
-					}
-				});
+				try {
+//					final Point mousePoint = MouseInfo.getPointerInfo().getLocation();
+//					SwingUtilities.convertPointFromScreen(mousePoint, productionPanel);
+//					MouseEvent mouseEvent = new MouseEvent((Component)e.getSource(), MouseEvent.MOUSE_RELEASED, e.getWhen(), 0, mousePoint.x, mousePoint.y, 1, false);
+//					Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(mouseEvent);
+					
+					Robot robot = new Robot();
+					robot.mouseRelease(InputEvent.BUTTON1_MASK);
+				} catch (AWTException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+//				final Point mousePoint = MouseInfo.getPointerInfo().getLocation();
+//				SwingUtilities.convertPointFromScreen(mousePoint, productionPanel);
+//				
+//				toolConnection.trigger(new Trigger<Model>() {
+//					@Override
+//					public void run(Collector<Model> collector) {
+//						buttonsDown--;
+//
+//						final ModelComponent modelOver = getModelOver((JComponent)e.getSource(), mousePoint);
+//
+//						if(modelOver != null) {
+//							if(buttonsDown == 0) {
+//								final Tool toolToApply = toolBeingApplied;
+//								toolToApply.mouseReleased(productionPanel, modelOver, toolConnection, collector, (JComponent)e.getSource(), mousePoint);
+//								
+//								ToolButton toolButton = getToolButton(buttonsPressed);
+//								if(toolButton != null)
+//									toolButton.showAsPassive();
+//								
+//								buttonsPressed.clear();
+//								toolBeingApplied = null;
+//							}
+//						}
+//					}
+//				});
 			}
 			
 			@Override
