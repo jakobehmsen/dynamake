@@ -24,10 +24,17 @@ public class DeriveFactory implements ModelFactory {
 	private static final long serialVersionUID = 1L;
 	private RectangleF creationBounds;
 	private Location modelLocation;
+	private boolean forwarded;
 	
 	public DeriveFactory(RectangleF creationBounds, Location modelLocation) {
 		this.creationBounds = creationBounds;
 		this.modelLocation = modelLocation;
+	}
+	
+	public DeriveFactory(RectangleF creationBounds, Location modelLocation, boolean forwarded) {
+		this.creationBounds = creationBounds;
+		this.modelLocation = modelLocation;
+		this.forwarded = forwarded;
 	}
 	
 	@Override
@@ -49,18 +56,22 @@ public class DeriveFactory implements ModelFactory {
 					new PushForwardFromCommand(locationOfSourceFromTarget), // Doesn't create immediate side effect
 					new Command.Null<Model>() // Thus, there is no (direct) need for reverting
 				));
-				restorableModelCreation.appendCreation(new PendingCommandState<Model>(
-					new ForwardLocalChangesCommand(locationOfSourceFromTarget), 
-					new UnforwardLocalChangesCommand(locationOfSourceFromTarget)
-				));
+				if(!forwarded) {
+					restorableModelCreation.appendCreation(new PendingCommandState<Model>(
+						new ForwardLocalChangesCommand(locationOfSourceFromTarget), 
+						new UnforwardLocalChangesCommand(locationOfSourceFromTarget)
+					));
+				}
 				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
 				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
 				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
 				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
-				restorableModelCreation.appendCreation(new PendingCommandState<Model>(
-					new EnsureForwardLocalChangesUpwardsCommand(locationOfSourceFromTarget), 
-					new IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommand(locationOfSourceFromTarget)
-				));
+				if(!forwarded) {
+					restorableModelCreation.appendCreation(new PendingCommandState<Model>(
+						new EnsureForwardLocalChangesUpwardsCommand(locationOfSourceFromTarget), 
+						new IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommand(locationOfSourceFromTarget)
+					));
+				}
 				
 				restorableModelCreation.restoreChangesOnBase(createdModel, propCtx, propDistance, collector);
 			}
@@ -72,5 +83,11 @@ public class DeriveFactory implements ModelFactory {
 				return modelBase;
 			}
 		};
+	}
+
+	@Override
+	public ModelFactory forForwarding() {
+		// When a derivation is upwarded, then it most it is forwarded into another derivation with is already setup with a forwarder.
+		return new DeriveFactory(creationBounds, modelLocation, true);
 	}
 }

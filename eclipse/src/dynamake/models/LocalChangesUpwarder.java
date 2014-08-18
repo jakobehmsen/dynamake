@@ -60,7 +60,7 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 			for(CommandState<Model> pup: newChanges) {
 				// Be sensitive to undo/redo commands here; they should be handled differently
 				// Somehow, it is the undone/redone command that should be offset instead
-				offsetNewChanges.add(pup);
+				offsetNewChanges.add(pup.forUpwarding());
 			}
 			
 			source.sendChanged(new PushLocalChanges(offsetFromSource, new ArrayList<CommandState<Model>>(), offsetNewChanges), propCtx, propDistance, changeDistance, collector);			
@@ -68,6 +68,9 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 //			System.out.println("Upwarder observed AddedModelChange!!!");
 			CanvasModel source = (CanvasModel)sender;
 			
+			// Derivations should be added in a special way here: 
+			// When a new derivation is added within an upwarder, then, for the forwarding of that derivation, no forwarder and upwarder should be created
+			// Like forwarding, but only with the filter effect, no conversion otherwise
 			CanvasModel.AddedModelChange addedModelChange = (CanvasModel.AddedModelChange)change;
 			Model modelInTarget = addedModelChange.model;
 			Location modelLocationInSource = source.getLocationOf(modelInTarget); 

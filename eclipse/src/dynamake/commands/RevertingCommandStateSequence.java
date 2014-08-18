@@ -82,6 +82,15 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 	}
 	
 	@Override
+	public CommandState<T> forUpwarding() {
+		@SuppressWarnings("unchecked")
+		CommandState<T>[] newCommandStates = (CommandState<T>[])new CommandState[commandStates.length];
+		for(int i = 0; i < commandStates.length; i++)
+			newCommandStates[i] = commandStates[i].forUpwarding();
+		return new RevertingCommandStateSequence<T>(newCommandStates);
+	}
+	
+	@Override
 	public void appendPendings(List<CommandState<T>> pendingCommands) {
 		for(int i = 0; i < commandStates.length; i++)
 			commandStates[i].appendPendings(pendingCommands);

@@ -87,6 +87,10 @@ public abstract class Model implements Serializable, Observer {
 			return new UndoRedoPart(origin.forForwarding(), (CommandStateWithOutput<Model>)revertible.forForwarding());
 		}
 		
+		public CommandState<Model> forUpwarding() {
+			return new UndoRedoPart(origin.forUpwarding(), (CommandStateWithOutput<Model>)revertible.forUpwarding());
+		}
+		
 		@Override
 		public void appendPendings(List<CommandState<Model>> pendingCommands) {
 			pendingCommands.add(revertible);

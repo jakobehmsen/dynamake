@@ -34,4 +34,9 @@ public class PrimitiveSingletonFactory implements ModelFactory {
 		model.setProperty("FontSize", fontSize, propCtx, propDistance, isolatedCollector);
 		return new ModelCreation.Const(model);
 	}
+
+	@Override
+	public ModelFactory forForwarding() {
+		return this;
+	}
 }

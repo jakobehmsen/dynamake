@@ -24,4 +24,5 @@ public interface CommandState<T> extends Serializable {
 	public CommandState<T> forForwarding();
 	public CommandState<T> forForwarding(Object output);
 	public void appendPendings(List<CommandState<T>> pendingCommands);
+	public CommandState<T> forUpwarding();
 }

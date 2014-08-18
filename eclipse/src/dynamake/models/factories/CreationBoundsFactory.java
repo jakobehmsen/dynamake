@@ -54,4 +54,9 @@ public class CreationBoundsFactory implements ModelFactory {
 			}
 		};
 	}
+
+	@Override
+	public ModelFactory forForwarding() {
+		return this;
+	}
 }

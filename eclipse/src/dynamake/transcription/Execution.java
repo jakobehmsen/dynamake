@@ -36,6 +36,13 @@ import dynamake.models.PropogationContext;
 		}
 
 		@Override
+		public Execution<T> forUpwarding() {
+			CommandState<T> newPending = pending.forUpwarding();
+			CommandStateWithOutput<T> newUndoable = (CommandStateWithOutput<T>)undoable.forUpwarding();
+			return new Execution<T>(newPending, newUndoable);
+		}
+
+		@Override
 		public Execution<T> mapToReferenceLocation(Model sourceReference, Model targetReference) {
 			return new Execution<T>(
 				(PendingCommandState<T>)pending.mapToReferenceLocation(sourceReference, targetReference),

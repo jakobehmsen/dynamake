@@ -41,5 +41,12 @@ public interface ModelFactory extends Serializable {
 		
 		@Override
 		public void setup(Model rootModel, Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) { }
+
+		@Override
+		public ModelFactory forForwarding() {
+			return this;
+		}
 	}
+
+	ModelFactory forForwarding();
 }

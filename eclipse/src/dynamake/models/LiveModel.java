@@ -781,9 +781,9 @@ public class LiveModel extends Model {
 			
 			public void mousePressed(final MouseEvent e) {
 				InputButton inputButton;
-				if(pressedKeyboardButton != null) {
-					inputButton = pressedKeyboardButton;
-					pressedKeyboardButton = null;
+				if(pendingPressedKeyboardButton != null) {
+					inputButton = pendingPressedKeyboardButton;
+					pendingPressedKeyboardButton = null;
 				} else {
 					inputButton = new MouseButton(e.getButton());
 				}
@@ -897,7 +897,7 @@ public class LiveModel extends Model {
 			}
 			
 			private HashSet<Integer> keysDown = new HashSet<Integer>();
-			private KeyboardButton pressedKeyboardButton;
+			private KeyboardButton pendingPressedKeyboardButton;
 			
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -905,7 +905,7 @@ public class LiveModel extends Model {
 					keysDown.add(e.getKeyCode());
 					
 					try {
-						pressedKeyboardButton = new KeyboardButton(e.getKeyCode());
+						pendingPressedKeyboardButton = new KeyboardButton(e.getKeyCode());
 						
 //						final Point mousePoint = MouseInfo.getPointerInfo().getLocation();
 //						SwingUtilities.convertPointFromScreen(mousePoint, productionPanel);

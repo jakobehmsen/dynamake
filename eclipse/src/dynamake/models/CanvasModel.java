@@ -284,7 +284,8 @@ public class CanvasModel extends Model {
 			AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
 			
 			Location forwardedLocation = addModelOutput.location.forForwarding();
-			CanvasModel.ForwardedAddModelCommand newAddCommand = new CanvasModel.ForwardedAddModelCommand(forwardedLocation, this.factory);
+			ModelFactory newFactory = this.factory.forForwarding();
+			CanvasModel.ForwardedAddModelCommand newAddCommand = new CanvasModel.ForwardedAddModelCommand(forwardedLocation, newFactory);
 
 			return newAddCommand;
 		}

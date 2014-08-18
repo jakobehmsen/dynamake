@@ -87,7 +87,7 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 		else
 			newBackFactory = backFactory;
 		
-		return new PendingCommandState<>(newCommand, newBackFactory, newForthFactory);
+		return new PendingCommandState<T>(newCommand, newBackFactory, newForthFactory);
 	}
 	
 	@Override
@@ -97,7 +97,7 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 		CommandFactory<T> newForthFactory = new RelativeCommand.Factory<T>(forthFactory);
 		CommandFactory<T> newBackFactory = new RelativeCommand.Factory<T>(backFactory);
 		
-		return new PendingCommandState<>(newCommand, newBackFactory, newForthFactory);
+		return new PendingCommandState<T>(newCommand, newBackFactory, newForthFactory);
 	}
 	
 	@Override
@@ -125,7 +125,30 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 		else
 			newBackFactory = backFactory;
 
-		return new PendingCommandState<>(newCommand, newBackFactory, newForthFactory);
+		return new PendingCommandState<T>(newCommand, newBackFactory, newForthFactory);
+	}
+	
+	@Override
+	public CommandState<T> forUpwarding() {
+		Command<T> newCommand;
+		if(command instanceof UpwardableCommand)
+			newCommand = ((UpwardableCommand<T>)command).forUpwarding();
+		else
+			newCommand = command;
+		
+		CommandFactory<T> newForthFactory;
+		if(forthFactory instanceof UpwardableCommandFactory)
+			newForthFactory = ((UpwardableCommandFactory<T>)forthFactory).forUpwarding();
+		else
+			newForthFactory = forthFactory;
+		
+		CommandFactory<T> newBackFactory;
+		if(backFactory instanceof UpwardableCommandFactory)
+			newBackFactory = ((UpwardableCommandFactory<T>)backFactory).forUpwarding();
+		else
+			newBackFactory = backFactory;
+
+		return new PendingCommandState<T>(newCommand, newBackFactory, newForthFactory);
 	}
 	
 	@Override

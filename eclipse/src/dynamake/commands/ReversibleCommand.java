@@ -105,6 +105,17 @@ public class ReversibleCommand<T> implements CommandStateWithOutput<T> {
 	}
 	
 	@Override
+	public CommandState<T> forUpwarding() {
+		CommandFactory<T> newForthFactory = forthFactory;
+		Object newOutput = output;
+		
+		if(newForthFactory instanceof UpwardableCommandFactory)
+			newForthFactory = ((UpwardableCommandFactory<T>)newForthFactory).forUpwarding();
+		
+		return new ReversibleCommand<T>(cause, newOutput, newForthFactory, backFactory);
+	}
+	
+	@Override
 	public void appendPendings(List<CommandState<T>> pendingCommands) {
 		
 	}

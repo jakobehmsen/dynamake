@@ -50,4 +50,9 @@ public class CloneFactory implements ModelFactory {
 			}
 		};
 	}
+
+	@Override
+	public ModelFactory forForwarding() {
+		return this;
+	}
 }

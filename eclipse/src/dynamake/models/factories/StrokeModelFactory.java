@@ -30,4 +30,9 @@ public class StrokeModelFactory implements ModelFactory {
 	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
 		return new ModelCreation.Const(new StrokeModel(creationBounds.getSize(), offset, points));
 	}
+
+	@Override
+	public ModelFactory forForwarding() {
+		return this;
+	}
 }
