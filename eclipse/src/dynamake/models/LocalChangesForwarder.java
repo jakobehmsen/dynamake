@@ -93,22 +93,22 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 		return models;
 	}
 	
-	private final List<Location> getLocationsFromInnerToOuter(Model inner, Model outer, Location locationOfInner) {
-		// inner is assumed to child of outer either directly or indirectly
-		// locationOfInner is assumed to be the offset from outer to inner
-		
-		ArrayList<Location> locations = new ArrayList<Location>();
-		Location currentLocation = locationOfInner;
-		
-		while(currentLocation != outer) {
-			locations.add(currentLocation);
-			currentLocation = new CompositeLocation(currentLocation, new ParentLocation());
-		}
-		
-		locations.add(currentLocation);
-		
-		return locations;
-	}
+//	private final List<Location> getLocationsFromInnerToOuter(Model inner, Model outer, Location locationOfInner) {
+//		// inner is assumed to child of outer either directly or indirectly
+//		// locationOfInner is assumed to be the offset from outer to inner
+//		
+//		ArrayList<Location> locations = new ArrayList<Location>();
+//		Location currentLocation = locationOfInner;
+//		
+//		while(currentLocation != outer) {
+//			locations.add(currentLocation);
+//			currentLocation = new CompositeLocation(currentLocation, new ParentLocation());
+//		}
+//		
+//		locations.add(currentLocation);
+//		
+//		return locations;
+//	}
 
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
