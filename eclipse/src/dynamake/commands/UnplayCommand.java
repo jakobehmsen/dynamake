@@ -10,13 +10,18 @@ public class UnplayCommand implements Command<Model> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private int count;
+
+	public UnplayCommand(int count) {
+		this.count = count;
+	}
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model model = (Model)location.getChild(prevalentSystem);
 //		System.out.println("Performing unplay on " + model + "...");
 		
-		model.unplay(propCtx, 0, collector);
+		model.unplay(count, propCtx, 0, collector);
 		
 //		System.out.println("Performed unplay on " + model);
 		

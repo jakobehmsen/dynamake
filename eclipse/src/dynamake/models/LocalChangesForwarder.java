@@ -137,15 +137,19 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 				@Override
 				public void run(Collector<Model> collector) {
 					final List<Model> modelsFromInnerToOuter = getModelsFromInnerToOuter(innerMostTarget, target);
+
+					final ArrayList<Integer> modelIndexToLocationHistory = new ArrayList<Integer>();
 					// Unplay from innermost part of target to outermost part of target
 					// The outer parts of target could be probably be reduced to commands which affect inner parts, such as the scale command
 					for(int i = 0; i < modelsFromInnerToOuter.size(); i++) {
 						Model currentTarget = modelsFromInnerToOuter.get(i);
+						int localChangeCount = currentTarget.getLocalChangeCount();
+						modelIndexToLocationHistory.add(localChangeCount);
 						// Assumed that unplaying doesn't provoke side effects
 						// Play the local changes backwards
 						collector.execute(new SimplePendingCommandFactory<Model>(currentTarget, new PendingCommandState<Model>(
-							new UnplayCommand(),
-							new ReplayCommand()
+							new UnplayCommand(localChangeCount),
+							new ReplayCommand(localChangeCount)
 						)));
 					}
 					
@@ -178,10 +182,12 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 											// The outer parts of target could be probably be reduced to commands which affect inner parts, such as the scale command
 											for(int i = modelsFromInnerToOuter.size() - 1; i >= 0; i--) {
 												Model currentTarget = modelsFromInnerToOuter.get(i);
+												int localChangeCount = modelIndexToLocationHistory.get(i);
+												modelIndexToLocationHistory.add(localChangeCount);
 												// Play the local changes forward
 												collector.execute(new SimplePendingCommandFactory<Model>(currentTarget, new PendingCommandState<Model>(
-													new ReplayCommand(),
-													new UnplayCommand()
+													new ReplayCommand(localChangeCount),
+													new UnplayCommand(localChangeCount)
 												)));
 											}
 										}
