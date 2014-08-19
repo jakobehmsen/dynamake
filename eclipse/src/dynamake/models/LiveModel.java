@@ -188,6 +188,12 @@ public class LiveModel extends Model {
 	private static final Color TOP_BUTTON_BACKGROUND_COLOR = TOP_BACKGROUND_COLOR;
 	private static final Color TOP_FOREGROUND_COLOR = Color.WHITE;
 	
+	private interface InputListener {
+		void pressed(Point point, InputButton inputButton);
+		void released(Point point, InputButton inputButton);
+		void dragged(Point point);
+	}
+	
 	private interface InputButton extends Comparable<InputButton>, Serializable {
 		Color getColor();
 	}
@@ -280,7 +286,7 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	public static class ToolButton extends JPanel {
+	public static class ToolButton extends JPanel implements InputListener {
 		/**
 		 * 
 		 */
@@ -845,6 +851,96 @@ public class LiveModel extends Model {
 		public void showAsPassive() {
 			setBackground(TOP_BUTTON_BACKGROUND_COLOR);
 		}
+
+		@Override
+		public void pressed(Point point, InputButton inputButton) {
+			buttonsDown++;
+			if(!newButtonCombination.contains(inputButton)) {
+				newButtonCombination.add(inputButton);
+				Collections.sort(newButtonCombination);
+			}
+			
+			if(buttonsDown == 1) {
+				setBackground(TOP_BUTTON_BACKGROUND_COLOR.brighter());
+			}
+			
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					update(newButtonCombination);
+					ToolButton.this.repaint();
+				}
+			});
+		}
+
+		@Override
+		public void released(Point point, InputButton inputButton) {
+			buttonsDown--;
+			
+			if(buttonsDown == 0) {
+				setBackground(TOP_BUTTON_BACKGROUND_COLOR);
+				
+				@SuppressWarnings("unchecked")
+				final ArrayList<InputButton> localButtonsPressed = (ArrayList<InputButton>)newButtonCombination.clone();
+				
+				Connection<Model> connection = ToolButton.this.modelTranscriber.createConnection();
+				
+				connection.trigger(new Trigger<Model>() {
+					@Override
+					public void run(Collector<Model> collector) {
+						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+						
+						List<InputButton> currentButtons = ToolButton.this.buttons;
+						
+						if(localButtonsPressed.equals(currentButtons)) {
+							// If the indicated combination is the same as the current combination, then remove
+							// the current binding
+							pendingCommands.add(new PendingCommandState<Model>(
+								new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool),
+								new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool)
+							));
+						} else {
+							int previousToolForNewButton = ToolButton.this.livePanel.model.getToolForButtons(localButtonsPressed);
+							
+							if(previousToolForNewButton != -1) {
+								// If the new buttons are associated to another tool, then remove that binding
+								pendingCommands.add(new PendingCommandState<Model>(
+									new RemoveButtonsToToolBindingCommand2(localButtonsPressed, previousToolForNewButton), 
+									new BindButtonsToToolCommand(localButtonsPressed, previousToolForNewButton))
+								);
+							}
+							
+							if(currentButtons.size() > 0) {
+								// If this tool is associated to buttons, then remove that binding before
+								pendingCommands.add(new PendingCommandState<Model>(
+									new RemoveButtonsToToolBindingCommand2(currentButtons, ToolButton.this.tool), 
+									new BindButtonsToToolCommand(currentButtons, ToolButton.this.tool))
+								);
+								
+								// adding the replacement binding
+								pendingCommands.add(new PendingCommandState<Model>(
+									new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
+									new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool))
+								);
+							} else {
+								pendingCommands.add(new PendingCommandState<Model>(
+									new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
+									new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool)
+								));
+							}
+						}
+						
+						PendingCommandFactory.Util.sequence(collector, ToolButton.this.livePanel.model, pendingCommands, LocalHistoryHandler.class);
+						collector.commit();
+					}
+				});
+				
+				newButtonCombination.clear();
+			}
+		}
+
+		@Override
+		public void dragged(Point point) { }
 	}
 	
 	private static ToolButton createToolButton(final LivePanel livePanel, final ModelTranscriber modelTranscriber, ButtonGroup group, List<InputButton> buttons, final int tool, final String text) {
@@ -855,7 +951,7 @@ public class LiveModel extends Model {
 		((ToolButton)toolButton).setButtons(buttons);
 	}
 
-	public static class ProductionPanel extends JPanel {
+	public static class ProductionPanel extends JPanel implements InputListener {
 		/**
 		 * 
 		 */
@@ -866,7 +962,7 @@ public class LiveModel extends Model {
 		public static final Color UNBIND_COLOR = new Color(240, 34, 54);
 		public static final Color SELECTION_COLOR = Color.GRAY;
 		
-		public static class EditPanelInputAdapter extends MouseAdapter implements KeyListener {
+		public static class EditPanelInputAdapter extends MouseAdapter implements KeyListener, InputListener {
 			public ProductionPanel productionPanel;
 
 			public int buttonPressed;
@@ -1192,6 +1288,90 @@ public class LiveModel extends Model {
 				// TODO Auto-generated method stub
 				
 			}
+
+			@Override
+			public void pressed(final Point point, final InputButton inputButton) {
+				// Check whether there is an active tool which must be rolled back
+				// because a new combination of button is recognized
+				toolConnection.trigger(new Trigger<Model>() {
+					@Override
+					public void run(Collector<Model> collector) {
+						if(!buttonsPressed.contains(inputButton) && buttonsPressed.size() > 0) {
+							final Tool toolToRollback = toolBeingApplied;
+							
+							toolToRollback.rollback(productionPanel, collector);
+							collector.reject();
+							
+							ToolButton toolButton = getToolButton(buttonsPressed);
+							if(toolButton != null)
+								toolButton.showAsPassive();
+						}
+					}
+				});
+				
+				toolConnection.trigger(new Trigger<Model>() {
+					@Override
+					public void run(Collector<Model> collector) {
+						buttonsDown++;
+						
+						if(!buttonsPressed.contains(inputButton)) {
+							buttonsPressed.add(inputButton);
+							Collections.sort(buttonsPressed);
+							toolBeingApplied = createToolForApplication(buttonsPressed);
+							
+							final ModelComponent modelOver = getModelOver(productionPanel, point);
+							final Tool toolToApply = toolBeingApplied;
+							
+							toolToApply.mousePressed(productionPanel, modelOver, toolConnection, collector, productionPanel, point);
+							
+							ToolButton toolButton = getToolButton(buttonsPressed);
+							if(toolButton != null)
+								toolButton.showAsActive();
+						}
+					}
+				});
+			}
+
+			@Override
+			public void released(final Point point, InputButton inputButton) {
+				toolConnection.trigger(new Trigger<Model>() {
+					@Override
+					public void run(Collector<Model> collector) {
+						buttonsDown--;
+						
+						final ModelComponent modelOver = getModelOver(productionPanel, point);
+
+						if(modelOver != null) {
+							if(buttonsDown == 0) {
+								final Tool toolToApply = toolBeingApplied;
+								toolToApply.mouseReleased(productionPanel, modelOver, toolConnection, collector, productionPanel, point);
+								
+								ToolButton toolButton = getToolButton(buttonsPressed);
+								if(toolButton != null)
+									toolButton.showAsPassive();
+								
+								buttonsPressed.clear();
+								toolBeingApplied = null;
+							}
+						}
+					}
+				});
+			}
+
+			@Override
+			public void dragged(final Point point) {
+				toolConnection.trigger(new Trigger<Model>() {
+					@Override
+					public void run(Collector<Model> collector) {
+						final ModelComponent modelOver = getModelOver(productionPanel, point);
+
+						if(modelOver != null) {
+							final Tool toolToApply = toolBeingApplied;
+							toolToApply.mouseDragged(productionPanel, modelOver, collector, toolConnection, productionPanel, point);
+						}
+					}
+				});
+			}
 		}
 		
 		public LivePanel livePanel;
@@ -1214,6 +1394,21 @@ public class LiveModel extends Model {
 			
 			this.setOpaque(true);
 			this.setBackground(new Color(0, 0, 0, 0));
+		}
+
+		@Override
+		public void pressed(Point point, InputButton inputButton) {
+			editPanelInputAdapter.pressed(point, inputButton);
+		}
+
+		@Override
+		public void released(Point point, InputButton inputButton) {
+			editPanelInputAdapter.released(point, inputButton);
+		}
+
+		@Override
+		public void dragged(Point point) {
+			editPanelInputAdapter.dragged(point);
 		}
 	}
 	
@@ -1242,7 +1437,7 @@ public class LiveModel extends Model {
 				this.livePanel = livePanel;
 			}
 
-			private void getComponentAndSendMouseEvent(final MouseEvent e, final Action2<MouseEvent, MouseAdapter> mouseEventSender) {
+			private void getComponentAndSendMouseEvent(final MouseEvent e, final Action2<MouseEvent, InputListener> mouseEventSender) {
 				getComponent(e.getPoint(), new Action1<Component>() {
 					@Override
 					public void run(Component arg0) {
@@ -1251,15 +1446,17 @@ public class LiveModel extends Model {
 				});
 			}
 			
-			private void sendMouseEvent(MouseEvent e, Component component, final Action2<MouseEvent, MouseAdapter> mouseEventSender) {
+			private void sendMouseEvent(MouseEvent e, Component component, final Action2<MouseEvent, InputListener> mouseEventSender) {
 				Point newPoint = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), component);
 				e.setSource(component);
 				e.translatePoint(newPoint.x - e.getX(), newPoint.y - e.getY());
+
+				mouseEventSender.run(e, (InputListener)component);
 				
-				if(component instanceof ToolButton)
-					mouseEventSender.run(e, ((ToolButton)component).mouseAdapter);
-				else if(component instanceof ProductionPanel)
-					mouseEventSender.run(e, ((ProductionPanel)component).editPanelInputAdapter);
+//				if(component instanceof ToolButton)
+//					mouseEventSender.run(e, ((ToolButton)component).mouseAdapter);
+//				else if(component instanceof ProductionPanel)
+//					mouseEventSender.run(e, ((ProductionPanel)component).editPanelInputAdapter);
 			}
 			
 			private void getComponent(Point point, Action1<Component> componentAction) {
@@ -1276,51 +1473,66 @@ public class LiveModel extends Model {
 			}
 			
 			private Component mousePressedOnComponent;
+			private int buttonsDown;
 
 			@Override
 			public void mousePressed(final MouseEvent e) {
-				getComponent(e.getPoint(), new Action1<Component>() {
-					@Override
-					public void run(Component arg0) {
-						mousePressedOnComponent = arg0;
-						
-						sendMouseEvent(e, arg0, new Action2<MouseEvent, MouseAdapter>() {
-							@Override
-							public void run(MouseEvent arg0, MouseAdapter arg1) {
-								arg1.mousePressed(arg0);
-							}
-						});
-					}
-				});
+				if(buttonsDown == 0) {
+					getComponent(e.getPoint(), new Action1<Component>() {
+						@Override
+						public void run(Component arg0) {
+							mousePressedOnComponent = arg0;
+							
+							sendMouseEvent(e, arg0, new Action2<MouseEvent, InputListener>() {
+								@Override
+								public void run(MouseEvent arg0, InputListener arg1) {
+									arg1.pressed(arg0.getPoint(), new MouseButton(arg0.getButton()));
+								}
+							});
+						}
+					});
+				} else {
+					sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, InputListener>() {
+						@Override
+						public void run(MouseEvent arg0, InputListener arg1) {
+							arg1.pressed(arg0.getPoint(), new MouseButton(arg0.getButton()));
+						}
+					});
+				}
+				
+				buttonsDown++;
 			}
 			
 			public void mouseReleased(MouseEvent e) {
-				sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, MouseAdapter>() {
+				sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, InputListener>() {
 					@Override
-					public void run(MouseEvent arg0, MouseAdapter arg1) {
-						arg1.mouseReleased(arg0);
+					public void run(MouseEvent arg0, InputListener arg1) {
+						arg1.released(arg0.getPoint(), new MouseButton(arg0.getButton()));
 					}
 				});
 				
-				mousePressedOnComponent = null;
+				buttonsDown--;
+				
+				if(buttonsDown == 0)
+					mousePressedOnComponent = null;
 			}
 
 			@Override
 			public void mouseMoved(MouseEvent e) {
-				getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
-					@Override
-					public void run(MouseEvent arg0, MouseAdapter arg1) {
-						arg1.mouseMoved(arg0);
-					}
-				});
+//				getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
+//					@Override
+//					public void run(MouseEvent arg0, MouseAdapter arg1) {
+//						arg1.mouseMoved(arg0);
+//					}
+//				});
 			}
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, MouseAdapter>() {
+				sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, InputListener>() {
 					@Override
-					public void run(MouseEvent arg0, MouseAdapter arg1) {
-						arg1.mouseDragged(arg0);
+					public void run(MouseEvent arg0, InputListener arg1) {
+						arg1.dragged(arg0.getPoint());
 					}
 				});
 			}
