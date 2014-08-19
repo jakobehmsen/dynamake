@@ -1507,7 +1507,7 @@ public class LiveModel extends Model {
 			@Override
 			public void mouseMoved(MouseEvent e) { 
 				if(inputButtonsPressedCount > 0) {
-					System.out.println("dragged on live panel");
+//					System.out.println("dragged on live panel");
 					Point newPoint = SwingUtilities.convertPoint(livePanel, e.getPoint(), (Component)pressedOnComponent);
 					pressedOnComponent.dragged(newPoint);
 				}
@@ -1515,7 +1515,7 @@ public class LiveModel extends Model {
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				System.out.println("dragged on live panel");
+//				System.out.println("dragged on live panel");
 				Point newPoint = SwingUtilities.convertPoint(livePanel, e.getPoint(), (Component)pressedOnComponent);
 				pressedOnComponent.dragged(newPoint);
 			}
