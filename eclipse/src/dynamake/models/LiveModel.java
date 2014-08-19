@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -1436,28 +1437,16 @@ public class LiveModel extends Model {
 			public InputAdapter(LivePanel livePanel) {
 				this.livePanel = livePanel;
 			}
-
-			private void getComponentAndSendMouseEvent(final MouseEvent e, final Action2<MouseEvent, InputListener> mouseEventSender) {
-				getComponent(e.getPoint(), new Action1<Component>() {
-					@Override
-					public void run(Component arg0) {
-						sendMouseEvent(e, arg0, mouseEventSender);
-					}
-				});
+			
+			private void sendInputEvent(Point point, Component component, final Action2<Point, InputListener> inputEventSender) {
+				Point newPoint = SwingUtilities.convertPoint(livePanel, point, component);
+				inputEventSender.run(newPoint, (InputListener)component);
 			}
 			
-			private void sendMouseEvent(MouseEvent e, Component component, final Action2<MouseEvent, InputListener> mouseEventSender) {
-				Point newPoint = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), component);
-				e.setSource(component);
-				e.translatePoint(newPoint.x - e.getX(), newPoint.y - e.getY());
-
-				mouseEventSender.run(e, (InputListener)component);
-				
-//				if(component instanceof ToolButton)
-//					mouseEventSender.run(e, ((ToolButton)component).mouseAdapter);
-//				else if(component instanceof ProductionPanel)
-//					mouseEventSender.run(e, ((ProductionPanel)component).editPanelInputAdapter);
-			}
+//			private void translateMouseEvent(MouseEvent e, Component component) {
+//				Point newPoint = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), component);
+//				e.translatePoint(newPoint.x - e.getX(), newPoint.y - e.getY());
+//			}
 			
 			private void getComponent(Point point, Action1<Component> componentAction) {
 				if(livePanel.topPanel.getBounds().contains(point)) {
@@ -1472,69 +1461,63 @@ public class LiveModel extends Model {
 				}
 			}
 			
-			private Component mousePressedOnComponent;
-			private int buttonsDown;
-
-			@Override
-			public void mousePressed(final MouseEvent e) {
-				if(buttonsDown == 0) {
-					getComponent(e.getPoint(), new Action1<Component>() {
+			private void inputPressed(final Point point, final InputButton inputButton) {
+				if(inputButtonsPressedCount == 0) {
+					getComponent(point, new Action1<Component>() {
 						@Override
 						public void run(Component arg0) {
-							mousePressedOnComponent = arg0;
+							Point newPoint = SwingUtilities.convertPoint(livePanel, point, arg0);
 							
-							sendMouseEvent(e, arg0, new Action2<MouseEvent, InputListener>() {
-								@Override
-								public void run(MouseEvent arg0, InputListener arg1) {
-									arg1.pressed(arg0.getPoint(), new MouseButton(arg0.getButton()));
-								}
-							});
+							pressedOnComponent = (InputListener)arg0;
+							pressedOnComponent.pressed(newPoint, inputButton);
 						}
 					});
 				} else {
-					sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, InputListener>() {
-						@Override
-						public void run(MouseEvent arg0, InputListener arg1) {
-							arg1.pressed(arg0.getPoint(), new MouseButton(arg0.getButton()));
-						}
-					});
+					Point newPoint = SwingUtilities.convertPoint(livePanel, point, (Component)pressedOnComponent);
+					
+					pressedOnComponent.pressed(newPoint, inputButton);
 				}
 				
-				buttonsDown++;
+				inputButtonsPressedCount++;
+			}
+			
+			private void inputReleased(final Point point, final InputButton inputButton) {
+				Point newPoint = SwingUtilities.convertPoint(livePanel, point, (Component)pressedOnComponent);
+				pressedOnComponent.released(newPoint, inputButton);
+				
+				inputButtonsPressedCount--;
+				
+				if(inputButtonsPressedCount == 0)
+					pressedOnComponent = null;
+			}
+			
+			private InputListener pressedOnComponent;
+			private int inputButtonsPressedCount;
+			private HashSet<Integer> keysDown = new HashSet<Integer>();
+
+			@Override
+			public void mousePressed(final MouseEvent e) {
+				inputPressed(e.getPoint(), new MouseButton(e.getButton()));
 			}
 			
 			public void mouseReleased(MouseEvent e) {
-				sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, InputListener>() {
-					@Override
-					public void run(MouseEvent arg0, InputListener arg1) {
-						arg1.released(arg0.getPoint(), new MouseButton(arg0.getButton()));
-					}
-				});
-				
-				buttonsDown--;
-				
-				if(buttonsDown == 0)
-					mousePressedOnComponent = null;
+				inputReleased(e.getPoint(), new MouseButton(e.getButton()));
 			}
 
 			@Override
-			public void mouseMoved(MouseEvent e) {
-//				getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
-//					@Override
-//					public void run(MouseEvent arg0, MouseAdapter arg1) {
-//						arg1.mouseMoved(arg0);
-//					}
-//				});
+			public void mouseMoved(MouseEvent e) { 
+				if(inputButtonsPressedCount > 0) {
+					System.out.println("dragged on live panel");
+					Point newPoint = SwingUtilities.convertPoint(livePanel, e.getPoint(), (Component)pressedOnComponent);
+					pressedOnComponent.dragged(newPoint);
+				}
 			}
 
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, InputListener>() {
-					@Override
-					public void run(MouseEvent arg0, InputListener arg1) {
-						arg1.dragged(arg0.getPoint());
-					}
-				});
+				System.out.println("dragged on live panel");
+				Point newPoint = SwingUtilities.convertPoint(livePanel, e.getPoint(), (Component)pressedOnComponent);
+				pressedOnComponent.dragged(newPoint);
 			}
 			
 			@Override
@@ -1548,21 +1531,26 @@ public class LiveModel extends Model {
 			
 			@Override
 			public void keyPressed(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
+				if(!keysDown.contains(e.getKeyCode())) {
+					keysDown.add(e.getKeyCode());
+					
+					Point point = MouseInfo.getPointerInfo().getLocation();
+					SwingUtilities.convertPointFromScreen(point, livePanel);
+					inputPressed(point, new KeyboardButton(e.getKeyCode()));
+				}
 			}
 			
 			@Override
 			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
+				keysDown.remove(e.getKeyCode());
+
+				Point point = MouseInfo.getPointerInfo().getLocation();
+				SwingUtilities.convertPointFromScreen(point, livePanel);
+				inputReleased(point, new KeyboardButton(e.getKeyCode()));
 			}
 			
 			@Override
-			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
+			public void keyTyped(KeyEvent e) { }
 		}
 		
 		public LivePanel(final ModelComponent rootView, LiveModel model, ModelTranscriber modelTranscriber, final ViewManager viewManager) {
@@ -1571,6 +1559,7 @@ public class LiveModel extends Model {
 			this.model = model;
 			this.viewManager = viewManager;
 			this.modelTranscriber = modelTranscriber;
+			this.setFocusable(true);
 
 			contentView = model.getContent().createView(rootView, viewManager, modelTranscriber.extend(new ContentLocator()));
 
