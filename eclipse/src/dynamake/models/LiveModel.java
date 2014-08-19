@@ -3,6 +3,7 @@ package dynamake.models;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -38,6 +39,8 @@ import javax.swing.border.Border;
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
+import dynamake.delegates.Action1;
+import dynamake.delegates.Action2;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.tools.Tool;
 import dynamake.tools.ToolFactory;
@@ -1294,6 +1297,88 @@ public class LiveModel extends Model {
 			});
 			
 			contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);
+			
+			MouseAdapter mouseAdapter = new MouseAdapter() {
+				private void getComponentAndSendMouseEvent(final MouseEvent e, final Action2<MouseEvent, MouseAdapter> mouseEventSender) {
+					getComponent(e.getPoint(), new Action1<Component>() {
+						@Override
+						public void run(Component arg0) {
+							sendMouseEvent(e, arg0, mouseEventSender);
+						}
+					});
+				}
+				
+				private void sendMouseEvent(MouseEvent e, Component component, final Action2<MouseEvent, MouseAdapter> mouseEventSender) {
+					Point newPoint = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), component);
+					e.setSource(component);
+					e.translatePoint(newPoint.x - e.getX(), newPoint.y - e.getY());
+					
+					if(component instanceof ToolButton)
+						mouseEventSender.run(e, ((ToolButton)component).mouseAdapter);
+					else if(component instanceof ProductionPanel)
+						mouseEventSender.run(e, ((ProductionPanel)component).editPanelInputAdapter);
+				}
+				
+				private void getComponent(Point point, Action1<Component> componentAction) {
+					if(topPanel.getBounds().contains(point)) {
+						Component toolPanelComponent = topPanel.getComponentAt(point);
+						if(toolPanelComponent instanceof ToolButton) {
+							ToolButton toolButton = (ToolButton)toolPanelComponent;
+							
+							componentAction.run(toolButton);
+						}
+					} else if(contentPane.getBounds().contains(point)) {
+						componentAction.run(productionPanel);
+					}
+				}
+				
+				@Override
+				public void mousePressed(MouseEvent e) {
+					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
+						@Override
+						public void run(MouseEvent arg0, MouseAdapter arg1) {
+							arg1.mousePressed(arg0);
+						}
+					});
+				}
+				
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
+						@Override
+						public void run(MouseEvent arg0, MouseAdapter arg1) {
+							arg1.mouseReleased(arg0);
+						}
+					});
+				}
+				
+				@Override
+				public void mouseMoved(MouseEvent e) {
+					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
+						@Override
+						public void run(MouseEvent arg0, MouseAdapter arg1) {
+							arg1.mouseMoved(arg0);
+						}
+					});
+				}
+				
+				@Override
+				public void mouseDragged(MouseEvent e) {
+					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
+						@Override
+						public void run(MouseEvent arg0, MouseAdapter arg1) {
+							arg1.mouseDragged(arg0);
+						}
+					});
+				}
+			};
+			
+			this.addMouseListener(mouseAdapter);
+			this.addMouseMotionListener(mouseAdapter);
+			
+			KeyAdapter keyAdapter = new KeyAdapter() {
+				
+			};
 		}
 		
 		@Override
