@@ -1201,9 +1201,9 @@ public class LiveModel extends Model {
 			// - and scroll downwards to select its root parents
 			editPanelInputAdapter = new EditPanelInputAdapter(this);
 
-			this.addMouseListener(editPanelInputAdapter);
-			this.addMouseMotionListener(editPanelInputAdapter);
-			this.addKeyListener(editPanelInputAdapter);
+//			this.addMouseListener(editPanelInputAdapter);
+//			this.addMouseMotionListener(editPanelInputAdapter);
+//			this.addKeyListener(editPanelInputAdapter);
 			
 			this.setOpaque(true);
 			this.setBackground(new Color(0, 0, 0, 0));
