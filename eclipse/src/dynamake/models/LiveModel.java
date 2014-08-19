@@ -935,14 +935,16 @@ public class LiveModel extends Model {
 			}
 			
 			public ModelComponent getModelOver(MouseEvent e) {
-				Point pointInContentView = SwingUtilities.convertPoint((JComponent) e.getSource(), e.getPoint(), (JComponent)productionPanel.contentView.getBindingTarget());
-				JComponent componentOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
-				return ModelComponent.Util.closestModelComponent(componentOver);
+				return getModelOver((JComponent)e.getSource(), e.getPoint());
 			}
 			
 			public ModelComponent getModelOver(JComponent source, Point point) {
 				Point pointInContentView = SwingUtilities.convertPoint(source, point, (JComponent)productionPanel.contentView.getBindingTarget());
 				JComponent componentOver = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
+				
+				if(componentOver == null)
+					return productionPanel.contentView.getBindingTarget();
+
 				return ModelComponent.Util.closestModelComponent(componentOver);
 			}
 			
@@ -1332,24 +1334,49 @@ public class LiveModel extends Model {
 					}
 				}
 				
+				private Component mousePressedOnComponent;
+				
 				@Override
-				public void mousePressed(MouseEvent e) {
-					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
+				public void mousePressed(final MouseEvent e) {
+//					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
+//						@Override
+//						public void run(MouseEvent arg0, MouseAdapter arg1) {
+//							arg1.mousePressed(arg0);
+//						}
+//					});
+					
+					getComponent(e.getPoint(), new Action1<Component>() {
 						@Override
-						public void run(MouseEvent arg0, MouseAdapter arg1) {
-							arg1.mousePressed(arg0);
+						public void run(Component arg0) {
+							mousePressedOnComponent = arg0;
+							
+							sendMouseEvent(e, arg0, new Action2<MouseEvent, MouseAdapter>() {
+								@Override
+								public void run(MouseEvent arg0, MouseAdapter arg1) {
+									arg1.mousePressed(arg0);
+								}
+							});
 						}
 					});
 				}
 				
 				@Override
 				public void mouseReleased(MouseEvent e) {
-					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
+//					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
+//						@Override
+//						public void run(MouseEvent arg0, MouseAdapter arg1) {
+//							arg1.mouseReleased(arg0);
+//						}
+//					});
+					
+					sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, MouseAdapter>() {
 						@Override
 						public void run(MouseEvent arg0, MouseAdapter arg1) {
 							arg1.mouseReleased(arg0);
 						}
 					});
+					
+					mousePressedOnComponent = null;
 				}
 				
 				@Override
@@ -1364,7 +1391,15 @@ public class LiveModel extends Model {
 				
 				@Override
 				public void mouseDragged(MouseEvent e) {
-					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
+//					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
+//						@Override
+//						public void run(MouseEvent arg0, MouseAdapter arg1) {
+//							arg1.mouseDragged(arg0);
+//						}
+//					});
+					
+					System.out.println("Sending mouse dragged to " + mousePressedOnComponent);
+					sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, MouseAdapter>() {
 						@Override
 						public void run(MouseEvent arg0, MouseAdapter arg1) {
 							arg1.mouseDragged(arg0);
