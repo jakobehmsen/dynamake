@@ -1031,7 +1031,7 @@ public class CanvasModel extends Model {
 		final RemovableListener removableListenerForBoundsChanges = Model.wrapForBoundsChanges(this, view, viewManager);
 		Model.loadComponentProperties(this, view, Model.COMPONENT_COLOR_BACKGROUND);
 		final Model.RemovableListener removableListenerForComponentPropertyChanges = Model.wrapForComponentColorChanges(this, view, view, viewManager, Model.COMPONENT_COLOR_BACKGROUND);
-		Model.wrapForComponentGUIEvents(this, view, view, viewManager);
+//		Model.wrapForComponentGUIEvents(this, view, view, viewManager); // Commented out to let events bubble up
 		
 		final HashSet<Model> shownModels = new HashSet<Model>();
 		
