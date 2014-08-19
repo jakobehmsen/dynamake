@@ -321,13 +321,13 @@ public class LiveModel extends Model {
 				
 				@Override
 				public void mouseEntered(MouseEvent e) {
-					requestFocusInWindow();
+//					requestFocusInWindow();
 				}
 				
 				@Override
 				public void mouseExited(MouseEvent e) {
 					// TODO: End current binding action, if any
-					getParent().requestFocusInWindow();
+//					getParent().requestFocusInWindow();
 				}
 				
 				@Override
@@ -895,7 +895,7 @@ public class LiveModel extends Model {
 			
 			@Override
 			public void mouseEntered(MouseEvent arg0) {
-				productionPanel.requestFocusInWindow();
+//				productionPanel.requestFocusInWindow();
 			}
 			
 			private KeyboardButton pendingPressedKeyboardButton;
@@ -928,7 +928,7 @@ public class LiveModel extends Model {
 			
 			@Override
 			public void keyReleased(final KeyEvent e) {
-				productionPanel.livePanel.keysDown.remove(e.getKeyCode());
+//				productionPanel.livePanel.keysDown.remove(e.getKeyCode());
 				
 				try {
 //					final Point mousePoint = MouseInfo.getPointerInfo().getLocation();
