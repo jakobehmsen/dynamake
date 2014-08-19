@@ -18,6 +18,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1229,8 +1231,127 @@ public class LiveModel extends Model {
 		private ModelTranscriber modelTranscriber;
 		private ToolButton[] buttonTools;
 		private final Binding<ModelComponent> contentView;
+		private InputAdapter inputAdapter;
 		
 		private HashSet<Integer> keysDown = new HashSet<Integer>();
+		
+		private static class InputAdapter implements MouseListener, MouseMotionListener, KeyListener {
+			private LivePanel livePanel;
+			
+			public InputAdapter(LivePanel livePanel) {
+				this.livePanel = livePanel;
+			}
+
+			private void getComponentAndSendMouseEvent(final MouseEvent e, final Action2<MouseEvent, MouseAdapter> mouseEventSender) {
+				getComponent(e.getPoint(), new Action1<Component>() {
+					@Override
+					public void run(Component arg0) {
+						sendMouseEvent(e, arg0, mouseEventSender);
+					}
+				});
+			}
+			
+			private void sendMouseEvent(MouseEvent e, Component component, final Action2<MouseEvent, MouseAdapter> mouseEventSender) {
+				Point newPoint = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), component);
+				e.setSource(component);
+				e.translatePoint(newPoint.x - e.getX(), newPoint.y - e.getY());
+				
+				if(component instanceof ToolButton)
+					mouseEventSender.run(e, ((ToolButton)component).mouseAdapter);
+				else if(component instanceof ProductionPanel)
+					mouseEventSender.run(e, ((ProductionPanel)component).editPanelInputAdapter);
+			}
+			
+			private void getComponent(Point point, Action1<Component> componentAction) {
+				if(livePanel.topPanel.getBounds().contains(point)) {
+					Component toolPanelComponent = livePanel.topPanel.getComponentAt(point);
+					if(toolPanelComponent instanceof ToolButton) {
+						ToolButton toolButton = (ToolButton)toolPanelComponent;
+						
+						componentAction.run(toolButton);
+					}
+				} else if(livePanel.contentPane.getBounds().contains(point)) {
+					componentAction.run(livePanel.productionPanel);
+				}
+			}
+			
+			private Component mousePressedOnComponent;
+
+			@Override
+			public void mousePressed(final MouseEvent e) {
+				getComponent(e.getPoint(), new Action1<Component>() {
+					@Override
+					public void run(Component arg0) {
+						mousePressedOnComponent = arg0;
+						
+						sendMouseEvent(e, arg0, new Action2<MouseEvent, MouseAdapter>() {
+							@Override
+							public void run(MouseEvent arg0, MouseAdapter arg1) {
+								arg1.mousePressed(arg0);
+							}
+						});
+					}
+				});
+			}
+			
+			public void mouseReleased(MouseEvent e) {
+				sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, MouseAdapter>() {
+					@Override
+					public void run(MouseEvent arg0, MouseAdapter arg1) {
+						arg1.mouseReleased(arg0);
+					}
+				});
+				
+				mousePressedOnComponent = null;
+			}
+
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
+					@Override
+					public void run(MouseEvent arg0, MouseAdapter arg1) {
+						arg1.mouseMoved(arg0);
+					}
+				});
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, MouseAdapter>() {
+					@Override
+					public void run(MouseEvent arg0, MouseAdapter arg1) {
+						arg1.mouseDragged(arg0);
+					}
+				});
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) { }
+			
+			@Override
+			public void mouseEntered(MouseEvent e) { }
+			
+			@Override
+			public void mouseExited(MouseEvent e) { }
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		}
 		
 		public LivePanel(final ModelComponent rootView, LiveModel model, ModelTranscriber modelTranscriber, final ViewManager viewManager) {
 			modelTranscriber.setComponentToRepaint(this);
@@ -1300,120 +1421,11 @@ public class LiveModel extends Model {
 			
 			contentPane.add(productionPanel, JLayeredPane.MODAL_LAYER);
 			
-			MouseAdapter mouseAdapter = new MouseAdapter() {
-				private void getComponentAndSendMouseEvent(final MouseEvent e, final Action2<MouseEvent, MouseAdapter> mouseEventSender) {
-					getComponent(e.getPoint(), new Action1<Component>() {
-						@Override
-						public void run(Component arg0) {
-							sendMouseEvent(e, arg0, mouseEventSender);
-						}
-					});
-				}
-				
-				private void sendMouseEvent(MouseEvent e, Component component, final Action2<MouseEvent, MouseAdapter> mouseEventSender) {
-					Point newPoint = SwingUtilities.convertPoint((Component)e.getSource(), e.getPoint(), component);
-					e.setSource(component);
-					e.translatePoint(newPoint.x - e.getX(), newPoint.y - e.getY());
-					
-					if(component instanceof ToolButton)
-						mouseEventSender.run(e, ((ToolButton)component).mouseAdapter);
-					else if(component instanceof ProductionPanel)
-						mouseEventSender.run(e, ((ProductionPanel)component).editPanelInputAdapter);
-				}
-				
-				private void getComponent(Point point, Action1<Component> componentAction) {
-					if(topPanel.getBounds().contains(point)) {
-						Component toolPanelComponent = topPanel.getComponentAt(point);
-						if(toolPanelComponent instanceof ToolButton) {
-							ToolButton toolButton = (ToolButton)toolPanelComponent;
-							
-							componentAction.run(toolButton);
-						}
-					} else if(contentPane.getBounds().contains(point)) {
-						componentAction.run(productionPanel);
-					}
-				}
-				
-				private Component mousePressedOnComponent;
-				
-				@Override
-				public void mousePressed(final MouseEvent e) {
-//					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
-//						@Override
-//						public void run(MouseEvent arg0, MouseAdapter arg1) {
-//							arg1.mousePressed(arg0);
-//						}
-//					});
-					
-					getComponent(e.getPoint(), new Action1<Component>() {
-						@Override
-						public void run(Component arg0) {
-							mousePressedOnComponent = arg0;
-							
-							sendMouseEvent(e, arg0, new Action2<MouseEvent, MouseAdapter>() {
-								@Override
-								public void run(MouseEvent arg0, MouseAdapter arg1) {
-									arg1.mousePressed(arg0);
-								}
-							});
-						}
-					});
-				}
-				
-				@Override
-				public void mouseReleased(MouseEvent e) {
-//					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
-//						@Override
-//						public void run(MouseEvent arg0, MouseAdapter arg1) {
-//							arg1.mouseReleased(arg0);
-//						}
-//					});
-					
-					sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, MouseAdapter>() {
-						@Override
-						public void run(MouseEvent arg0, MouseAdapter arg1) {
-							arg1.mouseReleased(arg0);
-						}
-					});
-					
-					mousePressedOnComponent = null;
-				}
-				
-				@Override
-				public void mouseMoved(MouseEvent e) {
-					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
-						@Override
-						public void run(MouseEvent arg0, MouseAdapter arg1) {
-							arg1.mouseMoved(arg0);
-						}
-					});
-				}
-				
-				@Override
-				public void mouseDragged(MouseEvent e) {
-//					getComponentAndSendMouseEvent(e, new Action2<MouseEvent, MouseAdapter>() {
-//						@Override
-//						public void run(MouseEvent arg0, MouseAdapter arg1) {
-//							arg1.mouseDragged(arg0);
-//						}
-//					});
-					
-					System.out.println("Sending mouse dragged to " + mousePressedOnComponent);
-					sendMouseEvent(e, mousePressedOnComponent, new Action2<MouseEvent, MouseAdapter>() {
-						@Override
-						public void run(MouseEvent arg0, MouseAdapter arg1) {
-							arg1.mouseDragged(arg0);
-						}
-					});
-				}
-			};
+			inputAdapter = new InputAdapter(this);
 			
-			this.addMouseListener(mouseAdapter);
-			this.addMouseMotionListener(mouseAdapter);
-			
-			KeyAdapter keyAdapter = new KeyAdapter() {
-				
-			};
+			this.addMouseListener(inputAdapter);
+			this.addMouseMotionListener(inputAdapter);
+			this.addKeyListener(inputAdapter);
 		}
 		
 		@Override
