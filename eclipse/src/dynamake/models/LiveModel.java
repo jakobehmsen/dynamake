@@ -291,6 +291,9 @@ public class LiveModel extends Model {
 		private int buttonsDown;
 		private ArrayList<InputButton> newButtonCombination = new ArrayList<InputButton>();
 		
+		public final MouseAdapter mouseAdapter;
+		public final KeyAdapter keyAdapter;
+		
 		public ToolButton(int tool, List<InputButton> buttons, String text, LivePanel liveModel, ModelTranscriber modelTranscriber) {
 			this.tool = tool;
 			this.buttons = buttons;
@@ -315,21 +318,7 @@ public class LiveModel extends Model {
 			
 			update();
 			
-			this.addMouseListener(new MouseAdapter() {
-//				int buttonsDown = 0;
-//				ArrayList<Integer> buttonsPressed = new ArrayList<Integer>();
-				
-				@Override
-				public void mouseEntered(MouseEvent e) {
-//					requestFocusInWindow();
-				}
-				
-				@Override
-				public void mouseExited(MouseEvent e) {
-					// TODO: End current binding action, if any
-//					getParent().requestFocusInWindow();
-				}
-				
+			mouseAdapter = new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
 					int newButton = e.getButton();
@@ -418,11 +407,9 @@ public class LiveModel extends Model {
 						newButtonCombination.clear();
 					}
 				}
-			});
+			};
 			
-			// Support for binding a key combination with a tool
-			// It should be possible to both bind a key combination AND a mouse button to the same tool at the same time
-			KeyListener keyListener = new KeyAdapter() {
+			keyAdapter = new KeyAdapter() {
 				@Override
 				public void keyPressed(KeyEvent e) {
 					if(ToolButton.this.livePanel.keysDown.contains(e.getKeyCode()))
@@ -538,8 +525,231 @@ public class LiveModel extends Model {
 				}
 			};
 			
-			this.addKeyListener(keyListener);
-			labelToolName.addKeyListener(keyListener);
+//			this.addMouseListener(new MouseAdapter() {
+////				int buttonsDown = 0;
+////				ArrayList<Integer> buttonsPressed = new ArrayList<Integer>();
+//				
+//				@Override
+//				public void mouseEntered(MouseEvent e) {
+////					requestFocusInWindow();
+//				}
+//				
+//				@Override
+//				public void mouseExited(MouseEvent e) {
+//					// TODO: End current binding action, if any
+////					getParent().requestFocusInWindow();
+//				}
+//				
+//				@Override
+//				public void mousePressed(MouseEvent e) {
+//					int newButton = e.getButton();
+//					
+//					buttonsDown++;
+//					if(!newButtonCombination.contains(new MouseButton(newButton))) {
+//						newButtonCombination.add(new MouseButton(newButton));
+//						Collections.sort(newButtonCombination);
+//					}
+//					
+//					if(buttonsDown == 1) {
+//						setBackground(TOP_BUTTON_BACKGROUND_COLOR.brighter());
+//					}
+//					
+//					SwingUtilities.invokeLater(new Runnable() {
+//						@Override
+//						public void run() {
+//							update(newButtonCombination);
+//							ToolButton.this.repaint();
+//						}
+//					});
+//				}
+//				
+//				@Override
+//				public void mouseReleased(MouseEvent e) {
+//					buttonsDown--;
+//					
+//					if(buttonsDown == 0) {
+//						setBackground(TOP_BUTTON_BACKGROUND_COLOR);
+//						
+//						@SuppressWarnings("unchecked")
+//						final ArrayList<InputButton> localButtonsPressed = (ArrayList<InputButton>)newButtonCombination.clone();
+//						
+//						Connection<Model> connection = ToolButton.this.modelTranscriber.createConnection();
+//						
+//						connection.trigger(new Trigger<Model>() {
+//							@Override
+//							public void run(Collector<Model> collector) {
+//								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+//								
+//								List<InputButton> currentButtons = ToolButton.this.buttons;
+//								
+//								if(localButtonsPressed.equals(currentButtons)) {
+//									// If the indicated combination is the same as the current combination, then remove
+//									// the current binding
+//									pendingCommands.add(new PendingCommandState<Model>(
+//										new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool),
+//										new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool)
+//									));
+//								} else {
+//									int previousToolForNewButton = ToolButton.this.livePanel.model.getToolForButtons(localButtonsPressed);
+//									
+//									if(previousToolForNewButton != -1) {
+//										// If the new buttons are associated to another tool, then remove that binding
+//										pendingCommands.add(new PendingCommandState<Model>(
+//											new RemoveButtonsToToolBindingCommand2(localButtonsPressed, previousToolForNewButton), 
+//											new BindButtonsToToolCommand(localButtonsPressed, previousToolForNewButton))
+//										);
+//									}
+//									
+//									if(currentButtons.size() > 0) {
+//										// If this tool is associated to buttons, then remove that binding before
+//										pendingCommands.add(new PendingCommandState<Model>(
+//											new RemoveButtonsToToolBindingCommand2(currentButtons, ToolButton.this.tool), 
+//											new BindButtonsToToolCommand(currentButtons, ToolButton.this.tool))
+//										);
+//										
+//										// adding the replacement binding
+//										pendingCommands.add(new PendingCommandState<Model>(
+//											new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
+//											new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool))
+//										);
+//									} else {
+//										pendingCommands.add(new PendingCommandState<Model>(
+//											new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
+//											new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool)
+//										));
+//									}
+//								}
+//								
+//								PendingCommandFactory.Util.sequence(collector, ToolButton.this.livePanel.model, pendingCommands, LocalHistoryHandler.class);
+//								collector.commit();
+//							}
+//						});
+//						
+//						newButtonCombination.clear();
+//					}
+//				}
+//			});
+			
+			// Support for binding a key combination with a tool
+			// It should be possible to both bind a key combination AND a mouse button to the same tool at the same time
+//			KeyListener keyListener = new KeyAdapter() {
+//				@Override
+//				public void keyPressed(KeyEvent e) {
+//					if(ToolButton.this.livePanel.keysDown.contains(e.getKeyCode()))
+//						return;
+//					
+//					ToolButton.this.livePanel.keysDown.add(e.getKeyCode());
+//					
+//					if(!newButtonCombination.contains(new KeyboardButton(e.getKeyCode()))) {
+//						buttonsDown++;
+//						
+//						newButtonCombination.add(new KeyboardButton(e.getKeyCode()));
+//						Collections.sort(newButtonCombination);
+//						
+//						if(buttonsDown == 1) {
+//							setBackground(TOP_BUTTON_BACKGROUND_COLOR.brighter());
+//						}
+//						
+//						SwingUtilities.invokeLater(new Runnable() {
+//							@Override
+//							public void run() {
+//								update(newButtonCombination);
+//								ToolButton.this.repaint();
+//							}
+//						});
+//
+////						System.out.println("Pressed " + e.getKeyChar());
+//						System.out.println("Current buttons pressed " + keyPressedAsString());
+//					}
+//				}
+//				
+//				@Override
+//				public void keyReleased(KeyEvent e) {
+//					ToolButton.this.livePanel.keysDown.remove(e.getKeyCode());
+////					System.out.println("Released " + e.getKeyChar());
+//					
+////					newButtonCombination.remove(new KeyboardButton(e.getKeyCode()));
+////					
+////					if(newButtonCombination.size() == 0) {
+////						System.out.println("New button combination " + keyPressedAsString());
+////						newButtonCombination.clear();
+////					}
+//					
+//					buttonsDown--;
+//					
+//					if(buttonsDown == 0) {
+//						setBackground(TOP_BUTTON_BACKGROUND_COLOR);
+//						
+//						@SuppressWarnings("unchecked")
+//						final ArrayList<InputButton> localButtonsPressed = (ArrayList<InputButton>)newButtonCombination.clone();
+//						
+//						Connection<Model> connection = ToolButton.this.modelTranscriber.createConnection();
+//						
+//						connection.trigger(new Trigger<Model>() {
+//							@Override
+//							public void run(Collector<Model> collector) {
+//								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+//								
+//								List<InputButton> currentButtons = ToolButton.this.buttons;
+//								
+//								if(localButtonsPressed.equals(currentButtons)) {
+//									// If the indicated combination is the same as the current combination, then remove
+//									// the current binding
+//									pendingCommands.add(new PendingCommandState<Model>(
+//										new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool),
+//										new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool)
+//									));
+//								} else {
+//									int previousToolForNewButton = ToolButton.this.livePanel.model.getToolForButtons(localButtonsPressed);
+//									
+//									if(previousToolForNewButton != -1) {
+//										// If the new buttons are associated to another tool, then remove that binding
+//										pendingCommands.add(new PendingCommandState<Model>(
+//											new RemoveButtonsToToolBindingCommand2(localButtonsPressed, previousToolForNewButton), 
+//											new BindButtonsToToolCommand(localButtonsPressed, previousToolForNewButton))
+//										);
+//									}
+//									
+//									if(currentButtons.size() > 0) {
+//										// If this tool is associated to buttons, then remove that binding before
+//										pendingCommands.add(new PendingCommandState<Model>(
+//											new RemoveButtonsToToolBindingCommand2(currentButtons, ToolButton.this.tool), 
+//											new BindButtonsToToolCommand(currentButtons, ToolButton.this.tool))
+//										);
+//										
+//										// adding the replacement binding
+//										pendingCommands.add(new PendingCommandState<Model>(
+//											new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
+//											new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool))
+//										);
+//									} else {
+//										pendingCommands.add(new PendingCommandState<Model>(
+//											new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
+//											new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool)
+//										));
+//									}
+//								}
+//								
+//								PendingCommandFactory.Util.sequence(collector, ToolButton.this.livePanel.model, pendingCommands, LocalHistoryHandler.class);
+//								collector.commit();
+//							}
+//						});
+//						
+//						newButtonCombination.clear();
+//					}
+//				}
+//				
+//				private String keyPressedAsString() {
+//					String allKeys = "";
+//					for(Object keyPressed: newButtonCombination) {
+//						allKeys += keyPressed + " ";
+//					}
+//					return allKeys;
+//				}
+//			};
+			
+//			this.addKeyListener(keyListener);
+//			labelToolName.addKeyListener(keyListener);
 //			labelButton.addKeyListener(keyListener);
 			
 			setFocusable(true);
