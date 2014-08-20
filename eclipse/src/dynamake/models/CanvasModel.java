@@ -6,7 +6,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -36,8 +35,6 @@ import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.PendingCommandFactory;
-import dynamake.transcription.Execution;
-import dynamake.transcription.HistoryHandler;
 import dynamake.transcription.Collector;
 import dynamake.transcription.LocalHistoryHandler;
 import dynamake.transcription.SimplePendingCommandFactory;
@@ -805,11 +802,11 @@ public class CanvasModel extends Model {
 			CanvasModel canvasModel = (CanvasModel)location.getChild(prevalentSystem);
 			
 			collector.execute(new SimplePendingCommandFactory<Model>(canvasModel, new PendingCommandState<Model>(
-				new CanvasModel.DestroyModelCommand(location),
+				new CanvasModel.DestroyModelCommand(modelLocation),
 				new Command.Null<Model>()
 			)));
 			collector.execute(new SimplePendingCommandFactory<Model>(canvasModel, new PendingCommandState<Model>(
-				new CanvasModel.RemoveModelCommand(location),
+				new CanvasModel.RemoveModelCommand(modelLocation),
 				new Command.Null<Model>()
 			)));
 			
