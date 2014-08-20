@@ -656,7 +656,7 @@ public class CanvasModel extends Model {
 			menuBuilder.addMenuBuilder("Remove", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					CanvasModel.appendRemoveTransaction(collector, livePanel, child, model);
+					CanvasModel.executeRemoveTransaction(collector, livePanel, child, model);
 				}
 			});
 		}
@@ -767,7 +767,7 @@ public class CanvasModel extends Model {
 		));
 	}
 	
-	public static void appendRemoveTransaction(Collector<Model> collector, LivePanel livePanel, ModelComponent child, final CanvasModel model) {
+	public static void executeRemoveTransaction(Collector<Model> collector, LivePanel livePanel, ModelComponent child, final CanvasModel model) {
 		ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 		
 		appendRemoveTransaction(pendingCommands, livePanel, child, model);
