@@ -766,31 +766,19 @@ public class CanvasModel extends Model {
 	public static void appendRemoveTransaction(Collector<Model> collector, LivePanel livePanel, ModelComponent child, final CanvasModel model) {
 		final Location locationOfModel = model.getLocationOf(child.getModelBehind());
 		
-		collector.execute(new SimplePendingCommandFactory<Model>(model, new PendingCommandState<Model>(
-				new CanvasModel.DestroyModelCommand(locationOfModel),
-				new Command.Null<Model>()
-			)) {
-			
-			@Override
-			public void afterPropogationFinished(Execution<Model> execution, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-				collector.execute(new SimplePendingCommandFactory<Model>(model, new PendingCommandState<Model>(
-						new RemoveModelCommand(locationOfModel),
-						new RestoreModelCommand.AfterRemove(),
-						new RemoveModelCommand.AfterAdd()
-					)) {
-
-					@Override
-					public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
-						return LocalHistoryHandler.class; 
-					}
-				});
-			}
-			
-			@Override
-			public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
-				return LocalHistoryHandler.class; 
-			}
-		});
+		ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+		
+		pendingCommands.add(new PendingCommandState<Model>(
+			new CanvasModel.DestroyModelCommand(locationOfModel),
+			new Command.Null<Model>()
+		));
+		pendingCommands.add(new PendingCommandState<Model>(
+			new RemoveModelCommand(locationOfModel),
+			new RestoreModelCommand.AfterRemove(),
+			new RemoveModelCommand.AfterAdd()
+		));
+		
+		PendingCommandFactory.Util.sequence(collector, model, pendingCommands, LocalHistoryHandler.class);
 	}
 	
 	public static void appendMoveTransaction(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation) {
