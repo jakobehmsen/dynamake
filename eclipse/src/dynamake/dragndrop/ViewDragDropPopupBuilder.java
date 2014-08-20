@@ -56,7 +56,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 				Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 				if(currentView == null)
 					currentView = Model.VIEW_APPLIANCE;
-				PendingCommandFactory.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.executeSingle(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 					new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
 					new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
 				));
@@ -69,7 +69,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 				Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 				if(currentView == null)
 					currentView = Model.VIEW_APPLIANCE;
-				PendingCommandFactory.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.executeSingle(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 					new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
 					new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
 				));

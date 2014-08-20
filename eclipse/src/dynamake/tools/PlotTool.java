@@ -59,7 +59,7 @@ public class PlotTool implements Tool {
 								modelLocations[i] = target.getLocationOf(view.getModelBehind());
 							}
 							
-							PendingCommandFactory.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+							PendingCommandFactory.Util.executeSingle(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 								new WrapCommand(new RectangleF(creationBoundsInSelection), modelLocations), 
 								new UnwrapCommand.AfterWrap(),
 								new RewrapCommand.AfterUnwrap()
@@ -72,7 +72,7 @@ public class PlotTool implements Tool {
 						public void run(Collector<Model> collector) {
 							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
 							
-							PendingCommandFactory.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+							PendingCommandFactory.Util.executeSingle(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()

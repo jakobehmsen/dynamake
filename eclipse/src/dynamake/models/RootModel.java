@@ -182,7 +182,7 @@ public class RootModel extends Model {
 									));
 								}
 								
-								PendingCommandFactory.Util.sequence(collector, rootModel, pendingCommands, LocalHistoryHandler.class);
+								PendingCommandFactory.Util.executeSequence(collector, rootModel, pendingCommands, LocalHistoryHandler.class);
 							}
 						});
 
@@ -262,7 +262,7 @@ public class RootModel extends Model {
 						collector.execute(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
-								PendingCommandFactory.Util.single(collector, RootModel.this, LocalHistoryHandler.class, new PendingCommandState<Model>(
+								PendingCommandFactory.Util.executeSingle(collector, RootModel.this, LocalHistoryHandler.class, new PendingCommandState<Model>(
 									new SetPropertyCommand("State", newState),
 									new SetPropertyCommand.AfterSetProperty()
 								));

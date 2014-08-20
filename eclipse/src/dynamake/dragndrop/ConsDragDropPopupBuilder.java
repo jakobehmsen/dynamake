@@ -118,7 +118,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						new RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
 					));
 					
-					PendingCommandFactory.Util.sequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+					PendingCommandFactory.Util.executeSequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 				}
 			});
 		}

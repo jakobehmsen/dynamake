@@ -13,7 +13,7 @@ public interface PendingCommandFactory<T> {
 	Class<? extends HistoryHandler<T>> getHistoryHandlerClass();
 	
 	public static class Util {
-		public static <T> void single(Collector<T> collector, final T reference, final Class<? extends HistoryHandler<T>> historyHandlerClass, final CommandState<T> pendingCommand) {
+		public static <T> void executeSingle(Collector<T> collector, final T reference, final Class<? extends HistoryHandler<T>> historyHandlerClass, final CommandState<T> pendingCommand) {
 			collector.execute(new SimplePendingCommandFactory<T>(reference, pendingCommand) {
 				@Override
 				public Class<? extends HistoryHandler<T>> getHistoryHandlerClass() {
@@ -22,15 +22,15 @@ public interface PendingCommandFactory<T> {
 			});
 		}
 		
-		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands) {
+		public static <T> void executeSequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands) {
 			sequence(collector, reference, pendingCommands, new ExecutionsHandler<T>() {
 				@Override
 				public void handleExecutions(List<Execution<T>> executions, Collector<T> collector) { }
 			});
 		}
 		
-		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, Class<? extends HistoryHandler<T>> historyHandlerClass) {
-			sequence(collector, reference, pendingCommands, historyHandlerClass, new ExecutionsHandler<T>() {
+		public static <T> void executeSequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, Class<? extends HistoryHandler<T>> historyHandlerClass) {
+			executeSequence(collector, reference, pendingCommands, historyHandlerClass, new ExecutionsHandler<T>() {
 				@Override
 				public void handleExecutions(List<Execution<T>> executions, Collector<T> collector) { }
 			});
@@ -38,14 +38,14 @@ public interface PendingCommandFactory<T> {
 		
 		@SuppressWarnings("unchecked")
 		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, ExecutionsHandler<T> afterExecutions) {
-			sequence(collector, reference, pendingCommands, (Class<? extends HistoryHandler<T>>)NullHistoryHandler.class, afterExecutions, new ArrayList<Execution<T>>(), 0);
+			executeSequence(collector, reference, pendingCommands, (Class<? extends HistoryHandler<T>>)NullHistoryHandler.class, afterExecutions, new ArrayList<Execution<T>>(), 0);
 		}
 		
-		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, Class<? extends HistoryHandler<T>> historyHandlerClass, ExecutionsHandler<T> afterExecutions) {
-			sequence(collector, reference, pendingCommands, historyHandlerClass, afterExecutions, new ArrayList<Execution<T>>(), 0);
+		public static <T> void executeSequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, Class<? extends HistoryHandler<T>> historyHandlerClass, ExecutionsHandler<T> afterExecutions) {
+			executeSequence(collector, reference, pendingCommands, historyHandlerClass, afterExecutions, new ArrayList<Execution<T>>(), 0);
 		}
 		
-		private static <T> void sequence(
+		private static <T> void executeSequence(
 				Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, final Class<? extends HistoryHandler<T>> historyHandlerClass, 
 				final ExecutionsHandler<T> afterExecutions, final List<Execution<T>> executions, final int i) {
 			if(i < pendingCommands.size()) {
@@ -53,7 +53,7 @@ public interface PendingCommandFactory<T> {
 					@Override
 					public void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 						executions.add(execution);
-						sequence(collector, reference, pendingCommands, historyHandlerClass, afterExecutions, executions, i + 1);
+						executeSequence(collector, reference, pendingCommands, historyHandlerClass, afterExecutions, executions, i + 1);
 					}
 					
 					@Override

@@ -244,7 +244,7 @@ public abstract class Model implements Serializable, Observer {
 		// These could probably be replaced by simpler structures; just lists of CommandState objects.
 		RevertingCommandStateSequence<Model> toUndo = (RevertingCommandStateSequence<Model>)undoStack.pop();
 		
-		PendingCommandFactory.Util.sequence(collector, this, Arrays.asList(toUndo.commandStates), UndoHistoryHandler.class);
+		PendingCommandFactory.Util.executeSequence(collector, this, Arrays.asList(toUndo.commandStates), UndoHistoryHandler.class);
 		
 		return toUndo;
 	}
@@ -255,7 +255,7 @@ public abstract class Model implements Serializable, Observer {
 	
 	public CommandState<Model> redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		RevertingCommandStateSequence<Model> toRedo = (RevertingCommandStateSequence<Model>)redoStack.pop();
-		PendingCommandFactory.Util.sequence(collector, this, Arrays.asList(toRedo.commandStates), RedoHistoryHandler.class);
+		PendingCommandFactory.Util.executeSequence(collector, this, Arrays.asList(toRedo.commandStates), RedoHistoryHandler.class);
 		
 		return toRedo;
 	}
@@ -379,7 +379,7 @@ public abstract class Model implements Serializable, Observer {
 			// Side-effect
 			final SetProperty setProperty = (SetProperty)change;
 
-			PendingCommandFactory.Util.single(collector, this, LocalHistoryHandler.class, new PendingCommandState<Model>(
+			PendingCommandFactory.Util.executeSingle(collector, this, LocalHistoryHandler.class, new PendingCommandState<Model>(
 				new SetPropertyCommand(setProperty.name, setProperty.value),
 				new SetPropertyCommand.AfterSetProperty()
 			));
@@ -634,7 +634,7 @@ public abstract class Model implements Serializable, Observer {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						PendingCommandFactory.Util.single(collector, view.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+						PendingCommandFactory.Util.executeSingle(collector, view.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 							new MouseUpCommand(), 
 							new Command.Null<Model>()
 						));
@@ -650,7 +650,7 @@ public abstract class Model implements Serializable, Observer {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						PendingCommandFactory.Util.single(collector, view.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+						PendingCommandFactory.Util.executeSingle(collector, view.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 							new MouseDownCommand(), 
 							new Command.Null<Model>()
 						));
@@ -740,7 +740,7 @@ public abstract class Model implements Serializable, Observer {
 				return new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						PendingCommandFactory.Util.single(collector, model, LocalHistoryHandler.class, new PendingCommandState<Model>(
+						PendingCommandFactory.Util.executeSingle(collector, model, LocalHistoryHandler.class, new PendingCommandState<Model>(
 							new SetPropertyCommand(PROPERTY_COLOR, color),
 							new SetPropertyCommand.AfterSetProperty()
 						));
@@ -767,7 +767,7 @@ public abstract class Model implements Serializable, Observer {
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
 							
-							PendingCommandFactory.Util.single(collector, target.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+							PendingCommandFactory.Util.executeSingle(collector, target.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(new CloneFactory(new RectangleF(creationBounds), droppedLocation)),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
@@ -791,7 +791,7 @@ public abstract class Model implements Serializable, Observer {
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromCCAToDropped;
 							ModelFactory factory = new DeriveFactory(new RectangleF(creationBounds), droppedLocation);
-							PendingCommandFactory.Util.single(collector, target.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+							PendingCommandFactory.Util.executeSingle(collector, target.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
@@ -915,7 +915,7 @@ public abstract class Model implements Serializable, Observer {
 				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
-				PendingCommandFactory.Util.single(collector, referenceMC.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.executeSingle(collector, referenceMC.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 					new RemoveObserverCommand(observableLocation, observerLocation),
 					new AddObserverCommand(observableLocation, observerLocation)
 				));
@@ -932,7 +932,7 @@ public abstract class Model implements Serializable, Observer {
 				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
-				PendingCommandFactory.Util.single(collector, referenceMC.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.executeSingle(collector, referenceMC.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 					new AddObserverCommand(observableLocation, observerLocation),
 					new RemoveObserverCommand(observableLocation, observerLocation)
 				));
@@ -1008,7 +1008,7 @@ public abstract class Model implements Serializable, Observer {
 			}
 		}
 		
-		PendingCommandFactory.Util.sequence(collector, this, origins);
+		PendingCommandFactory.Util.executeSequence(collector, this, origins);
 	}
 	
 	public RestorableModel toRestorable(boolean includeLocalHistory) {
@@ -1024,7 +1024,7 @@ public abstract class Model implements Serializable, Observer {
 				destruction.add(creationPart.undoable);
 			Collections.reverse(destruction);
 			
-			PendingCommandFactory.Util.sequence(collector, this, destruction);
+			PendingCommandFactory.Util.executeSequence(collector, this, destruction);
 		}
 	}
 }

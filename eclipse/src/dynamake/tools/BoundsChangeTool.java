@@ -74,7 +74,7 @@ public abstract class BoundsChangeTool implements Tool {
 								
 								CanvasModel.appendMoveTransaction(pendingCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 								
-								PendingCommandFactory.Util.sequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+								PendingCommandFactory.Util.executeSequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 							}
 						});
 					} else {
@@ -97,7 +97,7 @@ public abstract class BoundsChangeTool implements Tool {
 									new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 								));
 								
-								PendingCommandFactory.Util.sequence(collector, source.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+								PendingCommandFactory.Util.executeSequence(collector, source.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 							}
 						});
 					}
@@ -112,7 +112,7 @@ public abstract class BoundsChangeTool implements Tool {
 
 							appendCommandStatesForResize(pendingCommands, selection, newBounds);
 							
-							PendingCommandFactory.Util.sequence(collector, selection.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+							PendingCommandFactory.Util.executeSequence(collector, selection.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 						}
 					});
 				}

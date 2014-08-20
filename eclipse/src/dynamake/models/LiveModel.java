@@ -486,7 +486,7 @@ public class LiveModel extends Model {
 							}
 						}
 						
-						PendingCommandFactory.Util.sequence(collector, ToolButton.this.livePanel.model, pendingCommands, LocalHistoryHandler.class);
+						PendingCommandFactory.Util.executeSequence(collector, ToolButton.this.livePanel.model, pendingCommands, LocalHistoryHandler.class);
 						collector.commit();
 					}
 				});

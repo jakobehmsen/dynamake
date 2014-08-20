@@ -54,7 +54,7 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Tell Color", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				PendingCommandFactory.Util.single(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.executeSingle(collector, selection.getModelBehind(), LocalHistoryHandler.class, new PendingCommandState<Model>(
 					new TellPropertyCommand(Model.PROPERTY_COLOR),
 					new Command.Null<Model>()
 				));

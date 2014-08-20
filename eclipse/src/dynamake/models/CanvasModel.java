@@ -675,7 +675,7 @@ public class CanvasModel extends Model {
 						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 						CanvasModel.appendUnwrapTransaction(pendingCommands, CanvasPanel.this, parent);
 						
-						PendingCommandFactory.Util.sequence(collector, parent.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+						PendingCommandFactory.Util.executeSequence(collector, parent.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 					}
 				});
 			}
@@ -708,7 +708,7 @@ public class CanvasModel extends Model {
 						
 						CanvasModel.appendMoveTransaction(pendingCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 						
-						PendingCommandFactory.Util.sequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+						PendingCommandFactory.Util.executeSequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
 					}
 				});
 			}
@@ -772,7 +772,7 @@ public class CanvasModel extends Model {
 		
 		appendRemoveTransaction(pendingCommands, livePanel, child, model);
 		
-		PendingCommandFactory.Util.sequence(collector, model, pendingCommands, LocalHistoryHandler.class);
+		PendingCommandFactory.Util.executeSequence(collector, model, pendingCommands, LocalHistoryHandler.class);
 	}
 	
 	public static void appendMoveTransaction(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation) {
