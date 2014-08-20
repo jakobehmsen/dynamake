@@ -62,7 +62,7 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 				(CommandFactory<Model>)null
 			));
 			
-			PendingCommandFactory.Util.sequence(collector, source, creationForwardingUpwards, new ExecutionsHandler<Model>() {
+			PendingCommandFactory.Util.executeSequence(collector, source, creationForwardingUpwards, new ExecutionsHandler<Model>() {
 				@Override
 				public void handleExecutions(List<Execution<Model>> sourceCreationPendingUndoablePairs, Collector<Model> collector) {
 					@SuppressWarnings("unchecked")

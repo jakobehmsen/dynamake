@@ -164,7 +164,7 @@ public class RestorableModel implements Serializable {
 		
 		modelCreationAsPendingCommands.addAll(appendedCreation);
 
-		PendingCommandFactory.Util.sequence(collector, modelBase, modelCreationAsPendingCommands, new ExecutionsHandler<Model>() {
+		PendingCommandFactory.Util.executeSequence(collector, modelBase, modelCreationAsPendingCommands, new ExecutionsHandler<Model>() {
 			@Override
 			public void handleExecutions(List<Execution<Model>> allPendingUndoablePairs, Collector<Model> collector) {
 				collector.execute(new SimplePendingCommandFactory<Model>(modelBase, new PendingCommandState<Model>(

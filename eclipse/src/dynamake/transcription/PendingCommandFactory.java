@@ -23,7 +23,7 @@ public interface PendingCommandFactory<T> {
 		}
 		
 		public static <T> void executeSequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands) {
-			sequence(collector, reference, pendingCommands, new ExecutionsHandler<T>() {
+			executeSequence(collector, reference, pendingCommands, new ExecutionsHandler<T>() {
 				@Override
 				public void handleExecutions(List<Execution<T>> executions, Collector<T> collector) { }
 			});
@@ -37,7 +37,7 @@ public interface PendingCommandFactory<T> {
 		}
 		
 		@SuppressWarnings("unchecked")
-		public static <T> void sequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, ExecutionsHandler<T> afterExecutions) {
+		public static <T> void executeSequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, ExecutionsHandler<T> afterExecutions) {
 			executeSequence(collector, reference, pendingCommands, (Class<? extends HistoryHandler<T>>)NullHistoryHandler.class, afterExecutions, new ArrayList<Execution<T>>(), 0);
 		}
 		
