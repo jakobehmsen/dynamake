@@ -753,21 +753,9 @@ public class CanvasModel extends Model {
 		));
 	}
 	
-	public static void appendRemoveTransaction(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent child, CanvasModel model) {
+	public static void appendRemoveTransaction(List<CommandState<Model>> pendingCommands, LivePanel livePanel, ModelComponent child, CanvasModel model) {
 		Location locationOfModel = model.getLocationOf(child.getModelBehind());
-		
-		commandStates.add(new PendingCommandState<Model>(
-			new RemoveModelCommand(locationOfModel),
-			new RestoreModelCommand.AfterRemove(),
-			new RemoveModelCommand.AfterAdd()
-		));
-	}
-	
-	public static void appendRemoveTransaction(Collector<Model> collector, LivePanel livePanel, ModelComponent child, final CanvasModel model) {
-		final Location locationOfModel = model.getLocationOf(child.getModelBehind());
-		
-		ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
-		
+
 		pendingCommands.add(new PendingCommandState<Model>(
 			new CanvasModel.DestroyModelCommand(locationOfModel),
 			new Command.Null<Model>()
@@ -777,6 +765,12 @@ public class CanvasModel extends Model {
 			new RestoreModelCommand.AfterRemove(),
 			new RemoveModelCommand.AfterAdd()
 		));
+	}
+	
+	public static void appendRemoveTransaction(Collector<Model> collector, LivePanel livePanel, ModelComponent child, final CanvasModel model) {
+		ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+		
+		appendRemoveTransaction(pendingCommands, livePanel, child, model);
 		
 		PendingCommandFactory.Util.sequence(collector, model, pendingCommands, LocalHistoryHandler.class);
 	}
