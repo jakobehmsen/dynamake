@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -768,6 +769,67 @@ public class CanvasModel extends Model {
 	}
 	
 	public static void executeRemoveTransaction(Collector<Model> collector, LivePanel livePanel, ModelComponent child, final CanvasModel model) {
+		ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+		
+		appendRemoveTransaction(pendingCommands, livePanel, child, model);
+		
+		PendingCommandFactory.Util.executeSequence(collector, model, pendingCommands, LocalHistoryHandler.class);
+	}
+	
+	public static class DestroyThenRemove implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		public static class AfterAdd implements CommandFactory<Model> {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public Command<Model> createCommand(Object output) {
+				return new DestroyThenRemove(((AddModelCommand.Output)output).location);
+			}
+		}
+		
+		private Location modelLocation;
+
+		public DestroyThenRemove(Location modelLocation) {
+			this.modelLocation = modelLocation;
+		}
+
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+			CanvasModel canvasModel = (CanvasModel)location.getChild(prevalentSystem);
+			
+			collector.execute(new SimplePendingCommandFactory<Model>(canvasModel, new PendingCommandState<Model>(
+				new CanvasModel.DestroyModelCommand(location),
+				new Command.Null<Model>()
+			)));
+			collector.execute(new SimplePendingCommandFactory<Model>(canvasModel, new PendingCommandState<Model>(
+				new CanvasModel.RemoveModelCommand(location),
+				new Command.Null<Model>()
+			)));
+			
+			return null;
+		}
+	}
+	
+	public static void appendAddTransaction(List<CommandState<Model>> pendingCommands, LivePanel livePanel, CanvasModel model, ModelFactory factory) {
+//		pendingCommands.add(new PendingCommandState<Model>(
+//			new CanvasModel.AddModelCommand(factory),
+//			new CanvasModel.RemoveModelCommand.AfterAdd(),
+//			new CanvasModel.RestoreModelCommand.AfterRemove()
+//		));
+//		pendingCommands.add(new PendingCommandState<Model>(
+//			new Command.Null<Model>(),
+//			new CanvasModel.DestroyModelCommand(locationOfModel)
+//		));
+	}
+	
+	public static void executeAddTransaction(Collector<Model> collector, LivePanel livePanel, ModelComponent child, final CanvasModel model) {
 		ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 		
 		appendRemoveTransaction(pendingCommands, livePanel, child, model);
