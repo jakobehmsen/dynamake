@@ -773,46 +773,46 @@ public class CanvasModel extends Model {
 		PendingCommandFactory.Util.executeSequence(collector, model, pendingCommands, LocalHistoryHandler.class);
 	}
 	
-	public static class DestroyThenRemove implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-		
-		public static class AfterAdd implements CommandFactory<Model> {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Command<Model> createCommand(Object output) {
-				return new DestroyThenRemove(((AddModelCommand.Output)output).location);
-			}
-		}
-		
-		private Location modelLocation;
-
-		public DestroyThenRemove(Location modelLocation) {
-			this.modelLocation = modelLocation;
-		}
-
-		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-			CanvasModel canvasModel = (CanvasModel)location.getChild(prevalentSystem);
-			
-			collector.execute(new SimplePendingCommandFactory<Model>(canvasModel, new PendingCommandState<Model>(
-				new CanvasModel.DestroyModelCommand(modelLocation),
-				new Command.Null<Model>()
-			)));
-			collector.execute(new SimplePendingCommandFactory<Model>(canvasModel, new PendingCommandState<Model>(
-				new CanvasModel.RemoveModelCommand(modelLocation),
-				new Command.Null<Model>()
-			)));
-			
-			return null;
-		}
-	}
+//	public static class DestroyThenRemove implements Command<Model> {
+//		/**
+//		 * 
+//		 */
+//		private static final long serialVersionUID = 1L;
+//		
+//		public static class AfterAdd implements CommandFactory<Model> {
+//			/**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = 1L;
+//
+//			@Override
+//			public Command<Model> createCommand(Object output) {
+//				return new DestroyThenRemove(((AddModelCommand.Output)output).location);
+//			}
+//		}
+//		
+//		private Location modelLocation;
+//
+//		public DestroyThenRemove(Location modelLocation) {
+//			this.modelLocation = modelLocation;
+//		}
+//
+//		@Override
+//		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+//			CanvasModel canvasModel = (CanvasModel)location.getChild(prevalentSystem);
+//			
+//			collector.execute(new SimplePendingCommandFactory<Model>(canvasModel, new PendingCommandState<Model>(
+//				new CanvasModel.DestroyModelCommand(modelLocation),
+//				new Command.Null<Model>()
+//			)));
+//			collector.execute(new SimplePendingCommandFactory<Model>(canvasModel, new PendingCommandState<Model>(
+//				new CanvasModel.RemoveModelCommand(modelLocation),
+//				new Command.Null<Model>()
+//			)));
+//			
+//			return new RemoveModelCommand.Output(location, restorableModel);
+//		}
+//	}
 	
 	public static void appendAddTransaction(List<CommandState<Model>> pendingCommands, LivePanel livePanel, CanvasModel model, ModelFactory factory) {
 //		pendingCommands.add(new PendingCommandState<Model>(
