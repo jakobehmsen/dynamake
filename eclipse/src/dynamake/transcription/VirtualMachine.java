@@ -21,7 +21,12 @@ public class VirtualMachine<T> {
 		public static final int TYPE_JUMP = 6;
 		public static final int TYPE_RET = 7;
 		public static final int TYPE_EXIT = 8;
-		public static final int TYPE_CUSTOM = 9;
+		public static final int TYPE_BEGIN_LOG = 9;
+		public static final int TYPE_POST = 10;
+		public static final int TYPE_END_LOG = 11;
+		public static final int TYPE_COMMIT = 12;
+		public static final int TYPE_REJECT = 13;
+		public static final int TYPE_CUSTOM = 14;
 		
 		public final int type;
 		public final Object operand;
@@ -181,6 +186,34 @@ public class VirtualMachine<T> {
 				case Instruction.TYPE_EXIT:
 					exitRequested = true;
 					break testShouldExit;
+					
+
+				case Instruction.TYPE_BEGIN_LOG:
+					// Somehow, start a new log of some kind (for instance for adding new history, or changing the existing history, of a model)
+					
+					process.currentScope.i++;
+					continue;
+				case Instruction.TYPE_POST:
+					// Somehow, pop and post to the log 
+					
+					process.currentScope.i++;
+					continue;
+				case Instruction.TYPE_END_LOG:
+					// Somehow, tell the logger to commit
+					
+					process.currentScope.i++;
+					continue;
+				case Instruction.TYPE_COMMIT:
+					// Persist changes made since last commit
+					
+					process.currentScope.i++;
+					continue;
+				case Instruction.TYPE_REJECT:
+					// Rollback changes made since last commit
+					
+					process.currentScope.i++;
+					continue;
+					
 				case Instruction.TYPE_CUSTOM:
 					VMInstruction customInstruction = (VMInstruction)instruction.operand;
 					customInstruction.execute(process);
