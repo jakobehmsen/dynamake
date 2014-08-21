@@ -37,7 +37,6 @@ import dynamake.numbers.RectangleF;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.LocalHistoryHandler;
-import dynamake.transcription.SimplePendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class CanvasModel extends Model {
