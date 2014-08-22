@@ -153,6 +153,32 @@
 			}
 			
 			function replaceMentions(el, definitions) {
+				/*
+				el.find("a").replaceWith(function() {
+					var hlink = $(this).clone();
+					var href = hlink.attr("href");
+					var holder = hlink.wrap("<span></span>").parent()
+					
+					hlink.click(function() {
+						//expand(holder, link, definitions, term, true, link);
+						//alert("Clicked on '" + href + "'.");
+						
+						//holder.load(href, function(response, status, xhr) {
+						//	alert("response=" + response + ";status=" + status + ";responseText =" + xhr.responseText);
+						//});
+						
+						//$.getJSON(href, function(result){
+						//
+						//   alert(result);
+						//});
+					
+						return false;
+					});
+					
+					return holder;
+				});
+				*/
+
 				el.find("span[data-mention]").replaceWith(function() {
 					var term = $(this).attr("data-mention");
 					var contents = $(this).clone();
@@ -225,7 +251,7 @@
 
 	<body>
 		<div data-define="programming environment">
-			Here is the definition of a programming environment.
+			A programming environment should be perceived as an environment which supports setting up reaction patterns of systems.
 		</div>
 		<div data-define="Dynamake">
 			<span> <span data-mention="Dynamake">Dynamake</span> </span> is an attempt to envision, design, and implement an interactive code extrinsic <span data-mention="programming environment">programming environment</span>. This environment is to require only little configuration effort before getting the hands dirty. In contrast to most programming environments, <span> <span data-mention="Dynamake">Dynamake</span> </span> is supposed to be a self-sufficient <span data-mention="programming environment">programming environment</span> integrable with the "outer world".
@@ -240,15 +266,8 @@
 			So much experimentation has been performed on software systems and their potential crystalizations. Especially the 60's and 70's seem like golden decades of such work. One can't avoid being inspired from the great work done in this era. 
 			One of the major examples here is the mother of all GUIs: <a href="http://en.wikipedia.org/wiki/Sketchpad">Sketchpad</a> by <a href="http://en.wikipedia.org/wiki/Ivan_Sutherland">Ivan Sutherland</a> in 1963 - an incomprehensible leap within computer graphics and user interfaces.
 		</div>
-		<div data-define="network usage">
-			Here is the definition of using Dynamake across a network.
-			<span data-mention="dummy1">Mention of dummy1</span>
-		</div>
-		<div data-define="dummy1">
-			<span data-mention="dummy2">Mention of dummy2</span>
-		</div>
-		<div data-define="dummy2">
-			<span data-mention="dummy1">Mention of dummy1</span>
+		<div data-define="Network usage">
+			Using Dynamake across a network is not particularly well-defined yet. However, a vague driver of this aspect is context sensitivity and implicit recognition of Dynamake instances in the surroundings - whatever "surroundings" implies. Further, no configuration of connections to central servers should be necessary.
 		</div>
 		<div data-define="The merging of program and process">
 			Uniting program and process, as concepts, into a single concept is definitely an old idea which has been incarnated in many forms to many different degrees. 
@@ -319,7 +338,7 @@
 		<div class="box">
 			<div class="title">What about the future of Dynamake?</div>
 			<div class="content">
-			One of the major works in the horizon is support for <span data-mention="network usage">using Dynamake across a network</span>.
+			One of the major works in the horizon is support for <span data-mention="Network usage">using Dynamake across a network</span>.
 			</div>
 		</div>
 	</body>
