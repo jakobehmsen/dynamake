@@ -23,7 +23,7 @@ public class VirtualMachine<T> {
 		public static final int TYPE_RET = 7;
 		public static final int TYPE_EXIT = 8;
 		public static final int TYPE_BEGIN_LOG = 9;
-		public static final int TYPE_POST = 10;
+		public static final int TYPE_POST_LOG = 10;
 		public static final int TYPE_END_LOG = 11;
 		public static final int TYPE_COMMIT = 12;
 		public static final int TYPE_REJECT = 13;
@@ -84,6 +84,7 @@ public class VirtualMachine<T> {
 
 		@Override
 		public Object pop() {
+			// Somehow, the popped must be repushable in rollback scenarios
 			return currentScope.stack.pop();
 		}
 
@@ -194,7 +195,7 @@ public class VirtualMachine<T> {
 					
 					process.currentScope.i++;
 					continue;
-				case Instruction.TYPE_POST:
+				case Instruction.TYPE_POST_LOG:
 					// Somehow, pop and post to the log 
 					
 					process.currentScope.i++;
