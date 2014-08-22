@@ -168,7 +168,7 @@ public class VirtualMachine<T> {
 					Scope stoppedScope = process.currentScope;
 					process.currentScope = process.scopeStack.pop();
 
-					process.executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_CONTINUE)));
+					process.executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_CONTINUE, stoppedScope)));
 					process.currentScope.i++;
 					continue;
 				case Instruction.TYPE_JUMP:
