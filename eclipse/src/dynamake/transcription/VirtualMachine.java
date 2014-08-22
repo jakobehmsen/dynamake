@@ -78,7 +78,6 @@ public class VirtualMachine<T> {
 	private static class ScopedProcess<T> implements VMProcess<T> {
 		public Scope currentScope;
 		public Stack<Scope> scopeStack = new Stack<Scope>();
-		public ArrayList<ForwardBackwardPair> executionLog = new ArrayList<ForwardBackwardPair>();
 
 		@Override
 		public void pushReferenceLocation() {
@@ -120,6 +119,8 @@ public class VirtualMachine<T> {
 		}
 	}
 	
+	private ArrayList<ForwardBackwardPair> executionLog = new ArrayList<ForwardBackwardPair>();
+	
 	public void execute(T reference, Instruction[] body) {
 		ScopedProcess<T> process = new ScopedProcess<T>();
 		
@@ -135,25 +136,25 @@ public class VirtualMachine<T> {
 				case Instruction.TYPE_PUSH_REF_LOC:
 					process.currentScope.stack.push(process.currentScope.referenceLocation);
 					
-					process.executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_POP)));
+					executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_POP)));
 					process.currentScope.i++;
 					continue;
 				case Instruction.TYPE_PUSH:
 					process.currentScope.stack.push(instruction.operand);
 
-					process.executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_POP)));
+					executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_POP)));
 					process.currentScope.i++;
 					continue;
 				case Instruction.TYPE_POP:
 					Object value = process.currentScope.stack.pop();
 
-					process.executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_PUSH, value)));
+					executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_PUSH, value)));
 					process.currentScope.i++;
 					continue;
 				case Instruction.TYPE_DUP:
 					process.currentScope.stack.push(process.currentScope.stack.peek());
 
-					process.executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_POP)));
+					executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_POP)));
 					process.currentScope.i++;
 					continue;
 				case Instruction.TYPE_SWAP:
@@ -161,26 +162,28 @@ public class VirtualMachine<T> {
 					process.currentScope.stack.set(process.currentScope.stack.size() - 1, process.currentScope.stack.get(process.currentScope.stack.size() - 2));
 					process.currentScope.stack.set(process.currentScope.stack.size() - 2, top);
 
-					process.executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_SWAP)));
+					executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_SWAP)));
 					process.currentScope.i++;
 					continue;
 				case Instruction.TYPE_STOP:
 					Scope stoppedScope = process.currentScope;
+					stoppedScope.i++; // Move to next instruction
 					process.currentScope = process.scopeStack.pop();
 
-					process.executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_CONTINUE, stoppedScope)));
+					// Should probably be a reversible version of stoppedScope?...
+					executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_CONTINUE, stoppedScope)));
 					process.currentScope.i++;
 					continue;
 				case Instruction.TYPE_JUMP:
 					process.currentScope.i += (int)instruction.operand;
 					
-					process.executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_JUMP, -(int)instruction.operand)));
+					executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_JUMP, -(int)instruction.operand)));
 					continue;
 				case Instruction.TYPE_RETURN:
 					Scope scopeReturnedFrom = process.currentScope;
 					process.currentScope = process.scopeStack.pop();
 					
-					process.executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_RETURN_TO, scopeReturnedFrom)));
+					executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_RETURN_TO, scopeReturnedFrom)));
 					process.currentScope.i++;
 					continue;
 				case Instruction.TYPE_RETURN_TO: {
@@ -200,14 +203,14 @@ public class VirtualMachine<T> {
 				case Instruction.TYPE_REJECT:
 					// Rollback changes made since last commit
 					
-					// Push execution of reversibles
+					// Push execution of backward commands in reverse order - but don't track the execution
 					
 					process.currentScope.i++;
 					continue;
 				case Instruction.TYPE_CONTINUE: {
 					Scope scope = (Scope)process.currentScope.stack.pop();
 					process.scopeStack.push(scope);
-					process.executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_STOP)));
+					executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_STOP)));
 
 					process.currentScope.i++;
 					continue;
@@ -215,7 +218,7 @@ public class VirtualMachine<T> {
 					@SuppressWarnings("unchecked")
 					VMInstruction<T> customInstruction = (VMInstruction<T>)instruction.operand;
 					customInstruction.executeForward(process);
-					process.executionLog.add(new ForwardBackwardPair(instruction, instruction));
+					executionLog.add(new ForwardBackwardPair(instruction, instruction));
 
 					process.currentScope.i++;
 					continue;
