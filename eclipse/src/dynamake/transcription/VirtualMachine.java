@@ -60,9 +60,6 @@ public class VirtualMachine<T> {
 		Object peek();
 		void dup();
 		void swap();
-		void stop();
-		void jump(int delta);
-		void ret();
 		void execute(T reference, Instruction[] body);
 	}
 	
@@ -114,23 +111,6 @@ public class VirtualMachine<T> {
 			Object top = currentScope.stack.get(currentScope.stack.size() - 1);
 			currentScope.stack.set(currentScope.stack.size() - 1, currentScope.stack.get(currentScope.stack.size() - 2));
 			currentScope.stack.set(currentScope.stack.size() - 2, top);
-		}
-
-		@Override
-		public void stop() {
-			Scope stoppedScope = currentScope;
-			currentScope = scopeStack.pop();
-			currentScope.stack.push(stoppedScope); // Push scope as "continuation"
-		}
-
-		@Override
-		public void jump(int delta) {
-			currentScope.i += delta;
-		}
-		
-		@Override
-		public void ret() {
-			currentScope = scopeStack.pop();
 		}
 
 		@Override
