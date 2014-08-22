@@ -323,6 +323,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	public static class Connection<T> implements dynamake.transcription.Connection<T> {
+		// Probably, many of the below fields are to be related to "transaction frame" of some sort
 		private TriggerHandler<T> triggerHandler;
 		private SnapshottingTranscriber<T> transcriber;
 		private ArrayList<LocationCommandsPair<T>> flushedTransactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
