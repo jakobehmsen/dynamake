@@ -8,7 +8,8 @@ import dynamake.models.Model;
 
 public class VirtualMachine<T> {
 	public interface VMInstruction extends Serializable {
-		void execute(VMProcess scope);
+		void executeForward(VMProcess scope);
+		void executeBackward(VMProcess scope);
 	}
 	
 	public static class Instruction {
@@ -216,7 +217,7 @@ public class VirtualMachine<T> {
 					
 				case Instruction.TYPE_CUSTOM:
 					VMInstruction customInstruction = (VMInstruction)instruction.operand;
-					customInstruction.execute(process);
+					customInstruction.executeForward(process);
 
 					process.currentScope.i++;
 					continue;
