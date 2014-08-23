@@ -596,6 +596,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					onAfterNextTrigger.add(runnable);
 				}
 			};
+			
+			currentFrame.handler.rejectLogFor(currentFrame.reference);
 
 			while(currentFrame != null) {
 				rejectTransaction(propCtx, isolatedCollector, currentFrame);
@@ -604,8 +606,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			}
 			
 			System.out.println("Rejected connection");
-			
-			currentFrame.handler.rejectLogFor(currentFrame.reference);
 
 			if(onAfterNextTrigger.size() > 0) {
 				triggerHandler.handleAfterTrigger(onAfterNextTrigger);
