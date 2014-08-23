@@ -24,7 +24,7 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.PendingCommandFactory;
-import dynamake.transcription.LocalHistoryHandler;
+import dynamake.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Trigger;
 
 public class RootModel extends Model {
@@ -182,7 +182,7 @@ public class RootModel extends Model {
 									));
 								}
 								
-								PendingCommandFactory.Util.executeSequence(collector, rootModel, pendingCommands, LocalHistoryHandler.class);
+								PendingCommandFactory.Util.executeSequence(collector, rootModel, pendingCommands, NewChangeTransactionHandler.class);
 							}
 						});
 
@@ -262,7 +262,7 @@ public class RootModel extends Model {
 						collector.execute(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
-								PendingCommandFactory.Util.executeSingle(collector, RootModel.this, LocalHistoryHandler.class, new PendingCommandState<Model>(
+								PendingCommandFactory.Util.executeSingle(collector, RootModel.this, NewChangeTransactionHandler.class, new PendingCommandState<Model>(
 									new SetPropertyCommand("State", newState),
 									new SetPropertyCommand.AfterSetProperty()
 								));

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import dynamake.models.PropogationContext;
 
-public class NullHistoryHandler<T> implements HistoryHandler<T> {
+public class NullTransactionHandler<T> implements TransactionHandler<T> {
 	/**
 	 * 
 	 */

@@ -28,7 +28,7 @@ import dynamake.tools.TargetPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.PendingCommandFactory;
-import dynamake.transcription.LocalHistoryHandler;
+import dynamake.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Trigger;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
@@ -118,7 +118,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						new RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
 					));
 					
-					PendingCommandFactory.Util.executeSequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+					PendingCommandFactory.Util.executeSequence(collector, referenceMC.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
 				}
 			});
 		}

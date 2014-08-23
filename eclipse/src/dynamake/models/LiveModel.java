@@ -44,7 +44,7 @@ import dynamake.tools.ToolFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.PendingCommandFactory;
-import dynamake.transcription.LocalHistoryHandler;
+import dynamake.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Trigger;
 
 public class LiveModel extends Model {
@@ -486,7 +486,7 @@ public class LiveModel extends Model {
 							}
 						}
 						
-						PendingCommandFactory.Util.executeSequence(collector, ToolButton.this.livePanel.model, pendingCommands, LocalHistoryHandler.class);
+						PendingCommandFactory.Util.executeSequence(collector, ToolButton.this.livePanel.model, pendingCommands, NewChangeTransactionHandler.class);
 						collector.commit();
 					}
 				});

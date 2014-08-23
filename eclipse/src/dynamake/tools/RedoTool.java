@@ -12,8 +12,8 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.HistoryHandler;
-import dynamake.transcription.PostOnlyHistoryHandler;
+import dynamake.transcription.TransactionHandler;
+import dynamake.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.SimplePendingCommandFactory;
 import dynamake.transcription.Trigger;
 
@@ -29,8 +29,8 @@ public class RedoTool implements Tool {
 						new UndoCommand(false)
 					)) {
 						@Override
-						public Class<? extends HistoryHandler<Model>> getHistoryHandlerClass() {
-							return PostOnlyHistoryHandler.class;
+						public Class<? extends TransactionHandler<Model>> getTransactionHandlerClass() {
+							return PostOnlyTransactionHandler.class;
 						}
 					});
 					

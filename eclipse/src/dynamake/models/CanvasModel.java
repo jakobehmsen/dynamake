@@ -36,7 +36,7 @@ import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Collector;
-import dynamake.transcription.LocalHistoryHandler;
+import dynamake.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Trigger;
 
 public class CanvasModel extends Model {
@@ -672,7 +672,7 @@ public class CanvasModel extends Model {
 						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 						CanvasModel.appendUnwrapTransaction(pendingCommands, CanvasPanel.this, parent);
 						
-						PendingCommandFactory.Util.executeSequence(collector, parent.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+						PendingCommandFactory.Util.executeSequence(collector, parent.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
 					}
 				});
 			}
@@ -705,7 +705,7 @@ public class CanvasModel extends Model {
 						
 						CanvasModel.appendMoveTransaction(pendingCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 						
-						PendingCommandFactory.Util.executeSequence(collector, referenceMC.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+						PendingCommandFactory.Util.executeSequence(collector, referenceMC.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
 					}
 				});
 			}
@@ -769,7 +769,7 @@ public class CanvasModel extends Model {
 		
 		appendRemoveTransaction(pendingCommands, livePanel, child, model);
 		
-		PendingCommandFactory.Util.executeSequence(collector, model, pendingCommands, LocalHistoryHandler.class);
+		PendingCommandFactory.Util.executeSequence(collector, model, pendingCommands, NewChangeTransactionHandler.class);
 	}
 	
 //	public static class DestroyThenRemove implements Command<Model> {
@@ -830,7 +830,7 @@ public class CanvasModel extends Model {
 		
 		appendRemoveTransaction(pendingCommands, livePanel, child, model);
 		
-		PendingCommandFactory.Util.executeSequence(collector, model, pendingCommands, LocalHistoryHandler.class);
+		PendingCommandFactory.Util.executeSequence(collector, model, pendingCommands, NewChangeTransactionHandler.class);
 	}
 	
 	public static void appendMoveTransaction(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation) {

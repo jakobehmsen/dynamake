@@ -31,7 +31,7 @@ public class SimplePendingCommandFactory<T> implements PendingCommandFactory<T> 
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Class<? extends HistoryHandler<T>> getHistoryHandlerClass() {
-		return (Class<? extends HistoryHandler<T>>) NullHistoryHandler.class;
+	public Class<? extends TransactionHandler<T>> getTransactionHandlerClass() {
+		return (Class<? extends TransactionHandler<T>>) NullTransactionHandler.class;
 	}
 }

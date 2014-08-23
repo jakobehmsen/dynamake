@@ -14,7 +14,7 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.PendingCommandFactory;
-import dynamake.transcription.LocalHistoryHandler;
+import dynamake.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Trigger;
 
 public abstract class RepetitiveCanvasTaskTool implements Tool {
@@ -61,7 +61,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 					public void run(Collector<Model> collector) {
 						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 						createCommandStatesForSingleTask(productionPanel, pendingCommands, modelOverParent, modelOver);
-						PendingCommandFactory.Util.executeSequence(collector, modelOverParent.getModelBehind(), pendingCommands, LocalHistoryHandler.class);
+						PendingCommandFactory.Util.executeSequence(collector, modelOverParent.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
 					}
 				});
 			}

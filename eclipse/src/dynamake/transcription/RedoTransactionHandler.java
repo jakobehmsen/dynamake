@@ -8,7 +8,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.UndoRedoPart;
 
-public class UndoHistoryHandler implements HistoryHandler<Model> {
+public class RedoTransactionHandler implements TransactionHandler<Model> {
 	/**
 	 * 
 	 */
@@ -30,7 +30,7 @@ public class UndoHistoryHandler implements HistoryHandler<Model> {
 
 	@Override
 	public void commitLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		// Build redoable from logged commands
+		// Build undoable from logged commands
 		
 		@SuppressWarnings("unchecked")
 		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
@@ -44,7 +44,7 @@ public class UndoHistoryHandler implements HistoryHandler<Model> {
 		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 		
 //		System.out.println(this +  ": commitLogFor");
-		reference.commitUndo(compressedLogPart);
+		reference.commitRedo(compressedLogPart);
 	}
 
 	@Override

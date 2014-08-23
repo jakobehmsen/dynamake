@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 
-public class PostOnlyHistoryHandler implements HistoryHandler<Model> {
+public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 	/**
 	 * 
 	 */
