@@ -341,10 +341,14 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		}
 		
 		private static class TransactionFrame<T> {
+			public final T reference;
+			public final Location locationFromRoot;
 			public final Class<? extends TransactionHandler<T>> handlerClass;
 			public final TransactionHandler<T> handler;
 			
-			public TransactionFrame(Class<? extends TransactionHandler<T>> transactionHandlerClass, TransactionHandler<T> handler) {
+			public TransactionFrame(T reference, Location locationFromRoot, Class<? extends TransactionHandler<T>> transactionHandlerClass, TransactionHandler<T> handler) {
+				this.reference = reference;
+				this.locationFromRoot = locationFromRoot;
 				this.handlerClass = transactionHandlerClass;
 				this.handler = handler;
 			}
@@ -434,7 +438,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									
 									transactionHandler.startLogFor(reference);
 									
-									frameStack.add(new TransactionFrame<>(transactionHandlerClass, transactionHandler));
+									Location locationFromRoot = ((Model)reference).getLocator().locate();
+									
+									frameStack.add(new TransactionFrame<T>(reference, locationFromRoot, transactionHandlerClass, transactionHandler));
 								} catch (InstantiationException | IllegalAccessException e) {
 									e.printStackTrace();
 								}
@@ -502,6 +508,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								break;
 							}
 						} else if(command instanceof PendingCommandFactory) {
+							TransactionFrame<T> frame = frameStack.peek();
+							
 							PendingCommandFactory<T> transactionFactory = (PendingCommandFactory<T>)command;
 							T reference = transactionFactory.getReference();
 							
