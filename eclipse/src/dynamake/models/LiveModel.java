@@ -444,6 +444,8 @@ public class LiveModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
+						collector.startTransaction(ToolButton.this.livePanel.model, NewChangeTransactionHandler.class);
+						
 						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 						
 						List<InputButton> currentButtons = ToolButton.this.buttons;
