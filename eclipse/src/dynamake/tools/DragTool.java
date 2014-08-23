@@ -12,6 +12,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.NewChangeTransactionHandler;
 
 public class DragTool implements Tool {
 	@Override
@@ -34,6 +35,8 @@ public class DragTool implements Tool {
 		Point pointInContentView = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)productionPanel.contentView.getBindingTarget());
 		JComponent target = (JComponent)((JComponent)productionPanel.contentView.getBindingTarget()).findComponentAt(pointInContentView);
 		ModelComponent targetModelComponent = ModelComponent.Util.closestModelComponent(target);
+		
+		collector.startTransaction(targetModelComponent.getModelBehind(), NewChangeTransactionHandler.class);
 		
 		if(targetModelComponent != null) {
 			Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
