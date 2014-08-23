@@ -94,6 +94,8 @@ public class PlotTool implements Tool {
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		if(modelOver.getModelBehind() instanceof CanvasModel) {
+			collector.startTransaction(modelOver.getModelBehind(), NewChangeTransactionHandler.class);
+			
 			mouseDown = mousePoint;
 			Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)modelOver);
 			
