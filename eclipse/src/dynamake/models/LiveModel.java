@@ -621,6 +621,10 @@ public class LiveModel extends Model {
 							final Tool toolToRollback = toolBeingApplied;
 							
 							toolToRollback.rollback(productionPanel, collector);
+							// TODO:
+							// The call to rejectTransaction should not be placed here.
+							// Instead, it should be the responsibility of the tool itself within rollback to decide
+							// whether this call is necessary.
 							collector.rejectTransaction();
 							
 							ToolButton toolButton = getToolButton(buttonsPressed);
