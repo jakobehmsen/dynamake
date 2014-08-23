@@ -13,6 +13,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.NewChangeTransactionHandler;
 
 public class ConsTool implements Tool {
 	@Override
@@ -28,10 +29,10 @@ public class ConsTool implements Tool {
 				
 				if(interactionPresenter.getSelection().getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 					final ModelComponent selection = interactionPresenter.getSelection();
-					Model.executeRemoveObserver(collector, selection, targetModelComponent);
+					Model.executeRemoveObserverFromObservable(collector, selection, targetModelComponent);
 				} else {
 					final ModelComponent selection = interactionPresenter.getSelection();
-					Model.executeAddObserver(collector, selection, targetModelComponent);
+					Model.executeAddObserverFromObservable(collector, selection, targetModelComponent);
 				}
 				
 				interactionPresenter.reset(collector);
@@ -65,12 +66,13 @@ public class ConsTool implements Tool {
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		ModelComponent targetModelComponent = modelOver;
-		if(targetModelComponent != null) {
-			Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
-			
-			interactionPresenter = new InteractionPresenter(productionPanel);
-			interactionPresenter.selectFromDefault(targetModelComponent, referencePoint, collector);
-		}
+		
+		Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
+		
+		collector.startTransaction(targetModelComponent.getModelBehind(), NewChangeTransactionHandler.class);
+		
+		interactionPresenter = new InteractionPresenter(productionPanel);
+		interactionPresenter.selectFromDefault(targetModelComponent, referencePoint, collector);
 		
 		targetPresenter = new TargetPresenter(
 			productionPanel,

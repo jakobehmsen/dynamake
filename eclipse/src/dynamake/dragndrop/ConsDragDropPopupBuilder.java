@@ -18,6 +18,7 @@ import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
+import dynamake.models.ModelRootLocation;
 import dynamake.models.Primitive;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.CreationBoundsFactory;
@@ -69,17 +70,18 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionTargetContentMapBuilder.addMenuBuilder("Unforward to", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					Model.executeRemoveObserver(collector, selection, target);
+					Model.executeRemoveObserverFromObservable(collector, selection, target);
 				}
 			});
 		} else {
 			transactionTargetContentMapBuilder.addMenuBuilder("Forward to", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					Model.executeAddObserver(collector, selection, target);
+					Model.executeAddObserverFromObservable(collector, selection, target);
 				}
 			});
 		}
+		
 		transactionTargetContentMapBuilder.appendTo(popup, runner, "Selection to target");
 		popup.addSeparator();
 		
@@ -91,8 +93,11 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				public void run(Collector<Model> collector) {
 					ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
 					
-					Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
-					Location canvasModelLocation = ModelComponent.Util.locationFromAncestor(referenceMC, target);
+					Location observableLocation = new ModelRootLocation();
+					Location canvasModelLocation = new CompositeLocation(
+						ModelComponent.Util.locationToAncestor(referenceMC, selection), 
+						ModelComponent.Util.locationFromAncestor(referenceMC, target)
+					);
 					
 					CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 					
