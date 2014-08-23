@@ -186,7 +186,7 @@ public class RootModel extends Model {
 							}
 						});
 
-						collector.commit();
+						collector.commitTransaction();
 					}
 				});
 			}
@@ -269,7 +269,7 @@ public class RootModel extends Model {
 							}
 						});
 
-						collector.commit();
+						collector.commitTransaction();
 					}
 				});
 			}

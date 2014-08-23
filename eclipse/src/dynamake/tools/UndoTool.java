@@ -34,7 +34,7 @@ public class UndoTool implements Tool {
 						}
 					});
 					
-					collector.commit();
+					collector.commitTransaction();
 				}
 			}
 		});

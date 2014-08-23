@@ -36,7 +36,7 @@ public class ConsTool implements Tool {
 				
 				interactionPresenter.reset(collector);
 
-				collector.commit();
+				collector.commitTransaction();
 			}
 		} else {
 			if(targetModelComponent.getModelBehind() instanceof CanvasModel) {
@@ -44,7 +44,7 @@ public class ConsTool implements Tool {
 			} else {
 				targetPresenter.reset(collector);
 				interactionPresenter.reset(collector);
-				collector.reject();
+				collector.rejectTransaction();
 				
 				collector.afterNextTrigger(new Runnable() {
 					@Override

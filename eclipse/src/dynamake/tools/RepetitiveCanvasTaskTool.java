@@ -22,7 +22,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 	public void mouseReleased(ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		targetPresenter.reset(collector);
 		
-		collector.commit();
+		collector.commitTransaction();
 	}
 	
 	private ModelComponent canvas;

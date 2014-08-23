@@ -117,9 +117,9 @@ public abstract class BoundsChangeTool implements Tool {
 					});
 				}
 				
-				collector.commit();
+				collector.commitTransaction();
 			} else {
-				collector.reject();
+				collector.rejectTransaction();
 			}
 		}
 	}

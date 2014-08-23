@@ -84,7 +84,7 @@ public class PlotTool implements Tool {
 
 			interactionPresenter.reset(collector);
 			
-			collector.commit();
+			collector.commitTransaction();
 		}
 	}
 	

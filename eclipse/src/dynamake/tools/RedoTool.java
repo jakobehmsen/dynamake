@@ -34,7 +34,7 @@ public class RedoTool implements Tool {
 						}
 					});
 					
-					collector.commit();
+					collector.commitTransaction();
 				}
 			}
 		});

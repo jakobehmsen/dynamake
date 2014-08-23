@@ -18,9 +18,10 @@ public interface Collector<T> {
 	
 	*/
 	
+	void startTransaction(Class<? extends TransactionHandler<T>> transactionHandlerClass);
 	void execute(Object command);
+	void commitTransaction();
+	void rejectTransaction();
 	void afterNextTrigger(Runnable runnable);
-	void reject();
-	void commit();
 	void flushNextTrigger();
 }

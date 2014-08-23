@@ -6,6 +6,11 @@ public class IsolatingCollector<T> implements Collector<T> {
 	public IsolatingCollector(Collector<T> collector) {
 		this.collector = collector;
 	}
+	
+	@Override
+	public void startTransaction(Class<? extends TransactionHandler<T>> transactionHandlerClass) {
+		collector.startTransaction(transactionHandlerClass);
+	}
 
 	@Override
 	public void execute(Object command) {
@@ -13,18 +18,18 @@ public class IsolatingCollector<T> implements Collector<T> {
 	}
 
 	@Override
+	public void commitTransaction() {
+		collector.commitTransaction();
+	}
+
+	@Override
+	public void rejectTransaction() {
+		collector.rejectTransaction();
+	}
+
+	@Override
 	public void afterNextTrigger(Runnable runnable) {
 		collector.afterNextTrigger(runnable);
-	}
-
-	@Override
-	public void reject() {
-		collector.reject();
-	}
-
-	@Override
-	public void commit() {
-		collector.commit();
 	}
 	
 	@Override

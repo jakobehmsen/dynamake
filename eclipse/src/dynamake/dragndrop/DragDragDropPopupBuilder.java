@@ -59,7 +59,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 						interactionPresenter.reset(collector);
 						
 						((Trigger<Model>)action).run(collector);
-						collector.commit();
+						collector.commitTransaction();
 					}
 				});
 			}
@@ -93,7 +93,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 						interactionPresenter.reset(collector);
 						
 						((Trigger<Model>)action).run(collector);
-						collector.commit();
+						collector.commitTransaction();
 					}
 				});
 			}
@@ -152,7 +152,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				targetPresenter.reset(collector);
 				interactionPresenter.reset(collector);
 				
-				collector.reject();
+				collector.rejectTransaction();
 			}
 		});
 	}

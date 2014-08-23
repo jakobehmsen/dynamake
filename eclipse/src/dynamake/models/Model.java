@@ -638,7 +638,7 @@ public abstract class Model implements Serializable, Observer {
 							new MouseUpCommand(), 
 							new Command.Null<Model>()
 						));
-						collector.commit();
+						collector.commitTransaction();
 					}
 				});
 			}
@@ -654,7 +654,7 @@ public abstract class Model implements Serializable, Observer {
 							new MouseDownCommand(), 
 							new Command.Null<Model>()
 						));
-						collector.commit();
+						collector.commitTransaction();
 					}
 				});
 			}

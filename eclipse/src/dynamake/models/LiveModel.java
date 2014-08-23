@@ -487,7 +487,7 @@ public class LiveModel extends Model {
 						}
 						
 						PendingCommandFactory.Util.executeSequence(collector, ToolButton.this.livePanel.model, pendingCommands, NewChangeTransactionHandler.class);
-						collector.commit();
+						collector.commitTransaction();
 					}
 				});
 				
@@ -619,7 +619,7 @@ public class LiveModel extends Model {
 							final Tool toolToRollback = toolBeingApplied;
 							
 							toolToRollback.rollback(productionPanel, collector);
-							collector.reject();
+							collector.rejectTransaction();
 							
 							ToolButton toolButton = getToolButton(buttonsPressed);
 							if(toolButton != null)

@@ -414,6 +414,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						final ArrayList<Object> collectedCommands = new ArrayList<Object>();
 						Collector<T> collector = new Collector<T>() {
 							@Override
+							public void startTransaction(Class<? extends TransactionHandler<T>> transactionHandlerClass) {
+								// TODO Auto-generated method stub
+								
+							}
+							
+							@Override
 							public void execute(Object command) {
 								if(command instanceof PendingCommandFactory) {
 									collectedCommands.add(command);
@@ -424,18 +430,18 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							}
 							
 							@Override
-							public void afterNextTrigger(Runnable runnable) {
-								onAfterNextTrigger.add(runnable);
+							public void commitTransaction() {
+								collectedCommands.add(Instruction.OPCODE_COMMIT);
 							}
 							
 							@Override
-							public void reject() {
+							public void rejectTransaction() {
 								collectedCommands.add(Instruction.OPCODE_REJECT);
 							}
 							
 							@Override
-							public void commit() {
-								collectedCommands.add(Instruction.OPCODE_COMMIT);
+							public void afterNextTrigger(Runnable runnable) {
+								onAfterNextTrigger.add(runnable);
 							}
 							
 							@Override

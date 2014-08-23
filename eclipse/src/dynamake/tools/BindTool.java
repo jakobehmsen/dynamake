@@ -30,9 +30,9 @@ public class BindTool implements Tool {
 				Model.executeAddObserver(collector, selection, targetModelComponent);
 			}
 			
-			collector.commit();
+			collector.commitTransaction();
 		} else {
-			collector.reject();
+			collector.rejectTransaction();
 		}
 	}
 	

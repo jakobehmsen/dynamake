@@ -42,7 +42,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 						interactionPresenter.reset(collector);
 						
 						((Trigger<Model>)action).run(collector);
-						collector.commit();
+						collector.commitTransaction();
 					}
 				});
 			}
@@ -85,7 +85,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run(Collector<Model> collector) {
 				interactionPresenter.reset(collector);
 				
-				collector.reject();
+				collector.rejectTransaction();
 			}
 		});
 	}

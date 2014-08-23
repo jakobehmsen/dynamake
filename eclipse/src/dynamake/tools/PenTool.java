@@ -69,7 +69,7 @@ public class PenTool implements Tool {
 
 		targetPresenter.reset(collector);
 		
-		collector.commit();
+		collector.commitTransaction();
 	}
 	
 	private static class StrokeComponent extends JComponent {
