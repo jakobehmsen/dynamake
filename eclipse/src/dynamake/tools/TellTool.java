@@ -10,13 +10,12 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.PostOnlyTransactionHandler;
 
 public class TellTool implements Tool {
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		interactionPresenter.showPopupForSelectionTell(productionPanel, mousePoint, null, connection, interactionPresenter);
-		
-		collector.commitTransaction();
 	}
 	
 	private InteractionPresenter interactionPresenter;
@@ -24,11 +23,12 @@ public class TellTool implements Tool {
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		ModelComponent targetModelComponent = modelOver;
-		if(targetModelComponent != null) {
-			Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
-			interactionPresenter = new InteractionPresenter(productionPanel);
-			interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
-		}
+
+		collector.startTransaction(targetModelComponent.getModelBehind(), PostOnlyTransactionHandler.class);
+		
+		Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
+		interactionPresenter = new InteractionPresenter(productionPanel);
+		interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
 	}
 
 	@Override
