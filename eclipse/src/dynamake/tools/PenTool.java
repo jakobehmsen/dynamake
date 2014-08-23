@@ -95,6 +95,8 @@ public class PenTool implements Tool {
 
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, final Point mousePoint) {
+		collector.startTransaction(modelOver.getModelBehind(), NewChangeTransactionHandler.class);
+		
 		points = new ArrayList<Point>();
 		strokeComponent = new StrokeComponent();
 		strokeComponent.setSize(productionPanel.getSize());
