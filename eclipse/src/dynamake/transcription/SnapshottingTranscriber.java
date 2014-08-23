@@ -148,7 +148,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					
 					ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
 					for(CommandState<T> transaction: entry.pending) {
-						CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)transaction.executeOn(propCtx, prevalentSystem, isolatedCollector, locationFromReference);
+						CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)transaction.executeOn(propCtx, reference, isolatedCollector, locationFromReference);
 						pendingUndoablePairs.add(new Execution<T>(transaction, undoable));
 					}
 					
