@@ -333,6 +333,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		private Categorizer<ReferenceAndLocation<T>, Class<? extends TransactionHandler<T>>> referencesToAppliedTransactionHandlers = new Categorizer<ReferenceAndLocation<T>, Class<? extends TransactionHandler<T>>>();
 		private Hashtable<Class<? extends TransactionHandler<T>>, TransactionHandler<T>> transactionHandlerClassToInstanceMap = new Hashtable<Class<? extends TransactionHandler<T>>, TransactionHandler<T>>();
 		
+		private Stack<TransactionFrame<T>> frameStack = new Stack<TransactionFrame<T>>();
+		
 		public Connection(SnapshottingTranscriber<T> transcriber, TriggerHandler<T> triggerHandler) {
 			this.transcriber = transcriber;
 			this.triggerHandler = triggerHandler;
@@ -340,17 +342,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		
 		private static class TransactionFrame<T> {
 			public final Class<? extends TransactionHandler<T>> handlerClass;
-			public TransactionHandler<T> handler;
-			public final Command2Scope scope;
+			public final TransactionHandler<T> handler;
 			
-			public TransactionFrame(Class<? extends TransactionHandler<T>> transactionHandlerClass, Command2Scope scope) {
+			public TransactionFrame(Class<? extends TransactionHandler<T>> transactionHandlerClass, TransactionHandler<T> handler) {
 				this.handlerClass = transactionHandlerClass;
-				try {
-					this.handler = transactionHandlerClass.newInstance();
-				} catch (InstantiationException | IllegalAccessException e) {
-					e.printStackTrace();
-				}
-				this.scope = scope;
+				this.handler = handler;
 			}
 		}
 		
@@ -418,7 +414,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				@SuppressWarnings("unchecked")
 				@Override
 				public void run() {
-					PropogationContext propCtx = new PropogationContext();
+					final PropogationContext propCtx = new PropogationContext();
 					final LinkedList<Object> commands = new LinkedList<Object>();
 					commands.add(trigger);
 					
@@ -431,9 +427,17 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						final ArrayList<Object> collectedCommands = new ArrayList<Object>();
 						Collector<T> collector = new Collector<T>() {
 							@Override
-							public void startTransaction(Class<? extends TransactionHandler<T>> transactionHandlerClass) {
-								// TODO Auto-generated method stub
-								
+							public void startTransaction(T reference, Class<? extends TransactionHandler<T>> transactionHandlerClass) {
+								TransactionHandler<T> transactionHandler;
+								try {
+									transactionHandler = transactionHandlerClass.newInstance();
+									
+									transactionHandler.startLogFor(reference, propCtx, 0, this);
+									
+									frameStack.add(new TransactionFrame<>(transactionHandlerClass, transactionHandler));
+								} catch (InstantiationException | IllegalAccessException e) {
+									e.printStackTrace();
+								}
 							}
 							
 							@Override

@@ -18,7 +18,7 @@ public interface Collector<T> {
 	
 	*/
 	
-	void startTransaction(Class<? extends TransactionHandler<T>> transactionHandlerClass);
+	void startTransaction(T reference, Class<? extends TransactionHandler<T>> transactionHandlerClass);
 	void execute(Object command);
 	void commitTransaction();
 	void rejectTransaction();
