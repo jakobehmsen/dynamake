@@ -11,9 +11,11 @@ import dynamake.commands.InjectCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
+import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
+import dynamake.models.ModelRootLocation;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
@@ -121,8 +123,13 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			@Override
 			public void run(Collector<Model> collector) {
 				ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
-				Location locationOfSelection = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
-				Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, target);
+				
+				Location locationOfSelection = new ModelRootLocation();
+				Location locationOfTarget = new CompositeLocation(
+					ModelComponent.Util.locationToAncestor(referenceMC, selection), 
+					ModelComponent.Util.locationFromAncestor(referenceMC, target)
+				);
+				
 				PendingCommandFactory.Util.executeSingle(collector, referenceMC.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
 					new InjectCommand(locationOfSelection, locationOfTarget),
 					new DejectCommand(locationOfSelection, locationOfTarget)
