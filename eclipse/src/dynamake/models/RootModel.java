@@ -155,6 +155,8 @@ public class RootModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
+						collector.startTransaction(rootModel, NewChangeTransactionHandler.class);
+						
 						collector.execute(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
@@ -259,6 +261,8 @@ public class RootModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
+						collector.startTransaction(RootModel.this, NewChangeTransactionHandler.class);
+						
 						collector.execute(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
