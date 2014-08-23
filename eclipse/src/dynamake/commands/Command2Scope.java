@@ -1,5 +1,5 @@
 package dynamake.commands;
 
-public interface Command2Scope {
+public class Command2Scope {
 
 }
