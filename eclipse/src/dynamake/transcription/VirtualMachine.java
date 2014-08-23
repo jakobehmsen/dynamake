@@ -44,7 +44,9 @@ public class VirtualMachine<T> {
 	}
 	
 	private static class ForwardBackwardPair {
+		@SuppressWarnings("unused")
 		public final Instruction forward; 
+		@SuppressWarnings("unused")
 		public final Instruction backward;
 		
 		public ForwardBackwardPair(Instruction forward, Instruction backward) {
