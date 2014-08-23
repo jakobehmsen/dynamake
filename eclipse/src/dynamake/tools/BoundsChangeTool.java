@@ -15,10 +15,12 @@ import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.models.CanvasModel;
+import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.models.ModelRootLocation;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
@@ -67,8 +69,14 @@ public abstract class BoundsChangeTool implements Tool {
 							public void run(Collector<Model> collector) {
 								ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
 								
-								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
-								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
+//								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
+//								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
+								
+								Location locationOfSource = new ModelRootLocation();
+								Location locationOfTarget = new CompositeLocation(
+									ModelComponent.Util.locationToAncestor(referenceMC, source),
+									ModelComponent.Util.locationFromAncestor(referenceMC, targetOver)
+								);
 								
 								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 								
@@ -84,16 +92,16 @@ public abstract class BoundsChangeTool implements Tool {
 						collector.execute(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
-								Location locationOfMovedModel = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
+								Location locationOfMovedTargetFromSource = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
 								
 								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 								
 								pendingCommands.add(new PendingCommandState<Model>(
-									new RelativeCommand<Model>(locationOfMovedModel, new SetPropertyCommand("X", new Fraction(droppedBounds.x))),
+									new RelativeCommand<Model>(locationOfMovedTargetFromSource, new SetPropertyCommand("X", new Fraction(droppedBounds.x))),
 									new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 								));
 								pendingCommands.add(new PendingCommandState<Model>(
-									new RelativeCommand<Model>(locationOfMovedModel, new SetPropertyCommand("Y", new Fraction(droppedBounds.y))),
+									new RelativeCommand<Model>(locationOfMovedTargetFromSource, new SetPropertyCommand("Y", new Fraction(droppedBounds.y))),
 									new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 								));
 								
@@ -108,9 +116,15 @@ public abstract class BoundsChangeTool implements Tool {
 					collector.execute(new Trigger<Model>() {
 						@Override
 						public void run(Collector<Model> collector) {
+							Location locationOfTargetFromSource = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
 							ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 
 							appendCommandStatesForResize(pendingCommands, selection, newBounds);
+
+							for(int i = 0; i < pendingCommands.size(); i++) {
+								CommandState<Model> offsetCommand = pendingCommands.get(i).offset(locationOfTargetFromSource);
+								pendingCommands.set(i, offsetCommand);
+							}
 							
 							PendingCommandFactory.Util.executeSequence(collector, selection.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
 						}
@@ -140,6 +154,8 @@ public abstract class BoundsChangeTool implements Tool {
 		if(targetModelComponent != productionPanel.contentView.getBindingTarget()) {
 			viewPressedOn = targetModelComponent;
 			source = ModelComponent.Util.getParent(targetModelComponent);
+			// Start transaction relative to the parent of the model, for which the bounds are being changed
+			collector.startTransaction(source.getModelBehind(), NewChangeTransactionHandler.class);
 			
 			Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
 			
