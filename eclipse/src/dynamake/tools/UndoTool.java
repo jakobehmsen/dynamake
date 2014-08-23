@@ -16,7 +16,6 @@ import dynamake.transcription.TransactionHandler;
 import dynamake.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.SimplePendingCommandFactory;
 import dynamake.transcription.Trigger;
-import dynamake.transcription.UndoTransactionHandler;
 
 public class UndoTool implements Tool {
 	@Override

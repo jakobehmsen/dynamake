@@ -8,7 +8,6 @@ import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 import dynamake.transcription.IsolatingCollector;
 import dynamake.transcription.RedoTransactionHandler;
-import dynamake.transcription.UndoTransactionHandler;
 
 public class RedoCommand implements Command<Model> {
 	public static class Output implements Serializable {
