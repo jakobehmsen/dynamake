@@ -7,6 +7,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 import dynamake.transcription.IsolatingCollector;
+import dynamake.transcription.UndoTransactionHandler;
 
 public class UndoCommand implements Command<Model> {
 	public static class Output implements Serializable {
@@ -38,7 +39,9 @@ public class UndoCommand implements Command<Model> {
 		if(isolate)
 			collector = new IsolatingCollector<Model>(collector);
 		
+		collector.startTransaction(model, UndoTransactionHandler.class);
 		CommandState<Model> command = model.undo(propCtx, 0, collector);
+		collector.commitTransaction();
 		
 		return new Output(command);
 	}
