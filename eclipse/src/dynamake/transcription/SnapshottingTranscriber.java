@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dynamake.collections.Categorizer;
+import dynamake.commands.Command2Scope;
 import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.CommandState;
@@ -335,6 +336,22 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		public Connection(SnapshottingTranscriber<T> transcriber, TriggerHandler<T> triggerHandler) {
 			this.transcriber = transcriber;
 			this.triggerHandler = triggerHandler;
+		}
+		
+		private static class TransactionFrame<T> {
+			public final Class<? extends TransactionHandler<T>> handlerClass;
+			public TransactionHandler<T> handler;
+			public final Command2Scope scope;
+			
+			public TransactionFrame(Class<? extends TransactionHandler<T>> transactionHandlerClass, Command2Scope scope) {
+				this.handlerClass = transactionHandlerClass;
+				try {
+					this.handler = transactionHandlerClass.newInstance();
+				} catch (InstantiationException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
+				this.scope = scope;
+			}
 		}
 		
 		private static class ReferenceAndLocation<T> implements Serializable {
