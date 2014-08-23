@@ -10,6 +10,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.NewChangeTransactionHandler;
 
 public class ViewTool implements Tool {
 	@Override
@@ -22,11 +23,12 @@ public class ViewTool implements Tool {
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		ModelComponent targetModelComponent = modelOver;
-		if(targetModelComponent != null) {
-			Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
-			interactionPresenter = new InteractionPresenter(productionPanel);
-			interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
-		}
+		
+		collector.startTransaction(targetModelComponent.getModelBehind(), NewChangeTransactionHandler.class);
+
+		Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
+		interactionPresenter = new InteractionPresenter(productionPanel);
+		interactionPresenter.selectFromView(targetModelComponent, referencePoint, collector);
 	}
 
 	@Override
