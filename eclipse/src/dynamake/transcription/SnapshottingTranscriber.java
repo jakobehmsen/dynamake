@@ -133,54 +133,93 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	@SuppressWarnings("unchecked")
+	private static <T> void replay(ContextualCommand<T> ctxTransaction, T prevalentSystem, PropogationContext propCtx, Collector<T> isolatedCollector) {
+		try {
+			TransactionHandler<T> transactionHandler = ctxTransaction.transactionHandler.newInstance();
+
+			Location locationFromReference = new ModelRootLocation();
+			T reference = (T)ctxTransaction.locationFromRootToReference.getChild(prevalentSystem);
+			
+			transactionHandler.startLogFor(reference);
+			
+			for(Object transactionFromRoot: ctxTransaction.transactionsFromRoot) {
+				if(transactionFromRoot instanceof SnapshottingTranscriber.Connection.LocationCommandsPair) {
+					SnapshottingTranscriber.Connection.LocationCommandsPair<T> entry = (SnapshottingTranscriber.Connection.LocationCommandsPair<T>)transactionFromRoot;
+					
+					ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
+					for(CommandState<T> transaction: entry.pending) {
+						CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)transaction.executeOn(propCtx, prevalentSystem, isolatedCollector, locationFromReference);
+						pendingUndoablePairs.add(new Execution<T>(transaction, undoable));
+					}
+					
+					transactionHandler.logFor((T)reference, pendingUndoablePairs, propCtx, 0, isolatedCollector);
+				} else if(transactionFromRoot instanceof ContextualCommand) {
+					replay((ContextualCommand<T>)transactionFromRoot, prevalentSystem, propCtx, isolatedCollector);
+				}
+			}
+			
+			transactionHandler.commitLogFor(reference);
+		} catch (InstantiationException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+	
+//	@SuppressWarnings("unchecked")
 	private static <T> void replay(ArrayList<ContextualCommand<T>> transactions, T prevalentSystem) {
 		PropogationContext propCtx = new PropogationContext();
 		
 		Collector<T> isolatedCollector = new NullCollector<T>();
 		
 		for(ContextualCommand<T> ctxTransaction: transactions) {
-			Categorizer<T, Class<? extends TransactionHandler<T>>> referencesToAppliedTransactionHandlers = new Categorizer<T, Class<? extends TransactionHandler<T>>>();
-			Hashtable<Location, T> locationToReferenceMap = new Hashtable<Location, T>();
-			Hashtable<Class<? extends TransactionHandler<T>>, TransactionHandler<T>> transactionHandlerClassToInstanceMap = new Hashtable<Class<? extends TransactionHandler<T>>, TransactionHandler<T>>();
-			
-			for(SnapshottingTranscriber.Connection.LocationCommandsPair<T> entry: ctxTransaction.transactionsFromRoot) {
-				Location location = entry.location;
-				
-				TransactionHandler<T> transactionHandler = null;
-				Model reference = (Model)location.getChild(prevalentSystem);
-				if(!referencesToAppliedTransactionHandlers.containsItem((T)reference, entry.transactionHandlerClass)) {
-					try {
-						transactionHandler = entry.transactionHandlerClass.newInstance();
-					} catch (InstantiationException | IllegalAccessException e) {
-						e.printStackTrace();
-					}
-					transactionHandler.startLogFor((T)reference);
-					transactionHandlerClassToInstanceMap.put(entry.transactionHandlerClass, transactionHandler);
-				} else
-					transactionHandler = transactionHandlerClassToInstanceMap.get(entry.transactionHandlerClass);
-				
-				ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
-				for(CommandState<T> transaction: entry.pending) {
-					CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)transaction.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
-					pendingUndoablePairs.add(new Execution<T>(transaction, undoable));
-				}
-				
-				transactionHandler.logFor((T)reference, pendingUndoablePairs, propCtx, 0, isolatedCollector);
-				referencesToAppliedTransactionHandlers.add((T)reference, entry.transactionHandlerClass);
-				
-				locationToReferenceMap.put(location, (T)reference);
-			}
-			
-			for(Location affectedReferenceLocation: ctxTransaction.affectedReferenceLocations) {
-				T reference = (T)locationToReferenceMap.get(affectedReferenceLocation);
-				// Update the log of each affected reference isolately; no transaction is cross-reference
-				
-				List<Class<? extends TransactionHandler<T>>> transactionHandlerClasses = referencesToAppliedTransactionHandlers.getItems((T)reference);
-				for(Class<? extends TransactionHandler<T>> transactionHandlerClass: transactionHandlerClasses) {
-					TransactionHandler<T> transactionHandler = transactionHandlerClassToInstanceMap.get(transactionHandlerClass);
-					transactionHandler.commitLogFor((T)reference);
-				}
-			}
+			replay(ctxTransaction, prevalentSystem, propCtx, isolatedCollector);
+//			Categorizer<T, Class<? extends TransactionHandler<T>>> referencesToAppliedTransactionHandlers = new Categorizer<T, Class<? extends TransactionHandler<T>>>();
+//			Hashtable<Location, T> locationToReferenceMap = new Hashtable<Location, T>();
+//			Hashtable<Class<? extends TransactionHandler<T>>, TransactionHandler<T>> transactionHandlerClassToInstanceMap = new Hashtable<Class<? extends TransactionHandler<T>>, TransactionHandler<T>>();
+//
+//			for(Object entry: ctxTransaction.transactionsFromRoot) {
+//				if(entry instanceof LocationCommandsPair<T>) {
+//					
+//				}
+//			}
+//			
+//			for(SnapshottingTranscriber.Connection.LocationCommandsPair<T> entry: ctxTransaction.transactionsFromRoot) {
+//				Location location = entry.location;
+//				
+//				TransactionHandler<T> transactionHandler = null;
+//				Model reference = (Model)location.getChild(prevalentSystem);
+//				if(!referencesToAppliedTransactionHandlers.containsItem((T)reference, entry.transactionHandlerClass)) {
+//					try {
+//						transactionHandler = entry.transactionHandlerClass.newInstance();
+//					} catch (InstantiationException | IllegalAccessException e) {
+//						e.printStackTrace();
+//					}
+//					transactionHandler.startLogFor((T)reference);
+//					transactionHandlerClassToInstanceMap.put(entry.transactionHandlerClass, transactionHandler);
+//				} else
+//					transactionHandler = transactionHandlerClassToInstanceMap.get(entry.transactionHandlerClass);
+//				
+//				ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
+//				for(CommandState<T> transaction: entry.pending) {
+//					CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)transaction.executeOn(propCtx, prevalentSystem, isolatedCollector, location);
+//					pendingUndoablePairs.add(new Execution<T>(transaction, undoable));
+//				}
+//				
+//				transactionHandler.logFor((T)reference, pendingUndoablePairs, propCtx, 0, isolatedCollector);
+//				referencesToAppliedTransactionHandlers.add((T)reference, entry.transactionHandlerClass);
+//				
+//				locationToReferenceMap.put(location, (T)reference);
+//			}
+//			
+//			for(Location affectedReferenceLocation: ctxTransaction.affectedReferenceLocations) {
+//				T reference = (T)locationToReferenceMap.get(affectedReferenceLocation);
+//				// Update the log of each affected reference isolately; no transaction is cross-reference
+//				
+//				List<Class<? extends TransactionHandler<T>>> transactionHandlerClasses = referencesToAppliedTransactionHandlers.getItems((T)reference);
+//				for(Class<? extends TransactionHandler<T>> transactionHandlerClass: transactionHandlerClasses) {
+//					TransactionHandler<T> transactionHandler = transactionHandlerClassToInstanceMap.get(transactionHandlerClass);
+//					transactionHandler.commitLogFor((T)reference);
+//				}
+//			}
 		}
 	}
 	
@@ -327,13 +366,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		// Probably, many of the below fields are to be related to "transaction frame" of some sort
 		private TriggerHandler<T> triggerHandler;
 		private SnapshottingTranscriber<T> transcriber;
-		private ArrayList<LocationCommandsPair<T>> flushedTransactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
-		private HashSet<ReferenceAndLocation<T>> affectedReferences = new HashSet<ReferenceAndLocation<T>>();
-		private ArrayList<UndoableCommandFromReference<T>> flushedUndoableTransactionsFromReferences = new ArrayList<UndoableCommandFromReference<T>>();
-		private Categorizer<ReferenceAndLocation<T>, Class<? extends TransactionHandler<T>>> referencesToAppliedTransactionHandlers = new Categorizer<ReferenceAndLocation<T>, Class<? extends TransactionHandler<T>>>();
-		private Hashtable<Class<? extends TransactionHandler<T>>, TransactionHandler<T>> transactionHandlerClassToInstanceMap = new Hashtable<Class<? extends TransactionHandler<T>>, TransactionHandler<T>>();
+//		private ArrayList<LocationCommandsPair<T>> flushedTransactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
+//		private HashSet<ReferenceAndLocation<T>> affectedReferences = new HashSet<ReferenceAndLocation<T>>();
+//		private ArrayList<UndoableCommandFromReference<T>> flushedUndoableTransactionsFromReferences = new ArrayList<UndoableCommandFromReference<T>>();
+//		private Categorizer<ReferenceAndLocation<T>, Class<? extends TransactionHandler<T>>> referencesToAppliedTransactionHandlers = new Categorizer<ReferenceAndLocation<T>, Class<? extends TransactionHandler<T>>>();
+//		private Hashtable<Class<? extends TransactionHandler<T>>, TransactionHandler<T>> transactionHandlerClassToInstanceMap = new Hashtable<Class<? extends TransactionHandler<T>>, TransactionHandler<T>>();
 		
-		private Stack<TransactionFrame<T>> frameStack = new Stack<TransactionFrame<T>>();
+		private TransactionFrame<T> currentFrame;
 		
 		public Connection(SnapshottingTranscriber<T> transcriber, TriggerHandler<T> triggerHandler) {
 			this.transcriber = transcriber;
@@ -341,14 +380,25 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		}
 		
 		private static class TransactionFrame<T> {
+			public final TransactionFrame<T> parent;
 			public final T reference;
-			public final Location locationFromRoot;
+			public final Location locationFromRootToReference;
 			public final Class<? extends TransactionHandler<T>> handlerClass;
 			public final TransactionHandler<T> handler;
 			
-			public TransactionFrame(T reference, Location locationFromRoot, Class<? extends TransactionHandler<T>> transactionHandlerClass, TransactionHandler<T> handler) {
+			// Somehow, flushed transaction should both be able to consist of atomic commands and committed transactions
+			// This is needed in order to keep the order of the flushed commands/transaction correct
+			// - and this is important during replay and reject
+			public ArrayList<Object> flushedTransactionsFromRoot = new ArrayList<Object>(); // List of either atomic commands or transactions
+			public ArrayList<Object> flushedUndoableTransactionsFromReferences = new ArrayList<Object>();  // List of either atomic commands or transactions
+			
+//			public ContextualCommand<T> commitInfo;
+//			public ArrayList<TransactionFrame<T>> innerCommittedTransactions = new ArrayList<TransactionFrame<T>>();
+			
+			public TransactionFrame(TransactionFrame<T> parent, T reference, Location locationFromRootToReference, Class<? extends TransactionHandler<T>> transactionHandlerClass, TransactionHandler<T> handler) {
+				this.parent = parent;
 				this.reference = reference;
-				this.locationFromRoot = locationFromRoot;
+				this.locationFromRootToReference = locationFromRootToReference;
 				this.handlerClass = transactionHandlerClass;
 				this.handler = handler;
 			}
@@ -440,7 +490,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									
 									Location locationFromRoot = ((Model)reference).getLocator().locate();
 									
-									frameStack.add(new TransactionFrame<T>(reference, locationFromRoot, transactionHandlerClass, transactionHandler));
+									currentFrame = new TransactionFrame<T>(currentFrame, reference, locationFromRoot, transactionHandlerClass, transactionHandler);
 								} catch (InstantiationException | IllegalAccessException e) {
 									e.printStackTrace();
 								}
@@ -508,40 +558,44 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								break;
 							}
 						} else if(command instanceof PendingCommandFactory) {
-							TransactionFrame<T> frame = frameStack.peek();
+							TransactionFrame<T> frame = currentFrame;
 							
 							PendingCommandFactory<T> transactionFactory = (PendingCommandFactory<T>)command;
-							T reference = transactionFactory.getReference();
+//							T reference = transactionFactory.getReference();
+							T reference = frame.reference;
 							
 							if(reference == null || ((Model)reference).getLocator() == null) {
 								reference = transactionFactory.getReference();
 							}
-							Location locationFromRoot = ((Model)reference).getLocator().locate();
+//							Location locationFromRoot = ((Model)reference).getLocator().locate();
+							Location locationFromRootToReference = frame.locationFromRootToReference;
 							Class<? extends TransactionHandler<T>> transactionHandlerClass = null;
 
-							ReferenceAndLocation<T> referenceAndLocation = new ReferenceAndLocation<T>(reference, locationFromRoot);
-							transactionHandlerClass = transactionFactory.getTransactionHandlerClass();
+//							ReferenceAndLocation<T> referenceAndLocation = new ReferenceAndLocation<T>(reference, locationFromRoot);
+//							transactionHandlerClass = transactionFactory.getTransactionHandlerClass();
+//							
+//							TransactionHandler<T> transactionHandler = null;
+//							if(!referencesToAppliedTransactionHandlers.containsItem(referenceAndLocation, transactionHandlerClass)) {
+//								try {
+////									System.out.println("Start log for " + reference + " at " + referenceAndLocation.location);
+//									transactionHandler = transactionHandlerClass.newInstance();
+//									transactionHandler.startLogFor(reference);
+//									transactionHandlerClassToInstanceMap.put(transactionHandlerClass, transactionHandler);
+//									referencesToAppliedTransactionHandlers.add(referenceAndLocation, transactionHandlerClass);
+//								} catch (InstantiationException | IllegalAccessException e) {
+//									e.printStackTrace();
+//								}
+//							} else
+//								transactionHandler = transactionHandlerClassToInstanceMap.get(transactionHandlerClass);
 							
-							TransactionHandler<T> transactionHandler = null;
-							if(!referencesToAppliedTransactionHandlers.containsItem(referenceAndLocation, transactionHandlerClass)) {
-								try {
-//									System.out.println("Start log for " + reference + " at " + referenceAndLocation.location);
-									transactionHandler = transactionHandlerClass.newInstance();
-									transactionHandler.startLogFor(reference);
-									transactionHandlerClassToInstanceMap.put(transactionHandlerClass, transactionHandler);
-									referencesToAppliedTransactionHandlers.add(referenceAndLocation, transactionHandlerClass);
-								} catch (InstantiationException | IllegalAccessException e) {
-									e.printStackTrace();
-								}
-							} else
-								transactionHandler = transactionHandlerClassToInstanceMap.get(transactionHandlerClass);
+							TransactionHandler<T> transactionHandler = frame.handler;
 							
 							Location locationFromReference = new ModelRootLocation();
 							
 							// If location was part of the executeOn invocation, location is probably no
 							// necessary for creating dual commands. Further, then, it is probably not necessary
 							// to create two sequences of pendingCommands.
-							CommandState<T> pendingCommand =  transactionFactory.createPendingCommand();
+							CommandState<T> pendingCommand = transactionFactory.createPendingCommand();
 							
 							// Assumed that exactly one command is created consistenly
 							
@@ -552,7 +606,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, collector, locationFromReference);
 							undoables.add(undoableCommand);
 
-							flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
+							frame.flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
 							
 							ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
 
@@ -560,13 +614,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							Execution<T> pendingUndoablePair = new Execution<T>(pendingCommand, undoable);
 							pendingUndoablePairs.add(pendingUndoablePair);
 							
-							affectedReferences.add(referenceAndLocation);
+//							affectedReferences.add(referenceAndLocation);
 							
 							transactionHandler.logFor(reference, pendingUndoablePairs, propCtx, 0, collector);
 
 							ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
 							pendingCommands.add(pendingCommand);
-							flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(locationFromRoot, pendingCommands, transactionHandlerClass));
+							frame.flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(null, pendingCommands, null));
 							
 							propogationStack.push(pendingUndoablePairs);
 								
@@ -589,50 +643,93 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			});
 		}
 		
+		@SuppressWarnings("unchecked")
 		private void doCommit() {
-			if(flushedTransactionsFromRoot.size() > 0) {
-				PropogationContext propCtx = new PropogationContext();
+			if(currentFrame.flushedTransactionsFromRoot.size() > 0) {
+//				PropogationContext propCtx = new PropogationContext();
 				
 				final ArrayList<Runnable> onAfterNextTrigger = new ArrayList<Runnable>();
 				
-				Collector<T> isolatedCollector = new NullCollector<T>() {
-					@Override
-					public void afterNextTrigger(Runnable runnable) {
-						onAfterNextTrigger.add(runnable);
-					}
-				};
-				
-				ArrayList<LocationCommandsPair<T>> transactionsFromRoot = new ArrayList<LocationCommandsPair<T>>();
+//				Collector<T> isolatedCollector = new NullCollector<T>() {
+//					@Override
+//					public void afterNextTrigger(Runnable runnable) {
+//						onAfterNextTrigger.add(runnable);
+//					}
+//				};
 
-				transactionsFromRoot.addAll(flushedTransactionsFromRoot);
+//				transactionsFromRoot.addAll(currentFrame.flushedTransactionsFromRoot);
+				
+//				for(Object committedExecution: currentFrame.flushedTransactionsFromRoot) {
+//					if(committedExecution instanceof LocationCommandsPair) {
+//						transactionsFromRoot.add((LocationCommandsPair<T>)committedExecution);
+//					} else if(committedExecution instanceof TransactionFrame) {
+//						
+//					}
+//				}
+				
+				currentFrame.handler.commitLogFor(currentFrame.reference);
 					
-				flushedTransactionsFromRoot.clear();
+//				flushedTransactionsFromRoot.clear();
 				
-				HashSet<Location> affectedReferenceLocations = new HashSet<Location>();
+//					HashSet<Location> affectedReferenceLocations = new HashSet<Location>();
+//					
+//					for(ReferenceAndLocation<T> referenceAndLocation: affectedReferences) {
+//						List<Class<? extends TransactionHandler<T>>> transactionHandlerClasses = referencesToAppliedTransactionHandlers.getItems(referenceAndLocation);
+//						for(Class<? extends TransactionHandler<T>> transactionHandlerClass: transactionHandlerClasses) {
+//							TransactionHandler<T> transactionHandler = transactionHandlerClassToInstanceMap.get(transactionHandlerClass);
+//							transactionHandler.commitLogFor(referenceAndLocation.reference);
+//						}
+//						
+//						Location referenceLocation = referenceAndLocation.location;
+//						affectedReferenceLocations.add(referenceLocation);
+//					}
 				
-				for(ReferenceAndLocation<T> referenceAndLocation: affectedReferences) {
-					List<Class<? extends TransactionHandler<T>>> transactionHandlerClasses = referencesToAppliedTransactionHandlers.getItems(referenceAndLocation);
-					for(Class<? extends TransactionHandler<T>> transactionHandlerClass: transactionHandlerClasses) {
-						TransactionHandler<T> transactionHandler = transactionHandlerClassToInstanceMap.get(transactionHandlerClass);
-						transactionHandler.commitLogFor(referenceAndLocation.reference);
+//					affectedReferences.clear();
+//				flushedUndoableTransactionsFromReferences.clear();
+				
+//				ArrayList<ContextualCommand<T>> innerCommits = new ArrayList<ContextualCommand<T>>();
+//				for(TransactionFrame<T> innerCommittedFrame: currentFrame.innerCommittedTransactions)
+//					innerCommits.add(innerCommittedFrame.commitInfo);
+
+				
+				ArrayList<Object> transactionsFromRoot = new ArrayList<Object>();
+				
+				buildTransactionToPersist(transactionsFromRoot, currentFrame);
+				
+				ContextualCommand<T> transactionToPersist = new ContextualCommand<T>(currentFrame.locationFromRootToReference, currentFrame.handlerClass, transactionsFromRoot);
+				
+				if(currentFrame.parent == null) {
+	
+	//				System.out.println("Committed connection");
+					transcriber.persistTransaction(transactionToPersist);
+//					referencesToAppliedTransactionHandlers.clear();
+//					transactionHandlerClassToInstanceMap.clear();
+					
+					if(onAfterNextTrigger.size() > 0) {
+						triggerHandler.handleAfterTrigger(onAfterNextTrigger);
 					}
-					
-					Location referenceLocation = referenceAndLocation.location;
-					affectedReferenceLocations.add(referenceLocation);
+				} else {
+//					currentFrame.parent.innerCommittedTransactions.add(currentFrame);
+					currentFrame.parent.flushedTransactionsFromRoot.add(currentFrame);
+					currentFrame.parent.flushedUndoableTransactionsFromReferences.add(currentFrame);
 				}
-				
-				affectedReferences.clear();
-				flushedUndoableTransactionsFromReferences.clear();
-				
-				ContextualCommand<T> transactionToPersist = new ContextualCommand<T>(transactionsFromRoot, affectedReferenceLocations);
-
-//				System.out.println("Committed connection");
-				transcriber.persistTransaction(transactionToPersist);
-				referencesToAppliedTransactionHandlers.clear();
-				transactionHandlerClassToInstanceMap.clear();
-				
-				if(onAfterNextTrigger.size() > 0) {
-					triggerHandler.handleAfterTrigger(onAfterNextTrigger);
+			}
+			
+			currentFrame = currentFrame.parent;
+		}
+		
+		@SuppressWarnings("unchecked")
+		private void buildTransactionToPersist(ArrayList<Object> transactionsFromRoot, TransactionFrame<T> frame) {
+			for(Object committedExecution: frame.flushedTransactionsFromRoot) {
+				if(committedExecution instanceof LocationCommandsPair) {
+					transactionsFromRoot.add((LocationCommandsPair<T>)committedExecution);
+				} else if(committedExecution instanceof TransactionFrame) {
+					TransactionFrame<T> innerFrame = (TransactionFrame<T>)committedExecution;
+					ArrayList<Object> innerTransactionsFromRoot = new ArrayList<Object>();
+					
+					buildTransactionToPersist(innerTransactionsFromRoot, innerFrame);
+					
+					transactionsFromRoot.add(new ContextualCommand<T>(innerFrame.locationFromRootToReference, innerFrame.handlerClass, innerTransactionsFromRoot));
 				}
 			}
 		}
@@ -649,33 +746,66 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				}
 			};
 
-			for(UndoableCommandFromReference<T> transaction: flushedUndoableTransactionsFromReferences) {
-				Location locationFromReference = new ModelRootLocation();
-				for(CommandState<T> undoable: transaction.undoables) {
-					@SuppressWarnings("unused")
-					CommandState<T> redoable = undoable.executeOn(propCtx, transaction.reference, isolatedCollector, locationFromReference);
-				}
+			while(currentFrame != null) {
+//				for(int i = currentFrame.flushedUndoableTransactionsFromReferences.size() - 1; i >= 0; i--) {
+//					UndoableCommandFromReference<T> transaction = currentFrame.flushedUndoableTransactionsFromReferences.get(i);
+//					Location locationFromReference = new ModelRootLocation();
+//					for(CommandState<T> undoable: transaction.undoables) {
+//						@SuppressWarnings("unused")
+//						CommandState<T> redoable = undoable.executeOn(propCtx, transaction.reference, isolatedCollector, locationFromReference);
+//					}
+//				}
+				
+				rejectTransaction(propCtx, isolatedCollector, currentFrame);
+				
+				currentFrame = currentFrame.parent;
 			}
 			
 			System.out.println("Rejected connection");
 			
-			flushedTransactionsFromRoot.clear();
+			currentFrame.handler.rejectLogFor(currentFrame.reference);
 			
-			for(ReferenceAndLocation<T> referenceAndLocation: affectedReferences) {
-				List<Class<? extends TransactionHandler<T>>> transactionHandlerClasses = referencesToAppliedTransactionHandlers.getItems(referenceAndLocation);
-				for(Class<? extends TransactionHandler<T>> transactionHandlerClass: transactionHandlerClasses) {
-					TransactionHandler<T> transactionHandler = transactionHandlerClassToInstanceMap.get(transactionHandlerClass);
-					transactionHandler.rejectLogFor(referenceAndLocation.reference);
-				}
-			}
+//			flushedTransactionsFromRoot.clear();
 			
-			affectedReferences.clear();
-			flushedUndoableTransactionsFromReferences.clear();
-			referencesToAppliedTransactionHandlers.clear();
-			transactionHandlerClassToInstanceMap.clear();
+//			for(ReferenceAndLocation<T> referenceAndLocation: affectedReferences) {
+//				List<Class<? extends TransactionHandler<T>>> transactionHandlerClasses = referencesToAppliedTransactionHandlers.getItems(referenceAndLocation);
+//				for(Class<? extends TransactionHandler<T>> transactionHandlerClass: transactionHandlerClasses) {
+//					TransactionHandler<T> transactionHandler = transactionHandlerClassToInstanceMap.get(transactionHandlerClass);
+//					transactionHandler.rejectLogFor(referenceAndLocation.reference);
+//				}
+//			}
+			
+//			affectedReferences.clear();
+//			flushedUndoableTransactionsFromReferences.clear();
+//			referencesToAppliedTransactionHandlers.clear();
+//			transactionHandlerClassToInstanceMap.clear();
 
 			if(onAfterNextTrigger.size() > 0) {
 				triggerHandler.handleAfterTrigger(onAfterNextTrigger);
+			}
+		}
+		
+		private static <T> void rejectTransaction(PropogationContext propCtx, Collector<T> isolatedCollector, TransactionFrame<T> frame) {
+//			for(int i = frame.innerCommittedTransactions.size() - 1; i >= 0; i--) {
+//				TransactionFrame<T> innerFrame = frame.innerCommittedTransactions.get(i);
+//			}
+			
+			for(int i = frame.flushedUndoableTransactionsFromReferences.size() - 1; i >= 0; i--) {
+				Object committedExecution = frame.flushedUndoableTransactionsFromReferences.get(i);
+				
+				if(committedExecution instanceof UndoableCommandFromReference) {
+					UndoableCommandFromReference<T> undoableTransaction = (UndoableCommandFromReference<T>)committedExecution;
+					
+					Location locationFromReference = new ModelRootLocation();
+					for(CommandState<T> undoable: undoableTransaction.undoables) {
+						@SuppressWarnings("unused")
+						CommandState<T> redoable = undoable.executeOn(propCtx, frame.reference, isolatedCollector, locationFromReference);
+					}
+				} else if(committedExecution instanceof TransactionFrame) {
+					TransactionFrame<T> innerFrame = (TransactionFrame<T>)committedExecution;
+					
+					rejectTransaction(propCtx, isolatedCollector, innerFrame);
+				}
 			}
 		}
 	}
