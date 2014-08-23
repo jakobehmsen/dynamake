@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import dynamake.models.PropogationContext;
 
 public interface TransactionHandler<T> extends Serializable {
-	void startLogFor(T reference, PropogationContext propCtx, int propDistance, Collector<T> collector);
+	void startLogFor(T reference, PropogationContext propCtx, int propDistance);
 	void logFor(T reference, ArrayList<Execution<T>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector);
-	void commitLogFor(T reference, PropogationContext propCtx, int propDistance, Collector<T> collector);
-	void rejectLogFor(T reference, PropogationContext propCtx, int propDistance, Collector<T> collector);
+	void commitLogFor(T reference, PropogationContext propCtx, int propDistance);
+	void rejectLogFor(T reference, PropogationContext propCtx, int propDistance);
 }

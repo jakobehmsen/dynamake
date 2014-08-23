@@ -16,7 +16,7 @@ public class NewChangeTransactionHandler implements TransactionHandler<Model> {
 	private ArrayList<Execution<Model>> newLog;
 
 	@Override
-	public void startLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void startLogFor(Model reference, PropogationContext propCtx, int propDistance) {
 		newLog = new ArrayList<Execution<Model>>();
 	}
 
@@ -27,7 +27,7 @@ public class NewChangeTransactionHandler implements TransactionHandler<Model> {
 	}
 
 	@Override
-	public void commitLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void commitLogFor(Model reference, PropogationContext propCtx, int propDistance) {
 		if(newLog.size() > 0) {
 			@SuppressWarnings("unchecked")
 			CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
@@ -42,7 +42,7 @@ public class NewChangeTransactionHandler implements TransactionHandler<Model> {
 	}
 
 	@Override
-	public void rejectLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void rejectLogFor(Model reference, PropogationContext propCtx, int propDistance) {
 
 	}
 }

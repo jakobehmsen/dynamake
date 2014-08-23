@@ -12,7 +12,7 @@ public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 	private static final long serialVersionUID = 1L;
 	
 	@Override
-	public void startLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void startLogFor(Model reference, PropogationContext propCtx, int propDistance) {
 
 	}
 
@@ -22,12 +22,12 @@ public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 	}
 
 	@Override
-	public void commitLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void commitLogFor(Model reference, PropogationContext propCtx, int propDistance) {
 
 	}
 	
 	@Override
-	public void rejectLogFor(Model reference, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void rejectLogFor(Model reference, PropogationContext propCtx, int propDistance) {
 
 	}
 }
