@@ -32,6 +32,8 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		canvas = ModelComponent.Util.closestCanvasModelComponent(modelOver);
 		
+		collector.startTransaction(canvas.getModelBehind(), NewChangeTransactionHandler.class);
+		
 		targetPresenter = new TargetPresenter(
 			productionPanel,
 			new TargetPresenter.Behavior() {
