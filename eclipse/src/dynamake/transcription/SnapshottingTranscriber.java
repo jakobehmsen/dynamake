@@ -154,7 +154,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					} catch (InstantiationException | IllegalAccessException e) {
 						e.printStackTrace();
 					}
-					transactionHandler.startLogFor((T)reference, propCtx, 0);
+					transactionHandler.startLogFor((T)reference);
 					transactionHandlerClassToInstanceMap.put(entry.transactionHandlerClass, transactionHandler);
 				} else
 					transactionHandler = transactionHandlerClassToInstanceMap.get(entry.transactionHandlerClass);
@@ -178,7 +178,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				List<Class<? extends TransactionHandler<T>>> transactionHandlerClasses = referencesToAppliedTransactionHandlers.getItems((T)reference);
 				for(Class<? extends TransactionHandler<T>> transactionHandlerClass: transactionHandlerClasses) {
 					TransactionHandler<T> transactionHandler = transactionHandlerClassToInstanceMap.get(transactionHandlerClass);
-					transactionHandler.commitLogFor((T)reference, propCtx, 0);
+					transactionHandler.commitLogFor((T)reference);
 				}
 			}
 		}
@@ -432,7 +432,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								try {
 									transactionHandler = transactionHandlerClass.newInstance();
 									
-									transactionHandler.startLogFor(reference, propCtx, 0);
+									transactionHandler.startLogFor(reference);
 									
 									frameStack.add(new TransactionFrame<>(transactionHandlerClass, transactionHandler));
 								} catch (InstantiationException | IllegalAccessException e) {
@@ -519,7 +519,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								try {
 //									System.out.println("Start log for " + reference + " at " + referenceAndLocation.location);
 									transactionHandler = transactionHandlerClass.newInstance();
-									transactionHandler.startLogFor(reference, propCtx, 0);
+									transactionHandler.startLogFor(reference);
 									transactionHandlerClassToInstanceMap.put(transactionHandlerClass, transactionHandler);
 									referencesToAppliedTransactionHandlers.add(referenceAndLocation, transactionHandlerClass);
 								} catch (InstantiationException | IllegalAccessException e) {
@@ -606,7 +606,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					List<Class<? extends TransactionHandler<T>>> transactionHandlerClasses = referencesToAppliedTransactionHandlers.getItems(referenceAndLocation);
 					for(Class<? extends TransactionHandler<T>> transactionHandlerClass: transactionHandlerClasses) {
 						TransactionHandler<T> transactionHandler = transactionHandlerClassToInstanceMap.get(transactionHandlerClass);
-						transactionHandler.commitLogFor(referenceAndLocation.reference, propCtx, 0);
+						transactionHandler.commitLogFor(referenceAndLocation.reference);
 					}
 					
 					Location referenceLocation = referenceAndLocation.location;
@@ -657,7 +657,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				List<Class<? extends TransactionHandler<T>>> transactionHandlerClasses = referencesToAppliedTransactionHandlers.getItems(referenceAndLocation);
 				for(Class<? extends TransactionHandler<T>> transactionHandlerClass: transactionHandlerClasses) {
 					TransactionHandler<T> transactionHandler = transactionHandlerClassToInstanceMap.get(transactionHandlerClass);
-					transactionHandler.rejectLogFor(referenceAndLocation.reference, propCtx, 0);
+					transactionHandler.rejectLogFor(referenceAndLocation.reference);
 				}
 			}
 			

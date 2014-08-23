@@ -17,7 +17,7 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 	private ArrayList<Execution<Model>> newLog;
 
 	@Override
-	public void startLogFor(Model reference, PropogationContext propCtx, int propDistance) {
+	public void startLogFor(Model reference) {
 //		System.out.println(this +  ": startLogFor");
 		newLog = new ArrayList<Execution<Model>>();
 	}
@@ -29,7 +29,7 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 	}
 
 	@Override
-	public void commitLogFor(Model reference, PropogationContext propCtx, int propDistance) {
+	public void commitLogFor(Model reference) {
 		// Build undoable from logged commands
 		
 		@SuppressWarnings("unchecked")
@@ -48,7 +48,7 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 	}
 
 	@Override
-	public void rejectLogFor(Model reference, PropogationContext propCtx, int propDistance) {
+	public void rejectLogFor(Model reference) {
 //		System.out.println(this +  ": rejectLogFor");
 	}
 }
