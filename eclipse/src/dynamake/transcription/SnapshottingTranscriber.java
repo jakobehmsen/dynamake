@@ -348,17 +348,26 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	private static class Instruction {
-		public static final int OPCODE_COMMIT = 0;
-		public static final int OPCODE_REJECT = 1;
-		public static final int OPCODE_FLUSH_NEXT_TRIGGER = 2;
-		public static final int OPCODE_SEND_PROPOGATION_FINISHED = 3;
+		public static final int OPCODE_START = 0;
+		public static final int OPCODE_COMMIT = 1;
+		public static final int OPCODE_REJECT = 2;
+		public static final int OPCODE_FLUSH_NEXT_TRIGGER = 3;
+		public static final int OPCODE_SEND_PROPOGATION_FINISHED = 4;
 		
 		public final int type;
-		public final Object operand;
+		public final Object operand1;
+		public final Object operand2;
 		
-		public Instruction(int type, Object operand) {
+		public Instruction(int type, Object operand1) {
 			this.type = type;
-			this.operand = operand;
+			this.operand1 = operand1;
+			this.operand2 = null;
+		}
+		
+		public Instruction(int type, Object operand1, Object operand2) {
+			this.type = type;
+			this.operand1 = operand1;
+			this.operand2 = operand2;
 		}
 	}
 	
@@ -482,18 +491,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						Collector<T> collector = new Collector<T>() {
 							@Override
 							public void startTransaction(T reference, Class<? extends TransactionHandler<T>> transactionHandlerClass) {
-								TransactionHandler<T> transactionHandler;
-								try {
-									transactionHandler = transactionHandlerClass.newInstance();
-									
-									transactionHandler.startLogFor(reference);
-									
-									Location locationFromRoot = ((Model)reference).getLocator().locate();
-									
-									currentFrame = new TransactionFrame<T>(currentFrame, reference, locationFromRoot, transactionHandlerClass, transactionHandler);
-								} catch (InstantiationException | IllegalAccessException e) {
-									e.printStackTrace();
-								}
+								collectedCommands.add(new Instruction(Instruction.OPCODE_START, reference, transactionHandlerClass));
 							}
 							
 							@Override
@@ -548,13 +546,30 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							Instruction instruction = (Instruction)command;
 							
 							switch(instruction.type) {
+							case Instruction.OPCODE_START:
+								T reference = (T)instruction.operand1;
+								Class<? extends TransactionHandler<T>> transactionHandlerClass = (Class<? extends TransactionHandler<T>>)instruction.operand2;
+								
+								TransactionHandler<T> transactionHandler;
+								try {
+									transactionHandler = transactionHandlerClass.newInstance();
+									
+									transactionHandler.startLogFor(reference);
+									
+									Location locationFromRoot = ((Model)reference).getLocator().locate();
+									
+									currentFrame = new TransactionFrame<T>(currentFrame, reference, locationFromRoot, transactionHandlerClass, transactionHandler);
+								} catch (InstantiationException | IllegalAccessException e) {
+									e.printStackTrace();
+								}
+								break;
 							case Instruction.OPCODE_SEND_PROPOGATION_FINISHED:
 								List<Execution<T>> pendingUndoablePairs = propogationStack.pop();
 								if(pendingUndoablePairs.size() != 1) {
 									new String();
 								}
 								Execution<T> execution = pendingUndoablePairs.get(0);
-								((PendingCommandFactory<T>)instruction.operand).afterPropogationFinished(execution, propCtx, 0, collector);
+								((PendingCommandFactory<T>)instruction.operand1).afterPropogationFinished(execution, propCtx, 0, collector);
 								break;
 							}
 						} else if(command instanceof PendingCommandFactory) {
