@@ -43,6 +43,7 @@ import dynamake.transcription.Connection;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.NewChangeTransactionHandler;
+import dynamake.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.RedoTransactionHandler;
 import dynamake.transcription.Trigger;
 import dynamake.transcription.UndoTransactionHandler;
@@ -379,10 +380,12 @@ public abstract class Model implements Serializable, Observer {
 			// Side-effect
 			final SetProperty setProperty = (SetProperty)change;
 
+			collector.startTransaction(this, PostOnlyTransactionHandler.class);
 			PendingCommandFactory.Util.executeSingle(collector, this, NewChangeTransactionHandler.class, new PendingCommandState<Model>(
 				new SetPropertyCommand(setProperty.name, setProperty.value),
 				new SetPropertyCommand.AfterSetProperty()
 			));
+			collector.commitTransaction();
 		} else if(change instanceof TellProperty && changeDistance == 1) {
 			// Side-effect
 			TellProperty tellProperty = (TellProperty)change;
