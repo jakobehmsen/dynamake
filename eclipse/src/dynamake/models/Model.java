@@ -906,6 +906,46 @@ public abstract class Model implements Serializable, Observer {
 		
 	}
 
+	public static void executeRemoveObserverFromObservable(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
+		collector.execute(new Trigger<Model>() {
+			@Override
+			public void run(Collector<Model> collector) {
+				ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
+				
+				Location observableLocation = new ModelRootLocation();
+				Location observerLocation = new CompositeLocation(
+					ModelComponent.Util.locationToAncestor(referenceMC, observable), 
+					ModelComponent.Util.locationFromAncestor(referenceMC, observer)
+				); 
+				
+				PendingCommandFactory.Util.executeSingle(collector, referenceMC.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
+					new RemoveObserverCommand(observableLocation, observerLocation),
+					new AddObserverCommand(observableLocation, observerLocation)
+				));
+			}
+		});
+	}
+
+	public static void executeAddObserverFromObservable(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
+		collector.execute(new Trigger<Model>() {
+			@Override
+			public void run(Collector<Model> collector) {
+				ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
+				
+				Location observableLocation = new ModelRootLocation();
+				Location observerLocation = new CompositeLocation(
+					ModelComponent.Util.locationToAncestor(referenceMC, observable), 
+					ModelComponent.Util.locationFromAncestor(referenceMC, observer)
+				); 
+				
+				PendingCommandFactory.Util.executeSingle(collector, referenceMC.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
+					new AddObserverCommand(observableLocation, observerLocation),
+					new RemoveObserverCommand(observableLocation, observerLocation)
+				));
+			}
+		});
+	}
+
 	public static void executeRemoveObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
 		collector.execute(new Trigger<Model>() {
 			@Override

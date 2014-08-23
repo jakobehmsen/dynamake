@@ -12,6 +12,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.NewChangeTransactionHandler;
 
 public class BindTool implements Tool {
 	@Override
@@ -25,9 +26,9 @@ public class BindTool implements Tool {
 		
 		if(targetModelComponent != null && selection != targetModelComponent) {
 			if(selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
-				Model.executeRemoveObserver(collector, selection, targetModelComponent);
+				Model.executeRemoveObserverFromObservable(collector, selection, targetModelComponent);
 			} else {
-				Model.executeAddObserver(collector, selection, targetModelComponent);
+				Model.executeAddObserverFromObservable(collector, selection, targetModelComponent);
 			}
 			
 			collector.commitTransaction();
@@ -43,6 +44,8 @@ public class BindTool implements Tool {
 	@Override
 	public void mousePressed(final ProductionPanel productionPanel, ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		ModelComponent targetModelComponent = modelOver;
+		
+		collector.startTransaction(modelOver.getModelBehind(), NewChangeTransactionHandler.class);
 
 		Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
 		interactionPresenter = new InteractionPresenter(productionPanel);
