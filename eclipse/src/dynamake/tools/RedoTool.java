@@ -20,6 +20,7 @@ import dynamake.transcription.Trigger;
 public class RedoTool implements Tool {
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, final ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
+		collector.startTransaction(modelOver.getModelBehind(), PostOnlyTransactionHandler.class);
 		collector.execute(new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {

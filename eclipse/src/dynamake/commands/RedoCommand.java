@@ -7,6 +7,8 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 import dynamake.transcription.IsolatingCollector;
+import dynamake.transcription.RedoTransactionHandler;
+import dynamake.transcription.UndoTransactionHandler;
 
 public class RedoCommand implements Command<Model> {
 	public static class Output implements Serializable {
@@ -37,8 +39,10 @@ public class RedoCommand implements Command<Model> {
 		
 		if(isolate)
 			collector = new IsolatingCollector<Model>(collector);
-		
+
+		collector.startTransaction(model, RedoTransactionHandler.class);
 		CommandState<Model> command = model.redo(propCtx, 0, collector);
+		collector.commitTransaction();
 		
 		return new Output(command);
 	}
