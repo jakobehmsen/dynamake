@@ -11,7 +11,13 @@ public interface Collector<T> {
 	Once a transaction is committed, the supplied scope is somehow given to the history handler, when it is requested to
 	commit its collected commands. The scope seems to have a close relation to the history handler - maybe a history handler
 	should be aware of the scope itself and even be able to yield the scope outwards.
+	
+	What about embedded transaction? 
+	Intuitively, they should not be committed before they parent transactions are committed.
+	Further, they should implicitly reject upwards throughout the transaction hierarchy.
+	
 	*/
+	
 	void execute(Object command);
 	void afterNextTrigger(Runnable runnable);
 	void reject();
