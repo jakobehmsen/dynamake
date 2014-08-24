@@ -295,23 +295,6 @@ public class CanvasModel extends Model {
 	}
 	
 	public static class ForwardedAddModelCommand implements ForwardableCommand<Model> {
-		public static class Output implements Serializable {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
-			public final Location location;
-
-			public Output(Location location) {
-				this.location = location;
-			}
-			
-			@Override
-			public String toString() {
-				return "Added model at " + location;
-			}
-		}
-		
 		/**
 		 * 
 		 */
@@ -335,7 +318,7 @@ public class CanvasModel extends Model {
 			
 			modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, collector, location);
 			
-			return new Output(addedModelLocation);
+			return new AddModelCommand.Output(addedModelLocation);
 		}
 		
 		@Override
