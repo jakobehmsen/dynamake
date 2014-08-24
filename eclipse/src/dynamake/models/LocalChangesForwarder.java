@@ -133,6 +133,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			for(CommandState<Model> newChange: pushLocalChanges.localChangesToRevert)
 				forwardedChangesToRevert.add(newChange.forForwarding());
 
+			collector.startTransaction(innerMostTarget, PostOnlyTransactionHandler.class);
 			// On a meta level (i.e. build commands which are not going to be part of the inheretee's local changes)
 			collector.execute(new Trigger<Model>() {
 				@Override
@@ -154,7 +155,6 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 						)));
 					}
 					
-					collector.startTransaction(innerMostTarget, PostOnlyTransactionHandler.class);
 					PendingCommandFactory.Util.executeSequence(collector, innerMostTarget, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
 						@Override
 						public void handleExecutions(final List<Execution<Model>> forwardedChangesToRevertPendingUndoablePairs, Collector<Model> collector) {
@@ -198,9 +198,10 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 							});
 						}
 					});
-					collector.commitTransaction();
 				}
 			});
+
+			collector.commitTransaction();
 			
 			// Accumulate local changes to revert
 			ArrayList<CommandState<Model>> newLocalChangesToRevert = new ArrayList<CommandState<Model>>();
