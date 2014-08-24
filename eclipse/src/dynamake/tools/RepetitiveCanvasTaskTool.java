@@ -73,6 +73,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 	@Override
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
 		targetPresenter.reset(collector);
+		collector.rejectTransaction();
 	}
 	
 	protected abstract void createCommandStatesForSingleTask(ProductionPanel productionPanel, List<CommandState<Model>> pendingCommands, ModelComponent canvas, ModelComponent modelOver);
