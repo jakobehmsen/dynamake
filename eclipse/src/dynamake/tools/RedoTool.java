@@ -25,15 +25,10 @@ public class RedoTool implements Tool {
 			@Override
 			public void run(Collector<Model> collector) {
 				if(modelOver.getModelBehind().canRedo()) {
-					collector.execute(new SimplePendingCommandFactory<Model>(modelOver.getModelBehind(), new PendingCommandState<Model>(
+					collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
 						new RedoCommand(false),
 						new UndoCommand(false)
-					)) {
-						@Override
-						public Class<? extends TransactionHandler<Model>> getTransactionHandlerClass() {
-							return PostOnlyTransactionHandler.class;
-						}
-					});
+					)));
 					
 					collector.commitTransaction();
 				}

@@ -50,7 +50,7 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 		} else {
 			// Set creation on source
 			collector.startTransaction(source, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
-			collector.execute(new SimplePendingCommandFactory<Model>(source, new PendingCommandState<Model>(
+			collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
 				new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, new ArrayList<Execution<Model>>()), 
 				new SetPropertyCommand.AfterSetProperty()
 			)));
@@ -75,7 +75,7 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 					sourceCreation.addAll(sourceCreationPendingUndoablePairs);
 					
 					// Update creation on source
-					collector.execute(new SimplePendingCommandFactory<Model>(source, new PendingCommandState<Model>(
+					collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
 						new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, sourceCreation), 
 						new SetPropertyCommand.AfterSetProperty()
 					)));

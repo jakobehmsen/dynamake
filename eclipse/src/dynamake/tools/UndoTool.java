@@ -25,15 +25,10 @@ public class UndoTool implements Tool {
 			@Override
 			public void run(Collector<Model> collector) {
 				if(modelOver.getModelBehind().canUndo()) {
-					collector.execute(new SimplePendingCommandFactory<Model>(modelOver.getModelBehind(), new PendingCommandState<Model>(
+					collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
 						new UndoCommand(false),
 						new RedoCommand(false)
-					)) {
-						@Override
-						public Class<? extends TransactionHandler<Model>> getTransactionHandlerClass() {
-							return PostOnlyTransactionHandler.class;
-						}
-					});
+					)));
 					
 					collector.commitTransaction();
 				}

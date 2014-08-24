@@ -484,10 +484,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							PendingCommandFactory<T> transactionFactory = (PendingCommandFactory<T>)command;
 							T reference = frame.reference;
 							
-							if(reference == null || ((Model)reference).getLocator() == null) {
-								reference = transactionFactory.getReference();
-							}
-							
 							TransactionHandler<T> transactionHandler = frame.handler;
 							
 							Location locationFromReference = new ModelRootLocation();

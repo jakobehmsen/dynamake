@@ -153,7 +153,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 						// Assumed that unplaying doesn't provoke side effects
 						// Play the local changes backwards
 						collector.startTransaction(currentTarget, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
-						collector.execute(new SimplePendingCommandFactory<Model>(currentTarget, new PendingCommandState<Model>(
+						collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
 							new UnplayCommand(localChangeCount),
 							new ReplayCommand(localChangeCount)
 						)));
@@ -193,7 +193,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 												modelIndexToLocationHistory.add(localChangeCount);
 												// Play the local changes forward
 												collector.startTransaction(currentTarget, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
-												collector.execute(new SimplePendingCommandFactory<Model>(currentTarget, new PendingCommandState<Model>(
+												collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
 													new ReplayCommand(localChangeCount),
 													new UnplayCommand(localChangeCount)
 												)));

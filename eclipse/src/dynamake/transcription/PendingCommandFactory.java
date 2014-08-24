@@ -7,19 +7,12 @@ import dynamake.commands.CommandState;
 import dynamake.models.PropogationContext;
 
 public interface PendingCommandFactory<T> {
-	T getReference();
 	CommandState<T> createPendingCommand();
 	void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector);
-	Class<? extends TransactionHandler<T>> getTransactionHandlerClass();
 	
 	public static class Util {
 		public static <T> void executeSingle(Collector<T> collector, final T reference, final Class<? extends TransactionHandler<T>> transactionHandlerClass, final CommandState<T> pendingCommand) {
-			collector.execute(new SimplePendingCommandFactory<T>(reference, pendingCommand) {
-				@Override
-				public Class<? extends TransactionHandler<T>> getTransactionHandlerClass() {
-					return transactionHandlerClass;
-				}
-			});
+			collector.execute(new SimplePendingCommandFactory<T>(pendingCommand));
 		}
 		
 		public static <T> void executeSequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands) {
@@ -49,16 +42,11 @@ public interface PendingCommandFactory<T> {
 				Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, final Class<? extends TransactionHandler<T>> transactionHandlerClass, 
 				final ExecutionsHandler<T> afterExecutions, final List<Execution<T>> executions, final int i) {
 			if(i < pendingCommands.size()) {
-				collector.execute(new SimplePendingCommandFactory<T>(reference, pendingCommands.get(i)) {
+				collector.execute(new SimplePendingCommandFactory<T>(pendingCommands.get(i)) {
 					@Override
 					public void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 						executions.add(execution);
 						executeSequence(collector, reference, pendingCommands, transactionHandlerClass, afterExecutions, executions, i + 1);
-					}
-					
-					@Override
-					public Class<? extends TransactionHandler<T>> getTransactionHandlerClass() {
-						return transactionHandlerClass;
 					}
 				});
 			} else {
