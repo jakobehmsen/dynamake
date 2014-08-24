@@ -11,7 +11,9 @@ import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
+import dynamake.transcription.NullTransactionHandler;
 import dynamake.transcription.PendingCommandFactory;
+import dynamake.transcription.TransactionHandler;
 import dynamake.transcription.Trigger;
 
 public class PushForwardFromCommand implements ForwardableCommand<Model> {
@@ -33,12 +35,15 @@ public class PushForwardFromCommand implements ForwardableCommand<Model> {
 		this.forwardCount = forwardCount;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model target = (Model)location.getChild(prevalentSystem);
 		Model source = (Model)locationOfSourceFromTarget.getChild(target);
 		
+		collector.startTransaction(target, (Class<? extends TransactionHandler<Model>>) NullTransactionHandler.class);
 		pushForward(source, target, collector, new ModelRootLocation());
+		collector.commitTransaction();
 
 		return null;
 	}
