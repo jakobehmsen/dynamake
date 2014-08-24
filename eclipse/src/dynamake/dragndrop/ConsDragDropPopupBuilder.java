@@ -18,7 +18,6 @@ import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
-import dynamake.models.ModelRootLocation;
 import dynamake.models.Primitive;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.CreationBoundsFactory;

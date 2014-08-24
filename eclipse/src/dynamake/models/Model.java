@@ -5,8 +5,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -21,7 +19,6 @@ import java.util.Stack;
 import javax.swing.JComponent;
 
 import dynamake.commands.AddObserverCommand;
-import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.MappableForwardable;
@@ -39,7 +36,6 @@ import dynamake.models.factories.DeriveFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
-import dynamake.transcription.Connection;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.NewChangeTransactionHandler;
@@ -596,36 +592,6 @@ public abstract class Model implements Serializable, Observer {
 				}
 			}
 		});
-	}
-	
-	private static class MouseUpCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
-			Model model = (Model)location.getChild(rootPrevalentSystem);
-			model.sendChanged(new MouseUp(), propCtx, 0, 0, collector);
-			
-			return null;
-		}
-	}
-	
-	private static class MouseDownCommand implements Command<Model> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
-			Model model = (Model)location.getChild(rootPrevalentSystem);
-			model.sendChanged(new MouseDown(), propCtx, 0, 0, collector);
-			
-			return null;
-		}
 	}
 	
 	public static void loadComponentProperties(Model model, Component view, final int componentColor) {
