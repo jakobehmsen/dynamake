@@ -124,16 +124,15 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			public void run(Collector<Model> collector) {
 				ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
 				
-				Location locationOfSelection = new ModelRootLocation();
-				Location locationOfTarget = new CompositeLocation(
-					ModelComponent.Util.locationToAncestor(referenceMC, selection), 
-					ModelComponent.Util.locationFromAncestor(referenceMC, target)
-				);
+				Location locationOfSelection = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
+				Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 				
+				collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
 				PendingCommandFactory.Util.executeSingle(collector, referenceMC.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
 					new InjectCommand(locationOfSelection, locationOfTarget),
 					new DejectCommand(locationOfSelection, locationOfTarget)
 				));
+				collector.commitTransaction();
 			}
 		});
 
