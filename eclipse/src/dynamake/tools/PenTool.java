@@ -165,5 +165,7 @@ public class PenTool implements Tool {
 				productionPanel.remove(localStrokeComponent);
 			}
 		});
+		
+		collector.rejectTransaction();
 	}
 }
