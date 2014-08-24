@@ -14,10 +14,12 @@ import dynamake.commands.MappableForwardable;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.transcription.Collector;
+import dynamake.transcription.NullTransactionHandler;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.ExecutionsHandler;
 import dynamake.transcription.SimplePendingCommandFactory;
+import dynamake.transcription.TransactionHandler;
 import dynamake.transcription.Trigger;
 
 public class RestorableModel implements Serializable {
@@ -153,7 +155,10 @@ public class RestorableModel implements Serializable {
 //		System.out.println("restoreOriginsOnBase");
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void restoreChangesOnBase(final Model modelBase, final PropogationContext propCtx, final int propDistance, Collector<Model> collector) {
+		collector.startTransaction(modelBase, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
+		
 		ArrayList<CommandState<Model>> modelCreationAsPendingCommands = new ArrayList<CommandState<Model>>();
 		
 		if(modelCreation != null) {
@@ -183,6 +188,8 @@ public class RestorableModel implements Serializable {
 				afterRestoreChangesOnBase(modelBase, propCtx, propDistance, collector);
 			}
 		});
+		
+		collector.commitTransaction();
 		
 //		System.out.println("restoreChangesOnBase");
 	}
