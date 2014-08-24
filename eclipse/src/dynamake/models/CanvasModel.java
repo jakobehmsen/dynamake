@@ -711,8 +711,10 @@ public class CanvasModel extends Model {
 						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 						
 						CanvasModel.appendMoveTransaction(pendingCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
-						
+
+						collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
 						PendingCommandFactory.Util.executeSequence(collector, referenceMC.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
+						collector.commitTransaction();
 					}
 				});
 			}
