@@ -677,7 +677,9 @@ public class CanvasModel extends Model {
 						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 						CanvasModel.appendUnwrapTransaction(pendingCommands, CanvasPanel.this, parent);
 						
+						collector.startTransaction(parent.getModelBehind(), NewChangeTransactionHandler.class);
 						PendingCommandFactory.Util.executeSequence(collector, parent.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
+						collector.commitTransaction();
 					}
 				});
 			}
