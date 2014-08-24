@@ -29,10 +29,10 @@ public class ConsTool implements Tool {
 				
 				if(interactionPresenter.getSelection().getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
 					final ModelComponent selection = interactionPresenter.getSelection();
-					Model.executeRemoveObserverFromObservable(collector, selection, targetModelComponent);
+					Model.executeRemoveObserver(collector, selection, targetModelComponent);
 				} else {
 					final ModelComponent selection = interactionPresenter.getSelection();
-					Model.executeAddObserverFromObservable(collector, selection, targetModelComponent);
+					Model.executeAddObserver(collector, selection, targetModelComponent);
 				}
 				
 				interactionPresenter.reset(collector);

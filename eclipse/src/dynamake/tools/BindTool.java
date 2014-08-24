@@ -26,9 +26,9 @@ public class BindTool implements Tool {
 		
 		if(targetModelComponent != null && selection != targetModelComponent) {
 			if(selection.getModelBehind().isObservedBy(targetModelComponent.getModelBehind())) {
-				Model.executeRemoveObserverFromObservable(collector, selection, targetModelComponent);
+				Model.executeRemoveObserver(collector, selection, targetModelComponent);
 			} else {
-				Model.executeAddObserverFromObservable(collector, selection, targetModelComponent);
+				Model.executeAddObserver(collector, selection, targetModelComponent);
 			}
 			
 			collector.commitTransaction();
