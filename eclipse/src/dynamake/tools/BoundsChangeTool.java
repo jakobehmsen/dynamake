@@ -98,8 +98,10 @@ public abstract class BoundsChangeTool implements Tool {
 									new RelativeCommand<Model>(locationOfMovedTargetFromSource, new SetPropertyCommand("Y", new Fraction(droppedBounds.y))),
 									new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 								));
-								
+
+								collector.startTransaction(source.getModelBehind(), NewChangeTransactionHandler.class);
 								PendingCommandFactory.Util.executeSequence(collector, source.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
+								collector.commitTransaction();
 							}
 						});
 					}
@@ -110,15 +112,9 @@ public abstract class BoundsChangeTool implements Tool {
 					collector.execute(new Trigger<Model>() {
 						@Override
 						public void run(Collector<Model> collector) {
-							Location locationOfTargetFromSource = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
 							ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 
 							appendCommandStatesForResize(pendingCommands, selection, newBounds);
-
-							for(int i = 0; i < pendingCommands.size(); i++) {
-								CommandState<Model> offsetCommand = pendingCommands.get(i).offset(locationOfTargetFromSource);
-								pendingCommands.set(i, offsetCommand);
-							}
 							
 							PendingCommandFactory.Util.executeSequence(collector, selection.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
 						}
@@ -149,7 +145,7 @@ public abstract class BoundsChangeTool implements Tool {
 			viewPressedOn = targetModelComponent;
 			source = ModelComponent.Util.getParent(targetModelComponent);
 			// Start transaction relative to the parent of the model, for which the bounds are being changed
-			collector.startTransaction(source.getModelBehind(), NewChangeTransactionHandler.class);
+			collector.startTransaction(targetModelComponent.getModelBehind(), NewChangeTransactionHandler.class);
 			
 			Point referencePoint = SwingUtilities.convertPoint(sourceComponent, mousePoint, (JComponent)targetModelComponent);
 			
