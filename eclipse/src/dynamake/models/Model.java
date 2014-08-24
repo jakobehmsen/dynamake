@@ -765,10 +765,10 @@ public abstract class Model implements Serializable, Observer {
 						public void run(Collector<Model> collector) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
 							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
-							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
+							Location fromTargetToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
-							Location droppedLocation = fromCCAToDropped;
+							Location droppedLocation = fromTargetToDropped;
 							
 							PendingCommandFactory.Util.executeSingle(collector, target.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(new CloneFactory(new RectangleF(creationBounds), droppedLocation)),
@@ -789,10 +789,10 @@ public abstract class Model implements Serializable, Observer {
 						public void run(Collector<Model> collector) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
 							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
-							Location fromCCAToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
+							Location fromTargetToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
-							Location droppedLocation = fromCCAToDropped;
+							Location droppedLocation = fromTargetToDropped;
 							ModelFactory factory = new DeriveFactory(new RectangleF(creationBounds), droppedLocation);
 							PendingCommandFactory.Util.executeSingle(collector, target.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(factory),
