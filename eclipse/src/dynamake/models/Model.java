@@ -953,40 +953,6 @@ public abstract class Model implements Serializable, Observer {
 			}
 		});
 	}
-
-	public static void executeRemoveObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
-		collector.execute(new Trigger<Model>() {
-			@Override
-			public void run(Collector<Model> collector) {
-				ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
-				
-				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
-				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
-				
-				PendingCommandFactory.Util.executeSingle(collector, referenceMC.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
-					new RemoveObserverCommand(observableLocation, observerLocation),
-					new AddObserverCommand(observableLocation, observerLocation)
-				));
-			}
-		});
-	}
-
-	public static void executeAddObserver(Collector<Model> collector, final ModelComponent observable, final ModelComponent observer) {
-		collector.execute(new Trigger<Model>() {
-			@Override
-			public void run(Collector<Model> collector) {
-				ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
-				
-				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
-				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
-				
-				PendingCommandFactory.Util.executeSingle(collector, referenceMC.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
-					new AddObserverCommand(observableLocation, observerLocation),
-					new RemoveObserverCommand(observableLocation, observerLocation)
-				));
-			}
-		});
-	}
 	
 	public abstract Model cloneBase();
 	
