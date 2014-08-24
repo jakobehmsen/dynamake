@@ -265,6 +265,11 @@ public class LiveModel extends Model {
 		
 		@Override
 		public String toString() {
+			switch(keyCode) {
+			case KeyEvent.VK_BACK_SPACE:
+				return "<BS>";
+			}
+			
 			return KeyEvent.getKeyText(keyCode);
 		}
 		
