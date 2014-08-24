@@ -33,16 +33,16 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.factories.CloneFactory;
 import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.DeriveFactory;
+import dynamake.models.transcription.NewChangeTransactionHandler;
+import dynamake.models.transcription.PostOnlyTransactionHandler;
+import dynamake.models.transcription.RedoTransactionHandler;
+import dynamake.models.transcription.UndoTransactionHandler;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
-import dynamake.transcription.NewChangeTransactionHandler;
-import dynamake.transcription.PostOnlyTransactionHandler;
-import dynamake.transcription.RedoTransactionHandler;
 import dynamake.transcription.Trigger;
-import dynamake.transcription.UndoTransactionHandler;
 
 /**
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.

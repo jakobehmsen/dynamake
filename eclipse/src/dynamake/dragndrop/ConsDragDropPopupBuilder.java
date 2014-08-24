@@ -22,13 +22,13 @@ import dynamake.models.Primitive;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.CreationBoundsFactory;
 import dynamake.models.factories.PrimitiveSingletonFactory;
+import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.numbers.RectangleF;
 import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.PendingCommandFactory;
-import dynamake.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Trigger;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {

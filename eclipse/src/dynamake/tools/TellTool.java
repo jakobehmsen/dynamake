@@ -8,9 +8,9 @@ import javax.swing.SwingUtilities;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.PostOnlyTransactionHandler;
 
 public class TellTool implements Tool {
 	@Override

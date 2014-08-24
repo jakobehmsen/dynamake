@@ -11,10 +11,10 @@ import dynamake.commands.CommandState;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.PendingCommandFactory;
-import dynamake.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Trigger;
 
 public abstract class RepetitiveCanvasTaskTool implements Tool {

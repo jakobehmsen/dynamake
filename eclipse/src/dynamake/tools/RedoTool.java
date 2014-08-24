@@ -10,10 +10,10 @@ import dynamake.commands.UndoCommand;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.TransactionHandler;
-import dynamake.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.SimplePendingCommandFactory;
 import dynamake.transcription.Trigger;
 

@@ -1,9 +1,12 @@
-package dynamake.transcription;
+package dynamake.models.transcription;
 
 import java.util.ArrayList;
 
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
+import dynamake.transcription.Collector;
+import dynamake.transcription.Execution;
+import dynamake.transcription.TransactionHandler;
 
 public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 	/**

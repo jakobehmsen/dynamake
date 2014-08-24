@@ -32,12 +32,12 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.ModelCreation;
 import dynamake.models.factories.ModelFactory;
+import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.NullTransactionHandler;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Collector;
-import dynamake.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Trigger;
 import dynamake.transcription.TransactionHandler;
 

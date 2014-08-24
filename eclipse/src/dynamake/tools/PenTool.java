@@ -20,11 +20,11 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.factories.CreationBoundsFactory;
 import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.StrokeModelFactory;
+import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.PendingCommandFactory;
-import dynamake.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Trigger;
 
 public class PenTool implements Tool {

@@ -1,4 +1,4 @@
-package dynamake.transcription;
+package dynamake.models.transcription;
 
 import java.util.ArrayList;
 
@@ -7,6 +7,9 @@ import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.UndoRedoPart;
+import dynamake.transcription.Collector;
+import dynamake.transcription.Execution;
+import dynamake.transcription.TransactionHandler;
 
 public class NewChangeTransactionHandler implements TransactionHandler<Model> {
 	/**

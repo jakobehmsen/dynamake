@@ -39,12 +39,12 @@ import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
+import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.tools.Tool;
 import dynamake.tools.ToolFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.PendingCommandFactory;
-import dynamake.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Trigger;
 
 public class LiveModel extends Model {

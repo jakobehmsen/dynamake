@@ -5,9 +5,9 @@ import java.io.Serializable;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
+import dynamake.models.transcription.RedoTransactionHandler;
 import dynamake.transcription.Collector;
 import dynamake.transcription.IsolatingCollector;
-import dynamake.transcription.RedoTransactionHandler;
 
 public class RedoCommand implements Command<Model> {
 	public static class Output implements Serializable {

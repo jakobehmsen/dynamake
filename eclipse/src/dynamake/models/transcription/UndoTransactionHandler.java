@@ -1,4 +1,4 @@
-package dynamake.transcription;
+package dynamake.models.transcription;
 
 import java.util.ArrayList;
 
@@ -7,8 +7,11 @@ import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.Model.UndoRedoPart;
+import dynamake.transcription.Collector;
+import dynamake.transcription.Execution;
+import dynamake.transcription.TransactionHandler;
 
-public class RedoTransactionHandler implements TransactionHandler<Model> {
+public class UndoTransactionHandler implements TransactionHandler<Model> {
 	/**
 	 * 
 	 */
@@ -30,7 +33,7 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 
 	@Override
 	public void commitLogFor(Model reference) {
-		// Build undoable from logged commands
+		// Build redoable from logged commands
 		
 		@SuppressWarnings("unchecked")
 		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
@@ -44,7 +47,7 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 		
 //		System.out.println(this +  ": commitLogFor");
-		reference.commitRedo(compressedLogPart);
+		reference.commitUndo(compressedLogPart);
 	}
 
 	@Override
