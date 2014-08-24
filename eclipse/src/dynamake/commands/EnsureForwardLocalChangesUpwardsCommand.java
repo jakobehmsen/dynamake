@@ -33,7 +33,6 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 		final Model source = (Model)locationOfSourceFromTarget.getChild(target);
 				
 		// Setup local changes upwarder in source if not already part of creation
-		@SuppressWarnings("unchecked")
 		List<Execution<Model>> sourceCreation = (List<Execution<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
 		boolean changeUpwarderIsSetup = false;
 
@@ -50,10 +49,12 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 			}
 		} else {
 			// Set creation on source
+			collector.startTransaction(source, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
 			collector.execute(new SimplePendingCommandFactory<Model>(source, new PendingCommandState<Model>(
 				new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, new ArrayList<Execution<Model>>()), 
 				new SetPropertyCommand.AfterSetProperty()
 			)));
+			collector.commitTransaction();
 		}
 		
 		if(!changeUpwarderIsSetup) {
