@@ -48,5 +48,7 @@ public class RedoTool implements Tool {
 	public void mouseDragged(ProductionPanel productionPanel, ModelComponent modelOver, Collector<Model> collector, Connection<Model> connection, JComponent sourceComponent, Point mousePoint) { }
 
 	@Override
-	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) { }
+	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) { 
+		collector.rejectTransaction();
+	}
 }
