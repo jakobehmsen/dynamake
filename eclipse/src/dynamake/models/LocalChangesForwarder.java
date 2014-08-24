@@ -13,6 +13,7 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.ExecutionsHandler;
+import dynamake.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.SimplePendingCommandFactory;
 import dynamake.transcription.Trigger;
 
@@ -153,6 +154,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 						)));
 					}
 					
+					collector.startTransaction(innerMostTarget, PostOnlyTransactionHandler.class);
 					PendingCommandFactory.Util.executeSequence(collector, innerMostTarget, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
 						@Override
 						public void handleExecutions(final List<Execution<Model>> forwardedChangesToRevertPendingUndoablePairs, Collector<Model> collector) {
@@ -196,6 +198,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 							});
 						}
 					});
+					collector.commitTransaction();
 				}
 			});
 			
