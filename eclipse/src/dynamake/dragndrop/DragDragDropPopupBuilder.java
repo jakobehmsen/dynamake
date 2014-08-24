@@ -107,14 +107,14 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 			transactionSelectionGeneralMapBuilder.addMenuBuilder("Unforward to", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					Model.executeRemoveObserver(collector, selection, target);
+					Model.executeRemoveObserverFromObservable(collector, selection, target);
 				}
 			});
 		} else {
 			transactionSelectionGeneralMapBuilder.addMenuBuilder("Forward to", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
-					Model.executeAddObserver(collector, selection, target);
+					Model.executeAddObserverFromObservable(collector, selection, target);
 				}
 			});
 		}
