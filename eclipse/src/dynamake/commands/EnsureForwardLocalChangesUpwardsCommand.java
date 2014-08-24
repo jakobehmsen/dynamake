@@ -8,10 +8,12 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
+import dynamake.transcription.NullTransactionHandler;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.ExecutionsHandler;
 import dynamake.transcription.SimplePendingCommandFactory;
+import dynamake.transcription.TransactionHandler;
 
 public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 	/**
@@ -24,6 +26,7 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 		this.locationOfSourceFromTarget = locationOfSourceFromTarget;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 		Model target = (Model)location.getChild(prevalentSystem);
@@ -62,10 +65,10 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 				(CommandFactory<Model>)null
 			));
 			
+			collector.startTransaction(source, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
 			PendingCommandFactory.Util.executeSequence(collector, source, creationForwardingUpwards, new ExecutionsHandler<Model>() {
 				@Override
 				public void handleExecutions(List<Execution<Model>> sourceCreationPendingUndoablePairs, Collector<Model> collector) {
-					@SuppressWarnings("unchecked")
 					List<Execution<Model>> sourceCreation = (List<Execution<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
 					
 					sourceCreation.addAll(sourceCreationPendingUndoablePairs);
@@ -77,6 +80,7 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 					)));
 				}
 			});
+			collector.commitTransaction();
 		}
 		
 		return null;
