@@ -384,6 +384,7 @@ public class LiveModel extends Model {
 				buttonLabel.setForeground(null);
 				
 				panelButtons.add(buttonLabel);
+				panelButtons.revalidate();
 
 				outerBorder = BorderFactory.createRaisedSoftBevelBorder();
 			}
