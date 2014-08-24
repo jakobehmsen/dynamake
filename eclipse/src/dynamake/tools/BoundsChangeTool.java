@@ -69,20 +69,16 @@ public abstract class BoundsChangeTool implements Tool {
 							public void run(Collector<Model> collector) {
 								ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
 								
-//								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
-//								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
-								
-								Location locationOfSource = new ModelRootLocation();
-								Location locationOfTarget = new CompositeLocation(
-									ModelComponent.Util.locationToAncestor(referenceMC, source),
-									ModelComponent.Util.locationFromAncestor(referenceMC, targetOver)
-								);
+								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
+								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
 								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 								
 								CanvasModel.appendMoveTransaction(pendingCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 								
+								collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
 								PendingCommandFactory.Util.executeSequence(collector, referenceMC.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
+								collector.commitTransaction();
 							}
 						});
 					} else {
