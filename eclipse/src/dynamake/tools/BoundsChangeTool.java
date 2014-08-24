@@ -259,6 +259,7 @@ public abstract class BoundsChangeTool implements Tool {
 			interactionPresenter.reset(collector);
 			
 			collector.flushNextTrigger();
+			collector.rejectTransaction();
 		}
 	}
 }
