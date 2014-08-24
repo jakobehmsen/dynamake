@@ -117,6 +117,7 @@ public class PlotTool implements Tool {
 	public void rollback(ProductionPanel productionPanel, Collector<Model> collector) {
 		if(mouseDown != null) {
 			interactionPresenter.reset(collector);
+			collector.rejectTransaction();
 		}
 	}
 }
