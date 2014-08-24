@@ -10,11 +10,13 @@ import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReplayCommand;
 import dynamake.commands.UnplayCommand;
 import dynamake.transcription.Collector;
+import dynamake.transcription.NullTransactionHandler;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.ExecutionsHandler;
 import dynamake.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.SimplePendingCommandFactory;
+import dynamake.transcription.TransactionHandler;
 import dynamake.transcription.Trigger;
 
 /**
@@ -136,6 +138,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			collector.startTransaction(innerMostTarget, PostOnlyTransactionHandler.class);
 			// On a meta level (i.e. build commands which are not going to be part of the inheretee's local changes)
 			collector.execute(new Trigger<Model>() {
+				@SuppressWarnings("unchecked")
 				@Override
 				public void run(Collector<Model> collector) {
 					final List<Model> modelsFromInnerToOuter = getModelsFromInnerToOuter(innerMostTarget, target);
@@ -149,10 +152,12 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 						modelIndexToLocationHistory.add(localChangeCount);
 						// Assumed that unplaying doesn't provoke side effects
 						// Play the local changes backwards
+						collector.startTransaction(currentTarget, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
 						collector.execute(new SimplePendingCommandFactory<Model>(currentTarget, new PendingCommandState<Model>(
 							new UnplayCommand(localChangeCount),
 							new ReplayCommand(localChangeCount)
 						)));
+						collector.commitTransaction();
 					}
 					
 					PendingCommandFactory.Util.executeSequence(collector, innerMostTarget, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
@@ -187,10 +192,12 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 												int localChangeCount = modelIndexToLocationHistory.get(i);
 												modelIndexToLocationHistory.add(localChangeCount);
 												// Play the local changes forward
+												collector.startTransaction(currentTarget, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
 												collector.execute(new SimplePendingCommandFactory<Model>(currentTarget, new PendingCommandState<Model>(
 													new ReplayCommand(localChangeCount),
 													new UnplayCommand(localChangeCount)
 												)));
+												collector.commitTransaction();
 											}
 										}
 									});
