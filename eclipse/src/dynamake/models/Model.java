@@ -770,11 +770,13 @@ public abstract class Model implements Serializable, Observer {
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromTargetToDropped;
 							
+							collector.startTransaction(target.getModelBehind(), NewChangeTransactionHandler.class);
 							PendingCommandFactory.Util.executeSingle(collector, target.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(new CloneFactory(new RectangleF(creationBounds), droppedLocation)),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
 							));
+							collector.commitTransaction();
 						}
 					});
 				}
@@ -794,11 +796,14 @@ public abstract class Model implements Serializable, Observer {
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromTargetToDropped;
 							ModelFactory factory = new DeriveFactory(new RectangleF(creationBounds), droppedLocation);
+							
+							collector.startTransaction(target.getModelBehind(), NewChangeTransactionHandler.class);
 							PendingCommandFactory.Util.executeSingle(collector, target.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
 							));
+							collector.commitTransaction();
 						}
 					});
 				}
