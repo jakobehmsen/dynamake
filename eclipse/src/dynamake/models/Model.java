@@ -628,57 +628,6 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public static void wrapForComponentGUIEvents(final Model model, final ModelComponent view, final JComponent targetComponent, final ViewManager viewManager) {
-		((JComponent)view).addMouseListener(new MouseListener() {
-			@Override
-			public void mouseReleased(MouseEvent arg0) {
-				Connection<Model> connection = view.getModelTranscriber().createConnection();
-
-				connection.trigger(new Trigger<Model>() {
-					@Override
-					public void run(Collector<Model> collector) {
-						PendingCommandFactory.Util.executeSingle(collector, view.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
-							new MouseUpCommand(), 
-							new Command.Null<Model>()
-						));
-						collector.commitTransaction();
-					}
-				});
-			}
-			
-			@Override
-			public void mousePressed(MouseEvent arg0) {
-				Connection<Model> connection = view.getModelTranscriber().createConnection();
-
-				connection.trigger(new Trigger<Model>() {
-					@Override
-					public void run(Collector<Model> collector) {
-						PendingCommandFactory.Util.executeSingle(collector, view.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
-							new MouseDownCommand(), 
-							new Command.Null<Model>()
-						));
-						collector.commitTransaction();
-					}
-				});
-			}
-			
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-
-			}
-			
-			@Override
-			public void mouseEntered(MouseEvent arg0) {
-
-			}
-			
-			@Override
-			public void mouseClicked(MouseEvent arg0) {
-
-			}
-		});
-	}
-	
 	public static void loadComponentProperties(Model model, Component view, final int componentColor) {
 		Object color = model.getProperty(Model.PROPERTY_COLOR);
 		
