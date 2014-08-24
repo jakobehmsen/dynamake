@@ -34,10 +34,12 @@ import dynamake.models.factories.ModelCreation;
 import dynamake.models.factories.ModelFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
+import dynamake.transcription.NullTransactionHandler;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Trigger;
+import dynamake.transcription.TransactionHandler;
 
 public class CanvasModel extends Model {
 	private static class Entry implements Serializable {
@@ -429,13 +431,16 @@ public class CanvasModel extends Model {
 			this.locationOfModelToDestroy = locationOfModelToDestroy;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model modelToDestroy = canvas.getModelByLocation(locationOfModelToDestroy);
 			System.out.println("***Destroying model " + modelToDestroy + " at " + locationOfModelToDestroy + " from " + canvas + "***");
 			
+			collector.startTransaction(modelToDestroy, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
 			modelToDestroy.destroy(propCtx, 0, collector);
+			collector.commitTransaction();
 
 			return new Output(locationOfModelToDestroy);
 		}
