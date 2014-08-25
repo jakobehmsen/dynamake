@@ -105,6 +105,6 @@ public class PushForwardFromCommand implements ForwardableCommand<Model>, Mappab
 		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfSourceFromTarget);
 		Location locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
 		
-		return new ForwardLocalChangesCommand(locationOfSourceFromTargetReference);
+		return new PushForwardFromCommand(locationOfSourceFromTargetReference, forwardCount);
 	}
 }

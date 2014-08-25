@@ -95,6 +95,6 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model>, 
 		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfSourceFromTarget);
 		Location locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
 		
-		return new ForwardLocalChangesCommand(locationOfSourceFromTargetReference);
+		return new EnsureForwardLocalChangesUpwardsCommand(locationOfSourceFromTargetReference);
 	}
 }
