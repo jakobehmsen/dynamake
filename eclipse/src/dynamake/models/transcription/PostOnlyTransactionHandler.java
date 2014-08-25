@@ -10,10 +10,6 @@ import dynamake.transcription.Execution;
 import dynamake.transcription.TransactionHandler;
 
 public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private ExecutionScope scope;
 	
 	@Override

@@ -6,11 +6,6 @@ import dynamake.commands.ExecutionScope;
 import dynamake.models.PropogationContext;
 
 public class NullTransactionHandler<T> implements TransactionHandler<T> {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
 	private ExecutionScope scope;
 
 	@Override

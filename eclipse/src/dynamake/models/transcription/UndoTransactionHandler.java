@@ -13,11 +13,6 @@ import dynamake.transcription.Execution;
 import dynamake.transcription.TransactionHandler;
 
 public class UndoTransactionHandler implements TransactionHandler<Model> {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	private ExecutionScope scope;
 	private ArrayList<Execution<Model>> newLog;
 	

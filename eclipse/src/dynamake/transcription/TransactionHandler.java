@@ -1,12 +1,11 @@
 package dynamake.transcription;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import dynamake.commands.ExecutionScope;
 import dynamake.models.PropogationContext;
 
-public interface TransactionHandler<T> extends Serializable {
+public interface TransactionHandler<T> {
 	void startLogFor(T reference);
 	// Side-effects are valid here. Thus, collector parameter is needed to support this.
 	void logFor(T reference, ArrayList<Execution<T>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector);
