@@ -130,34 +130,30 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	
 	@SuppressWarnings("unchecked")
 	private static <T> void replay(ContextualCommand<T> ctxTransaction, T prevalentSystem, PropogationContext propCtx, Collector<T> isolatedCollector) {
-		try {
-			TransactionHandler<T> transactionHandler = ctxTransaction.transactionHandler.newInstance();
+		TransactionHandler<T> transactionHandler = ctxTransaction.transactionHandlerFactory.createTransactionHandler();
 
-			Location locationFromReference = new ModelRootLocation();
-			T reference = (T)ctxTransaction.locationFromRootToReference.getChild(prevalentSystem);
-			
-			transactionHandler.startLogFor(reference);
-			
-			for(Object transactionFromRoot: ctxTransaction.transactionsFromRoot) {
-				if(transactionFromRoot instanceof SnapshottingTranscriber.Connection.LocationCommandsPair) {
-					SnapshottingTranscriber.Connection.LocationCommandsPair<T> entry = (SnapshottingTranscriber.Connection.LocationCommandsPair<T>)transactionFromRoot;
-					
-					ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
-					for(CommandState<T> transaction: entry.pending) {
-						CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)transaction.executeOn(propCtx, reference, isolatedCollector, locationFromReference);
-						pendingUndoablePairs.add(new Execution<T>(transaction, undoable));
-					}
-					
-					transactionHandler.logFor((T)reference, pendingUndoablePairs, propCtx, 0, isolatedCollector);
-				} else if(transactionFromRoot instanceof ContextualCommand) {
-					replay((ContextualCommand<T>)transactionFromRoot, prevalentSystem, propCtx, isolatedCollector);
+		Location locationFromReference = new ModelRootLocation();
+		T reference = (T)ctxTransaction.locationFromRootToReference.getChild(prevalentSystem);
+		
+		transactionHandler.startLogFor(reference);
+		
+		for(Object transactionFromRoot: ctxTransaction.transactionsFromRoot) {
+			if(transactionFromRoot instanceof SnapshottingTranscriber.Connection.LocationCommandsPair) {
+				SnapshottingTranscriber.Connection.LocationCommandsPair<T> entry = (SnapshottingTranscriber.Connection.LocationCommandsPair<T>)transactionFromRoot;
+				
+				ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
+				for(CommandState<T> transaction: entry.pending) {
+					CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)transaction.executeOn(propCtx, reference, isolatedCollector, locationFromReference);
+					pendingUndoablePairs.add(new Execution<T>(transaction, undoable));
 				}
+				
+				transactionHandler.logFor((T)reference, pendingUndoablePairs, propCtx, 0, isolatedCollector);
+			} else if(transactionFromRoot instanceof ContextualCommand) {
+				replay((ContextualCommand<T>)transactionFromRoot, prevalentSystem, propCtx, isolatedCollector);
 			}
-			
-			transactionHandler.commitLogFor(reference);
-		} catch (InstantiationException | IllegalAccessException e) {
-			e.printStackTrace();
 		}
+		
+		transactionHandler.commitLogFor(reference);
 	}
 	
 	private static <T> void replay(ArrayList<ContextualCommand<T>> transactions, T prevalentSystem) {
@@ -332,7 +328,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			public final TransactionFrame<T> parent;
 			public final T reference;
 			public final Location locationFromRootToReference;
-			public final Class<? extends TransactionHandler<T>> handlerClass;
+			public final TransactionHandlerFactory<T> handlerFactory;
 			public final TransactionHandler<T> handler;
 			
 			// Somehow, flushed transaction should both be able to consist of atomic commands and committed transactions
@@ -341,11 +337,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			public ArrayList<Object> flushedTransactionsFromRoot = new ArrayList<Object>(); // List of either atomic commands or transactions
 			public ArrayList<Object> flushedUndoableTransactionsFromReferences = new ArrayList<Object>();  // List of either atomic commands or transactions
 			
-			public TransactionFrame(TransactionFrame<T> parent, T reference, Location locationFromRootToReference, Class<? extends TransactionHandler<T>> transactionHandlerClass, TransactionHandler<T> handler) {
+			public TransactionFrame(TransactionFrame<T> parent, T reference, Location locationFromRootToReference, TransactionHandlerFactory<T> transactionHandlerFactory, TransactionHandler<T> handler) {
 				this.parent = parent;
 				this.reference = reference;
 				this.locationFromRootToReference = locationFromRootToReference;
-				this.handlerClass = transactionHandlerClass;
+				this.handlerFactory = transactionHandlerFactory;
 				this.handler = handler;
 			}
 		}
@@ -357,12 +353,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			private static final long serialVersionUID = 1L;
 			public final Location location;
 			public final ArrayList<CommandState<T>> pending;
-			public final Class<? extends TransactionHandler<T>> transactionHandlerClass;
+			public final TransactionHandlerFactory<T> transactionHandlerFactory;
 			
-			public LocationCommandsPair(Location location, ArrayList<CommandState<T>> pending, Class<? extends TransactionHandler<T>> transactionHandlerClass) {
+			public LocationCommandsPair(Location location, ArrayList<CommandState<T>> pending, TransactionHandlerFactory<T> transactionHandlerFactory) {
 				this.location = location;
 				this.pending = pending;
-				this.transactionHandlerClass = transactionHandlerClass;
+				this.transactionHandlerFactory = transactionHandlerFactory;
 			}
 		}
 		
@@ -397,7 +393,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						Collector<T> collector = new Collector<T>() {
 							@Override
 							public void startTransaction(T reference, Class<? extends TransactionHandler<T>> transactionHandlerClass) {
-								collectedCommands.add(new Instruction(Instruction.OPCODE_START, reference, transactionHandlerClass));
+								TransactionHandlerFactory<T> transactionHandlerFactory = new ReflectedTransactionHandlerFactory<T>(transactionHandlerClass);
+								collectedCommands.add(new Instruction(Instruction.OPCODE_START, reference, transactionHandlerFactory));
 							}
 							
 							@Override
@@ -454,20 +451,16 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							switch(instruction.type) {
 							case Instruction.OPCODE_START:
 								T reference = (T)instruction.operand1;
-								Class<? extends TransactionHandler<T>> transactionHandlerClass = (Class<? extends TransactionHandler<T>>)instruction.operand2;
+								TransactionHandlerFactory<T> transactionHandlerFactory = (TransactionHandlerFactory<T>)instruction.operand2;
 								
-								TransactionHandler<T> transactionHandler;
-								try {
-									transactionHandler = transactionHandlerClass.newInstance();
+								TransactionHandler<T> transactionHandler = transactionHandlerFactory.createTransactionHandler();
 									
-									transactionHandler.startLogFor(reference);
-									
-									Location locationFromRoot = ((Model)reference).getLocator().locate();
-									
-									currentFrame = new TransactionFrame<T>(currentFrame, reference, locationFromRoot, transactionHandlerClass, transactionHandler);
-								} catch (InstantiationException | IllegalAccessException e) {
-									e.printStackTrace();
-								}
+								transactionHandler.startLogFor(reference);
+								
+								Location locationFromRoot = ((Model)reference).getLocator().locate();
+								
+								currentFrame = new TransactionFrame<T>(currentFrame, reference, locationFromRoot, transactionHandlerFactory, transactionHandler);
+
 								break;
 							case Instruction.OPCODE_SEND_PROPOGATION_FINISHED:
 								List<Execution<T>> pendingUndoablePairs = propogationStack.pop();
@@ -547,7 +540,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				buildTransactionToPersist(transactionsFromRoot, currentFrame);
 				
-				ContextualCommand<T> transactionToPersist = new ContextualCommand<T>(currentFrame.locationFromRootToReference, currentFrame.handlerClass, transactionsFromRoot);
+				ContextualCommand<T> transactionToPersist = new ContextualCommand<T>(currentFrame.locationFromRootToReference, currentFrame.handlerFactory, transactionsFromRoot);
 				
 				if(currentFrame.parent == null) {
 	//				System.out.println("Committed connection");
@@ -576,7 +569,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					
 					buildTransactionToPersist(innerTransactionsFromRoot, innerFrame);
 					
-					transactionsFromRoot.add(new ContextualCommand<T>(innerFrame.locationFromRootToReference, innerFrame.handlerClass, innerTransactionsFromRoot));
+					transactionsFromRoot.add(new ContextualCommand<T>(innerFrame.locationFromRootToReference, innerFrame.handlerFactory, innerTransactionsFromRoot));
 				}
 			}
 		}
