@@ -63,7 +63,7 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 					public void run(Collector<Model> collector) {
 						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 						createCommandStatesForSingleTask(productionPanel, pendingCommands, modelOverParent, modelOver);
-						PendingCommandFactory.Util.executeSequence(collector, modelOverParent.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
+						PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 					}
 				});
 			}

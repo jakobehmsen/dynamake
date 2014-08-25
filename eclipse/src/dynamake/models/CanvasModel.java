@@ -662,7 +662,7 @@ public class CanvasModel extends Model {
 						CanvasModel.appendUnwrapTransaction(pendingCommands, CanvasPanel.this, parent);
 						
 						collector.startTransaction(parent.getModelBehind(), NewChangeTransactionHandler.class);
-						PendingCommandFactory.Util.executeSequence(collector, parent.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
+						PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 						collector.commitTransaction();
 					}
 				});
@@ -697,7 +697,7 @@ public class CanvasModel extends Model {
 						CanvasModel.appendMoveTransaction(pendingCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 
 						collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
-						PendingCommandFactory.Util.executeSequence(collector, referenceMC.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
+						PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 						collector.commitTransaction();
 					}
 				});
@@ -762,7 +762,7 @@ public class CanvasModel extends Model {
 		
 		appendRemoveTransaction(pendingCommands, livePanel, child, model);
 		
-		PendingCommandFactory.Util.executeSequence(collector, model, pendingCommands, NewChangeTransactionHandler.class);
+		PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 	}
 	
 //	public static class DestroyThenRemove implements Command<Model> {
@@ -823,7 +823,7 @@ public class CanvasModel extends Model {
 		
 		appendRemoveTransaction(pendingCommands, livePanel, child, model);
 		
-		PendingCommandFactory.Util.executeSequence(collector, model, pendingCommands, NewChangeTransactionHandler.class);
+		PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 	}
 	
 	public static void appendMoveTransaction(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation) {

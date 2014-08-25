@@ -11,42 +11,30 @@ public interface PendingCommandFactory<T> {
 	void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector);
 	
 	public static class Util {
-		public static <T> void executeSingle(Collector<T> collector, final T reference, final Class<? extends TransactionHandler<T>> transactionHandlerClass, final CommandState<T> pendingCommand) {
+		public static <T> void executeSingle(Collector<T> collector, final CommandState<T> pendingCommand) {
 			collector.execute(new SimplePendingCommandFactory<T>(pendingCommand));
 		}
 		
-		public static <T> void executeSequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands) {
-			executeSequence(collector, reference, pendingCommands, new ExecutionsHandler<T>() {
+		public static <T> void executeSequence(Collector<T> collector, final List<CommandState<T>> pendingCommands) {
+			executeSequence(collector, pendingCommands, new ExecutionsHandler<T>() {
 				@Override
 				public void handleExecutions(List<Execution<T>> executions, Collector<T> collector) { }
 			});
 		}
 		
-		public static <T> void executeSequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, Class<? extends TransactionHandler<T>> transactionHandlerClass) {
-			executeSequence(collector, reference, pendingCommands, transactionHandlerClass, new ExecutionsHandler<T>() {
-				@Override
-				public void handleExecutions(List<Execution<T>> executions, Collector<T> collector) { }
-			});
-		}
-		
-		@SuppressWarnings("unchecked")
-		public static <T> void executeSequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, ExecutionsHandler<T> afterExecutions) {
-			executeSequence(collector, reference, pendingCommands, (Class<? extends TransactionHandler<T>>)NullTransactionHandler.class, afterExecutions, new ArrayList<Execution<T>>(), 0);
-		}
-		
-		public static <T> void executeSequence(Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, Class<? extends TransactionHandler<T>> transactionHandlerClass, ExecutionsHandler<T> afterExecutions) {
-			executeSequence(collector, reference, pendingCommands, transactionHandlerClass, afterExecutions, new ArrayList<Execution<T>>(), 0);
+		public static <T> void executeSequence(Collector<T> collector, final List<CommandState<T>> pendingCommands, ExecutionsHandler<T> afterExecutions) {
+			executeSequence(collector, pendingCommands, afterExecutions, new ArrayList<Execution<T>>(), 0);
 		}
 		
 		private static <T> void executeSequence(
-				Collector<T> collector, final T reference, final List<CommandState<T>> pendingCommands, final Class<? extends TransactionHandler<T>> transactionHandlerClass, 
-				final ExecutionsHandler<T> afterExecutions, final List<Execution<T>> executions, final int i) {
+				Collector<T> collector, final List<CommandState<T>> pendingCommands, final ExecutionsHandler<T> afterExecutions, final List<Execution<T>> executions, 
+				final int i) {
 			if(i < pendingCommands.size()) {
 				collector.execute(new SimplePendingCommandFactory<T>(pendingCommands.get(i)) {
 					@Override
 					public void afterPropogationFinished(Execution<T> execution, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 						executions.add(execution);
-						executeSequence(collector, reference, pendingCommands, transactionHandlerClass, afterExecutions, executions, i + 1);
+						executeSequence(collector, pendingCommands, afterExecutions, executions, i + 1);
 					}
 				});
 			} else {

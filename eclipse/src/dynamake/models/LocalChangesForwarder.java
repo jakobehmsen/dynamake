@@ -159,7 +159,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 						collector.commitTransaction();
 					}
 					
-					PendingCommandFactory.Util.executeSequence(collector, innerMostTarget, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
+					PendingCommandFactory.Util.executeSequence(collector, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
 						@Override
 						public void handleExecutions(final List<Execution<Model>> forwardedChangesToRevertPendingUndoablePairs, Collector<Model> collector) {
 							// Do the forwarded change without affecting the local changes
@@ -168,7 +168,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 							for(CommandState<Model> forwardedNewChange: forwardedNewChanges)
 								forwardedNewChange.appendPendings(forwardedNewChangesAsPendings);
 							
-							PendingCommandFactory.Util.executeSequence(collector, innerMostTarget, forwardedNewChangesAsPendings, new ExecutionsHandler<Model>() {
+							PendingCommandFactory.Util.executeSequence(collector, forwardedNewChangesAsPendings, new ExecutionsHandler<Model>() {
 								@Override
 								public void handleExecutions(List<Execution<Model>> forwardedNewChangesPendingUndoablePairs, Collector<Model> collector) {
 									// Play the inherited local changes forwards without affecting the local changes
@@ -181,7 +181,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 									
 									Collections.reverse(backwardOutput);
 
-									PendingCommandFactory.Util.executeSequence(collector, innerMostTarget, backwardOutput, new ExecutionsHandler<Model>() {
+									PendingCommandFactory.Util.executeSequence(collector, backwardOutput, new ExecutionsHandler<Model>() {
 										@Override
 										public void handleExecutions(List<Execution<Model>> pendingUndoablePairs, Collector<Model> collector) {
 											// Unplay from innermost part of target to outermost part of target

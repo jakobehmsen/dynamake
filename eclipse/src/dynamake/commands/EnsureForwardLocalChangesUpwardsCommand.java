@@ -67,7 +67,7 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 			));
 			
 			collector.startTransaction(source, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
-			PendingCommandFactory.Util.executeSequence(collector, source, creationForwardingUpwards, new ExecutionsHandler<Model>() {
+			PendingCommandFactory.Util.executeSequence(collector, creationForwardingUpwards, new ExecutionsHandler<Model>() {
 				@Override
 				public void handleExecutions(List<Execution<Model>> sourceCreationPendingUndoablePairs, Collector<Model> collector) {
 					List<Execution<Model>> sourceCreation = (List<Execution<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);

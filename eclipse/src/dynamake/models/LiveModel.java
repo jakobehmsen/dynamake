@@ -494,7 +494,7 @@ public class LiveModel extends Model {
 							}
 						}
 						
-						PendingCommandFactory.Util.executeSequence(collector, ToolButton.this.livePanel.model, pendingCommands, NewChangeTransactionHandler.class);
+						PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 						collector.commitTransaction();
 					}
 				});

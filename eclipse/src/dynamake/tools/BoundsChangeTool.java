@@ -75,7 +75,7 @@ public abstract class BoundsChangeTool implements Tool {
 								CanvasModel.appendMoveTransaction(pendingCommands, productionPanel.livePanel, source, selection, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
 								
 								collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
-								PendingCommandFactory.Util.executeSequence(collector, referenceMC.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
+								PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 								collector.commitTransaction();
 							}
 						});
@@ -100,7 +100,7 @@ public abstract class BoundsChangeTool implements Tool {
 								));
 
 								collector.startTransaction(source.getModelBehind(), NewChangeTransactionHandler.class);
-								PendingCommandFactory.Util.executeSequence(collector, source.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
+								PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 								collector.commitTransaction();
 							}
 						});
@@ -116,7 +116,7 @@ public abstract class BoundsChangeTool implements Tool {
 
 							appendCommandStatesForResize(pendingCommands, selection, newBounds);
 							
-							PendingCommandFactory.Util.executeSequence(collector, selection.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
+							PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 						}
 					});
 				}

@@ -126,7 +126,7 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 				
 				collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
-				PendingCommandFactory.Util.executeSingle(collector, referenceMC.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
 					new InjectCommand(locationOfSelection, locationOfTarget),
 					new DejectCommand(locationOfSelection, locationOfTarget)
 				));

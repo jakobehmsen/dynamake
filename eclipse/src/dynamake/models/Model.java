@@ -35,8 +35,6 @@ import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.DeriveFactory;
 import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.models.transcription.PostOnlyTransactionHandler;
-import dynamake.models.transcription.RedoTransactionHandler;
-import dynamake.models.transcription.UndoTransactionHandler;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
@@ -241,7 +239,7 @@ public abstract class Model implements Serializable, Observer {
 		// These could probably be replaced by simpler structures; just lists of CommandState objects.
 		RevertingCommandStateSequence<Model> toUndo = (RevertingCommandStateSequence<Model>)undoStack.pop();
 		
-		PendingCommandFactory.Util.executeSequence(collector, this, Arrays.asList(toUndo.commandStates), UndoTransactionHandler.class);
+		PendingCommandFactory.Util.executeSequence(collector, Arrays.asList(toUndo.commandStates));
 		
 		return toUndo;
 	}
@@ -252,7 +250,7 @@ public abstract class Model implements Serializable, Observer {
 	
 	public CommandState<Model> redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		RevertingCommandStateSequence<Model> toRedo = (RevertingCommandStateSequence<Model>)redoStack.pop();
-		PendingCommandFactory.Util.executeSequence(collector, this, Arrays.asList(toRedo.commandStates), RedoTransactionHandler.class);
+		PendingCommandFactory.Util.executeSequence(collector, Arrays.asList(toRedo.commandStates));
 		
 		return toRedo;
 	}
@@ -377,7 +375,7 @@ public abstract class Model implements Serializable, Observer {
 			final SetProperty setProperty = (SetProperty)change;
 
 			collector.startTransaction(this, PostOnlyTransactionHandler.class);
-			PendingCommandFactory.Util.executeSingle(collector, this, NewChangeTransactionHandler.class, new PendingCommandState<Model>(
+			PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
 				new SetPropertyCommand(setProperty.name, setProperty.value),
 				new SetPropertyCommand.AfterSetProperty()
 			));
@@ -658,7 +656,7 @@ public abstract class Model implements Serializable, Observer {
 				return new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						PendingCommandFactory.Util.executeSingle(collector, model, NewChangeTransactionHandler.class, new PendingCommandState<Model>(
+						PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
 							new SetPropertyCommand(PROPERTY_COLOR, color),
 							new SetPropertyCommand.AfterSetProperty()
 						));
@@ -686,7 +684,7 @@ public abstract class Model implements Serializable, Observer {
 							Location droppedLocation = fromTargetToDropped;
 							
 							collector.startTransaction(target.getModelBehind(), NewChangeTransactionHandler.class);
-							PendingCommandFactory.Util.executeSingle(collector, target.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
+							PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(new CloneFactory(new RectangleF(creationBounds), droppedLocation)),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
@@ -713,7 +711,7 @@ public abstract class Model implements Serializable, Observer {
 							ModelFactory factory = new DeriveFactory(new RectangleF(creationBounds), droppedLocation);
 							
 							collector.startTransaction(target.getModelBehind(), NewChangeTransactionHandler.class);
-							PendingCommandFactory.Util.executeSingle(collector, target.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
+							PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
 								new CanvasModel.AddModelCommand(factory),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
@@ -839,7 +837,7 @@ public abstract class Model implements Serializable, Observer {
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
 				collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
-				PendingCommandFactory.Util.executeSingle(collector, referenceMC.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
 					new RemoveObserverCommand(observableLocation, observerLocation),
 					new AddObserverCommand(observableLocation, observerLocation)
 				));
@@ -858,7 +856,7 @@ public abstract class Model implements Serializable, Observer {
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 
 				collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
-				PendingCommandFactory.Util.executeSingle(collector, referenceMC.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
 					new AddObserverCommand(observableLocation, observerLocation),
 					new RemoveObserverCommand(observableLocation, observerLocation)
 				));
@@ -935,7 +933,7 @@ public abstract class Model implements Serializable, Observer {
 			}
 		}
 		
-		PendingCommandFactory.Util.executeSequence(collector, this, origins);
+		PendingCommandFactory.Util.executeSequence(collector, origins);
 	}
 	
 	public RestorableModel toRestorable(boolean includeLocalHistory) {
@@ -951,7 +949,7 @@ public abstract class Model implements Serializable, Observer {
 				destruction.add(creationPart.undoable);
 			Collections.reverse(destruction);
 			
-			PendingCommandFactory.Util.executeSequence(collector, this, destruction);
+			PendingCommandFactory.Util.executeSequence(collector, destruction);
 		}
 	}
 }

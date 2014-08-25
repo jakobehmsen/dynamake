@@ -120,7 +120,7 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 					));
 					
 					collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
-					PendingCommandFactory.Util.executeSequence(collector, referenceMC.getModelBehind(), pendingCommands, NewChangeTransactionHandler.class);
+					PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 					collector.commitTransaction();
 				}
 			});

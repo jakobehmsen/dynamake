@@ -12,7 +12,6 @@ import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.LivePanel;
-import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
@@ -56,7 +55,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 				Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 				if(currentView == null)
 					currentView = Model.VIEW_APPLIANCE;
-				PendingCommandFactory.Util.executeSingle(collector, selection.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
 					new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
 					new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
 				));
@@ -69,7 +68,7 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 				Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
 				if(currentView == null)
 					currentView = Model.VIEW_APPLIANCE;
-				PendingCommandFactory.Util.executeSingle(collector, selection.getModelBehind(), NewChangeTransactionHandler.class, new PendingCommandState<Model>(
+				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
 					new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
 					new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
 				));

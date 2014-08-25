@@ -74,7 +74,7 @@ public class PushForwardFromCommand implements ForwardableCommand<Model> {
 				creationPart.appendPendings(forwardedCreation);
 			}
 			
-			PendingCommandFactory.Util.executeSequence(collector, targetRoot, forwardedCreation);
+			PendingCommandFactory.Util.executeSequence(collector, forwardedCreation);
 		}
 		
 		if(source instanceof CanvasModel) {
