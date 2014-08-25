@@ -19,6 +19,8 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 	public RedoTransactionHandler(ExecutionScope scope) {
 		this.scope = scope;
 	}
+	
+	public RedoTransactionHandler() { }
 
 	@Override
 	public void startLogFor(Model reference) {

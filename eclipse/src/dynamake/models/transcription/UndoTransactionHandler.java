@@ -19,6 +19,8 @@ public class UndoTransactionHandler implements TransactionHandler<Model> {
 	public UndoTransactionHandler(ExecutionScope scope) {
 		this.scope = scope;
 	}
+	
+	public UndoTransactionHandler() { }
 
 	@Override
 	public void startLogFor(Model reference) {
