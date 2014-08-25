@@ -30,6 +30,7 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 			Model source = (Model)sourceLocation.getChild(sender);
 			
 			if(sender != source) {
+				System.out.println("***Upwarding from " + sender + " to " + source + "***");
 				Location newOffsetFromSource = new CompositeLocation(offsetFromSource, pushLocalChanges.offset);
 				
 				source.sendChanged(new PushLocalChanges(newOffsetFromSource, pushLocalChanges.localChangesToRevert, pushLocalChanges.newChanges), propCtx, propDistance, changeDistance, collector);

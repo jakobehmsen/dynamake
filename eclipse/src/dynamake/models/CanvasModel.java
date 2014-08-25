@@ -263,7 +263,7 @@ public class CanvasModel extends Model {
 			
 			canvas.addModel(model, new PropogationContext(), 0, collector);
 			final Location addedModelLocation = canvas.getLocationOf(model);
-//			System.out.println("***Adding model " + model + " at " + addedModelLocation + " in " + canvas + "***");
+			System.out.println("***Adding model " + model + " at " + addedModelLocation + " in " + canvas + "***");
 			
 			collector.execute(new Trigger<Model>() {
 				@Override
@@ -312,6 +312,7 @@ public class CanvasModel extends Model {
 			final CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
 			ModelCreation modelCreation = factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
 			final Model model = modelCreation.createModel(rootPrevalentSystem, propCtx, 0, collector, location);
+			System.out.println("***Adding (forwarded) model " + model + " at " + modelLocation + " in " + canvas + "***");
 			
 			canvas.restoreModelByLocation(modelLocation, model, new PropogationContext(), 0, collector);
 			Location addedModelLocation = canvas.getLocationOf(model);

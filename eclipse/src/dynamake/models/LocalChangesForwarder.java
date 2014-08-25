@@ -113,10 +113,11 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 //		return locations;
 //	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void changed(Model sender, Object change, PropogationContext propCtx, int propDistance, int changeDistance, Collector<Model> collector) {
 		if(change instanceof PushLocalChanges && sender == source) {
-//			System.out.println("***Forwarding from " + source + " to " + target + "***");
+			System.out.println("***Forwarding from " + source + " to " + target + "***");
 			
 			// Whenever a change is forwarded from a source
 			final PushLocalChanges pushLocalChanges = (PushLocalChanges)change;
@@ -135,10 +136,9 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			for(CommandState<Model> newChange: pushLocalChanges.localChangesToRevert)
 				forwardedChangesToRevert.add(newChange.forForwarding());
 
-			collector.startTransaction(innerMostTarget, PostOnlyTransactionHandler.class);
+			collector.startTransaction(innerMostTarget, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
 			// On a meta level (i.e. build commands which are not going to be part of the inheretee's local changes)
 			collector.execute(new Trigger<Model>() {
-				@SuppressWarnings("unchecked")
 				@Override
 				public void run(Collector<Model> collector) {
 					final List<Model> modelsFromInnerToOuter = getModelsFromInnerToOuter(innerMostTarget, target);
