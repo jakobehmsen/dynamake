@@ -3,6 +3,7 @@ package dynamake.models.transcription;
 import java.util.ArrayList;
 
 import dynamake.commands.CommandState;
+import dynamake.commands.ExecutionScope;
 import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -17,7 +18,12 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 	 */
 	private static final long serialVersionUID = 1L;
 	
+	private ExecutionScope scope;
 	private ArrayList<Execution<Model>> newLog;
+	
+	public RedoTransactionHandler(ExecutionScope scope) {
+		this.scope = scope;
+	}
 
 	@Override
 	public void startLogFor(Model reference) {
@@ -53,5 +59,10 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 	@Override
 	public void rejectLogFor(Model reference) {
 //		System.out.println(this +  ": rejectLogFor");
+	}
+	
+	@Override
+	public ExecutionScope getScope() {
+		return scope;
 	}
 }

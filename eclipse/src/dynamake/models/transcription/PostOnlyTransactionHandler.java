@@ -2,6 +2,7 @@ package dynamake.models.transcription;
 
 import java.util.ArrayList;
 
+import dynamake.commands.ExecutionScope;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
@@ -13,10 +14,11 @@ public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private ExecutionScope scope;
 	
 	@Override
 	public void startLogFor(Model reference) {
-
+		scope = new ExecutionScope();
 	}
 
 	@Override
@@ -32,5 +34,10 @@ public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 	@Override
 	public void rejectLogFor(Model reference) {
 
+	}
+	
+	@Override
+	public ExecutionScope getScope() {
+		return scope;
 	}
 }
