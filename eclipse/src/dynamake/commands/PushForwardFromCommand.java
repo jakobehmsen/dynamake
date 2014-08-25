@@ -7,6 +7,7 @@ import dynamake.models.CanvasModel;
 import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
+import dynamake.models.ModelComponent;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
@@ -16,7 +17,7 @@ import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.TransactionHandler;
 import dynamake.transcription.Trigger;
 
-public class PushForwardFromCommand implements ForwardableCommand<Model> {
+public class PushForwardFromCommand implements ForwardableCommand<Model>, MappableCommand<Model> {
 	/**
 	 * 
 	 */
@@ -97,5 +98,13 @@ public class PushForwardFromCommand implements ForwardableCommand<Model> {
 	@Override
 	public Command<Model> forForwarding(Object output) {
 		return new PushForwardFromCommand(locationOfSourceFromTarget, forwardCount + 1);
+	}
+	
+	@Override
+	public Command<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
+		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfSourceFromTarget);
+		Location locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
+		
+		return new ForwardLocalChangesCommand(locationOfSourceFromTargetReference);
 	}
 }

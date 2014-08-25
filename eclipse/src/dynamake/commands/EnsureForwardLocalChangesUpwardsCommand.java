@@ -3,8 +3,11 @@ package dynamake.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
+import dynamake.models.ModelComponent;
+import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
 import dynamake.transcription.Collector;
@@ -15,7 +18,7 @@ import dynamake.transcription.ExecutionsHandler;
 import dynamake.transcription.SimplePendingCommandFactory;
 import dynamake.transcription.TransactionHandler;
 
-public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
+public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model>, MappableCommand<Model> {
 	/**
 	 * 
 	 */
@@ -85,5 +88,13 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model> {
 		}
 		
 		return null;
+	}
+	
+	@Override
+	public Command<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
+		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfSourceFromTarget);
+		Location locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
+		
+		return new ForwardLocalChangesCommand(locationOfSourceFromTargetReference);
 	}
 }
