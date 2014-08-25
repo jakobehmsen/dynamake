@@ -9,7 +9,6 @@ import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReplayCommand;
 import dynamake.commands.UnplayCommand;
-import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
 import dynamake.transcription.NullTransactionHandler;
 import dynamake.transcription.PendingCommandFactory;
