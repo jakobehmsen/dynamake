@@ -8,7 +8,7 @@ public class IsolatingCollector<T> implements Collector<T> {
 	}
 	
 	@Override
-	public void startTransaction(T reference, Class<? extends TransactionHandler<T>> transactionHandlerClass) {
+	public void startTransaction(T reference, Object transactionHandlerClass) {
 		collector.startTransaction(reference, transactionHandlerClass);
 	}
 

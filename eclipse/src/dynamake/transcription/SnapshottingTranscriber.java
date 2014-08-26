@@ -394,8 +394,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						final ArrayList<Object> collectedCommands = new ArrayList<Object>();
 						Collector<T> collector = new Collector<T>() {
 							@Override
-							public void startTransaction(T reference, Class<? extends TransactionHandler<T>> transactionHandlerClass) {
-								TransactionHandlerFactory<T> transactionHandlerFactory = new ReflectedTransactionHandlerFactory<T>(transactionHandlerClass);
+							public void startTransaction(T reference, Object transactionHandlerClass) {
+								TransactionHandlerFactory<T> transactionHandlerFactory;
+								if(transactionHandlerClass instanceof Class)
+									transactionHandlerFactory = new ReflectedTransactionHandlerFactory<T>((Class<? extends TransactionHandler<T>>)transactionHandlerClass);
+								else
+									transactionHandlerFactory = (TransactionHandlerFactory<T>)transactionHandlerClass;
 								collectedCommands.add(new Instruction(Instruction.OPCODE_START, reference, transactionHandlerFactory));
 							}
 							

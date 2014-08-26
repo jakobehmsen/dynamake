@@ -2,7 +2,7 @@ package dynamake.transcription;
 
 public class NullCollector<T> implements Collector<T> {
 	@Override
-	public void startTransaction(T reference, Class<? extends TransactionHandler<T>> transactionHandlerClass) { }
+	public void startTransaction(T reference, Object transactionHandlerClass) { }
 	
 	@Override
 	public void execute(Object command) { }
