@@ -643,7 +643,9 @@ public class CanvasModel extends Model {
 			menuBuilder.addMenuBuilder("Remove", new Trigger<Model>() {
 				@Override
 				public void run(Collector<Model> collector) {
+					collector.startTransaction(getModelBehind(), NewChangeTransactionHandler.class);
 					CanvasModel.executeRemoveTransaction(collector, livePanel, child, model);
+					collector.commitTransaction();
 				}
 			});
 		}
