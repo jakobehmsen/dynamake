@@ -280,6 +280,16 @@ public abstract class Model implements Serializable, Observer {
 	public boolean canRedo() {
 		return redoStack.size() > 0;
 	}
+
+	public ExecutionScope getUndoScope() {
+		// TODO Dummy implementation; always new scope
+		return new ExecutionScope();
+	}
+
+	public ExecutionScope getRedoScope() {
+		// TODO Dummy implementation; always new scope
+		return new ExecutionScope();
+	}
 	
 	public CommandState<Model> getUnplayable() {
 		return RevertingCommandStateSequence.reverse(undoStack);
