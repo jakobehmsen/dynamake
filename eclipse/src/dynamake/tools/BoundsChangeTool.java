@@ -12,7 +12,6 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.RelativeCommand;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
