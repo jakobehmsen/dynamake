@@ -86,20 +86,18 @@ public abstract class BoundsChangeTool implements Tool {
 						collector.execute(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
-								Location locationOfMovedTargetFromSource = ((CanvasModel)source.getModelBehind()).getLocationOf(selection.getModelBehind());
-								
 								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 								
 								pendingCommands.add(new PendingCommandState<Model>(
-									new RelativeCommand<Model>(locationOfMovedTargetFromSource, new SetPropertyCommand("X", new Fraction(droppedBounds.x))),
-									new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
+									new SetPropertyCommand("X", new Fraction(droppedBounds.x)),
+									new SetPropertyCommand.AfterSetProperty()
 								));
 								pendingCommands.add(new PendingCommandState<Model>(
-									new RelativeCommand<Model>(locationOfMovedTargetFromSource, new SetPropertyCommand("Y", new Fraction(droppedBounds.y))),
-									new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
+									new SetPropertyCommand("Y", new Fraction(droppedBounds.y)),
+									new SetPropertyCommand.AfterSetProperty()
 								));
 
-								collector.startTransaction(source.getModelBehind(), NewChangeTransactionHandler.class);
+								collector.startTransaction(selection.getModelBehind(), NewChangeTransactionHandler.class);
 								PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 								collector.commitTransaction();
 							}
