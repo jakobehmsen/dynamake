@@ -5,6 +5,7 @@ import java.util.List;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateWithOutput;
+import dynamake.commands.ExecutionScope;
 import dynamake.commands.PendingCommandState;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -59,8 +60,8 @@ import dynamake.models.PropogationContext;
 		}
 		
 		@Override
-		public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location) {
-			return pending.executeOn(propCtx, prevalentSystem, collector, location);
+		public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+			return pending.executeOn(propCtx, prevalentSystem, collector, location, scope);
 		}
 		
 		@Override

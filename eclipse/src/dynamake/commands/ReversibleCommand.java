@@ -41,10 +41,10 @@ public class ReversibleCommand<T> implements CommandStateWithOutput<T> {
 	}
 
 	@Override
-	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location) {
+	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
 		Command<T> newCommand = forthFactory.createCommand(output);
 		
-		Object newOutput = newCommand.executeOn(propCtx, prevalentSystem, collector, location);
+		Object newOutput = newCommand.executeOn(propCtx, prevalentSystem, collector, location, scope);
 		
 		// Reverse factories to create antagonistic command
 		return new ReversibleCommand<T>(newCommand, newOutput, backFactory, forthFactory);

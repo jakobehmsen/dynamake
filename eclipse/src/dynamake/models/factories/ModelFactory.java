@@ -2,6 +2,7 @@ package dynamake.models.factories;
 
 import java.io.Serializable;
 
+import dynamake.commands.ExecutionScope;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -35,7 +36,7 @@ public interface ModelFactory extends Serializable {
 		}
 		
 		@Override
-		public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+		public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location, ExecutionScope scope) {
 			return value;
 		}
 		

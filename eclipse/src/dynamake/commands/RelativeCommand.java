@@ -80,10 +80,10 @@ public class RelativeCommand<T> implements MappableCommand<T>, ForwardableComman
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location) {
+	public Object executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
 		Location commandLocation = new CompositeLocation(location, tail);
 		
-		Object commandOutput = command.executeOn(propCtx, prevalentSystem, collector, commandLocation);
+		Object commandOutput = command.executeOn(propCtx, prevalentSystem, collector, commandLocation, scope);
 		
 		return new Output(tail, commandOutput);
 	}

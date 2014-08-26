@@ -21,6 +21,7 @@ import javax.swing.JComponent;
 import dynamake.commands.AddObserverCommand;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateWithOutput;
+import dynamake.commands.ExecutionScope;
 import dynamake.commands.MappableForwardable;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
@@ -60,8 +61,8 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public CommandState<Model> executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-			CommandState<Model> reverted = revertible.executeOn(propCtx, prevalentSystem, collector, location);
+		public CommandState<Model> executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+			CommandState<Model> reverted = revertible.executeOn(propCtx, prevalentSystem, collector, location, scope);
 			return new UndoRedoPart(origin, (CommandStateWithOutput<Model>)reverted);
 		}
 		
@@ -215,18 +216,18 @@ public abstract class Model implements Serializable, Observer {
 		undoStack.add(logPart);
 	}
 	
-	public void unplay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void unplay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {
 		for(int i = 0; i < count; i++) {
 			CommandState<Model> toUndo = undoStack.pop();
-			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
+			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation(), scope);
 			redoStack.push(redoable);
 		}
 	}	
 	
-	public void replay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void replay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {
 		for(int i = 0; i < count; i++) {
 			CommandState<Model> toRedo = redoStack.pop();
-			CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
+			CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation(), scope);
 			undoStack.push(undoable);
 		}
 	}
@@ -259,11 +260,11 @@ public abstract class Model implements Serializable, Observer {
 		undoStack.push(undoable);
 	}
 
-	public List<CommandState<Model>> playThenReverse(List<CommandState<Model>> toPlay, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public List<CommandState<Model>> playThenReverse(List<CommandState<Model>> toPlay, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {
 		ArrayList<CommandState<Model>> newCommandStates = new ArrayList<CommandState<Model>>();
 		
 		for(CommandState<Model> cs: toPlay) {
-			CommandState<Model> newCS = cs.executeOn(propCtx, this, collector, new ModelRootLocation()); 
+			CommandState<Model> newCS = cs.executeOn(propCtx, this, collector, new ModelRootLocation(), scope); 
 			newCommandStates.add(newCS);
 		}
 		

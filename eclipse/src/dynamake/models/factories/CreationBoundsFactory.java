@@ -3,6 +3,7 @@ package dynamake.models.factories;
 import java.util.ArrayList;
 
 import dynamake.commands.CommandState;
+import dynamake.commands.ExecutionScope;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.models.Location;
@@ -31,8 +32,8 @@ public class CreationBoundsFactory implements ModelFactory {
 		
 		return new ModelCreation() {
 			@Override
-			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
-				Model model = modelCreation.createModel(rootModel, propCtx, propDistance, collector, location);
+			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location, ExecutionScope scope) {
+				Model model = modelCreation.createModel(rootModel, propCtx, propDistance, collector, location, scope);
 
 				ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
 				
@@ -41,7 +42,7 @@ public class CreationBoundsFactory implements ModelFactory {
 				origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
 				origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
 				
-				model.playThenReverse(origins, propCtx, propDistance, collector);
+				model.playThenReverse(origins, propCtx, propDistance, collector, scope);
 				
 				model.setProperty(RestorableModel.PROPERTY_ORIGINS, origins, propCtx, propDistance, collector);
 				

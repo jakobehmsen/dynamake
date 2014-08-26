@@ -57,8 +57,8 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 	}
 
 	@Override
-	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location) {
-		Object output = command.executeOn(propCtx, prevalentSystem, collector, location);
+	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+		Object output = command.executeOn(propCtx, prevalentSystem, collector, location, scope);
 //		if(output == null)
 //			System.out.println("Executed, without output: " + command);
 //		else

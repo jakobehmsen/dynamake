@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.CommandState;
+import dynamake.commands.ExecutionScope;
 import dynamake.delegates.Func0;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -131,6 +132,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	@SuppressWarnings("unchecked")
 	private static <T> void replay(ContextualCommand<T> ctxTransaction, T prevalentSystem, PropogationContext propCtx, Collector<T> isolatedCollector) {
 		TransactionHandler<T> transactionHandler = ctxTransaction.transactionHandlerFactory.createTransactionHandler();
+		ExecutionScope scope = transactionHandler.getScope();
 
 		Location locationFromReference = new ModelRootLocation();
 		T reference = (T)ctxTransaction.locationFromRootToReference.getChild(prevalentSystem);
@@ -143,7 +145,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
 				for(CommandState<T> transaction: entry.pending) {
-					CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)transaction.executeOn(propCtx, reference, isolatedCollector, locationFromReference);
+					CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)transaction.executeOn(propCtx, reference, isolatedCollector, locationFromReference, scope);
 					pendingUndoablePairs.add(new Execution<T>(transaction, undoable));
 				}
 				
@@ -491,8 +493,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							// Should be in pending state
 							ArrayList<CommandState<T>> undoables = new ArrayList<CommandState<T>>();
 
+							ExecutionScope scope = transactionHandler.getScope();
 							// The command in pending state should return a command in undoable state
-							CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, collector, locationFromReference);
+							CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, collector, locationFromReference, scope);
 							undoables.add(undoableCommand);
 
 							frame.flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
@@ -602,6 +605,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		}
 		
 		private static <T> void rejectTransaction(PropogationContext propCtx, Collector<T> isolatedCollector, TransactionFrame<T> frame) {
+			ExecutionScope scope = frame.handler.getScope();
 			for(int i = frame.flushedUndoableTransactionsFromReferences.size() - 1; i >= 0; i--) {
 				Object committedExecution = frame.flushedUndoableTransactionsFromReferences.get(i);
 				
@@ -612,7 +616,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					Location locationFromReference = new ModelRootLocation();
 					for(CommandState<T> undoable: undoableTransaction.undoables) {
 						@SuppressWarnings("unused")
-						CommandState<T> redoable = undoable.executeOn(propCtx, frame.reference, isolatedCollector, locationFromReference);
+						CommandState<T> redoable = undoable.executeOn(propCtx, frame.reference, isolatedCollector, locationFromReference, scope);
 					}
 				} else if(committedExecution instanceof TransactionFrame) {
 					@SuppressWarnings("unchecked")

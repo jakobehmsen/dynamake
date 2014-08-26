@@ -36,6 +36,7 @@ import javax.swing.border.Border;
 
 import dynamake.commands.Command;
 import dynamake.commands.CommandState;
+import dynamake.commands.ExecutionScope;
 import dynamake.commands.PendingCommandState;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
@@ -114,7 +115,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 			LiveModel liveModel = (LiveModel)location.getChild(prevalentSystem);
 			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, collector);
 			
@@ -136,7 +137,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 			LiveModel liveModel = (LiveModel)location.getChild(prevalentSystem);
 			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, collector);
 			

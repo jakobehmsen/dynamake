@@ -16,7 +16,7 @@ public class IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommand implements
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 		return null;
 	}
 }

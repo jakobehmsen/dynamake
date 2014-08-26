@@ -19,6 +19,7 @@ import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
 import dynamake.commands.CommandState;
+import dynamake.commands.ExecutionScope;
 import dynamake.commands.ForwardableCommand;
 import dynamake.commands.ForwardableOutput;
 import dynamake.commands.PendingCommandState;
@@ -156,7 +157,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
 			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
 			Model model = (Model)canvasSource.getModelByLocation(locationInSource);
@@ -201,7 +202,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
 			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
 			Model model = (Model)canvasSource.getModelByLocation(locationInSource);
@@ -247,7 +248,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(final PropogationContext propCtx, final Model rootPrevalentSystem, Collector<Model> collector, final Location location) {
+		public Object executeOn(final PropogationContext propCtx, final Model rootPrevalentSystem, Collector<Model> collector, final Location location, ExecutionScope scope) {
 			/*
 			TODO: Consider
 			Model creation and add could be changed as follows:
@@ -259,7 +260,7 @@ public class CanvasModel extends Model {
 			
 			final CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
 			final ModelCreation modelCreation = factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
-			final Model model = modelCreation.createModel(rootPrevalentSystem, propCtx, 0, collector, location);
+			final Model model = modelCreation.createModel(rootPrevalentSystem, propCtx, 0, collector, location, scope);
 			
 			canvas.addModel(model, new PropogationContext(), 0, collector);
 			final Location addedModelLocation = canvas.getLocationOf(model);
@@ -308,10 +309,10 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 			final CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
 			ModelCreation modelCreation = factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
-			final Model model = modelCreation.createModel(rootPrevalentSystem, propCtx, 0, collector, location);
+			final Model model = modelCreation.createModel(rootPrevalentSystem, propCtx, 0, collector, location, scope);
 			System.out.println("***Adding (forwarded) model " + model + " at " + modelLocation + " in " + canvas + "***");
 			
 			canvas.restoreModelByLocation(modelLocation, model, new PropogationContext(), 0, collector);
@@ -372,12 +373,12 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			
 			Model modelBase = restorableModel.unwrapBase(propCtx, 0, collector);
 			System.out.println("***Restoring model " + modelBase + " at " + modelLocationToRestore + " from " + canvas + "***");
-			restorableModel.restoreOriginsOnBase(modelBase, propCtx, 0, collector);
+			restorableModel.restoreOriginsOnBase(modelBase, propCtx, 0, collector, scope);
 			
 			canvas.restoreModelByLocation(modelLocationToRestore, modelBase, new PropogationContext(), 0, collector);
 			
@@ -417,7 +418,7 @@ public class CanvasModel extends Model {
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model modelToDestroy = canvas.getModelByLocation(locationOfModelToDestroy);
 			System.out.println("***Destroying model " + modelToDestroy + " at " + locationOfModelToDestroy + " from " + canvas + "***");
@@ -484,7 +485,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(final PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+		public Object executeOn(final PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 			final CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
 			System.out.println("***Removing model " + modelToRemove + " at " + locationOfModelToRemove + " from " + canvas + "***");

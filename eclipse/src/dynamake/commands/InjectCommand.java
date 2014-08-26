@@ -21,7 +21,7 @@ public class InjectCommand implements Command<Model> {
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 		Model source = (Model)CompositeLocation.getChild(prevalentSystem, location, sourceLocation);
 		Model target = (Model)CompositeLocation.getChild(prevalentSystem, location, targetLocation);
 		

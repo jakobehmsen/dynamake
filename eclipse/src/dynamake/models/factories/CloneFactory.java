@@ -1,5 +1,6 @@
 package dynamake.models.factories;
 
+import dynamake.commands.ExecutionScope;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.models.CompositeLocation;
@@ -43,9 +44,9 @@ public class CloneFactory implements ModelFactory {
 			}
 			
 			@Override
-			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location, ExecutionScope scope) {
 				Model modelBase = restorableModelClone.unwrapBase(propCtx, propDistance, collector);
-				restorableModelClone.restoreOriginsOnBase(modelBase, propCtx, propDistance, collector);
+				restorableModelClone.restoreOriginsOnBase(modelBase, propCtx, propDistance, collector, scope);
 				return modelBase;
 			}
 		};

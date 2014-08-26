@@ -22,7 +22,7 @@ public class ForwardLocalChangesCommand implements MappableCommand<Model>, Forwa
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 		Model target = (Model)location.getChild(prevalentSystem);
 		Model source = (Model)locationOfSourceFromTarget.getChild(target);
 		

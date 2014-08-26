@@ -31,7 +31,7 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model>, 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 		Model target = (Model)location.getChild(prevalentSystem);
 		final Model source = (Model)locationOfSourceFromTarget.getChild(target);
 				

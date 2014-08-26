@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dynamake.commands.CommandState;
+import dynamake.commands.ExecutionScope;
 import dynamake.commands.MappableForwardable;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.SetPropertyCommand;
@@ -148,8 +149,8 @@ public class RestorableModel implements Serializable {
 		return modelBase;
 	}
 	
-	public void restoreOriginsOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		modelBase.playThenReverse(modelOrigins, propCtx, propDistance, collector);
+	public void restoreOriginsOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {
+		modelBase.playThenReverse(modelOrigins, propCtx, propDistance, collector, scope);
 		modelBase.setProperty(RestorableModel.PROPERTY_ORIGINS, modelOrigins, propCtx, propDistance, collector);
 		
 //		System.out.println("restoreOriginsOnBase");
@@ -198,9 +199,9 @@ public class RestorableModel implements Serializable {
 	protected void afterForForwarding(RestorableModel forForwarded) { }
 	protected void afterRestoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
 	
-	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {
 		Model modelBase = unwrapBase(propCtx, propDistance, collector);
-		restoreOriginsOnBase(modelBase, propCtx, propDistance, collector);
+		restoreOriginsOnBase(modelBase, propCtx, propDistance, collector, scope);
 		restoreChangesOnBase(modelBase, propCtx, propDistance, collector);
 		return modelBase;
 	}

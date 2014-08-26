@@ -2,6 +2,7 @@ package dynamake.models.factories;
 
 import dynamake.commands.Command;
 import dynamake.commands.EnsureForwardLocalChangesUpwardsCommand;
+import dynamake.commands.ExecutionScope;
 import dynamake.commands.ForwardLocalChangesCommand;
 import dynamake.commands.IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommand;
 import dynamake.commands.PendingCommandState;
@@ -77,9 +78,9 @@ public class DeriveFactory implements ModelFactory {
 			}
 			
 			@Override
-			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location, ExecutionScope scope) {
 				Model modelBase = restorableModelClone.unwrapBase(propCtx, propDistance, collector);
-				restorableModelClone.restoreOriginsOnBase(modelBase, propCtx, propDistance, collector);
+				restorableModelClone.restoreOriginsOnBase(modelBase, propCtx, propDistance, collector, scope);
 				return modelBase;
 			}
 		};

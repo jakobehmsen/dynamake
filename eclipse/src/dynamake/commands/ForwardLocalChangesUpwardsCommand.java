@@ -17,7 +17,7 @@ public class ForwardLocalChangesUpwardsCommand implements ForwardableCommand<Mod
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 		Model target = (Model)location.getChild(prevalentSystem);
 		
 		// The relation should also be maintained for new models created

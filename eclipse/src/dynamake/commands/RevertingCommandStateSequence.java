@@ -35,13 +35,13 @@ public class RevertingCommandStateSequence<T> implements CommandState<T> {
 	}
 
 	@Override
-	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location) {
+	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
 		// The new command states are reverted for undo/redo support
 		@SuppressWarnings("unchecked")
 		CommandState<T>[] newCommandStates = (CommandState<T>[])new CommandState[commandStates.length];
 		
 		for(int i = 0; i < commandStates.length; i++)
-			newCommandStates[i] = commandStates[i].executeOn(propCtx, prevalentSystem, collector, location);
+			newCommandStates[i] = commandStates[i].executeOn(propCtx, prevalentSystem, collector, location, scope);
 
 		return reverse(newCommandStates);
 	}

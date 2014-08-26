@@ -24,7 +24,7 @@ public class UnforwardLocalChangesUpwardsCommand implements MappableCommand<Mode
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 		Model source = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfTarget);
 		Model target = (Model)location.getChild(prevalentSystem);
 		

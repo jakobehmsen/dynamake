@@ -41,7 +41,7 @@ public class RewrapCommand implements Command<Model> {
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 		CanvasModel target = (CanvasModel)location.getChild(prevalentSystem);
 		// TODO: Consider: How to restore the history?
 		// Should the actual wrapper be part of the re-wrap command? Or perhaps, just a clone of it? Or some sort of memento of it?
