@@ -12,7 +12,7 @@ public class ReflectedTransactionHandlerFactory<T> implements TransactionHandler
 	}
 
 	@Override
-	public TransactionHandler<T> createTransactionHandler() {
+	public TransactionHandler<T> createTransactionHandler(T reference) {
 		try {
 			return handlerClass.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {

@@ -131,11 +131,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	
 	@SuppressWarnings("unchecked")
 	private static <T> void replay(ContextualCommand<T> ctxTransaction, T prevalentSystem, PropogationContext propCtx, Collector<T> isolatedCollector) {
-		TransactionHandler<T> transactionHandler = ctxTransaction.transactionHandlerFactory.createTransactionHandler();
-		ExecutionScope scope = transactionHandler.getScope();
-
 		Location locationFromReference = new ModelRootLocation();
 		T reference = (T)ctxTransaction.locationFromRootToReference.getChild(prevalentSystem);
+		
+		TransactionHandler<T> transactionHandler = ctxTransaction.transactionHandlerFactory.createTransactionHandler(reference);
+		ExecutionScope scope = transactionHandler.getScope();
 		
 		transactionHandler.startLogFor(reference);
 		
@@ -459,7 +459,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								T reference = (T)instruction.operand1;
 								TransactionHandlerFactory<T> transactionHandlerFactory = (TransactionHandlerFactory<T>)instruction.operand2;
 								
-								TransactionHandler<T> transactionHandler = transactionHandlerFactory.createTransactionHandler();
+								TransactionHandler<T> transactionHandler = transactionHandlerFactory.createTransactionHandler(reference);
 									
 								transactionHandler.startLogFor(reference);
 								
