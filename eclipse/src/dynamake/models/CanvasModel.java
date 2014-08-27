@@ -534,13 +534,21 @@ public class CanvasModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private Location locationOfModelToRemove;
-		
+
+		/*null of either argument indicate scope usage*/
 		public RemoveModelCommand(Location locationOfModelToRemove) {
 			this.locationOfModelToRemove = locationOfModelToRemove;
 		}
 		
 		@Override
 		public Object executeOn(final PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+			boolean useScope = locationOfModelToRemove == null;
+			
+			// Support for scope usage in case of empty constructor arguments
+			if(useScope) {
+				locationOfModelToRemove = (Location)scope.consume();
+			}
+			
 			final CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model modelToRemove = canvas.getModelByLocation(locationOfModelToRemove);
 			System.out.println("***Removing model " + modelToRemove + " at " + locationOfModelToRemove + " from " + canvas + "***");
@@ -549,11 +557,16 @@ public class CanvasModel extends Model {
 
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			
+			if(useScope)
+				scope.produce(locationOfModelToRemove);
+			
 			return new Output(locationOfModelToRemove, restorableModel);
 		}
 		
 		@Override
 		public Command<Model> forForwarding(Object output) {
+			// TODO: Somehow, use scope to retrieve output
+			
 			// When a model is added to a canvas, map id to ForwardedId (if not only already ForwardedId)
 			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
 			RemoveModelCommand.Output removeModelOutput = (RemoveModelCommand.Output)output;
