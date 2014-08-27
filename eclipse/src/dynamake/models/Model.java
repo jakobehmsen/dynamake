@@ -19,14 +19,18 @@ import java.util.Stack;
 import javax.swing.JComponent;
 
 import dynamake.commands.AddObserverCommand;
+import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.MappableForwardable;
+import dynamake.commands.PURCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
+import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.commands.SetPropertyCommand;
+import dynamake.commands.Command.Null;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.menubuilders.ColorMenuBuilder;
@@ -36,9 +40,13 @@ import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.DeriveFactory;
 import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.models.transcription.PostOnlyTransactionHandler;
+import dynamake.models.transcription.RedoTransactionHandlerFactory;
+import dynamake.models.transcription.UndoTransactionHandler;
+import dynamake.models.transcription.UndoTransactionHandlerFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
+import dynamake.transcription.LoadScopeTransactionHandlerFactory;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.Trigger;
@@ -104,9 +112,9 @@ public abstract class Model implements Serializable, Observer {
 	}
 	
 	public static class HistoryAppendLogChange {
-		public final List<Execution<Model>> pendingUndoablePairs;
+		public final List<ReversibleCommand<Model>> pendingUndoablePairs;
 		
-		public HistoryAppendLogChange(List<Execution<Model>> pendingCommands) {
+		public HistoryAppendLogChange(List<ReversibleCommand<Model>> pendingCommands) {
 			this.pendingUndoablePairs = pendingCommands;
 		}
 	}
@@ -165,8 +173,8 @@ public abstract class Model implements Serializable, Observer {
 	private ArrayList<Observer> observees = new ArrayList<Observer>();
 	protected Hashtable<String, Object> properties = new Hashtable<String, Object>();
 	/* Both undo- and stack are assumed to contain RevertingCommandStateSequence<Model> objects */
-	protected Stack<CommandState<Model>> undoStack = new Stack<CommandState<Model>>();
-	protected Stack<CommandState<Model>> redoStack = new Stack<CommandState<Model>>();
+	protected Stack<HistoryPart> undoStack = new Stack<HistoryPart>();
+	protected Stack<HistoryPart> redoStack = new Stack<HistoryPart>();
 	
 	private Locator locator;
 	private Model parent;
@@ -194,11 +202,11 @@ public abstract class Model implements Serializable, Observer {
 		observers = (ArrayList<Observer>)ois.readObject();
 		observees = (ArrayList<Observer>)ois.readObject();
 		properties = (Hashtable<String, Object>)ois.readObject();
-		undoStack = (Stack<CommandState<Model>>)ois.readObject();
-		redoStack = (Stack<CommandState<Model>>)ois.readObject();
+		undoStack = (Stack<HistoryPart>)ois.readObject();
+		redoStack = (Stack<HistoryPart>)ois.readObject();
 	}
 
-	public void appendLog(ArrayList<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void appendLog(ArrayList<ReversibleCommand<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
 
 		redoStack.clear(); // Should the clearing of the redo stack be moved to commitLog?
@@ -206,58 +214,153 @@ public abstract class Model implements Serializable, Observer {
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
 	
-	public void postLog(ArrayList<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void postLog(ArrayList<ReversibleCommand<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
 		
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
 	
-	public void commitLog(CommandState<Model> logPart) {
-		undoStack.add(logPart);
+	public static class HistoryPart implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		
+		private ExecutionScope scope;
+		private List<ReversibleCommand<Model>> purCommands;
+
+		public HistoryPart(ExecutionScope scope, List<ReversibleCommand<Model>> purCommands) {
+			// It seems appropriate to not clone the scope, since history parts are always either on the undo- or redo stack
+			// - i.e., they are pushed back and forth and thus the scope is not shared and should be up-to-date
+			this.scope = scope; 
+			
+			this.purCommands = purCommands;
+		}
+		
+		public HistoryPart forUndo() {
+			ArrayList<ReversibleCommand<Model>> undoables = new ArrayList<ReversibleCommand<Model>>();
+			for(ReversibleCommand<Model> pur: purCommands) {
+				// pur.back is assumed to be insignificant
+				PURCommand<Model> undoable = ((PURCommand<Model>)pur.forth).inUndoState();
+				undoables.add(new ReversibleCommand<Model>(undoable, new Command.Null<Model>()));
+			}
+			
+			Collections.reverse(undoables);
+			
+			return new HistoryPart(scope, undoables);
+		}
+		
+		public HistoryPart forRedo() {
+			ArrayList<ReversibleCommand<Model>> redoables = new ArrayList<ReversibleCommand<Model>>();
+			for(ReversibleCommand<Model> pur: purCommands) {
+				// pur.back is assumed to be insignificant
+				PURCommand<Model> redoable = ((PURCommand<Model>)pur.forth).inRedoState();
+				redoables.add(new ReversibleCommand<Model>(redoable, new Command.Null<Model>()));
+			}
+			
+			Collections.reverse(redoables);
+			
+			return new HistoryPart(scope, redoables);
+		}
+
+		public static HistoryPart fromPending(ExecutionScope scope, List<ReversibleCommand<Model>> pending) {
+			return new HistoryPart(scope, pending).forUndo();
+		}
+		
+		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+			collector.execute(purCommands);
+		}
+
+		public ExecutionScope getScope() {
+			return scope;
+		}
 	}
 	
-	public void unplay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {
+	public void commitLog(ExecutionScope scope, List<ReversibleCommand<Model>> logPart) {
+//		ArrayList<PURCommand<Model>> undoables = new ArrayList<PURCommand<Model>>();
+//		for(ReversibleCommand<Model> pur: logPart) {
+//			// pur.back is assumed to be insignificant
+//			PURCommand<Model> undoable = ((PURCommand<Model>)pur.forth).inUndoState();
+//			undoables.add(undoable);
+//		}
+//		Collections.reverse(undoables);
+		
+		undoStack.add(HistoryPart.fromPending(scope, logPart));
+	}
+	
+	public void unplay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		for(int i = 0; i < count; i++) {
-			CommandState<Model> toUndo = undoStack.pop();
-			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation(), scope);
+			HistoryPart toUndo = undoStack.pop();
+			
+			// Probably, unplay should be invoked repeatedly from another outer command somehow, where the
+			// scope is derived in a dynamic way (looking it up via the model reference) rather having to
+			// serialize the scope via LoadScopeTransactionHandlerFactory.
+			collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(toUndo.scope));
+			
+			toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
+			
+			collector.commitTransaction();
+//			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation(), scope);
+			HistoryPart redoable = toUndo.forRedo();
 			redoStack.push(redoable);
 		}
 	}	
 	
 	public void replay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {
 		for(int i = 0; i < count; i++) {
-			CommandState<Model> toRedo = redoStack.pop();
-			CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation(), scope);
+			HistoryPart toRedo = redoStack.pop();
+			
+			collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(toRedo.scope));
+			
+			toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
+			
+			collector.commitTransaction();
+//			CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation(), scope);
+			HistoryPart undoable = toRedo.forUndo();
 			undoStack.push(undoable);
 		}
 	}
 	
-	public CommandState<Model> undo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public HistoryPart undo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		// An undo method which starts all undo parts and ensure the sequence
 		// A new kind of history handler is probably needed?
 		
 		// undo stack is assumed to consist only of RevertingCommandStateSequence<Model>.
 		// These could probably be replaced by simpler structures; just lists of CommandState objects.
-		RevertingCommandStateSequence<Model> toUndo = (RevertingCommandStateSequence<Model>)undoStack.pop();
+//		RevertingCommandStateSequence<Model> toUndo = (RevertingCommandStateSequence<Model>)undoStack.pop();
+//		
+//		PendingCommandFactory.Util.executeSequence(collector, Arrays.asList(toUndo.commandStates));
+//		
+//		return toUndo;
 		
-		PendingCommandFactory.Util.executeSequence(collector, Arrays.asList(toUndo.commandStates));
+		HistoryPart toUndo = undoStack.pop();
+		
+		toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
 		
 		return toUndo;
 	}
 
-	public void commitUndo(CommandState<Model> redoable) {
-		redoStack.push(redoable);
+	public void commitUndo(HistoryPart undoable) { //CommandState<Model> redoable) {
+//		redoStack.push(redoable);
+		redoStack.push(undoable.forRedo());
 	}
 	
-	public CommandState<Model> redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		RevertingCommandStateSequence<Model> toRedo = (RevertingCommandStateSequence<Model>)redoStack.pop();
-		PendingCommandFactory.Util.executeSequence(collector, Arrays.asList(toRedo.commandStates));
+	public HistoryPart redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		RevertingCommandStateSequence<Model> toRedo = (RevertingCommandStateSequence<Model>)redoStack.pop();
+//		PendingCommandFactory.Util.executeSequence(collector, Arrays.asList(toRedo.commandStates));
+//		
+//		return toRedo;
+		
+		HistoryPart toRedo = redoStack.pop();
+		
+		toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
 		
 		return toRedo;
 	}
 
-	public void commitRedo(CommandState<Model> undoable) {
-		undoStack.push(undoable);
+	public void commitRedo(HistoryPart redoable) {
+//		undoStack.push(undoable);
+		undoStack.push(redoable.forUndo());
 	}
 
 	public List<CommandState<Model>> playThenReverse(List<CommandState<Model>> toPlay, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {
@@ -281,19 +384,17 @@ public abstract class Model implements Serializable, Observer {
 		return redoStack.size() > 0;
 	}
 
-	public ExecutionScope getUndoScope() {
-		// TODO Dummy implementation; always new scope
-		return new ExecutionScope();
+	public HistoryPart getUndoScope() {
+		return undoStack.peek();
 	}
 
-	public ExecutionScope getRedoScope() {
-		// TODO Dummy implementation; always new scope
-		return new ExecutionScope();
+	public HistoryPart getRedoScope() {
+		return redoStack.peek();
 	}
 	
-	public CommandState<Model> getUnplayable() {
-		return RevertingCommandStateSequence.reverse(undoStack);
-	}
+//	public CommandState<Model> getUnplayable() {
+//		return RevertingCommandStateSequence.reverse(undoStack);
+//	}
 
 	public int getLocalChangeCount() {
 		return undoStack.size();
@@ -302,28 +403,30 @@ public abstract class Model implements Serializable, Observer {
 	public List<CommandState<Model>> getLocalChanges() {
 		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
 		
-		for(CommandState<Model> undoable: undoStack) {
-			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
-			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
-				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
-				origins.add(undoPart.origin);
-			}
-		}
+		// TODO: METHOD DEACTIVETED! MUST BE REIMPLEMENTED!
+//		for(CommandState<Model> undoable: undoStack) {
+//			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
+//			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
+//				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
+//				origins.add(undoPart.origin);
+//			}
+//		}
 		
 		return origins;
 	}
 
 	public List<CommandState<Model>> getLocalChangesBackwards() {
 		ArrayList<CommandState<Model>> backwards = new ArrayList<CommandState<Model>>();
-		
-		for(CommandState<Model> undoable: undoStack) {
-			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
 
-			for(int i = undoableAsRevertiable.getCommandStateCount() - 1; i >= 0; i--) {
-				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
-				backwards.add(undoPart.revertible);
-			}
-		}
+		// TODO: METHOD DEACTIVETED! MUST BE REIMPLEMENTED!
+//		for(CommandState<Model> undoable: undoStack) {
+//			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
+//
+//			for(int i = undoableAsRevertiable.getCommandStateCount() - 1; i >= 0; i--) {
+//				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
+//				backwards.add(undoPart.revertible);
+//			}
+//		}
 		
 		Collections.reverse(backwards);
 		
@@ -884,10 +987,10 @@ public abstract class Model implements Serializable, Observer {
 		 */
 		private static final long serialVersionUID = 1L;
 		public final boolean includeHistory;
-		public final Stack<CommandState<Model>> undoStack;
-		public final Stack<CommandState<Model>> redoStack;
+		public final Stack<HistoryPart> undoStack;
+		public final Stack<HistoryPart> redoStack;
 		
-		public History(boolean includeHistory, Stack<CommandState<Model>> undoStack, Stack<CommandState<Model>> redoStack) {
+		public History(boolean includeHistory, Stack<HistoryPart> undoStack, Stack<HistoryPart> redoStack) {
 			this.includeHistory = includeHistory;
 			this.undoStack = undoStack;
 			this.redoStack = redoStack;
@@ -895,30 +998,34 @@ public abstract class Model implements Serializable, Observer {
 
 		@Override
 		public MappableForwardable mapToReferenceLocation(Model sourceReference, Model targetReference) {
-			Stack<CommandState<Model>> mappedUndoStack = new Stack<CommandState<Model>>();
+			Stack<HistoryPart> mappedUndoStack = new Stack<HistoryPart>();
 			
-			for(CommandState<Model> cs: undoStack)
-				mappedUndoStack.add(cs.mapToReferenceLocation(sourceReference, targetReference));
+			// TODO: DO MAPPING OF UNDO STACK!
+//			for(CommandState<Model> cs: undoStack)
+//				mappedUndoStack.add(cs.mapToReferenceLocation(sourceReference, targetReference));
 
-			Stack<CommandState<Model>> mappedRedoStack = new Stack<CommandState<Model>>();
-			
-			for(CommandState<Model> cs: redoStack)
-				mappedRedoStack.add(cs.mapToReferenceLocation(sourceReference, targetReference));
+			Stack<HistoryPart> mappedRedoStack = new Stack<HistoryPart>();
+
+			// TODO: DO MAPPING OF UNDO STACK!
+//			for(CommandState<Model> cs: redoStack)
+//				mappedRedoStack.add(cs.mapToReferenceLocation(sourceReference, targetReference));
 			
 			return new History(includeHistory, mappedUndoStack, mappedRedoStack);
 		}
 		
 		@Override
 		public MappableForwardable forForwarding() {
-			Stack<CommandState<Model>> forForwardingUndoStack = new Stack<CommandState<Model>>();
-			
-			for(CommandState<Model> cs: undoStack)
-				forForwardingUndoStack.add(cs.forForwarding());
+			Stack<HistoryPart> forForwardingUndoStack = new Stack<HistoryPart>();
 
-			Stack<CommandState<Model>> forForwardingRedoStack = new Stack<CommandState<Model>>();
-			
-			for(CommandState<Model> cs: redoStack)
-				forForwardingRedoStack.add(cs.forForwarding());
+			// TODO: DO FORWARDING OF UNDO STACK!
+//			for(CommandState<Model> cs: undoStack)
+//				forForwardingUndoStack.add(cs.forForwarding());
+
+			Stack<HistoryPart> forForwardingRedoStack = new Stack<HistoryPart>();
+
+			// TODO: DO FORWARDING OF UNDO STACK!
+//			for(CommandState<Model> cs: redoStack)
+//				forForwardingRedoStack.add(cs.forForwarding());
 			
 			return new History(includeHistory, forForwardingUndoStack, forForwardingRedoStack);
 		}
@@ -936,15 +1043,24 @@ public abstract class Model implements Serializable, Observer {
 		
 		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
 		
-		for(CommandState<Model> undoable: ((History)history).undoStack) {
-			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
-			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
-				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
-				origins.add(undoPart.origin.pending);
-			}
-		}
+//		for(CommandState<Model> undoable: ((History)history).undoStack) {
+//			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
+//			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
+//				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
+//				origins.add(undoPart.origin.pending);
+//			}
+//		}
 		
-		PendingCommandFactory.Util.executeSequence(collector, origins);
+		// TODO: FIGURE OUT HOW TO EXTRACT REVERSIBLE COMMAND TO APPEND TO ORIGINS! AND THEN EXECUTE THEM!
+//		for(HistoryPart undoable: ((History)history).undoStack) {
+//			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
+//			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
+//				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
+//				origins.add(undoPart.origin.pending);
+//			}
+//		}
+//		
+//		PendingCommandFactory.Util.executeSequence(collector, origins);
 	}
 	
 	public RestorableModel toRestorable(boolean includeLocalHistory) {

@@ -13,8 +13,8 @@ public class RedoTransactionHandlerFactory implements TransactionHandlerFactory<
 
 	@Override
 	public TransactionHandler<Model> createTransactionHandler(Model reference) {
-		ExecutionScope scope = reference.getRedoScope();
+		Model.HistoryPart redoPart = reference.getRedoScope();
 		
-		return new RedoTransactionHandler(scope);
+		return new RedoTransactionHandler(redoPart);
 	}
 }

@@ -21,7 +21,7 @@ public class UnplayCommand implements Command<Model> {
 		Model model = (Model)location.getChild(prevalentSystem);
 //		System.out.println("Performing unplay on " + model + "...");
 		
-		model.unplay(count, propCtx, 0, collector, scope);
+		model.unplay(count, propCtx, 0, collector);
 		
 //		System.out.println("Performed unplay on " + model);
 		

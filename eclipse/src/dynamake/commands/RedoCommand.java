@@ -6,6 +6,7 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.transcription.RedoTransactionHandler;
+import dynamake.models.transcription.RedoTransactionHandlerFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.IsolatingCollector;
 
@@ -39,10 +40,12 @@ public class RedoCommand implements Command<Model> {
 		if(isolate)
 			collector = new IsolatingCollector<Model>(collector);
 
-		collector.startTransaction(model, RedoTransactionHandler.class);
-		CommandState<Model> command = model.redo(propCtx, 0, collector);
+		collector.startTransaction(model, new RedoTransactionHandlerFactory());
+//		CommandState<Model> command = model.redo(propCtx, 0, collector);
+		model.redo(propCtx, 0, collector);
 		collector.commitTransaction();
 		
-		return new Output(command);
+//		return new Output(command);
+		return null;
 	}
 }

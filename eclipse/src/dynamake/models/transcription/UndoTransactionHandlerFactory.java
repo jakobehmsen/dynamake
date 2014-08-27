@@ -13,8 +13,8 @@ public class UndoTransactionHandlerFactory implements TransactionHandlerFactory<
 
 	@Override
 	public TransactionHandler<Model> createTransactionHandler(Model reference) {
-		ExecutionScope scope = reference.getUndoScope();
+		Model.HistoryPart undoPart = reference.getUndoScope();
 		
-		return new UndoTransactionHandler(scope);
+		return new UndoTransactionHandler(undoPart);
 	}
 }

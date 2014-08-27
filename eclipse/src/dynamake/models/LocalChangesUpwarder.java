@@ -44,7 +44,7 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 			Model source = (Model)sourceLocation.getChild(sender);
 			
 			// Forward the logged change in source
-			Object firstCommandOutput = historyAppendLogChange.pendingUndoablePairs.get(0).undoable.getOutput();
+			Object firstCommandOutput = null; //historyAppendLogChange.pendingUndoablePairs.get(0).undoable.getOutput();
 			
 			ArrayList<CommandState<Model>> newChanges = new ArrayList<CommandState<Model>>();
 			
@@ -53,8 +53,8 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 			} else if(firstCommandOutput instanceof RedoCommand.Output) {
 				newChanges.add(((RedoCommand.Output)firstCommandOutput).command);
 			} else {
-				for(Execution<Model> pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs)
-					newChanges.add(pendingUndoablePair);
+//				for(Execution<Model> pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs)
+//					newChanges.add(pendingUndoablePair);
 			}
 			
 			ArrayList<CommandState<Model>> offsetNewChanges = new ArrayList<CommandState<Model>>();

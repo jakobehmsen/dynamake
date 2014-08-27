@@ -14,11 +14,11 @@ import dynamake.transcription.Execution;
 import dynamake.transcription.TransactionHandler;
 
 public class RedoTransactionHandler implements TransactionHandler<Model> {
-	private ExecutionScope scope;
+	private Model.HistoryPart redoPart;
 	private ArrayList<Execution<Model>> newLog;
 	
-	public RedoTransactionHandler(ExecutionScope scope) {
-		this.scope = scope;
+	public RedoTransactionHandler(Model.HistoryPart undoPart) {
+		this.redoPart = undoPart;
 	}
 	
 	public RedoTransactionHandler() { }
@@ -37,21 +37,23 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 
 	@Override
 	public void commitLogFor(Model reference) {
-		// Build undoable from logged commands
+//		// Build undoable from logged commands
+//		
+//		@SuppressWarnings("unchecked")
+//		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
+//
+//		for(int i = 0; i < newLog.size(); i++) {
+//			// Unwrap UndoRedoPart
+//			UndoRedoPart undoRedoPart = (UndoRedoPart)newLog.get(i).undoable;
+//			compressedLogPartAsArray[i] = undoRedoPart;
+//		}
+//		
+//		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
+//		
+////		System.out.println(this +  ": commitLogFor");
+//		reference.commitRedo(compressedLogPart);
 		
-		@SuppressWarnings("unchecked")
-		CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
-
-		for(int i = 0; i < newLog.size(); i++) {
-			// Unwrap UndoRedoPart
-			UndoRedoPart undoRedoPart = (UndoRedoPart)newLog.get(i).undoable;
-			compressedLogPartAsArray[i] = undoRedoPart;
-		}
-		
-		RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
-		
-//		System.out.println(this +  ": commitLogFor");
-		reference.commitRedo(compressedLogPart);
+		reference.commitRedo(redoPart);
 	}
 
 	@Override
@@ -61,6 +63,6 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 	
 	@Override
 	public ExecutionScope getScope() {
-		return scope;
+		return redoPart.getScope();
 	}
 }
