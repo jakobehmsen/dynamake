@@ -7,7 +7,7 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class ReversibleCommand<T> implements CommandStateWithOutput<T> {
+public class ReversibleCommandState<T> implements CommandStateWithOutput<T> {
 	/**
 	 * 
 	 */
@@ -17,7 +17,7 @@ public class ReversibleCommand<T> implements CommandStateWithOutput<T> {
 	private CommandFactory<T> forthFactory;
 	private CommandFactory<T> backFactory;
 
-	public ReversibleCommand(Command<T> cause, Object output, CommandFactory<T> forthFactory, CommandFactory<T> backFactory) {
+	public ReversibleCommandState(Command<T> cause, Object output, CommandFactory<T> forthFactory, CommandFactory<T> backFactory) {
 		this.cause = cause;
 		this.output = output;
 		this.forthFactory = forthFactory;
@@ -47,7 +47,7 @@ public class ReversibleCommand<T> implements CommandStateWithOutput<T> {
 		Object newOutput = newCommand.executeOn(propCtx, prevalentSystem, collector, location, scope);
 		
 		// Reverse factories to create antagonistic command
-		return new ReversibleCommand<T>(newCommand, newOutput, backFactory, forthFactory);
+		return new ReversibleCommandState<T>(newCommand, newOutput, backFactory, forthFactory);
 	}
 	
 	@Override
@@ -76,7 +76,7 @@ public class ReversibleCommand<T> implements CommandStateWithOutput<T> {
 		else
 			newBackFactory = backFactory;
 		
-		return new ReversibleCommand<T>(newCause, newOutput, newForthFactory, newBackFactory);
+		return new ReversibleCommandState<T>(newCause, newOutput, newForthFactory, newBackFactory);
 	}
 	
 	@Override
@@ -87,7 +87,7 @@ public class ReversibleCommand<T> implements CommandStateWithOutput<T> {
 		CommandFactory<T> newForthFactory = new RelativeCommand.Factory<T>(forthFactory);
 		CommandFactory<T> newBackFactory = new RelativeCommand.Factory<T>(backFactory);
 		
-		return new ReversibleCommand<T>(newCause, newOutput, newForthFactory, newBackFactory);
+		return new ReversibleCommandState<T>(newCause, newOutput, newForthFactory, newBackFactory);
 	}
 	
 	@Override
@@ -101,7 +101,7 @@ public class ReversibleCommand<T> implements CommandStateWithOutput<T> {
 		if(output instanceof ForwardableOutput)
 			newOutput = ((ForwardableOutput)output).forForwarding();
 		
-		return new ReversibleCommand<T>(cause, newOutput, newForthFactory, backFactory);
+		return new ReversibleCommandState<T>(cause, newOutput, newForthFactory, backFactory);
 	}
 	
 	@Override
@@ -112,7 +112,7 @@ public class ReversibleCommand<T> implements CommandStateWithOutput<T> {
 		if(newForthFactory instanceof UpwardableCommandFactory)
 			newForthFactory = ((UpwardableCommandFactory<T>)newForthFactory).forUpwarding();
 		
-		return new ReversibleCommand<T>(cause, newOutput, newForthFactory, backFactory);
+		return new ReversibleCommandState<T>(cause, newOutput, newForthFactory, backFactory);
 	}
 	
 	@Override

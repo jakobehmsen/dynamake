@@ -71,7 +71,7 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 //		else
 //			System.out.println("Executed, with output: " + output);
 		
-		return new ReversibleCommand<T>(command, output, backFactory, forthFactory);
+		return new ReversibleCommandState<T>(command, output, backFactory, forthFactory);
 	}
 	
 	@Override
