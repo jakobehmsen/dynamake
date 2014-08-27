@@ -281,8 +281,10 @@ public class CanvasModel extends Model {
 				}
 			});
 			
-			if(useScope)
+			if(useScope) {
 				scope.produce(addedModelLocation);
+				return null; // Indicate scope usage
+			}
 			
 			return new Output(addedModelLocation);
 		}
