@@ -536,6 +536,9 @@ public class CanvasModel extends Model {
 
 			@Override
 			public Command<Model> createCommand(Object output) {
+				if(output == null) // Scope usage is indicated
+					return new CanvasModel.RemoveModelCommand(null); // Indicate scope usage
+					
 				return new CanvasModel.RemoveModelCommand(((CanvasModel.AddModelCommand.Output)output).location);
 			}
 		}
