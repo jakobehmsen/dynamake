@@ -565,8 +565,10 @@ public class CanvasModel extends Model {
 
 			canvas.removeModelByLocation(locationOfModelToRemove, propCtx, 0, collector);
 			
-			if(useScope)
+			if(useScope) {
 				scope.produce(locationOfModelToRemove);
+				return null;
+			}
 			
 			return new Output(locationOfModelToRemove, restorableModel);
 		}
