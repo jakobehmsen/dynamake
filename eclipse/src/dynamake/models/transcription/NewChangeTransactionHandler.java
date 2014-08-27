@@ -16,7 +16,7 @@ public class NewChangeTransactionHandler implements TransactionHandler<Model> {
 	private ArrayList<ReversibleCommand<Model>> newLog;
 
 	@Override
-	public void startLogFor(Model reference) {
+	public void startLogFor(TransactionHandler<Model> parentHandler, Model reference) {
 		scope = new ExecutionScope();
 		newLog = new ArrayList<ReversibleCommand<Model>>();
 	}

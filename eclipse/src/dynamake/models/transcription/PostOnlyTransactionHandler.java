@@ -11,8 +11,8 @@ public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 	private ExecutionScope scope;
 	
 	@Override
-	public void startLogFor(Model reference) {
-		scope = new ExecutionScope();
+	public void startLogFor(TransactionHandler<Model> parentHandler, Model reference) {
+		scope = parentHandler.getScope();
 	}
 
 	@Override

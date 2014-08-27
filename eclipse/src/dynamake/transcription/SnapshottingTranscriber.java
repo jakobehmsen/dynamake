@@ -131,12 +131,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static <T> void replay(ContextualCommand<T> ctxTransaction, T prevalentSystem, PropogationContext propCtx, Collector<T> isolatedCollector) {
+	private static <T> void replay(TransactionHandler<T> parentTransactionHandler, ContextualCommand<T> ctxTransaction, T prevalentSystem, PropogationContext propCtx, Collector<T> isolatedCollector) {
 		Location locationFromReference = new ModelRootLocation();
 		T reference = (T)ctxTransaction.locationFromRootToReference.getChild(prevalentSystem);
 		
 		TransactionHandler<T> transactionHandler = ctxTransaction.transactionHandlerFactory.createTransactionHandler(reference);
-		transactionHandler.startLogFor(reference);
+		transactionHandler.startLogFor(parentTransactionHandler, reference);
 		ExecutionScope scope = transactionHandler.getScope();
 		
 		for(Object transactionFromRoot: ctxTransaction.transactionsFromRoot) {
@@ -155,7 +155,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				transactionHandler.logFor((T)reference, entry.pending, propCtx, 0, isolatedCollector);
 			} else if(transactionFromRoot instanceof ContextualCommand) {
-				replay((ContextualCommand<T>)transactionFromRoot, prevalentSystem, propCtx, isolatedCollector);
+				replay(transactionHandler, (ContextualCommand<T>)transactionFromRoot, prevalentSystem, propCtx, isolatedCollector);
 			}
 		}
 		
@@ -168,7 +168,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		Collector<T> isolatedCollector = new NullCollector<T>();
 		
 		for(ContextualCommand<T> ctxTransaction: transactions)
-			replay(ctxTransaction, prevalentSystem, propCtx, isolatedCollector);
+			replay(null, ctxTransaction, prevalentSystem, propCtx, isolatedCollector);
 	}
 	
 	private static <T> void replay(T prevalentSystem, String journalPath) throws ClassNotFoundException, IOException {
@@ -470,7 +470,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								
 								TransactionHandler<T> transactionHandler = transactionHandlerFactory.createTransactionHandler(reference);
 									
-								transactionHandler.startLogFor(reference);
+								transactionHandler.startLogFor(currentFrame.handler, reference);
 								
 								Location locationFromRoot = ((Model)reference).getLocator().locate();
 								

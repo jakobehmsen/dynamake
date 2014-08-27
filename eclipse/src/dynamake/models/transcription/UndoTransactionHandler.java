@@ -24,7 +24,7 @@ public class UndoTransactionHandler implements TransactionHandler<Model> {
 	public UndoTransactionHandler() { }
 
 	@Override
-	public void startLogFor(Model reference) {
+	public void startLogFor(TransactionHandler<Model> parentHandler, Model reference) {
 //		System.out.println(this +  ": startLogFor");
 		newLog = new ArrayList<Execution<Model>>();
 	}

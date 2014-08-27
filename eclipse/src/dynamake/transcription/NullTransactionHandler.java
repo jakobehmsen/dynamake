@@ -9,7 +9,7 @@ public class NullTransactionHandler<T> implements TransactionHandler<T> {
 	private ExecutionScope scope;
 
 	@Override
-	public void startLogFor(T reference) { 
+	public void startLogFor(TransactionHandler<T> parentHandler, T reference) { 
 		scope = new ExecutionScope();
 	}
 
