@@ -2,7 +2,9 @@ package dynamake.commands;
 
 import dynamake.models.Location;
 import dynamake.models.PropogationContext;
+import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
+import dynamake.transcription.NullTransactionHandler;
 
 // PUR is shorthand for Pending, Undo, Redo
 public class PURCommand<T> implements Command<T> {
@@ -32,6 +34,11 @@ public class PURCommand<T> implements Command<T> {
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+		@SuppressWarnings("unchecked")
+		T reference = (T)location.getChild(prevalentSystem);
+		
+		collector.startTransaction(reference, PostOnlyTransactionHandler.class);
+		
 		switch(state) {
 		case STATE_PENDING:
 			pending.executeOn(propCtx, prevalentSystem, collector, location, scope);
@@ -43,6 +50,8 @@ public class PURCommand<T> implements Command<T> {
 			redo.executeOn(propCtx, prevalentSystem, collector, location, scope);
 			break;
 		}
+		
+		collector.commitTransaction();
 		
 		// TODO Auto-generated method stub
 		return null;
