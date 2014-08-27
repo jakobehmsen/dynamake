@@ -393,7 +393,8 @@ public class CanvasModel extends Model {
 		private static final long serialVersionUID = 1L;
 		private Location modelLocationToRestore;
 		private RestorableModel restorableModel;
-		
+
+		/*null of either argument indicate scope usage*/
 		public RestoreModelCommand(Location modelLocationToRestore, RestorableModel restorableModel) {
 			this.modelLocationToRestore = modelLocationToRestore;
 			this.restorableModel = restorableModel;
@@ -401,6 +402,14 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+			boolean useScope = modelLocationToRestore == null || restorableModel == null;
+			
+			// Support for scope usage in case of empty constructor arguments
+			if(useScope) {
+				modelLocationToRestore = (Location)scope.consume();
+				restorableModel = (RestorableModel)scope.consume();
+			}
+			
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			
 			Model modelBase = restorableModel.unwrapBase(propCtx, 0, collector);
@@ -411,8 +420,14 @@ public class CanvasModel extends Model {
 			
 			restorableModel.restoreChangesOnBase(modelBase, propCtx, 0, collector);
 			
+			if(useScope)
+				scope.produce(modelLocationToRestore);
+			
 			return new AddModelCommand.Output(modelLocationToRestore);
 		}
+		
+		// Why is forForwarding not implemented?
+		// What happens a RestoreModelCommand is forwarded in derive scenarios?
 	}
 	
 	public static class DestroyModelCommand implements ForwardableCommand<Model> {
