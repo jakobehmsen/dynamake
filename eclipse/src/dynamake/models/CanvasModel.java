@@ -289,6 +289,8 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public Command<Model> forForwarding(Object output) {
+			// TODO: Somehow, use scope to retrieve output
+			
 			// When a model is added to a canvas, map id to ForwardedId (if not only already ForwardedId)
 			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
 			AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
@@ -311,9 +313,10 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		public final Location modelLocation;
-		public final ModelFactory factory;
-		
+		public Location modelLocation;
+		public ModelFactory factory;
+
+		/*null of either argument indicate scope usage*/
 		public ForwardedAddModelCommand(Location modelLocation, ModelFactory factory) {
 			this.modelLocation = modelLocation;
 			this.factory = factory;
@@ -321,6 +324,14 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+			boolean useScope = modelLocation == null || factory == null;
+			
+			// Support for scope usage in case of empty constructor arguments
+			if(useScope) {
+				modelLocation = (Location)scope.consume();
+				factory = (ModelFactory)scope.consume();
+			}
+			
 			final CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
 			ModelCreation modelCreation = factory.create(rootPrevalentSystem, propCtx, 0, collector, location);
 			final Model model = modelCreation.createModel(rootPrevalentSystem, propCtx, 0, collector, location, scope);
@@ -331,11 +342,16 @@ public class CanvasModel extends Model {
 			
 			modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, collector, location);
 			
+			if(useScope)
+				scope.produce(addedModelLocation);
+			
 			return new AddModelCommand.Output(addedModelLocation);
 		}
 		
 		@Override
 		public Command<Model> forForwarding(Object output) {
+			// TODO: Somehow, use scope to retrieve output
+			
 			// When a model is added to a canvas, map id to ForwardedId (if not only already ForwardedId)
 			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
 			AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
