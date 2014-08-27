@@ -470,7 +470,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								
 								TransactionHandler<T> transactionHandler = transactionHandlerFactory.createTransactionHandler(reference);
 									
-								transactionHandler.startLogFor(currentFrame.handler, reference);
+								transactionHandler.startLogFor(currentFrame != null ? currentFrame.handler : null, reference);
 								
 								Location locationFromRoot = ((Model)reference).getLocator().locate();
 								
