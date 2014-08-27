@@ -453,7 +453,8 @@ public class CanvasModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		private Location locationOfModelToDestroy;
-		
+
+		/*null of either argument indicate scope usage*/
 		public DestroyModelCommand(Location locationOfModelToDestroy) {
 			this.locationOfModelToDestroy = locationOfModelToDestroy;
 		}
@@ -461,6 +462,13 @@ public class CanvasModel extends Model {
 		@SuppressWarnings("unchecked")
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+			boolean useScope = locationOfModelToDestroy == null;
+			
+			// Support for scope usage in case of empty constructor arguments
+			if(useScope) {
+				locationOfModelToDestroy = (Location)scope.consume();
+			}
+			
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
 			Model modelToDestroy = canvas.getModelByLocation(locationOfModelToDestroy);
 			System.out.println("***Destroying model " + modelToDestroy + " at " + locationOfModelToDestroy + " from " + canvas + "***");
@@ -468,12 +476,17 @@ public class CanvasModel extends Model {
 			collector.startTransaction(modelToDestroy, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
 			modelToDestroy.destroy(propCtx, 0, collector);
 			collector.commitTransaction();
+			
+			if(useScope)
+				scope.produce(locationOfModelToDestroy);
 
 			return new Output(locationOfModelToDestroy);
 		}
 		
 		@Override
 		public Command<Model> forForwarding(Object output) {
+			// TODO: Somehow, use scope to retrieve output
+			
 			DestroyModelCommand.Output destroyModelOutput = (DestroyModelCommand.Output)output;
 			
 			Location mappedLocation = destroyModelOutput.location.forForwarding();
