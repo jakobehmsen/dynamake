@@ -81,6 +81,8 @@ public class PlotTool implements Tool {
 //								new CanvasModel.RestoreModelCommand.AfterRemove()
 //							));
 							
+							
+							
 							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
 							
 							ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
