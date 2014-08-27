@@ -4,7 +4,6 @@ import dynamake.models.Location;
 import dynamake.models.PropogationContext;
 import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
-import dynamake.transcription.NullTransactionHandler;
 
 // PUR is shorthand for Pending, Undo, Redo
 public class PURCommand<T> implements Command<T> {
@@ -17,15 +16,15 @@ public class PURCommand<T> implements Command<T> {
 	public static final int STATE_REDO = 2;
 	
 	private int state;
-	private Command<T> pending;
-	private Command<T> undo;
-	private Command<T> redo;
+	private ReversibleCommand<T> pending;
+	private ReversibleCommand<T> undo;
+	private ReversibleCommand<T> redo;
 
-	public PURCommand(Command<T> pending, Command<T> undo, Command<T> redo) {
+	public PURCommand(ReversibleCommand<T> pending, ReversibleCommand<T> undo, ReversibleCommand<T> redo) {
 		this(STATE_PENDING, pending, undo, redo);
 	}
 
-	private PURCommand(int state, Command<T> pending, Command<T> undo, Command<T> redo) {
+	private PURCommand(int state, ReversibleCommand<T> pending, ReversibleCommand<T> undo, ReversibleCommand<T> redo) {
 		this.state = state;
 		this.pending = pending;
 		this.undo = undo;
@@ -41,13 +40,13 @@ public class PURCommand<T> implements Command<T> {
 		
 		switch(state) {
 		case STATE_PENDING:
-			pending.executeOn(propCtx, prevalentSystem, collector, location, scope);
+			collector.execute(pending);
 			break;
 		case STATE_UNDO:
-			undo.executeOn(propCtx, prevalentSystem, collector, location, scope);
+			collector.execute(undo);
 			break;
 		case STATE_REDO:
-			redo.executeOn(propCtx, prevalentSystem, collector, location, scope);
+			collector.execute(redo);
 			break;
 		}
 		

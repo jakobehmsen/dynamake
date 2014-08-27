@@ -4,17 +4,25 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
+import sun.awt.NullComponentPeer;
+
+import dynamake.commands.Command;
+import dynamake.commands.CommandSequence;
 import dynamake.commands.CommandState;
 import dynamake.commands.ConsumeCommand;
+import dynamake.commands.PURCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.ProduceCommand;
+import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RewrapCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.commands.WrapCommand;
+import dynamake.commands.Command.Null;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -83,21 +91,70 @@ public class PlotTool implements Tool {
 							
 							
 							
+//							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
+//							
+//							ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+//							
+//							pendingCommands.add(new PendingCommandState<Model>(
+//								new ProduceCommand<Model>(factory),
+//								new ConsumeCommand<Model>()
+//							));
+//							pendingCommands.add(new PendingCommandState<Model>(
+//								new CanvasModel.AddModelCommand(null),
+//								new CanvasModel.RemoveModelCommand(null),
+//								new CanvasModel.RestoreModelCommand(null, null)
+//							));
+//							
+//							PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+							
+							
+							// How to use ReversibleCommand here?
+							// Should there be some sort of composite command? That execute multiple ReversibleCommands?
+							
+
+							ArrayList<ReversibleCommand<Model>> pendingCommands = new ArrayList<ReversibleCommand<Model>>();
+							
 							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
 							
-							ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
-							
-							pendingCommands.add(new PendingCommandState<Model>(
-								new ProduceCommand<Model>(factory),
+							pendingCommands.add(new ReversibleCommand<Model>(
+								new ProduceCommand<Model>(factory), 
 								new ConsumeCommand<Model>()
 							));
-							pendingCommands.add(new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand(null),
-								new CanvasModel.RemoveModelCommand(null),
-								new CanvasModel.RestoreModelCommand(null, null)
+							
+							pendingCommands.add(new ReversibleCommand<Model>(
+								new PURCommand<Model>(
+									new ReversibleCommand<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null)),
+									new ReversibleCommand<Model>(
+										new CommandSequence<Model>(Arrays.asList(
+											new ReversibleCommand<Model>(new CanvasModel.DestroyModelCommand(null), null),
+											new ReversibleCommand<Model>(new CanvasModel.RemoveModelCommand(null), null)
+										)),
+										new CommandSequence<Model>(Arrays.asList(
+											new ReversibleCommand<Model>(new CanvasModel.RestoreModelCommand(null, null), null)
+										))
+									),
+									new ReversibleCommand<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null))
+								), 
+								new Command.Null<Model>()
 							));
 							
-							PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+							collector.execute(pendingCommands);
+							
+//							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
+//							
+//							ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+//							
+//							pendingCommands.add(new PendingCommandState<Model>(
+//								new ProduceCommand<Model>(factory),
+//								new ConsumeCommand<Model>()
+//							));
+//							pendingCommands.add(new PendingCommandState<Model>(
+//								new CanvasModel.AddModelCommand(null),
+//								new CanvasModel.RemoveModelCommand(null),
+//								new CanvasModel.RestoreModelCommand(null, null)
+//							));
+//							
+//							PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 						}
 					});
 				}
