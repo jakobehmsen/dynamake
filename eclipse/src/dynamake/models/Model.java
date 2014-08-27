@@ -10,7 +10,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
@@ -28,9 +27,7 @@ import dynamake.commands.PURCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
 import dynamake.commands.ReversibleCommand;
-import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.commands.SetPropertyCommand;
-import dynamake.commands.Command.Null;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.menubuilders.ColorMenuBuilder;
@@ -40,9 +37,6 @@ import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.DeriveFactory;
 import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.models.transcription.PostOnlyTransactionHandler;
-import dynamake.models.transcription.RedoTransactionHandlerFactory;
-import dynamake.models.transcription.UndoTransactionHandler;
-import dynamake.models.transcription.UndoTransactionHandlerFactory;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
@@ -1059,8 +1053,8 @@ public abstract class Model implements Serializable, Observer {
 //				origins.add(undoPart.origin.pending);
 //			}
 //		}
-//		
-//		PendingCommandFactory.Util.executeSequence(collector, origins);
+		
+		PendingCommandFactory.Util.executeSequence(collector, origins);
 	}
 	
 	public RestorableModel toRestorable(boolean includeLocalHistory) {

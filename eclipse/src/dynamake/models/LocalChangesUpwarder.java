@@ -8,7 +8,6 @@ import dynamake.commands.RedoCommand;
 import dynamake.commands.UndoCommand;
 import dynamake.models.LocalChangesForwarder.PushLocalChanges;
 import dynamake.transcription.Collector;
-import dynamake.transcription.Execution;
 
 public class LocalChangesUpwarder extends ObserverAdapter implements Serializable {
 	/**
@@ -40,6 +39,7 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 		// TODO: Consider:
 		// What about the changes made to the embedded models? This changes should somehow be maintained and using during unplay/replay in forwarder
 		if(change instanceof Model.HistoryAppendLogChange) {
+			@SuppressWarnings("unused")
 			Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
 			Model source = (Model)sourceLocation.getChild(sender);
 			

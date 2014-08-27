@@ -35,9 +35,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import dynamake.commands.Command;
-import dynamake.commands.CommandState;
 import dynamake.commands.ExecutionScope;
-import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReversibleCommand;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
@@ -46,7 +44,6 @@ import dynamake.tools.Tool;
 import dynamake.tools.ToolFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class LiveModel extends Model {

@@ -1,21 +1,15 @@
 package dynamake.models.transcription;
 
-import java.util.ArrayList;
-
-import dynamake.commands.CommandState;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.ReversibleCommand;
-import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
-import dynamake.models.Model.UndoRedoPart;
 import dynamake.transcription.Collector;
-import dynamake.transcription.Execution;
 import dynamake.transcription.TransactionHandler;
 
 public class RedoTransactionHandler implements TransactionHandler<Model> {
 	private Model.HistoryPart redoPart;
-	private ArrayList<Execution<Model>> newLog;
+//	private ArrayList<Execution<Model>> newLog;
 	
 	public RedoTransactionHandler(Model.HistoryPart undoPart) {
 		this.redoPart = undoPart;
@@ -26,7 +20,7 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 	@Override
 	public void startLogFor(TransactionHandler<Model> parentHandler, Model reference) {
 //		System.out.println(this +  ": startLogFor");
-		newLog = new ArrayList<Execution<Model>>();
+//		newLog = new ArrayList<Execution<Model>>();
 	}
 
 	@Override

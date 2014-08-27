@@ -9,11 +9,8 @@ import java.util.Arrays;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import sun.awt.NullComponentPeer;
-
 import dynamake.commands.Command;
 import dynamake.commands.CommandSequence;
-import dynamake.commands.CommandState;
 import dynamake.commands.ConsumeCommand;
 import dynamake.commands.PURCommand;
 import dynamake.commands.PendingCommandState;
@@ -22,7 +19,6 @@ import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RewrapCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.commands.WrapCommand;
-import dynamake.commands.Command.Null;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;

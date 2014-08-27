@@ -1,6 +1,5 @@
 package dynamake.models.transcription;
 
-import dynamake.commands.ExecutionScope;
 import dynamake.models.Model;
 import dynamake.transcription.TransactionHandler;
 import dynamake.transcription.TransactionHandlerFactory;

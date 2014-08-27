@@ -5,7 +5,6 @@ import java.io.Serializable;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
-import dynamake.models.transcription.UndoTransactionHandler;
 import dynamake.models.transcription.UndoTransactionHandlerFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.IsolatingCollector;

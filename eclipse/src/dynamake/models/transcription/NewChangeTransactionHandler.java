@@ -1,14 +1,9 @@
 package dynamake.models.transcription;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
-import dynamake.commands.CommandSequence;
-import dynamake.commands.CommandState;
 import dynamake.commands.ExecutionScope;
-import dynamake.commands.PURCommand;
 import dynamake.commands.ReversibleCommand;
-import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
