@@ -241,14 +241,22 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		public final ModelFactory factory;
+		public ModelFactory factory;
 		
+		/*null of either argument indicate scope usage*/
 		public AddModelCommand(ModelFactory factory) {
 			this.factory = factory;
 		}
 		
 		@Override
 		public Object executeOn(final PropogationContext propCtx, final Model rootPrevalentSystem, Collector<Model> collector, final Location location, ExecutionScope scope) {
+			boolean useScope = factory == null;
+			
+			// Support for scope usage in case of empty constructor arguments
+			if(useScope) {
+				factory = (ModelFactory)scope.consume();
+			}
+			
 			/*
 			TODO: Consider
 			Model creation and add could be changed as follows:
@@ -272,6 +280,9 @@ public class CanvasModel extends Model {
 					modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, collector, location);
 				}
 			});
+			
+			if(useScope)
+				scope.produce(addedModelLocation);
 			
 			return new Output(addedModelLocation);
 		}
