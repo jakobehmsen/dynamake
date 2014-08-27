@@ -8,7 +8,10 @@ import java.util.ArrayList;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
+import dynamake.commands.CommandState;
+import dynamake.commands.ConsumeCommand;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.ProduceCommand;
 import dynamake.commands.RewrapCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.commands.WrapCommand;
@@ -70,13 +73,29 @@ public class PlotTool implements Tool {
 					collector.execute(new Trigger<Model>() {
 						@Override
 						public void run(Collector<Model> collector) {
+//							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
+//							
+//							PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//								new CanvasModel.AddModelCommand(factory),
+//								new CanvasModel.RemoveModelCommand.AfterAdd(),
+//								new CanvasModel.RestoreModelCommand.AfterRemove()
+//							));
+							
 							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
 							
-							PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand(factory),
+							ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+							
+							pendingCommands.add(new PendingCommandState<Model>(
+								new ProduceCommand<Model>(factory),
+								new ConsumeCommand<Model>()
+							));
+							pendingCommands.add(new PendingCommandState<Model>(
+								new CanvasModel.AddModelCommand(null),
 								new CanvasModel.RemoveModelCommand.AfterAdd(),
 								new CanvasModel.RestoreModelCommand.AfterRemove()
 							));
+							
+							PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 						}
 					});
 				}
