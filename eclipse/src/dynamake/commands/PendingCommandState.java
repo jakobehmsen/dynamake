@@ -24,6 +24,13 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 		);
 	}
 
+	public PendingCommandState(final Command<T> initialForthCommand, final Command<T> backCommand, final Command<T> forthCommand) {
+		this(initialForthCommand, 
+			new ConstCommandFactory<T>(backCommand),
+			new ConstCommandFactory<T>(forthCommand)
+		);
+	}
+
 	public PendingCommandState(Command<T> command, CommandFactory<T> backFactory, CommandFactory<T> forthFactory) {
 		this.command = command;
 		this.forthFactory = forthFactory;
