@@ -378,6 +378,9 @@ public class CanvasModel extends Model {
 
 			@Override
 			public Command<Model> createCommand(Object output) {
+				if(output == null) // Scope usage is indicated
+					return new CanvasModel.RestoreModelCommand(null, null); // Indicate scope usage
+					
 				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
 				Location location = ((RemoveModelCommand.Output)output).location;
 				// TODO: Consider the following:
