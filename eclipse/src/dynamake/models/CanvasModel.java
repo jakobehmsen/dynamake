@@ -483,8 +483,10 @@ public class CanvasModel extends Model {
 			modelToDestroy.destroy(propCtx, 0, collector);
 			collector.commitTransaction();
 			
-			if(useScope)
+			if(useScope) {
 				scope.produce(locationOfModelToDestroy);
+				return null;
+			}
 
 			return new Output(locationOfModelToDestroy);
 		}
