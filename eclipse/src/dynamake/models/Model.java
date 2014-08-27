@@ -201,7 +201,7 @@ public abstract class Model implements Serializable, Observer {
 	public void appendLog(ArrayList<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println("Log");
 
-		redoStack.clear();
+		redoStack.clear(); // Should the clearing of the redo stack be moved to commitLog?
 
 		sendChanged(new HistoryAppendLogChange(pendingUndoablePairs), propCtx, propDistance, 0, collector);
 	}
