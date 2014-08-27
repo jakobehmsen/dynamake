@@ -4,28 +4,27 @@ import java.util.ArrayList;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.ExecutionScope;
+import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
-import dynamake.models.Model.UndoRedoPart;
 import dynamake.transcription.Collector;
-import dynamake.transcription.Execution;
 import dynamake.transcription.TransactionHandler;
 
 public class NewChangeTransactionHandler implements TransactionHandler<Model> {
 	private ExecutionScope scope;
-	private ArrayList<Execution<Model>> newLog;
+	private ArrayList<ReversibleCommand<Model>> newLog;
 
 	@Override
 	public void startLogFor(Model reference) {
 		scope = new ExecutionScope();
-		newLog = new ArrayList<Execution<Model>>();
+		newLog = new ArrayList<ReversibleCommand<Model>>();
 	}
 
 	@Override
-	public void logFor(Model reference, ArrayList<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		newLog.addAll(pendingUndoablePairs);
-		reference.appendLog(pendingUndoablePairs, propCtx, propDistance, collector);
+	public void logFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		newLog.add(command);
+//		reference.appendLog(pendingUndoablePairs, propCtx, propDistance, collector);
 	}
 
 	@Override
@@ -34,9 +33,9 @@ public class NewChangeTransactionHandler implements TransactionHandler<Model> {
 			@SuppressWarnings("unchecked")
 			CommandState<Model>[] compressedLogPartAsArray = (CommandState<Model>[])new CommandState[newLog.size()];
 
-			for(int i = 0; i < newLog.size(); i++) {
-				compressedLogPartAsArray[i] = new UndoRedoPart(newLog.get(i), newLog.get(i).undoable);
-			}
+//			for(int i = 0; i < newLog.size(); i++) {
+//				compressedLogPartAsArray[i] = new UndoRedoPart(newLog.get(i), newLog.get(i).undoable);
+//			}
 			
 			RevertingCommandStateSequence<Model> compressedLogPart = RevertingCommandStateSequence.reverse(compressedLogPartAsArray);
 			reference.commitLog(compressedLogPart);

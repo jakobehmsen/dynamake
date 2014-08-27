@@ -1,12 +1,10 @@
 package dynamake.models.transcription;
 
-import java.util.ArrayList;
-
 import dynamake.commands.ExecutionScope;
+import dynamake.commands.ReversibleCommand;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
-import dynamake.transcription.Execution;
 import dynamake.transcription.TransactionHandler;
 
 public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
@@ -18,8 +16,8 @@ public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 	}
 
 	@Override
-	public void logFor(Model reference, ArrayList<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		reference.postLog(pendingUndoablePairs, propCtx, propDistance, collector);
+	public void logFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+//		reference.postLog(pendingUndoablePairs, propCtx, propDistance, collector);
 	}
 
 	@Override

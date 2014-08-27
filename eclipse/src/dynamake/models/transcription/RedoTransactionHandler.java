@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import dynamake.commands.CommandState;
 import dynamake.commands.ExecutionScope;
+import dynamake.commands.ReversibleCommand;
 import dynamake.commands.RevertingCommandStateSequence;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -29,9 +30,9 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 	}
 
 	@Override
-	public void logFor(Model reference, ArrayList<Execution<Model>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void logFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println(this +  ": logFor");
-		newLog.addAll(pendingUndoablePairs);
+//		newLog.addAll(pendingUndoablePairs);
 	}
 
 	@Override

@@ -1,8 +1,8 @@
 package dynamake.transcription;
 
-import java.util.ArrayList;
 
 import dynamake.commands.ExecutionScope;
+import dynamake.commands.ReversibleCommand;
 import dynamake.models.PropogationContext;
 
 public class NullTransactionHandler<T> implements TransactionHandler<T> {
@@ -14,7 +14,7 @@ public class NullTransactionHandler<T> implements TransactionHandler<T> {
 	}
 
 	@Override
-	public void logFor(T reference, ArrayList<Execution<T>> pendingUndoablePairs, PropogationContext propCtx, int propDistance, Collector<T> collector) { }
+	public void logFor(T reference, ReversibleCommand<T> command, PropogationContext propCtx, int propDistance, Collector<T> collector) { }
 
 	@Override
 	public void commitLogFor(T reference) { }
