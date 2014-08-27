@@ -424,8 +424,10 @@ public class CanvasModel extends Model {
 			
 			restorableModel.restoreChangesOnBase(modelBase, propCtx, 0, collector);
 			
-			if(useScope)
+			if(useScope) {
 				scope.produce(modelLocationToRestore);
+				return null;
+			}
 			
 			return new AddModelCommand.Output(modelLocationToRestore);
 		}
