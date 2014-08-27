@@ -135,9 +135,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		T reference = (T)ctxTransaction.locationFromRootToReference.getChild(prevalentSystem);
 		
 		TransactionHandler<T> transactionHandler = ctxTransaction.transactionHandlerFactory.createTransactionHandler(reference);
-		ExecutionScope scope = transactionHandler.getScope();
-		
 		transactionHandler.startLogFor(reference);
+		ExecutionScope scope = transactionHandler.getScope();
 		
 		for(Object transactionFromRoot: ctxTransaction.transactionsFromRoot) {
 			if(transactionFromRoot instanceof SnapshottingTranscriber.Connection.LocationCommandsPair) {
