@@ -19,7 +19,11 @@ public class PURCommand<T> implements Command<T> {
 	private Command<T> undo;
 	private Command<T> redo;
 
-	public PURCommand(int state, Command<T> pending, Command<T> undo, Command<T> redo) {
+	public PURCommand(Command<T> pending, Command<T> undo, Command<T> redo) {
+		this(STATE_PENDING, pending, undo, redo);
+	}
+
+	private PURCommand(int state, Command<T> pending, Command<T> undo, Command<T> redo) {
 		this.state = state;
 		this.pending = pending;
 		this.undo = undo;
