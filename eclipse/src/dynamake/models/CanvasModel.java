@@ -344,8 +344,10 @@ public class CanvasModel extends Model {
 			
 			modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, collector, location);
 			
-			if(useScope)
+			if(useScope) {
 				scope.produce(addedModelLocation);
+				return null;
+			}
 			
 			return new AddModelCommand.Output(addedModelLocation);
 		}
