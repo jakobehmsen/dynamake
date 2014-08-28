@@ -76,16 +76,28 @@ public class PlotTool implements Tool {
 						public void run(Collector<Model> collector) {
 							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
 							
-							collector.execute(collector.createProduceCommand(factory));
-							
 							collector.execute(new TriStatePURCommand<Model>(
-								new ReversibleCommandPair<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null)),
+								new CommandSequence<Model>(Arrays.asList(
+									collector.createProduceCommand(factory),
+									new ReversibleCommandPair<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null))
+								)),
 								new CommandSequence<Model>(Arrays.asList(
 									new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
 									new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
 								)),
 								new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null))
 							));
+							
+//							collector.execute(collector.createProduceCommand(factory));
+//							
+//							collector.execute(new TriStatePURCommand<Model>(
+//								new ReversibleCommandPair<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null)),
+//								new CommandSequence<Model>(Arrays.asList(
+//									new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
+//									new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
+//								)),
+//								new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null))
+//							));
 						}
 					});
 				}
