@@ -12,7 +12,10 @@ public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 	
 	@Override
 	public void startLogFor(TransactionHandler<Model> parentHandler, Model reference) {
-		scope = parentHandler.getScope();
+		if(parentHandler != null)
+			scope = parentHandler.getScope();
+		else // In case, this transaction handler is the top handler
+			scope = new ExecutionScope();
 	}
 
 	@Override
