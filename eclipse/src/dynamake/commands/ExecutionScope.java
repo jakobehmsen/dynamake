@@ -18,4 +18,12 @@ public class ExecutionScope implements Serializable {
 	public Object consume() {
 		return production.pollFirst();
 	}
+
+	public void unproduce() {
+		production.removeLast();
+	}
+
+	public void unconsume(Object value) {
+		production.addFirst(value);
+	}
 }
