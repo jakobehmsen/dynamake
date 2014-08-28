@@ -1,5 +1,9 @@
 package dynamake.transcription;
 
+import dynamake.commands.Command;
+import dynamake.commands.ReversibleCommandPair;
+import dynamake.commands.Command.Null;
+
 public class IsolatingCollector<T> implements Collector<T> {
 	private Collector<T> collector;
 
@@ -13,13 +17,15 @@ public class IsolatingCollector<T> implements Collector<T> {
 	}
 	
 	@Override
-	public void produce(Object value) {
+	public Object createProduceCommand(Object value) {
 		// Do nothing which means side effects aren't collected
+		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 	
 	@Override
-	public void consume() {
+	public Object createConsumeCommand() {
 		// Do nothing which means side effects aren't collected
+		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 
 	@Override

@@ -140,8 +140,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		ExecutionScope scope = transactionHandler.getScope();
 		
 		for(Object transactionFromRoot: ctxTransaction.transactionsFromRoot) {
-			if(transactionFromRoot instanceof SnapshottingTranscriber.Connection.LocationCommandsPair) {
-				SnapshottingTranscriber.Connection.LocationCommandsPair<T> entry = (SnapshottingTranscriber.Connection.LocationCommandsPair<T>)transactionFromRoot;
+			if(transactionFromRoot instanceof ReversibleCommand) {
+				ReversibleCommand<T> entry = (ReversibleCommand<T>)transactionFromRoot;
 				
 //				ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
 //				for(CommandState<T> transaction: entry.pending) {
@@ -151,9 +151,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 //				
 //				transactionHandler.logFor((T)reference, command, propCtx, 0, isolatedCollector);
 				
-				entry.pending.forth.executeOn(propCtx, reference, isolatedCollector, locationFromReference, scope);
+				entry.executeForward(propCtx, reference, isolatedCollector, locationFromReference, scope);
 				
-				transactionHandler.logFor((T)reference, entry.pending, propCtx, 0, isolatedCollector);
+				transactionHandler.logFor((T)reference, entry, propCtx, 0, isolatedCollector);
 			} else if(transactionFromRoot instanceof ContextualCommand) {
 				replay(transactionHandler, (ContextualCommand<T>)transactionFromRoot, prevalentSystem, propCtx, isolatedCollector);
 			}
@@ -349,7 +349,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			// This is needed in order to keep the order of the flushed commands/transaction correct
 			// - and this is important during replay and reject
 			public ArrayList<Object> flushedTransactionsFromRoot = new ArrayList<Object>(); // List of either atomic commands or transactions
-			public ArrayList<Object> flushedUndoableTransactionsFromReferences = new ArrayList<Object>();  // List of either atomic commands or transactions
+//			public ArrayList<Object> flushedUndoableTransactionsFromReferences = new ArrayList<Object>();  // List of either atomic commands or transactions
 			
 			public TransactionFrame(TransactionFrame<T> parent, T reference, Location locationFromRootToReference, TransactionHandlerFactory<T> transactionHandlerFactory, TransactionHandler<T> handler) {
 				this.parent = parent;
@@ -360,30 +360,75 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			}
 		}
 		
-		public static class LocationCommandsPair<T> implements Serializable {
+//		public static class LocationCommandsPair<T> implements Serializable {
+//			/**
+//			 * 
+//			 */
+//			private static final long serialVersionUID = 1L;
+//			public final Location location;
+//			public final ReversibleCommand<T> pending;
+//			public final TransactionHandlerFactory<T> transactionHandlerFactory;
+//			
+//			public LocationCommandsPair(Location location, ReversibleCommand<T> pending, TransactionHandlerFactory<T> transactionHandlerFactory) {
+//				this.location = location;
+//				this.pending = pending;
+//				this.transactionHandlerFactory = transactionHandlerFactory;
+//			}
+//		}
+		
+//		private static class UndoableCommandFromReference<T> {
+//			@SuppressWarnings("unused")
+//			public final T reference;
+//			public final ArrayList<CommandState<T>> undoables;
+//			
+//			public UndoableCommandFromReference(T reference, ArrayList<CommandState<T>> undoables) {
+//				this.reference = reference;
+//				this.undoables = undoables;
+//			}
+//		}
+		
+		private static class ReversibleInstructionPair<T> implements ReversibleCommand<T> {
 			/**
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
-			public final Location location;
-			public final ReversibleCommand<T> pending;
-			public final TransactionHandlerFactory<T> transactionHandlerFactory;
-			
-			public LocationCommandsPair(Location location, ReversibleCommand<T> pending, TransactionHandlerFactory<T> transactionHandlerFactory) {
-				this.location = location;
-				this.pending = pending;
-				this.transactionHandlerFactory = transactionHandlerFactory;
+			private final Instruction instruction;
+			private final Object operand1;
+
+			public ReversibleInstructionPair(Instruction instruction) {
+				this.instruction = instruction;
+				this.operand1 = null;
 			}
-		}
-		
-		private static class UndoableCommandFromReference<T> {
-			@SuppressWarnings("unused")
-			public final T reference;
-			public final ArrayList<CommandState<T>> undoables;
-			
-			public UndoableCommandFromReference(T reference, ArrayList<CommandState<T>> undoables) {
-				this.reference = reference;
-				this.undoables = undoables;
+
+			public ReversibleInstructionPair(Instruction instruction, Object operand1) {
+				this.instruction = instruction;
+				this.operand1 = operand1;
+			}
+
+			@Override
+			public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+				switch(instruction.type) {
+				case Instruction.OPCODE_PRODUCE:
+					Object valueToProduce = instruction.operand1;
+					scope.produce(valueToProduce);
+					break;
+				case Instruction.OPCODE_CONSUME:
+					scope.consume();
+					break;
+				}
+			}
+
+			@Override
+			public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+				switch(instruction.type) {
+				case Instruction.OPCODE_PRODUCE:
+					scope.unproduce();
+					break;
+				case Instruction.OPCODE_CONSUME:
+					Object consumedValue = operand1;
+					scope.unconsume(consumedValue);
+					break;
+				}
 			}
 		}
 
@@ -416,13 +461,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							}
 							
 							@Override
-							public void produce(Object value) {
-								collectedCommands.add(new Instruction(Instruction.OPCODE_PRODUCE, value));
+							public Object createProduceCommand(Object value) {
+								return new Instruction(Instruction.OPCODE_PRODUCE, value);
 							}
 							
 							@Override
-							public void consume() {
-								collectedCommands.add(new Instruction(Instruction.OPCODE_CONSUME));
+							public Object createConsumeCommand() {
+								return new Instruction(Instruction.OPCODE_CONSUME);
 							}
 							
 							@Override
@@ -504,10 +549,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								((PendingCommandFactory<T>)instruction.operand1).afterPropogationFinished(execution, propCtx, 0, collector);
 								break;
 							case Instruction.OPCODE_PRODUCE:
-								Object valueToProduce = instruction.operand1;
+								logExecution(new ReversibleInstructionPair<T>(instruction, new Instruction(Instruction.OPCODE_CONSUME)), propCtx, collector);
 								break;
 							case Instruction.OPCODE_CONSUME:
 								Object consumedValue = currentFrame.handler.getScope().consume();
+								logExecution(new ReversibleInstructionPair<T>(instruction, new Instruction(Instruction.OPCODE_PRODUCE, consumedValue)), propCtx, collector);
 								break;
 							}
 						} else if(command instanceof PendingCommandFactory) {
@@ -535,7 +581,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, collector, locationFromReference, scope);
 							undoables.add(undoableCommand);
 
-							frame.flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
+//							frame.flushedUndoableTransactionsFromReferences.add(new UndoableCommandFromReference<T>(reference, undoables));
 							
 							ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
 
@@ -552,21 +598,23 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							propogationStack.push(pendingUndoablePairs);
 
 						} else if(command instanceof ReversibleCommand) {
-							TransactionFrame<T> frame = currentFrame;
-							
 							ReversibleCommand<T> rCommand = (ReversibleCommand<T>)command;
-
-							T reference = frame.reference;
+							
 							Location locationFromReference = new ModelRootLocation();
-							TransactionHandler<T> transactionHandler = frame.handler;
-							ExecutionScope scope = transactionHandler.getScope();
+							ExecutionScope scope = currentFrame.handler.getScope();
 							
-							rCommand.forth.executeOn(propCtx, reference, collector, locationFromReference, scope);
+							rCommand.executeForward(propCtx, currentFrame.reference, collector, locationFromReference, scope);
 							
-							transactionHandler.logFor(reference, rCommand, propCtx, 0, collector);
-							
-							frame.flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(null, rCommand, null));
-							
+							logExecution(rCommand, propCtx, collector);
+
+//							Location locationFromReference = new ModelRootLocation();
+//							ExecutionScope scope = currentFrame.handler.getScope();
+//							
+//							rCommand.executeForward(propCtx, currentFrame.reference, collector, locationFromReference, scope);
+//							
+//							currentFrame.handler.logFor(currentFrame.reference, rCommand, propCtx, 0, collector);
+//							
+//							currentFrame.flushedTransactionsFromRoot.add(rCommand);
 						} else if(command instanceof Trigger) {
 							// TODO: Consider: Should it be possible to hint which model to base the trigger on?
 							((Trigger<T>)command).run(collector);
@@ -584,6 +632,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 //					System.out.println("Finished trigger");
 				}
 			});
+		}
+		
+		private void logExecution(ReversibleCommand<T> rCommand, PropogationContext propCtx, Collector<T> collector) {
+			currentFrame.handler.logFor(currentFrame.reference, rCommand, propCtx, 0, collector);
+			
+			currentFrame.flushedTransactionsFromRoot.add(rCommand);
 		}
 		
 		private void doCommit() {
@@ -607,7 +661,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					}
 				} else {
 					currentFrame.parent.flushedTransactionsFromRoot.add(currentFrame);
-					currentFrame.parent.flushedUndoableTransactionsFromReferences.add(currentFrame);
+//					currentFrame.parent.flushedUndoableTransactionsFromReferences.add(currentFrame);
 				}
 			}
 			
@@ -617,8 +671,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		@SuppressWarnings("unchecked")
 		private void buildTransactionToPersist(ArrayList<Object> transactionsFromRoot, TransactionFrame<T> frame) {
 			for(Object committedExecution: frame.flushedTransactionsFromRoot) {
-				if(committedExecution instanceof LocationCommandsPair) {
-					transactionsFromRoot.add((LocationCommandsPair<T>)committedExecution);
+				if(committedExecution instanceof ReversibleCommand) {
+					transactionsFromRoot.add(committedExecution);
 				} else if(committedExecution instanceof TransactionFrame) {
 					TransactionFrame<T> innerFrame = (TransactionFrame<T>)committedExecution;
 					ArrayList<Object> innerTransactionsFromRoot = new ArrayList<Object>();
@@ -659,18 +713,19 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		
 		private static <T> void rejectTransaction(PropogationContext propCtx, Collector<T> isolatedCollector, TransactionFrame<T> frame) {
 			ExecutionScope scope = frame.handler.getScope();
-			for(int i = frame.flushedUndoableTransactionsFromReferences.size() - 1; i >= 0; i--) {
-				Object committedExecution = frame.flushedUndoableTransactionsFromReferences.get(i);
+			for(int i = frame.flushedTransactionsFromRoot.size() - 1; i >= 0; i--) {
+				Object committedExecution = frame.flushedTransactionsFromRoot.get(i);
 				
-				if(committedExecution instanceof UndoableCommandFromReference) {
+				if(committedExecution instanceof ReversibleCommand) {
 					@SuppressWarnings("unchecked")
-					UndoableCommandFromReference<T> undoableTransaction = (UndoableCommandFromReference<T>)committedExecution;
+					ReversibleCommand<T> undoableTransaction = (ReversibleCommand<T>)committedExecution;
 					
 					Location locationFromReference = new ModelRootLocation();
-					for(CommandState<T> undoable: undoableTransaction.undoables) {
-						@SuppressWarnings("unused")
-						CommandState<T> redoable = undoable.executeOn(propCtx, frame.reference, isolatedCollector, locationFromReference, scope);
-					}
+					undoableTransaction.executeBackward(propCtx, frame.reference, isolatedCollector, locationFromReference, scope);
+//					for(CommandState<T> undoable: undoableTransaction.undoables) {
+//						@SuppressWarnings("unused")
+//						CommandState<T> redoable = undoable.executeOn(propCtx, frame.reference, isolatedCollector, locationFromReference, scope);
+//					}
 				} else if(committedExecution instanceof TransactionFrame) {
 					@SuppressWarnings("unchecked")
 					TransactionFrame<T> innerFrame = (TransactionFrame<T>)committedExecution;

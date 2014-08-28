@@ -1,14 +1,21 @@
 package dynamake.transcription;
 
+import dynamake.commands.Command;
+import dynamake.commands.ReversibleCommandPair;
+
 public class NullCollector<T> implements Collector<T> {
 	@Override
 	public void startTransaction(T reference, Object transactionHandlerClass) { }
 	
 	@Override
-	public void produce(Object value) { }
+	public Object createProduceCommand(Object value) {
+		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
+	}
 	
 	@Override
-	public void consume() { }
+	public Object createConsumeCommand() {
+		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
+	}
 	
 	@Override
 	public void execute(Object command) { }
