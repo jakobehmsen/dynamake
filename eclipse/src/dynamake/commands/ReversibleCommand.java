@@ -2,17 +2,11 @@ package dynamake.commands;
 
 import java.io.Serializable;
 
-public class ReversibleCommand<T> implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+import dynamake.models.Location;
+import dynamake.models.PropogationContext;
+import dynamake.transcription.Collector;
 
-	public final Command<T> forth;
-	public final Command<T> back;
-	
-	public ReversibleCommand(Command<T> forth, Command<T> back) {
-		this.forth = forth;
-		this.back = back;
-	}
+public interface ReversibleCommand<T> extends Serializable {
+	void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope);
+	void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope);
 }
