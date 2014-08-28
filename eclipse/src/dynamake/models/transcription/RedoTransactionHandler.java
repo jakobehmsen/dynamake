@@ -47,7 +47,7 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 ////		System.out.println(this +  ": commitLogFor");
 //		reference.commitRedo(compressedLogPart);
 		
-		reference.commitRedo(redoPart);
+		reference.commitRedo();
 	}
 
 	@Override

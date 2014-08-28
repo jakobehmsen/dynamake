@@ -323,16 +323,18 @@ public abstract class Model implements Serializable, Observer {
 //		
 //		return toUndo;
 		
-		HistoryPart toUndo = undoStack.pop();
+		HistoryPart toUndo = undoStack.peek();
 		
 		toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
 		
 		return toUndo;
 	}
 
-	public void commitUndo(HistoryPart undoable) { //CommandState<Model> redoable) {
+	public void commitUndo() { //CommandState<Model> redoable) {
 //		redoStack.push(redoable);
-		redoStack.push(undoable.forRedo());
+
+		HistoryPart undone = undoStack.pop();
+		redoStack.push(undone.forRedo());
 	}
 	
 	public HistoryPart redo(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
@@ -341,16 +343,17 @@ public abstract class Model implements Serializable, Observer {
 //		
 //		return toRedo;
 		
-		HistoryPart toRedo = redoStack.pop();
+		HistoryPart toRedo = redoStack.peek();
 		
 		toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
 		
 		return toRedo;
 	}
 
-	public void commitRedo(HistoryPart redoable) {
+	public void commitRedo() {
 //		undoStack.push(undoable);
-		undoStack.push(redoable.forUndo());
+		HistoryPart redone = redoStack.pop();
+		undoStack.push(redone.forUndo());
 	}
 
 	public List<CommandState<Model>> playThenReverse(List<CommandState<Model>> toPlay, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {

@@ -47,7 +47,7 @@ public class UndoTransactionHandler implements TransactionHandler<Model> {
 ////		System.out.println(this +  ": commitLogFor");
 //		reference.commitUndo(compressedLogPart);
 		
-		reference.commitUndo(undoPart);
+		reference.commitUndo();
 	}
 
 	@Override
