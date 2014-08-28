@@ -6,6 +6,8 @@ import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
 
 // PUR is shorthand for Pending, Undo, Redo
+// Should each tri state pur command have its own scope command associated to it?
+// - and then supply this scope to respective executions of its pending-, undo-, and redo command? 
 public class TriStatePURCommand<T> implements PURCommand<T> {
 	/**
 	 * 
