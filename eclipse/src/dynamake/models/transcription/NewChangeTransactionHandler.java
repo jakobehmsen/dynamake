@@ -3,6 +3,8 @@ package dynamake.models.transcription;
 import java.util.ArrayList;
 
 import dynamake.commands.ExecutionScope;
+import dynamake.commands.ForthPURCommand;
+import dynamake.commands.PURCommand;
 import dynamake.commands.ReversibleCommand;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
@@ -48,7 +50,17 @@ public class NewChangeTransactionHandler implements TransactionHandler<Model> {
 //			}
 //			Collections.reverse(undoables);
 //			CommandSequence<Model> compressedLogPart = new CommandSequence<Model>(undoables);
-			reference.commitLog(scope, newLog);
+			
+			ArrayList<PURCommand<Model>> newPurs = new ArrayList<PURCommand<Model>>();
+			for(ReversibleCommand<Model> rc: newLog) {
+				PURCommand<Model> pur;
+				if(rc instanceof PURCommand)
+					pur = (PURCommand<Model>)rc;
+				else
+					pur = new ForthPURCommand<Model>(rc);
+				newPurs.add(pur);
+			}
+			reference.commitLog(scope, newPurs);
 		}
 	}
 
