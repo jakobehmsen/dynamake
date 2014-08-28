@@ -296,6 +296,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	private static class Instruction implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		public static final int OPCODE_START = 0;
 		public static final int OPCODE_COMMIT = 1;
 		public static final int OPCODE_REJECT = 2;
