@@ -241,15 +241,17 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		public ModelFactory factory;
+//		public ModelFactory factory;
 		
 		/*null of either argument indicate scope usage*/
 		public AddModelCommand(ModelFactory factory) {
-			this.factory = factory;
+//			this.factory = factory;
 		}
 		
 		@Override
 		public Object executeOn(final PropogationContext propCtx, final Model rootPrevalentSystem, Collector<Model> collector, final Location location, ExecutionScope scope) {
+			ModelFactory factory = null;
+			
 			boolean useScope = factory == null;
 			
 			// Support for scope usage in case of empty constructor arguments
@@ -292,13 +294,15 @@ public class CanvasModel extends Model {
 		@Override
 		public Command<Model> forForwarding(Object output) {
 			// TODO: Somehow, use scope to retrieve output
+			ModelFactory factory = null;
 			
 			// When a model is added to a canvas, map id to ForwardedId (if not only already ForwardedId)
 			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
 			AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
 			
 			Location forwardedLocation = addModelOutput.location.forForwarding();
-			ModelFactory newFactory = this.factory.forForwarding();
+			@SuppressWarnings("null")
+			ModelFactory newFactory = factory.forForwarding();
 			CanvasModel.ForwardedAddModelCommand newAddCommand = new CanvasModel.ForwardedAddModelCommand(forwardedLocation, newFactory);
 
 			return newAddCommand;
@@ -306,7 +310,7 @@ public class CanvasModel extends Model {
 		
 		@Override
 		public String toString() {
-			return "Add " + factory;
+			return "Add ";// + factory;
 		}
 	}
 	
