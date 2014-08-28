@@ -4,7 +4,6 @@ import java.awt.Point;
 
 import javax.swing.JComponent;
 
-import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.UndoCommand;
@@ -14,8 +13,6 @@ import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.SimplePendingCommandFactory;
-import dynamake.transcription.Trigger;
 
 public class UndoTool implements Tool {
 	@Override
@@ -28,20 +25,6 @@ public class UndoTool implements Tool {
 		));
 		
 		collector.commitTransaction();
-		
-//		collector.execute(new Trigger<Model>() {
-//			@Override
-//			public void run(Collector<Model> collector) {
-//				if(modelOver.getModelBehind().canUndo()) {
-//					collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
-//						new UndoCommand(false),
-//						new RedoCommand(false)
-//					)));
-//					
-//					collector.commitTransaction();
-//				}
-//			}
-//		});
 	}
 
 	@Override
