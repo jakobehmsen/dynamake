@@ -6,6 +6,7 @@ import javax.swing.JComponent;
 
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RedoCommand;
+import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.UndoCommand;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -20,19 +21,27 @@ public class UndoTool implements Tool {
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, final ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		collector.startTransaction(modelOver.getModelBehind(), PostOnlyTransactionHandler.class);
-		collector.execute(new Trigger<Model>() {
-			@Override
-			public void run(Collector<Model> collector) {
-				if(modelOver.getModelBehind().canUndo()) {
-					collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
-						new UndoCommand(false),
-						new RedoCommand(false)
-					)));
-					
-					collector.commitTransaction();
-				}
-			}
-		});
+		
+		collector.execute(new ReversibleCommandPair<Model>(
+			new UndoCommand(false), 
+			new RedoCommand(false)
+		));
+		
+		collector.commitTransaction();
+		
+//		collector.execute(new Trigger<Model>() {
+//			@Override
+//			public void run(Collector<Model> collector) {
+//				if(modelOver.getModelBehind().canUndo()) {
+//					collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
+//						new UndoCommand(false),
+//						new RedoCommand(false)
+//					)));
+//					
+//					collector.commitTransaction();
+//				}
+//			}
+//		});
 	}
 
 	@Override
