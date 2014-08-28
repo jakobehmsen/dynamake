@@ -11,7 +11,6 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.CommandSequence;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.ReversibleCommand;
 import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.RewrapCommand;
 import dynamake.commands.TriStatePURCommand;

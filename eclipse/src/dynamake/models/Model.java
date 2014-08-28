@@ -18,7 +18,6 @@ import java.util.Stack;
 import javax.swing.JComponent;
 
 import dynamake.commands.AddObserverCommand;
-import dynamake.commands.Command;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.ExecutionScope;
@@ -27,7 +26,6 @@ import dynamake.commands.PURCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
 import dynamake.commands.ReversibleCommand;
-import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;

@@ -2,7 +2,6 @@ package dynamake.transcription;
 
 import dynamake.commands.Command;
 import dynamake.commands.ReversibleCommandPair;
-import dynamake.commands.Command.Null;
 
 public class IsolatingCollector<T> implements Collector<T> {
 	private Collector<T> collector;
