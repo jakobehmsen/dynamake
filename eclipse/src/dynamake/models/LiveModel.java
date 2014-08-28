@@ -44,6 +44,7 @@ import dynamake.tools.Tool;
 import dynamake.tools.ToolFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
+import dynamake.transcription.NullTransactionHandler;
 import dynamake.transcription.Trigger;
 
 public class LiveModel extends Model {
@@ -449,51 +450,9 @@ public class LiveModel extends Model {
 				connection.trigger(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						collector.startTransaction(ToolButton.this.livePanel.model, NewChangeTransactionHandler.class);
-						
-//						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
-//						
-//						List<InputButton> currentButtons = ToolButton.this.buttons;
-//						
-//						if(localButtonsPressed.equals(currentButtons)) {
-//							// If the indicated combination is the same as the current combination, then remove
-//							// the current binding
-//							pendingCommands.add(new PendingCommandState<Model>(
-//								new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool),
-//								new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool)
-//							));
-//						} else {
-//							int previousToolForNewButton = ToolButton.this.livePanel.model.getToolForButtons(localButtonsPressed);
-//							
-//							if(previousToolForNewButton != -1) {
-//								// If the new buttons are associated to another tool, then remove that binding
-//								pendingCommands.add(new PendingCommandState<Model>(
-//									new RemoveButtonsToToolBindingCommand2(localButtonsPressed, previousToolForNewButton), 
-//									new BindButtonsToToolCommand(localButtonsPressed, previousToolForNewButton))
-//								);
-//							}
-//							
-//							if(currentButtons.size() > 0) {
-//								// If this tool is associated to buttons, then remove that binding before
-//								pendingCommands.add(new PendingCommandState<Model>(
-//									new RemoveButtonsToToolBindingCommand2(currentButtons, ToolButton.this.tool), 
-//									new BindButtonsToToolCommand(currentButtons, ToolButton.this.tool))
-//								);
-//								
-//								// adding the replacement binding
-//								pendingCommands.add(new PendingCommandState<Model>(
-//									new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
-//									new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool))
-//								);
-//							} else {
-//								pendingCommands.add(new PendingCommandState<Model>(
-//									new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
-//									new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool)
-//								));
-//							}
-//						}
-//						
-//						PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+						// To use NewChangeTransactionHandler, then PURCommand's must be used
+//						collector.startTransaction(ToolButton.this.livePanel.model, NewChangeTransactionHandler.class);
+						collector.startTransaction(ToolButton.this.livePanel.model, NullTransactionHandler.class);
 						
 						ArrayList<ReversibleCommand<Model>> pendingCommands = new ArrayList<ReversibleCommand<Model>>();
 						
@@ -538,8 +497,6 @@ public class LiveModel extends Model {
 						}
 						
 						collector.execute(pendingCommands);
-						
-//						PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 						
 						collector.commitTransaction();
 					}
