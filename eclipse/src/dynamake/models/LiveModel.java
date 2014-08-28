@@ -37,6 +37,7 @@ import javax.swing.border.Border;
 import dynamake.commands.Command;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.ReversibleCommand;
+import dynamake.commands.ReversibleCommandPair;
 import dynamake.delegates.Action1;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.transcription.NewChangeTransactionHandler;
@@ -451,8 +452,8 @@ public class LiveModel extends Model {
 					@Override
 					public void run(Collector<Model> collector) {
 						// To use NewChangeTransactionHandler, then PURCommand's must be used
-//						collector.startTransaction(ToolButton.this.livePanel.model, NewChangeTransactionHandler.class);
-						collector.startTransaction(ToolButton.this.livePanel.model, NullTransactionHandler.class);
+						collector.startTransaction(ToolButton.this.livePanel.model, NewChangeTransactionHandler.class);
+//						collector.startTransaction(ToolButton.this.livePanel.model, NullTransactionHandler.class);
 						
 						ArrayList<ReversibleCommand<Model>> pendingCommands = new ArrayList<ReversibleCommand<Model>>();
 						
@@ -461,7 +462,7 @@ public class LiveModel extends Model {
 						if(localButtonsPressed.equals(currentButtons)) {
 							// If the indicated combination is the same as the current combination, then remove
 							// the current binding
-							pendingCommands.add(new ReversibleCommand<Model>(
+							pendingCommands.add(new ReversibleCommandPair<Model>(
 								new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool),
 								new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool)
 							));
@@ -470,7 +471,7 @@ public class LiveModel extends Model {
 							
 							if(previousToolForNewButton != -1) {
 								// If the new buttons are associated to another tool, then remove that binding
-								pendingCommands.add(new ReversibleCommand<Model>(
+								pendingCommands.add(new ReversibleCommandPair<Model>(
 									new RemoveButtonsToToolBindingCommand2(localButtonsPressed, previousToolForNewButton), 
 									new BindButtonsToToolCommand(localButtonsPressed, previousToolForNewButton))
 								);
@@ -478,18 +479,18 @@ public class LiveModel extends Model {
 							
 							if(currentButtons.size() > 0) {
 								// If this tool is associated to buttons, then remove that binding before
-								pendingCommands.add(new ReversibleCommand<Model>(
+								pendingCommands.add(new ReversibleCommandPair<Model>(
 									new RemoveButtonsToToolBindingCommand2(currentButtons, ToolButton.this.tool), 
 									new BindButtonsToToolCommand(currentButtons, ToolButton.this.tool))
 								);
 								
 								// adding the replacement binding
-								pendingCommands.add(new ReversibleCommand<Model>(
+								pendingCommands.add(new ReversibleCommandPair<Model>(
 									new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
 									new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool))
 								);
 							} else {
-								pendingCommands.add(new ReversibleCommand<Model>(
+								pendingCommands.add(new ReversibleCommandPair<Model>(
 									new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
 									new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool)
 								));
