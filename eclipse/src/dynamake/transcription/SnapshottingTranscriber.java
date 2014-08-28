@@ -399,11 +399,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			private final Instruction instruction;
 			private final Object operand1;
 
-			public ReversibleInstructionPair(Instruction instruction) {
-				this.instruction = instruction;
-				this.operand1 = null;
-			}
-
 			public ReversibleInstructionPair(Instruction instruction, Object operand1) {
 				this.instruction = instruction;
 				this.operand1 = operand1;
@@ -559,7 +554,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								break;
 							case Instruction.OPCODE_CONSUME:
 								Object consumedValue = currentFrame.handler.getScope().consume();
-								logExecution(new ReversibleInstructionPair<T>(instruction, new Instruction(Instruction.OPCODE_PRODUCE, consumedValue)), propCtx, collector);
+								logExecution(new ReversibleInstructionPair<T>(instruction, consumedValue), propCtx, collector);
 								break;
 							}
 						} else if(command instanceof PendingCommandFactory) {
