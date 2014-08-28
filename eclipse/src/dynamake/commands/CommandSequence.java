@@ -6,21 +6,24 @@ import dynamake.models.Location;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
-public class CommandSequence<T> implements Command<T> {
+public class CommandSequence<T> implements ReversibleCommand<T> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private List<ReversibleCommand<T>> commands;
+	private List<? extends Object> commands;
 
-	public CommandSequence(List<ReversibleCommand<T>> commands) {
+	public CommandSequence(List<? extends Object> commands) {
 		this.commands = commands;
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+	public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
 		collector.execute(commands);
-		
-		return null;
+	}
+
+	@Override
+	public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+		// Each of the executed commands is assumed to know how reverse itself
 	}
 }
