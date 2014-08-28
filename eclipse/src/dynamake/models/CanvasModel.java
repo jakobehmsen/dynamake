@@ -402,17 +402,20 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private Location modelLocationToRestore;
-		private RestorableModel restorableModel;
+//		private Location modelLocationToRestore;
+//		private RestorableModel restorableModel;
 
 		/*null of either argument indicate scope usage*/
 		public RestoreModelCommand(Location modelLocationToRestore, RestorableModel restorableModel) {
-			this.modelLocationToRestore = modelLocationToRestore;
-			this.restorableModel = restorableModel;
+//			this.modelLocationToRestore = modelLocationToRestore;
+//			this.restorableModel = restorableModel;
 		}
 		
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+			Location modelLocationToRestore = null;
+			RestorableModel restorableModel = null;
+			
 			boolean useScope = modelLocationToRestore == null || restorableModel == null;
 			
 			// Support for scope usage in case of empty constructor arguments
@@ -465,16 +468,17 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private Location locationOfModelToDestroy;
+//		private Location locationOfModelToDestroy;
 
 		/*null of either argument indicate scope usage*/
 		public DestroyModelCommand(Location locationOfModelToDestroy) {
-			this.locationOfModelToDestroy = locationOfModelToDestroy;
+//			this.locationOfModelToDestroy = locationOfModelToDestroy;
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+			Location locationOfModelToDestroy = null;
 			boolean useScope = locationOfModelToDestroy == null;
 			
 			// Support for scope usage in case of empty constructor arguments
@@ -551,15 +555,16 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private Location locationOfModelToRemove;
+//		private Location locationOfModelToRemove;
 
 		/*null of either argument indicate scope usage*/
 		public RemoveModelCommand(Location locationOfModelToRemove) {
-			this.locationOfModelToRemove = locationOfModelToRemove;
+//			this.locationOfModelToRemove = locationOfModelToRemove;
 		}
 		
 		@Override
 		public Object executeOn(final PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+			Location locationOfModelToRemove = null;
 			boolean useScope = locationOfModelToRemove == null;
 			
 			// Support for scope usage in case of empty constructor arguments
@@ -577,6 +582,7 @@ public class CanvasModel extends Model {
 			
 			if(useScope) {
 				scope.produce(locationOfModelToRemove);
+				scope.produce(restorableModel);
 				return null;
 			}
 			
