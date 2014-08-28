@@ -455,14 +455,12 @@ public class LiveModel extends Model {
 						collector.startTransaction(ToolButton.this.livePanel.model, NewChangeTransactionHandler.class);
 //						collector.startTransaction(ToolButton.this.livePanel.model, NullTransactionHandler.class);
 						
-						ArrayList<ReversibleCommand<Model>> pendingCommands = new ArrayList<ReversibleCommand<Model>>();
-						
 						List<InputButton> currentButtons = ToolButton.this.buttons;
 						
 						if(localButtonsPressed.equals(currentButtons)) {
 							// If the indicated combination is the same as the current combination, then remove
 							// the current binding
-							pendingCommands.add(new ReversibleCommandPair<Model>(
+							collector.execute(new ReversibleCommandPair<Model>(
 								new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool),
 								new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool)
 							));
@@ -471,7 +469,7 @@ public class LiveModel extends Model {
 							
 							if(previousToolForNewButton != -1) {
 								// If the new buttons are associated to another tool, then remove that binding
-								pendingCommands.add(new ReversibleCommandPair<Model>(
+								collector.execute(new ReversibleCommandPair<Model>(
 									new RemoveButtonsToToolBindingCommand2(localButtonsPressed, previousToolForNewButton), 
 									new BindButtonsToToolCommand(localButtonsPressed, previousToolForNewButton))
 								);
@@ -479,25 +477,23 @@ public class LiveModel extends Model {
 							
 							if(currentButtons.size() > 0) {
 								// If this tool is associated to buttons, then remove that binding before
-								pendingCommands.add(new ReversibleCommandPair<Model>(
+								collector.execute(new ReversibleCommandPair<Model>(
 									new RemoveButtonsToToolBindingCommand2(currentButtons, ToolButton.this.tool), 
 									new BindButtonsToToolCommand(currentButtons, ToolButton.this.tool))
 								);
 								
 								// adding the replacement binding
-								pendingCommands.add(new ReversibleCommandPair<Model>(
+								collector.execute(new ReversibleCommandPair<Model>(
 									new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
 									new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool))
 								);
 							} else {
-								pendingCommands.add(new ReversibleCommandPair<Model>(
+								collector.execute(new ReversibleCommandPair<Model>(
 									new BindButtonsToToolCommand(localButtonsPressed, ToolButton.this.tool), 
 									new RemoveButtonsToToolBindingCommand2(localButtonsPressed, ToolButton.this.tool)
 								));
 							}
 						}
-						
-						collector.execute(pendingCommands);
 						
 						collector.commitTransaction();
 					}
