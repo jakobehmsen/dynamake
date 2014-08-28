@@ -27,6 +27,7 @@ import dynamake.commands.PURCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
 import dynamake.commands.ReversibleCommand;
+import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
@@ -221,9 +222,9 @@ public abstract class Model implements Serializable, Observer {
 		private static final long serialVersionUID = 1L;
 		
 		private ExecutionScope scope;
-		private List<ReversibleCommand<Model>> purCommands;
+		private List<PURCommand<Model>> purCommands;
 
-		public HistoryPart(ExecutionScope scope, List<ReversibleCommand<Model>> purCommands) {
+		public HistoryPart(ExecutionScope scope, List<PURCommand<Model>> purCommands) {
 			// It seems appropriate to not clone the scope, since history parts are always either on the undo- or redo stack
 			// - i.e., they are pushed back and forth and thus the scope is not shared and should be up-to-date
 			this.scope = scope; 
@@ -232,11 +233,11 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		public HistoryPart forUndo() {
-			ArrayList<ReversibleCommand<Model>> undoables = new ArrayList<ReversibleCommand<Model>>();
-			for(ReversibleCommand<Model> pur: purCommands) {
+			ArrayList<PURCommand<Model>> undoables = new ArrayList<PURCommand<Model>>();
+			for(PURCommand<Model> pur: purCommands) {
 				// pur.back is assumed to be insignificant
-				PURCommand<Model> undoable = ((PURCommand<Model>)pur.forth).inUndoState();
-				undoables.add(new ReversibleCommand<Model>(undoable, new Command.Null<Model>()));
+				PURCommand<Model> undoable = pur.inUndoState();
+				undoables.add(undoable);
 			}
 			
 			Collections.reverse(undoables);
@@ -245,20 +246,16 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		public HistoryPart forRedo() {
-			ArrayList<ReversibleCommand<Model>> redoables = new ArrayList<ReversibleCommand<Model>>();
-			for(ReversibleCommand<Model> pur: purCommands) {
+			ArrayList<PURCommand<Model>> redoables = new ArrayList<PURCommand<Model>>();
+			for(PURCommand<Model> pur: purCommands) {
 				// pur.back is assumed to be insignificant
-				PURCommand<Model> redoable = ((PURCommand<Model>)pur.forth).inRedoState();
-				redoables.add(new ReversibleCommand<Model>(redoable, new Command.Null<Model>()));
+				PURCommand<Model> redoable = pur.inRedoState();
+				redoables.add(redoable);
 			}
 			
 			Collections.reverse(redoables);
 			
 			return new HistoryPart(scope, redoables);
-		}
-
-		public static HistoryPart fromPending(ExecutionScope scope, List<ReversibleCommand<Model>> pending) {
-			return new HistoryPart(scope, pending).forUndo();
 		}
 		
 		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
@@ -270,7 +267,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}
 	
-	public void commitLog(ExecutionScope scope, List<ReversibleCommand<Model>> logPart) {
+	public void commitLog(ExecutionScope scope, List<PURCommand<Model>> logPart) {
 //		ArrayList<PURCommand<Model>> undoables = new ArrayList<PURCommand<Model>>();
 //		for(ReversibleCommand<Model> pur: logPart) {
 //			// pur.back is assumed to be insignificant
@@ -279,7 +276,8 @@ public abstract class Model implements Serializable, Observer {
 //		}
 //		Collections.reverse(undoables);
 		
-		undoStack.add(HistoryPart.fromPending(scope, logPart));
+		HistoryPart undoPart = new HistoryPart(scope, logPart).forUndo();
+		undoStack.add(undoPart);
 	}
 	
 	public void unplay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
