@@ -75,8 +75,6 @@ public class PlotTool implements Tool {
 					collector.execute(new Trigger<Model>() {
 						@Override
 						public void run(Collector<Model> collector) {
-							ArrayList<ReversibleCommand<Model>> pendingCommands = new ArrayList<ReversibleCommand<Model>>();
-							
 							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
 							
 							collector.execute(collector.createProduceCommand(factory));
@@ -89,8 +87,6 @@ public class PlotTool implements Tool {
 								)),
 								new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null))
 							));
-							
-							collector.execute(pendingCommands);
 						}
 					});
 				}
