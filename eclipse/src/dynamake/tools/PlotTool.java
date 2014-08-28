@@ -16,7 +16,9 @@ import dynamake.commands.PURCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.ProduceCommand;
 import dynamake.commands.ReversibleCommand;
+import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.RewrapCommand;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.commands.WrapCommand;
 import dynamake.models.CanvasModel;
@@ -112,26 +114,20 @@ public class PlotTool implements Tool {
 							
 							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
 							
-							pendingCommands.add(new ReversibleCommand<Model>(
-								new ProduceCommand<Model>(factory), 
-								new ConsumeCommand<Model>()
-							));
+//							pendingCommands.add(new ReversibleCommand<Model>(
+//								new ProduceCommand<Model>(factory), 
+//								new ConsumeCommand<Model>()
+//							));
 							
-							pendingCommands.add(new ReversibleCommand<Model>(
-								new PURCommand<Model>(
-									new ReversibleCommand<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null)),
-									new ReversibleCommand<Model>(
-										new CommandSequence<Model>(Arrays.asList(
-											new ReversibleCommand<Model>(new CanvasModel.DestroyModelCommand(null), null),
-											new ReversibleCommand<Model>(new CanvasModel.RemoveModelCommand(null), null)
-										)),
-										new CommandSequence<Model>(Arrays.asList(
-											new ReversibleCommand<Model>(new CanvasModel.RestoreModelCommand(null, null), null)
-										))
-									),
-									new ReversibleCommand<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null))
-								), 
-								new Command.Null<Model>()
+							collector.execute(collector.createProduceCommand(factory));
+							
+							collector.execute(new TriStatePURCommand<Model>(
+								new ReversibleCommandPair<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null)),
+								new CommandSequence<Model>(Arrays.asList(
+									new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
+									new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
+								)),
+								new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null))
 							));
 							
 							collector.execute(pendingCommands);
