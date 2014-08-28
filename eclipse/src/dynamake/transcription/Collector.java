@@ -19,6 +19,8 @@ public interface Collector<T> {
 	*/
 	
 	void startTransaction(T reference, Object transactionHandlerClass);
+	void produce(Object value);
+	void consume();
 	void execute(Object command);
 	void commitTransaction();
 	void rejectTransaction();

@@ -11,6 +11,16 @@ public class IsolatingCollector<T> implements Collector<T> {
 	public void startTransaction(T reference, Object transactionHandlerClass) {
 		collector.startTransaction(reference, transactionHandlerClass);
 	}
+	
+	@Override
+	public void produce(Object value) {
+		// Do nothing which means side effects aren't collected
+	}
+	
+	@Override
+	public void consume() {
+		// Do nothing which means side effects aren't collected
+	}
 
 	@Override
 	public void execute(Object command) {

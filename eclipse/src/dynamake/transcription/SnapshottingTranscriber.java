@@ -301,10 +301,18 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		public static final int OPCODE_REJECT = 2;
 		public static final int OPCODE_FLUSH_NEXT_TRIGGER = 3;
 		public static final int OPCODE_SEND_PROPOGATION_FINISHED = 4;
+		public static final int OPCODE_PRODUCE = 5;
+		public static final int OPCODE_CONSUME = 6;
 		
 		public final int type;
 		public final Object operand1;
 		public final Object operand2;
+		
+		public Instruction(int type) {
+			this.type = type;
+			this.operand1 = null;
+			this.operand2 = null;
+		}
 		
 		public Instruction(int type, Object operand1) {
 			this.type = type;
@@ -408,6 +416,16 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							}
 							
 							@Override
+							public void produce(Object value) {
+								collectedCommands.add(new Instruction(Instruction.OPCODE_PRODUCE, value));
+							}
+							
+							@Override
+							public void consume() {
+								collectedCommands.add(new Instruction(Instruction.OPCODE_CONSUME));
+							}
+							
+							@Override
 							public void execute(Object command) {
 								if(command instanceof List) {
 									// Assumed to be a list of reversible commands
@@ -484,6 +502,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								}
 								Execution<T> execution = pendingUndoablePairs.get(0);
 								((PendingCommandFactory<T>)instruction.operand1).afterPropogationFinished(execution, propCtx, 0, collector);
+								break;
+							case Instruction.OPCODE_PRODUCE:
+								Object valueToProduce = instruction.operand1;
+								break;
+							case Instruction.OPCODE_CONSUME:
+								Object consumedValue = currentFrame.handler.getScope().consume();
 								break;
 							}
 						} else if(command instanceof PendingCommandFactory) {
