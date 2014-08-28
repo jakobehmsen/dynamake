@@ -143,14 +143,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			if(transactionFromRoot instanceof ReversibleCommand) {
 				ReversibleCommand<T> entry = (ReversibleCommand<T>)transactionFromRoot;
 				
-//				ArrayList<Execution<T>> pendingUndoablePairs = new ArrayList<Execution<T>>();
-//				for(CommandState<T> transaction: entry.pending) {
-//					CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)transaction.executeOn(propCtx, reference, isolatedCollector, locationFromReference, scope);
-//					pendingUndoablePairs.add(new Execution<T>(transaction, undoable));
-//				}
-//				
-//				transactionHandler.logFor((T)reference, command, propCtx, 0, isolatedCollector);
-				
 				entry.executeForward(propCtx, reference, isolatedCollector, locationFromReference, scope);
 				
 				transactionHandler.logFor((T)reference, entry, propCtx, 0, isolatedCollector);
@@ -332,7 +324,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	}
 	
 	public static class Connection<T> implements dynamake.transcription.Connection<T> {
-		// Probably, many of the below fields are to be related to "transaction frame" of some sort
 		private TriggerHandler<T> triggerHandler;
 		private SnapshottingTranscriber<T> transcriber;
 		private TransactionFrame<T> currentFrame;
@@ -353,7 +344,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			// This is needed in order to keep the order of the flushed commands/transaction correct
 			// - and this is important during replay and reject
 			public ArrayList<Object> flushedTransactionsFromRoot = new ArrayList<Object>(); // List of either atomic commands or transactions
-//			public ArrayList<Object> flushedUndoableTransactionsFromReferences = new ArrayList<Object>();  // List of either atomic commands or transactions
 			
 			public TransactionFrame(TransactionFrame<T> parent, T reference, Location locationFromRootToReference, TransactionHandlerFactory<T> transactionHandlerFactory, TransactionHandler<T> handler) {
 				this.parent = parent;
@@ -363,33 +353,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				this.handler = handler;
 			}
 		}
-		
-//		public static class LocationCommandsPair<T> implements Serializable {
-//			/**
-//			 * 
-//			 */
-//			private static final long serialVersionUID = 1L;
-//			public final Location location;
-//			public final ReversibleCommand<T> pending;
-//			public final TransactionHandlerFactory<T> transactionHandlerFactory;
-//			
-//			public LocationCommandsPair(Location location, ReversibleCommand<T> pending, TransactionHandlerFactory<T> transactionHandlerFactory) {
-//				this.location = location;
-//				this.pending = pending;
-//				this.transactionHandlerFactory = transactionHandlerFactory;
-//			}
-//		}
-		
-//		private static class UndoableCommandFromReference<T> {
-//			@SuppressWarnings("unused")
-//			public final T reference;
-//			public final ArrayList<CommandState<T>> undoables;
-//			
-//			public UndoableCommandFromReference(T reference, ArrayList<CommandState<T>> undoables) {
-//				this.reference = reference;
-//				this.undoables = undoables;
-//			}
-//		}
 		
 		private static class ReversibleInstructionPair<T> implements ReversibleCommand<T> {
 			/**
@@ -589,12 +552,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							CommandStateWithOutput<T> undoable = (CommandStateWithOutput<T>)undoables.get(0);
 							Execution<T> pendingUndoablePair = new Execution<T>(pendingCommand, undoable);
 							pendingUndoablePairs.add(pendingUndoablePair);
-							
-//							transactionHandler.logFor(reference, command, propCtx, 0, collector);
 
 							ArrayList<CommandState<T>> pendingCommands = new ArrayList<CommandState<T>>();
 							pendingCommands.add(pendingCommand);
-//							frame.flushedTransactionsFromRoot.add(new LocationCommandsPair<T>(null, pendingCommands, null));
 							
 							propogationStack.push(pendingUndoablePairs);
 
@@ -607,15 +567,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							rCommand.executeForward(propCtx, currentFrame.reference, collector, locationFromReference, scope);
 							
 							logExecution(rCommand, propCtx, collector);
-
-//							Location locationFromReference = new ModelRootLocation();
-//							ExecutionScope scope = currentFrame.handler.getScope();
-//							
-//							rCommand.executeForward(propCtx, currentFrame.reference, collector, locationFromReference, scope);
-//							
-//							currentFrame.handler.logFor(currentFrame.reference, rCommand, propCtx, 0, collector);
-//							
-//							currentFrame.flushedTransactionsFromRoot.add(rCommand);
 						} else if(command instanceof Trigger) {
 							// TODO: Consider: Should it be possible to hint which model to base the trigger on?
 							((Trigger<T>)command).run(collector);
@@ -662,7 +613,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					}
 				} else {
 					currentFrame.parent.flushedTransactionsFromRoot.add(currentFrame);
-//					currentFrame.parent.flushedUndoableTransactionsFromReferences.add(currentFrame);
 				}
 			}
 			
@@ -723,10 +673,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					
 					Location locationFromReference = new ModelRootLocation();
 					undoableTransaction.executeBackward(propCtx, frame.reference, isolatedCollector, locationFromReference, scope);
-//					for(CommandState<T> undoable: undoableTransaction.undoables) {
-//						@SuppressWarnings("unused")
-//						CommandState<T> redoable = undoable.executeOn(propCtx, frame.reference, isolatedCollector, locationFromReference, scope);
-//					}
 				} else if(committedExecution instanceof TransactionFrame) {
 					@SuppressWarnings("unchecked")
 					TransactionFrame<T> innerFrame = (TransactionFrame<T>)committedExecution;
