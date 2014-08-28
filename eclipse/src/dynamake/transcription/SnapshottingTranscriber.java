@@ -295,7 +295,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		return prevalentSystem;
 	}
 	
-	private static class Instruction {
+	private static class Instruction implements Serializable {
 		public static final int OPCODE_START = 0;
 		public static final int OPCODE_COMMIT = 1;
 		public static final int OPCODE_REJECT = 2;
@@ -549,6 +549,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								((PendingCommandFactory<T>)instruction.operand1).afterPropogationFinished(execution, propCtx, 0, collector);
 								break;
 							case Instruction.OPCODE_PRODUCE:
+								Object valueToProduce = instruction.operand1;
+								currentFrame.handler.getScope().produce(valueToProduce);
 								logExecution(new ReversibleInstructionPair<T>(instruction, new Instruction(Instruction.OPCODE_CONSUME)), propCtx, collector);
 								break;
 							case Instruction.OPCODE_CONSUME:
