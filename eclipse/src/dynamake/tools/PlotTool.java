@@ -9,12 +9,8 @@ import java.util.Arrays;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import dynamake.commands.Command;
 import dynamake.commands.CommandSequence;
-import dynamake.commands.ConsumeCommand;
-import dynamake.commands.PURCommand;
 import dynamake.commands.PendingCommandState;
-import dynamake.commands.ProduceCommand;
 import dynamake.commands.ReversibleCommand;
 import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.RewrapCommand;
@@ -79,45 +75,9 @@ public class PlotTool implements Tool {
 					collector.execute(new Trigger<Model>() {
 						@Override
 						public void run(Collector<Model> collector) {
-//							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
-//							
-//							PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-//								new CanvasModel.AddModelCommand(factory),
-//								new CanvasModel.RemoveModelCommand.AfterAdd(),
-//								new CanvasModel.RestoreModelCommand.AfterRemove()
-//							));
-							
-							
-							
-//							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
-//							
-//							ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
-//							
-//							pendingCommands.add(new PendingCommandState<Model>(
-//								new ProduceCommand<Model>(factory),
-//								new ConsumeCommand<Model>()
-//							));
-//							pendingCommands.add(new PendingCommandState<Model>(
-//								new CanvasModel.AddModelCommand(null),
-//								new CanvasModel.RemoveModelCommand(null),
-//								new CanvasModel.RestoreModelCommand(null, null)
-//							));
-//							
-//							PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
-							
-							
-							// How to use ReversibleCommand here?
-							// Should there be some sort of composite command? That execute multiple ReversibleCommands?
-							
-
 							ArrayList<ReversibleCommand<Model>> pendingCommands = new ArrayList<ReversibleCommand<Model>>();
 							
 							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
-							
-//							pendingCommands.add(new ReversibleCommand<Model>(
-//								new ProduceCommand<Model>(factory), 
-//								new ConsumeCommand<Model>()
-//							));
 							
 							collector.execute(collector.createProduceCommand(factory));
 							
@@ -131,22 +91,6 @@ public class PlotTool implements Tool {
 							));
 							
 							collector.execute(pendingCommands);
-							
-//							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
-//							
-//							ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
-//							
-//							pendingCommands.add(new PendingCommandState<Model>(
-//								new ProduceCommand<Model>(factory),
-//								new ConsumeCommand<Model>()
-//							));
-//							pendingCommands.add(new PendingCommandState<Model>(
-//								new CanvasModel.AddModelCommand(null),
-//								new CanvasModel.RemoveModelCommand(null),
-//								new CanvasModel.RestoreModelCommand(null, null)
-//							));
-//							
-//							PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 						}
 					});
 				}
