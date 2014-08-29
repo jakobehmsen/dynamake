@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -18,19 +19,24 @@ import javax.swing.JLayeredPane;
 import dynamake.caching.Memoizer1;
 import dynamake.commands.Command;
 import dynamake.commands.CommandFactory;
+import dynamake.commands.CommandSequence;
 import dynamake.commands.CommandState;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.ForwardableCommand;
 import dynamake.commands.ForwardableOutput;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
+import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.RewrapCommand;
 import dynamake.commands.SetPropertyCommand;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
+import dynamake.models.factories.CanvasModelFactory;
+import dynamake.models.factories.CreationBoundsFactory;
 import dynamake.models.factories.ModelCreation;
 import dynamake.models.factories.ModelFactory;
 import dynamake.models.transcription.NewChangeTransactionHandler;
@@ -854,6 +860,33 @@ public class CanvasModel extends Model {
 			new RemoveModelCommand(locationOfModel),
 			new RestoreModelCommand.AfterRemove(),
 			new RemoveModelCommand.AfterAdd()
+		));
+	}
+	
+	public static void appendRemoveTransaction2(List<Object> pendingCommands, LivePanel livePanel, ModelComponent child, CanvasModel model, Collector<Model> collector) {
+		Location locationOfModel = model.getLocationOf(child.getModelBehind());
+
+//		pendingCommands.add(new PendingCommandState<Model>(
+//			new CanvasModel.DestroyModelCommand(locationOfModel),
+//			new Command.Null<Model>()
+//		));
+//		pendingCommands.add(new PendingCommandState<Model>(
+//			new RemoveModelCommand(locationOfModel),
+//			new RestoreModelCommand.AfterRemove(),
+//			new RemoveModelCommand.AfterAdd()
+//		));
+		
+		pendingCommands.add(new TriStatePURCommand<Model>(
+			new CommandSequence<Model>(Arrays.asList(
+				collector.createProduceCommand(locationOfModel),
+				new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
+				new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
+			)),
+			new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null)),
+			new CommandSequence<Model>(Arrays.asList(
+				new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
+				new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
+			))
 		));
 	}
 	
