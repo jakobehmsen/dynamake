@@ -511,11 +511,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								((PendingCommandFactory<T>)instruction.operand1).afterPropogationFinished(execution, propCtx, 0, collector);
 								break;
 							case Instruction.OPCODE_PRODUCE:
+								logBeforeExecution(command, propCtx, collector);
 								Object valueToProduce = instruction.operand1;
 								currentFrame.handler.getScope().produce(valueToProduce);
 								logExecution(new ReversibleInstructionPair<T>(instruction, new Instruction(Instruction.OPCODE_CONSUME)), propCtx, collector);
 								break;
 							case Instruction.OPCODE_CONSUME:
+								logBeforeExecution(command, propCtx, collector);
 								Object consumedValue = currentFrame.handler.getScope().consume();
 								logExecution(new ReversibleInstructionPair<T>(instruction, consumedValue), propCtx, collector);
 								break;
@@ -563,6 +565,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							Location locationFromReference = new ModelRootLocation();
 							ExecutionScope scope = currentFrame.handler.getScope();
+
+							logBeforeExecution(rCommand, propCtx, collector);
 							
 							rCommand.executeForward(propCtx, currentFrame.reference, collector, locationFromReference, scope);
 							
@@ -584,6 +588,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 //					System.out.println("Finished trigger");
 				}
 			});
+		}
+		
+		private void logBeforeExecution(Object rCommand, PropogationContext propCtx, Collector<T> collector) {
+			currentFrame.handler.logBeforeFor(currentFrame.reference, rCommand, propCtx, 0, collector);
 		}
 		
 		private void logExecution(ReversibleCommand<T> rCommand, PropogationContext propCtx, Collector<T> collector) {
