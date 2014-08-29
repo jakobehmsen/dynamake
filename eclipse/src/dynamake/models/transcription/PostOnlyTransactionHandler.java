@@ -20,12 +20,12 @@ public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 	
 	@Override
 	public void logBeforeFor(Model reference, Object command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void logFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		// TODO: How to post a command?
 //		reference.postLog(pendingUndoablePairs, propCtx, propDistance, collector);
 	}
 
