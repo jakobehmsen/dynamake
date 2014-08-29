@@ -20,19 +20,12 @@ public class RedoTool implements Tool {
 	@Override
 	public void mouseReleased(ProductionPanel productionPanel, final ModelComponent modelOver, Connection<Model> connection, Collector<Model> collector, JComponent sourceComponent, Point mousePoint) {
 		collector.startTransaction(modelOver.getModelBehind(), PostOnlyTransactionHandler.class);
-		collector.execute(new Trigger<Model>() {
-			@Override
-			public void run(Collector<Model> collector) {
-				if(modelOver.getModelBehind().canRedo()) {
-					collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
-						new RedoCommand(false),
-						new UndoCommand(false)
-					)));
-					
-					collector.commitTransaction();
-				}
-			}
-		});
+		collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
+			new RedoCommand(false),
+			new UndoCommand(false)
+		)));
+		
+		collector.commitTransaction();
 	}
 
 	@Override
