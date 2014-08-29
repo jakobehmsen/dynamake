@@ -322,9 +322,9 @@ public abstract class Model implements Serializable, Observer {
 		HistoryPart toUndo = undoStack.peek();
 		
 		for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: toUndo.purCommands) {
-			collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(purAndScope.value2));
+//			collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(purAndScope.value2));
 			collector.execute(purAndScope.value1);
-			collector.commitTransaction();
+//			collector.commitTransaction();
 		}
 		
 		return toUndo;
@@ -346,9 +346,9 @@ public abstract class Model implements Serializable, Observer {
 		HistoryPart toRedo = redoStack.peek();
 		
 		for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: toRedo.purCommands) {
-			collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(purAndScope.value2));
+//			collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(purAndScope.value2));
 			collector.execute(purAndScope.value1);
-			collector.commitTransaction();
+//			collector.commitTransaction();
 		}
 		
 		return toRedo;
