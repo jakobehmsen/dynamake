@@ -20,6 +20,12 @@ public class NewChangeTransactionHandler implements TransactionHandler<Model> {
 		scope = new ExecutionScope();
 		newLog = new ArrayList<ReversibleCommand<Model>>();
 	}
+	
+	@Override
+	public void logBeforeFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
 	public void logFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {

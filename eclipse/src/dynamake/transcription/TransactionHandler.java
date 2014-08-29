@@ -8,6 +8,7 @@ import dynamake.models.PropogationContext;
 public interface TransactionHandler<T> {
 	void startLogFor(TransactionHandler<T> parentHandler, T reference);
 	// Side-effects are valid here. Thus, collector parameter is needed to support this.
+	void logBeforeFor(T reference, ReversibleCommand<T> command, PropogationContext propCtx, int propDistance, Collector<T> collector);
 	void logFor(T reference, ReversibleCommand<T> command, PropogationContext propCtx, int propDistance, Collector<T> collector);
 	void commitLogFor(T reference);
 	void rejectLogFor(T reference);

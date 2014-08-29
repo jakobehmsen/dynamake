@@ -17,6 +17,12 @@ public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 		else // In case, this transaction handler is the top handler
 			scope = new ExecutionScope();
 	}
+	
+	@Override
+	public void logBeforeFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
 	public void logFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {

@@ -12,6 +12,9 @@ public class NullTransactionHandler<T> implements TransactionHandler<T> {
 	public void startLogFor(TransactionHandler<T> parentHandler, T reference) { 
 		scope = new ExecutionScope();
 	}
+	
+	@Override
+	public void logBeforeFor(T reference, ReversibleCommand<T> command, PropogationContext propCtx, int propDistance, Collector<T> collector) { }
 
 	@Override
 	public void logFor(T reference, ReversibleCommand<T> command, PropogationContext propCtx, int propDistance, Collector<T> collector) { }

@@ -10,6 +10,12 @@ public class LoadScopeTransactionHandler<T> implements TransactionHandler<T> {
 	public LoadScopeTransactionHandler(ExecutionScope scope) {
 		this.scope = scope;
 	}
+	
+	@Override
+	public void logBeforeFor(T reference, ReversibleCommand<T> command, PropogationContext propCtx, int propDistance, Collector<T> collector) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
 	public void startLogFor(TransactionHandler<T> parentHandler, T reference) {

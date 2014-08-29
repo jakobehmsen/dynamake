@@ -16,6 +16,12 @@ public class UndoTransactionHandler implements TransactionHandler<Model> {
 	}
 	
 	public UndoTransactionHandler() { }
+	
+	@Override
+	public void logBeforeFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	@Override
 	public void startLogFor(TransactionHandler<Model> parentHandler, Model reference) {
