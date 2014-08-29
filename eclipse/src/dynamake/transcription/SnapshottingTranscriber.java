@@ -569,9 +569,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							ReversibleCommand<T> rCommand = (ReversibleCommand<T>)command;
 							
 							Location locationFromReference = new ModelRootLocation();
-							ExecutionScope scope = currentFrame.handler.getScope();
-
+							
 							logBeforeExecution(rCommand, propCtx, collector);
+							
+							ExecutionScope scope = currentFrame.handler.getScope();
 							
 							rCommand.executeForward(propCtx, currentFrame.reference, collector, locationFromReference, scope);
 							
