@@ -36,6 +36,9 @@ public class RedoCommand implements Command<Model> {
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 		Model model = (Model)location.getChild(prevalentSystem);
 		
+		if(!model.canRedo())
+			return null;
+		
 		if(isolate)
 			collector = new IsolatingCollector<Model>(collector);
 
