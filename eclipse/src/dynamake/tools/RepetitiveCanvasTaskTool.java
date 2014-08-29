@@ -61,9 +61,13 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 				collector.execute(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
-						createCommandStatesForSingleTask(productionPanel, pendingCommands, modelOverParent, modelOver);
-						PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+//						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+//						createCommandStatesForSingleTask(productionPanel, pendingCommands, modelOverParent, modelOver);
+//						PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+						
+						ArrayList<Object> pendingCommands = new ArrayList<Object>();
+						createCommandStatesForSingleTask2(productionPanel, pendingCommands, modelOverParent, modelOver, collector);
+						collector.execute(pendingCommands);
 					}
 				});
 			}
@@ -77,4 +81,5 @@ public abstract class RepetitiveCanvasTaskTool implements Tool {
 	}
 	
 	protected abstract void createCommandStatesForSingleTask(ProductionPanel productionPanel, List<CommandState<Model>> pendingCommands, ModelComponent canvas, ModelComponent modelOver);
+	protected abstract void createCommandStatesForSingleTask2(ProductionPanel productionPanel, List<Object> pendingCommands, ModelComponent canvas, ModelComponent modelOver, Collector<Model> collector);
 }
