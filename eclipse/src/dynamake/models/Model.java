@@ -255,7 +255,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		public ExecutionScope getScope(int partIndex) {
-			return purCommands.get(0).value2;
+			return purCommands.get(partIndex).value2;
 		}
 	}
 	
