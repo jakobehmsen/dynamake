@@ -29,6 +29,7 @@ import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
+import dynamake.tuples.Tuple2;
 
 public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private Func0<T> prevalentSystemFunc;
@@ -140,12 +141,16 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		ExecutionScope scope = transactionHandler.getScope();
 		
 		for(Object transactionFromRoot: ctxTransaction.transactionsFromRoot) {
-			if(transactionFromRoot instanceof ReversibleCommand) {
-				ReversibleCommand<T> entry = (ReversibleCommand<T>)transactionFromRoot;
+			if(transactionFromRoot instanceof Tuple2) {
+				Tuple2<Object, ReversibleCommand<T>> entry = (Tuple2<Object, ReversibleCommand<T>>)transactionFromRoot;
+				Object command = entry.value1;
+				ReversibleCommand<T> rCommand = entry.value2;
 				
-				entry.executeForward(propCtx, reference, isolatedCollector, locationFromReference, scope);
+				transactionHandler.logBeforeFor(reference, command, propCtx, 0, isolatedCollector);
 				
-				transactionHandler.logFor((T)reference, entry, propCtx, 0, isolatedCollector);
+				rCommand.executeForward(propCtx, reference, isolatedCollector, locationFromReference, scope);
+				
+				transactionHandler.logFor((T)reference, rCommand, propCtx, 0, isolatedCollector);
 			} else if(transactionFromRoot instanceof ContextualCommand) {
 				replay(transactionHandler, (ContextualCommand<T>)transactionFromRoot, prevalentSystem, propCtx, isolatedCollector);
 			}
@@ -514,12 +519,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								logBeforeExecution(command, propCtx, collector);
 								Object valueToProduce = instruction.operand1;
 								currentFrame.handler.getScope().produce(valueToProduce);
-								logExecution(new ReversibleInstructionPair<T>(instruction, new Instruction(Instruction.OPCODE_CONSUME)), propCtx, collector);
+								logExecution(instruction, new ReversibleInstructionPair<T>(instruction, new Instruction(Instruction.OPCODE_CONSUME)), propCtx, collector);
 								break;
 							case Instruction.OPCODE_CONSUME:
 								logBeforeExecution(command, propCtx, collector);
 								Object consumedValue = currentFrame.handler.getScope().consume();
-								logExecution(new ReversibleInstructionPair<T>(instruction, consumedValue), propCtx, collector);
+								logExecution(instruction, new ReversibleInstructionPair<T>(instruction, consumedValue), propCtx, collector);
 								break;
 							}
 						} else if(command instanceof PendingCommandFactory) {
@@ -570,7 +575,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							rCommand.executeForward(propCtx, currentFrame.reference, collector, locationFromReference, scope);
 							
-							logExecution(rCommand, propCtx, collector);
+							logExecution(rCommand, rCommand, propCtx, collector);
 						} else if(command instanceof Trigger) {
 							// TODO: Consider: Should it be possible to hint which model to base the trigger on?
 							((Trigger<T>)command).run(collector);
@@ -590,14 +595,14 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			});
 		}
 		
-		private void logBeforeExecution(Object rCommand, PropogationContext propCtx, Collector<T> collector) {
-			currentFrame.handler.logBeforeFor(currentFrame.reference, rCommand, propCtx, 0, collector);
+		private void logBeforeExecution(Object command, PropogationContext propCtx, Collector<T> collector) {
+			currentFrame.handler.logBeforeFor(currentFrame.reference, command, propCtx, 0, collector);
 		}
 		
-		private void logExecution(ReversibleCommand<T> rCommand, PropogationContext propCtx, Collector<T> collector) {
+		private void logExecution(Object command, ReversibleCommand<T> rCommand, PropogationContext propCtx, Collector<T> collector) {
 			currentFrame.handler.logFor(currentFrame.reference, rCommand, propCtx, 0, collector);
 			
-			currentFrame.flushedTransactionsFromRoot.add(rCommand);
+			currentFrame.flushedTransactionsFromRoot.add(new Tuple2<Object, ReversibleCommand<T>>(command, rCommand));
 		}
 		
 		private void doCommit() {
@@ -630,7 +635,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		@SuppressWarnings("unchecked")
 		private void buildTransactionToPersist(ArrayList<Object> transactionsFromRoot, TransactionFrame<T> frame) {
 			for(Object committedExecution: frame.flushedTransactionsFromRoot) {
-				if(committedExecution instanceof ReversibleCommand) {
+				if(committedExecution instanceof Tuple2) {
 					transactionsFromRoot.add(committedExecution);
 				} else if(committedExecution instanceof TransactionFrame) {
 					TransactionFrame<T> innerFrame = (TransactionFrame<T>)committedExecution;
@@ -675,7 +680,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			for(int i = frame.flushedTransactionsFromRoot.size() - 1; i >= 0; i--) {
 				Object committedExecution = frame.flushedTransactionsFromRoot.get(i);
 				
-				if(committedExecution instanceof ReversibleCommand) {
+				if(committedExecution instanceof Tuple2) {
 					@SuppressWarnings("unchecked")
 					ReversibleCommand<T> undoableTransaction = (ReversibleCommand<T>)committedExecution;
 					
