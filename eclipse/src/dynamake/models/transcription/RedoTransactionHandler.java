@@ -18,7 +18,7 @@ public class RedoTransactionHandler implements TransactionHandler<Model> {
 	public RedoTransactionHandler() { }
 	
 	@Override
-	public void logBeforeFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void logBeforeFor(Model reference, Object command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		// TODO Auto-generated method stub
 		
 	}

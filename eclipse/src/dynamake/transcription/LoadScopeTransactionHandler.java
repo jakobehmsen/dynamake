@@ -12,7 +12,7 @@ public class LoadScopeTransactionHandler<T> implements TransactionHandler<T> {
 	}
 	
 	@Override
-	public void logBeforeFor(T reference, ReversibleCommand<T> command, PropogationContext propCtx, int propDistance, Collector<T> collector) {
+	public void logBeforeFor(T reference, Object command, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 		// TODO Auto-generated method stub
 		
 	}

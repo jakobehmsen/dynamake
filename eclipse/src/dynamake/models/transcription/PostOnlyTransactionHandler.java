@@ -19,7 +19,7 @@ public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 	}
 	
 	@Override
-	public void logBeforeFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void logBeforeFor(Model reference, Object command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		// TODO Auto-generated method stub
 		
 	}
