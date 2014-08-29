@@ -9,6 +9,8 @@ import dynamake.transcription.TransactionHandler;
 
 public class UndoTransactionHandler implements TransactionHandler<Model> {
 	private Model.HistoryPart undoPart;
+	private int partIndex;
+	private ExecutionScope scope;
 //	private ArrayList<Execution<Model>> newLog;
 	
 	public UndoTransactionHandler(Model.HistoryPart undoPart) {
@@ -20,7 +22,7 @@ public class UndoTransactionHandler implements TransactionHandler<Model> {
 	@Override
 	public void logBeforeFor(Model reference, Object command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		// TODO Auto-generated method stub
-		
+		scope = undoPart.getScope(partIndex);
 	}
 
 	@Override
@@ -33,6 +35,7 @@ public class UndoTransactionHandler implements TransactionHandler<Model> {
 	public void logFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 //		System.out.println(this +  ": logFor");
 //		newLog.addAll(pendingUndoablePairs);
+		partIndex++;
 	}
 
 	@Override
@@ -63,6 +66,6 @@ public class UndoTransactionHandler implements TransactionHandler<Model> {
 	
 	@Override
 	public ExecutionScope getScope() {
-		return undoPart.getScope();
+		return scope;
 	}
 }

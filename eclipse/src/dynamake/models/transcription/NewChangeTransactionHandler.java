@@ -10,26 +10,26 @@ import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 import dynamake.transcription.TransactionHandler;
+import dynamake.tuples.Tuple2;
 
 public class NewChangeTransactionHandler implements TransactionHandler<Model> {
 	private ExecutionScope scope;
-	private ArrayList<ReversibleCommand<Model>> newLog;
+//	private ArrayList<ReversibleCommand<Model>> newLog;
+	private ArrayList<Tuple2<ReversibleCommand<Model>, ExecutionScope>> newLog;
 
 	@Override
 	public void startLogFor(TransactionHandler<Model> parentHandler, Model reference) {
-		scope = new ExecutionScope();
-		newLog = new ArrayList<ReversibleCommand<Model>>();
+		newLog = new ArrayList<Tuple2<ReversibleCommand<Model>, ExecutionScope>>();
 	}
 	
 	@Override
 	public void logBeforeFor(Model reference, Object command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		// TODO Auto-generated method stub
-		
+		scope = new ExecutionScope();
 	}
 
 	@Override
 	public void logFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
-		newLog.add(command);
+		newLog.add(new Tuple2<ReversibleCommand<Model>, ExecutionScope>(command, scope));
 		
 		ArrayList<ReversibleCommand<Model>> pendingUndoablePairs = new ArrayList<ReversibleCommand<Model>>();
 		pendingUndoablePairs.add(command);
@@ -56,17 +56,18 @@ public class NewChangeTransactionHandler implements TransactionHandler<Model> {
 //			}
 //			Collections.reverse(undoables);
 //			CommandSequence<Model> compressedLogPart = new CommandSequence<Model>(undoables);
-			
-			ArrayList<PURCommand<Model>> newPurs = new ArrayList<PURCommand<Model>>();
-			for(ReversibleCommand<Model> rc: newLog) {
+
+			ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>> newPurs = new ArrayList<Tuple2<PURCommand<Model>,ExecutionScope>>();
+			for(Tuple2<ReversibleCommand<Model>, ExecutionScope> rcAndScope: newLog) {
+				ReversibleCommand<Model> rc = rcAndScope.value1;
 				PURCommand<Model> pur;
 				if(rc instanceof PURCommand)
 					pur = (PURCommand<Model>)rc;
 				else
 					pur = new ForthPURCommand<Model>(rc);
-				newPurs.add(pur);
+				newPurs.add(new Tuple2<PURCommand<Model>, ExecutionScope>(pur, rcAndScope.value2));
 			}
-			reference.commitLog(scope, newPurs);
+			reference.commitLog(newPurs);
 		}
 	}
 

@@ -43,6 +43,7 @@ import dynamake.transcription.LoadScopeTransactionHandlerFactory;
 import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.Trigger;
+import dynamake.tuples.Tuple2;
 
 /**
  * Instances of implementors are supposed to represent alive-like sensitive entities, each with its own local history.
@@ -219,53 +220,46 @@ public abstract class Model implements Serializable, Observer {
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private ExecutionScope scope;
-		private List<PURCommand<Model>> purCommands;
+		private List<Tuple2<PURCommand<Model>, ExecutionScope>> purCommands;
 
-		public HistoryPart(ExecutionScope scope, List<PURCommand<Model>> purCommands) {
-			// It seems appropriate to not clone the scope, since history parts are always either on the undo- or redo stack
-			// - i.e., they are pushed back and forth and thus the scope is not shared and should be up-to-date
-			this.scope = scope; 
-			
+		public HistoryPart(List<Tuple2<PURCommand<Model>, ExecutionScope>> purCommands) {
 			this.purCommands = purCommands;
 		}
 		
 		public HistoryPart forUndo() {
-			ArrayList<PURCommand<Model>> undoables = new ArrayList<PURCommand<Model>>();
-			for(PURCommand<Model> pur: purCommands) {
+			ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>> undoables = new ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>>();
+			for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: purCommands) {
 				// pur.back is assumed to be insignificant
+				PURCommand<Model> pur = purAndScope.value1;
 				PURCommand<Model> undoable = pur.inUndoState();
-				undoables.add(undoable);
+				undoables.add(new Tuple2<PURCommand<Model>, ExecutionScope>(undoable, purAndScope.value2));
 			}
 			
 			Collections.reverse(undoables);
 			
-			return new HistoryPart(scope, undoables);
+			return new HistoryPart(undoables);
 		}
 		
 		public HistoryPart forRedo() {
-			ArrayList<PURCommand<Model>> redoables = new ArrayList<PURCommand<Model>>();
-			for(PURCommand<Model> pur: purCommands) {
+			ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>> redoables = new ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>>();
+			for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: purCommands) {
 				// pur.back is assumed to be insignificant
+				PURCommand<Model> pur = purAndScope.value1;
 				PURCommand<Model> redoable = pur.inRedoState();
-				redoables.add(redoable);
+				redoables.add(new Tuple2<PURCommand<Model>, ExecutionScope>(redoable, purAndScope.value2));
 			}
 			
 			Collections.reverse(redoables);
 			
-			return new HistoryPart(scope, redoables);
-		}
-		
-		public void executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
-			collector.execute(purCommands);
+			return new HistoryPart(redoables);
 		}
 
-		public ExecutionScope getScope() {
-			return scope;
+		public ExecutionScope getScope(int partIndex) {
+			return purCommands.get(0).value2;
 		}
 	}
 	
-	public void commitLog(ExecutionScope scope, List<PURCommand<Model>> logPart) {
+	public void commitLog(List<Tuple2<PURCommand<Model>, ExecutionScope>> logPart) {
 //		ArrayList<PURCommand<Model>> undoables = new ArrayList<PURCommand<Model>>();
 //		for(ReversibleCommand<Model> pur: logPart) {
 //			// pur.back is assumed to be insignificant
@@ -274,7 +268,7 @@ public abstract class Model implements Serializable, Observer {
 //		}
 //		Collections.reverse(undoables);
 		
-		HistoryPart undoPart = new HistoryPart(scope, logPart).forUndo();
+		HistoryPart undoPart = new HistoryPart(logPart).forUndo();
 		undoStack.add(undoPart);
 	}
 	
@@ -285,11 +279,12 @@ public abstract class Model implements Serializable, Observer {
 			// Probably, unplay should be invoked repeatedly from another outer command somehow, where the
 			// scope is derived in a dynamic way (looking it up via the model reference) rather having to
 			// serialize the scope via LoadScopeTransactionHandlerFactory.
-			collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(toUndo.scope));
+			for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: toUndo.purCommands) {
+				collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(purAndScope.value2));
+				collector.execute(purAndScope.value1);
+				collector.commitTransaction();
+			}
 			
-			toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
-			
-			collector.commitTransaction();
 //			CommandState<Model> redoable = toUndo.executeOn(propCtx, this, collector, new ModelRootLocation(), scope);
 			HistoryPart redoable = toUndo.forRedo();
 			redoStack.push(redoable);
@@ -300,11 +295,12 @@ public abstract class Model implements Serializable, Observer {
 		for(int i = 0; i < count; i++) {
 			HistoryPart toRedo = redoStack.pop();
 			
-			collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(toRedo.scope));
-			
-			toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
-			
-			collector.commitTransaction();
+			for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: toRedo.purCommands) {
+				collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(purAndScope.value2));
+				collector.execute(purAndScope.value1);
+				collector.commitTransaction();
+			}
+
 //			CommandState<Model> undoable = toRedo.executeOn(propCtx, this, collector, new ModelRootLocation(), scope);
 			HistoryPart undoable = toRedo.forUndo();
 			undoStack.push(undoable);
@@ -325,7 +321,11 @@ public abstract class Model implements Serializable, Observer {
 		
 		HistoryPart toUndo = undoStack.peek();
 		
-		toUndo.executeOn(propCtx, this, collector, new ModelRootLocation());
+		for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: toUndo.purCommands) {
+			collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(purAndScope.value2));
+			collector.execute(purAndScope.value1);
+			collector.commitTransaction();
+		}
 		
 		return toUndo;
 	}
@@ -345,7 +345,11 @@ public abstract class Model implements Serializable, Observer {
 		
 		HistoryPart toRedo = redoStack.peek();
 		
-		toRedo.executeOn(propCtx, this, collector, new ModelRootLocation());
+		for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: toRedo.purCommands) {
+			collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(purAndScope.value2));
+			collector.execute(purAndScope.value1);
+			collector.commitTransaction();
+		}
 		
 		return toRedo;
 	}
