@@ -35,8 +35,6 @@ import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
-import dynamake.models.factories.CanvasModelFactory;
-import dynamake.models.factories.CreationBoundsFactory;
 import dynamake.models.factories.ModelCreation;
 import dynamake.models.factories.ModelFactory;
 import dynamake.models.transcription.NewChangeTransactionHandler;

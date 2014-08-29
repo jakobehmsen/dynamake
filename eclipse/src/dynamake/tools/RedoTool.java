@@ -14,7 +14,6 @@ import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
 import dynamake.transcription.SimplePendingCommandFactory;
-import dynamake.transcription.Trigger;
 
 public class RedoTool implements Tool {
 	@Override
