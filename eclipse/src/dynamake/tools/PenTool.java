@@ -7,16 +7,21 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
+import dynamake.commands.CommandSequence;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.ReversibleCommandPair;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.StrokeModel;
 import dynamake.models.LiveModel.ProductionPanel;
+import dynamake.models.factories.CanvasModelFactory;
 import dynamake.models.factories.CreationBoundsFactory;
 import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.StrokeModelFactory;
@@ -57,12 +62,27 @@ public class PenTool implements Tool {
 		collector.execute(new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				ModelFactory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation, creationBoundsInContainer);
+//				ModelFactory factory = new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation, creationBoundsInContainer);
+//				
+//				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//					new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(creationBoundsInContainer), factory)),
+//					new CanvasModel.RemoveModelCommand.AfterAdd(),
+//					new CanvasModel.RestoreModelCommand.AfterRemove()
+//				));
+
+				ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInContainer), 
+					new StrokeModelFactory(creationBoundsInProductionPanel.getLocation(), pointsForCreation, creationBoundsInContainer));
 				
-				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-					new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(creationBoundsInContainer), factory)),
-					new CanvasModel.RemoveModelCommand.AfterAdd(),
-					new CanvasModel.RestoreModelCommand.AfterRemove()
+				collector.execute(new TriStatePURCommand<Model>(
+					new CommandSequence<Model>(Arrays.asList(
+						collector.createProduceCommand(factory),
+						new ReversibleCommandPair<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null))
+					)),
+					new CommandSequence<Model>(Arrays.asList(
+						new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
+						new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
+					)),
+					new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null))
 				));
 			}
 		});
