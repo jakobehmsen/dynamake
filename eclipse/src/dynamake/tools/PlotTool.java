@@ -13,9 +13,12 @@ import dynamake.commands.CommandSequence;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.RewrapCommand;
+import dynamake.commands.RewrapCommandFromScope;
 import dynamake.commands.TriStatePURCommand;
 import dynamake.commands.UnwrapCommand;
+import dynamake.commands.UnwrapCommandFromScope;
 import dynamake.commands.WrapCommand;
+import dynamake.commands.WrapCommandFromScope;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -63,10 +66,23 @@ public class PlotTool implements Tool {
 								modelLocations[i] = target.getLocationOf(view.getModelBehind());
 							}
 							
-							PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-								new WrapCommand(new RectangleF(creationBoundsInSelection), modelLocations), 
-								new UnwrapCommand.AfterWrap(),
-								new RewrapCommand.AfterUnwrap()
+//							PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//								new WrapCommand(new RectangleF(creationBoundsInSelection), modelLocations), 
+//								new UnwrapCommand.AfterWrap(),
+//								new RewrapCommand.AfterUnwrap()
+//							));
+							
+							collector.execute(new TriStatePURCommand<Model>(
+								new CommandSequence<Model>(Arrays.asList(
+									collector.createProduceCommand(new RectangleF(creationBoundsInSelection)),
+									collector.createProduceCommand(modelLocations),
+									new ReversibleCommandPair<Model>(new WrapCommandFromScope(), new UnwrapCommandFromScope())
+								)),
+								new CommandSequence<Model>(Arrays.asList(
+									// Some sort of destroy command of a wrapping canvas?
+									new ReversibleCommandPair<Model>(new UnwrapCommandFromScope(), new RewrapCommandFromScope())
+								)),
+								new ReversibleCommandPair<Model>(new RewrapCommandFromScope(), new UnwrapCommandFromScope())
 							));
 						}
 					});
