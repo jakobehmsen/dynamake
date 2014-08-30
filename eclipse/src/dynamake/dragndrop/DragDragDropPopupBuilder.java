@@ -6,9 +6,15 @@ import java.awt.Rectangle;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 
+import dynamake.commands.CommandSequence;
 import dynamake.commands.DejectCommand;
+import dynamake.commands.DejectCommandFromScope;
 import dynamake.commands.InjectCommand;
+import dynamake.commands.InjectCommandFromScope;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.ReversibleCommandPair;
+import dynamake.commands.SetPropertyCommandFromScope;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Location;
@@ -125,11 +131,25 @@ public class DragDragDropPopupBuilder implements DragDropPopupBuilder {
 				Location locationOfSelection = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
 				Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 				
+//				collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
+//				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//					new InjectCommand(locationOfSelection, locationOfTarget),
+//					new DejectCommand(locationOfSelection, locationOfTarget)
+//				));
+//				collector.commitTransaction();
+				
 				collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
-				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-					new InjectCommand(locationOfSelection, locationOfTarget),
-					new DejectCommand(locationOfSelection, locationOfTarget)
+				
+				collector.execute(new TriStatePURCommand<Model>(
+					new CommandSequence<Model>(
+						collector.createProduceCommand(locationOfSelection),
+						collector.createProduceCommand(locationOfTarget),
+						new ReversibleCommandPair<Model>(new InjectCommandFromScope(), new DejectCommandFromScope()) // Outputs locationOfSelection and locationOfTarget
+					), 
+					new ReversibleCommandPair<Model>(new DejectCommandFromScope(), new InjectCommandFromScope()), // Outputs locationOfSelection and locationOfTarget
+					new ReversibleCommandPair<Model>(new InjectCommandFromScope(), new DejectCommandFromScope()) // Outputs locationOfSelection and locationOfTarget
 				));
+				
 				collector.commitTransaction();
 			}
 		});
