@@ -28,9 +28,12 @@ import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.RewrapCommand;
+import dynamake.commands.RewrapCommandFromScope;
 import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.TriStatePURCommand;
 import dynamake.commands.UnwrapCommand;
+import dynamake.commands.UnwrapCommandFromScope;
+import dynamake.commands.WrapCommandFromScope;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
@@ -844,6 +847,52 @@ public class CanvasModel extends Model {
 			new UnwrapCommand(wrapperLocationInTarget, creationBoundsInSelection),
 			new RewrapCommand.AfterUnwrap(),
 			new UnwrapCommand.AfterWrap()
+		));
+	}
+	
+	public static void appendUnwrapTransaction2(List<Object> pendingCommands, ModelComponent toUnwrap, ModelComponent parent, Collector<Model> collector) {
+		CanvasModel target = (CanvasModel)parent.getModelBehind();
+		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
+		Location wrapperLocationInTarget = target.getLocationOf(modelToBeUnwrapped);
+		RectangleF creationBoundsInSelection = new RectangleF(
+			(Fraction)modelToBeUnwrapped.getProperty("X"),
+			(Fraction)modelToBeUnwrapped.getProperty("Y"),
+			(Fraction)modelToBeUnwrapped.getProperty("Width"),
+			(Fraction)modelToBeUnwrapped.getProperty("Height")
+		);
+		
+//		commandStates.add(new PendingCommandState<Model>(
+//			new UnwrapCommand(wrapperLocationInTarget, creationBoundsInSelection),
+//			new RewrapCommand.AfterUnwrap(),
+//			new UnwrapCommand.AfterWrap()
+//		));
+		
+//		collector.execute(new TriStatePURCommand<Model>(
+//			new CommandSequence<Model>(Arrays.asList(
+//				collector.createProduceCommand(new RectangleF(creationBoundsInSelection)),
+//				collector.createProduceCommand(modelLocations),
+//				new ReversibleCommandPair<Model>(new WrapCommandFromScope(), new UnwrapCommandFromScope())
+//			)),
+//			new CommandSequence<Model>(Arrays.asList(
+//				// Some sort of destroy command of a wrapping canvas?
+//				new ReversibleCommandPair<Model>(new UnwrapCommandFromScope(), new RewrapCommandFromScope())
+//			)),
+//			new ReversibleCommandPair<Model>(new RewrapCommandFromScope(), new UnwrapCommandFromScope())
+//		));
+		
+		pendingCommands.add(new TriStatePURCommand<Model>(
+			new CommandSequence<Model>(Arrays.asList(
+				collector.createProduceCommand(wrapperLocationInTarget),
+				collector.createProduceCommand(creationBoundsInSelection),
+				collector.createProduceCommand(new Hashtable<Location, Location>()),
+				// Some sort of destroy command of a wrapping canvas?
+				new ReversibleCommandPair<Model>(new UnwrapCommandFromScope(), new RewrapCommandFromScope())
+			)),
+			new ReversibleCommandPair<Model>(new RewrapCommandFromScope(), new UnwrapCommandFromScope()),
+			new CommandSequence<Model>(Arrays.asList(
+				// Some sort of destroy command of a wrapping canvas?
+				new ReversibleCommandPair<Model>(new UnwrapCommandFromScope(), new RewrapCommandFromScope())
+			))
 		));
 	}
 	
