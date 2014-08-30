@@ -776,12 +776,11 @@ public abstract class Model implements Serializable, Observer {
 //							new SetPropertyCommand.AfterSetProperty()
 //						));
 						
-						// For now, don't support rollback of property setting here (thus the null arguments for the ReversibleCommandPair's)
 						collector.execute(new TriStatePURCommand<Model>(
 							new CommandSequence<Model>(
 								collector.createProduceCommand(PROPERTY_COLOR),
 								collector.createProduceCommand(color),
-								new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), null) // Outputs name of changed property and the previous value
+								new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
 							), 
 							new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()), // Outputs name of changed property and the previous value
 							new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
