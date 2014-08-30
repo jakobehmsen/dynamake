@@ -6,8 +6,13 @@ import java.awt.Rectangle;
 import javax.swing.JPopupMenu;
 
 import dynamake.commands.Command;
+import dynamake.commands.CommandSequence;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.ReversibleCommandPair;
+import dynamake.commands.SetPropertyCommandFromScope;
 import dynamake.commands.TellPropertyCommand;
+import dynamake.commands.TellPropertyCommandFromScope;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Model;
@@ -56,6 +61,20 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
 					new TellPropertyCommand(Model.PROPERTY_COLOR),
 					new Command.Null<Model>()
+				));
+				
+				// TODO: Consider:
+				// Should tell color become part of the history of the model? Or should it simply use a PostOnlyTransactionHandler?
+				collector.execute(new TriStatePURCommand<Model>(
+					new CommandSequence<Model>(
+						collector.createProduceCommand(Model.PROPERTY_COLOR),
+						new ReversibleCommandPair<Model>(new TellPropertyCommandFromScope(), new Command.Null<Model>())
+					), 
+					new ReversibleCommandPair<Model>(new Command.Null<Model>(), new Command.Null<Model>()),
+					new CommandSequence<Model>(
+						collector.createProduceCommand(Model.PROPERTY_COLOR),
+						new ReversibleCommandPair<Model>(new TellPropertyCommandFromScope(), new Command.Null<Model>())
+					)
 				));
 			}
 		});
