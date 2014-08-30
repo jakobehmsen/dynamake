@@ -765,11 +765,12 @@ public class CanvasModel extends Model {
 					@Override
 					public void run(Collector<Model> collector) {
 						ModelComponent parent = ModelComponent.Util.getParent(CanvasPanel.this);
-						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
-						CanvasModel.appendUnwrapTransaction(pendingCommands, CanvasPanel.this, parent);
+						ArrayList<Object> pendingCommands = new ArrayList<Object>();
+						CanvasModel.appendUnwrapTransaction2(pendingCommands, CanvasPanel.this, parent, collector);
 						
 						collector.startTransaction(parent.getModelBehind(), NewChangeTransactionHandler.class);
-						PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+//						PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+						collector.execute(pendingCommands);
 						collector.commitTransaction();
 					}
 				});
