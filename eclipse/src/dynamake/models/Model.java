@@ -19,6 +19,7 @@ import java.util.Stack;
 import javax.swing.JComponent;
 
 import dynamake.commands.AddObserverCommand;
+import dynamake.commands.AddObserverCommandFromScope;
 import dynamake.commands.CommandSequence;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateWithOutput;
@@ -27,6 +28,7 @@ import dynamake.commands.MappableForwardable;
 import dynamake.commands.PURCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
+import dynamake.commands.RemoveObserverCommandFromScope;
 import dynamake.commands.ReversibleCommand;
 import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.SetPropertyCommand;
@@ -1002,10 +1004,21 @@ public abstract class Model implements Serializable, Observer {
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
 				collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
-				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-					new RemoveObserverCommand(observableLocation, observerLocation),
-					new AddObserverCommand(observableLocation, observerLocation)
+//				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//					new RemoveObserverCommand(observableLocation, observerLocation),
+//					new AddObserverCommand(observableLocation, observerLocation)
+//				));
+				
+				collector.execute(new TriStatePURCommand<Model>(
+					new CommandSequence<Model>(Arrays.asList(
+						collector.createProduceCommand(observableLocation),
+						collector.createProduceCommand(observerLocation),
+						new ReversibleCommandPair<Model>(new RemoveObserverCommandFromScope(), new AddObserverCommandFromScope())
+					)),
+					new ReversibleCommandPair<Model>(new AddObserverCommandFromScope(), new RemoveObserverCommandFromScope()),
+					new ReversibleCommandPair<Model>(new RemoveObserverCommandFromScope(), new AddObserverCommandFromScope())
 				));
+				
 				collector.commitTransaction();
 			}
 		});
@@ -1021,10 +1034,21 @@ public abstract class Model implements Serializable, Observer {
 				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 
 				collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
-				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-					new AddObserverCommand(observableLocation, observerLocation),
-					new RemoveObserverCommand(observableLocation, observerLocation)
+//				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//					new AddObserverCommand(observableLocation, observerLocation),
+//					new RemoveObserverCommand(observableLocation, observerLocation)
+//				));
+				
+				collector.execute(new TriStatePURCommand<Model>(
+					new CommandSequence<Model>(Arrays.asList(
+						collector.createProduceCommand(observableLocation),
+						collector.createProduceCommand(observerLocation),
+						new ReversibleCommandPair<Model>(new AddObserverCommandFromScope(), new RemoveObserverCommandFromScope())
+					)),
+					new ReversibleCommandPair<Model>(new RemoveObserverCommandFromScope(), new AddObserverCommandFromScope()),
+					new ReversibleCommandPair<Model>(new AddObserverCommandFromScope(), new RemoveObserverCommandFromScope())
 				));
+				
 				collector.commitTransaction();
 			}
 		});
