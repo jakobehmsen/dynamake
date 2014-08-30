@@ -491,10 +491,21 @@ public abstract class Model implements Serializable, Observer {
 			final SetProperty setProperty = (SetProperty)change;
 
 			collector.startTransaction(this, PostOnlyTransactionHandler.class);
-			PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-				new SetPropertyCommand(setProperty.name, setProperty.value),
-				new SetPropertyCommand.AfterSetProperty()
+//			PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//				new SetPropertyCommand(setProperty.name, setProperty.value),
+//				new SetPropertyCommand.AfterSetProperty()
+//			));
+			
+			collector.execute(new TriStatePURCommand<Model>(
+				new CommandSequence<Model>(
+					collector.createProduceCommand(setProperty.name),
+					collector.createProduceCommand(setProperty.value),
+					new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
+				), 
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()), // Outputs name of changed property and the previous value
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
 			));
+			
 			collector.commitTransaction();
 		} else if(change instanceof TellProperty && changeDistance == 1) {
 			// Side-effect
