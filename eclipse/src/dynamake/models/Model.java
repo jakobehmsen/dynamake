@@ -10,6 +10,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
@@ -808,11 +809,29 @@ public abstract class Model implements Serializable, Observer {
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
 							Location droppedLocation = fromTargetToDropped;
 							
+//							collector.startTransaction(target.getModelBehind(), NewChangeTransactionHandler.class);
+//							PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//								new CanvasModel.AddModelCommand(new CloneFactory(new RectangleF(creationBounds), droppedLocation)),
+//								new CanvasModel.RemoveModelCommand.AfterAdd(),
+//								new CanvasModel.RestoreModelCommand.AfterRemove()
+//							));
+//							collector.commitTransaction();
+							
+							
+							
+							
+
 							collector.startTransaction(target.getModelBehind(), NewChangeTransactionHandler.class);
-							PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand(new CloneFactory(new RectangleF(creationBounds), droppedLocation)),
-								new CanvasModel.RemoveModelCommand.AfterAdd(),
-								new CanvasModel.RestoreModelCommand.AfterRemove()
+							collector.execute(new TriStatePURCommand<Model>(
+								new CommandSequence<Model>(Arrays.asList(
+									collector.createProduceCommand(new CloneFactory(new RectangleF(creationBounds), droppedLocation)),
+									new ReversibleCommandPair<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null))
+								)),
+								new CommandSequence<Model>(Arrays.asList(
+									new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
+									new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
+								)),
+								new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null))
 							));
 							collector.commitTransaction();
 						}
