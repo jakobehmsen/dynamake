@@ -12,13 +12,20 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowStateListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
+import dynamake.commands.AddObserverCommandFromScope;
+import dynamake.commands.CommandSequence;
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.RemoveObserverCommandFromScope;
+import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.SetPropertyCommand;
+import dynamake.commands.SetPropertyCommandFromScope;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.transcription.NewChangeTransactionHandler;
@@ -263,15 +270,25 @@ public class RootModel extends Model {
 					public void run(Collector<Model> collector) {
 						collector.startTransaction(RootModel.this, NewChangeTransactionHandler.class);
 						
-						collector.execute(new Trigger<Model>() {
-							@Override
-							public void run(Collector<Model> collector) {
-								PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-									new SetPropertyCommand("State", newState),
-									new SetPropertyCommand.AfterSetProperty()
-								));
-							}
-						});
+//						collector.execute(new Trigger<Model>() {
+//							@Override
+//							public void run(Collector<Model> collector) {
+//								PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//									new SetPropertyCommand("State", newState),
+//									new SetPropertyCommand.AfterSetProperty()
+//								));
+//							}
+//						});
+						
+						collector.execute(new TriStatePURCommand<Model>(
+							new CommandSequence<Model>(
+								collector.createProduceCommand("State"),
+								collector.createProduceCommand(newState),
+								new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
+							), 
+							new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()), // Outputs name of changed property and the previous value
+							new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
+						));
 
 						collector.commitTransaction();
 					}
