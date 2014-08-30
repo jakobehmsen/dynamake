@@ -18,7 +18,6 @@ import java.util.Stack;
 
 import javax.swing.JComponent;
 
-import dynamake.commands.AddObserverCommand;
 import dynamake.commands.AddObserverCommandFromScope;
 import dynamake.commands.CommandSequence;
 import dynamake.commands.CommandState;
@@ -26,12 +25,9 @@ import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.MappableForwardable;
 import dynamake.commands.PURCommand;
-import dynamake.commands.PendingCommandState;
-import dynamake.commands.RemoveObserverCommand;
 import dynamake.commands.RemoveObserverCommandFromScope;
 import dynamake.commands.ReversibleCommand;
 import dynamake.commands.ReversibleCommandPair;
-import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.SetPropertyCommandFromScope;
 import dynamake.commands.TriStatePURCommand;
 import dynamake.delegates.Action1;

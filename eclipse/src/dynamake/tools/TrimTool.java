@@ -2,7 +2,6 @@ package dynamake.tools;
 
 import java.util.List;
 
-import dynamake.commands.CommandState;
 import dynamake.models.CanvasModel;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;

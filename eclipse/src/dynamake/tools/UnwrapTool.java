@@ -2,7 +2,6 @@ package dynamake.tools;
 
 import java.util.List;
 
-import dynamake.commands.CommandState;
 import dynamake.models.LiveModel.ProductionPanel;
 import dynamake.models.CanvasModel;
 import dynamake.models.Model;

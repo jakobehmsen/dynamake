@@ -10,14 +10,10 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import dynamake.commands.CommandSequence;
-import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReversibleCommandPair;
-import dynamake.commands.RewrapCommand;
 import dynamake.commands.RewrapCommandFromScope;
 import dynamake.commands.TriStatePURCommand;
-import dynamake.commands.UnwrapCommand;
 import dynamake.commands.UnwrapCommandFromScope;
-import dynamake.commands.WrapCommand;
 import dynamake.commands.WrapCommandFromScope;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
@@ -31,7 +27,6 @@ import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class PlotTool implements Tool {

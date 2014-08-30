@@ -7,10 +7,7 @@ import javax.swing.JPopupMenu;
 
 import dynamake.commands.Command;
 import dynamake.commands.CommandSequence;
-import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReversibleCommandPair;
-import dynamake.commands.SetPropertyCommandFromScope;
-import dynamake.commands.TellPropertyCommand;
 import dynamake.commands.TellPropertyCommandFromScope;
 import dynamake.commands.TriStatePURCommand;
 import dynamake.menubuilders.ActionRunner;
@@ -21,7 +18,6 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class TellDragDropPopupBuilder implements DragDropPopupBuilder {

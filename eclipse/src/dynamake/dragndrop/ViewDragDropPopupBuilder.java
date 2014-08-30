@@ -6,9 +6,7 @@ import java.awt.Rectangle;
 import javax.swing.JPopupMenu;
 
 import dynamake.commands.CommandSequence;
-import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReversibleCommandPair;
-import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.SetPropertyCommandFromScope;
 import dynamake.commands.TriStatePURCommand;
 import dynamake.menubuilders.ActionRunner;
@@ -19,7 +17,6 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.tools.InteractionPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {

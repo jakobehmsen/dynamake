@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
-import dynamake.commands.CommandState;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.models.LiveModel.ProductionPanel;

@@ -34,7 +34,6 @@ import dynamake.commands.SetPropertyCommandFromScope;
 import dynamake.commands.TriStatePURCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.commands.UnwrapCommandFromScope;
-import dynamake.commands.WrapCommandFromScope;
 import dynamake.delegates.Func1;
 import dynamake.delegates.Runner;
 import dynamake.menubuilders.CompositeMenuBuilder;
@@ -1097,6 +1096,7 @@ public class CanvasModel extends Model {
 		
 		Location canvasTargetLocationAfter = canvasTargetLocation;
 		
+		@SuppressWarnings("unused")
 		Location modelLocationAfterMove = new CompositeLocation(canvasTargetLocationAfter, ((CanvasModel)target.getModelBehind()).getNextLocation());
 		
 //		pendingCommands.add(new PendingCommandState<Model>(
