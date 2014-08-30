@@ -5,8 +5,12 @@ import java.awt.Rectangle;
 
 import javax.swing.JPopupMenu;
 
+import dynamake.commands.CommandSequence;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.SetPropertyCommand;
+import dynamake.commands.SetPropertyCommandFromScope;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.Model;
@@ -52,12 +56,22 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Appliance", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
-				if(currentView == null)
-					currentView = Model.VIEW_APPLIANCE;
-				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-					new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
-					new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
+//				Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
+//				if(currentView == null)
+//					currentView = Model.VIEW_APPLIANCE;
+//				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//					new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_APPLIANCE),
+//					new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
+//				));
+				
+				collector.execute(new TriStatePURCommand<Model>(
+					new CommandSequence<Model>(
+						collector.createProduceCommand(Model.PROPERTY_VIEW),
+						collector.createProduceCommand(Model.VIEW_APPLIANCE),
+						new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
+					), 
+					new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()), // Outputs name of changed property and the previous value
+					new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
 				));
 			}
 		});
@@ -65,12 +79,22 @@ public class ViewDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Engineering", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
-				if(currentView == null)
-					currentView = Model.VIEW_APPLIANCE;
-				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-					new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
-					new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
+//				Integer currentView = (Integer)selection.getModelBehind().getProperty(Model.PROPERTY_VIEW);
+//				if(currentView == null)
+//					currentView = Model.VIEW_APPLIANCE;
+//				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//					new SetPropertyCommand(Model.PROPERTY_VIEW, Model.VIEW_ENGINEERING),
+//					new SetPropertyCommand(Model.PROPERTY_VIEW, currentView)
+//				));
+				
+				collector.execute(new TriStatePURCommand<Model>(
+					new CommandSequence<Model>(
+						collector.createProduceCommand(Model.PROPERTY_VIEW),
+						collector.createProduceCommand(Model.VIEW_ENGINEERING),
+						new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
+					), 
+					new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()), // Outputs name of changed property and the previous value
+					new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
 				));
 			}
 		});
