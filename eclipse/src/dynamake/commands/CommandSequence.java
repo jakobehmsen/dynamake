@@ -1,5 +1,6 @@
 package dynamake.commands;
 
+import java.util.Arrays;
 import java.util.List;
 
 import dynamake.models.Location;
@@ -15,6 +16,10 @@ public class CommandSequence<T> implements ReversibleCommand<T> {
 
 	public CommandSequence(List<? extends Object> commands) {
 		this.commands = commands;
+	}
+
+	public CommandSequence(Object... commands) {
+		this.commands = Arrays.asList(commands);
 	}
 
 	@Override
