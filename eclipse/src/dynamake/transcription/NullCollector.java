@@ -18,6 +18,16 @@ public class NullCollector<T> implements Collector<T> {
 	}
 	
 	@Override
+	public Object createPushOffset() {
+		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
+	}
+	
+	@Override
+	public Object createPopOffset() {
+		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
+	}
+	
+	@Override
 	public void execute(Object command) { }
 
 	@Override

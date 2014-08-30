@@ -304,6 +304,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		public static final int OPCODE_SEND_PROPOGATION_FINISHED = 4;
 		public static final int OPCODE_PRODUCE = 5;
 		public static final int OPCODE_CONSUME = 6;
+		public static final int OPCODE_PUSH_OFFSET = 7;
+		public static final int OPCODE_POP_OFFSET = 8;
 		
 		public final int type;
 		public final Object operand1;
@@ -435,6 +437,16 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							@Override
 							public Object createConsumeCommand() {
 								return new Instruction(Instruction.OPCODE_CONSUME);
+							}
+							
+							@Override
+							public Object createPushOffset() {
+								return new Instruction(Instruction.OPCODE_PUSH_OFFSET);
+							}
+							
+							@Override
+							public Object createPopOffset() {
+								return new Instruction(Instruction.OPCODE_POP_OFFSET);
 							}
 							
 							@Override

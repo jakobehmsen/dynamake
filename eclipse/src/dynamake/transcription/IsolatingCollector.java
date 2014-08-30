@@ -26,6 +26,18 @@ public class IsolatingCollector<T> implements Collector<T> {
 		// Do nothing which means side effects aren't collected
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
+	
+	@Override
+	public Object createPushOffset() {
+		// Do nothing which means side effects aren't collected
+		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
+	}
+	
+	@Override
+	public Object createPopOffset() {
+		// Do nothing which means side effects aren't collected
+		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
+	}
 
 	@Override
 	public void execute(Object command) {
