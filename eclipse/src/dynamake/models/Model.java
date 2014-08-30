@@ -816,10 +816,6 @@ public abstract class Model implements Serializable, Observer {
 //								new CanvasModel.RestoreModelCommand.AfterRemove()
 //							));
 //							collector.commitTransaction();
-							
-							
-							
-							
 
 							collector.startTransaction(target.getModelBehind(), NewChangeTransactionHandler.class);
 							collector.execute(new TriStatePURCommand<Model>(
@@ -854,11 +850,25 @@ public abstract class Model implements Serializable, Observer {
 							Location droppedLocation = fromTargetToDropped;
 							ModelFactory factory = new DeriveFactory(new RectangleF(creationBounds), droppedLocation);
 							
+//							collector.startTransaction(target.getModelBehind(), NewChangeTransactionHandler.class);
+//							PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//								new CanvasModel.AddModelCommand(factory),
+//								new CanvasModel.RemoveModelCommand.AfterAdd(),
+//								new CanvasModel.RestoreModelCommand.AfterRemove()
+//							));
+//							collector.commitTransaction();
+							
 							collector.startTransaction(target.getModelBehind(), NewChangeTransactionHandler.class);
-							PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-								new CanvasModel.AddModelCommand(factory),
-								new CanvasModel.RemoveModelCommand.AfterAdd(),
-								new CanvasModel.RestoreModelCommand.AfterRemove()
+							collector.execute(new TriStatePURCommand<Model>(
+								new CommandSequence<Model>(Arrays.asList(
+									collector.createProduceCommand(factory),
+									new ReversibleCommandPair<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null))
+								)),
+								new CommandSequence<Model>(Arrays.asList(
+									new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
+									new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
+								)),
+								new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null))
 							));
 							collector.commitTransaction();
 						}
