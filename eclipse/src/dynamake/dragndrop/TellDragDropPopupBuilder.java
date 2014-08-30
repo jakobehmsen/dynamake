@@ -58,10 +58,10 @@ public class TellDragDropPopupBuilder implements DragDropPopupBuilder {
 		transactionTargetContentMapBuilder.addMenuBuilder("Tell Color", new Trigger<Model>() {
 			@Override
 			public void run(Collector<Model> collector) {
-				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-					new TellPropertyCommand(Model.PROPERTY_COLOR),
-					new Command.Null<Model>()
-				));
+//				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//					new TellPropertyCommand(Model.PROPERTY_COLOR),
+//					new Command.Null<Model>()
+//				));
 				
 				// TODO: Consider:
 				// Should tell color become part of the history of the model? Or should it simply use a PostOnlyTransactionHandler?
