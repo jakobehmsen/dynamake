@@ -18,6 +18,7 @@ import java.util.Stack;
 import javax.swing.JComponent;
 
 import dynamake.commands.AddObserverCommand;
+import dynamake.commands.CommandSequence;
 import dynamake.commands.CommandState;
 import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.ExecutionScope;
@@ -26,7 +27,10 @@ import dynamake.commands.PURCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RemoveObserverCommand;
 import dynamake.commands.ReversibleCommand;
+import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.SetPropertyCommand;
+import dynamake.commands.SetPropertyCommandFromScope;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.delegates.Action1;
 import dynamake.delegates.Func1;
 import dynamake.menubuilders.ColorMenuBuilder;
@@ -767,9 +771,20 @@ public abstract class Model implements Serializable, Observer {
 				return new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
-						PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
-							new SetPropertyCommand(PROPERTY_COLOR, color),
-							new SetPropertyCommand.AfterSetProperty()
+//						PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
+//							new SetPropertyCommand(PROPERTY_COLOR, color),
+//							new SetPropertyCommand.AfterSetProperty()
+//						));
+						
+						// For now, don't support rollback of property setting here (thus the null arguments for the ReversibleCommandPair's)
+						collector.execute(new TriStatePURCommand<Model>(
+							new CommandSequence<Model>(
+								collector.createProduceCommand(PROPERTY_COLOR),
+								collector.createProduceCommand(color),
+								new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), null) // Outputs name of changed property and the previous value
+							), 
+							new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()), // Outputs name of changed property and the previous value
+							new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
 						));
 					}
 				};
