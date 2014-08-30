@@ -14,9 +14,9 @@ public class SetPropertyCommandFromScope implements Command<Model> {
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
 		Model model = (Model)location.getChild(prevalentSystem);
-		
-		String name = (String)scope.consume();
+
 		Object value = scope.consume();
+		String name = (String)scope.consume();
 		
 		Object previousValue = model.getProperty(name);
 		model.setProperty(name, value, propCtx, 0, collector);

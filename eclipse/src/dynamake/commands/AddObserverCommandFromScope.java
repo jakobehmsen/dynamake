@@ -14,8 +14,8 @@ public class AddObserverCommandFromScope implements Command<Model> {
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Location observableLocation = (Location)scope.consume();
 		Location observerLocation = (Location)scope.consume();
+		Location observableLocation = (Location)scope.consume();
 		
 		Model observable = (Model)new CompositeLocation(location, observableLocation).getChild(prevalentSystem);
 		Model observer = (Model)new CompositeLocation(location, observerLocation).getChild(prevalentSystem);

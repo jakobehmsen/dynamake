@@ -20,9 +20,9 @@ public class RewrapCommandFromScope implements Command<Model> {
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Location wrapperLocation = (Location)scope.consume();
-		RectangleF creationBounds = (RectangleF)scope.consume();
 		Location[] modelLocations = (Location[])scope.consume();
+		RectangleF creationBounds = (RectangleF)scope.consume();
+		Location wrapperLocation = (Location)scope.consume();
 		
 		CanvasModel target = (CanvasModel)location.getChild(prevalentSystem);
 		// TODO: Consider: How to restore the history?

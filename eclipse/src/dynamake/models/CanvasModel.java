@@ -30,6 +30,7 @@ import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.RewrapCommand;
 import dynamake.commands.RewrapCommandFromScope;
 import dynamake.commands.SetPropertyCommand;
+import dynamake.commands.SetPropertyCommandFromScope;
 import dynamake.commands.TriStatePURCommand;
 import dynamake.commands.UnwrapCommand;
 import dynamake.commands.UnwrapCommandFromScope;
@@ -129,6 +130,35 @@ public class CanvasModel extends Model {
 		}
 	}
 	
+	public static class MoveModelCommandFromScope implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+			Location locationInSource = (Location)scope.consume();
+			Location canvasTargetLocation = (Location)scope.consume();
+			Location canvasSourceLocation = (Location)scope.consume();
+			
+			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
+			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
+			Model model = (Model)canvasSource.getModelByLocation(locationInSource);
+
+			canvasSource.removeModelByLocation(locationInSource, propCtx, 0, collector);
+			canvasTarget.addModel(model, propCtx, 0, collector);
+			Location locationInTarget = canvasTarget.getLocationOf(model);
+			
+			scope.produce(canvasSourceLocation);
+			scope.produce(canvasTargetLocation);
+			scope.produce(locationInSource);
+			scope.produce(locationInTarget);
+			
+			return null;
+		}
+	}
+	
 	public static class MoveModelCommand implements Command<Model> {
 		public static class Output implements Serializable {
 			/**
@@ -218,6 +248,35 @@ public class CanvasModel extends Model {
 			canvasTarget.restoreModelByLocation(locationInTarget, model, propCtx, 0, collector);
 			
 			return new MoveModelCommand.Output(canvasSourceLocation, canvasTargetLocation, locationInSource, locationInTarget);
+		}
+	}
+	
+	public static class MoveBackModelCommandFromScope implements Command<Model> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+			Location locationInTarget = (Location)scope.consume();
+			Location locationInSource = (Location)scope.consume();
+			Location canvasTargetLocation = (Location)scope.consume();
+			Location canvasSourceLocation = (Location)scope.consume();
+			
+			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
+			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
+			Model model = (Model)canvasSource.getModelByLocation(locationInSource);
+
+			canvasSource.removeModelByLocation(locationInSource, propCtx, 0, collector);
+			canvasTarget.restoreModelByLocation(locationInTarget, model, propCtx, 0, collector);
+			
+			scope.produce(canvasSourceLocation);
+			scope.produce(canvasTargetLocation);
+			scope.produce(locationInSource);
+			scope.produce(locationInTarget);
+			
+			return null;
 		}
 	}
 	
@@ -343,8 +402,8 @@ public class CanvasModel extends Model {
 			
 			// Support for scope usage in case of empty constructor arguments
 			if(useScope) {
-				modelLocation = (Location)scope.consume();
 				factory = (ModelFactory)scope.consume();
+				modelLocation = (Location)scope.consume();
 			}
 			
 			final CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
@@ -430,8 +489,8 @@ public class CanvasModel extends Model {
 			
 			// Support for scope usage in case of empty constructor arguments
 			if(useScope) {
-				modelLocationToRestore = (Location)scope.consume();
 				restorableModel = (RestorableModel)scope.consume();
+				modelLocationToRestore = (Location)scope.consume();
 			}
 			
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
@@ -1030,6 +1089,74 @@ public class CanvasModel extends Model {
 			new RelativeCommand<Model>(modelLocationAfterMove, new SetPropertyCommand("Y", new Fraction(moveLocation.y))),
 			new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 		));
+	}
+	
+	public static void appendMoveTransaction2(List<Object> pendingCommands, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation, Collector<Model> collector) {
+		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
+		Location locationInSource = sourceCanvas.getLocationOf(modelToMove.getModelBehind());
+		
+		Location canvasTargetLocationAfter = canvasTargetLocation;
+		
+		Location modelLocationAfterMove = new CompositeLocation(canvasTargetLocationAfter, ((CanvasModel)target.getModelBehind()).getNextLocation());
+		
+//		pendingCommands.add(new PendingCommandState<Model>(
+//			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, locationInSource), 
+//			new CanvasModel.MoveBackModelCommand.AfterMove(),
+//			new CanvasModel.MoveBackModelCommand.AfterMove()
+//		));
+//		
+//		pendingCommands.add(new PendingCommandState<Model>(
+//			new RelativeCommand<Model>(modelLocationAfterMove, new SetPropertyCommand("X", new Fraction(moveLocation.x))),
+//			new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
+//		));
+//		
+//		pendingCommands.add(new PendingCommandState<Model>(
+//			new RelativeCommand<Model>(modelLocationAfterMove, new SetPropertyCommand("Y", new Fraction(moveLocation.y))),
+//			new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
+//		));
+		
+		pendingCommands.add(new TriStatePURCommand<Model>(
+			new CommandSequence<Model>(
+				collector.createProduceCommand(canvasSourceLocation),
+				collector.createProduceCommand(canvasTargetLocation),
+				collector.createProduceCommand(locationInSource),
+				new ReversibleCommandPair<Model>(new CanvasModel.MoveModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope()),
+				collector.createProduceCommand("X"),
+				collector.createProduceCommand(new Fraction(moveLocation.x)),
+				// How to offset the set property? collector.createProduce(offset); collector.createPopOffset();
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+			),
+			new CommandSequence<Model>(
+				new ReversibleCommandPair<Model>(new CanvasModel.MoveBackModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope()),
+				// How to offset the set property? collector.createProduce(offset); collector.createPopOffset();
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+			),
+			new CommandSequence<Model>(
+				new ReversibleCommandPair<Model>(new CanvasModel.MoveBackModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope()),
+				// How to offset the set property? collector.createProduce(offset); collector.createPopOffset();
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+			)
+		));
+		
+//		pendingCommands.add(new TriStatePURCommand<Model>(
+//			new CommandSequence<Model>(
+//				collector.createProduceCommand("X"),
+//				collector.createProduceCommand(new Fraction(moveLocation.x)),
+//				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+//			), 
+//			new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+//			new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+//		));
+//		
+//		pendingCommands.add(new TriStatePURCommand<Model>(
+//			new CommandSequence<Model>(
+//				collector.createProduceCommand("Y"),
+//				collector.createProduceCommand(new Fraction(moveLocation.y)),
+//				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+//			), 
+//			new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+//			new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+//		));
 	}
 	
 	private static class ItemLocator implements Locator {

@@ -389,11 +389,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
 				switch(instruction.type) {
 				case Instruction.OPCODE_PRODUCE:
-					scope.unproduce();
+					scope.consume();
 					break;
 				case Instruction.OPCODE_CONSUME:
 					Object consumedValue = operand1;
-					scope.unconsume(consumedValue);
+					scope.produce(consumedValue);
 					break;
 				}
 			}

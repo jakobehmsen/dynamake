@@ -14,8 +14,8 @@ public class InjectCommandFromScope implements Command<Model> {
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Location sourceLocation = (Location)scope.consume();
 		Location targetLocation = (Location)scope.consume();
+		Location sourceLocation = (Location)scope.consume();
 		
 		Model source = (Model)CompositeLocation.getChild(prevalentSystem, location, sourceLocation);
 		Model target = (Model)CompositeLocation.getChild(prevalentSystem, location, targetLocation);

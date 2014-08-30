@@ -20,8 +20,8 @@ public class WrapCommandFromScope implements Command<Model> {
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		RectangleF creationBounds = (RectangleF)scope.consume();
 		Location[] modelLocations = (Location[])scope.consume();
+		RectangleF creationBounds = (RectangleF)scope.consume();
 		
 		CanvasModel target = (CanvasModel)location.getChild(prevalentSystem);
 		CanvasModel wrapper = new CanvasModel();

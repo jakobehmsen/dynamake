@@ -23,15 +23,9 @@ public class ExecutionScope implements Serializable {
 	}
 	
 	public Object consume() {
-		Object value =  production.pollFirst();
+		// If pollLast returns null, then ambiguity of the return result of consume occurs, because
+		// the cause of null is not NullWrapper.
+		Object value =  production.pollLast();
 		return value instanceof NullWrapper ? null : value;
-	}
-
-	public void unproduce() {
-		production.removeLast();
-	}
-
-	public void unconsume(Object value) {
-		production.addFirst(value);
 	}
 }

@@ -18,10 +18,10 @@ public class UnwrapCommandFromScope implements Command<Model> {
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Location wrapperLocationInTarget = (Location)scope.consume();
-		RectangleF creationBounds = (RectangleF)scope.consume();
 		@SuppressWarnings("unchecked")
 		Hashtable<Location, Location> wrapperToSourceLocations = (Hashtable<Location, Location>)scope.consume();
+		RectangleF creationBounds = (RectangleF)scope.consume();
+		Location wrapperLocationInTarget = (Location)scope.consume();
 		
 		CanvasModel target = (CanvasModel)location.getChild(prevalentSystem);
 		CanvasModel wrapper = (CanvasModel)wrapperLocationInTarget.getChild(target);

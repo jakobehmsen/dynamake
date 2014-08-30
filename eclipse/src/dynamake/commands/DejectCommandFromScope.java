@@ -13,8 +13,8 @@ public class DejectCommandFromScope implements Command<Model> {
 
 	@Override
 	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Location sourceLocation = (Location)scope.consume();
 		Location targetLocation = (Location)scope.consume();
+		Location sourceLocation = (Location)scope.consume();
 		
 		Model source = (Model)sourceLocation.getChild(prevalentSystem);
 		Model target = (Model)targetLocation.getChild(prevalentSystem);
