@@ -1000,11 +1000,12 @@ public class CanvasModel extends Model {
 	}
 	
 	public static void executeRemoveTransaction(Collector<Model> collector, LivePanel livePanel, ModelComponent child, final CanvasModel model) {
-		ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+		ArrayList<Object> pendingCommands = new ArrayList<Object>();
 		
-		appendRemoveTransaction(pendingCommands, livePanel, child, model);
+		appendRemoveTransaction2(pendingCommands, livePanel, child, model, collector);
 		
-		PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+//		PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+		collector.execute(pendingCommands);
 	}
 	
 //	public static class DestroyThenRemove implements Command<Model> {
@@ -1060,13 +1061,13 @@ public class CanvasModel extends Model {
 //		));
 	}
 	
-	public static void executeAddTransaction(Collector<Model> collector, LivePanel livePanel, ModelComponent child, final CanvasModel model) {
-		ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
-		
-		appendRemoveTransaction(pendingCommands, livePanel, child, model);
-		
-		PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
-	}
+//	public static void executeAddTransaction(Collector<Model> collector, LivePanel livePanel, ModelComponent child, final CanvasModel model) {
+//		ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+//		
+//		appendRemoveTransaction(pendingCommands, livePanel, child, model);
+//		
+//		PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+//	}
 	
 	public static void appendMoveTransaction(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation) {
 		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
