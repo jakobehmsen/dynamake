@@ -3,20 +3,13 @@ package dynamake.dragndrop;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import javax.swing.JPopupMenu;
 
-import dynamake.commands.AddObserverCommand;
 import dynamake.commands.AddObserverCommandFromScope;
 import dynamake.commands.CommandSequence;
-import dynamake.commands.CommandState;
-import dynamake.commands.PendingCommandState;
-import dynamake.commands.RelativeCommand;
-import dynamake.commands.RemoveObserverCommand;
 import dynamake.commands.RemoveObserverCommandFromScope;
 import dynamake.commands.ReversibleCommandPair;
-import dynamake.commands.SetPropertyCommandFromScope;
 import dynamake.commands.TriStatePURCommand;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
@@ -36,7 +29,6 @@ import dynamake.tools.InteractionPresenter;
 import dynamake.tools.TargetPresenter;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
