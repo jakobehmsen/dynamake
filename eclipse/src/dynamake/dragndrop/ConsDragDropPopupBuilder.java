@@ -3,14 +3,21 @@ package dynamake.dragndrop;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JPopupMenu;
 
 import dynamake.commands.AddObserverCommand;
+import dynamake.commands.AddObserverCommandFromScope;
+import dynamake.commands.CommandSequence;
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.RelativeCommand;
 import dynamake.commands.RemoveObserverCommand;
+import dynamake.commands.RemoveObserverCommandFromScope;
+import dynamake.commands.ReversibleCommandPair;
+import dynamake.commands.SetPropertyCommandFromScope;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.menubuilders.ActionRunner;
 import dynamake.menubuilders.CompositeMenuBuilder;
 import dynamake.models.CanvasModel;
@@ -21,6 +28,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.Primitive;
 import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.factories.CreationBoundsFactory;
+import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.PrimitiveSingletonFactory;
 import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.numbers.RectangleF;
@@ -102,25 +110,81 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 						canvasModel.getNextLocation()
 					);
 					
-					ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+					ArrayList<Object> pendingCommands = new ArrayList<Object>();
 					
+//					// Add
+//					pendingCommands.add(new PendingCommandState<Model>(
+//						new RelativeCommand<Model>(canvasModelLocation, 
+//							new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(dropBoundsOnTarget), new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)))
+//						), 
+//						new RelativeCommand.Factory<Model>(new CanvasModel.RemoveModelCommand.AfterAdd()),
+//						new RelativeCommand.Factory<Model>(new CanvasModel.RestoreModelCommand.AfterRemove())
+//					));
+//					
+//					// Bind
+//					pendingCommands.add(new PendingCommandState<Model>(
+//						new AddObserverCommand(observableLocation, addedPrimitiveLocation),
+//						new RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
+//					));
+					
+					
+					ModelFactory factory = new CreationBoundsFactory(new RectangleF(dropBoundsOnTarget), new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget));
+
 					// Add
-					pendingCommands.add(new PendingCommandState<Model>(
-						new RelativeCommand<Model>(canvasModelLocation, 
-							new CanvasModel.AddModelCommand(new CreationBoundsFactory(new RectangleF(dropBoundsOnTarget), new PrimitiveSingletonFactory(primImpl, dropBoundsOnTarget)))
+					pendingCommands.add(new TriStatePURCommand<Model>(
+						new CommandSequence<Model>(
+							collector.createProduceCommand(canvasModelLocation),
+							collector.createPushOffset(),
+								
+							collector.createProduceCommand(factory),
+							new ReversibleCommandPair<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null)),
+							
+							collector.createPopOffset()
 						), 
-						new RelativeCommand.Factory<Model>(new CanvasModel.RemoveModelCommand.AfterAdd()),
-						new RelativeCommand.Factory<Model>(new CanvasModel.RestoreModelCommand.AfterRemove())
+						new CommandSequence<Model>(
+							collector.createProduceCommand(canvasModelLocation),
+							collector.createPushOffset(),
+								
+							new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
+							new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null)),
+							
+							collector.createPopOffset()
+						), 
+						new CommandSequence<Model>(
+							collector.createProduceCommand(canvasModelLocation),
+							collector.createPushOffset(),
+									
+							new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null)),
+							
+							collector.createPopOffset()
+						)
 					));
-					
+
 					// Bind
-					pendingCommands.add(new PendingCommandState<Model>(
-						new AddObserverCommand(observableLocation, addedPrimitiveLocation),
-						new RemoveObserverCommand(observableLocation, addedPrimitiveLocation)
+//					pendingCommands.add(new TriStatePURCommand<Model>(
+//						new CommandSequence<Model>(
+//							collector.createProduceCommand(setProperty.name),
+//							collector.createProduceCommand(setProperty.value),
+//							new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
+//						), 
+//						new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()), // Outputs name of changed property and the previous value
+//						new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
+//					));
+					
+					pendingCommands.add(new TriStatePURCommand<Model>(
+						new CommandSequence<Model>(
+							collector.createProduceCommand(observableLocation),
+							collector.createProduceCommand(addedPrimitiveLocation),
+							new ReversibleCommandPair<Model>(new AddObserverCommandFromScope(), new RemoveObserverCommandFromScope())
+						),
+						new ReversibleCommandPair<Model>(new RemoveObserverCommandFromScope(), new AddObserverCommandFromScope()),
+						new ReversibleCommandPair<Model>(new AddObserverCommandFromScope(), new RemoveObserverCommandFromScope())
 					));
 					
-					collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
-					PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+					Model reference = referenceMC.getModelBehind();
+					collector.startTransaction(reference, NewChangeTransactionHandler.class);
+//					PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+					collector.execute(pendingCommands);
 					collector.commitTransaction();
 				}
 			});
