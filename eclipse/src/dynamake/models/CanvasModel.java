@@ -258,6 +258,7 @@ public class CanvasModel extends Model {
 
 		@Override
 		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+			// Move back from target to source
 			Location locationInTarget = (Location)scope.consume();
 			Location locationInSource = (Location)scope.consume();
 			Location canvasTargetLocation = (Location)scope.consume();
@@ -265,15 +266,15 @@ public class CanvasModel extends Model {
 			
 			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
 			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
-			Model model = (Model)canvasSource.getModelByLocation(locationInSource);
+			Model model = (Model)canvasTarget.getModelByLocation(locationInSource);
 
-			canvasSource.removeModelByLocation(locationInSource, propCtx, 0, collector);
-			canvasTarget.restoreModelByLocation(locationInTarget, model, propCtx, 0, collector);
-			
-			scope.produce(canvasSourceLocation);
+			canvasTarget.removeModelByLocation(locationInTarget, propCtx, 0, collector);
+			canvasSource.restoreModelByLocation(locationInSource, model, propCtx, 0, collector);
+
 			scope.produce(canvasTargetLocation);
-			scope.produce(locationInSource);
+			scope.produce(canvasSourceLocation);
 			scope.produce(locationInTarget);
+			scope.produce(locationInSource);
 			
 			return null;
 		}
@@ -1114,41 +1115,114 @@ public class CanvasModel extends Model {
 //			new RelativeCommand.Factory<Model>(new SetPropertyCommand.AfterSetProperty())
 //		));
 		
+//		pendingCommands.add(new TriStatePURCommand<Model>(
+//			new CommandSequence<Model>(
+//				// Scope A
+//				collector.createProduceCommand(canvasSourceLocation),
+//				collector.createProduceCommand(canvasTargetLocation),
+//				collector.createProduceCommand(locationInSource),
+//				new ReversibleCommandPair<Model>(new CanvasModel.MoveModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope()),
+//				// How to offset the set property? 
+//				// collector.createProduce(offset); collector.createPushOffset();
+//
+//				// Scope B
+//				collector.createProduceCommand(modelLocationAfterMove),
+//				collector.createPushOffset(),
+//				collector.createProduceCommand("X"),
+//				collector.createProduceCommand(new Fraction(moveLocation.x)),
+//				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+//				collector.createProduceCommand("Y"),
+//				collector.createProduceCommand(new Fraction(moveLocation.y)),
+//				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+//				collector.createPopOffset()
+//			),
+//			new CommandSequence<Model>(
+//				// Scope A
+//				new ReversibleCommandPair<Model>(new CanvasModel.MoveBackModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope()),
+//
+//				// Scope B
+//				collector.createProduceCommand(modelLocationAfterMove),
+//				collector.createPushOffset(),
+//				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+//				collector.createPopOffset()
+//			),
+//			new CommandSequence<Model>(
+//				// Scope A
+//				new ReversibleCommandPair<Model>(new CanvasModel.MoveBackModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope()),
+//				
+//				// Scope B
+//				collector.createProduceCommand(modelLocationAfterMove),
+//				collector.createPushOffset(),
+//				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+//				collector.createPopOffset()
+//			)
+//		));
+		
+		
+		
 		pendingCommands.add(new TriStatePURCommand<Model>(
 			new CommandSequence<Model>(
 				collector.createProduceCommand(canvasSourceLocation),
 				collector.createProduceCommand(canvasTargetLocation),
 				collector.createProduceCommand(locationInSource),
-				new ReversibleCommandPair<Model>(new CanvasModel.MoveModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope()),
-				// How to offset the set property? 
-				// collector.createProduce(offset); collector.createPushOffset();
+				new ReversibleCommandPair<Model>(new CanvasModel.MoveModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope())
+			),
+			new CommandSequence<Model>(
+				new ReversibleCommandPair<Model>(new CanvasModel.MoveBackModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope())
+			),
+			new CommandSequence<Model>(
+				new ReversibleCommandPair<Model>(new CanvasModel.MoveBackModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope())
+			)
+		));
+		
+		pendingCommands.add(new TriStatePURCommand<Model>(
+			new CommandSequence<Model>(
 				collector.createProduceCommand(modelLocationAfterMove),
 				collector.createPushOffset(),
 				collector.createProduceCommand("X"),
 				collector.createProduceCommand(new Fraction(moveLocation.x)),
 				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
-				collector.createProduceCommand("Y"),
-				collector.createProduceCommand(new Fraction(moveLocation.y)),
-				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
 				collector.createPopOffset()
 			),
 			new CommandSequence<Model>(
-				new ReversibleCommandPair<Model>(new CanvasModel.MoveBackModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope()),
-				// How to offset the set property? 
 				collector.createProduceCommand(modelLocationAfterMove),
 				collector.createPushOffset(),
 				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
 				collector.createPopOffset()
 			),
 			new CommandSequence<Model>(
-				new ReversibleCommandPair<Model>(new CanvasModel.MoveBackModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope()),
-				// How to offset the set property? 
 				collector.createProduceCommand(modelLocationAfterMove),
 				collector.createPushOffset(),
 				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
 				collector.createPopOffset()
 			)
 		));
+		
+		pendingCommands.add(new TriStatePURCommand<Model>(
+			new CommandSequence<Model>(
+				collector.createProduceCommand(modelLocationAfterMove),
+				collector.createPushOffset(),
+				collector.createProduceCommand("Y"),
+				collector.createProduceCommand(new Fraction(moveLocation.y)),
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+				collector.createPopOffset()
+			),
+			new CommandSequence<Model>(
+				collector.createProduceCommand(modelLocationAfterMove),
+				collector.createPushOffset(),
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+				collector.createPopOffset()
+			),
+			new CommandSequence<Model>(
+				collector.createProduceCommand(modelLocationAfterMove),
+				collector.createPushOffset(),
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+				collector.createPopOffset()
+			)
+		));
+		
+		
+		
 		
 //		pendingCommands.add(new TriStatePURCommand<Model>(
 //			new CommandSequence<Model>(
