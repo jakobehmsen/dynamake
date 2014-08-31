@@ -25,7 +25,6 @@ import dynamake.commands.CommandState;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.ReversibleCommand;
 import dynamake.delegates.Func0;
-import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelRootLocation;
