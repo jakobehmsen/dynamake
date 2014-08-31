@@ -859,12 +859,14 @@ public class CanvasModel extends Model {
 						Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
 						Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 						
-						ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+						ArrayList<Object> pendingCommands = new ArrayList<Object>();
 						
-						CanvasModel.appendMoveTransaction(pendingCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
+//						CanvasModel.appendMoveTransaction(pendingCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget);
+						CanvasModel.appendMoveTransaction2(pendingCommands, (LivePanel)livePanel, source, modelToMove, targetOver, droppedBounds.getLocation(), locationOfSource, locationOfTarget, collector);
 
 						collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
-						PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+//						PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+						collector.execute(pendingCommands);
 						collector.commitTransaction();
 					}
 				});
