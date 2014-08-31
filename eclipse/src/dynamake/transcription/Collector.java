@@ -21,6 +21,8 @@ public interface Collector<T> {
 	void startTransaction(T reference, Object transactionHandlerClass);
 	Object createProduceCommand(Object value);
 	Object createConsumeCommand();
+	Object createStoreCommand(String name);
+	Object createLoadCommand(String name);
 	Object createPushOffset();
 	Object createPopOffset();
 	void execute(Object command);

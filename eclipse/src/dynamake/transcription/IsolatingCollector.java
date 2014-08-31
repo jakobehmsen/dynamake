@@ -28,6 +28,18 @@ public class IsolatingCollector<T> implements Collector<T> {
 	}
 	
 	@Override
+	public Object createStoreCommand(String name) {
+		// Do nothing which means side effects aren't collected
+		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
+	}
+	
+	@Override
+	public Object createLoadCommand(String name) {
+		// Do nothing which means side effects aren't collected
+		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
+	}
+	
+	@Override
 	public Object createPushOffset() {
 		// Do nothing which means side effects aren't collected
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());

@@ -2,6 +2,7 @@ package dynamake.commands;
 
 import java.io.Serializable;
 import java.util.ArrayDeque;
+import java.util.Hashtable;
 
 import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
@@ -18,19 +19,20 @@ public class ExecutionScope implements Serializable {
 	}
 
 	private ArrayDeque<Object> production = new ArrayDeque<Object>();
+	private Hashtable<String, Object> locals = new Hashtable<String, Object>();
 	private Location offset = new ModelRootLocation();
 	
 	public void produce(Object value) {
 		if(value == null)
 			value = new NullWrapper();
 		
-		production.addLast(value);
+		production.push(value);
 	}
 	
 	public Object consume() {
 		// If pollLast returns null, then ambiguity of the return result of consume occurs, because
 		// the cause of null is not NullWrapper.
-		Object value =  production.pollLast();
+		Object value =  production.pop();
 		return value instanceof NullWrapper ? null : value;
 	}
 	
@@ -47,5 +49,21 @@ public class ExecutionScope implements Serializable {
 	
 	public Location getOffset() {
 		return offset;
+	}
+
+	public Object store(String name) {
+		Object value = consume();
+		Object currentValue = locals.get(name);
+		locals.put(name, value);
+		return currentValue;
+	}
+
+	public void load(String name) {
+		Object value = locals.get(name);
+		produce(value);
+	}
+
+	public void restore(String name, Object value) {
+		locals.put(name, value);
 	}
 }

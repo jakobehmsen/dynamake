@@ -308,6 +308,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		public static final int OPCODE_CONSUME = 6;
 		public static final int OPCODE_PUSH_OFFSET = 7;
 		public static final int OPCODE_POP_OFFSET = 8;
+		public static final int OPCODE_STORE = 9;
+		public static final int OPCODE_LOAD = 10;
 		
 		public final int type;
 		public final Object operand1;
@@ -397,6 +399,15 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				case Instruction.OPCODE_POP_OFFSET:
 					scope.popOffset();
 					break;
+				case Instruction.OPCODE_STORE: {
+					String name = (String)instruction.operand1;
+					scope.store(name);
+					break;
+				} case Instruction.OPCODE_LOAD: {
+					String name = (String)instruction.operand1;
+					scope.load(name);
+					break;
+				}
 				}
 			}
 
@@ -417,6 +428,15 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					Location poppedOffset = (Location)operand1;
 					scope.pushOffset(poppedOffset);
 					break;
+				case Instruction.OPCODE_STORE: {
+					String name = (String)instruction.operand1;
+					Object previousValue = operand1;
+					scope.restore(name, previousValue);
+					break;
+				} case Instruction.OPCODE_LOAD: {
+					scope.consume();
+					break;
+				}
 				}
 			}
 		}
@@ -457,6 +477,16 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							@Override
 							public Object createConsumeCommand() {
 								return new Instruction(Instruction.OPCODE_CONSUME);
+							}
+							
+							@Override
+							public Object createStoreCommand(String name) {
+								return new Instruction(Instruction.OPCODE_STORE, name);
+							}
+							
+							@Override
+							public Object createLoadCommand(String name) {
+								return new Instruction(Instruction.OPCODE_LOAD, name);
 							}
 							
 							@Override
@@ -559,7 +589,20 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								logExecution(instruction, new ReversibleInstructionPair<T>(instruction, consumedValue), propCtx, collector);
 								break;
 								
-							case Instruction.OPCODE_PUSH_OFFSET:
+							case Instruction.OPCODE_STORE: {
+								logBeforeExecution(command, propCtx, collector);
+								String name = (String)instruction.operand1;
+								Object previousValue = currentFrame.handler.getScope().store(name);
+								logExecution(instruction, new ReversibleInstructionPair<T>(instruction, previousValue), propCtx, collector);
+								break;
+							} case Instruction.OPCODE_LOAD: {
+								logBeforeExecution(command, propCtx, collector);
+								String name = (String)instruction.operand1;
+								currentFrame.handler.getScope().load(name);
+								logExecution(instruction, new ReversibleInstructionPair<T>(instruction), propCtx, collector);
+								break;
+								
+							} case Instruction.OPCODE_PUSH_OFFSET:
 								logBeforeExecution(command, propCtx, collector);
 								Location offset = (Location)currentFrame.handler.getScope().consume();
 								currentFrame.handler.getScope().pushOffset(offset);
