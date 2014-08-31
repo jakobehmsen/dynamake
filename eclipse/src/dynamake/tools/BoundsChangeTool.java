@@ -12,9 +12,7 @@ import javax.swing.SwingUtilities;
 
 import dynamake.commands.CommandSequence;
 import dynamake.commands.CommandState;
-import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReversibleCommandPair;
-import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.SetPropertyCommandFromScope;
 import dynamake.commands.TriStatePURCommand;
 import dynamake.models.CanvasModel;
