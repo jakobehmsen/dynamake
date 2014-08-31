@@ -81,6 +81,10 @@ public class Fraction extends Number {
 		return f;
 	}
 	
+	public Fraction reciprocal() {
+		return new Fraction(denominator, numerator);
+	}
+	
 	private void reduce() {
 		BigInteger cd = numerator.gcd(denominator);
 		if(!cd.equals(BigInteger.ZERO)) {
