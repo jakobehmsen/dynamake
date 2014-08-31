@@ -25,6 +25,7 @@ import dynamake.commands.CommandState;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.ReversibleCommand;
 import dynamake.delegates.Func0;
+import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.ModelRootLocation;
@@ -133,12 +134,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	
 	@SuppressWarnings("unchecked")
 	private static <T> void replay(TransactionHandler<T> parentTransactionHandler, ContextualCommand<T> ctxTransaction, T prevalentSystem, PropogationContext propCtx, Collector<T> isolatedCollector) {
-		Location locationFromReference = new ModelRootLocation();
+//		Location locationFromReference = new ModelRootLocation();
 		T reference = (T)ctxTransaction.locationFromRootToReference.getChild(prevalentSystem);
 		
 		TransactionHandler<T> transactionHandler = ctxTransaction.transactionHandlerFactory.createTransactionHandler(reference);
 		transactionHandler.startLogFor(parentTransactionHandler, reference);
-		ExecutionScope scope = transactionHandler.getScope();
 		
 		for(Object transactionFromRoot: ctxTransaction.transactionsFromRoot) {
 			if(transactionFromRoot instanceof Tuple2) {
@@ -147,6 +147,9 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				ReversibleCommand<T> rCommand = entry.value2;
 				
 				transactionHandler.logBeforeFor(reference, command, propCtx, 0, isolatedCollector);
+
+				ExecutionScope scope = transactionHandler.getScope();
+				Location locationFromReference = scope.getOffset();
 				
 				rCommand.executeForward(propCtx, reference, isolatedCollector, locationFromReference, scope);
 				
@@ -369,6 +372,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			private final Instruction instruction;
 			private final Object operand1;
 
+			public ReversibleInstructionPair(Instruction instruction) {
+				this(instruction, null);
+			}
+
 			public ReversibleInstructionPair(Instruction instruction, Object operand1) {
 				this.instruction = instruction;
 				this.operand1 = operand1;
@@ -384,6 +391,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				case Instruction.OPCODE_CONSUME:
 					scope.consume();
 					break;
+				case Instruction.OPCODE_PUSH_OFFSET:
+					Location offset = (Location)scope.consume();
+					scope.pushOffset(offset);
+					break;
+				case Instruction.OPCODE_POP_OFFSET:
+					scope.popOffset();
+					break;
 				}
 			}
 
@@ -396,6 +410,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				case Instruction.OPCODE_CONSUME:
 					Object consumedValue = operand1;
 					scope.produce(consumedValue);
+					break;
+				case Instruction.OPCODE_PUSH_OFFSET:
+					scope.popOffset();
+					break;
+				case Instruction.OPCODE_POP_OFFSET:
+					Location poppedOffset = (Location)operand1;
+					scope.pushOffset(poppedOffset);
 					break;
 				}
 			}
@@ -531,12 +552,24 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								logBeforeExecution(command, propCtx, collector);
 								Object valueToProduce = instruction.operand1;
 								currentFrame.handler.getScope().produce(valueToProduce);
-								logExecution(instruction, new ReversibleInstructionPair<T>(instruction, new Instruction(Instruction.OPCODE_CONSUME)), propCtx, collector);
+								logExecution(instruction, new ReversibleInstructionPair<T>(instruction), propCtx, collector);
 								break;
 							case Instruction.OPCODE_CONSUME:
 								logBeforeExecution(command, propCtx, collector);
 								Object consumedValue = currentFrame.handler.getScope().consume();
 								logExecution(instruction, new ReversibleInstructionPair<T>(instruction, consumedValue), propCtx, collector);
+								break;
+								
+							case Instruction.OPCODE_PUSH_OFFSET:
+								logBeforeExecution(command, propCtx, collector);
+								Location offset = (Location)currentFrame.handler.getScope().consume();
+								currentFrame.handler.getScope().pushOffset(offset);
+								logExecution(instruction, new ReversibleInstructionPair<T>(instruction), propCtx, collector);
+								break;
+							case Instruction.OPCODE_POP_OFFSET:
+								logBeforeExecution(command, propCtx, collector);
+								Location poppedOffset = currentFrame.handler.getScope().popOffset();
+								logExecution(instruction, new ReversibleInstructionPair<T>(instruction, poppedOffset), propCtx, collector);
 								break;
 							}
 						} else if(command instanceof PendingCommandFactory) {
@@ -580,11 +613,12 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 						} else if(command instanceof ReversibleCommand) {
 							ReversibleCommand<T> rCommand = (ReversibleCommand<T>)command;
 							
-							Location locationFromReference = new ModelRootLocation();
+//							Location locationFromReference = new ModelRootLocation();
 							
 							logBeforeExecution(rCommand, propCtx, collector);
 							
 							ExecutionScope scope = currentFrame.handler.getScope();
+							Location locationFromReference = scope.getOffset();
 							
 							rCommand.executeForward(propCtx, currentFrame.reference, collector, locationFromReference, scope);
 							
