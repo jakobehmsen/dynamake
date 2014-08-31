@@ -228,6 +228,20 @@ public abstract class Model implements Serializable, Observer {
 		public HistoryPart(List<Tuple2<PURCommand<Model>, ExecutionScope>> purCommands) {
 			this.purCommands = purCommands;
 		}
+
+		public HistoryPart forReplayFromUndo() {
+			ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>> pendings = new ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>>();
+			for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: purCommands) {
+				// pur.back is assumed to be insignificant
+				PURCommand<Model> pur = purAndScope.value1;
+				PURCommand<Model> pending = pur.inReplayState();
+				pendings.add(new Tuple2<PURCommand<Model>, ExecutionScope>(pending, purAndScope.value2));
+			}
+			
+			Collections.reverse(pendings);
+			
+			return new HistoryPart(pendings);
+		}
 		
 		public HistoryPart forUndo() {
 			ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>> undoables = new ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>>();
@@ -1112,8 +1126,8 @@ public abstract class Model implements Serializable, Observer {
 			this.redoStack = ((History)history).redoStack;
 		}
 		
-		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
-		
+//		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
+//		
 //		for(CommandState<Model> undoable: ((History)history).undoStack) {
 //			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
 //			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
@@ -1121,17 +1135,14 @@ public abstract class Model implements Serializable, Observer {
 //				origins.add(undoPart.origin.pending);
 //			}
 //		}
+//		
+//		PendingCommandFactory.Util.executeSequence(collector, origins);
 		
 		// TODO: FIGURE OUT HOW TO EXTRACT REVERSIBLE COMMAND TO APPEND TO ORIGINS! AND THEN EXECUTE THEM!
-//		for(HistoryPart undoable: ((History)history).undoStack) {
-//			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
-//			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {
-//				UndoRedoPart undoPart = (UndoRedoPart)undoableAsRevertiable.getCommandState(i);
-//				origins.add(undoPart.origin.pending);
-//			}
-//		}
-		
-		PendingCommandFactory.Util.executeSequence(collector, origins);
+		for(HistoryPart undoable: ((History)history).undoStack) {
+			HistoryPart replayable = undoable.forReplayFromUndo();
+			collector.execute(replayable);
+		}
 	}
 	
 	public RestorableModel toRestorable(boolean includeLocalHistory) {
@@ -1140,14 +1151,14 @@ public abstract class Model implements Serializable, Observer {
 
 	public void destroy(PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		@SuppressWarnings("unchecked")
-		List<Execution<Model>> creation = (List<Execution<Model>>)getProperty(RestorableModel.PROPERTY_CREATION);
+		List<PURCommand<Model>> creation = (List<PURCommand<Model>>)getProperty(RestorableModel.PROPERTY_CREATION);
 		if(creation != null) {
-			List<CommandState<Model>> destruction = new ArrayList<CommandState<Model>>();
-			for(Execution<Model> creationPart: creation)
-				destruction.add(creationPart.undoable);
+			List<Object> destruction = new ArrayList<Object>();
+			for(PURCommand<Model> creationPart: creation)
+				destruction.add(creationPart.inUndoState());
 			Collections.reverse(destruction);
 			
-			PendingCommandFactory.Util.executeSequence(collector, destruction);
+//			PendingCommandFactory.Util.executeSequence(collector, destruction);
 		}
 	}
 }
