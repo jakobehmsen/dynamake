@@ -3,16 +3,22 @@ package dynamake.tools;
 import java.awt.Rectangle;
 import java.util.List;
 
+import dynamake.commands.CommandSequence;
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.ResizeCommandFromScope;
+import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.ScaleCommand;
+import dynamake.commands.ScaleCommandFromScope;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
 import dynamake.numbers.Fraction;
+import dynamake.transcription.Collector;
 
 public class ScaleTool extends BoundsChangeTool {
 	@Override
-	protected void appendCommandStatesForResize(List<CommandState<Model>> commandStates, ModelComponent selection, Rectangle newBounds) {
+	protected void appendCommandStatesForResize(List<Object> pendingCommands, ModelComponent selection, Rectangle newBounds, Collector<Model> collector) {
 		Fraction currentX = (Fraction)selection.getModelBehind().getProperty("X");
 		Fraction currentY = (Fraction)selection.getModelBehind().getProperty("Y");
 		
@@ -29,9 +35,21 @@ public class ScaleTool extends BoundsChangeTool {
 		Fraction hChangeBackward = currentWidth.divide(new Fraction(newBounds.width));
 		Fraction vChangeBackward = currentHeight.divide(new Fraction(newBounds.height));
 		
-		commandStates.add(new PendingCommandState<Model>(
-			new ScaleCommand(xDeltaForward, yDeltaForward, hChangeForward, vChangeForward), 
-			new ScaleCommand(xDeltaBackward, yDeltaBackward, hChangeBackward, vChangeBackward)
+//		commandStates.add(new PendingCommandState<Model>(
+//			new ScaleCommand(xDeltaForward, yDeltaForward, hChangeForward, vChangeForward), 
+//			new ScaleCommand(xDeltaBackward, yDeltaBackward, hChangeBackward, vChangeBackward)
+//		));
+		
+		pendingCommands.add(new TriStatePURCommand<Model>(
+			new CommandSequence<Model>(
+				collector.createProduceCommand(xDeltaForward),
+				collector.createProduceCommand(yDeltaForward),
+				collector.createProduceCommand(hChangeForward),
+				collector.createProduceCommand(vChangeForward),
+				new ReversibleCommandPair<Model>(new ScaleCommandFromScope(), new ScaleCommandFromScope())
+			),
+			new ReversibleCommandPair<Model>(new ScaleCommandFromScope(), new ScaleCommandFromScope()),
+			new ReversibleCommandPair<Model>(new ScaleCommandFromScope(), new ScaleCommandFromScope())
 		));
 	}
 }

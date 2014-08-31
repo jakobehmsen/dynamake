@@ -133,11 +133,12 @@ public abstract class BoundsChangeTool implements Tool {
 					collector.execute(new Trigger<Model>() {
 						@Override
 						public void run(Collector<Model> collector) {
-							ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+							ArrayList<Object> pendingCommands = new ArrayList<Object>();
 
-							appendCommandStatesForResize(pendingCommands, selection, newBounds);
+							appendCommandStatesForResize(pendingCommands, selection, newBounds, collector);
 							
-							PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+//							PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+							collector.execute(pendingCommands);
 						}
 					});
 				}
@@ -149,7 +150,7 @@ public abstract class BoundsChangeTool implements Tool {
 		}
 	}
 
-	protected abstract void appendCommandStatesForResize(List<CommandState<Model>> commandStates, ModelComponent selection, Rectangle newBounds);
+	protected abstract void appendCommandStatesForResize(List<Object> commandStates, ModelComponent selection, Rectangle newBounds, Collector<Model> collector);
 	
 	private Point mouseDown;
 	private ModelComponent viewPressedOn;
