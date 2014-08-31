@@ -23,6 +23,9 @@ public class RemoveObserverCommandFromScope implements Command<Model> {
 		observable.removeObserver(observer);
 //		System.out.println(observer + " no longer observes " + observable);
 		
+		scope.produce(observableLocation);
+		scope.produce(observerLocation);
+		
 		return null;
 	}
 }

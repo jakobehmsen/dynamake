@@ -23,6 +23,9 @@ public class AddObserverCommandFromScope implements Command<Model> {
 		observable.addObserver(observer);
 //		System.out.println(observer + " now observes " + observable);
 		
+		scope.produce(observableLocation);
+		scope.produce(observerLocation);
+		
 		return null;
 	}
 }
