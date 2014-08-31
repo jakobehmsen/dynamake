@@ -11,16 +11,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowStateListener;
-import java.util.ArrayList;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 import dynamake.commands.CommandSequence;
-import dynamake.commands.CommandState;
-import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReversibleCommandPair;
-import dynamake.commands.SetPropertyCommand;
 import dynamake.commands.SetPropertyCommandFromScope;
 import dynamake.commands.TriStatePURCommand;
 import dynamake.menubuilders.CompositeMenuBuilder;
@@ -28,7 +24,6 @@ import dynamake.models.LiveModel.LivePanel;
 import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public class RootModel extends Model {
