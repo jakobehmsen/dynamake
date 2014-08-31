@@ -1096,7 +1096,6 @@ public class CanvasModel extends Model {
 		
 		Location canvasTargetLocationAfter = canvasTargetLocation;
 		
-		@SuppressWarnings("unused")
 		Location modelLocationAfterMove = new CompositeLocation(canvasTargetLocationAfter, ((CanvasModel)target.getModelBehind()).getNextLocation());
 		
 //		pendingCommands.add(new PendingCommandState<Model>(
@@ -1121,20 +1120,33 @@ public class CanvasModel extends Model {
 				collector.createProduceCommand(canvasTargetLocation),
 				collector.createProduceCommand(locationInSource),
 				new ReversibleCommandPair<Model>(new CanvasModel.MoveModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope()),
+				// How to offset the set property? 
+				// collector.createProduce(offset); collector.createPushOffset();
+				collector.createProduceCommand(modelLocationAfterMove),
+				collector.createPushOffset(),
 				collector.createProduceCommand("X"),
 				collector.createProduceCommand(new Fraction(moveLocation.x)),
-				// How to offset the set property? collector.createProduce(offset); collector.createPopOffset();
-				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+				collector.createProduceCommand("Y"),
+				collector.createProduceCommand(new Fraction(moveLocation.y)),
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+				collector.createPopOffset()
 			),
 			new CommandSequence<Model>(
 				new ReversibleCommandPair<Model>(new CanvasModel.MoveBackModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope()),
-				// How to offset the set property? collector.createProduce(offset); collector.createPopOffset();
-				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+				// How to offset the set property? 
+				collector.createProduceCommand(modelLocationAfterMove),
+				collector.createPushOffset(),
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+				collector.createPopOffset()
 			),
 			new CommandSequence<Model>(
 				new ReversibleCommandPair<Model>(new CanvasModel.MoveBackModelCommandFromScope(), new CanvasModel.MoveBackModelCommandFromScope()),
-				// How to offset the set property? collector.createProduce(offset); collector.createPopOffset();
-				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+				// How to offset the set property? 
+				collector.createProduceCommand(modelLocationAfterMove),
+				collector.createPushOffset(),
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+				collector.createPopOffset()
 			)
 		));
 		
