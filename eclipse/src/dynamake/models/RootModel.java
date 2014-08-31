@@ -164,31 +164,69 @@ public class RootModel extends Model {
 						collector.execute(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
-								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+//								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
 								
 								if(newLocation != null) {
-									pendingCommands.add(new PendingCommandState<Model>(
-										new SetPropertyCommand("X", newLocation.x),
-										new SetPropertyCommand.AfterSetProperty()
+									collector.execute(new TriStatePURCommand<Model>(
+										new CommandSequence<Model>(
+											collector.createProduceCommand("X"),
+											collector.createProduceCommand(newLocation.x),
+											new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+										), 
+										new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+										new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
 									));
-									pendingCommands.add(new PendingCommandState<Model>(
-										new SetPropertyCommand("Y", newLocation.y),
-										new SetPropertyCommand.AfterSetProperty()
+									collector.execute(new TriStatePURCommand<Model>(
+										new CommandSequence<Model>(
+											collector.createProduceCommand("Y"),
+											collector.createProduceCommand(newLocation.y),
+											new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+										), 
+										new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+										new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
 									));
+									
+//									pendingCommands.add(new PendingCommandState<Model>(
+//										new SetPropertyCommand("X", newLocation.x),
+//										new SetPropertyCommand.AfterSetProperty()
+//									));
+//									pendingCommands.add(new PendingCommandState<Model>(
+//										new SetPropertyCommand("Y", newLocation.y),
+//										new SetPropertyCommand.AfterSetProperty()
+//									));
 								}
 								
 								if(newSize != null) {
-									pendingCommands.add(new PendingCommandState<Model>(
-										new SetPropertyCommand("Width", newSize.width),
-										new SetPropertyCommand.AfterSetProperty()
+									collector.execute(new TriStatePURCommand<Model>(
+										new CommandSequence<Model>(
+											collector.createProduceCommand("Width"),
+											collector.createProduceCommand(newSize.width),
+											new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+										), 
+										new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+										new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
 									));
-									pendingCommands.add(new PendingCommandState<Model>(
-										new SetPropertyCommand("Height", newSize.height),
-										new SetPropertyCommand.AfterSetProperty()
+									collector.execute(new TriStatePURCommand<Model>(
+										new CommandSequence<Model>(
+											collector.createProduceCommand("Y"),
+											collector.createProduceCommand(newSize.height),
+											new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+										), 
+										new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+										new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
 									));
+										
+//									pendingCommands.add(new PendingCommandState<Model>(
+//										new SetPropertyCommand("Width", newSize.width),
+//										new SetPropertyCommand.AfterSetProperty()
+//									));
+//									pendingCommands.add(new PendingCommandState<Model>(
+//										new SetPropertyCommand("Height", newSize.height),
+//										new SetPropertyCommand.AfterSetProperty()
+//									));
 								}
 								
-								PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+//								PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 							}
 						});
 
