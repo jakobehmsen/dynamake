@@ -4,12 +4,8 @@ import java.awt.Rectangle;
 import java.util.List;
 
 import dynamake.commands.CommandSequence;
-import dynamake.commands.CommandState;
-import dynamake.commands.PendingCommandState;
-import dynamake.commands.ResizeCommand;
 import dynamake.commands.ResizeCommandFromScope;
 import dynamake.commands.ReversibleCommandPair;
-import dynamake.commands.SetPropertyCommandFromScope;
 import dynamake.commands.TriStatePURCommand;
 import dynamake.models.Model;
 import dynamake.models.ModelComponent;
@@ -31,11 +27,6 @@ public class EditTool extends BoundsChangeTool {
 		
 		Fraction widthDeltaForward = new Fraction(newBounds.width).subtract(currentWidth);
 		Fraction heightDeltaForward = new Fraction(newBounds.height).subtract(currentHeight);
-		
-//		commandStates.add(new PendingCommandState<Model>(
-//			new ResizeCommand(xDeltaForward, yDeltaForward, widthDeltaForward, heightDeltaForward),
-//			new ResizeCommand.AfterResize()
-//		));
 		
 		pendingCommands.add(new TriStatePURCommand<Model>(
 			new CommandSequence<Model>(

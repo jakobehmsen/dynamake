@@ -1,6 +1,5 @@
 package dynamake.commands;
 
-import dynamake.commands.ResizeCommand.Output;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;

@@ -11,7 +11,6 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import dynamake.commands.CommandSequence;
-import dynamake.commands.CommandState;
 import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.SetPropertyCommandFromScope;
 import dynamake.commands.TriStatePURCommand;
@@ -24,7 +23,6 @@ import dynamake.models.transcription.NewChangeTransactionHandler;
 import dynamake.numbers.Fraction;
 import dynamake.transcription.Collector;
 import dynamake.transcription.Connection;
-import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Trigger;
 
 public abstract class BoundsChangeTool implements Tool {
