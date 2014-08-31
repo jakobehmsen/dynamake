@@ -10,9 +10,13 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
+import dynamake.commands.CommandSequence;
 import dynamake.commands.CommandState;
 import dynamake.commands.PendingCommandState;
+import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.SetPropertyCommand;
+import dynamake.commands.SetPropertyCommandFromScope;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.models.CanvasModel;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -86,19 +90,40 @@ public abstract class BoundsChangeTool implements Tool {
 						collector.execute(new Trigger<Model>() {
 							@Override
 							public void run(Collector<Model> collector) {
-								ArrayList<CommandState<Model>> pendingCommands = new ArrayList<CommandState<Model>>();
+								ArrayList<Object> pendingCommands = new ArrayList<Object>();
 								
-								pendingCommands.add(new PendingCommandState<Model>(
-									new SetPropertyCommand("X", new Fraction(droppedBounds.x)),
-									new SetPropertyCommand.AfterSetProperty()
+//								pendingCommands.add(new PendingCommandState<Model>(
+//									new SetPropertyCommand("X", new Fraction(droppedBounds.x)),
+//									new SetPropertyCommand.AfterSetProperty()
+//								));
+//								pendingCommands.add(new PendingCommandState<Model>(
+//									new SetPropertyCommand("Y", new Fraction(droppedBounds.y)),
+//									new SetPropertyCommand.AfterSetProperty()
+//								));
+								
+								pendingCommands.add(new TriStatePURCommand<Model>(
+									new CommandSequence<Model>(
+										collector.createProduceCommand("X"),
+										collector.createProduceCommand(new Fraction(droppedBounds.x)),
+										new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+									),
+									new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+									new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
 								));
-								pendingCommands.add(new PendingCommandState<Model>(
-									new SetPropertyCommand("Y", new Fraction(droppedBounds.y)),
-									new SetPropertyCommand.AfterSetProperty()
+								
+								pendingCommands.add(new TriStatePURCommand<Model>(
+									new CommandSequence<Model>(
+										collector.createProduceCommand("Y"),
+										collector.createProduceCommand(new Fraction(droppedBounds.y)),
+										new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+									),
+									new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+									new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
 								));
 
 								collector.startTransaction(selection.getModelBehind(), NewChangeTransactionHandler.class);
-								PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+//								PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
+								collector.execute(pendingCommands);
 								collector.commitTransaction();
 							}
 						});
