@@ -3,6 +3,10 @@ package dynamake.commands;
 import java.io.Serializable;
 import java.util.ArrayDeque;
 
+import dynamake.models.CompositeLocation;
+import dynamake.models.Location;
+import dynamake.models.ModelRootLocation;
+
 public class ExecutionScope implements Serializable {
 	/**
 	 * 
@@ -14,6 +18,7 @@ public class ExecutionScope implements Serializable {
 	}
 
 	private ArrayDeque<Object> production = new ArrayDeque<Object>();
+	private Location offset = new ModelRootLocation();
 	
 	public void produce(Object value) {
 		if(value == null)
@@ -27,5 +32,20 @@ public class ExecutionScope implements Serializable {
 		// the cause of null is not NullWrapper.
 		Object value =  production.pollLast();
 		return value instanceof NullWrapper ? null : value;
+	}
+	
+	public void pushOffset(Location offset) {
+		this.offset = new CompositeLocation(this.offset, offset);
+	}
+	
+	public Location popOffset() {
+		CompositeLocation offsetAsComposite = (CompositeLocation)offset;
+		Location poppedOffset = offsetAsComposite.getTail();
+		offset = offsetAsComposite.getHead();
+		return poppedOffset; 
+	}
+	
+	public Location getOffset() {
+		return offset;
 	}
 }
