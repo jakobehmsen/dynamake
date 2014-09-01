@@ -506,7 +506,9 @@ public abstract class Model implements Serializable, Observer {
 			// Side-effect
 			final SetProperty setProperty = (SetProperty)change;
 
-			collector.startTransaction(this, PostOnlyTransactionHandler.class);
+//			collector.startTransaction(this, PostOnlyTransactionHandler.class);
+			collector.startTransaction(this, NewChangeTransactionHandler.class);
+			
 //			PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
 //				new SetPropertyCommand(setProperty.name, setProperty.value),
 //				new SetPropertyCommand.AfterSetProperty()
