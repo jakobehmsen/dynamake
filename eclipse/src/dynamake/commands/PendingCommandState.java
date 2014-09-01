@@ -64,7 +64,7 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 	}
 
 	@Override
-	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
 		Object output = command.executeOn(propCtx, prevalentSystem, collector, location, scope);
 //		if(output == null)
 //			System.out.println("Executed, without output: " + command);
@@ -98,7 +98,7 @@ public class PendingCommandState<T> implements CommandState<T>, Serializable {
 	}
 	
 	@Override
-	public CommandState<T> offset(Location offset) {
+	public CommandState<T> offset(Location<T> offset) {
 		Command<T> newCommand = new RelativeCommand<T>(offset, command);
 		
 		CommandFactory<T> newForthFactory = new RelativeCommand.Factory<T>(forthFactory);

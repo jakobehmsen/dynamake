@@ -11,12 +11,12 @@ public class IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommand implements
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommand(Location locationOfSourceFromTarget) {
+	public IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommand(Location<Model> locationOfSourceFromTarget) {
 
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 		return null;
 	}
 }

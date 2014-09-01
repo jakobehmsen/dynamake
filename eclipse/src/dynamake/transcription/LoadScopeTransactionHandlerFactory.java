@@ -7,9 +7,9 @@ public class LoadScopeTransactionHandlerFactory<T> implements TransactionHandler
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private ExecutionScope scope;
+	private ExecutionScope<T> scope;
 
-	public LoadScopeTransactionHandlerFactory(ExecutionScope scope) {
+	public LoadScopeTransactionHandlerFactory(ExecutionScope<T> scope) {
 		this.scope = scope;
 	}
 

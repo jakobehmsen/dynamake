@@ -61,7 +61,7 @@ public class SetPropertyCommand implements Command<Model> {
 	}
 	
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 		Model model = (Model)location.getChild(prevalentSystem);
 		
 		Object previousValue = model.getProperty(name);

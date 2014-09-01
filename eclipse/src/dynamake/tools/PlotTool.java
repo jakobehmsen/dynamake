@@ -55,7 +55,8 @@ public class PlotTool implements Tool {
 						public void run(Collector<Model> collector) {
 							CanvasModel target = (CanvasModel)selection.getModelBehind();
 							
-							Location[] modelLocations = new Location[componentsWithinBounds.size()];
+							@SuppressWarnings("unchecked")
+							Location<Model>[] modelLocations = new Location[componentsWithinBounds.size()];
 							for(int i = 0; i < modelLocations.length; i++) {
 								ModelComponent view = componentsWithinBounds.get(i);
 								modelLocations[i] = target.getLocationOf(view.getModelBehind());

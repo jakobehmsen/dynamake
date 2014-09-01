@@ -5,9 +5,9 @@ import dynamake.commands.ReversibleCommand;
 import dynamake.models.PropogationContext;
 
 public class LoadScopeTransactionHandler<T> implements TransactionHandler<T> {
-	private ExecutionScope scope;
+	private ExecutionScope<T> scope;
 	
-	public LoadScopeTransactionHandler(ExecutionScope scope) {
+	public LoadScopeTransactionHandler(ExecutionScope<T> scope) {
 		this.scope = scope;
 	}
 	
@@ -42,7 +42,7 @@ public class LoadScopeTransactionHandler<T> implements TransactionHandler<T> {
 	}
 
 	@Override
-	public ExecutionScope getScope() {
+	public ExecutionScope<T> getScope() {
 		return scope;
 	}
 }

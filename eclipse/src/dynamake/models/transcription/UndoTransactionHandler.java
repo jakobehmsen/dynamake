@@ -10,7 +10,7 @@ import dynamake.transcription.TransactionHandler;
 public class UndoTransactionHandler implements TransactionHandler<Model> {
 	private Model.HistoryPart undoPart;
 	private int partIndex;
-	private ExecutionScope scope;
+	private ExecutionScope<Model> scope;
 	
 	public UndoTransactionHandler(Model.HistoryPart undoPart) {
 		this.undoPart = undoPart;
@@ -47,7 +47,7 @@ public class UndoTransactionHandler implements TransactionHandler<Model> {
 	}
 	
 	@Override
-	public ExecutionScope getScope() {
+	public ExecutionScope<Model> getScope() {
 		return scope;
 	}
 }

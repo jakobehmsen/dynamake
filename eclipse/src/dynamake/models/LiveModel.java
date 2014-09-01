@@ -113,7 +113,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 			LiveModel liveModel = (LiveModel)location.getChild(prevalentSystem);
 			liveModel.bindButtonsToTool(buttons, tool, propCtx, 0, collector);
 			
@@ -135,7 +135,7 @@ public class LiveModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 			LiveModel liveModel = (LiveModel)location.getChild(prevalentSystem);
 			liveModel.removeButtonsToToolBinding(buttons, tool, propCtx, 0, collector);
 			
@@ -143,26 +143,26 @@ public class LiveModel extends Model {
 		}
 	}
 	
-	public static class ContentLocator implements dynamake.models.Locator {
+	public static class ContentLocator implements dynamake.models.Locator<Model> {
 		@Override
-		public Location locate() {
+		public Location<Model> locate() {
 			return new FieldContentLocation();
 		}
 	}
 	
-	private static class FieldContentLocation implements Location {
+	private static class FieldContentLocation implements Location<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Object getChild(Object holder) {
+		public Model getChild(Model holder) {
 			return ((LiveModel)holder).content;
 		}
 		
 		@Override
-		public Location forForwarding() {
+		public Location<Model> forForwarding() {
 			return this;
 		}
 		

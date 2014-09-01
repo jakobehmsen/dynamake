@@ -18,8 +18,8 @@ public class TellPropertyCommand implements Command<Model> {
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Model receiver = (Model)location.getChild(prevalentSystem);
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+		Model receiver = location.getChild(prevalentSystem);
 		receiver.changed(null, new Model.TellProperty(propertyName), propCtx, 0, 1, collector);
 		
 		return null;

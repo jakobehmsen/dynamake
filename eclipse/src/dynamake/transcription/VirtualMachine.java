@@ -65,21 +65,21 @@ public class VirtualMachine<T> {
 		void execute(T reference, Instruction[] body);
 	}
 	
-	private static class Scope {
-		public final Location referenceLocation;
+	private static class Scope<T> {
+		public final Location<T> referenceLocation;
 		public final Stack<Object> stack = new Stack<Object>();
 		public int i;
 		public final Instruction[] body;
 		
-		public Scope(Location referenceLocation, Instruction[] body) {
+		public Scope(Location<T> referenceLocation, Instruction[] body) {
 			this.referenceLocation = referenceLocation;
 			this.body = body;
 		}
 	}
 	
 	private static class ScopedProcess<T> implements VMProcess<T> {
-		public Scope currentScope;
-		public Stack<Scope> scopeStack = new Stack<Scope>();
+		public Scope<T> currentScope;
+		public Stack<Scope<T>> scopeStack = new Stack<Scope<T>>();
 
 		@Override
 		public void pushReferenceLocation() {
@@ -116,8 +116,9 @@ public class VirtualMachine<T> {
 
 		@Override
 		public void execute(T reference, Instruction[] body) {
-			Location referenceLocation = ((Model)reference).getLocator().locate();
-			scopeStack.push(new Scope(referenceLocation, body));
+			@SuppressWarnings("unchecked")
+			Location<T> referenceLocation = (Location<T>)((Model)reference).getLocator().locate();
+			scopeStack.push(new Scope<T>(referenceLocation, body));
 		}
 	}
 	
@@ -168,7 +169,7 @@ public class VirtualMachine<T> {
 					process.currentScope.i++;
 					continue;
 				case Instruction.TYPE_STOP:
-					Scope stoppedScope = process.currentScope;
+					Scope<T> stoppedScope = process.currentScope;
 					stoppedScope.i++; // Move to next instruction
 					process.currentScope = process.scopeStack.pop();
 
@@ -182,14 +183,15 @@ public class VirtualMachine<T> {
 					executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_JUMP, -(int)instruction.operand)));
 					continue;
 				case Instruction.TYPE_RETURN:
-					Scope scopeReturnedFrom = process.currentScope;
+					Scope<T> scopeReturnedFrom = process.currentScope;
 					process.currentScope = process.scopeStack.pop();
 					
 					executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_RETURN_TO, scopeReturnedFrom)));
 					process.currentScope.i++;
 					continue;
 				case Instruction.TYPE_RETURN_TO: {
-					Scope scope = (Scope)instruction.operand;
+					@SuppressWarnings("unchecked")
+					Scope<T> scope = (Scope<T>)instruction.operand;
 					process.scopeStack.push(scope);
 					
 					process.currentScope.i++;
@@ -210,7 +212,8 @@ public class VirtualMachine<T> {
 					process.currentScope.i++;
 					continue;
 				case Instruction.TYPE_CONTINUE: {
-					Scope scope = (Scope)process.currentScope.stack.pop();
+					@SuppressWarnings("unchecked")
+					Scope<T> scope = (Scope<T>)process.currentScope.stack.pop();
 					process.scopeStack.push(scope);
 					executionLog.add(new ForwardBackwardPair(instruction, new Instruction(Instruction.TYPE_STOP)));
 

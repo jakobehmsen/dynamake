@@ -11,18 +11,18 @@ public class AddObserverCommand implements Command<Model> {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private Location observableLocation;
-		private Location observerLocation;
+		private Location<Model> observableLocation;
+		private Location<Model> observerLocation;
 		
-		public AddObserverCommand(Location observableLocation, Location observerLocation) {
+		public AddObserverCommand(Location<Model> observableLocation, Location<Model> observerLocation) {
 			this.observableLocation = observableLocation;
 			this.observerLocation = observerLocation;
 		}
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-			Model observable = (Model)new CompositeLocation(location, observableLocation).getChild(rootPrevalentSystem);
-			Model observer = (Model)new CompositeLocation(location, observerLocation).getChild(rootPrevalentSystem);
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+			Model observable = new CompositeLocation<Model>(location, observableLocation).getChild(rootPrevalentSystem);
+			Model observer = new CompositeLocation<Model>(location, observerLocation).getChild(rootPrevalentSystem);
 			
 			observable.addObserver(observer);
 //			System.out.println(observer + " now observes " + observable);

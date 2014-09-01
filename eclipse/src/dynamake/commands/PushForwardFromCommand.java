@@ -11,10 +11,8 @@ import dynamake.models.ModelComponent;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
-import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
 import dynamake.transcription.NullTransactionHandler;
-import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.TransactionHandler;
 import dynamake.transcription.Trigger;
 
@@ -24,33 +22,33 @@ public class PushForwardFromCommand implements ForwardableCommand<Model>, Mappab
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private Location locationOfSourceFromTarget;
+	private Location<Model> locationOfSourceFromTarget;
 	private int forwardCount;
 	
-	public PushForwardFromCommand(Location locationOfSourceFromTarget) {
+	public PushForwardFromCommand(Location<Model> locationOfSourceFromTarget) {
 		this.locationOfSourceFromTarget = locationOfSourceFromTarget;
 		this.forwardCount = 1;
 	}
 	
-	private PushForwardFromCommand(Location locationOfSourceFromTarget, int forwardCount) {
+	private PushForwardFromCommand(Location<Model> locationOfSourceFromTarget, int forwardCount) {
 		this.locationOfSourceFromTarget = locationOfSourceFromTarget;
 		this.forwardCount = forwardCount;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Model target = (Model)location.getChild(prevalentSystem);
-		Model source = (Model)locationOfSourceFromTarget.getChild(target);
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+		Model target = location.getChild(prevalentSystem);
+		Model source = locationOfSourceFromTarget.getChild(target);
 		
 		collector.startTransaction(target, (Class<? extends TransactionHandler<Model>>) NullTransactionHandler.class);
-		pushForward(source, target, collector, new ModelRootLocation());
+		pushForward(source, target, collector, new ModelRootLocation<Model>());
 		collector.commitTransaction();
 
 		return null;
 	}
 	
-	private void pushForward(Model source, final Model targetRoot, Collector<Model> collector, final Location offsetFromSourceRoot) {		
+	private void pushForward(Model source, final Model targetRoot, Collector<Model> collector, final Location<Model> offsetFromSourceRoot) {		
 		ArrayList<PURCommand<Model>> toForward = new ArrayList<PURCommand<Model>>();
 		
 		@SuppressWarnings("unchecked")
@@ -63,7 +61,7 @@ public class PushForwardFromCommand implements ForwardableCommand<Model>, Mappab
 		toForward.addAll(source.getLocalChanges());
 		
 		if(toForward.size() > 0) {
-			Location forwardedOffsetFromTargetRoot = offsetFromSourceRoot;
+			Location<Model> forwardedOffsetFromTargetRoot = offsetFromSourceRoot;
 			for(int i = 0; i < forwardCount; i++)
 				forwardedOffsetFromTargetRoot = forwardedOffsetFromTargetRoot.forForwarding();
 			
@@ -90,12 +88,12 @@ public class PushForwardFromCommand implements ForwardableCommand<Model>, Mappab
 		if(source instanceof CanvasModel) {
 			final CanvasModel sourceCanvas = (CanvasModel)source;
 
-			for(final Location locationInSource: sourceCanvas.getLocations()) {
+			for(final Location<Model> locationInSource: sourceCanvas.getLocations()) {
 				collector.execute(new Trigger<Model>() {
 					@Override
 					public void run(Collector<Model> collector) {
 						Model modelInSource = sourceCanvas.getModelByLocation(locationInSource);
-						Location newOffsetFromSourceRoot = new CompositeLocation(offsetFromSourceRoot, locationInSource);
+						Location<Model> newOffsetFromSourceRoot = new CompositeLocation<Model>(offsetFromSourceRoot, locationInSource);
 						
 						pushForward(modelInSource, targetRoot, collector, newOffsetFromSourceRoot);
 					}
@@ -111,8 +109,8 @@ public class PushForwardFromCommand implements ForwardableCommand<Model>, Mappab
 	
 	@Override
 	public Command<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
-		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfSourceFromTarget);
-		Location locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
+		Model source = CompositeLocation.getChild(sourceReference, new ModelRootLocation<Model>(), locationOfSourceFromTarget);
+		Location<Model> locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
 		
 		return new PushForwardFromCommand(locationOfSourceFromTargetReference, forwardCount);
 	}

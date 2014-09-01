@@ -17,7 +17,7 @@ public class ProduceCommand<T> implements Command<T> {
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+	public Object executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
 		scope.produce(value);
 		
 		return null;

@@ -30,18 +30,18 @@ public class RewrapCommand implements Command<Model> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Location wrapperLocation;
+	private Location<Model> wrapperLocation;
 	private RectangleF creationBounds;
-	private Location[] modelLocations;
+	private Location<Model>[] modelLocations;
 	
-	public RewrapCommand(Location wrapperLocation, RectangleF creationBounds, Location[] modelLocations) {
+	public RewrapCommand(Location<Model> wrapperLocation, RectangleF creationBounds, Location<Model>[] modelLocations) {
 		this.wrapperLocation = wrapperLocation;
 		this.creationBounds = creationBounds;
 		this.modelLocations = modelLocations;
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 		CanvasModel target = (CanvasModel)location.getChild(prevalentSystem);
 		// TODO: Consider: How to restore the history?
 		// Should the actual wrapper be part of the re-wrap command? Or perhaps, just a clone of it? Or some sort of memento of it?
@@ -58,7 +58,7 @@ public class RewrapCommand implements Command<Model> {
 			models[i] = model;
 		}
 		
-		Hashtable<Location, Location> wrapperToSourceLocations = new Hashtable<Location, Location>();
+		Hashtable<Location<Model>, Location<Model>> wrapperToSourceLocations = new Hashtable<Location<Model>, Location<Model>>();
 
 		for(int i = 0; i < models.length; i++) {
 			Model model = models[i];
@@ -66,8 +66,8 @@ public class RewrapCommand implements Command<Model> {
 			wrapper.addModel(model, propCtx, 0, collector);
 
 			// Map locations between source and wrapper to remember which models were wrapped during this wrap
-			Location modelLocationInWrapper = wrapper.getLocationOf(model);
-			Location modelLocationInSource = modelLocations[i];
+			Location<Model> modelLocationInWrapper = wrapper.getLocationOf(model);
+			Location<Model> modelLocationInSource = modelLocations[i];
 			
 			wrapperToSourceLocations.put(modelLocationInWrapper, modelLocationInSource);
 		}
@@ -81,7 +81,7 @@ public class RewrapCommand implements Command<Model> {
 		}
 
 		target.restoreModelByLocation(wrapperLocation, wrapper, propCtx, 0, collector);
-		Location wrapperLocationInTarget = target.getLocationOf(wrapper);
+		Location<Model> wrapperLocationInTarget = target.getLocationOf(wrapper);
 		
 		return new WrapCommand.Output(wrapperLocationInTarget, creationBounds, wrapperToSourceLocations);
 	}

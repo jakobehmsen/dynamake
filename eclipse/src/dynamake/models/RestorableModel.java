@@ -149,7 +149,7 @@ public class RestorableModel implements Serializable {
 		return modelBase;
 	}
 	
-	public void restoreOriginsOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {
+	public void restoreOriginsOnBase(Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope<Model> scope) {
 		modelBase.playThenReverse(modelOrigins, propCtx, propDistance, collector, scope);
 		modelBase.setProperty(RestorableModel.PROPERTY_ORIGINS, modelOrigins, propCtx, propDistance, collector);
 		
@@ -199,7 +199,7 @@ public class RestorableModel implements Serializable {
 	protected void afterForForwarding(RestorableModel forForwarded) { }
 	protected void afterRestoreChangesOnBase(final Model modelBase, PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
 	
-	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {
+	public Model unwrap(PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope<Model> scope) {
 		Model modelBase = unwrapBase(propCtx, propDistance, collector);
 		restoreOriginsOnBase(modelBase, propCtx, propDistance, collector, scope);
 		restoreChangesOnBase(modelBase, propCtx, propDistance, collector);

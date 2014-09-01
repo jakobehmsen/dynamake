@@ -1,7 +1,6 @@
 package dynamake.commands;
 
 import dynamake.models.Location;
-import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
@@ -35,9 +34,8 @@ public class TriStatePURCommand<T> implements PURCommand<T> {
 	}
 
 	@Override
-	public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
-		@SuppressWarnings("unchecked")
-		T reference = (T)location.getChild(prevalentSystem);
+	public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
+		T reference = location.getChild(prevalentSystem);
 		
 		collector.startTransaction(reference, PostOnlyTransactionHandler.class);
 		
@@ -57,9 +55,8 @@ public class TriStatePURCommand<T> implements PURCommand<T> {
 	}
 
 	@Override
-	public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
-		@SuppressWarnings("unchecked")
-		T reference = (T)location.getChild(prevalentSystem);
+	public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
+		T reference = location.getChild(prevalentSystem);
 		
 		collector.startTransaction(reference, PostOnlyTransactionHandler.class);
 		

@@ -30,11 +30,11 @@ public class UnwrapCommand implements Command<Model> {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		public final Location wrapperLocation;
+		public final Location<Model> wrapperLocation;
 		public final RectangleF creationBounds;
-		public final Location[] modelLocations;
+		public final Location<Model>[] modelLocations;
 
-		public Output(Location wrapperLocation, RectangleF creationBounds, Location[] modelLocations) {
+		public Output(Location<Model> wrapperLocation, RectangleF creationBounds, Location<Model>[] modelLocations) {
 			this.wrapperLocation = wrapperLocation;
 			this.creationBounds = creationBounds;
 			this.modelLocations = modelLocations;
@@ -45,26 +45,26 @@ public class UnwrapCommand implements Command<Model> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Location wrapperLocationInTarget;
+	private Location<Model> wrapperLocationInTarget;
 	private RectangleF creationBounds;
-	private Hashtable<Location, Location> wrapperToSourceLocations;
+	private Hashtable<Location<Model>, Location<Model>> wrapperToSourceLocations;
 	
-	public UnwrapCommand(Location wrapperLocationInTarget, RectangleF creationBounds) {
-		this(wrapperLocationInTarget, creationBounds, new Hashtable<Location, Location>());
+	public UnwrapCommand(Location<Model> wrapperLocationInTarget, RectangleF creationBounds) {
+		this(wrapperLocationInTarget, creationBounds, new Hashtable<Location<Model>, Location<Model>>());
 	}
 	
-	public UnwrapCommand(Location wrapperLocationInTarget, RectangleF creationBounds, Hashtable<Location, Location> wrapperToSourceLocations) {
+	public UnwrapCommand(Location<Model> wrapperLocationInTarget, RectangleF creationBounds, Hashtable<Location<Model>, Location<Model>> wrapperToSourceLocations) {
 		this.wrapperLocationInTarget = wrapperLocationInTarget;
 		this.creationBounds = creationBounds;
 		this.wrapperToSourceLocations = wrapperToSourceLocations;
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 		CanvasModel target = (CanvasModel)location.getChild(prevalentSystem);
 		CanvasModel wrapper = (CanvasModel)wrapperLocationInTarget.getChild(target);
 		
-		Location[] locationsInWrapper = wrapper.getLocations();
+		Location<Model>[] locationsInWrapper = wrapper.getLocations();
 		Model[] models = new Model[wrapper.getModelCount()];
 		for(int i = 0; i <  locationsInWrapper.length; i++) {
 			Model model = wrapper.getModelByLocation(locationsInWrapper[i]);
@@ -93,8 +93,8 @@ public class UnwrapCommand implements Command<Model> {
 		// Move models from wrapper to target
 		for(int i = 0; i < models.length; i++) {
 			Model model = models[i];
-			Location locationInWrapper = locationsInWrapper[i];
-			Location locationInSource = wrapperToSourceLocations.get(locationInWrapper);
+			Location<Model> locationInWrapper = locationsInWrapper[i];
+			Location<Model> locationInSource = wrapperToSourceLocations.get(locationInWrapper);
 			// If wrapped model was part of a previous wrapping
 			if(locationInSource != null)
 				// then restore id
@@ -104,7 +104,8 @@ public class UnwrapCommand implements Command<Model> {
 				target.addModel(model, propCtx, 0, collector);
 		}
 		
-		Location[] modelLocations = new Location[models.length];
+		@SuppressWarnings("unchecked")
+		Location<Model>[] modelLocations = new Location[models.length];
 		for(int i = 0; i < models.length; i++) {
 			Model model = models[i];
 			modelLocations[i] = target.getLocationOf(model);

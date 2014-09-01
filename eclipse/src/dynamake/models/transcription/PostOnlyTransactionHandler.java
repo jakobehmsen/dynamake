@@ -8,14 +8,14 @@ import dynamake.transcription.Collector;
 import dynamake.transcription.TransactionHandler;
 
 public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
-	private ExecutionScope scope;
+	private ExecutionScope<Model> scope;
 	
 	@Override
 	public void startLogFor(TransactionHandler<Model> parentHandler, Model reference) {
 		if(parentHandler != null)
 			scope = parentHandler.getScope();
 		else // In case, this transaction handler is the top handler
-			scope = new ExecutionScope();
+			scope = new ExecutionScope<Model>();
 	}
 	
 	@Override
@@ -40,7 +40,7 @@ public class PostOnlyTransactionHandler implements TransactionHandler<Model> {
 	}
 	
 	@Override
-	public ExecutionScope getScope() {
+	public ExecutionScope<Model> getScope() {
 		return scope;
 	}
 }

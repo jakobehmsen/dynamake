@@ -1,7 +1,6 @@
 package dynamake.commands;
 
 import dynamake.models.Location;
-import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
@@ -17,12 +16,12 @@ public class ForthPURCommand<T> implements PURCommand<T> {
 	}
 
 	@Override
-	public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+	public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
 		reversibleCommand.executeForward(propCtx, prevalentSystem, collector, location, scope);
 	}
 
 	@Override
-	public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+	public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
 		reversibleCommand.executeBackward(propCtx, prevalentSystem, collector, location, scope);
 	}
 

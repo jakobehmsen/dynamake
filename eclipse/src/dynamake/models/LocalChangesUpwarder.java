@@ -14,10 +14,10 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Location sourceLocation;
-	private Location offsetFromSource;
+	private Location<Model> sourceLocation;
+	private Location<Model> offsetFromSource;
 
-	public LocalChangesUpwarder(Location sourceLocation, Location offsetFromSource) {
+	public LocalChangesUpwarder(Location<Model> sourceLocation, Location<Model> offsetFromSource) {
 		this.sourceLocation = sourceLocation;
 		this.offsetFromSource = offsetFromSource;
 	}
@@ -30,7 +30,7 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 			
 			if(sender != source) {
 				System.out.println("***Upwarding from " + sender + " to " + source + "***");
-				Location newOffsetFromSource = new CompositeLocation(offsetFromSource, pushLocalChanges.offset);
+				Location<Model> newOffsetFromSource = new CompositeLocation<Model>(offsetFromSource, pushLocalChanges.offset);
 				
 				source.sendChanged(new PushLocalChanges(newOffsetFromSource, pushLocalChanges.localChangesToRevert, pushLocalChanges.newChanges), propCtx, propDistance, changeDistance, collector);
 			}
@@ -74,9 +74,9 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 			// Like forwarding, but only with the filter effect, no conversion otherwise
 			CanvasModel.AddedModelChange addedModelChange = (CanvasModel.AddedModelChange)change;
 			Model modelInTarget = addedModelChange.model;
-			Location modelLocationInSource = source.getLocationOf(modelInTarget); 
-			Location modelSourceLocation = new CompositeLocation(sourceLocation, new ParentLocation());
-			Location modelOffsetFromTarget = new CompositeLocation(offsetFromSource, modelLocationInSource);
+			Location<Model> modelLocationInSource = source.getLocationOf(modelInTarget); 
+			Location<Model> modelSourceLocation = new CompositeLocation<Model>(sourceLocation, new ParentLocation());
+			Location<Model> modelOffsetFromTarget = new CompositeLocation<Model>(offsetFromSource, modelLocationInSource);
 			modelInTarget.addObserver(new LocalChangesUpwarder(modelSourceLocation, modelOffsetFromTarget));
 		} else if (change instanceof CanvasModel.RemovedModelChange) {
 //			System.out.println("Upwarder observed RemovedModelChange!!!");

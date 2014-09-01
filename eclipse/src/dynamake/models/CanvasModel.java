@@ -54,10 +54,10 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		public final Location id;
+		public final Location<Model> id;
 		public final Model model;
 		
-		public Entry(Location id, Model model) {
+		public Entry(Location<Model> id, Model model) {
 			this.id = id;
 			this.model = model;
 		}
@@ -134,11 +134,12 @@ public class CanvasModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 
+		@SuppressWarnings("unchecked")
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-			Location locationInSource = (Location)scope.consume();
-			Location canvasTargetLocation = (Location)scope.consume();
-			Location canvasSourceLocation = (Location)scope.consume();
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+			Location<Model> locationInSource = (Location<Model>)scope.consume();
+			Location<Model> canvasTargetLocation = (Location<Model>)scope.consume();
+			Location<Model> canvasSourceLocation = (Location<Model>)scope.consume();
 			
 			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
 			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
@@ -146,7 +147,7 @@ public class CanvasModel extends Model {
 
 			canvasSource.removeModelByLocation(locationInSource, propCtx, 0, collector);
 			canvasTarget.addModel(model, propCtx, 0, collector);
-			Location locationInTarget = canvasTarget.getLocationOf(model);
+			Location<Model> locationInTarget = canvasTarget.getLocationOf(model);
 			
 			scope.produce(canvasSourceLocation);
 			scope.produce(canvasTargetLocation);
@@ -163,12 +164,12 @@ public class CanvasModel extends Model {
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
-			public final Location canvasSourceLocation;
-			public final Location canvasTargetLocation;
-			public final Location movedFromInSource;
-			public final Location movedToInTarget;
+			public final Location<Model> canvasSourceLocation;
+			public final Location<Model> canvasTargetLocation;
+			public final Location<Model> movedFromInSource;
+			public final Location<Model> movedToInTarget;
 			
-			public Output(Location canvasSourceLocation, Location canvasTargetLocation, Location movedFromInSource, Location movedToInTarget) {
+			public Output(Location<Model> canvasSourceLocation, Location<Model> canvasTargetLocation, Location<Model> movedFromInSource, Location<Model> movedToInTarget) {
 				this.canvasSourceLocation = canvasSourceLocation;
 				this.canvasTargetLocation = canvasTargetLocation;
 				this.movedFromInSource = movedFromInSource;
@@ -181,25 +182,25 @@ public class CanvasModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private Location canvasSourceLocation;
-		private Location canvasTargetLocation;
-		private Location locationInSource;
+		private Location<Model> canvasSourceLocation;
+		private Location<Model> canvasTargetLocation;
+		private Location<Model> locationInSource;
 
-		public MoveModelCommand(Location canvasSourceLocation, Location canvasTargetLocation, Location locationInSource) {
+		public MoveModelCommand(Location<Model> canvasSourceLocation, Location<Model> canvasTargetLocation, Location<Model> locationInSource) {
 			this.canvasSourceLocation = canvasSourceLocation;
 			this.canvasTargetLocation = canvasTargetLocation;
 			this.locationInSource = locationInSource;
 		}
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
-			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+			CanvasModel canvasSource = (CanvasModel) CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
+			CanvasModel canvasTarget = (CanvasModel) CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
 			Model model = (Model)canvasSource.getModelByLocation(locationInSource);
 
 			canvasSource.removeModelByLocation(locationInSource, propCtx, 0, collector);
 			canvasTarget.addModel(model, propCtx, 0, collector);
-			Location locationInTarget = canvasTarget.getLocationOf(model);
+			Location<Model> locationInTarget = canvasTarget.getLocationOf(model);
 			
 			return new Output(canvasSourceLocation, canvasTargetLocation, locationInSource, locationInTarget);
 		}
@@ -224,12 +225,12 @@ public class CanvasModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private Location canvasSourceLocation;
-		private Location canvasTargetLocation;
-		private Location locationInSource;
-		private Location locationInTarget;
+		private Location<Model> canvasSourceLocation;
+		private Location<Model> canvasTargetLocation;
+		private Location<Model> locationInSource;
+		private Location<Model> locationInTarget;
 
-		public MoveBackModelCommand(Location canvasSourceLocation, Location canvasTargetLocation, Location locationInSource, Location locationInTarget) {
+		public MoveBackModelCommand(Location<Model> canvasSourceLocation, Location<Model> canvasTargetLocation, Location<Model> locationInSource, Location<Model> locationInTarget) {
 			this.canvasSourceLocation = canvasSourceLocation;
 			this.canvasTargetLocation = canvasTargetLocation;
 			this.locationInSource = locationInSource;
@@ -237,7 +238,7 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
 			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
 			Model model = (Model)canvasSource.getModelByLocation(locationInSource);
@@ -255,13 +256,14 @@ public class CanvasModel extends Model {
 		 */
 		private static final long serialVersionUID = 1L;
 
+		@SuppressWarnings("unchecked")
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 			// Move back from target to source
-			Location locationInTarget = (Location)scope.consume();
-			Location locationInSource = (Location)scope.consume();
-			Location canvasTargetLocation = (Location)scope.consume();
-			Location canvasSourceLocation = (Location)scope.consume();
+			Location<Model> locationInTarget = (Location<Model>)scope.consume();
+			Location<Model> locationInSource = (Location<Model>)scope.consume();
+			Location<Model> canvasTargetLocation = (Location<Model>)scope.consume();
+			Location<Model> canvasSourceLocation = (Location<Model>)scope.consume();
 			
 			CanvasModel canvasSource = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasSourceLocation);
 			CanvasModel canvasTarget = (CanvasModel)CompositeLocation.getChild(prevalentSystem, location, canvasTargetLocation);
@@ -285,9 +287,9 @@ public class CanvasModel extends Model {
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
-			public final Location location;
+			public final Location<Model> location;
 
-			public Output(Location location) {
+			public Output(Location<Model> location) {
 				this.location = location;
 			}
 
@@ -314,7 +316,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Object executeOn(final PropogationContext propCtx, final Model rootPrevalentSystem, Collector<Model> collector, final Location location, ExecutionScope scope) {
+		public Object executeOn(final PropogationContext propCtx, final Model rootPrevalentSystem, Collector<Model> collector, final Location<Model> location, ExecutionScope<Model> scope) {
 			ModelFactory factory = null;
 			
 			boolean useScope = factory == null;
@@ -338,7 +340,7 @@ public class CanvasModel extends Model {
 			final Model model = modelCreation.createModel(rootPrevalentSystem, propCtx, 0, collector, location, scope);
 			
 			canvas.addModel(model, new PropogationContext(), 0, collector);
-			final Location addedModelLocation = canvas.getLocationOf(model);
+			final Location<Model> addedModelLocation = canvas.getLocationOf(model);
 			System.out.println("***Adding model " + model + " at " + addedModelLocation + " in " + canvas + "***");
 			
 			collector.execute(new Trigger<Model>() {
@@ -365,7 +367,7 @@ public class CanvasModel extends Model {
 			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
 			AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
 			
-			Location forwardedLocation = addModelOutput.location.forForwarding();
+			Location<Model> forwardedLocation = addModelOutput.location.forForwarding();
 			@SuppressWarnings("null")
 			ModelFactory newFactory = factory.forForwarding();
 			CanvasModel.ForwardedAddModelCommand newAddCommand = new CanvasModel.ForwardedAddModelCommand(forwardedLocation, newFactory);
@@ -384,25 +386,26 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-//		public Location modelLocation;
+//		public Location<T> modelLocation;
 //		public ModelFactory factory;
 
 		/*null of either argument indicate scope usage*/
-		public ForwardedAddModelCommand(Location modelLocation, ModelFactory factory) {
+		public ForwardedAddModelCommand(Location<Model> modelLocation, ModelFactory factory) {
 //			this.modelLocation = modelLocation;
 //			this.factory = factory;
 		}
 		
+		@SuppressWarnings("unchecked")
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-			Location modelLocation = null;
+		public Object executeOn(PropogationContext propCtx, Model rootPrevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+			Location<Model> modelLocation = null;
 			ModelFactory factory = null;
 			boolean useScope = modelLocation == null || factory == null;
 			
 			// Support for scope usage in case of empty constructor arguments
 			if(useScope) {
 				factory = (ModelFactory)scope.consume();
-				modelLocation = (Location)scope.consume();
+				modelLocation = (Location<Model>)scope.consume();
 			}
 			
 			final CanvasModel canvas = (CanvasModel)location.getChild(rootPrevalentSystem);
@@ -411,7 +414,7 @@ public class CanvasModel extends Model {
 			System.out.println("***Adding (forwarded) model " + model + " at " + modelLocation + " in " + canvas + "***");
 			
 			canvas.restoreModelByLocation(modelLocation, model, new PropogationContext(), 0, collector);
-			Location addedModelLocation = canvas.getLocationOf(model);
+			Location<Model> addedModelLocation = canvas.getLocationOf(model);
 			
 			modelCreation.setup(rootPrevalentSystem, model, addedModelLocation, propCtx, 0, collector, location);
 			
@@ -432,7 +435,7 @@ public class CanvasModel extends Model {
 			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
 			AddModelCommand.Output addModelOutput = (AddModelCommand.Output)output;
 			
-			Location mappedLocation = addModelOutput.location.forForwarding();
+			Location<Model> mappedLocation = addModelOutput.location.forForwarding();
 			CanvasModel.ForwardedAddModelCommand newAddCommand = new CanvasModel.ForwardedAddModelCommand(mappedLocation, factory);
 
 			return newAddCommand;
@@ -454,7 +457,7 @@ public class CanvasModel extends Model {
 					return new CanvasModel.RestoreModelCommand(null, null); // Indicate scope usage
 					
 				RestorableModel restorableModel = ((RemoveModelCommand.Output)output).restorableModel;
-				Location location = ((RemoveModelCommand.Output)output).location;
+				Location<Model> location = ((RemoveModelCommand.Output)output).location;
 				// TODO: Consider the following:
 				// What if the model what observing/being observed before its removal?
 				// What if the model's observers/observees aren't all in existence anymore?
@@ -470,18 +473,19 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-//		private Location modelLocationToRestore;
+//		private Location<T> modelLocationToRestore;
 //		private RestorableModel restorableModel;
 
 		/*null of either argument indicate scope usage*/
-		public RestoreModelCommand(Location modelLocationToRestore, RestorableModel restorableModel) {
+		public RestoreModelCommand(Location<Model> modelLocationToRestore, RestorableModel restorableModel) {
 //			this.modelLocationToRestore = modelLocationToRestore;
 //			this.restorableModel = restorableModel;
 		}
 		
+		@SuppressWarnings("unchecked")
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-			Location modelLocationToRestore = null;
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+			Location<Model> modelLocationToRestore = null;
 			RestorableModel restorableModel = null;
 			
 			boolean useScope = modelLocationToRestore == null || restorableModel == null;
@@ -489,7 +493,7 @@ public class CanvasModel extends Model {
 			// Support for scope usage in case of empty constructor arguments
 			if(useScope) {
 				restorableModel = (RestorableModel)scope.consume();
-				modelLocationToRestore = (Location)scope.consume();
+				modelLocationToRestore = (Location<Model>)scope.consume();
 			}
 			
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
@@ -520,9 +524,9 @@ public class CanvasModel extends Model {
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
-			public final Location location;
+			public final Location<Model> location;
 
-			public Output(Location location) {
+			public Output(Location<Model> location) {
 				this.location = location;
 			}
 			
@@ -536,22 +540,22 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-//		private Location locationOfModelToDestroy;
+//		private Location<T> locationOfModelToDestroy;
 
 		/*null of either argument indicate scope usage*/
-		public DestroyModelCommand(Location locationOfModelToDestroy) {
+		public DestroyModelCommand(Location<Model> locationOfModelToDestroy) {
 //			this.locationOfModelToDestroy = locationOfModelToDestroy;
 		}
 
 		@SuppressWarnings("unchecked")
 		@Override
-		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-			Location locationOfModelToDestroy = null;
+		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+			Location<Model> locationOfModelToDestroy = null;
 			boolean useScope = locationOfModelToDestroy == null;
 			
 			// Support for scope usage in case of empty constructor arguments
 			if(useScope) {
-				locationOfModelToDestroy = (Location)scope.consume();
+				locationOfModelToDestroy = (Location<Model>)scope.consume();
 			}
 			
 			CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
@@ -576,7 +580,7 @@ public class CanvasModel extends Model {
 			
 			DestroyModelCommand.Output destroyModelOutput = (DestroyModelCommand.Output)output;
 			
-			Location mappedLocation = destroyModelOutput.location.forForwarding();
+			Location<Model> mappedLocation = destroyModelOutput.location.forForwarding();
 			CanvasModel.DestroyModelCommand newDestroyCommand = new CanvasModel.DestroyModelCommand(mappedLocation);
 
 			return newDestroyCommand;
@@ -589,10 +593,10 @@ public class CanvasModel extends Model {
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
-			public final Location location;
+			public final Location<Model> location;
 			public final RestorableModel restorableModel;
 
-			public Output(Location location, RestorableModel restorableModel) {
+			public Output(Location<Model> location, RestorableModel restorableModel) {
 				this.location = location;
 				this.restorableModel = restorableModel;
 			}
@@ -623,21 +627,22 @@ public class CanvasModel extends Model {
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-//		private Location locationOfModelToRemove;
+//		private Location<T> locationOfModelToRemove;
 
 		/*null of either argument indicate scope usage*/
-		public RemoveModelCommand(Location locationOfModelToRemove) {
+		public RemoveModelCommand(Location<Model> locationOfModelToRemove) {
 //			this.locationOfModelToRemove = locationOfModelToRemove;
 		}
 		
+		@SuppressWarnings("unchecked")
 		@Override
-		public Object executeOn(final PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-			Location locationOfModelToRemove = null;
+		public Object executeOn(final PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+			Location<Model> locationOfModelToRemove = null;
 			boolean useScope = locationOfModelToRemove == null;
 			
 			// Support for scope usage in case of empty constructor arguments
 			if(useScope) {
-				locationOfModelToRemove = (Location)scope.consume();
+				locationOfModelToRemove = (Location<Model>)scope.consume();
 			}
 			
 			final CanvasModel canvas = (CanvasModel)location.getChild(prevalentSystem);
@@ -665,14 +670,14 @@ public class CanvasModel extends Model {
 			// When a model is removed from a canvas, map id to ForwardedId (if not only already ForwardedId)
 			RemoveModelCommand.Output removeModelOutput = (RemoveModelCommand.Output)output;
 			
-			Location mappedLocation = removeModelOutput.location.forForwarding();
+			Location<Model> mappedLocation = removeModelOutput.location.forForwarding();
 			CanvasModel.RemoveModelCommand newRemoveCommand = new CanvasModel.RemoveModelCommand(mappedLocation);
 
 			return newRemoveCommand;
 		}
 	}
 	
-	public void restoreModelByLocation(Location id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void restoreModelByLocation(Location<Model> id, Model model, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		int index = models.size();
 		models.add(index, new Entry(id, model));
 		model.setParent(this);
@@ -693,7 +698,7 @@ public class CanvasModel extends Model {
 	 * @param location
 	 * @return
 	 */
-	public Model getModelByLocation(Location location) {
+	public Model getModelByLocation(Location<Model> location) {
 		for(Entry entry: models) {
 			if(entry.id.equals(location))
 				return entry.model;
@@ -723,7 +728,7 @@ public class CanvasModel extends Model {
 		sendChanged(new RemovedModelChange(index, model), propCtx, propDistance, 0, collector);
 	}
 
-	public void removeModelByLocation(Location location, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void removeModelByLocation(Location<Model> location, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
 		// TODO: Figure out: How to support ForwardLocations here?
 		int indexOf = getIndexOfModelByLocation(location);
 		removeModelByIndex(indexOf, propCtx, propDistance, collector);
@@ -740,7 +745,7 @@ public class CanvasModel extends Model {
 		return -1;
 	}
 
-	private int getIndexOfModelByLocation(Location id) {
+	private int getIndexOfModelByLocation(Location<Model> id) {
 		for(int i = 0; i < models.size(); i++) {
 			if(models.get(i).id.equals(id))
 				return i;
@@ -749,12 +754,12 @@ public class CanvasModel extends Model {
 		return -1;
 	}
 	
-	public Location getLocationOf(Model model) {
+	public Location<Model> getLocationOf(Model model) {
 		int indexOfModel = indexOfModel(model);
 		return models.get(indexOfModel).id;
 	}
 
-	public Location getNextLocation() {
+	public Location<Model> getNextLocation() {
 		return new IdLocation(nextId);
 	}
 	
@@ -855,8 +860,8 @@ public class CanvasModel extends Model {
 						ModelComponent targetOver = CanvasPanel.this;
 						ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
 						
-						Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
-						Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
+						Location<Model> locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
+						Location<Model> locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 						
 						ArrayList<Object> pendingCommands = new ArrayList<Object>();
 						
@@ -896,7 +901,7 @@ public class CanvasModel extends Model {
 	public static void appendUnwrapTransaction(List<CommandState<Model>> commandStates, ModelComponent toUnwrap, ModelComponent parent) {
 		CanvasModel target = (CanvasModel)parent.getModelBehind();
 		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
-		Location wrapperLocationInTarget = target.getLocationOf(modelToBeUnwrapped);
+		Location<Model> wrapperLocationInTarget = target.getLocationOf(modelToBeUnwrapped);
 		RectangleF creationBoundsInSelection = new RectangleF(
 			(Fraction)modelToBeUnwrapped.getProperty("X"),
 			(Fraction)modelToBeUnwrapped.getProperty("Y"),
@@ -914,7 +919,7 @@ public class CanvasModel extends Model {
 	public static void appendUnwrapTransaction2(List<Object> pendingCommands, ModelComponent toUnwrap, ModelComponent parent, Collector<Model> collector) {
 		CanvasModel target = (CanvasModel)parent.getModelBehind();
 		CanvasModel modelToBeUnwrapped = (CanvasModel)toUnwrap.getModelBehind();
-		Location wrapperLocationInTarget = target.getLocationOf(modelToBeUnwrapped);
+		Location<Model> wrapperLocationInTarget = target.getLocationOf(modelToBeUnwrapped);
 		RectangleF creationBoundsInSelection = new RectangleF(
 			(Fraction)modelToBeUnwrapped.getProperty("X"),
 			(Fraction)modelToBeUnwrapped.getProperty("Y"),
@@ -945,7 +950,7 @@ public class CanvasModel extends Model {
 			new CommandSequence<Model>(Arrays.asList(
 				collector.createProduceCommand(wrapperLocationInTarget),
 				collector.createProduceCommand(creationBoundsInSelection),
-				collector.createProduceCommand(new Hashtable<Location, Location>()),
+				collector.createProduceCommand(new Hashtable<Location<Model>, Location<Model>>()),
 				// Some sort of destroy command of a wrapping canvas?
 				new ReversibleCommandPair<Model>(new UnwrapCommandFromScope(), new RewrapCommandFromScope())
 			)),
@@ -958,7 +963,7 @@ public class CanvasModel extends Model {
 	}
 	
 	public static void appendRemoveTransaction(List<CommandState<Model>> pendingCommands, LivePanel livePanel, ModelComponent child, CanvasModel model) {
-		Location locationOfModel = model.getLocationOf(child.getModelBehind());
+		Location<Model> locationOfModel = model.getLocationOf(child.getModelBehind());
 
 		pendingCommands.add(new PendingCommandState<Model>(
 			new CanvasModel.DestroyModelCommand(locationOfModel),
@@ -972,7 +977,7 @@ public class CanvasModel extends Model {
 	}
 	
 	public static void appendRemoveTransaction2(List<Object> pendingCommands, LivePanel livePanel, ModelComponent child, CanvasModel model, Collector<Model> collector) {
-		Location locationOfModel = model.getLocationOf(child.getModelBehind());
+		Location<Model> locationOfModel = model.getLocationOf(child.getModelBehind());
 
 //		pendingCommands.add(new PendingCommandState<Model>(
 //			new CanvasModel.DestroyModelCommand(locationOfModel),
@@ -1025,14 +1030,14 @@ public class CanvasModel extends Model {
 //			}
 //		}
 //		
-//		private Location modelLocation;
+//		private Location<T> modelLocation;
 //
-//		public DestroyThenRemove(Location modelLocation) {
+//		public DestroyThenRemove(Location<T> modelLocation) {
 //			this.modelLocation = modelLocation;
 //		}
 //
 //		@Override
-//		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location) {
+//		public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<T> location) {
 //			CanvasModel canvasModel = (CanvasModel)location.getChild(prevalentSystem);
 //			
 //			collector.execute(new SimplePendingCommandFactory<Model>(canvasModel, new PendingCommandState<Model>(
@@ -1068,13 +1073,13 @@ public class CanvasModel extends Model {
 //		PendingCommandFactory.Util.executeSequence(collector, pendingCommands);
 //	}
 	
-	public static void appendMoveTransaction(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation) {
+	public static void appendMoveTransaction(List<CommandState<Model>> commandStates, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location<Model> canvasSourceLocation, Location<Model> canvasTargetLocation) {
 		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
-		Location locationInSource = sourceCanvas.getLocationOf(modelToMove.getModelBehind());
+		Location<Model> locationInSource = sourceCanvas.getLocationOf(modelToMove.getModelBehind());
 		
-		Location canvasTargetLocationAfter = canvasTargetLocation;
+		Location<Model> canvasTargetLocationAfter = canvasTargetLocation;
 		
-		Location modelLocationAfterMove = new CompositeLocation(canvasTargetLocationAfter, ((CanvasModel)target.getModelBehind()).getNextLocation());
+		Location<Model> modelLocationAfterMove = new CompositeLocation<Model>(canvasTargetLocationAfter, ((CanvasModel)target.getModelBehind()).getNextLocation());
 		
 		commandStates.add(new PendingCommandState<Model>(
 			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, locationInSource), 
@@ -1093,13 +1098,13 @@ public class CanvasModel extends Model {
 		));
 	}
 	
-	public static void appendMoveTransaction2(List<Object> pendingCommands, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location canvasSourceLocation, Location canvasTargetLocation, Collector<Model> collector) {
+	public static void appendMoveTransaction2(List<Object> pendingCommands, LivePanel livePanel, ModelComponent source, ModelComponent modelToMove, ModelComponent target, final Point moveLocation, Location<Model> canvasSourceLocation, Location<Model> canvasTargetLocation, Collector<Model> collector) {
 		CanvasModel sourceCanvas = (CanvasModel)source.getModelBehind();
-		Location locationInSource = sourceCanvas.getLocationOf(modelToMove.getModelBehind());
+		Location<Model> locationInSource = sourceCanvas.getLocationOf(modelToMove.getModelBehind());
 		
-		Location canvasTargetLocationAfter = canvasTargetLocation;
+		Location<Model> canvasTargetLocationAfter = canvasTargetLocation;
 		
-		Location modelLocationAfterMove = new CompositeLocation(canvasTargetLocationAfter, ((CanvasModel)target.getModelBehind()).getNextLocation());
+		Location<Model> modelLocationAfterMove = new CompositeLocation<Model>(canvasTargetLocationAfter, ((CanvasModel)target.getModelBehind()).getNextLocation());
 		
 //		pendingCommands.add(new PendingCommandState<Model>(
 //			new CanvasModel.MoveModelCommand(canvasSourceLocation, canvasTargetLocation, locationInSource), 
@@ -1247,7 +1252,7 @@ public class CanvasModel extends Model {
 //		));
 	}
 	
-	private static class ItemLocator implements Locator {
+	private static class ItemLocator implements Locator<Model> {
 		private CanvasModel canvasModel;
 		private Model model;
 
@@ -1257,12 +1262,12 @@ public class CanvasModel extends Model {
 		}
 
 		@Override
-		public Location locate() {
+		public Location<Model> locate() {
 			return canvasModel.getLocationOf(model);
 		}
 	}
 	
-	public static class IdLocation implements Location {
+	public static class IdLocation implements Location<Model> {
 		/**
 		 * 
 		 */
@@ -1274,7 +1279,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Object getChild(Object holder) {
+		public Model getChild(Model holder) {
 			return ((CanvasModel)holder).getModelByLocation(this);
 		}
 		
@@ -1289,7 +1294,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Location forForwarding() {
+		public Location<Model> forForwarding() {
 			return new CanvasModel.ForwardLocation(this);
 		}
 		
@@ -1299,19 +1304,19 @@ public class CanvasModel extends Model {
 		}
 	}
 	
-	public static class ForwardLocation implements Location {
+	public static class ForwardLocation implements Location<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
-		private Location location;
+		private Location<Model> location;
 
-		public ForwardLocation(Location location) {
+		public ForwardLocation(Location<Model> location) {
 			this.location = location;
 		}
 		
 		@Override
-		public Object getChild(Object holder) {
+		public Model getChild(Model holder) {
 			return ((CanvasModel)holder).getModelByLocation(this);
 		}
 		
@@ -1326,7 +1331,7 @@ public class CanvasModel extends Model {
 		}
 		
 		@Override
-		public Location forForwarding() {
+		public Location<Model> forForwarding() {
 			return new CanvasModel.ForwardLocation(this);
 		}
 		
@@ -1438,8 +1443,9 @@ public class CanvasModel extends Model {
 		modelToRemovableListenerMap.put(model, removableListener);
 	}
 
-	public Location[] getLocations() {
-		Location[] locations = new Location[getModelCount()];
+	public Location<Model>[] getLocations() {
+		@SuppressWarnings("unchecked")
+		Location<Model>[] locations = new Location[getModelCount()];
 		for(int i = 0; i < getModelCount(); i++) {
 			Entry entry = getEntry(i);
 			locations[i] = entry.id;

@@ -12,7 +12,7 @@ import dynamake.transcription.Collector;
  * @param <T> The type of object that instances of implementers should support execution on.
  */
 public interface Command<T> extends Serializable {
-	Object executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope);
+	Object executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope);
 	
 	public static class Null<T> implements Command<T> {
 		/**
@@ -21,7 +21,7 @@ public interface Command<T> extends Serializable {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Object executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+		public Object executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
 			return null;
 		}
 	}

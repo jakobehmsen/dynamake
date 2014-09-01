@@ -33,8 +33,8 @@ public class RedoCommand implements Command<Model> {
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Model model = (Model)location.getChild(prevalentSystem);
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+		Model model = location.getChild(prevalentSystem);
 		
 		if(!model.canRedo())
 			return null;

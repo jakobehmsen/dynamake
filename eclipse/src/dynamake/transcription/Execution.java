@@ -52,7 +52,7 @@ import dynamake.models.PropogationContext;
 		}
 
 		@Override
-		public Execution<T> offset(Location offset) {
+		public Execution<T> offset(Location<T> offset) {
 			return new Execution<T>(
 				(PendingCommandState<T>)pending.offset(offset),
 				(CommandStateWithOutput<T>)undoable.offset(offset)
@@ -60,7 +60,7 @@ import dynamake.models.PropogationContext;
 		}
 		
 		@Override
-		public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+		public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
 			return pending.executeOn(propCtx, prevalentSystem, collector, location, scope);
 		}
 		

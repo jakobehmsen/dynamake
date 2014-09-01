@@ -17,21 +17,21 @@ public class CloneFactory implements ModelFactory {
 	 */
 	private static final long serialVersionUID = 1L;
 	private RectangleF creationBounds;
-	private Location modelLocation;
+	private Location<Model> modelLocation;
 	
-	public CloneFactory(RectangleF creationBounds, Location modelLocation) {
+	public CloneFactory(RectangleF creationBounds, Location<Model> modelLocation) {
 		this.creationBounds = creationBounds;
 		this.modelLocation = modelLocation;
 	}
 
 	@Override
-	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location<Model> location) {
 		final Model modelToClone = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
 		final RestorableModel restorableModelClone = modelToClone.toRestorable(true);
 		
 		return new ModelCreation() {
 			@Override
-			public void setup(Model rootModel, final Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+			public void setup(Model rootModel, final Model createdModel, Location<Model> locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location<Model> location) {
 				RestorableModel restorableModelCreation = restorableModelClone.mapToReferenceLocation(modelToClone, createdModel);
 
 				// Same creation except the visual position should be different
@@ -44,7 +44,7 @@ public class CloneFactory implements ModelFactory {
 			}
 			
 			@Override
-			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location, ExecutionScope scope) {
+			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 				Model modelBase = restorableModelClone.unwrapBase(propCtx, propDistance, collector);
 				restorableModelClone.restoreOriginsOnBase(modelBase, propCtx, propDistance, collector, scope);
 				return modelBase;

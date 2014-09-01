@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import dynamake.models.Location;
-import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
@@ -26,12 +25,12 @@ public class CommandSequence<T> implements ReversibleCommand<T> {
 	}
 
 	@Override
-	public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+	public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
 		collector.execute(commands);
 	}
 
 	@Override
-	public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+	public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
 		// Each of the executed commands is assumed to know how reverse itself
 	}
 

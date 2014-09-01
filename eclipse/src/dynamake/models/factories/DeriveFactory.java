@@ -24,30 +24,30 @@ public class DeriveFactory implements ModelFactory {
 	 */
 	private static final long serialVersionUID = 1L;
 	private RectangleF creationBounds;
-	private Location modelLocation;
+	private Location<Model> modelLocation;
 	private boolean forwarded;
 	
-	public DeriveFactory(RectangleF creationBounds, Location modelLocation) {
+	public DeriveFactory(RectangleF creationBounds, Location<Model> modelLocation) {
 		this.creationBounds = creationBounds;
 		this.modelLocation = modelLocation;
 	}
 	
-	public DeriveFactory(RectangleF creationBounds, Location modelLocation, boolean forwarded) {
+	public DeriveFactory(RectangleF creationBounds, Location<Model> modelLocation, boolean forwarded) {
 		this.creationBounds = creationBounds;
 		this.modelLocation = modelLocation;
 		this.forwarded = forwarded;
 	}
 	
 	@Override
-	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location<Model> location) {
 		final Model source = (Model)CompositeLocation.getChild(rootModel, location, modelLocation);
 		final RestorableModel restorableModelClone = source.toRestorable(false);
 		
 		return new ModelCreation() {
 			@Override
-			public void setup(Model rootModel, final Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+			public void setup(Model rootModel, final Model createdModel, Location<Model> locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location<Model> location) {
 				Model target = createdModel;
-				Location locationOfSourceFromTarget = ModelComponent.Util.locationBetween(target, source);
+				Location<Model> locationOfSourceFromTarget = ModelComponent.Util.locationBetween(target, source);
 				
 				// A push forward command should forward the creation and local changes of from a source to the reference
 				RestorableModel restorableModelCreation = restorableModelClone.forForwarding();
@@ -78,7 +78,7 @@ public class DeriveFactory implements ModelFactory {
 			}
 			
 			@Override
-			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location, ExecutionScope scope) {
+			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 				Model modelBase = restorableModelClone.unwrapBase(propCtx, propDistance, collector);
 				restorableModelClone.restoreOriginsOnBase(modelBase, propCtx, propDistance, collector, scope);
 				return modelBase;

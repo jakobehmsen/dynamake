@@ -12,7 +12,7 @@ public class SetPropertyCommandFromScope implements Command<Model> {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 		Model model = (Model)location.getChild(prevalentSystem);
 
 		Object value = scope.consume();

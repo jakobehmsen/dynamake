@@ -66,8 +66,8 @@ public abstract class BoundsChangeTool implements Tool {
 							public void run(Collector<Model> collector) {
 								ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(source, targetOver);
 								
-								Location locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
-								Location locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
+								Location<Model> locationOfSource = ModelComponent.Util.locationFromAncestor(referenceMC, source);
+								Location<Model> locationOfTarget = ModelComponent.Util.locationFromAncestor(referenceMC, targetOver);
 								
 								ArrayList<Object> pendingCommands = new ArrayList<Object>();
 								

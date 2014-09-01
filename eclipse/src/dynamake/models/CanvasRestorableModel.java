@@ -15,10 +15,10 @@ public class CanvasRestorableModel extends RestorableModel {
 		 */
 		private static final long serialVersionUID = 1L;
 
-		public final Location id;
+		public final Location<Model> id;
 		public final RestorableModel restorable;
 		
-		public Entry(Location id, RestorableModel restorable) {
+		public Entry(Location<Model> id, RestorableModel restorable) {
 			this.id = id;
 			this.restorable = restorable;
 		}
@@ -84,7 +84,7 @@ public class CanvasRestorableModel extends RestorableModel {
 	public static CanvasRestorableModel wrap(CanvasModel model, boolean includeLocalHistory) {
 		CanvasRestorableModel wrapper = new CanvasRestorableModel();
 		wrap(wrapper, model, includeLocalHistory);
-		for(Location modelLocation: model.getLocations()) {
+		for(Location<Model> modelLocation: model.getLocations()) {
 			Model innerModel = model.getModelByLocation(modelLocation);
 			wrapper.innerRestorables.add(new Entry(modelLocation, innerModel.toRestorable(includeLocalHistory)));
 		}

@@ -1,9 +1,9 @@
 package dynamake.models;
 
 
-public class ModelRootLocator implements Locator {
+public class ModelRootLocator<T> implements Locator<T> {
 	@Override
-	public Location locate() {
-		return new ModelRootLocation();
+	public Location<T> locate() {
+		return new ModelRootLocation<T>();
 	}
 }

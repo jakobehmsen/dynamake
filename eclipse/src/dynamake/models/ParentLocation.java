@@ -1,18 +1,18 @@
 package dynamake.models;
 
-public class ParentLocation implements Location {
+public class ParentLocation implements Location<Model> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Object getChild(Object holder) {
-		return ((Model)holder).getParent();
+	public Model getChild(Model holder) {
+		return holder.getParent();
 	}
 	
 	@Override
-	public Location forForwarding() {
+	public Location<Model> forForwarding() {
 		return this;
 	}
 	

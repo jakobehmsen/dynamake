@@ -13,9 +13,11 @@ public class InjectCommandFromScope implements Command<Model> {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Location targetLocation = (Location)scope.consume();
-		Location sourceLocation = (Location)scope.consume();
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+		@SuppressWarnings("unchecked")
+		Location<Model> targetLocation = (Location<Model>)scope.consume();
+		@SuppressWarnings("unchecked")
+		Location<Model> sourceLocation = (Location<Model>)scope.consume();
 		
 		Model source = (Model)CompositeLocation.getChild(prevalentSystem, location, sourceLocation);
 		Model target = (Model)CompositeLocation.getChild(prevalentSystem, location, targetLocation);

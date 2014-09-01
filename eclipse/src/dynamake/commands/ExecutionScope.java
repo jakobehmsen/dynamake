@@ -8,7 +8,7 @@ import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.ModelRootLocation;
 
-public class ExecutionScope implements Serializable {
+public class ExecutionScope<T> implements Serializable {
 	/**
 	 * 
 	 */
@@ -20,7 +20,7 @@ public class ExecutionScope implements Serializable {
 
 	private ArrayDeque<Object> production = new ArrayDeque<Object>();
 	private Hashtable<String, Object> locals = new Hashtable<String, Object>();
-	private Location offset = new ModelRootLocation();
+	private Location<T> offset = new ModelRootLocation<T>();
 	
 	public void produce(Object value) {
 		if(value == null)
@@ -36,18 +36,18 @@ public class ExecutionScope implements Serializable {
 		return value instanceof NullWrapper ? null : value;
 	}
 	
-	public void pushOffset(Location offset) {
-		this.offset = new CompositeLocation(this.offset, offset);
+	public void pushOffset(Location<T> offset) {
+		this.offset = new CompositeLocation<T>(this.offset, offset);
 	}
 	
-	public Location popOffset() {
-		CompositeLocation offsetAsComposite = (CompositeLocation)offset;
-		Location poppedOffset = offsetAsComposite.getTail();
+	public Location<T> popOffset() {
+		CompositeLocation<T> offsetAsComposite = (CompositeLocation<T>)offset;
+		Location<T> poppedOffset = offsetAsComposite.getTail();
 		offset = offsetAsComposite.getHead();
 		return poppedOffset; 
 	}
 	
-	public Location getOffset() {
+	public Location<T> getOffset() {
 		return offset;
 	}
 

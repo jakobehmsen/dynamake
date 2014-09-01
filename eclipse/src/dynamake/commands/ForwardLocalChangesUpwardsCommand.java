@@ -17,29 +17,29 @@ public class ForwardLocalChangesUpwardsCommand implements ForwardableCommand<Mod
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Model target = (Model)location.getChild(prevalentSystem);
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+		Model target = location.getChild(prevalentSystem);
 		
 		// The relation should also be maintained for new models created
 		// Thus, some sort of observer (ForwardLocalChangesObserver) should be added for each of the contained models
 		
-		target.addObserver(new LocalChangesUpwarder(new ModelRootLocation(), new ModelRootLocation()));
+		target.addObserver(new LocalChangesUpwarder(new ModelRootLocation<Model>(), new ModelRootLocation<Model>()));
 		
 		if(target instanceof CanvasModel)
-			forwardLocalChangesUpwards((CanvasModel)target, new ModelRootLocation(), new ModelRootLocation());
+			forwardLocalChangesUpwards((CanvasModel)target, new ModelRootLocation<Model>(), new ModelRootLocation<Model>());
 		
 		System.out.println("Forward local changes upwards from " + target);
 		
 		return null;
 	}
 	
-	private void forwardLocalChangesUpwards(CanvasModel targetCanvas, Location sourceLocation, Location offsetFromTarget) {
-		for(Location modelLocationInSource: targetCanvas.getLocations()) {
+	private void forwardLocalChangesUpwards(CanvasModel targetCanvas, Location<Model> sourceLocation, Location<Model> offsetFromTarget) {
+		for(Location<Model> modelLocationInSource: targetCanvas.getLocations()) {
 			// Perhaps, the creation of this upwards forwarding should be part for play local changes from source command, for each add command?
 			// - and then a corresponding cleanup for each remove command?
 			Model modelInTarget = targetCanvas.getModelByLocation(modelLocationInSource);
-			Location modelTargetLocation = new CompositeLocation(sourceLocation, new ParentLocation());
-			Location modelOffsetFromTarget = new CompositeLocation(offsetFromTarget, modelLocationInSource);
+			Location<Model> modelTargetLocation = new CompositeLocation<Model>(sourceLocation, new ParentLocation());
+			Location<Model> modelOffsetFromTarget = new CompositeLocation<Model>(offsetFromTarget, modelLocationInSource);
 			modelInTarget.addObserver(new LocalChangesUpwarder(modelTargetLocation, modelOffsetFromTarget));
 			
 			if(modelInTarget instanceof CanvasModel)

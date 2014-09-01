@@ -6,11 +6,11 @@ import dynamake.commands.ReversibleCommand;
 import dynamake.models.PropogationContext;
 
 public class NullTransactionHandler<T> implements TransactionHandler<T> {
-	private ExecutionScope scope;
+	private ExecutionScope<T> scope;
 
 	@Override
 	public void startLogFor(TransactionHandler<T> parentHandler, T reference) { 
-		scope = new ExecutionScope();
+		scope = new ExecutionScope<T>();
 	}
 	
 	@Override
@@ -26,7 +26,7 @@ public class NullTransactionHandler<T> implements TransactionHandler<T> {
 	public void rejectLogFor(T reference) { }
 	
 	@Override
-	public ExecutionScope getScope() {
+	public ExecutionScope<T> getScope() {
 		return scope;
 	}
 }

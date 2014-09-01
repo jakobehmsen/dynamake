@@ -148,8 +148,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 				
 				transactionHandler.logBeforeFor(reference, command, propCtx, 0, isolatedCollector);
 
-				ExecutionScope scope = transactionHandler.getScope();
-				Location locationFromReference = scope.getOffset();
+				ExecutionScope<T> scope = transactionHandler.getScope();
+				Location<T> locationFromReference = scope.getOffset();
 				
 				rCommand.executeForward(propCtx, reference, isolatedCollector, locationFromReference, scope);
 				
@@ -357,7 +357,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		private static class TransactionFrame<T> {
 			public final TransactionFrame<T> parent;
 			public final T reference;
-			public final Location locationFromRootToReference;
+			public final Location<T> locationFromRootToReference;
 			public final TransactionHandlerFactory<T> handlerFactory;
 			public final TransactionHandler<T> handler;
 			
@@ -366,7 +366,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			// - and this is important during replay and reject
 			public ArrayList<Object> flushedTransactionsFromRoot = new ArrayList<Object>(); // List of either atomic commands or transactions
 			
-			public TransactionFrame(TransactionFrame<T> parent, T reference, Location locationFromRootToReference, TransactionHandlerFactory<T> transactionHandlerFactory, TransactionHandler<T> handler) {
+			public TransactionFrame(TransactionFrame<T> parent, T reference, Location<T> locationFromRootToReference, TransactionHandlerFactory<T> transactionHandlerFactory, TransactionHandler<T> handler) {
 				this.parent = parent;
 				this.reference = reference;
 				this.locationFromRootToReference = locationFromRootToReference;
@@ -393,7 +393,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			}
 
 			@Override
-			public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+			public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
 				switch(instruction.type) {
 				case Instruction.OPCODE_PRODUCE:
 					Object valueToProduce = instruction.operand1;
@@ -403,7 +403,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					scope.consume();
 					break;
 				case Instruction.OPCODE_PUSH_OFFSET:
-					Location offset = (Location)scope.consume();
+					@SuppressWarnings("unchecked")
+					Location<T> offset = (Location<T>)scope.consume();
 					scope.pushOffset(offset);
 					break;
 				case Instruction.OPCODE_POP_OFFSET:
@@ -422,7 +423,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			}
 
 			@Override
-			public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+			public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
 				switch(instruction.type) {
 				case Instruction.OPCODE_PRODUCE:
 					scope.consume();
@@ -435,7 +436,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					scope.popOffset();
 					break;
 				case Instruction.OPCODE_POP_OFFSET:
-					Location poppedOffset = (Location)operand1;
+					@SuppressWarnings("unchecked")
+					Location<T> poppedOffset = (Location<T>)operand1;
 					scope.pushOffset(poppedOffset);
 					break;
 				case Instruction.OPCODE_STORE: {
@@ -584,7 +586,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									
 								transactionHandler.startLogFor(currentFrame != null ? currentFrame.handler : null, reference);
 								
-								Location locationFromRoot = ((Model)reference).getLocator().locate();
+								Location<T> locationFromRoot = (Location<T>)((Model)reference).getLocator().locate();
 								
 								currentFrame = new TransactionFrame<T>(currentFrame, reference, locationFromRoot, transactionHandlerFactory, transactionHandler);
 
@@ -624,13 +626,13 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								
 							} case Instruction.OPCODE_PUSH_OFFSET:
 								logBeforeExecution(command, propCtx, collector);
-								Location offset = (Location)currentFrame.handler.getScope().consume();
+								Location<T> offset = (Location<T>)currentFrame.handler.getScope().consume();
 								currentFrame.handler.getScope().pushOffset(offset);
 								logExecution(instruction, new ReversibleInstructionPair<T>(instruction), propCtx, collector);
 								break;
 							case Instruction.OPCODE_POP_OFFSET:
 								logBeforeExecution(command, propCtx, collector);
-								Location poppedOffset = currentFrame.handler.getScope().popOffset();
+								Location<T> poppedOffset = currentFrame.handler.getScope().popOffset();
 								logExecution(instruction, new ReversibleInstructionPair<T>(instruction, poppedOffset), propCtx, collector);
 								break;
 							}
@@ -642,7 +644,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							TransactionHandler<T> transactionHandler = frame.handler;
 							
-							Location locationFromReference = new ModelRootLocation();
+							Location<T> locationFromReference = new ModelRootLocation<T>();
 							
 							// If location was part of the executeOn invocation, location is probably no
 							// necessary for creating dual commands. Further, then, it is probably not necessary
@@ -654,7 +656,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							// Should be in pending state
 							ArrayList<CommandState<T>> undoables = new ArrayList<CommandState<T>>();
 
-							ExecutionScope scope = transactionHandler.getScope();
+							ExecutionScope<T> scope = transactionHandler.getScope();
 							// The command in pending state should return a command in undoable state
 							CommandState<T> undoableCommand = pendingCommand.executeOn(propCtx, reference, collector, locationFromReference, scope);
 							undoables.add(undoableCommand);
@@ -679,8 +681,8 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 							
 							logBeforeExecution(rCommand, propCtx, collector);
 							
-							ExecutionScope scope = currentFrame.handler.getScope();
-							Location locationFromReference = scope.getOffset();
+							ExecutionScope<T> scope = currentFrame.handler.getScope();
+							Location<T> locationFromReference = scope.getOffset();
 							
 							rCommand.executeForward(propCtx, currentFrame.reference, collector, locationFromReference, scope);
 							
@@ -785,7 +787,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		}
 		
 		private static <T> void rejectTransaction(PropogationContext propCtx, Collector<T> isolatedCollector, TransactionFrame<T> frame) {
-			ExecutionScope scope = frame.handler.getScope();
+			ExecutionScope<T> scope = frame.handler.getScope();
 			for(int i = frame.flushedTransactionsFromRoot.size() - 1; i >= 0; i--) {
 				Object committedExecution = frame.flushedTransactionsFromRoot.get(i);
 				
@@ -793,7 +795,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					@SuppressWarnings("unchecked")
 					ReversibleCommand<T> undoableTransaction = (ReversibleCommand<T>)committedExecution;
 					
-					Location locationFromReference = new ModelRootLocation();
+					Location<T> locationFromReference = new ModelRootLocation<T>();
 					undoableTransaction.executeBackward(propCtx, frame.reference, isolatedCollector, locationFromReference, scope);
 				} else if(committedExecution instanceof TransactionFrame) {
 					@SuppressWarnings("unchecked")

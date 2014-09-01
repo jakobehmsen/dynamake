@@ -27,12 +27,12 @@ public class CreationBoundsFactory implements ModelFactory {
 	}
 
 	@Override
-	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+	public ModelCreation create(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location<Model> location) {
 		final ModelCreation modelCreation = factory.create(rootModel, propCtx, propDistance, collector, location);
 		
 		return new ModelCreation() {
 			@Override
-			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location, ExecutionScope scope) {
+			public Model createModel(Model rootModel, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 				Model model = modelCreation.createModel(rootModel, propCtx, propDistance, collector, location, scope);
 
 				ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
@@ -50,7 +50,7 @@ public class CreationBoundsFactory implements ModelFactory {
 			}
 
 			@Override
-			public void setup(Model rootModel, Model createdModel, Location locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location location) {
+			public void setup(Model rootModel, Model createdModel, Location<Model> locationOfModelToSetup, PropogationContext propCtx, int propDistance, Collector<Model> collector, Location<Model> location) {
 				modelCreation.setup(rootModel, createdModel, locationOfModelToSetup, propCtx, propDistance, collector, location);
 			}
 		};

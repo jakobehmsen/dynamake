@@ -19,8 +19,9 @@ public class WrapCommandFromScope implements Command<Model> {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Location[] modelLocations = (Location[])scope.consume();
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+		@SuppressWarnings("unchecked")
+		Location<Model>[] modelLocations = (Location<Model>[])scope.consume();
 		RectangleF creationBounds = (RectangleF)scope.consume();
 		
 		CanvasModel target = (CanvasModel)location.getChild(prevalentSystem);
@@ -37,7 +38,7 @@ public class WrapCommandFromScope implements Command<Model> {
 			models[i] = model;
 		}
 		
-		Hashtable<Location, Location> wrapperToSourceLocations = new Hashtable<Location, Location>();
+		Hashtable<Location<Model>, Location<Model>> wrapperToSourceLocations = new Hashtable<Location<Model>, Location<Model>>();
 
 		for(int i = 0; i < models.length; i++) {
 			Model model = models[i];
@@ -45,8 +46,8 @@ public class WrapCommandFromScope implements Command<Model> {
 			wrapper.addModel(model, propCtx, 0, collector);
 			
 			// Map locations between source and wrapper to remember which models were wrapped during this wrap
-			Location modelLocationInWrapper = wrapper.getLocationOf(model);
-			Location modelLocationInSource = modelLocations[i];
+			Location<Model> modelLocationInWrapper = wrapper.getLocationOf(model);
+			Location<Model> modelLocationInSource = modelLocations[i];
 			
 			wrapperToSourceLocations.put(modelLocationInWrapper, modelLocationInSource);
 		}
@@ -60,7 +61,7 @@ public class WrapCommandFromScope implements Command<Model> {
 		}
 
 		target.addModel(wrapper, propCtx, 0, collector);
-		Location wrapperLocationInTarget = target.getLocationOf(wrapper);
+		Location<Model> wrapperLocationInTarget = target.getLocationOf(wrapper);
 		
 		scope.produce(wrapperLocationInTarget);
 		scope.produce(creationBounds);

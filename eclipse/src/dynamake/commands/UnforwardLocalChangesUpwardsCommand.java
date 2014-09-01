@@ -17,33 +17,33 @@ public class UnforwardLocalChangesUpwardsCommand implements MappableCommand<Mode
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private Location locationOfTarget;
+	private Location<Model> locationOfTarget;
 
-	public UnforwardLocalChangesUpwardsCommand(Location locationOfSource) {
+	public UnforwardLocalChangesUpwardsCommand(Location<Model> locationOfSource) {
 		this.locationOfTarget = locationOfSource;
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 		Model source = (Model)CompositeLocation.getChild(prevalentSystem, location, locationOfTarget);
 		Model target = (Model)location.getChild(prevalentSystem);
 		
 		if(source instanceof CanvasModel)
-			forwardLocalChangesUpwards((CanvasModel)source, new ModelRootLocation(), new ModelRootLocation());
+			forwardLocalChangesUpwards((CanvasModel)source, new ModelRootLocation<Model>(), new ModelRootLocation<Model>());
 		
 		System.out.println("Forward local changes upwards from " + source + " to " + target);
 		
 		return null;
 	}
 	
-	private void forwardLocalChangesUpwards(CanvasModel sourceCanvas, Location sourceLocation, Location offsetFromTarget) {
-		for(Location modelLocationInSource: sourceCanvas.getLocations()) {
-			Location modelLocationInTarget = new CanvasModel.ForwardLocation(modelLocationInSource);
+	private void forwardLocalChangesUpwards(CanvasModel sourceCanvas, Location<Model> sourceLocation, Location<Model> offsetFromTarget) {
+		for(Location<Model> modelLocationInSource: sourceCanvas.getLocations()) {
+			Location<Model> modelLocationInTarget = new CanvasModel.ForwardLocation(modelLocationInSource);
 			// Perhaps, the creation of this upwards forwarding should be part for play local changes from source command, for each add command?
 			// - and then a corresponding cleanup for each remove command?
 			Model modelInSource = sourceCanvas.getModelByLocation(modelLocationInSource);
-			Location modelTargetLocation = new CompositeLocation(sourceLocation, new ParentLocation());
-			Location modelOffsetFromTarget = new CompositeLocation(offsetFromTarget, modelLocationInTarget);
+			Location<Model> modelTargetLocation = new CompositeLocation<Model>(sourceLocation, new ParentLocation());
+			Location<Model> modelOffsetFromTarget = new CompositeLocation<Model>(offsetFromTarget, modelLocationInTarget);
 			modelInSource.addObserver(new LocalChangesUpwarder(modelTargetLocation, modelOffsetFromTarget));
 			
 			if(modelInSource instanceof CanvasModel)
@@ -53,8 +53,8 @@ public class UnforwardLocalChangesUpwardsCommand implements MappableCommand<Mode
 	
 	@Override
 	public Command<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
-		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfTarget);
-		Location locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
+		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation<Model>(), locationOfTarget);
+		Location<Model> locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
 		
 		return new UnforwardLocalChangesUpwardsCommand(locationOfSourceFromTargetReference);
 	}

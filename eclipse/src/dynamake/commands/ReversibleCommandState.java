@@ -41,7 +41,7 @@ public class ReversibleCommandState<T> implements CommandStateWithOutput<T> {
 	}
 
 	@Override
-	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
+	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
 		Command<T> newCommand = forthFactory.createCommand(output);
 		
 		Object newOutput = newCommand.executeOn(propCtx, prevalentSystem, collector, location, scope);
@@ -80,9 +80,9 @@ public class ReversibleCommandState<T> implements CommandStateWithOutput<T> {
 	}
 	
 	@Override
-	public CommandState<T> offset(Location offset) {
+	public CommandState<T> offset(Location<T> offset) {
 		Command<T> newCause = new RelativeCommand<T>(offset, cause);
-		Object newOutput = new RelativeCommand.Output(offset, output);
+		Object newOutput = new RelativeCommand.Output<T>(offset, output);
 		
 		CommandFactory<T> newForthFactory = new RelativeCommand.Factory<T>(forthFactory);
 		CommandFactory<T> newBackFactory = new RelativeCommand.Factory<T>(backFactory);

@@ -13,13 +13,13 @@ public class ResizeCommandFromScope implements Command<Model> {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 		Fraction heightDelta = (Fraction)scope.consume();
 		Fraction widthDelta = (Fraction)scope.consume();
 		Fraction yDelta = (Fraction)scope.consume();
 		Fraction xDelta = (Fraction)scope.consume();
 		
-		Model model = (Model)location.getChild(prevalentSystem);
+		Model model = location.getChild(prevalentSystem);
 		
 		model.resize(xDelta, yDelta, widthDelta, heightDelta, propCtx, 0, collector);
 		

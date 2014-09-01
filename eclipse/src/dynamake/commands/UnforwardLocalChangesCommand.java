@@ -15,16 +15,16 @@ public class UnforwardLocalChangesCommand implements MappableCommand<Model> {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private Location locationOfSourceFromTarget;
+	private Location<Model> locationOfSourceFromTarget;
 
-	public UnforwardLocalChangesCommand(Location locationOfSourceFromTarget) {
+	public UnforwardLocalChangesCommand(Location<Model> locationOfSourceFromTarget) {
 		this.locationOfSourceFromTarget = locationOfSourceFromTarget;
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Model target = (Model)location.getChild(prevalentSystem);
-		Model source = (Model)locationOfSourceFromTarget.getChild(target);
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+		Model target = location.getChild(prevalentSystem);
+		Model source = locationOfSourceFromTarget.getChild(target);
 
 		LocalChangesForwarder historyChangeForwarder = new LocalChangesForwarder(source, target);
 		source.removeObserverLike(historyChangeForwarder);
@@ -37,8 +37,8 @@ public class UnforwardLocalChangesCommand implements MappableCommand<Model> {
 	
 	@Override
 	public Command<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
-		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfSourceFromTarget);
-		Location locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
+		Model source = CompositeLocation.getChild(sourceReference, new ModelRootLocation<Model>(), locationOfSourceFromTarget);
+		Location<Model> locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
 		
 		return new UnforwardLocalChangesCommand(locationOfSourceFromTargetReference);
 	}

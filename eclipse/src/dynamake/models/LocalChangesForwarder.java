@@ -26,11 +26,11 @@ import dynamake.transcription.Trigger;
  */
 public class LocalChangesForwarder extends ObserverAdapter implements Serializable {
 	public static class PushLocalChanges {
-		public final Location offset;
+		public final Location<Model> offset;
 		public final List<CommandState<Model>> localChangesToRevert;
 		public final List<CommandState<Model>> newChanges;
 
-		public PushLocalChanges(Location offset, List<CommandState<Model>> localChangesToRevert, List<CommandState<Model>> newChanges) {
+		public PushLocalChanges(Location<Model> offset, List<CommandState<Model>> localChangesToRevert, List<CommandState<Model>> newChanges) {
 			this.offset = offset;
 			this.localChangesToRevert = localChangesToRevert;
 			this.newChanges = newChanges;
@@ -95,7 +95,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 		return models;
 	}
 	
-//	private final List<Location> getLocationsFromInnerToOuter(Model inner, Model outer, Location locationOfInner) {
+//	private final List<Location> getLocationsFromInnerToOuter(Model inner, Model outer, Location<T> locationOfInner) {
 //		// inner is assumed to child of outer either directly or indirectly
 //		// locationOfInner is assumed to be the offset from outer to inner
 //		
@@ -121,8 +121,8 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			// Whenever a change is forwarded from a source
 			final PushLocalChanges pushLocalChanges = (PushLocalChanges)change;
 			
-			Location forwardedOffset = pushLocalChanges.offset.forForwarding();
-			final Model innerMostTarget = (Model)CompositeLocation.getChild(this.target, new ModelRootLocation(), forwardedOffset);
+			Location<Model> forwardedOffset = pushLocalChanges.offset.forForwarding();
+			final Model innerMostTarget = (Model)CompositeLocation.getChild(this.target, new ModelRootLocation<Model>(), forwardedOffset);
 			
 			final ArrayList<CommandState<Model>> forwardedNewChanges = new ArrayList<CommandState<Model>>();
 			
@@ -214,7 +214,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 
 			// Accumulate from innermost part of target to outermost part of target
 			// The outer parts of target could be probably be reduced to commands which affect inner parts, such as the scale command
-			Location currentLocation = new ModelRootLocation();
+			Location<Model> currentLocation = new ModelRootLocation<Model>();
 			Model currentModel = innerMostTarget;
 			
 			while(true) {
@@ -223,7 +223,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 				
 				if(currentModel != this.target) {
 					currentModel = currentModel.getParent();
-					currentLocation = new CompositeLocation(currentLocation, new ParentLocation());
+					currentLocation = new CompositeLocation<Model>(currentLocation, new ParentLocation());
 				} else {
 					break;
 				}

@@ -1,39 +1,39 @@
 package dynamake.models;
 
-public class CompositeLocation implements Location {
+public class CompositeLocation<T> implements Location<T> {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Location head;
-	private Location tail;
+	private Location<T> head;
+	private Location<T> tail;
 	
-	public CompositeLocation(Location head, Location tail) {
+	public CompositeLocation(Location<T> head, Location<T> tail) {
 		this.head = head;
 		this.tail = tail;
 	}
 	
-	public Location getHead() {
+	public Location<T> getHead() {
 		return head;
 	}
 	
-	public Location getTail() {
+	public Location<T> getTail() {
 		return tail;
 	}
 
 	@Override
-	public Object getChild(Object holder) {
+	public T getChild(T holder) {
 		return tail.getChild(head.getChild(holder));
 	}
 	
-	public static Object getChild(Object holder, Location head, Location tail) {
-		Object headObj = head.getChild(holder);
+	public static <T> T getChild(T holder, Location<T> head, Location<T> tail) {
+		T headObj = head.getChild(holder);
 		return tail.getChild(headObj);
 	}
 	
 	@Override
-	public Location forForwarding() {
-		return new CompositeLocation(head.forForwarding(), tail.forForwarding());
+	public Location<T> forForwarding() {
+		return new CompositeLocation<T>(head.forForwarding(), tail.forForwarding());
 	}
 	
 	@Override
@@ -44,7 +44,8 @@ public class CompositeLocation implements Location {
 	@Override
 	public boolean equals(Object obj) {
 		if(obj instanceof CompositeLocation) {
-			CompositeLocation otherCompositeLocation = (CompositeLocation)obj;
+			@SuppressWarnings("unchecked")
+			CompositeLocation<T> otherCompositeLocation = (CompositeLocation<T>)obj;
 			return this.head.equals(otherCompositeLocation.head) && this.tail.equals(otherCompositeLocation.tail);
 		}
 		

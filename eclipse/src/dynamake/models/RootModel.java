@@ -105,19 +105,19 @@ public class RootModel extends Model {
 		}
 	}
 	
-	private static class FieldContentLocation implements Location {
+	private static class FieldContentLocation implements Location<Model> {
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Object getChild(Object holder) {
+		public Model getChild(Model holder) {
 			return ((RootModel)holder).content;
 		}
 		
 		@Override
-		public Location forForwarding() {
+		public Location<Model> forForwarding() {
 			return this;
 		}
 		
@@ -280,9 +280,9 @@ public class RootModel extends Model {
 			view.setExtendedState(state);
 		
 		view.getContentPane().setLayout(new BorderLayout());
-		final Binding<ModelComponent> contentView = content.createView(view, viewManager, modelTranscriber.extend(new Locator() {
+		final Binding<ModelComponent> contentView = content.createView(view, viewManager, modelTranscriber.extend(new Locator<Model>() {
 			@Override
-			public Location locate() {
+			public Location<Model> locate() {
 				return new FieldContentLocation();
 			}
 		}));

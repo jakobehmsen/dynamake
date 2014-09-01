@@ -18,9 +18,9 @@ import dynamake.transcription.Collector;
  * @param <T> The type of object that instances of implementers should support execution on.
  */
 public interface CommandState<T> extends Serializable {
-	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope);
+	public CommandState<T> executeOn(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope);
 	public CommandState<T> mapToReferenceLocation(Model sourceReference, Model targetReference);
-	public CommandState<T> offset(Location offset);
+	public CommandState<T> offset(Location<T> offset);
 	public CommandState<T> forForwarding();
 	public CommandState<T> forForwarding(Object output);
 	public void appendPendings(List<CommandState<T>> pendingCommands);

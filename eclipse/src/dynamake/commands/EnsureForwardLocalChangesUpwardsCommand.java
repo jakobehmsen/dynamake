@@ -23,17 +23,17 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model>, 
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private Location locationOfSourceFromTarget;
+	private Location<Model> locationOfSourceFromTarget;
 
-	public EnsureForwardLocalChangesUpwardsCommand(Location locationOfSourceFromTarget) {
+	public EnsureForwardLocalChangesUpwardsCommand(Location<Model> locationOfSourceFromTarget) {
 		this.locationOfSourceFromTarget = locationOfSourceFromTarget;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Model target = (Model)location.getChild(prevalentSystem);
-		final Model source = (Model)locationOfSourceFromTarget.getChild(target);
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+		Model target = location.getChild(prevalentSystem);
+		final Model source = locationOfSourceFromTarget.getChild(target);
 				
 		// Setup local changes upwarder in source if not already part of creation
 		List<Execution<Model>> sourceCreation = (List<Execution<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
@@ -92,8 +92,8 @@ public class EnsureForwardLocalChangesUpwardsCommand implements Command<Model>, 
 	
 	@Override
 	public Command<Model> mapToReferenceLocation(Model sourceReference, Model targetReference) {
-		Model source = (Model)CompositeLocation.getChild(sourceReference, new ModelRootLocation(), locationOfSourceFromTarget);
-		Location locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
+		Model source = CompositeLocation.getChild(sourceReference, new ModelRootLocation<Model>(), locationOfSourceFromTarget);
+		Location<Model> locationOfSourceFromTargetReference = ModelComponent.Util.locationBetween(targetReference, source);
 		
 		return new EnsureForwardLocalChangesUpwardsCommand(locationOfSourceFromTargetReference);
 	}

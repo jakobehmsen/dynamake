@@ -100,22 +100,22 @@ public interface ModelComponent {
 			return null;
 		}
 		
-		public static Location locationBetween(Model from, Model to) {
+		public static Location<Model> locationBetween(Model from, Model to) {
 			Model cca = ModelComponent.Util.closestCommonAncestor(from, to);
 			
-			Location locationFromSelfToCca = ModelComponent.Util.locationToAncestor(cca, from);
-			Location locationFromCcaToObserver = ModelComponent.Util.locationFromAncestor(cca, to);
+			Location<Model> locationFromSelfToCca = ModelComponent.Util.locationToAncestor(cca, from);
+			Location<Model> locationFromCcaToObserver = ModelComponent.Util.locationFromAncestor(cca, to);
 			
-			return new CompositeLocation(locationFromSelfToCca, locationFromCcaToObserver);
+			return new CompositeLocation<Model>(locationFromSelfToCca, locationFromCcaToObserver);
 		}
 
-		public static Location locationFromAncestor(ModelComponent ancestor, ModelComponent child) {
+		public static Location<Model> locationFromAncestor(ModelComponent ancestor, ModelComponent child) {
 			return locationFromAncestor(ancestor.getModelBehind(), child.getModelBehind());
 		}
 
-		public static Location locationFromAncestor(Model ancestor, Model child) {
+		public static Location<Model> locationFromAncestor(Model ancestor, Model child) {
 			if(child == ancestor)
-				return new ModelRootLocation();
+				return new ModelRootLocation<Model>();
 			
 			ArrayList<Model> ancestorsClosestToFarthest = new ArrayList<Model>();
 
@@ -127,11 +127,11 @@ public interface ModelComponent {
 				parent = parent.getParent();
 			}
 			
-			Location location = ((CanvasModel)ancestorsClosestToFarthest.get(0)).getLocationOf(child);
+			Location<Model> location = ((CanvasModel)ancestorsClosestToFarthest.get(0)).getLocationOf(child);
 			
 			for(int i = 1; i < ancestorsClosestToFarthest.size(); i++) {
 				Model currentAncestor = ancestorsClosestToFarthest.get(i - 1);
-				location = new CompositeLocation(
+				location = new CompositeLocation<Model>(
 					((CanvasModel)ancestorsClosestToFarthest.get(i)).getLocationOf(currentAncestor),
 					location
 				);
@@ -140,15 +140,15 @@ public interface ModelComponent {
 			return location;
 		}
 
-		public static Location locationToAncestor(ModelComponent ancestor, ModelComponent child) {
+		public static Location<Model> locationToAncestor(ModelComponent ancestor, ModelComponent child) {
 			return locationToAncestor(ancestor.getModelBehind(), child.getModelBehind());
 		}
 
-		public static Location locationToAncestor(Model ancestor, Model child) {
+		public static Location<Model> locationToAncestor(Model ancestor, Model child) {
 			if(child == ancestor)
-				return new ModelRootLocation();
+				return new ModelRootLocation<Model>();
 
-			Location location = new ParentLocation();
+			Location<Model> location = new ParentLocation();
 			
 			Model parent = child.getParent();
 			while(true) {
@@ -157,7 +157,7 @@ public interface ModelComponent {
 				
 				parent = parent.getParent();
 				
-				location = new CompositeLocation(
+				location = new CompositeLocation<Model>(
 					new ParentLocation(),
 					location
 				);

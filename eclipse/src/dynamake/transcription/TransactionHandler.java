@@ -12,5 +12,5 @@ public interface TransactionHandler<T> {
 	void logFor(T reference, ReversibleCommand<T> command, PropogationContext propCtx, int propDistance, Collector<T> collector);
 	void commitLogFor(T reference);
 	void rejectLogFor(T reference);
-	ExecutionScope getScope();
+	ExecutionScope<T> getScope();
 }

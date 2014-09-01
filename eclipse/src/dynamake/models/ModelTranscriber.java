@@ -13,10 +13,10 @@ import dynamake.transcription.Connection;
 public class ModelTranscriber {
 	private Transcriber<Model> transcriber;
 	private ModelTranscriber parent;
-	private Locator locator;
+	private Locator<Model> locator;
 	private JComponent componentToRepaint;
 	
-	public ModelTranscriber(Transcriber<Model> transcriber, Locator locator) {
+	public ModelTranscriber(Transcriber<Model> transcriber, Locator<Model> locator) {
 		this.transcriber = transcriber;
 		this.locator = locator;
 	}
@@ -29,19 +29,19 @@ public class ModelTranscriber {
 		return parent;
 	}
 	
-	public Locator getModelLocator() {
+	public Locator<Model> getModelLocator() {
 		if(parent != null)
 			return new CompositeModelLocator(parent.getModelLocator(), locator);
 		return locator;
 	}
 	
-	public Location getModelLocation() {
+	public Location<Model> getModelLocation() {
 		if(parent != null)
-			return new CompositeLocation(parent.getModelLocation(), locator.locate());
+			return new CompositeLocation<Model>(parent.getModelLocation(), locator.locate());
 		return locator.locate();
 	}
 
-	public ModelTranscriber extend(final Locator locator) {
+	public ModelTranscriber extend(final Locator<Model> locator) {
 		ModelTranscriber extended = new ModelTranscriber(transcriber, locator);
 		
 		extended.parent = this;
@@ -50,18 +50,18 @@ public class ModelTranscriber {
 		return extended;
 	}
 	
-	private static class CompositeModelLocator implements Locator {
-		private Locator head;
-		private Locator tail;
+	private static class CompositeModelLocator implements Locator<Model> {
+		private Locator<Model> head;
+		private Locator<Model> tail;
 		
-		public CompositeModelLocator(Locator head, Locator tail) {
+		public CompositeModelLocator(Locator<Model> head, Locator<Model> tail) {
 			this.head = head;
 			this.tail = tail;
 		}
 
 		@Override
-		public Location locate() {
-			return new CompositeLocation(head.locate(), tail.locate());
+		public Location<Model> locate() {
+			return new CompositeLocation<Model>(head.locate(), tail.locate());
 		}
 	}
 

@@ -43,7 +43,6 @@ import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
 import dynamake.transcription.LoadScopeTransactionHandlerFactory;
-import dynamake.transcription.PendingCommandFactory;
 import dynamake.transcription.Execution;
 import dynamake.transcription.Trigger;
 import dynamake.tuples.Tuple2;
@@ -66,7 +65,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 
 		@Override
-		public CommandState<Model> executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
+		public CommandState<Model> executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
 			CommandState<Model> reverted = revertible.executeOn(propCtx, prevalentSystem, collector, location, scope);
 			return new UndoRedoPart(origin, (CommandStateWithOutput<Model>)reverted);
 		}
@@ -80,7 +79,7 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		@Override
-		public CommandState<Model> offset(Location offset) {
+		public CommandState<Model> offset(Location<Model> offset) {
 			return new UndoRedoPart(origin.offset(offset), (CommandStateWithOutput<Model>)revertible.offset(offset));
 		}
 		
@@ -173,7 +172,7 @@ public abstract class Model implements Serializable, Observer {
 	protected Stack<HistoryPart> undoStack = new Stack<HistoryPart>();
 	protected Stack<HistoryPart> redoStack = new Stack<HistoryPart>();
 	
-	private Locator locator;
+	private Locator<Model> locator;
 	private Model parent;
 	
 	private void writeObject(ObjectOutputStream ous) throws IOException {
@@ -223,19 +222,19 @@ public abstract class Model implements Serializable, Observer {
 		 */
 		private static final long serialVersionUID = 1L;
 		
-		private List<Tuple2<PURCommand<Model>, ExecutionScope>> purCommands;
+		private List<Tuple2<PURCommand<Model>, ExecutionScope<Model>>> purCommands;
 
-		public HistoryPart(List<Tuple2<PURCommand<Model>, ExecutionScope>> purCommands) {
+		public HistoryPart(List<Tuple2<PURCommand<Model>, ExecutionScope<Model>>> purCommands) {
 			this.purCommands = purCommands;
 		}
 
 		public HistoryPart forReplayFromUndo() {
-			ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>> pendings = new ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>>();
-			for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: purCommands) {
+			ArrayList<Tuple2<PURCommand<Model>, ExecutionScope<Model>>> pendings = new ArrayList<Tuple2<PURCommand<Model>, ExecutionScope<Model>>>();
+			for(Tuple2<PURCommand<Model>, ExecutionScope<Model>> purAndScope: purCommands) {
 				// pur.back is assumed to be insignificant
 				PURCommand<Model> pur = purAndScope.value1;
 				PURCommand<Model> pending = pur.inReplayState();
-				pendings.add(new Tuple2<PURCommand<Model>, ExecutionScope>(pending, purAndScope.value2));
+				pendings.add(new Tuple2<PURCommand<Model>, ExecutionScope<Model>>(pending, purAndScope.value2));
 			}
 			
 			Collections.reverse(pendings);
@@ -244,12 +243,12 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		public HistoryPart forUndo() {
-			ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>> undoables = new ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>>();
-			for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: purCommands) {
+			ArrayList<Tuple2<PURCommand<Model>, ExecutionScope<Model>>> undoables = new ArrayList<Tuple2<PURCommand<Model>, ExecutionScope<Model>>>();
+			for(Tuple2<PURCommand<Model>, ExecutionScope<Model>> purAndScope: purCommands) {
 				// pur.back is assumed to be insignificant
 				PURCommand<Model> pur = purAndScope.value1;
 				PURCommand<Model> undoable = pur.inUndoState();
-				undoables.add(new Tuple2<PURCommand<Model>, ExecutionScope>(undoable, purAndScope.value2));
+				undoables.add(new Tuple2<PURCommand<Model>, ExecutionScope<Model>>(undoable, purAndScope.value2));
 			}
 			
 			Collections.reverse(undoables);
@@ -258,12 +257,12 @@ public abstract class Model implements Serializable, Observer {
 		}
 		
 		public HistoryPart forRedo() {
-			ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>> redoables = new ArrayList<Tuple2<PURCommand<Model>, ExecutionScope>>();
-			for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: purCommands) {
+			ArrayList<Tuple2<PURCommand<Model>, ExecutionScope<Model>>> redoables = new ArrayList<Tuple2<PURCommand<Model>, ExecutionScope<Model>>>();
+			for(Tuple2<PURCommand<Model>, ExecutionScope<Model>> purAndScope: purCommands) {
 				// pur.back is assumed to be insignificant
 				PURCommand<Model> pur = purAndScope.value1;
 				PURCommand<Model> redoable = pur.inRedoState();
-				redoables.add(new Tuple2<PURCommand<Model>, ExecutionScope>(redoable, purAndScope.value2));
+				redoables.add(new Tuple2<PURCommand<Model>, ExecutionScope<Model>>(redoable, purAndScope.value2));
 			}
 			
 			Collections.reverse(redoables);
@@ -271,12 +270,12 @@ public abstract class Model implements Serializable, Observer {
 			return new HistoryPart(redoables);
 		}
 
-		public ExecutionScope getScope(int partIndex) {
+		public ExecutionScope<Model> getScope(int partIndex) {
 			return purCommands.get(partIndex).value2;
 		}
 	}
 	
-	public void commitLog(List<Tuple2<PURCommand<Model>, ExecutionScope>> logPart) {
+	public void commitLog(List<Tuple2<PURCommand<Model>, ExecutionScope<Model>>> logPart) {
 //		ArrayList<PURCommand<Model>> undoables = new ArrayList<PURCommand<Model>>();
 //		for(ReversibleCommand<Model> pur: logPart) {
 //			// pur.back is assumed to be insignificant
@@ -296,7 +295,7 @@ public abstract class Model implements Serializable, Observer {
 			// Probably, unplay should be invoked repeatedly from another outer command somehow, where the
 			// scope is derived in a dynamic way (looking it up via the model reference) rather having to
 			// serialize the scope via LoadScopeTransactionHandlerFactory.
-			for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: toUndo.purCommands) {
+			for(Tuple2<PURCommand<Model>, ExecutionScope<Model>> purAndScope: toUndo.purCommands) {
 				collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(purAndScope.value2));
 				collector.execute(purAndScope.value1);
 				collector.commitTransaction();
@@ -308,11 +307,11 @@ public abstract class Model implements Serializable, Observer {
 		}
 	}	
 	
-	public void replay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {
+	public void replay(int count, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope<Model> scope) {
 		for(int i = 0; i < count; i++) {
 			HistoryPart toRedo = redoStack.pop();
 			
-			for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: toRedo.purCommands) {
+			for(Tuple2<PURCommand<Model>, ExecutionScope<Model>> purAndScope: toRedo.purCommands) {
 				collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(purAndScope.value2));
 				collector.execute(purAndScope.value1);
 				collector.commitTransaction();
@@ -338,7 +337,7 @@ public abstract class Model implements Serializable, Observer {
 		
 		HistoryPart toUndo = undoStack.peek();
 		
-		for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: toUndo.purCommands) {
+		for(Tuple2<PURCommand<Model>, ExecutionScope<Model>> purAndScope: toUndo.purCommands) {
 //			collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(purAndScope.value2));
 			collector.execute(purAndScope.value1);
 //			collector.commitTransaction();
@@ -362,7 +361,7 @@ public abstract class Model implements Serializable, Observer {
 		
 		HistoryPart toRedo = redoStack.peek();
 		
-		for(Tuple2<PURCommand<Model>, ExecutionScope> purAndScope: toRedo.purCommands) {
+		for(Tuple2<PURCommand<Model>, ExecutionScope<Model>> purAndScope: toRedo.purCommands) {
 //			collector.startTransaction(this, new LoadScopeTransactionHandlerFactory<Model>(purAndScope.value2));
 			collector.execute(purAndScope.value1);
 //			collector.commitTransaction();
@@ -377,11 +376,11 @@ public abstract class Model implements Serializable, Observer {
 		undoStack.push(redone.forUndo());
 	}
 
-	public List<CommandState<Model>> playThenReverse(List<CommandState<Model>> toPlay, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope scope) {
+	public List<CommandState<Model>> playThenReverse(List<CommandState<Model>> toPlay, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope<Model> scope) {
 		ArrayList<CommandState<Model>> newCommandStates = new ArrayList<CommandState<Model>>();
 		
 		for(CommandState<Model> cs: toPlay) {
-			CommandState<Model> newCS = cs.executeOn(propCtx, this, collector, new ModelRootLocation(), scope); 
+			CommandState<Model> newCS = cs.executeOn(propCtx, this, collector, new ModelRootLocation<Model>(), scope); 
 			newCommandStates.add(newCS);
 		}
 		
@@ -419,7 +418,7 @@ public abstract class Model implements Serializable, Observer {
 		
 		// TODO: METHOD DEACTIVETED! MUST BE REIMPLEMENTED!
 		for(HistoryPart undoable: undoStack) {
-			for(Tuple2<PURCommand<Model>, ExecutionScope> entry: undoable.purCommands)
+			for(Tuple2<PURCommand<Model>, ExecutionScope<Model>> entry: undoable.purCommands)
 				origins.add(entry.value1.inReplayState());
 		}
 		
@@ -452,14 +451,14 @@ public abstract class Model implements Serializable, Observer {
 		return backwards;
 	}
 	
-	public void setLocator(Locator locator) {
+	public void setLocator(Locator<Model> locator) {
 //		if(locator == null)
 //			System.out.println("Nulled locator of " + this);
 //		System.out.println("Set locator to " + locator + " of " + this);
 		this.locator = locator;
 	}
 	
-	public Locator getLocator() {
+	public Locator<Model> getLocator() {
 		return locator;
 	}
 	
@@ -831,11 +830,11 @@ public abstract class Model implements Serializable, Observer {
 					collector.execute(new Trigger<Model>() {
 						public void run(Collector<Model> collector) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
-							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
-							Location fromTargetToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
+							Location<Model> fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
+							Location<Model> fromTargetToDropped = new CompositeLocation<Model>(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
-							Location droppedLocation = fromTargetToDropped;
+							Location<Model> droppedLocation = fromTargetToDropped;
 							
 //							collector.startTransaction(target.getModelBehind(), NewChangeTransactionHandler.class);
 //							PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
@@ -871,11 +870,11 @@ public abstract class Model implements Serializable, Observer {
 					collector.execute(new Trigger<Model>() {
 						public void run(Collector<Model> collector) {
 							ModelComponent cca = ModelComponent.Util.closestCommonAncestor(target, dropped);
-							Location fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
-							Location fromTargetToDropped = new CompositeLocation(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
+							Location<Model> fromTargetToCCA = ModelComponent.Util.locationToAncestor(cca, target);
+							Location<Model> fromTargetToDropped = new CompositeLocation<Model>(fromTargetToCCA, ModelComponent.Util.locationFromAncestor(cca, dropped));
 							// Probably, the "version" of dropped to be cloned is important
 							// Dropped may change and, thus, in a undo/redo scenario on target, the newer version is cloned.
-							Location droppedLocation = fromTargetToDropped;
+							Location<Model> droppedLocation = fromTargetToDropped;
 							ModelFactory factory = new DeriveFactory(new RectangleF(creationBounds), droppedLocation);
 							
 //							collector.startTransaction(target.getModelBehind(), NewChangeTransactionHandler.class);
@@ -1015,8 +1014,8 @@ public abstract class Model implements Serializable, Observer {
 			public void run(Collector<Model> collector) {
 				ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
 				
-				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
-				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
+				Location<Model> observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
+				Location<Model> observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 				
 				collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
 //				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(
@@ -1045,8 +1044,8 @@ public abstract class Model implements Serializable, Observer {
 			public void run(Collector<Model> collector) {
 				ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(observable, observer);
 
-				Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
-				Location observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
+				Location<Model> observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observable);
+				Location<Model> observerLocation = ModelComponent.Util.locationFromAncestor(referenceMC, observer);
 
 				collector.startTransaction(referenceMC.getModelBehind(), NewChangeTransactionHandler.class);
 //				PendingCommandFactory.Util.executeSingle(collector, new PendingCommandState<Model>(

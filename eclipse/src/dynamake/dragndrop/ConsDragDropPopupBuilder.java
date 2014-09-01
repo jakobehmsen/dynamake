@@ -92,12 +92,12 @@ public class ConsDragDropPopupBuilder implements DragDropPopupBuilder {
 				public void run(Collector<Model> collector) {
 					ModelComponent referenceMC = ModelComponent.Util.closestCommonAncestor(selection, target);
 
-					Location observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
-					Location canvasModelLocation = ModelComponent.Util.locationFromAncestor(referenceMC, target);
+					Location<Model> observableLocation = ModelComponent.Util.locationFromAncestor(referenceMC, selection);
+					Location<Model> canvasModelLocation = ModelComponent.Util.locationFromAncestor(referenceMC, target);
 					
 					CanvasModel canvasModel = (CanvasModel)target.getModelBehind();
 					
-					Location addedPrimitiveLocation = new CompositeLocation(
+					Location<Model> addedPrimitiveLocation = new CompositeLocation<Model>(
 						canvasModelLocation,
 						canvasModel.getNextLocation()
 					);

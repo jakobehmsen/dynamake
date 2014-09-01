@@ -97,7 +97,7 @@ public class Main {
 					return toolFactories;
 				}
 			};
-			ModelTranscriber rootModelTranscriber = new ModelTranscriber(transcriber, new ModelRootLocator());
+			ModelTranscriber rootModelTranscriber = new ModelTranscriber(transcriber, new ModelRootLocator<Model>());
 			
 			UIManager.put("ToggleButton.select", Color.DARK_GRAY);
 			

@@ -11,18 +11,18 @@ public class DejectCommand implements Command<Model> {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private Location sourceLocation;
-	private Location targetLocation;
+	private Location<Model> sourceLocation;
+	private Location<Model> targetLocation;
 
-	public DejectCommand(Location sourceLocation, Location targetLocation) {
+	public DejectCommand(Location<Model> sourceLocation, Location<Model> targetLocation) {
 		this.sourceLocation = sourceLocation;
 		this.targetLocation = targetLocation;
 	}
 
 	@Override
-	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location location, ExecutionScope scope) {
-		Model source = (Model)sourceLocation.getChild(prevalentSystem);
-		Model target = (Model)targetLocation.getChild(prevalentSystem);
+	public Object executeOn(PropogationContext propCtx, Model prevalentSystem, Collector<Model> collector, Location<Model> location, ExecutionScope<Model> scope) {
+		Model source = sourceLocation.getChild(prevalentSystem);
+		Model target = targetLocation.getChild(prevalentSystem);
 		
 		source.deject(target);
 		
