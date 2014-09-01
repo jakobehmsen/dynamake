@@ -38,7 +38,6 @@ import dynamake.models.factories.CloneFactory;
 import dynamake.models.factories.ModelFactory;
 import dynamake.models.factories.DeriveFactory;
 import dynamake.models.transcription.NewChangeTransactionHandler;
-import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.numbers.Fraction;
 import dynamake.numbers.RectangleF;
 import dynamake.transcription.Collector;
