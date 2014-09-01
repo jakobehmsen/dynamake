@@ -11,6 +11,7 @@ import dynamake.models.ModelComponent;
 import dynamake.models.ModelRootLocation;
 import dynamake.models.PropogationContext;
 import dynamake.models.RestorableModel;
+import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
 import dynamake.transcription.NullTransactionHandler;
 import dynamake.transcription.PendingCommandFactory;
@@ -50,10 +51,10 @@ public class PushForwardFromCommand implements ForwardableCommand<Model>, Mappab
 	}
 	
 	private void pushForward(Model source, final Model targetRoot, Collector<Model> collector, final Location offsetFromSourceRoot) {		
-		ArrayList<CommandState<Model>> toForward = new ArrayList<CommandState<Model>>();
+		ArrayList<PURCommand<Model>> toForward = new ArrayList<PURCommand<Model>>();
 		
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> sourceCreation = (List<CommandState<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
+		List<PURCommand<Model>> sourceCreation = (List<PURCommand<Model>>)source.getProperty(RestorableModel.PROPERTY_CREATION);
 		
 		if(sourceCreation != null) {
 			toForward.addAll(sourceCreation);
@@ -66,16 +67,24 @@ public class PushForwardFromCommand implements ForwardableCommand<Model>, Mappab
 			for(int i = 0; i < forwardCount; i++)
 				forwardedOffsetFromTargetRoot = forwardedOffsetFromTargetRoot.forForwarding();
 			
-			ArrayList<CommandState<Model>> forwardedCreation = new ArrayList<CommandState<Model>>();
-			for(CommandState<Model> creationPart: toForward) {
-				creationPart = creationPart.mapToReferenceLocation(source, targetRoot);
+			ArrayList<PURCommand<Model>> forwardedCreation = new ArrayList<PURCommand<Model>>();
+			for(PURCommand<Model> creationPart: toForward) {
+				creationPart = (PURCommand<Model>) creationPart.mapToReferenceLocation(source, targetRoot);
 				for(int i = 0; i < forwardCount; i++)
-					creationPart = creationPart.forForwarding();
-				creationPart = creationPart.offset(forwardedOffsetFromTargetRoot);
-				creationPart.appendPendings(forwardedCreation);
+					creationPart = (PURCommand<Model>) creationPart.forForwarding();
+//				creationPart = creationPart.offset(forwardedOffsetFromTargetRoot);
+				
+//				creationPart.appendPendings(forwardedCreation);
+				forwardedCreation.add(creationPart.inReplayState());
 			}
 			
-			PendingCommandFactory.Util.executeSequence(collector, forwardedCreation);
+			collector.execute(collector.createProduceCommand(forwardedOffsetFromTargetRoot));
+			collector.execute(collector.createPushOffset());
+			
+//			PendingCommandFactory.Util.executeSequence(collector, forwardedCreation);
+			collector.execute(forwardedCreation);
+			
+			collector.execute(collector.createPopOffset());
 		}
 		
 		if(source instanceof CanvasModel) {
