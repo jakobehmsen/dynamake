@@ -37,4 +37,8 @@ public class ReversibleCommandPair<T> implements ReversibleCommand<T> {
 	public BaseValue<T> mapToReferenceLocation(T source, T target) {
 		return this;
 	}
+
+	public Command<T> getForth() {
+		return forth;
+	}
 }
