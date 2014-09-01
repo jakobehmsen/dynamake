@@ -1,14 +1,16 @@
 package dynamake.models.factories;
 
 import dynamake.commands.Command;
-import dynamake.commands.EnsureForwardLocalChangesUpwardsCommand;
+import dynamake.commands.CommandSequence;
+import dynamake.commands.EnsureForwardLocalChangesUpwardsCommandFromScope;
 import dynamake.commands.ExecutionScope;
-import dynamake.commands.ForwardLocalChangesCommand;
-import dynamake.commands.IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommand;
-import dynamake.commands.PendingCommandState;
-import dynamake.commands.PushForwardFromCommand;
-import dynamake.commands.SetPropertyCommand;
-import dynamake.commands.UnforwardLocalChangesCommand;
+import dynamake.commands.ForwardLocalChangesCommandFromScope;
+import dynamake.commands.IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommandFromScope;
+import dynamake.commands.PushForwardFromCommandFromScope;
+import dynamake.commands.ReversibleCommandPair;
+import dynamake.commands.SetPropertyCommandFromScope;
+import dynamake.commands.TriStatePURCommand;
+import dynamake.commands.UnforwardLocalChangesCommandFromScope;
 import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -53,24 +55,57 @@ public class DeriveFactory implements ModelFactory {
 				RestorableModel restorableModelCreation = restorableModelClone.forForwarding();
 					
 				restorableModelCreation.clearCreation();
-				restorableModelCreation.appendCreation(new PendingCommandState<Model>(
-					new PushForwardFromCommand(locationOfSourceFromTarget), // Doesn't create immediate side effect
-					new Command.Null<Model>() // Thus, there is no (direct) need for reverting
+//				restorableModelCreation.appendCreation(new PendingCommandState<Model>(
+//					new PushForwardFromCommand(locationOfSourceFromTarget), // Doesn't create immediate side effect
+//					new Command.Null<Model>() // Thus, there is no (direct) need for reverting
+//				));
+				
+				restorableModelCreation.appendCreation(new TriStatePURCommand<Model>(
+					new CommandSequence<Model>(
+						collector.createProduceCommand(locationOfSourceFromTarget),
+						new ReversibleCommandPair<Model>(new PushForwardFromCommandFromScope(), new  Command.Null<Model>())
+					), 
+					new ReversibleCommandPair<Model>(new Command.Null<Model>(), new PushForwardFromCommandFromScope()),
+					new ReversibleCommandPair<Model>(new PushForwardFromCommandFromScope(), new Command.Null<Model>())
 				));
+				
 				if(!forwarded) {
-					restorableModelCreation.appendCreation(new PendingCommandState<Model>(
-						new ForwardLocalChangesCommand(locationOfSourceFromTarget), 
-						new UnforwardLocalChangesCommand(locationOfSourceFromTarget)
+//					restorableModelCreation.appendCreation(new PendingCommandState<Model>(
+//						new ForwardLocalChangesCommand(locationOfSourceFromTarget), 
+//						new UnforwardLocalChangesCommand(locationOfSourceFromTarget)
+//					));
+
+					restorableModelCreation.appendCreation(new TriStatePURCommand<Model>(
+						new CommandSequence<Model>(
+							collector.createProduceCommand(locationOfSourceFromTarget),
+							new ReversibleCommandPair<Model>(new ForwardLocalChangesCommandFromScope(), new UnforwardLocalChangesCommandFromScope())
+						), 
+						new ReversibleCommandPair<Model>(new UnforwardLocalChangesCommandFromScope(), new ForwardLocalChangesCommandFromScope()),
+						new ReversibleCommandPair<Model>(new ForwardLocalChangesCommandFromScope(), new UnforwardLocalChangesCommandFromScope())
 					));
 				}
-				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
-				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
-				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+//				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
+//				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
+//				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
+//				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
+				
+				restorableModelCreation.appendCreation(SetPropertyCommandFromScope.createPURCommand(collector, "X", creationBounds.x));
+				restorableModelCreation.appendCreation(SetPropertyCommandFromScope.createPURCommand(collector, "Y", creationBounds.y));
+				restorableModelCreation.appendCreation(SetPropertyCommandFromScope.createPURCommand(collector, "Width", creationBounds.width));
+				restorableModelCreation.appendCreation(SetPropertyCommandFromScope.createPURCommand(collector, "Height", creationBounds.height));
+				
 				if(!forwarded) {
-					restorableModelCreation.appendCreation(new PendingCommandState<Model>(
-						new EnsureForwardLocalChangesUpwardsCommand(locationOfSourceFromTarget), 
-						new IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommand(locationOfSourceFromTarget)
+//					restorableModelCreation.appendCreation(new PendingCommandState<Model>(
+//						new EnsureForwardLocalChangesUpwardsCommand(locationOfSourceFromTarget), 
+//						new IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommand(locationOfSourceFromTarget)
+//					));
+					restorableModelCreation.appendCreation(new TriStatePURCommand<Model>(
+						new CommandSequence<Model>(
+							collector.createProduceCommand(locationOfSourceFromTarget),
+							new ReversibleCommandPair<Model>(new EnsureForwardLocalChangesUpwardsCommandFromScope(), new IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommandFromScope())
+						), 
+						new ReversibleCommandPair<Model>(new IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommandFromScope(), new EnsureForwardLocalChangesUpwardsCommandFromScope()),
+						new ReversibleCommandPair<Model>(new EnsureForwardLocalChangesUpwardsCommandFromScope(), new IfNoForwardersEnsureNotForwardLocalChangesUpwardsCommandFromScope())
 					));
 				}
 				

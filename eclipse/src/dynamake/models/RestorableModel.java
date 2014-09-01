@@ -9,17 +9,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import dynamake.commands.CommandState;
+import dynamake.commands.CommandSequence;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.MappableForwardable;
-import dynamake.commands.PendingCommandState;
-import dynamake.commands.SetPropertyCommand;
+import dynamake.commands.PURCommand;
+import dynamake.commands.ReversibleCommandPair;
+import dynamake.commands.SetPropertyCommandFromScope;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.transcription.Collector;
 import dynamake.transcription.NullTransactionHandler;
-import dynamake.transcription.PendingCommandFactory;
-import dynamake.transcription.Execution;
-import dynamake.transcription.ExecutionsHandler;
-import dynamake.transcription.SimplePendingCommandFactory;
 import dynamake.transcription.TransactionHandler;
 import dynamake.transcription.Trigger;
 
@@ -34,8 +32,8 @@ public class RestorableModel implements Serializable {
 	
 	protected byte[] modelBaseSerialization;
 	// Origins must guarantee to not require mapping to new references
-	protected List<CommandState<Model>> modelOrigins;
-	protected List<CommandState<Model>> modelCreation;
+	protected List<PURCommand<Model>> modelOrigins;
+	protected List<PURCommand<Model>> modelCreation;
 	protected MappableForwardable modelHistory;
 	
 	public static RestorableModel wrap(Model model, boolean includeLocalHistory) {
@@ -64,10 +62,10 @@ public class RestorableModel implements Serializable {
 		byte[] modelBaseSerialization = bos.toByteArray();
 		
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> modelOrigins = new ArrayList<CommandState<Model>>((List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_ORIGINS));
+		List<PURCommand<Model>> modelOrigins = new ArrayList<PURCommand<Model>>((List<PURCommand<Model>>)model.getProperty(RestorableModel.PROPERTY_ORIGINS));
 		@SuppressWarnings("unchecked")
-		List<CommandState<Model>> modelCreation1 = (List<CommandState<Model>>)model.getProperty(RestorableModel.PROPERTY_CREATION);
-		List<CommandState<Model>> modelCreation = modelCreation1 != null ? new ArrayList<CommandState<Model>>(modelCreation1) : null;
+		List<PURCommand<Model>> modelCreation1 = (List<PURCommand<Model>>)model.getProperty(RestorableModel.PROPERTY_CREATION);
+		List<PURCommand<Model>> modelCreation = modelCreation1 != null ? new ArrayList<PURCommand<Model>>(modelCreation1) : null;
 		
 		wrapper.modelBaseSerialization = modelBaseSerialization;
 		wrapper.modelOrigins = modelOrigins;
@@ -75,14 +73,14 @@ public class RestorableModel implements Serializable {
 		wrapper.modelHistory = modelHistory;
 	}
 	
-	protected RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, MappableForwardable modelHistory) {
+	protected RestorableModel(byte[] modelBaseSerialization, List<PURCommand<Model>> modelOrigins, List<PURCommand<Model>> modelCreation, MappableForwardable modelHistory) {
 		this.modelBaseSerialization = modelBaseSerialization;
 		this.modelOrigins = modelOrigins;
 		this.modelCreation = modelCreation;
 		this.modelHistory = modelHistory;
 	}
 	
-	protected RestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins) {
+	protected RestorableModel(byte[] modelBaseSerialization, List<PURCommand<Model>> modelOrigins) {
 		this.modelBaseSerialization = modelBaseSerialization;
 		this.modelOrigins = modelOrigins;
 	}
@@ -97,9 +95,9 @@ public class RestorableModel implements Serializable {
 	
 	protected void mapToReferenceLocation(RestorableModel mapped, Model sourceReference, Model targetReference) {
 		if(modelCreation != null) {
-			mapped.modelCreation = new ArrayList<CommandState<Model>>();
-			for(CommandState<Model> modelCreationPart: modelCreation) {
-				CommandState<Model> newModelCreationPart = modelCreationPart.mapToReferenceLocation(sourceReference, targetReference);
+			mapped.modelCreation = new ArrayList<PURCommand<Model>>();
+			for(PURCommand<Model> modelCreationPart: modelCreation) {
+				PURCommand<Model> newModelCreationPart = (PURCommand<Model>) modelCreationPart.mapToReferenceLocation(sourceReference, targetReference);
 				mapped.modelCreation.add(newModelCreationPart);
 			}
 		}
@@ -118,9 +116,9 @@ public class RestorableModel implements Serializable {
 	
 	protected void forForwarding(RestorableModel mapped) {
 		if(modelCreation != null) {
-			mapped.modelCreation = new ArrayList<CommandState<Model>>();
-			for(CommandState<Model> modelCreationPart: modelCreation) {
-				CommandState<Model> newModelCreationPart = modelCreationPart.forForwarding();
+			mapped.modelCreation = new ArrayList<PURCommand<Model>>();
+			for(PURCommand<Model> modelCreationPart: modelCreation) {
+				PURCommand<Model> newModelCreationPart = (PURCommand<Model>) modelCreationPart.forForwarding();
 				mapped.modelCreation.add(newModelCreationPart);
 			}
 		}
@@ -131,7 +129,7 @@ public class RestorableModel implements Serializable {
 		afterForForwarding(mapped);
 	}
 	
-	protected RestorableModel createRestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins) {
+	protected RestorableModel createRestorableModel(byte[] modelBaseSerialization, List<PURCommand<Model>> modelOrigins) {
 		return new RestorableModel(modelBaseSerialization, modelOrigins);
 	}
 	
@@ -160,25 +158,37 @@ public class RestorableModel implements Serializable {
 	public void restoreChangesOnBase(final Model modelBase, final PropogationContext propCtx, final int propDistance, Collector<Model> collector) {
 		collector.startTransaction(modelBase, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
 		
-		ArrayList<CommandState<Model>> modelCreationAsPendingCommands = new ArrayList<CommandState<Model>>();
+		ArrayList<PURCommand<Model>> modelCreationAsPendingCommands = new ArrayList<PURCommand<Model>>();
 		
 		if(modelCreation != null) {
-			for(CommandState<Model> modelCreationPart: modelCreation) {
-				modelCreationAsPendingCommands.add(((Execution<Model>)modelCreationPart).pending);
+			for(PURCommand<Model> modelCreationPart: modelCreation) {
+				modelCreationAsPendingCommands.add(modelCreationPart);
 			}
 		}
 		
 		modelCreationAsPendingCommands.addAll(appendedCreation);
 
-		PendingCommandFactory.Util.executeSequence(collector, modelCreationAsPendingCommands, new ExecutionsHandler<Model>() {
-			@Override
-			public void handleExecutions(List<Execution<Model>> allPendingUndoablePairs, Collector<Model> collector) {
-				collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
-					new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allPendingUndoablePairs), 
-					new SetPropertyCommand.AfterSetProperty()
-				)));
-			}
-		});
+//		PendingCommandFactory.Util.executeSequence(collector, modelCreationAsPendingCommands, new ExecutionsHandler<Model>() {
+//			@Override
+//			public void handleExecutions(List<Execution<Model>> allPendingUndoablePairs, Collector<Model> collector) {
+//				collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
+//					new SetPropertyCommand(RestorableModel.PROPERTY_CREATION, allPendingUndoablePairs), 
+//					new SetPropertyCommand.AfterSetProperty()
+//				)));
+//			}
+//		});
+		
+		collector.execute(modelCreationAsPendingCommands);
+		
+		collector.execute(new TriStatePURCommand<Model>(
+			new CommandSequence<Model>(
+				collector.createProduceCommand(RestorableModel.PROPERTY_CREATION),
+				collector.createProduceCommand(modelCreationAsPendingCommands),
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+			), 
+			new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()),
+			new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+		));
 
 		if(modelHistory != null)
 			modelBase.restoreHistory(modelHistory, propCtx, propDistance, collector);
@@ -206,9 +216,9 @@ public class RestorableModel implements Serializable {
 		return modelBase;
 	}
 	
-	private ArrayList<CommandState<Model>> appendedCreation = new ArrayList<CommandState<Model>>();
+	private ArrayList<PURCommand<Model>> appendedCreation = new ArrayList<PURCommand<Model>>();
 
-	public void appendCreation(CommandState<Model> creationPartToAppend) {
+	public void appendCreation(PURCommand<Model> creationPartToAppend) {
 		appendedCreation.add(creationPartToAppend);
 	}
 

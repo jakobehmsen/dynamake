@@ -375,11 +375,13 @@ public abstract class Model implements Serializable, Observer {
 		undoStack.push(redone.forUndo());
 	}
 
-	public List<CommandState<Model>> playThenReverse(List<CommandState<Model>> toPlay, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope<Model> scope) {
-		ArrayList<CommandState<Model>> newCommandStates = new ArrayList<CommandState<Model>>();
+	public List<PURCommand<Model>> playThenReverse(List<PURCommand<Model>> toPlay, PropogationContext propCtx, int propDistance, Collector<Model> collector, ExecutionScope<Model> scope) {
+		ArrayList<PURCommand<Model>> newCommandStates = new ArrayList<PURCommand<Model>>();
 		
-		for(CommandState<Model> cs: toPlay) {
-			CommandState<Model> newCS = cs.executeOn(propCtx, this, collector, new ModelRootLocation<Model>(), scope); 
+		for(PURCommand<Model> cs: toPlay) {
+			cs.executeForward(propCtx, this, collector, new ModelRootLocation<Model>(), scope); 
+			PURCommand<Model> newCS = cs.inUndoState();
+//			PURCommand<Model> newCS = cs.executeOn(propCtx, this, collector, new ModelRootLocation<Model>(), scope); 
 			newCommandStates.add(newCS);
 		}
 		

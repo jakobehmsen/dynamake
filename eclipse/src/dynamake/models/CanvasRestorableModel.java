@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import dynamake.commands.CommandState;
 import dynamake.commands.MappableForwardable;
+import dynamake.commands.PURCommand;
 import dynamake.transcription.Collector;
 
 public class CanvasRestorableModel extends RestorableModel {
@@ -31,12 +31,12 @@ public class CanvasRestorableModel extends RestorableModel {
 	
 	private List<Entry> innerRestorables;
 	
-	protected CanvasRestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins, List<CommandState<Model>> modelCreation, MappableForwardable modelHistory, List<Entry> innerRestorables) {
+	protected CanvasRestorableModel(byte[] modelBaseSerialization, List<PURCommand<Model>> modelOrigins, List<PURCommand<Model>> modelCreation, MappableForwardable modelHistory, List<Entry> innerRestorables) {
 		super(modelBaseSerialization, modelOrigins, modelCreation, modelHistory);
 		this.innerRestorables = innerRestorables;
 	}
 
-	protected CanvasRestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins) {
+	protected CanvasRestorableModel(byte[] modelBaseSerialization, List<PURCommand<Model>> modelOrigins) {
 		super(modelBaseSerialization, modelOrigins);
 		innerRestorables = new ArrayList<Entry>();
 	}
@@ -46,7 +46,7 @@ public class CanvasRestorableModel extends RestorableModel {
 	}
 	
 	@Override
-	protected RestorableModel createRestorableModel(byte[] modelBaseSerialization, List<CommandState<Model>> modelOrigins) {
+	protected RestorableModel createRestorableModel(byte[] modelBaseSerialization, List<PURCommand<Model>> modelOrigins) {
 		return new CanvasRestorableModel(modelBaseSerialization, modelOrigins);
 	}
 	
