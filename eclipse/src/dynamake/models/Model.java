@@ -414,10 +414,15 @@ public abstract class Model implements Serializable, Observer {
 		return undoStack.size();
 	}
 
-	public List<CommandState<Model>> getLocalChanges() {
-		ArrayList<CommandState<Model>> origins = new ArrayList<CommandState<Model>>();
+	public List<PURCommand<Model>> getLocalChanges() {
+		ArrayList<PURCommand<Model>> origins = new ArrayList<PURCommand<Model>>();
 		
 		// TODO: METHOD DEACTIVETED! MUST BE REIMPLEMENTED!
+		for(HistoryPart undoable: undoStack) {
+			for(Tuple2<PURCommand<Model>, ExecutionScope> entry: undoable.purCommands)
+				origins.add(entry.value1.inReplayState());
+		}
+		
 //		for(CommandState<Model> undoable: undoStack) {
 //			RevertingCommandStateSequence<Model> undoableAsRevertiable = (RevertingCommandStateSequence<Model>)undoable;
 //			for(int i = 0; i < undoableAsRevertiable.getCommandStateCount(); i++) {

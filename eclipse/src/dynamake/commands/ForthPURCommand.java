@@ -1,6 +1,7 @@
 package dynamake.commands;
 
 import dynamake.models.Location;
+import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
@@ -38,5 +39,15 @@ public class ForthPURCommand<T> implements PURCommand<T> {
 	@Override
 	public PURCommand<T> inRedoState() {
 		return this;
+	}
+
+	@Override
+	public ReversibleCommand<T> forForwarding() {
+		return new ForthPURCommand<T>((ReversibleCommand<T>) reversibleCommand.forForwarding());
+	}
+
+	@Override
+	public ReversibleCommand<T> mapToReferenceLocation(T source, T target) {
+		return new ForthPURCommand<T>((ReversibleCommand<T>) reversibleCommand.mapToReferenceLocation(source, target));
 	}
 }

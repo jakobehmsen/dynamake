@@ -1,6 +1,7 @@
 package dynamake.commands;
 
 import dynamake.models.Location;
+import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 
@@ -26,5 +27,15 @@ public class ReversibleCommandPair<T> implements ReversibleCommand<T> {
 	@Override
 	public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location location, ExecutionScope scope) {
 		back.executeOn(propCtx, prevalentSystem, collector, location, scope);
+	}
+
+	@Override
+	public BaseValue<T> forForwarding() {
+		return this;
+	}
+
+	@Override
+	public BaseValue<T> mapToReferenceLocation(T source, T target) {
+		return this;
 	}
 }

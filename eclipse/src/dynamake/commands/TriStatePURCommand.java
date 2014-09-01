@@ -1,6 +1,7 @@
 package dynamake.commands;
 
 import dynamake.models.Location;
+import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
@@ -90,5 +91,21 @@ public class TriStatePURCommand<T> implements PURCommand<T> {
 	@Override
 	public PURCommand<T> inRedoState() {
 		return new TriStatePURCommand<T>(STATE_REDO, pending, undo, redo);
+	}
+
+	@Override
+	public BaseValue<T> forForwarding() {
+		return new TriStatePURCommand<T>(STATE_PENDING, 
+			(ReversibleCommand<T>)pending.forForwarding(), 
+			(ReversibleCommand<T>)undo.forForwarding(), 
+			(ReversibleCommand<T>)redo.forForwarding());
+	}
+
+	@Override
+	public BaseValue<T> mapToReferenceLocation(T source, T target) {
+		return new TriStatePURCommand<T>(STATE_PENDING, 
+			(ReversibleCommand<T>)pending.mapToReferenceLocation(source, target), 
+			(ReversibleCommand<T>)undo.mapToReferenceLocation(source, target), 
+			(ReversibleCommand<T>)redo.mapToReferenceLocation(source, target));
 	}
 }

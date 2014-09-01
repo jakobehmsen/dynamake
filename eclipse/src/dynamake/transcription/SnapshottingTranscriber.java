@@ -19,6 +19,7 @@ import java.util.Stack;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import dynamake.commands.BaseValue;
 import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.CommandState;
@@ -332,6 +333,15 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			this.operand1 = operand1;
 			this.operand2 = operand2;
 		}
+
+		public Instruction forForwarding() {
+			return new Instruction(type, BaseValue.Util.forForwarding(operand1), BaseValue.Util.forForwarding(operand2));
+		}
+		
+
+		public <T> Instruction mapToReferenceLocation(T source, T target) {
+			return new Instruction(type, BaseValue.Util.mapToReferenceLocation(operand1, source, target), BaseValue.Util.mapToReferenceLocation(operand2, source, target));
+		}
 	}
 	
 	public static class Connection<T> implements dynamake.transcription.Connection<T> {
@@ -438,6 +448,16 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 					break;
 				}
 				}
+			}
+
+			@Override
+			public BaseValue<T> forForwarding() {
+				return new ReversibleInstructionPair<T>(instruction.forForwarding(), BaseValue.Util.forForwarding(operand1));
+			}
+
+			@Override
+			public BaseValue<T> mapToReferenceLocation(T source, T target) {
+				return new ReversibleInstructionPair<T>(instruction.mapToReferenceLocation(source, target), BaseValue.Util.mapToReferenceLocation(operand1, source, target));
 			}
 		}
 
