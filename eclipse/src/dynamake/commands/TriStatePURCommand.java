@@ -1,7 +1,6 @@
 package dynamake.commands;
 
 import dynamake.models.Location;
-import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.transcription.PostOnlyTransactionHandler;
 import dynamake.transcription.Collector;
