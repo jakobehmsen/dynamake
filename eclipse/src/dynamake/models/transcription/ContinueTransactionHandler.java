@@ -1,7 +1,5 @@
 package dynamake.models.transcription;
 
-import java.util.ArrayList;
-
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.PURCommand;
 import dynamake.commands.ReversibleCommand;
@@ -14,6 +12,7 @@ import dynamake.transcription.TransactionHandler;
  * Each instance collects all executed commands and then outputs these commands into the parent scope.
  */
 public class ContinueTransactionHandler implements TransactionHandler<Model> {
+	private ExecutionScope<Model> parentScope;
 	private ExecutionScope<Model> scope;
 	private PURCommand<Model> command;
 
@@ -25,7 +24,7 @@ public class ContinueTransactionHandler implements TransactionHandler<Model> {
 	@Override
 	public void startLogFor(TransactionHandler<Model> parentHandler, Model reference) {
 //		// Assumes parent handler is available
-//		parentScope = parentHandler.getScope();
+		parentScope = parentHandler.getScope();
 //		scope = new ExecutionScope<Model>();
 //		newLog = new ArrayList<PURCommand<Model>>();
 	}
@@ -51,6 +50,10 @@ public class ContinueTransactionHandler implements TransactionHandler<Model> {
 		// TODO:
 		// produce the next state of command
 		// produce the new scope
+		
+		PURCommand<Model> commandInNextState = command.inNextState();
+		parentScope.produce(commandInNextState);
+		parentScope.produce(scope);
 	}
 
 	@Override
