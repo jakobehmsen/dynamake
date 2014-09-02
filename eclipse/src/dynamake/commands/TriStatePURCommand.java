@@ -89,6 +89,20 @@ public class TriStatePURCommand<T> implements PURCommand<T> {
 	public PURCommand<T> inRedoState() {
 		return new TriStatePURCommand<T>(STATE_REDO, pending, undo, redo);
 	}
+	
+	@Override
+	public PURCommand<T> inNextState() {		
+		switch(state) {
+		case STATE_PENDING:
+			return inUndoState();
+		case STATE_UNDO:
+			return inRedoState();
+		case STATE_REDO:
+			return inUndoState();
+		}
+
+		return null;
+	}
 
 	@Override
 	public BaseValue<T> forForwarding() {

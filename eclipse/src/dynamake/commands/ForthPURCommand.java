@@ -39,6 +39,11 @@ public class ForthPURCommand<T> implements PURCommand<T> {
 	public PURCommand<T> inRedoState() {
 		return this;
 	}
+	
+	@Override
+	public PURCommand<T> inNextState() {
+		return inUndoState();
+	}
 
 	@Override
 	public ReversibleCommand<T> forForwarding() {

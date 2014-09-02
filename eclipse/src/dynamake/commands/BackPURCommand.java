@@ -27,7 +27,7 @@ public class BackPURCommand<T> implements PURCommand<T> {
 
 	@Override
 	public PURCommand<T> inReplayState() {
-		return new BackPURCommand<T>(reversibleCommand);
+		return inRedoState();
 	}
 
 	@Override
@@ -37,7 +37,12 @@ public class BackPURCommand<T> implements PURCommand<T> {
 
 	@Override
 	public PURCommand<T> inRedoState() {
-		return new BackPURCommand<T>(reversibleCommand);
+		return new ForthPURCommand<T>(reversibleCommand);
+	}
+	
+	@Override
+	public PURCommand<T> inNextState() {
+		return inRedoState();
 	}
 
 	@Override
