@@ -6,9 +6,14 @@ import java.util.Collections;
 import java.util.List;
 
 import dynamake.commands.CommandState;
+import dynamake.commands.ExecutionScope;
+import dynamake.commands.PURCommand;
 import dynamake.commands.PendingCommandState;
 import dynamake.commands.ReplayCommand;
+import dynamake.commands.ReversibleCommandPair;
+import dynamake.commands.TriStatePURCommand;
 import dynamake.commands.UnplayCommand;
+import dynamake.models.transcription.ContinueTransactionHandler;
 import dynamake.transcription.Collector;
 import dynamake.transcription.NullTransactionHandler;
 import dynamake.transcription.PendingCommandFactory;
@@ -17,6 +22,7 @@ import dynamake.transcription.ExecutionsHandler;
 import dynamake.transcription.SimplePendingCommandFactory;
 import dynamake.transcription.TransactionHandler;
 import dynamake.transcription.Trigger;
+import dynamake.tuples.Tuple2;
 
 /**
  * Instances each are supposed to forward change made in an source to an target.
@@ -27,10 +33,10 @@ import dynamake.transcription.Trigger;
 public class LocalChangesForwarder extends ObserverAdapter implements Serializable {
 	public static class PushLocalChanges {
 		public final Location<Model> offset;
-		public final List<CommandState<Model>> localChangesToRevert;
-		public final List<CommandState<Model>> newChanges;
+		public final List<Tuple2<ExecutionScope<Model>, PURCommand<Model>>> localChangesToRevert;
+		public final List<PURCommand<Model>> newChanges;
 
-		public PushLocalChanges(Location<Model> offset, List<CommandState<Model>> localChangesToRevert, List<CommandState<Model>> newChanges) {
+		public PushLocalChanges(Location<Model> offset, List<Tuple2<ExecutionScope<Model>, PURCommand<Model>>> localChangesToRevert, List<PURCommand<Model>> newChanges) {
 			this.offset = offset;
 			this.localChangesToRevert = localChangesToRevert;
 			this.newChanges = newChanges;
@@ -124,18 +130,20 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			Location<Model> forwardedOffset = pushLocalChanges.offset.forForwarding();
 			final Model innerMostTarget = (Model)CompositeLocation.getChild(this.target, new ModelRootLocation<Model>(), forwardedOffset);
 			
-			final ArrayList<CommandState<Model>> forwardedNewChanges = new ArrayList<CommandState<Model>>();
+			final ArrayList<PURCommand<Model>> forwardedNewChanges = new ArrayList<PURCommand<Model>>();
 			
 			// Forward new changes
-			for(CommandState<Model> newChange: pushLocalChanges.newChanges)
-				forwardedNewChanges.add(newChange.forForwarding());
+			for(PURCommand<Model> newChange: pushLocalChanges.newChanges)
+				forwardedNewChanges.add((PURCommand<Model>) newChange.forForwarding());
 
 			// Forward changes to revert
-			final ArrayList<CommandState<Model>> forwardedChangesToRevert = new ArrayList<CommandState<Model>>();
-			for(CommandState<Model> newChange: pushLocalChanges.localChangesToRevert)
-				forwardedChangesToRevert.add(newChange.forForwarding());
+			final ArrayList<Tuple2<ExecutionScope<Model>, PURCommand<Model>>> forwardedChangesToRevert = new ArrayList<Tuple2<ExecutionScope<Model>, PURCommand<Model>>>();
+			for(Tuple2<ExecutionScope<Model>, PURCommand<Model>> newChange: pushLocalChanges.localChangesToRevert) {
+				// TODO: Add forwarded scope and forwarded command
+//				forwardedChangesToRevert.add((PURCommand<Model>) newChange.forForwarding());
+			}
 
-			collector.startTransaction(innerMostTarget, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
+			collector.startTransaction(innerMostTarget, NullTransactionHandler.class);
 			// On a meta level (i.e. build commands which are not going to be part of the inheretee's local changes)
 			collector.execute(new Trigger<Model>() {
 				@Override
@@ -151,66 +159,96 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 						modelIndexToLocationHistory.add(localChangeCount);
 						// Assumed that unplaying doesn't provoke side effects
 						// Play the local changes backwards
-						collector.startTransaction(currentTarget, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
-						collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
-							new UnplayCommand(localChangeCount),
-							new ReplayCommand(localChangeCount)
-						)));
+						collector.startTransaction(currentTarget, NullTransactionHandler.class);
+//						collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
+//							new UnplayCommand(localChangeCount),
+//							new ReplayCommand(localChangeCount)
+//						)));
+						collector.execute(new TriStatePURCommand<Model>(
+							new ReversibleCommandPair<Model>(new UnplayCommand(localChangeCount), new ReplayCommand(localChangeCount)), 
+							new ReversibleCommandPair<Model>(new ReplayCommand(localChangeCount), new UnplayCommand(localChangeCount)), 
+							new ReversibleCommandPair<Model>(new UnplayCommand(localChangeCount), new ReplayCommand(localChangeCount))
+						));
 						collector.commitTransaction();
 					}
 					
-					PendingCommandFactory.Util.executeSequence(collector, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
-						@Override
-						public void handleExecutions(final List<Execution<Model>> forwardedChangesToRevertPendingUndoablePairs, Collector<Model> collector) {
-							// Do the forwarded change without affecting the local changes
-							// The forwarded changes must be, each, of type PendingCommandState
-							final ArrayList<CommandState<Model>> forwardedNewChangesAsPendings = new ArrayList<CommandState<Model>>();
-							for(CommandState<Model> forwardedNewChange: forwardedNewChanges)
-								forwardedNewChange.appendPendings(forwardedNewChangesAsPendings);
-							
-							PendingCommandFactory.Util.executeSequence(collector, forwardedNewChangesAsPendings, new ExecutionsHandler<Model>() {
-								@Override
-								public void handleExecutions(List<Execution<Model>> forwardedNewChangesPendingUndoablePairs, Collector<Model> collector) {
-									// Play the inherited local changes forwards without affecting the local changes
-									ArrayList<CommandState<Model>> backwardOutput = new ArrayList<CommandState<Model>>();
-									// They may not have been any forwarded changes to revert
-									if(forwardedChangesToRevertPendingUndoablePairs != null) {
-										for(Execution<Model> pup: forwardedChangesToRevertPendingUndoablePairs)
-											backwardOutput.add(pup.undoable);
-									}
-									
-									Collections.reverse(backwardOutput);
+					// Start transaction for each pair of scope and purcommand to undo
+					// - the transaction should be started for the particular scope
+					// The new scope must be used later when redoing
+					
+					// Revert forwarded changes
+					for(Tuple2<ExecutionScope<Model>, PURCommand<Model>> scopeAndCmd: forwardedChangesToRevert) {
+						collector.startTransaction(target, new ContinueTransactionHandlerFactory(scopeAndCmd.value1, scopeAndCmd.value2));
+						collector.execute(forwardedChangesToRevert);
+						collector.commitTransaction();
+					}
+					// At this point, the stack should look as follows: many scope and command pairs in sequence
 
-									PendingCommandFactory.Util.executeSequence(collector, backwardOutput, new ExecutionsHandler<Model>() {
-										@Override
-										public void handleExecutions(List<Execution<Model>> pendingUndoablePairs, Collector<Model> collector) {
-											// Unplay from innermost part of target to outermost part of target
-											// The outer parts of target could be probably be reduced to commands which affect inner parts, such as the scale command
-											for(int i = modelsFromInnerToOuter.size() - 1; i >= 0; i--) {
-												Model currentTarget = modelsFromInnerToOuter.get(i);
-												int localChangeCount = modelIndexToLocationHistory.get(i);
-												modelIndexToLocationHistory.add(localChangeCount);
-												// Play the local changes forward
-												collector.startTransaction(currentTarget, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
-												collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
-													new ReplayCommand(localChangeCount),
-													new UnplayCommand(localChangeCount)
-												)));
-												collector.commitTransaction();
-											}
-										}
-									});
-								}
-							});
-						}
-					});
+					// Do the forwarded change without affecting the local changes
+					// The forwarded changes must be, each, of type PendingCommandState
+
+					// Play the inherited local changes forwards without affecting the local changes
+					
+
+					// Unplay from innermost part of target to outermost part of target
+					// The outer parts of target could be probably be reduced to commands which affect inner parts, such as the scale command
+					// Play the local changes forward
+					
+					
+					
+					
+//					PendingCommandFactory.Util.executeSequence(collector, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
+//						@Override
+//						public void handleExecutions(final List<Execution<Model>> forwardedChangesToRevertPendingUndoablePairs, Collector<Model> collector) {
+//							// Do the forwarded change without affecting the local changes
+//							// The forwarded changes must be, each, of type PendingCommandState
+//							final ArrayList<CommandState<Model>> forwardedNewChangesAsPendings = new ArrayList<CommandState<Model>>();
+//							for(CommandState<Model> forwardedNewChange: forwardedNewChanges)
+//								forwardedNewChange.appendPendings(forwardedNewChangesAsPendings);
+//							
+//							PendingCommandFactory.Util.executeSequence(collector, forwardedNewChangesAsPendings, new ExecutionsHandler<Model>() {
+//								@Override
+//								public void handleExecutions(List<Execution<Model>> forwardedNewChangesPendingUndoablePairs, Collector<Model> collector) {
+//									// Play the inherited local changes forwards without affecting the local changes
+//									ArrayList<CommandState<Model>> backwardOutput = new ArrayList<CommandState<Model>>();
+//									// They may not have been any forwarded changes to revert
+//									if(forwardedChangesToRevertPendingUndoablePairs != null) {
+//										for(Execution<Model> pup: forwardedChangesToRevertPendingUndoablePairs)
+//											backwardOutput.add(pup.undoable);
+//									}
+//									
+//									Collections.reverse(backwardOutput);
+//
+//									PendingCommandFactory.Util.executeSequence(collector, backwardOutput, new ExecutionsHandler<Model>() {
+//										@Override
+//										public void handleExecutions(List<Execution<Model>> pendingUndoablePairs, Collector<Model> collector) {
+//											// Unplay from innermost part of target to outermost part of target
+//											// The outer parts of target could be probably be reduced to commands which affect inner parts, such as the scale command
+//											for(int i = modelsFromInnerToOuter.size() - 1; i >= 0; i--) {
+//												Model currentTarget = modelsFromInnerToOuter.get(i);
+//												int localChangeCount = modelIndexToLocationHistory.get(i);
+//												modelIndexToLocationHistory.add(localChangeCount);
+//												// Play the local changes forward
+//												collector.startTransaction(currentTarget, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
+//												collector.execute(new SimplePendingCommandFactory<Model>(new PendingCommandState<Model>(
+//													new ReplayCommand(localChangeCount),
+//													new UnplayCommand(localChangeCount)
+//												)));
+//												collector.commitTransaction();
+//											}
+//										}
+//									});
+//								}
+//							});
+//						}
+//					});
 				}
 			});
 
 			collector.commitTransaction();
 			
 			// Accumulate local changes to revert
-			ArrayList<CommandState<Model>> newLocalChangesToRevert = new ArrayList<CommandState<Model>>();
+			ArrayList<Tuple2<ExecutionScope<Model>, PURCommand<Model>>> newLocalChangesToRevert = new ArrayList<Tuple2<ExecutionScope<Model>, PURCommand<Model>>>();
 
 			// Accumulate from innermost part of target to outermost part of target
 			// The outer parts of target could be probably be reduced to commands which affect inner parts, such as the scale command
@@ -218,8 +256,11 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			Model currentModel = innerMostTarget;
 			
 			while(true) {
-				for(CommandState<Model> localChangeBackwards: currentModel.getLocalChangesBackwards())
-					newLocalChangesToRevert.add(localChangeBackwards.offset(currentLocation));
+				for(CommandState<Model> localChangeBackwards: currentModel.getLocalChangesBackwards()) {
+					// TODO: Somehow, offset localChangeBackwards
+					// Surround with offset transaction handler?
+//					newLocalChangesToRevert.add(localChangeBackwards.offset(currentLocation));
+				}
 				
 				if(currentModel != this.target) {
 					currentModel = currentModel.getParent();

@@ -4,10 +4,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import dynamake.commands.CommandState;
+import dynamake.commands.ExecutionScope;
+import dynamake.commands.PURCommand;
 import dynamake.commands.RedoCommand;
 import dynamake.commands.UndoCommand;
 import dynamake.models.LocalChangesForwarder.PushLocalChanges;
 import dynamake.transcription.Collector;
+import dynamake.tuples.Tuple2;
 
 public class LocalChangesUpwarder extends ObserverAdapter implements Serializable {
 	/**
@@ -57,14 +60,16 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 //					newChanges.add(pendingUndoablePair);
 			}
 			
-			ArrayList<CommandState<Model>> offsetNewChanges = new ArrayList<CommandState<Model>>();
+			ArrayList<PURCommand<Model>> offsetNewChanges = new ArrayList<PURCommand<Model>>();
 			for(CommandState<Model> pup: newChanges) {
 				// Be sensitive to undo/redo commands here; they should be handled differently
 				// Somehow, it is the undone/redone command that should be offset instead
-				offsetNewChanges.add(pup.forUpwarding());
+				
+				// TODO: Set up the command for upwarding
+//				offsetNewChanges.add(pup.forUpwarding());
 			}
 			
-			source.sendChanged(new PushLocalChanges(offsetFromSource, new ArrayList<CommandState<Model>>(), offsetNewChanges), propCtx, propDistance, changeDistance, collector);			
+			source.sendChanged(new PushLocalChanges(offsetFromSource, new ArrayList<Tuple2<ExecutionScope<Model>, PURCommand<Model>>>(), offsetNewChanges), propCtx, propDistance, changeDistance, collector);			
 		} else if (change instanceof CanvasModel.AddedModelChange) {
 //			System.out.println("Upwarder observed AddedModelChange!!!");
 			CanvasModel source = (CanvasModel)sender;
