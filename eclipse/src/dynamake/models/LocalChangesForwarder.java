@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import dynamake.commands.CommandState;
+import dynamake.commands.ExecuteContinuationsFromScopeCommand;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.PURCommand;
 import dynamake.commands.PendingCommandState;
@@ -14,6 +15,7 @@ import dynamake.commands.ReversibleCommandPair;
 import dynamake.commands.TriStatePURCommand;
 import dynamake.commands.UnplayCommand;
 import dynamake.models.transcription.ContinueTransactionHandler;
+import dynamake.models.transcription.ContinueTransactionHandlerFactory;
 import dynamake.transcription.Collector;
 import dynamake.transcription.NullTransactionHandler;
 import dynamake.transcription.PendingCommandFactory;
@@ -178,7 +180,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 					
 					// Revert forwarded changes
 					for(Tuple2<ExecutionScope<Model>, PURCommand<Model>> scopeAndCmd: forwardedChangesToRevert) {
-						collector.startTransaction(target, new ContinueTransactionHandlerFactory(scopeAndCmd.value1, scopeAndCmd.value2));
+						collector.startTransaction(target, new ContinueTransactionHandlerFactory<Model>(scopeAndCmd.value1, scopeAndCmd.value2));
 						// Just that one command is to be executed
 						collector.execute(scopeAndCmd.value1);
 						collector.commitTransaction();
@@ -187,15 +189,31 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 
 					// Do the forwarded change without affecting the local changes
 					// The forwarded changes must be, each, of type PendingCommandState
-
-					// Play the inherited local changes forwards without affecting the local changes
+					collector.execute(forwardedNewChanges);
 					
+					// Continuation production should be in reverse order due to being pushed into a stack
+					// This, the execution is in reverse order fitting doing a redo
+					collector.execute(new ExecuteContinuationsFromScopeCommand<Model>(forwardedChangesToRevert.size()));
 
 					// Unplay from innermost part of target to outermost part of target
 					// The outer parts of target could be probably be reduced to commands which affect inner parts, such as the scale command
 					// Play the local changes forward
 					
-					
+					// Unplay from innermost part of target to outermost part of target
+					// The outer parts of target could be probably be reduced to commands which affect inner parts, such as the scale command
+					for(int i = modelsFromInnerToOuter.size() - 1; i >= 0; i--) {
+						Model currentTarget = modelsFromInnerToOuter.get(i);
+						int localChangeCount = modelIndexToLocationHistory.get(i);
+						modelIndexToLocationHistory.add(localChangeCount);
+						// Play the local changes forward
+						collector.startTransaction(currentTarget, (Class<? extends TransactionHandler<Model>>)NullTransactionHandler.class);
+						collector.execute(new TriStatePURCommand<Model>(
+							new ReversibleCommandPair<Model>(new ReplayCommand(localChangeCount), new UnplayCommand(localChangeCount)), 
+							new ReversibleCommandPair<Model>(new UnplayCommand(localChangeCount), new ReplayCommand(localChangeCount)), 
+							new ReversibleCommandPair<Model>(new ReplayCommand(localChangeCount), new UnplayCommand(localChangeCount))
+						));
+						collector.commitTransaction();
+					}
 					
 					
 //					PendingCommandFactory.Util.executeSequence(collector, forwardedChangesToRevert, new ExecutionsHandler<Model>() {
