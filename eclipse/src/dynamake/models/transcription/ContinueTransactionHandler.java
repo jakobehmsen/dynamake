@@ -3,7 +3,6 @@ package dynamake.models.transcription;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.PURCommand;
 import dynamake.commands.ReversibleCommand;
-import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.transcription.Collector;
 import dynamake.transcription.TransactionHandler;
@@ -11,18 +10,18 @@ import dynamake.transcription.TransactionHandler;
 /**
  * Each instance collects all executed commands and then outputs these commands into the parent scope.
  */
-public class ContinueTransactionHandler implements TransactionHandler<Model> {
-	private ExecutionScope<Model> parentScope;
-	private ExecutionScope<Model> scope;
-	private PURCommand<Model> command;
+public class ContinueTransactionHandler<T> implements TransactionHandler<T> {
+	private ExecutionScope<T> parentScope;
+	private ExecutionScope<T> scope;
+	private PURCommand<T> command;
 
-	public ContinueTransactionHandler(ExecutionScope<Model> scope, PURCommand<Model> command) {
+	public ContinueTransactionHandler(ExecutionScope<T> scope, PURCommand<T> command) {
 		this.scope = scope;
 		this.command = command;
 	}
 
 	@Override
-	public void startLogFor(TransactionHandler<Model> parentHandler, Model reference) {
+	public void startLogFor(TransactionHandler<T> parentHandler, T reference) {
 //		// Assumes parent handler is available
 		parentScope = parentHandler.getScope();
 //		scope = new ExecutionScope<Model>();
@@ -30,10 +29,10 @@ public class ContinueTransactionHandler implements TransactionHandler<Model> {
 	}
 
 	@Override
-	public void logBeforeFor(Model reference, Object command, PropogationContext propCtx, int propDistance, Collector<Model> collector) { }
+	public void logBeforeFor(T reference, Object command, PropogationContext propCtx, int propDistance, Collector<T> collector) { }
 
 	@Override
-	public void logFor(Model reference, ReversibleCommand<Model> command, PropogationContext propCtx, int propDistance, Collector<Model> collector) {
+	public void logFor(T reference, ReversibleCommand<T> command, PropogationContext propCtx, int propDistance, Collector<T> collector) {
 //		newLog.add((PURCommand<Model>)command);
 		
 		// Assumes only command is executed
@@ -43,7 +42,7 @@ public class ContinueTransactionHandler implements TransactionHandler<Model> {
 	}
 
 	@Override
-	public void commitLogFor(Model reference) {
+	public void commitLogFor(T reference) {
 //		parentScope.produce(newLog);
 //		parentScope.produce(scope);
 		
@@ -51,16 +50,16 @@ public class ContinueTransactionHandler implements TransactionHandler<Model> {
 		// produce the next state of command
 		// produce the new scope
 		
-		PURCommand<Model> commandInNextState = command.inNextState();
+		PURCommand<T> commandInNextState = command.inNextState();
 		parentScope.produce(commandInNextState);
 		parentScope.produce(scope);
 	}
 
 	@Override
-	public void rejectLogFor(Model reference) { }
+	public void rejectLogFor(T reference) { }
 
 	@Override
-	public ExecutionScope<Model> getScope() {
+	public ExecutionScope<T> getScope() {
 		return scope;
 	}
 }
