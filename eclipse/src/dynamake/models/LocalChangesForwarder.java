@@ -179,7 +179,8 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 					// Revert forwarded changes
 					for(Tuple2<ExecutionScope<Model>, PURCommand<Model>> scopeAndCmd: forwardedChangesToRevert) {
 						collector.startTransaction(target, new ContinueTransactionHandlerFactory(scopeAndCmd.value1, scopeAndCmd.value2));
-						collector.execute(forwardedChangesToRevert);
+						// Just that one command is to be executed
+						collector.execute(scopeAndCmd.value1);
 						collector.commitTransaction();
 					}
 					// At this point, the stack should look as follows: many scope and command pairs in sequence
