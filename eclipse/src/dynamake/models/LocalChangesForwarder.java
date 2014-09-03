@@ -278,6 +278,7 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 				for(CommandState<Model> localChangeBackwards: currentModel.getLocalChangesBackwards()) {
 					// TODO: Somehow, offset localChangeBackwards
 					// Surround with offset transaction handler?
+					// Offsetting shouldn't be necessary since commands are to be executed around the source
 //					newLocalChangesToRevert.add(localChangeBackwards.offset(currentLocation));
 				}
 				
