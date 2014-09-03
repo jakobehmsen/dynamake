@@ -18,6 +18,8 @@ import java.util.Stack;
 
 import javax.swing.JComponent;
 
+import com.sun.media.sound.ModelPatch;
+
 import dynamake.commands.AddObserverCommandFromScope;
 import dynamake.commands.CommandSequence;
 import dynamake.commands.CommandState;
@@ -446,6 +448,20 @@ public abstract class Model implements Serializable, Observer {
 //				backwards.add(undoPart.revertible);
 //			}
 //		}
+		
+		Collections.reverse(backwards);
+		
+		return backwards;
+	}
+
+	public List<Tuple2<PURCommand<Model>, ExecutionScope<Model>>> getLocalChangesBackwards2() {
+		ArrayList<Tuple2<PURCommand<Model>, ExecutionScope<Model>>> backwards = new ArrayList<Tuple2<PURCommand<Model>, ExecutionScope<Model>>>();
+
+		// TODO: METHOD DEACTIVETED! MUST BE REIMPLEMENTED!
+		for(HistoryPart undoable: undoStack) {
+			for(Tuple2<PURCommand<Model>, ExecutionScope<Model>> scopeAndCmd: undoable.purCommands)
+				backwards.add(scopeAndCmd);
+		}
 		
 		Collections.reverse(backwards);
 		
