@@ -275,11 +275,13 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			Model currentModel = innerMostTarget;
 			
 			while(true) {
-				for(CommandState<Model> localChangeBackwards: currentModel.getLocalChangesBackwards()) {
+				for(Tuple2<PURCommand<Model>, ExecutionScope<Model>> localChangeBackwards: currentModel.getLocalChangesBackwards2()) {
 					// TODO: Somehow, offset localChangeBackwards
 					// Surround with offset transaction handler?
 					// Offsetting shouldn't be necessary since commands are to be executed around the source
 //					newLocalChangesToRevert.add(localChangeBackwards.offset(currentLocation));
+					
+					newLocalChangesToRevert.add(new Tuple2<ExecutionScope<Model>, PURCommand<Model>>(localChangeBackwards.value2, localChangeBackwards.value1));
 				}
 				
 				if(currentModel != this.target) {
