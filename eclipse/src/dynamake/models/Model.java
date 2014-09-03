@@ -18,8 +18,6 @@ import java.util.Stack;
 
 import javax.swing.JComponent;
 
-import com.sun.media.sound.ModelPatch;
-
 import dynamake.commands.AddObserverCommandFromScope;
 import dynamake.commands.CommandSequence;
 import dynamake.commands.CommandState;

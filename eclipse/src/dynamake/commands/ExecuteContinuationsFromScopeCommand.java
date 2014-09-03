@@ -1,13 +1,9 @@
 package dynamake.commands;
 
-import java.util.ArrayList;
-
 import dynamake.models.Location;
-import dynamake.models.Model;
 import dynamake.models.PropogationContext;
 import dynamake.models.transcription.ContinueTransactionHandlerFactory;
 import dynamake.transcription.Collector;
-import dynamake.tuples.Tuple2;
 
 public class ExecuteContinuationsFromScopeCommand<T> implements Command<T> {
 	/**
