@@ -2,7 +2,6 @@ package dynamake.models.transcription;
 
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.PURCommand;
-import dynamake.models.Model;
 import dynamake.transcription.TransactionHandler;
 import dynamake.transcription.TransactionHandlerFactory;
 
@@ -22,6 +21,6 @@ public class ContinueTransactionHandlerFactory<T> implements TransactionHandlerF
 
 	@Override
 	public TransactionHandler<T> createTransactionHandler(T reference) {
-		return new ContinueTransactionHandler(scope, command);
+		return new ContinueTransactionHandler<T>(scope, command);
 	}
 }
