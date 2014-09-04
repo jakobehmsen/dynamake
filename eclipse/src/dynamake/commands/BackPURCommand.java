@@ -51,6 +51,11 @@ public class BackPURCommand<T> implements PURCommand<T> {
 	}
 
 	@Override
+	public BaseValue<T> forUpwarding() {
+		return new BackPURCommand<T>((ReversibleCommand<T>)reversibleCommand.forUpwarding());
+	}
+
+	@Override
 	public BaseValue<T> mapToReferenceLocation(T source, T target) {
 		return new BackPURCommand<T>((ReversibleCommand<T>)reversibleCommand.mapToReferenceLocation(source, target));
 	}

@@ -51,6 +51,11 @@ public class ForthPURCommand<T> implements PURCommand<T> {
 	}
 
 	@Override
+	public ReversibleCommand<T> forUpwarding() {
+		return new ForthPURCommand<T>((ReversibleCommand<T>) reversibleCommand.forUpwarding());
+	}
+
+	@Override
 	public ReversibleCommand<T> mapToReferenceLocation(T source, T target) {
 		return new ForthPURCommand<T>((ReversibleCommand<T>) reversibleCommand.mapToReferenceLocation(source, target));
 	}

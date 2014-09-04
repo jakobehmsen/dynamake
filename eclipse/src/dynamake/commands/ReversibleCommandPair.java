@@ -30,11 +30,19 @@ public class ReversibleCommandPair<T> implements ReversibleCommand<T> {
 
 	@Override
 	public BaseValue<T> forForwarding() {
+		// TODO: call forForwarding on forth and back
+		return this;
+	}
+
+	@Override
+	public BaseValue<T> forUpwarding() {
+		// TODO: call forUpwarding on forth and back
 		return this;
 	}
 
 	@Override
 	public BaseValue<T> mapToReferenceLocation(T source, T target) {
+		// TODO: call mapToReferenceLocation on forth and back
 		return this;
 	}
 

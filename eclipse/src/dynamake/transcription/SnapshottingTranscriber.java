@@ -337,7 +337,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		public Instruction forForwarding() {
 			return new Instruction(type, BaseValue.Util.forForwarding(operand1), BaseValue.Util.forForwarding(operand2));
 		}
-		
+
+		public Instruction forUpwarding() {
+			return new Instruction(type, BaseValue.Util.forUpwarding(operand1), BaseValue.Util.forUpwarding(operand2));
+		}
 
 		public <T> Instruction mapToReferenceLocation(T source, T target) {
 			return new Instruction(type, BaseValue.Util.mapToReferenceLocation(operand1, source, target), BaseValue.Util.mapToReferenceLocation(operand2, source, target));
@@ -455,6 +458,11 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			@Override
 			public BaseValue<T> forForwarding() {
 				return new ReversibleInstructionPair<T>(instruction.forForwarding(), BaseValue.Util.forForwarding(operand1));
+			}
+
+			@Override
+			public BaseValue<T> forUpwarding() {
+				return new ReversibleInstructionPair<T>(instruction.forUpwarding(), BaseValue.Util.forUpwarding(operand1));
 			}
 
 			@Override

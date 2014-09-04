@@ -45,6 +45,16 @@ public class CommandSequence<T> implements ReversibleCommand<T> {
 	}
 
 	@Override
+	public ReversibleCommand<T> forUpwarding() {
+		ArrayList<Object> commandsForForwarding = new ArrayList<Object>();
+
+		for(Object command: commands)
+			commandsForForwarding.add(BaseValue.Util.forUpwarding(command));
+		
+		return new CommandSequence<T>(commandsForForwarding);
+	}
+
+	@Override
 	public ReversibleCommand<T> mapToReferenceLocation(T source, T target) {
 		ArrayList<Object> mappedCommands = new ArrayList<Object>();
 		

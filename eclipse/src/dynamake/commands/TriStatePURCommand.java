@@ -113,6 +113,14 @@ public class TriStatePURCommand<T> implements PURCommand<T> {
 	}
 
 	@Override
+	public BaseValue<T> forUpwarding() {
+		return new TriStatePURCommand<T>(STATE_PENDING, 
+			(ReversibleCommand<T>)pending.forUpwarding(), 
+			(ReversibleCommand<T>)undo.forUpwarding(), 
+			(ReversibleCommand<T>)redo.forUpwarding());
+	}
+
+	@Override
 	public BaseValue<T> mapToReferenceLocation(T source, T target) {
 		return new TriStatePURCommand<T>(STATE_PENDING, 
 			(ReversibleCommand<T>)pending.mapToReferenceLocation(source, target), 
