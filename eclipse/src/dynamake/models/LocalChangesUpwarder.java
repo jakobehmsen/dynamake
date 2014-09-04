@@ -3,11 +3,9 @@ package dynamake.models;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import dynamake.commands.CommandState;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.PURCommand;
-import dynamake.commands.RedoCommand;
-import dynamake.commands.UndoCommand;
+import dynamake.commands.ReversibleCommand;
 import dynamake.models.LocalChangesForwarder.PushLocalChanges;
 import dynamake.transcription.Collector;
 import dynamake.tuples.Tuple2;
@@ -42,26 +40,30 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 		// TODO: Consider:
 		// What about the changes made to the embedded models? This changes should somehow be maintained and using during unplay/replay in forwarder
 		if(change instanceof Model.HistoryAppendLogChange) {
-			@SuppressWarnings("unused")
 			Model.HistoryAppendLogChange historyAppendLogChange = (Model.HistoryAppendLogChange)change;
 			Model source = (Model)sourceLocation.getChild(sender);
 			
 			// Forward the logged change in source
-			Object firstCommandOutput = null; //historyAppendLogChange.pendingUndoablePairs.get(0).undoable.getOutput();
+//			Object firstCommandOutput = null; //historyAppendLogChange.pendingUndoablePairs.get(0).undoable.getOutput();
 			
-			ArrayList<CommandState<Model>> newChanges = new ArrayList<CommandState<Model>>();
+			ArrayList<PURCommand<Model>> newChanges = new ArrayList<PURCommand<Model>>();
 			
-			if(firstCommandOutput instanceof UndoCommand.Output) {
-				newChanges.add(((UndoCommand.Output)firstCommandOutput).command);
-			} else if(firstCommandOutput instanceof RedoCommand.Output) {
-				newChanges.add(((RedoCommand.Output)firstCommandOutput).command);
-			} else {
-//				for(Execution<Model> pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs)
-//					newChanges.add(pendingUndoablePair);
+			for(ReversibleCommand<Model> rc: historyAppendLogChange.pendingUndoablePairs) {
+				// Is this typecast safe?
+				newChanges.add((PURCommand<Model>)rc);
 			}
 			
+//			if(firstCommandOutput instanceof UndoCommand.Output) {
+////				newChanges.add(((UndoCommand.Output)firstCommandOutput).command);
+//			} else if(firstCommandOutput instanceof RedoCommand.Output) {
+////				newChanges.add(((RedoCommand.Output)firstCommandOutput).command);
+//			} else {
+////				for(Execution<Model> pendingUndoablePair: historyAppendLogChange.pendingUndoablePairs)
+////					newChanges.add(pendingUndoablePair);
+//			}
+			
 			ArrayList<PURCommand<Model>> offsetNewChanges = new ArrayList<PURCommand<Model>>();
-			for(CommandState<Model> pup: newChanges) {
+			for(PURCommand<Model> pup: newChanges) {
 				// Be sensitive to undo/redo commands here; they should be handled differently
 				// Somehow, it is the undone/redone command that should be offset instead
 				
