@@ -143,6 +143,13 @@ public class LocalChangesForwarder extends ObserverAdapter implements Serializab
 			for(Tuple2<ExecutionScope<Model>, PURCommand<Model>> newChange: pushLocalChanges.localChangesToRevert) {
 				// TODO: Add forwarded scope and forwarded command
 //				forwardedChangesToRevert.add((PURCommand<Model>) newChange.forForwarding());
+				
+				PURCommand<Model> forwardedCommand = (PURCommand<Model>) newChange.value2.forForwarding();
+				
+				if(forwardedCommand != null) {
+					ExecutionScope<Model> forwardedScope = newChange.value1.forForwarding();
+					forwardedChangesToRevert.add(new Tuple2<ExecutionScope<Model>, PURCommand<Model>>(forwardedScope, forwardedCommand));
+				}
 			}
 
 			collector.startTransaction(innerMostTarget, NullTransactionHandler.class);

@@ -6,6 +6,7 @@ import java.util.Hashtable;
 
 import dynamake.models.CompositeLocation;
 import dynamake.models.Location;
+import dynamake.models.Model;
 import dynamake.models.ModelRootLocation;
 
 public class ExecutionScope<T> implements Serializable {
@@ -65,5 +66,10 @@ public class ExecutionScope<T> implements Serializable {
 
 	public void restore(String name, Object value) {
 		locals.put(name, value);
+	}
+
+	public ExecutionScope<Model> forForwarding() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
