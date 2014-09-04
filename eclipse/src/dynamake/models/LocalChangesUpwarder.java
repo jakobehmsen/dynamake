@@ -69,6 +69,10 @@ public class LocalChangesUpwarder extends ObserverAdapter implements Serializabl
 				
 				// TODO: Set up the command for upwarding
 //				offsetNewChanges.add(pup.forUpwarding());
+				
+				PURCommand<Model> forwardedCommand = (PURCommand<Model>) pup.forUpwarding();
+				if(forwardedCommand != null)
+					offsetNewChanges.add(forwardedCommand);
 			}
 			
 			source.sendChanged(new PushLocalChanges(offsetFromSource, new ArrayList<Tuple2<ExecutionScope<Model>, PURCommand<Model>>>(), offsetNewChanges), propCtx, propDistance, changeDistance, collector);			
