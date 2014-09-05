@@ -20,9 +20,9 @@ public interface BaseValue<T> {
 		}
 
 		@SuppressWarnings("unchecked")
-		public static <T> T mapToReferenceLocation(T obj, T source, T target) {
+		public static <T, R> T mapToReferenceLocation(T obj, R source, R target) {
 			if(obj instanceof BaseValue)
-				return (T)((BaseValue<T>)obj).mapToReferenceLocation(source, target);
+				return (T)((BaseValue<R>)obj).mapToReferenceLocation(source, target);
 			return obj;
 		}
 	}
