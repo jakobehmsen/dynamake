@@ -75,10 +75,10 @@ public class PenTool implements Tool {
 						collector.createProduceCommand(factory),
 						new ReversibleCommandPair<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null))
 					)),
-					new CommandSequence<Model>(Arrays.asList(
+					new CommandSequence<Model>(
 						new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
 						new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
-					)),
+					),
 					new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null))
 				));
 			}

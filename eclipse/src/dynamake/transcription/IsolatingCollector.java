@@ -1,6 +1,7 @@
 package dynamake.transcription;
 
 import dynamake.commands.Command;
+import dynamake.commands.ReversibleCommand;
 import dynamake.commands.ReversibleCommandPair;
 
 public class IsolatingCollector<T> implements Collector<T> {
@@ -16,37 +17,37 @@ public class IsolatingCollector<T> implements Collector<T> {
 	}
 	
 	@Override
-	public Object createProduceCommand(Object value) {
+	public ReversibleCommand<T> createProduceCommand(Object value) {
 		// Do nothing which means side effects aren't collected
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 	
 	@Override
-	public Object createConsumeCommand() {
+	public ReversibleCommand<T> createConsumeCommand() {
 		// Do nothing which means side effects aren't collected
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 	
 	@Override
-	public Object createStoreCommand(String name) {
+	public ReversibleCommand<T> createStoreCommand(String name) {
 		// Do nothing which means side effects aren't collected
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 	
 	@Override
-	public Object createLoadCommand(String name) {
+	public ReversibleCommand<T> createLoadCommand(String name) {
 		// Do nothing which means side effects aren't collected
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 	
 	@Override
-	public Object createPushOffset() {
+	public ReversibleCommand<T> createPushOffset() {
 		// Do nothing which means side effects aren't collected
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 	
 	@Override
-	public Object createPopOffset() {
+	public ReversibleCommand<T> createPopOffset() {
 		// Do nothing which means side effects aren't collected
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}

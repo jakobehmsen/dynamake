@@ -867,10 +867,10 @@ public abstract class Model implements Serializable, Observer {
 									collector.createProduceCommand(new CloneFactory(new RectangleF(creationBounds), droppedLocation)),
 									new ReversibleCommandPair<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null))
 								)),
-								new CommandSequence<Model>(Arrays.asList(
+								new CommandSequence<Model>(
 									new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
 									new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
-								)),
+								),
 								new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null))
 							));
 							collector.commitTransaction();
@@ -908,10 +908,10 @@ public abstract class Model implements Serializable, Observer {
 									collector.createProduceCommand(factory),
 									new ReversibleCommandPair<Model>(new CanvasModel.AddModelCommand(null), new CanvasModel.RemoveModelCommand(null))
 								)),
-								new CommandSequence<Model>(Arrays.asList(
+								new CommandSequence<Model>(
 									new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
 									new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
-								)),
+								),
 								new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null))
 							));
 							collector.commitTransaction();

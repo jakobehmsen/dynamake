@@ -13,14 +13,14 @@ public class CommandSequence<T> implements ReversibleCommand<T> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private List<Object> commands;
+	private List<ReversibleCommand<T>> commands;
 
-	public CommandSequence(List<Object> commands) {
+	public CommandSequence(List<ReversibleCommand<T>> commands) {
 		this.commands = commands;
 	}
 
 	@SafeVarargs
-	public CommandSequence(Object... commands) {
+	public CommandSequence(ReversibleCommand<T>... commands) {
 		this.commands = Arrays.asList(commands);
 	}
 
@@ -36,19 +36,20 @@ public class CommandSequence<T> implements ReversibleCommand<T> {
 
 	@Override
 	public ReversibleCommand<T> forForwarding() {
-		ArrayList<Object> commandsForForwarding = new ArrayList<Object>();
+		ArrayList<ReversibleCommand<T>> commandsForForwarding = new ArrayList<ReversibleCommand<T>>();
 
-		for(Object command: commands)
+		for(ReversibleCommand<T> command: commands) {
 			commandsForForwarding.add(BaseValue.Util.forForwarding(command));
+		}
 		
 		return new CommandSequence<T>(commandsForForwarding);
 	}
 
 	@Override
 	public ReversibleCommand<T> forUpwarding() {
-		ArrayList<Object> commandsForForwarding = new ArrayList<Object>();
+		ArrayList<ReversibleCommand<T>> commandsForForwarding = new ArrayList<ReversibleCommand<T>>();
 
-		for(Object command: commands)
+		for(ReversibleCommand<T> command: commands)
 			commandsForForwarding.add(BaseValue.Util.forUpwarding(command));
 		
 		return new CommandSequence<T>(commandsForForwarding);
@@ -56,9 +57,9 @@ public class CommandSequence<T> implements ReversibleCommand<T> {
 
 	@Override
 	public ReversibleCommand<T> mapToReferenceLocation(T source, T target) {
-		ArrayList<Object> mappedCommands = new ArrayList<Object>();
+		ArrayList<ReversibleCommand<T>> mappedCommands = new ArrayList<ReversibleCommand<T>>();
 		
-		for(Object command: commands)
+		for(ReversibleCommand<T> command: commands)
 			mappedCommands.add(BaseValue.Util.mapToReferenceLocation(command, source, target));
 		
 		return new CommandSequence<T>(mappedCommands);

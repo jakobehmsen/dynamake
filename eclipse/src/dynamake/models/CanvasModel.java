@@ -955,10 +955,10 @@ public class CanvasModel extends Model {
 				new ReversibleCommandPair<Model>(new UnwrapCommandFromScope(), new RewrapCommandFromScope())
 			)),
 			new ReversibleCommandPair<Model>(new RewrapCommandFromScope(), new UnwrapCommandFromScope()),
-			new CommandSequence<Model>(Arrays.asList(
+			new CommandSequence<Model>(
 				// Some sort of destroy command of a wrapping canvas?
 				new ReversibleCommandPair<Model>(new UnwrapCommandFromScope(), new RewrapCommandFromScope())
-			))
+			)
 		));
 	}
 	
@@ -996,10 +996,10 @@ public class CanvasModel extends Model {
 				new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
 			)),
 			new ReversibleCommandPair<Model>(new CanvasModel.RestoreModelCommand(null, null), new CanvasModel.RemoveModelCommand(null)),
-			new CommandSequence<Model>(Arrays.asList(
+			new CommandSequence<Model>(
 				new ReversibleCommandPair<Model>(new CanvasModel.DestroyModelCommand(null), /*RegenerateCommand?*/ null),
 				new ReversibleCommandPair<Model>(new CanvasModel.RemoveModelCommand(null), new CanvasModel.RestoreModelCommand(null, null))
-			))
+			)
 		));
 	}
 	

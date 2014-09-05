@@ -3,6 +3,7 @@ package dynamake.commands;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
+import dynamake.models.factories.CreationBoundsFactory;
 import dynamake.transcription.Collector;
 
 public class SetPropertyCommandFromScope implements Command<Model> {
@@ -28,15 +29,28 @@ public class SetPropertyCommandFromScope implements Command<Model> {
 		return null;
 	}
 
-	public static TriStatePURCommand<Model> createPURCommand(Collector<Model> collector, String name, Object value) {
-		return new TriStatePURCommand<Model>(
-			new CommandSequence<Model>(
+	public static PURCommand<Model> createPURCommand(Collector<Model> collector, String name, Object value) {
+//		return new TriStatePURCommand<Model>(
+//			new CommandSequence<Model>(
+//				collector.createProduceCommand(name),
+//				collector.createProduceCommand(value),
+//				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
+//			), 
+//			new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()), // Outputs name of changed property and the previous value
+//			new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
+//		);
+		
+		return new ForthPURCommand<Model>(createReversibleCommand(collector, name, value));
+	}
+
+	public static ReversibleCommand<Model> createReversibleCommand(Collector<Model> collector, String name, Object value) {
+		return new ReversibleCommandPair<Model>(
+			new ForthCommand<Model>(new CommandSequence<Model>(
 				collector.createProduceCommand(name),
 				collector.createProduceCommand(value),
-				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
-			), 
-			new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()), // Outputs name of changed property and the previous value
-			new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope()) // Outputs name of changed property and the previous value
+				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
+			)), 
+			new SetPropertyCommandFromScope()
 		);
 	}
 }

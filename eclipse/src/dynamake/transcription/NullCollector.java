@@ -1,6 +1,7 @@
 package dynamake.transcription;
 
 import dynamake.commands.Command;
+import dynamake.commands.ReversibleCommand;
 import dynamake.commands.ReversibleCommandPair;
 
 public class NullCollector<T> implements Collector<T> {
@@ -8,32 +9,32 @@ public class NullCollector<T> implements Collector<T> {
 	public void startTransaction(T reference, Object transactionHandlerClass) { }
 	
 	@Override
-	public Object createProduceCommand(Object value) {
+	public ReversibleCommand<T> createProduceCommand(Object value) {
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 	
 	@Override
-	public Object createConsumeCommand() {
+	public ReversibleCommand<T> createConsumeCommand() {
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 	
 	@Override
-	public Object createStoreCommand(String name) {
+	public ReversibleCommand<T> createStoreCommand(String name) {
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 	
 	@Override
-	public Object createLoadCommand(String name) {
+	public ReversibleCommand<T> createLoadCommand(String name) {
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 	
 	@Override
-	public Object createPushOffset() {
+	public ReversibleCommand<T> createPushOffset() {
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 	
 	@Override
-	public Object createPopOffset() {
+	public ReversibleCommand<T> createPopOffset() {
 		return new ReversibleCommandPair<T>(new Command.Null<T>(), new Command.Null<T>());
 	}
 	

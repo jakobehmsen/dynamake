@@ -295,7 +295,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		return prevalentSystem;
 	}
 	
-	private static class Instruction implements Serializable {
+	private static class Instruction<T> implements Serializable, ReversibleCommand<T> {
 		/**
 		 * 
 		 */
@@ -334,16 +334,53 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			this.operand2 = operand2;
 		}
 
-		public Instruction forForwarding() {
-			return new Instruction(type, BaseValue.Util.forForwarding(operand1), BaseValue.Util.forForwarding(operand2));
+		public Instruction<T> forForwarding() {
+			return new Instruction<T>(type, BaseValue.Util.forForwarding(operand1), BaseValue.Util.forForwarding(operand2));
 		}
 
-		public Instruction forUpwarding() {
-			return new Instruction(type, BaseValue.Util.forUpwarding(operand1), BaseValue.Util.forUpwarding(operand2));
+		public Instruction<T> forUpwarding() {
+			return new Instruction<T>(type, BaseValue.Util.forUpwarding(operand1), BaseValue.Util.forUpwarding(operand2));
 		}
 
-		public <T> Instruction mapToReferenceLocation(T source, T target) {
-			return new Instruction(type, BaseValue.Util.mapToReferenceLocation(operand1, source, target), BaseValue.Util.mapToReferenceLocation(operand2, source, target));
+		public Instruction<T> mapToReferenceLocation(T source, T target) {
+			return new Instruction<T>(type, BaseValue.Util.mapToReferenceLocation(operand1, source, target), BaseValue.Util.mapToReferenceLocation(operand2, source, target));
+		}
+
+		@Override
+		public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
+			switch(type) {
+			case Instruction.OPCODE_PRODUCE:
+				Object valueToProduce = operand1;
+				scope.produce(valueToProduce);
+				break;
+			case Instruction.OPCODE_CONSUME:
+				scope.consume();
+				break;
+			case Instruction.OPCODE_PUSH_OFFSET:
+				@SuppressWarnings("unchecked")
+				Location<T> offset = (Location<T>)scope.consume();
+				scope.pushOffset(offset);
+				break;
+			case Instruction.OPCODE_POP_OFFSET:
+				scope.popOffset();
+				break;
+			case Instruction.OPCODE_STORE: {
+				String name = (String)operand1;
+				scope.store(name);
+				break;
+			} case Instruction.OPCODE_LOAD: {
+				String name = (String)operand1;
+				scope.load(name);
+				break;
+			}
+			}
+			
+			// NO REVERSION IS SUPPORTED HERE!!!
+		}
+
+		@Override
+		public void executeBackward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
+			// NO REVERSION IS SUPPORTED HERE!!!
 		}
 	}
 	
@@ -383,46 +420,48 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 			 * 
 			 */
 			private static final long serialVersionUID = 1L;
-			private final Instruction instruction;
+			private final Instruction<T> instruction;
 			private final Object operand1;
 
-			public ReversibleInstructionPair(Instruction instruction) {
+			public ReversibleInstructionPair(Instruction<T> instruction) {
 				this(instruction, null);
 			}
 
-			public ReversibleInstructionPair(Instruction instruction, Object operand1) {
+			public ReversibleInstructionPair(Instruction<T> instruction, Object operand1) {
 				this.instruction = instruction;
 				this.operand1 = operand1;
 			}
 
 			@Override
 			public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
-				switch(instruction.type) {
-				case Instruction.OPCODE_PRODUCE:
-					Object valueToProduce = instruction.operand1;
-					scope.produce(valueToProduce);
-					break;
-				case Instruction.OPCODE_CONSUME:
-					scope.consume();
-					break;
-				case Instruction.OPCODE_PUSH_OFFSET:
-					@SuppressWarnings("unchecked")
-					Location<T> offset = (Location<T>)scope.consume();
-					scope.pushOffset(offset);
-					break;
-				case Instruction.OPCODE_POP_OFFSET:
-					scope.popOffset();
-					break;
-				case Instruction.OPCODE_STORE: {
-					String name = (String)instruction.operand1;
-					scope.store(name);
-					break;
-				} case Instruction.OPCODE_LOAD: {
-					String name = (String)instruction.operand1;
-					scope.load(name);
-					break;
-				}
-				}
+//				switch(instruction.type) {
+//				case Instruction.OPCODE_PRODUCE:
+//					Object valueToProduce = instruction.operand1;
+//					scope.produce(valueToProduce);
+//					break;
+//				case Instruction.OPCODE_CONSUME:
+//					scope.consume();
+//					break;
+//				case Instruction.OPCODE_PUSH_OFFSET:
+//					@SuppressWarnings("unchecked")
+//					Location<T> offset = (Location<T>)scope.consume();
+//					scope.pushOffset(offset);
+//					break;
+//				case Instruction.OPCODE_POP_OFFSET:
+//					scope.popOffset();
+//					break;
+//				case Instruction.OPCODE_STORE: {
+//					String name = (String)instruction.operand1;
+//					scope.store(name);
+//					break;
+//				} case Instruction.OPCODE_LOAD: {
+//					String name = (String)instruction.operand1;
+//					scope.load(name);
+//					break;
+//				}
+//				}
+				
+				instruction.executeForward(propCtx, prevalentSystem, collector, location, scope);
 			}
 
 			@Override
@@ -496,37 +535,37 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									transactionHandlerFactory = new ReflectedTransactionHandlerFactory<T>((Class<? extends TransactionHandler<T>>)transactionHandlerClass);
 								else
 									transactionHandlerFactory = (TransactionHandlerFactory<T>)transactionHandlerClass;
-								collectedCommands.add(new Instruction(Instruction.OPCODE_START, reference, transactionHandlerFactory));
+								collectedCommands.add(new Instruction<T>(Instruction.OPCODE_START, reference, transactionHandlerFactory));
 							}
 							
 							@Override
-							public Object createProduceCommand(Object value) {
-								return new Instruction(Instruction.OPCODE_PRODUCE, value);
+							public ReversibleCommand<T> createProduceCommand(Object value) {
+								return new Instruction<T>(Instruction.OPCODE_PRODUCE, value);
 							}
 							
 							@Override
-							public Object createConsumeCommand() {
-								return new Instruction(Instruction.OPCODE_CONSUME);
+							public ReversibleCommand<T> createConsumeCommand() {
+								return new Instruction<T>(Instruction.OPCODE_CONSUME);
 							}
 							
 							@Override
-							public Object createStoreCommand(String name) {
-								return new Instruction(Instruction.OPCODE_STORE, name);
+							public ReversibleCommand<T> createStoreCommand(String name) {
+								return new Instruction<T>(Instruction.OPCODE_STORE, name);
 							}
 							
 							@Override
-							public Object createLoadCommand(String name) {
-								return new Instruction(Instruction.OPCODE_LOAD, name);
+							public ReversibleCommand<T> createLoadCommand(String name) {
+								return new Instruction<T>(Instruction.OPCODE_LOAD, name);
 							}
 							
 							@Override
-							public Object createPushOffset() {
-								return new Instruction(Instruction.OPCODE_PUSH_OFFSET);
+							public ReversibleCommand<T> createPushOffset() {
+								return new Instruction<T>(Instruction.OPCODE_PUSH_OFFSET);
 							}
 							
 							@Override
-							public Object createPopOffset() {
-								return new Instruction(Instruction.OPCODE_POP_OFFSET);
+							public ReversibleCommand<T> createPopOffset() {
+								return new Instruction<T>(Instruction.OPCODE_POP_OFFSET);
 							}
 							
 							@Override
@@ -538,7 +577,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 									collectedCommands.addAll(reversiblesCommands);
 								} else if(command instanceof PendingCommandFactory) {
 									collectedCommands.add(command);
-									collectedCommands.add(new Instruction(Instruction.OPCODE_SEND_PROPOGATION_FINISHED, command));
+									collectedCommands.add(new Instruction<T>(Instruction.OPCODE_SEND_PROPOGATION_FINISHED, command));
 								} else {
 									collectedCommands.add(command);
 								}
@@ -583,7 +622,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 								break;
 							}
 						} else if(command instanceof Instruction) {
-							Instruction instruction = (Instruction)command;
+							Instruction<T> instruction = (Instruction<T>)command;
 							
 							switch(instruction.type) {
 							case Instruction.OPCODE_START:

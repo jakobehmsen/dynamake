@@ -1,5 +1,7 @@
 package dynamake.transcription;
 
+import dynamake.commands.ReversibleCommand;
+
 /**
  * Instances of implementors provided methods to indicate and manage different kinds of side effects.
  */
@@ -19,12 +21,12 @@ public interface Collector<T> {
 	*/
 	
 	void startTransaction(T reference, Object transactionHandlerClass);
-	Object createProduceCommand(Object value);
-	Object createConsumeCommand();
-	Object createStoreCommand(String name);
-	Object createLoadCommand(String name);
-	Object createPushOffset();
-	Object createPopOffset();
+	ReversibleCommand<T> createProduceCommand(Object value);
+	ReversibleCommand<T> createConsumeCommand();
+	ReversibleCommand<T> createStoreCommand(String name);
+	ReversibleCommand<T> createLoadCommand(String name);
+	ReversibleCommand<T> createPushOffset();
+	ReversibleCommand<T> createPopOffset();
 	void execute(Object command);
 	void commitTransaction();
 	void rejectTransaction();
