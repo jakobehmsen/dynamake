@@ -7,22 +7,22 @@ public interface BaseValue<T> {
 	
 	public static class Util {
 		@SuppressWarnings("unchecked")
-		public static <T> Object forForwarding(T obj) {
+		public static <T> T forForwarding(T obj) {
 			if(obj instanceof BaseValue)
-				return ((BaseValue<T>)obj).forForwarding();
+				return (T)((BaseValue<T>)obj).forForwarding();
 			return obj;
 		}
 		@SuppressWarnings("unchecked")
-		public static <T> Object forUpwarding(T obj) {
+		public static <T> T forUpwarding(T obj) {
 			if(obj instanceof BaseValue)
-				return ((BaseValue<T>)obj).forUpwarding();
+				return (T)((BaseValue<T>)obj).forUpwarding();
 			return obj;
 		}
 
 		@SuppressWarnings("unchecked")
-		public static <T> Object mapToReferenceLocation(Object obj, T source, T target) {
+		public static <T> T mapToReferenceLocation(T obj, T source, T target) {
 			if(obj instanceof BaseValue)
-				return ((BaseValue<T>)obj).mapToReferenceLocation(source, target);
+				return (T)((BaseValue<T>)obj).mapToReferenceLocation(source, target);
 			return obj;
 		}
 	}
