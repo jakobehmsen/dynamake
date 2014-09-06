@@ -44,11 +44,11 @@ public class SetPropertyCommandFromScope implements Command<Model> {
 
 	public static ReversibleCommand<Model> createReversibleCommand(Collector<Model> collector, String name, Object value) {
 		return new ReversibleCommandPair<Model>(
-			new ForthCommand<Model>(new CommandSequence<Model>(
+			new ImmediateCommandSequence<Model>(
 				collector.createProduceCommand(name),
 				collector.createProduceCommand(value),
 				new ReversibleCommandPair<Model>(new SetPropertyCommandFromScope(), new SetPropertyCommandFromScope())
-			)), 
+			), 
 			new SetPropertyCommandFromScope()
 		);
 	}
