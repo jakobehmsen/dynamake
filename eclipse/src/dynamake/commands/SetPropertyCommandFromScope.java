@@ -3,7 +3,6 @@ package dynamake.commands;
 import dynamake.models.Location;
 import dynamake.models.Model;
 import dynamake.models.PropogationContext;
-import dynamake.models.factories.CreationBoundsFactory;
 import dynamake.transcription.Collector;
 
 public class SetPropertyCommandFromScope implements Command<Model> {
