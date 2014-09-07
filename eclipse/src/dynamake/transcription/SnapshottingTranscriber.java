@@ -164,7 +164,10 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	
 	private static <T> void replay(ArrayList<ContextualCommand<T>> transactions, T prevalentSystem) {
 		PropogationContext propCtx = new PropogationContext();
-		
+
+		// Issues occur when primitive commands (produce, consume, ...) are to be created during replay,
+		// because null commands are created.
+		// How to support creating these commands here? If it even safe to support this here?
 		Collector<T> isolatedCollector = new NullCollector<T>();
 		
 		for(ContextualCommand<T> ctxTransaction: transactions)
