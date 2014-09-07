@@ -36,11 +36,6 @@ public class CreationBoundsFactory implements ModelFactory {
 
 				ArrayList<PURCommand<Model>> origins = new ArrayList<PURCommand<Model>>();
 				
-//				origins.add(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-//				origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
-//				origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
-//				origins.add(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));				
-				
 				origins.add(SetPropertyCommandFromScope.createPURCommand(collector, "X", creationBounds.x));
 				origins.add(SetPropertyCommandFromScope.createPURCommand(collector, "Y", creationBounds.y));
 				origins.add(SetPropertyCommandFromScope.createPURCommand(collector, "Width", creationBounds.width));

@@ -84,10 +84,6 @@ public class DeriveFactory implements ModelFactory {
 						new ReversibleCommandPair<Model>(new ForwardLocalChangesCommandFromScope(), new UnforwardLocalChangesCommandFromScope())
 					));
 				}
-//				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("X", creationBounds.x), new SetPropertyCommand.AfterSetProperty()));
-//				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Y", creationBounds.y), new SetPropertyCommand.AfterSetProperty()));
-//				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Width", creationBounds.width), new SetPropertyCommand.AfterSetProperty()));
-//				restorableModelCreation.appendCreation(new PendingCommandState<Model>(new SetPropertyCommand("Height", creationBounds.height), new SetPropertyCommand.AfterSetProperty()));
 				
 				restorableModelCreation.appendCreation(SetPropertyCommandFromScope.createPURCommand(collector, "X", creationBounds.x));
 				restorableModelCreation.appendCreation(SetPropertyCommandFromScope.createPURCommand(collector, "Y", creationBounds.y));
