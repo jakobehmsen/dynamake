@@ -20,11 +20,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dynamake.commands.BaseValue;
+import dynamake.commands.Command;
 import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.CommandState;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.ReversibleCommand;
+import dynamake.commands.ReversibleCommandPair;
 import dynamake.delegates.Func0;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -168,7 +170,17 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		// Issues occur when primitive commands (produce, consume, ...) are to be created during replay,
 		// because null commands are created.
 		// How to support creating these commands here? If it even safe to support this here?
-		Collector<T> isolatedCollector = new NullCollector<T>();
+		Collector<T> isolatedCollector = new NullCollector<T>() {
+			@Override
+			public ReversibleCommand<T> createProduceCommand(Object value) {
+				return new Instruction<T>(Instruction.OPCODE_PRODUCE, value);
+			}
+			
+			@Override
+			public ReversibleCommand<T> createConsumeCommand() {
+				return new Instruction<T>(Instruction.OPCODE_CONSUME);
+			}
+		};
 		
 		for(ContextualCommand<T> ctxTransaction: transactions)
 			replay(null, ctxTransaction, prevalentSystem, propCtx, isolatedCollector);
@@ -298,7 +310,7 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 		return prevalentSystem;
 	}
 	
-	private static class Instruction<T> implements Serializable, ReversibleCommand<T> {
+	public static class Instruction<T> implements Serializable, ReversibleCommand<T> {
 		/**
 		 * 
 		 */
