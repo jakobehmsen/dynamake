@@ -20,13 +20,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import dynamake.commands.BaseValue;
-import dynamake.commands.Command;
 import dynamake.commands.CommandStateWithOutput;
 import dynamake.commands.ContextualCommand;
 import dynamake.commands.CommandState;
 import dynamake.commands.ExecutionScope;
 import dynamake.commands.ReversibleCommand;
-import dynamake.commands.ReversibleCommandPair;
 import dynamake.delegates.Func0;
 import dynamake.models.Location;
 import dynamake.models.Model;
@@ -167,9 +165,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	private static <T> void replay(ArrayList<ContextualCommand<T>> transactions, T prevalentSystem) {
 		PropogationContext propCtx = new PropogationContext();
 
-		// Issues occur when primitive commands (produce, consume, ...) are to be created during replay,
-		// because null commands are created.
-		// How to support creating these commands here? If it even safe to support this here?
 		Collector<T> isolatedCollector = new NullCollector<T>() {
 			@Override
 			public ReversibleCommand<T> createProduceCommand(Object value) {
