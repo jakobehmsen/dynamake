@@ -62,6 +62,7 @@ public class DeriveFactory implements ModelFactory {
 				
 				restorableModelCreation.appendCreation(new TriStatePURCommand<Model>(
 					new CommandSequence<Model>(
+						collector.createProduceCommand(0), // Produce forward count for PushForwardFromCommandFromScope
 						collector.createProduceCommand(locationOfSourceFromTarget),
 						new ReversibleCommandPair<Model>(new PushForwardFromCommandFromScope(), new  Command.Null<Model>())
 					), 
