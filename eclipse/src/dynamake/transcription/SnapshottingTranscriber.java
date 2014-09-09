@@ -134,7 +134,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 	
 	@SuppressWarnings("unchecked")
 	private static <T> void replay(TransactionHandler<T> parentTransactionHandler, ContextualCommand<T> ctxTransaction, T prevalentSystem, PropogationContext propCtx, Collector<T> isolatedCollector) {
-//		Location locationFromReference = new ModelRootLocation();
 		T reference = (T)ctxTransaction.locationFromRootToReference.getChild(prevalentSystem);
 		
 		TransactionHandler<T> transactionHandler = ctxTransaction.transactionHandlerFactory.createTransactionHandler(reference);
@@ -444,33 +443,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 
 			@Override
 			public void executeForward(PropogationContext propCtx, T prevalentSystem, Collector<T> collector, Location<T> location, ExecutionScope<T> scope) {
-//				switch(instruction.type) {
-//				case Instruction.OPCODE_PRODUCE:
-//					Object valueToProduce = instruction.operand1;
-//					scope.produce(valueToProduce);
-//					break;
-//				case Instruction.OPCODE_CONSUME:
-//					scope.consume();
-//					break;
-//				case Instruction.OPCODE_PUSH_OFFSET:
-//					@SuppressWarnings("unchecked")
-//					Location<T> offset = (Location<T>)scope.consume();
-//					scope.pushOffset(offset);
-//					break;
-//				case Instruction.OPCODE_POP_OFFSET:
-//					scope.popOffset();
-//					break;
-//				case Instruction.OPCODE_STORE: {
-//					String name = (String)instruction.operand1;
-//					scope.store(name);
-//					break;
-//				} case Instruction.OPCODE_LOAD: {
-//					String name = (String)instruction.operand1;
-//					scope.load(name);
-//					break;
-//				}
-//				}
-				
 				instruction.executeForward(propCtx, prevalentSystem, collector, location, scope);
 			}
 
@@ -733,8 +705,6 @@ public class SnapshottingTranscriber<T> implements Transcriber<T> {
 
 						} else if(command instanceof ReversibleCommand) {
 							ReversibleCommand<T> rCommand = (ReversibleCommand<T>)command;
-							
-//							Location locationFromReference = new ModelRootLocation();
 							
 							logBeforeExecution(rCommand, propCtx, collector);
 							
