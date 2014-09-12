@@ -88,6 +88,20 @@ public class PlotTool implements Tool {
 						public void run(Collector<Model> collector) {
 							ModelFactory factory = new CreationBoundsFactory(new RectangleF(creationBoundsInSelection), new CanvasModelFactory());
 							
+							/*
+							When forwarding this change, how is the production of the add model command supposed to be forwarded?
+							I.e., the production of an add model is the location of the added model. This production should be forwarded
+							as a production instruction with the forwarded location
+							
+							E.g.:
+							the sequence:
+							[produce(factory), add => l]
+							should, based on the output scope of the sequence be forwarded as something like:
+							[produce(forwarded(l)), addAt => forwarded(l)]
+							
+							Thus, somehow, it should be possible to make a forwarder for a command sequence based on an output scope.
+							*/
+							
 							collector.execute(new TriStatePURCommand<Model>(
 								new CommandSequence<Model>(Arrays.asList(
 									collector.createProduceCommand(factory),
